@@ -154,17 +154,17 @@ class ChangeNowEstimatedAmountResponse {
       _$ChangeNowEstimatedAmountResponseFromJson(json);
 
   @JsonKey(name: "fromCurrency")
-  final String fromCurrency;
+  final String? fromCurrency;
   @JsonKey(name: "fromNetwork")
-  final String fromNetwork;
+  final String? fromNetwork;
   @JsonKey(name: "toCurrency")
-  final String toCurrency;
+  final String? toCurrency;
   @JsonKey(name: "toNetwork")
-  final String toNetwork;
+  final String? toNetwork;
   @JsonKey(name: "flow", unknownEnumValue: ChangeNowFlow.unknown)
-  final ChangeNowFlow flow;
+  final ChangeNowFlow? flow;
   @JsonKey(name: "type", unknownEnumValue: ChangeNowExchangeType.unknown)
-  final ChangeNowExchangeType type;
+  final ChangeNowExchangeType? type;
   @JsonKey(name: "rateId")
   final String? rateId;
   @JsonKey(name: "validUntil")

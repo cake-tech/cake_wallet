@@ -126,6 +126,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.https(apiAuthority, estimatedAmountPath, params.toJson());
     final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
+    if(response.statusCode < 200 || response.statusCode > 299) {
+      throw Exception("status code: ${response.statusCode}\n${response.body}");
+    }
 
     final responseData = ChangeNowEstimatedAmountResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
