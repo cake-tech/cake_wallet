@@ -178,6 +178,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       toCurrency: request.payoutAmount.currency.symbol,
       fromNetwork: _networkFor(request.depositAmount.currency),
       toNetwork: _networkFor(request.payoutAmount.currency),
+      fromAmount: request.depositAmount.cryptoAmount.toString(),
+      toAmount: request.payoutAmount.cryptoAmount.toString(),
       address: request.payoutAddress,
       refundAddress: request.refundAddress,
       flow: request.isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
@@ -195,7 +197,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      throw Exception(ChangeNowErrorResponse.fromJson(responseJSON));
+      throw Exception(ChangeNowErrorResponse.fromJson(responseJSON).message);
     }
 
     if (response.statusCode != 200) {
