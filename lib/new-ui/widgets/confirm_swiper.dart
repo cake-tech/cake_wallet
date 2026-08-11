@@ -1,12 +1,23 @@
 import 'dart:math';
 
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmSwiper extends StatefulWidget {
   final VoidCallback onConfirmed;
   final String swiperText;
 
-  const ConfirmSwiper({super.key, required this.onConfirmed, required this.swiperText});
+  /// Label of the plain button rendered instead of the swiper when the platform
+  /// reports accessible navigation (VoiceOver / TalkBack), which intercepts the
+  /// horizontal drag the swiper depends on. Falls back to [swiperText].
+  final String? accessibleNavigationModeButtonText;
+
+  const ConfirmSwiper({
+    super.key,
+    required this.onConfirmed,
+    required this.swiperText,
+    this.accessibleNavigationModeButtonText,
+  });
 
   @override
   State<ConfirmSwiper> createState() => _ConfirmSwiperState();
@@ -30,6 +41,15 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).accessibleNavigation) {
+      return NewPrimaryButton(
+        onPressed: widget.onConfirmed,
+        text: widget.accessibleNavigationModeButtonText ?? widget.swiperText,
+        color: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
+      );
+    }
+
     final radius = (pillSize + pillHorizontalPadding * 2) / 2;
 
     return LayoutBuilder(
@@ -41,7 +61,7 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
         final maxDrag = areaWidth - pillSize - pillHorizontalPadding;
         final triggerAt = maxDrag - _triggerThreshold;
 
-        return GestureDetector(
+        final swiper = GestureDetector(
           onHorizontalDragUpdate: (d) {
             setState(() {
               drag = max(pillHorizontalPadding, min(maxDrag, drag + d.delta.dx));
@@ -97,6 +117,17 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
               ],
             ),
           ),
+        );
+
+        // A single accessibility node for the whole control: the flowing label and
+        // the arrow knob are decorative and must not become separate stops. No
+        // semantics action is exposed here; a screen reader gets the button
+        // variant above instead.
+        return Semantics(
+          container: true,
+          excludeSemantics: true,
+          label: widget.swiperText,
+          child: swiper,
         );
       },
     );
