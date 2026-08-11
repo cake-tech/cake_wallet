@@ -170,6 +170,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
+        printV("xoswap rates for $pairId: ${response.statusCode} ${response.body}");
         return [];
       }
       return (json.decode(response.body) as List<dynamic>).map((item)=>XOSwapRate.fromJson(item as Map<String, dynamic>)).toList();
@@ -296,8 +297,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
 
       return Trade(
-        depositAmount: Money.parse(responseData.amount.value, request.depositCurrency),
-        payoutAmount: Money.parse(responseData.toAmount!.value, request.payoutCurrency),
+        depositAmount: Money.safeParse(responseData.amount.value, request.depositCurrency),
+        payoutAmount: Money.safeParse(responseData.toAmount!.value, request.payoutCurrency),
         id: responseData.id,
         provider: description,
         refundAddress: responseData.fromAddress,
@@ -360,8 +361,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       // Special case for BASE defaulting to BASE tag
       if (toAssetBase == "BASE" && toAssetTag == null) {
-        toAssetTag = "ETH";
-        toAssetBase = "BASE";
+        toAssetTag = "BASE";
+        toAssetBase = "ETH";
       }
 
       final fromCurrency =
@@ -374,8 +375,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         provider: description,
         refundAddress: responseData.fromAddress,
 fundingAddress: responseData.payInAddress,
-        depositAmount: Money.parse(responseData.amount.value, fromCurrency!),
-        payoutAmount: Money.parse(responseData.toAmount?.value ?? 0, toCurrency!),
+        depositAmount: Money.safeParse(responseData.amount.value, fromCurrency!),
+        payoutAmount: Money.safeParse(responseData.toAmount?.value ?? 0, toCurrency!),
         state: responseData.status,
         createdAt: responseData.createdAt,
         payoutAddress: responseData.toAddress,

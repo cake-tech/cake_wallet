@@ -86,7 +86,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     }
 
     return ProviderRate(provider: description,
-        rate: ExchangeRate.fromAmounts(from, Money.parse(response.estimatedAmount, to)),
+        rate: ExchangeRate.fromAmounts(from, Money.safeParse(response.estimatedAmount, to)),
         limits: await fetchLimits(
             from: from.currency as CryptoCurrency, to: to, isFixedRateMode: isFixedRate));
   }
@@ -185,8 +185,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       extraId: responseData.deposit.extraId,
       toAddressExtraId: request.toAddressExtraId,
-      depositAmount: Money.parse(responseData.deposit.amount, fromCurrency),
-      payoutAmount: Money.parse(responseData.withdrawal.amount, toCurrency),
+      depositAmount: Money.safeParse(responseData.deposit.amount, fromCurrency),
+      payoutAmount: Money.safeParse(responseData.withdrawal.amount, toCurrency),
     );
   }
 
@@ -223,8 +223,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: responseData.createdAt,
       isRefund: responseData.status == .refunded,
       extraId: responseData.deposit.extraId,
-      depositAmount: Money.parse(responseData.deposit.amount, from!),
-      payoutAmount: Money.parse(responseData.withdrawal.amount, to!),
+      depositAmount: Money.safeParse(responseData.deposit.amount, from!),
+      payoutAmount: Money.safeParse(responseData.withdrawal.amount, to!),
     );
   }
 
@@ -247,7 +247,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("stealthex estimated rate response: ${response.statusCode}");
+      throw Exception(
+        "stealthex estimated rate response: ${response.statusCode} ${response.body}",
+      );
     }
     return StealthExEstimate.fromJson(json.decode(response.body) as Map<String, dynamic>);
   }

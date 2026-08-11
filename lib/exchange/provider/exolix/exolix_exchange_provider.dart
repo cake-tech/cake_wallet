@@ -66,8 +66,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         json.decode(response.body) as Map<String, dynamic>,
       );
       return ExchangeLimits(
-        min: Money.parse(responseData.minAmount, isFixedRateMode ? to : from),
-        max: Money.parse(responseData.maxAmount, isFixedRateMode ? to : from),
+        min: Money.safeParse(responseData.minAmount, isFixedRateMode ? to : from),
+        max: Money.safeParse(responseData.maxAmount, isFixedRateMode ? to : from),
       );
     } else if (response.statusCode == 422) {
       // HACK: exolix provides limits only if we ourselves supply an amount higher than minAmount.
@@ -93,8 +93,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
             json.decode(response.body) as Map<String, dynamic>,
           );
           return ExchangeLimits(
-            min: Money.parse(responseData.minAmount, isFixedRateMode ? to : from),
-            max: Money.parse(responseData.maxAmount, isFixedRateMode ? to : from),
+            min: Money.safeParse(responseData.minAmount, isFixedRateMode ? to : from),
+            max: Money.safeParse(responseData.maxAmount, isFixedRateMode ? to : from),
           );
         }
       }
@@ -126,9 +126,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     if (response.statusCode != 200) {
-      final message = responseJSON["message"] as String?;
+      final message = responseJSON["message"] ?? responseJSON["error"];
 
-      throw Exception(message);
+      throw Exception(message?.toString() ?? response.body);
     }
 
     final responseData = ExolixRateResponse.fromJson(responseJSON);
@@ -136,12 +136,12 @@ class ExolixExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.parse(responseData.fromAmount, from.currency),
-        Money.parse(responseData.toAmount, to),
+        Money.safeParse(responseData.fromAmount, from.currency),
+        Money.safeParse(responseData.toAmount, to),
       ),
       limits: ExchangeLimits(
-        min: Money.parse(responseData.minAmount, from.currency),
-        max: Money.parse(responseData.maxAmount, from.currency),
+        min: Money.safeParse(responseData.minAmount, from.currency),
+        max: Money.safeParse(responseData.maxAmount, from.currency),
       ),
     );
   }
@@ -190,8 +190,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       state: TradeState.created,
       toAddressExtraId: request.toAddressExtraId,
-      depositAmount: Money.parse(responseData.amount, request.depositAmount.currency),
-      payoutAmount: Money.parse(responseData.amountTo, request.payoutAmount.currency),
+      depositAmount: Money.safeParse(responseData.amount, request.depositAmount.currency),
+      payoutAmount: Money.safeParse(responseData.amountTo, request.payoutAmount.currency),
       fundingAddress: responseData.depositAddress,
       payoutAddress: responseData.withdrawalAddress,
       refundAddress: responseData.refundAddress ?? "",
@@ -210,8 +210,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final errors = responseJSON["errors"] as Map<String, String>;
-      final errorMessage = errors.values.join(", ");
+      final errors = responseJSON["errors"] as Map<String, dynamic>?;
+      final errorMessage = errors?.values.join(", ") ?? response.body;
 
       throw TradeNotFoundException(id, provider: description, description: errorMessage);
     }
@@ -246,8 +246,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       extraId: responseData.depositExtraId,
       outputTransaction: responseData.hashOut.hash,
       payoutAddress: responseData.withdrawalAddress,
-      depositAmount: Money.parse(responseData.amount, from!),
-      payoutAmount: Money.parse(responseData.amountTo, to!),
+      depositAmount: Money.safeParse(responseData.amount, from!),
+      payoutAmount: Money.safeParse(responseData.amountTo, to!),
       fundingAddress: responseData.depositAddress,
       refundAddress: responseData.refundAddress ?? "",
     );

@@ -63,8 +63,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final responseData = await _getInfo(params, isFixedRateMode);
 
     return ExchangeLimits(
-      min: Money.parse(responseData.minAmount, from),
-      max: Money.parse(responseData.maxAmount, from),
+      min: Money.safeParse(responseData.minAmount, from),
+      max: Money.safeParse(responseData.maxAmount, from),
     );
   }
 
@@ -88,10 +88,10 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money.parse(responseData.amount, to)),
+      rate: ExchangeRate.fromAmounts(from, Money.safeParse(responseData.amount, to)),
       limits: ExchangeLimits(
-        min: Money.parse(responseData.minAmount, from.currency),
-        max: Money.parse(responseData.maxAmount, from.currency),
+        min: Money.safeParse(responseData.minAmount, from.currency),
+        max: Money.safeParse(responseData.maxAmount, from.currency),
       ),
     );
   }
@@ -112,7 +112,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
 
     final responseInfoJSON = await _getInfo(params, request.isFixedRate);
-    final rateId = responseInfoJSON.rateId!;
+    final rateId = responseInfoJSON.rateId ?? "";
 
     final withdrawalAddress = _normalizeBchAddress(request.payoutAddress);
     final returnAddress = _normalizeBchAddress(request.refundAddress);
@@ -162,8 +162,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       payoutAddress: responseData.withdrawal!,
       fundingAddress: responseData.deposit!,
       refundAddress: request.refundAddress,
-      payoutAmount: Money.parse(responseData.withdrawalAmount, request.payoutAmount.currency),
-      depositAmount: Money.parse(responseData.depositAmount, request.depositAmount.currency),
+      payoutAmount: Money.safeParse(responseData.withdrawalAmount, request.payoutAmount.currency),
+      depositAmount: Money.safeParse(responseData.depositAmount, request.depositAmount.currency),
       state: responseData.status!,
       createdAt: responseData.createdAt,
       expiredAt: responseData.expiredAt,
@@ -221,14 +221,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       state: responseData.status!,
       isRefund: responseData.status == TradeState.refund,
       extraId: responseData.depositExtraId,
-      depositAmount: Money.parse(
+      depositAmount: Money.safeParse(
         responseData.depositAmount,
         CryptoCurrency.safeParseCurrencyFromString(
           responseData.coinFrom,
           tag: _normalizeNetworkType(responseData.coinFromNetwork!),
         )!,
       ),
-      payoutAmount: Money.parse(
+      payoutAmount: Money.safeParse(
         responseData.withdrawalAmount,
         CryptoCurrency.safeParseCurrencyFromString(
           responseData.coinTo,

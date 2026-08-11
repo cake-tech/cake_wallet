@@ -1,6 +1,7 @@
 import "dart:convert";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_api_schema.dart";
@@ -57,13 +58,13 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiAuthority, getCoins);
     final response = await proxyWrapper.get(clearnetUri: uri);
 
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
+    }
+
     final responseJSON = SwapTradeCoinsResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
-    }
 
     final coinsInfo = responseJSON.data;
 
@@ -72,7 +73,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
 
     final normalized = _normalizeCurrency(from);
-    final coin = coinsInfo.firstWhere((c) => (c.id.toUpperCase()) == normalized);
+    final coin = coinsInfo.firstWhereOrNull((c) => (c.id.toUpperCase()) == normalized);
+
+    if (coin == null) {
+      throw Exception("${from.title} unsupported");
+    }
 
     return ExchangeLimits(min: Money.tryParse(coin.min, from), max: Money.tryParse(coin.max, from));
   }
@@ -106,12 +111,17 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       headers: _headers,
     );
 
+    if (response.statusCode != 200) {
+      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
+    }
+
     final responseBody = SwapTradeRateResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
 
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
+    if (responseBody.success == false) {
+      final error = responseBody.errors?.firstOrNull?.msg;
+      throw Exception(error ?? "rejected the quote: ${response.body}");
     }
 
     final rate = responseBody.data?.price;
@@ -123,7 +133,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate(
-          base: from.currency, quote: Money.parse(rate!.toStringAsFixed(to.decimals), to)),
+          base: from.currency, quote: Money.parse(rate.toStringAsFixed(to.decimals), to)),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
         to: to,
@@ -177,7 +187,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
       depositAmount: request.depositAmount.cryptoAmount,
-      payoutAmount: Money.parse(responseData.amountReceive ?? 0, request.payoutCurrency),
+      payoutAmount: Money.safeParse(responseData.amountReceive ?? 0, request.payoutCurrency),
     );
   }
 
@@ -213,11 +223,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       state: responseData.status,
       memo: responseData.memo,
       createdAt: responseData.createdAt,
-      depositAmount: Money.parse(
+      depositAmount: Money.safeParse(
         responseData.amountSend,
         CryptoCurrency.safeParseCurrencyFromString(responseData.coinSend)!,
       ),
-      payoutAmount: Money.parse(
+      payoutAmount: Money.safeParse(
         responseData.amountReceive,
         CryptoCurrency.safeParseCurrencyFromString(responseData.coinReceive)!,
       ),

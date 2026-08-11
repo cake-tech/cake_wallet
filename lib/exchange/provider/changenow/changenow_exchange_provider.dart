@@ -64,14 +64,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception("Only Bridged USDC (USDC.e) is allowed in ChangeNow");
     }
 
-    if (from.title == "USDC" && from.tag == "POLY") {
-      throw Exception("Only Bridged USDC (USDC.e) is allowed in ChangeNow");
-    }
-
     final headers = {apiHeaderKey: apiKey};
     final params = ChangeNowRangeRequest(
-      fromCurrency: from.title,
-      toCurrency: to.title,
+      fromCurrency: _normalizeCurrency(from),
+      toCurrency: _normalizeCurrency(to),
       fromNetwork: _networkFor(from),
       toNetwork: _networkFor(to),
       flow: isFixedRateMode ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
@@ -114,8 +110,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
 
     final params = ChangeNowEstimatedAmountRequest(
-      fromCurrency: from.currency.symbol,
-      toCurrency: to.symbol,
+      fromCurrency: _normalizeCurrency(from.currency as CryptoCurrency),
+      toCurrency: _normalizeCurrency(to),
       fromAmount: isFixedRate ? null : from.toString(),
       toAmount:  isFixedRate ? from.toString() : null,
       fromNetwork: _networkFor(from.currency as CryptoCurrency),
@@ -144,8 +140,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.parse(responseData.fromAmount, from.currency),
-        Money.parse(responseData.toAmount, to),
+        Money.safeParse(responseData.fromAmount, from.currency),
+        Money.safeParse(responseData.toAmount, to),
       ),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
@@ -177,8 +173,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       );
     }
     final params = ChangeNowCreateExchangeRequest(
-      fromCurrency: request.depositAmount.currency.symbol,
-      toCurrency: request.payoutAmount.currency.symbol,
+      fromCurrency: _normalizeCurrency(request.depositAmount.currency),
+      toCurrency: _normalizeCurrency(request.payoutAmount.currency),
       fromNetwork: _networkFor(request.depositAmount.currency),
       toNetwork: _networkFor(request.payoutAmount.currency),
       fromAmount: request.depositAmount.cryptoAmount.toString(),
@@ -278,19 +274,28 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: responseJSON.validUntil,
       outputTransaction: responseJSON.payoutHash,
       payoutAddress: responseJSON.payoutAddress,
-      depositAmount: Money.parse(responseJSON.amountFrom, from),
-      payoutAmount: Money.parse(responseJSON.amountTo, to),
+      depositAmount: Money.safeParse(responseJSON.amountFrom, from),
+      payoutAmount: Money.safeParse(responseJSON.amountTo, to),
       fundingAddress: responseJSON.payinAddress,
       refundAddress: responseJSON.refundAddress ?? "",
     );
   }
 
   String _networkFor(CryptoCurrency currency) =>
-      currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
+      currency.tag != null ? _normalizeTag(currency.tag!) : _normalizeTitleToNetwork(currency.title);
+
+  String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
+    "XNO" => "nano",
+    _ => title.toLowerCase(),
+  };
+
+  String _normalizeCurrency(CryptoCurrency currency) =>
+      currency == CryptoCurrency.maticpoly ? "matic" : currency.title;
 
   String _normalizeTag(String tag) {
     switch (tag) {
       case "POLY":
+      case "POL":
         return "matic";
       case "LN":
         return "lightning";
@@ -304,9 +309,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
-    "POLY" => "MATIC",
-    "AVAXC" => "CCHAIN",
+    "MATIC" => "POL",
+    "CCHAIN" => "AVAXC",
     "ARBITRUM" => "ARB",
+    "NANO" => "XNO",
     _ => network,
   };
 }

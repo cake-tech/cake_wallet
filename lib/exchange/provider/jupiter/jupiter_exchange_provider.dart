@@ -146,7 +146,7 @@ class JupiterExchangeProvider extends ExchangeProvider
     final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
-      throw Exception("status code: ${response.statusCode}");
+      throw Exception("status code: ${response.statusCode}\n${response.body}");
     }
 
     final orderData = JupiterOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
@@ -188,7 +188,7 @@ class JupiterExchangeProvider extends ExchangeProvider
     if (orderResponse.statusCode != 200) {
       throw TradeNotCreatedException(
         description,
-        description: "status code: ${orderResponse.statusCode}",
+        description: "status code: ${orderResponse.statusCode} ${orderResponse.body}",
       );
     }
 

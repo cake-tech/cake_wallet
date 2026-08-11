@@ -384,7 +384,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<Uri> _getUri(String path, Map<String, dynamic> queryParams) async {
     final uri = Uri.https(onionApiAuthority, path, queryParams);
 
-    if (useTorOnly) {
+    if (useTorOnly || onionApiAuthority == clearNetAuthority) {
       return uri;
     }
 

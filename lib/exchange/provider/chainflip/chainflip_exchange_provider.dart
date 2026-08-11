@@ -252,7 +252,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await proxyWrapper.get(clearnetUri: uri);
 
     if(response.statusCode < 200 || response.statusCode > 299) {
-      throw Exception("status code: ${response.statusCode}");
+      throw Exception("status code: ${response.statusCode}\n${response.body}");
     }
 
     final quotes = ChainflipFetchQuotesResponse.fromJson(

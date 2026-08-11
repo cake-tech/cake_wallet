@@ -240,10 +240,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required CryptoCurrency to,
     required bool isFixedRate,
   }) async {
-    if (_notSupportedAsSourceToken.contains(from.currency as CryptoCurrency) ||
-        _notSupportedAsSourceToken.contains(to)) {
+    if (_notSupportedAsSourceToken.contains(from.currency as CryptoCurrency)) {
       throw Exception(
         "fetchRate: source token ${from.currency.symbol} is not supported as source token",
+      );
+    }
+
+    if(_notSupportedAsSourceToken.contains(to)) {
+      throw Exception(
+        "fetchRate: source token ${from.currency.symbol} is not supported as destination token",
       );
     }
 
@@ -284,7 +289,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       srcToken: srcToken,
       dstChainId: dstChain.chainId.toString(),
       dstToken: dstToken,
-      amount: from.toString(),
+      amount: from.amount.toString(),
       swapDirection: .exactAmountIn,
     );
 
@@ -298,7 +303,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final data = SwapsXyzQuote.fromJson(json.decode(response.body) as Map<String, dynamic>);
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate(base: from.currency, quote: Money.parse(data.exchangeRate, to)),
+      rate: ExchangeRate.fromAmounts(
+        Money(data.amountIn.amount, from.currency),
+        Money(data.amountOut.amount, to),
+      ),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
         to: to,
@@ -333,8 +341,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final dstToken = _getTokenAddress(currency: request.payoutCurrency, chain: dstChain);
 
     final amount = request.isFixedRate
-        ? request.depositAmount.cryptoAmount
-        : request.payoutAmount.cryptoAmount;
+        ? request.payoutAmount.cryptoAmount
+        : request.depositAmount.cryptoAmount;
 
     final params = SwapsXyzActionRequest(
       actionType: .swapAction,

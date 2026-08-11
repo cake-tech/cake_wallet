@@ -55,7 +55,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     "XRP": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     "TRX": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
     "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
-    "XLM": "GA3D5O2W7YQZJQ3H4Y5QW6N7V8X9Z0A1B2C3D4E5F6G7H8I9J0",
+    "XLM": "GBN7JCM6IGGDHMUMSNCOXGFJSIMXAOR6J3S53GSCXJ57YMW2DTRCONUH",
     "ADA": "addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v",
     "ZEC": "t1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS",
   };
@@ -168,8 +168,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
 
     final rawAmountStr = request.isFixedRate
-        ? request.depositAmount.cryptoAmount.amount
-        : request.payoutAmount.cryptoAmount.amount;
+        ? request.payoutAmount.cryptoAmount.amount
+        : request.depositAmount.cryptoAmount.amount;
 
     final NearIntentsDepositMode depositMode =
         _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;
@@ -196,8 +196,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       fundingAddress: quote.depositAddress!,
       payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,
-      depositAmount: Money.parse(quote.amountInFormatted, request.depositCurrency),
-      payoutAmount: Money.parse(quote.amountOutFormatted, request.payoutCurrency),
+      depositAmount: Money.safeParse(quote.amountInFormatted, request.depositCurrency),
+      payoutAmount: Money.safeParse(quote.amountOutFormatted, request.payoutCurrency),
       memo: quote.depositMemo,
     );
   }
@@ -244,8 +244,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: data.swapDetails.originChainTxHashes.firstOrNull?.hash,
       extraId: quote.depositMemo,
       isRefund: data.status == .refunded,
-      depositAmount: Money.parse(quote.amountInFormatted, from!),
-      payoutAmount: Money.parse(quote.amountOutFormatted, to!),
+      depositAmount: Money.safeParse(quote.amountInFormatted, from!),
+      payoutAmount: Money.safeParse(quote.amountOutFormatted, to!),
     );
   }
 
@@ -330,7 +330,9 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     );
 
     if (response.statusCode != 201) {
-      throw Exception("Quote request failed with status: ${response.statusCode}");
+      throw Exception(
+        "Quote request failed with status: ${response.statusCode} ${response.body}",
+      );
     }
 
     return NearIntentsQuoteResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
