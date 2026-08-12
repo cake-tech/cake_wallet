@@ -238,8 +238,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     final res = await showCupertinoModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        builder: (context) {
-          return Material(
+        builder: (context) => Material(
             child: AccountCreationModal(
               state: () => widget.accountEditOrCreateViewModel.state,
               onPressed: (label) async {
@@ -252,8 +251,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                 }
               },
             ),
-          );
-        });
+          ));
 
     if (res != null && res is bool && res == true) {
       await accountListViewModel.reload();
@@ -335,8 +333,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   Future<void> showResetDialog() async {
     final res = await showPopUp(
         context: context,
-        builder: (context) {
-          return AlertWithTwoActions(
+        builder: (context) => AlertWithTwoActions(
               alertTitle: S.of(context).reset,
               alertContent: S.of(context).card_order_reset_desc,
               leftButtonText: S.of(context).yes,
@@ -344,8 +341,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
               actionLeftButton: () {
                 Navigator.of(context).pop(true);
               },
-              actionRightButton: Navigator.of(context).pop);
-        });
+              actionRightButton: Navigator.of(context).pop));
     if (res != null && res is bool && res) {
       reset();
     }
@@ -364,7 +360,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             accountBalance: accounts[i].balance ?? "0.00",
             assetName: accountListViewModel.currency.title,
             selected: true,
-            designSwitchDuration: Duration(milliseconds: 200),
+            designSwitchDuration: const Duration(milliseconds: 200),
             width: cardWidth,
             design: i >= widget.dashboardViewModel.cardDesigns.length
                 ? CardDesign.genericDefault

@@ -11,9 +11,6 @@ class WalletInfoBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // One labeled node for a screen reader: the wallet name plus, when present, the
-    // hardware-wallet indicator. No interaction here — account customization moved
-    // to the cards view.
     final semanticsLabel =
     hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
 

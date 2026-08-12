@@ -930,12 +930,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String accountBalancesKey(Object wallet) {
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.accountBalances.entries
-        .map((entry) =>
-            '${entry.key}:${entry.value.confirmed}:${entry.value.unconfirmed}:${entry.value.frozen}')
-        .join('|');
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
   }
 
   @override

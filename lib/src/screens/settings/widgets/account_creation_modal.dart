@@ -10,9 +10,7 @@ import 'package:flutter/services.dart';
 
 class AccountCreationModal extends StatefulWidget {
   const AccountCreationModal({
-    super.key,
-    required this.onPressed,
-    required this.state,
+    required this.onPressed, required this.state, super.key,
   });
 
   final Future<void> Function(String label) onPressed;
@@ -42,8 +40,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
@@ -54,7 +51,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ModalGrabHandle(),
+                const ModalGrabHandle(),
                 ModalTopBar(title: S.of(context).create_account),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -133,5 +130,4 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
             ),
           ),
         ));
-  }
 }

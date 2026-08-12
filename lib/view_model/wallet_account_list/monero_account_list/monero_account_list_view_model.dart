@@ -14,20 +14,12 @@ part 'monero_account_list_view_model.g.dart';
 class MoneroAccountListViewModel = MoneroAccountListViewModelBase with _$MoneroAccountListViewModel;
 
 abstract class MoneroAccountListViewModelBase with Store implements WalletAccountListViewModel {
-  MoneroAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0;
+  MoneroAccountListViewModelBase(this._wallet, this.settingsStore);
 
   final SettingsStore settingsStore;
 
   @override
   AccountListItem? get selectedAccount => selected;
-
-  @observable
-  double scrollOffsetFromTop;
-
-  @action
-  void setScrollOffsetFromTop(double scrollOffsetFromTop) {
-    this.scrollOffsetFromTop = scrollOffsetFromTop;
-  }
 
   CryptoCurrency get currency => _wallet.currency;
 

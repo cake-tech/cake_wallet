@@ -1044,10 +1044,9 @@ Future<void> setup({
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
 
-  getIt.registerFactoryParam<BitcoinAccountEditOrCreateViewModel, AccountListItem?, void>(
-    (AccountListItem? account, _) => BitcoinAccountEditOrCreateViewModel(
+  getIt.registerFactory<BitcoinAccountEditOrCreateViewModel>(
+    () => BitcoinAccountEditOrCreateViewModel(
       wallet: getIt.get<AppStore>().wallet!,
-      accountListItem: account,
     ),
   );
 

@@ -185,7 +185,7 @@ abstract class DashboardViewModelBase with Store {
         ),
       );
     } else {
-      subname = '';
+      subname = "";
       _reloadTransactions();
     }
 

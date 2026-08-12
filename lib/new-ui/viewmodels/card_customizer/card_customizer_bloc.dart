@@ -168,7 +168,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
-  void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
+  Future<void> _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
     await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
             accountIndex: state.accountIndex,
