@@ -1182,6 +1182,7 @@
   "sync_status_syncronizing": "同期中",
   "sync_status_timed_out": "タイムアウト",
   "sync_status_unsupported": "未対応のノード",
+  "sync_synced": "同期済み",
   "sync_syncing": "同期中",
   "sync_timed_out": "同期がタイムアウトしました",
   "sync_unsupported_node": "未対応のノード",

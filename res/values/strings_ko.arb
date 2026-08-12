@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "동기화 중",
   "sync_status_timed_out": "시간 초과",
   "sync_status_unsupported": "지원되지 않는 노드",
+  "sync_synced": "동기화됨",
   "sync_syncing": "동기화 중",
   "sync_timed_out": "동기화 시간이 초과되었습니다",
   "sync_unsupported_node": "지원되지 않는 노드",

@@ -8,6 +8,7 @@ import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -160,6 +161,37 @@ class TokenUtilities {
       if (t is SPLToken && t.mintAddress.toLowerCase() == lower) return t;
       if (t is TronToken && t.contractAddress.toLowerCase() == lower) return t;
     }
+    return null;
+  }
+
+  static Future<int?> findEvmChainIdForContract(
+    String contractAddress, {
+    int? excludingChainId,
+  }) async {
+    if (evm == null || contractAddress.isEmpty) {
+      return null;
+    }
+
+    try {
+      for (final chain in evm!.getAllChains()) {
+        if (chain.chainId == excludingChainId) {
+          continue;
+        }
+
+        final walletType = evm!.getWalletTypeByChainId(chain.chainId);
+        if (walletType == null) {
+          continue;
+        }
+
+        final token = await findTokenByAddress(walletType: walletType, address: contractAddress);
+        if (token != null) {
+          return chain.chainId;
+        }
+      }
+    } catch (e) {
+      printV("findEvmChainIdForContract failed: $e");
+    }
+
     return null;
   }
 

@@ -1187,6 +1187,7 @@
   "sync_status_syncronizing": "Oñembojuehehína",
   "sync_status_timed_out": "Ohasáma",
   "sync_status_unsupported": "NODO NOÑEMONEĨRIVA",
+  "sync_synced": "Oñembojoaju",
   "sync_syncing": "Oñembojuehe",
   "sync_timed_out": "Sincronización ohasáma aravo",
   "sync_unsupported_node": "Nodo ndojehechaukáiva",

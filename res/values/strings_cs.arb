@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "SYNCHRONIZUJE SE",
   "sync_status_timed_out": "VYPRŠEL ČAS",
   "sync_status_unsupported": "NEPODPOROVANÝ UZEL",
+  "sync_synced": "Synchronizováno",
   "sync_syncing": "Synchronizace",
   "sync_timed_out": "Vypršel časový limit synchronizace",
   "sync_unsupported_node": "Nepodporovaný uzel",
