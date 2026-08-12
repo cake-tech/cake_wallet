@@ -293,7 +293,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         newPayoutAmount = s.payoutAmount;
       } else {
         newDepositAmount = await _amountFactory.getSwapAmount(
-          Money(s.depositAmount.cryptoAmount.amount, event.newCurrency),
+          Money.safeParse(s.depositAmount.cryptoAmount.toString(), event.newCurrency),
           event.newCurrency,
         );
         newPayoutAmount = await _amountFactory.getSwapAmount(

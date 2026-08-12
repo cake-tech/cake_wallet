@@ -33,9 +33,11 @@ class SwapLimitPopup extends StatelessWidget {
                 min = rs.minLimit;
               }
               final tooLarge =
-                  max != null && amount != null && !max.isZero && amount.cryptoAmount > max;
+                  max != null && amount != null && max.currency == amount.currency && !max.isZero &&
+                      amount.cryptoAmount > max;
               final tooSmall =
-                  min != null && amount != null && !min.isZero && amount.cryptoAmount < min;
+                  min != null && amount != null && min.currency == amount.currency && !min.isZero &&
+                      amount.cryptoAmount < min;
               final show = tooLarge || tooSmall;
               final askText =
               tooLarge ? S.of(context).enter_less_than : S.of(context).enter_greater_than;
