@@ -1,19 +1,15 @@
 [
   {
-    "title": "MONERO + TREZOR",
-    "description": "Secure your XMR with hardware wallet support!"
+    "title": "Zcash improvements",
+    "description": "After the successful migration to the new IronWood, we added more improvements to zcash wallet"
   },
   {
-    "title": "NEW WalletConnect UI",
-    "description": "connecting to Web3 dApps made safer and easier"
+    "title": "AnyPay as Intended",
+    "description": "Now pasting or scanning an address from any wallet will point you correctly to either swapping or sending from the correct wallet, and much more improvements"
   },
   {
     "title": "UI improvements",
     "description": "Added some fresh UI elements just for you"
-  },
-  {
-    "title": "Sync enhancements",
-    "description": "Optimized sync for Bitcoin and Litecoin"
   },
   {
     "title": "Bug fixes",
