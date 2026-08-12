@@ -232,20 +232,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: wallet.walletAddresses.address,
-        amount: _amount.toString(),
+        amount: _amount?.toString() ?? "",
         contractAddress: (tokenCurrency! as Erc20Token).contractAddress,
       );
     }
     if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
       return TronURI(
-        amount: _amount.toString(),
+        amount: _amount?.toString() ?? "",
         address: wallet.walletAddresses.address,
         contractAddress: (tokenCurrency! as TronToken).contractAddress,
       );
     }
     if (tokenCurrency is SPLToken && wallet.type == WalletType.solana) {
       return SolanaURI(
-        amount: _amount.toString(),
+        amount: _amount?.toString() ?? "",
         address: wallet.walletAddresses.address,
         contractAddress: (tokenCurrency! as SPLToken).mintAddress,
       );
@@ -253,7 +253,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isLightning && _lnPaymentRequest != null) {
       return _lnPaymentRequest!;
     }
-    return wallet.walletAddresses.getPaymentUri(_amount.toString());
+    return wallet.walletAddresses.getPaymentUri(_amount?.toString() ?? "");
   }
 
   bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
