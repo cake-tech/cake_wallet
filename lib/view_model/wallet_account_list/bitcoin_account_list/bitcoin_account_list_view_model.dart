@@ -23,13 +23,13 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
 
     reaction(
       (_) => bitcoin!.accountBalancesSnapshot(_wallet),
-      (_) => unawaited(_refreshBalances()),
+      (snapshot) => unawaited(_refreshBalances(snapshot)),
       equals: const MapEquality<int, Object>().equals,
     );
 
     reaction(
       (_) => settingsStore.balanceDisplayMode,
-      (_) => unawaited(_refreshBalances()),
+      (_) => unawaited(_recomputeBalanceStrings()),
     );
   }
 
@@ -61,7 +61,19 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
   Future<void> _loadAccounts() => _runLoad(() => _wallet.walletInfo.getAccounts());
 
   @action
-  Future<void> _refreshBalances() {
+  Future<void> _refreshBalances(Map<int, Object> balancesSnapshot) {
+    final cached = _cachedStoredAccounts;
+    final hasUnknownAccount = cached == null ||
+        balancesSnapshot.keys
+            .any((accountIndex) => !cached.any((a) => a.accountIndex == accountIndex));
+
+    if (hasUnknownAccount) return _loadAccounts();
+    return _runLoad(() async => cached);
+  }
+
+
+  @action
+  Future<void> _recomputeBalanceStrings() {
     final cached = _cachedStoredAccounts;
     if (cached == null) return _loadAccounts();
     return _runLoad(() async => cached);
