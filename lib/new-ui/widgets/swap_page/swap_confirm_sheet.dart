@@ -156,7 +156,7 @@ class SwapTransactionDetails extends StatelessWidget {
                             keyValue: "fee",
                             label: S.of(context).fee,
                             trailingText:
-                                "${state.transaction.feeFormatted} ()"),
+                                "${state.transaction.feeFormatted}"),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
