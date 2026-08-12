@@ -28,7 +28,7 @@ void main() {
     await onboardingFlows.startRestoringFirstWallet(walletType);
 
     // Twelve words that are not in the wordlist. Restoring from this would either fail
-    // outright or, worse, derive some other wallet the user has no keys for.
+    // outright or, worse it derives some other wallet the user has no keys for.
     await restoreRobot.enterSeedPhraseForWalletRestore(
       "alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima",
     );

@@ -101,8 +101,6 @@ class HomePageRobot extends BaseRobot {
     expect(find.byType(HistoryTile), findsWidgets);
   }
 
-  // Tiles are keyed on the transaction behind them, which is the only way to tell from the
-  // outside which one a tap should have opened.
   String firstTransactionIdInAllView() {
     final tile = tester.widgetList<HistoryTile>(_allViewTiles).first;
     final key = tile.key! as ValueKey<String>;

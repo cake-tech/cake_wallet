@@ -51,7 +51,7 @@ void main() {
     await walletEditRobot.isDisplayed();
 
     await walletEditRobot.tapDelete();
-    await authFlows.authenticateWithPinIfPrompted();
+    await authFlows.authenticateWithPin(required: false);
 
     await walletEditRobot.confirmDelete();
 

@@ -2,28 +2,31 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:flutter_test/flutter_test.dart";
 import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
 
+import "../core/test_config.dart";
 import "../core/test_wallets.dart";
 import "../robots/home_page_robot.dart";
 import "../robots/new_dashboard_robot.dart";
+import "../robots/new_send_page_robot.dart";
 import "onboarding_flows.dart";
 
 class FundsFlows {
   FundsFlows(this.tester)
       : _onboardingFlows = OnboardingFlows(tester),
         _dashboardRobot = NewDashboardRobot(tester),
-        _homePageRobot = HomePageRobot(tester);
+        _homePageRobot = HomePageRobot(tester),
+        _sendRobot = NewSendPageRobot(tester);
 
   final WidgetTester tester;
   final OnboardingFlows _onboardingFlows;
   final NewDashboardRobot _dashboardRobot;
   final HomePageRobot _homePageRobot;
+  final NewSendPageRobot _sendRobot;
 
   bool _hasRestoredAnyWallet = false;
 
-  // Returns false once every funded wallet of the chain has come up empty.
   Future<bool> openFundedWallet(WalletType type) async {
     final seeds = TestWallets.fundedSeedsFor(type);
 
@@ -32,6 +35,20 @@ class FundsFlows {
 
       if (_hasRestoredAnyWallet) {
         await _dashboardRobot.openWalletsTab();
+
+        final isWalletListReady = await _dashboardRobot.pumpUntil(
+          () =>
+              tester.any(find.byKey(const ValueKey("wallet_list_page_restore_wallet_button_key"))),
+          timeout: const Duration(seconds: 60),
+        );
+
+        expect(
+          isWalletListReady,
+          true,
+          reason: "The wallet list restore button didn't show before ${type.name}, "
+              "Currently have: ${_dashboardRobot.describeScreen()} on screen",
+        );
+
         await _onboardingFlows.restoreAdditionalWalletFromWalletList(type, seed: seeds[index]);
       } else {
         await _onboardingFlows.restoreFirstWalletFromSeed(type, seed: seeds[index]);
@@ -39,7 +56,7 @@ class FundsFlows {
 
       _hasRestoredAnyWallet = true;
 
-      await _dashboardRobot.isDisplayed();
+      await _dashboardRobot.isDisplayed(timeout: TestConfig.walletSyncBudget);
       await _homePageRobot.isDisplayed();
 
       if (await _hasSpendableBalance()) {
@@ -55,7 +72,7 @@ class FundsFlows {
   Future<bool> returnToHome({int maxPops = 6}) async {
     for (int attempt = 0; attempt <= maxPops; attempt++) {
       if (await _homePageRobot.pumpUntil(
-        () => tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key"))),
+        () => _isHomeInFront,
         timeout: const Duration(seconds: 3),
       )) {
         return true;
@@ -69,12 +86,14 @@ class FundsFlows {
       }
     }
 
-    return tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key")));
+    return _isHomeInFront;
   }
 
-  // A wallet that finishes syncing and still shows nothing counts as drained, waiting out
-  // the full timeout on an empty wallet would cost us the whole run.
-  Future<bool> _hasSpendableBalance({Duration timeout = const Duration(minutes: 5)}) async {
+  bool get _isHomeInFront =>
+      tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key"))) &&
+      !_sendRobot.isSendFlowOpen;
+
+  Future<bool> _hasSpendableBalance({Duration timeout = TestConfig.walletSyncBudget}) async {
     final appStore = getIt.get<AppStore>();
     final endTime = DateTime.now().add(timeout);
     DateTime? syncedSince;
@@ -92,7 +111,6 @@ class FundsFlows {
         return true;
       }
 
-      // A short grace period after syncing lets the balance observables catch up.
       if (wallet.syncStatus is SyncedSyncStatus) {
         syncedSince ??= DateTime.now();
 

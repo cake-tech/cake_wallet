@@ -34,16 +34,16 @@ void main() {
     await settingsRobot.openRow(Routes.manageNodes);
     await nodesRobot.isDisplayed();
 
-    final before = nodesRobot.currentNodeUri();
+    final initialNodeUri = nodesRobot.currentNodeUri();
 
-    expect(before, isNotEmpty, reason: "The wallet started with no node at all");
+    expect(initialNodeUri, isNotEmpty, reason: "The wallet started with no node at all");
 
     await nodesRobot.switchToAnotherNode();
 
     expect(
       nodesRobot.currentNodeUri(),
-      isNot(before),
-      reason: "The node was confirmed but the wallet is still pointed at $before",
+      isNot(initialNodeUri),
+      reason: "The node was confirmed but the wallet is still pointed at $initialNodeUri",
     );
   });
 }

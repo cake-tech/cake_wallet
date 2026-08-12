@@ -64,11 +64,10 @@ void main() {
     await settingsRobot.openRow(Routes.displaySettingsPage);
     await displayRobot.isDisplayed();
 
-    // With no prices coming in there is nothing to show them in, so the row is not built.
     expect(
       displayRobot.hasFiatCurrencyRow(),
       false,
-      reason: "The currency setting is still offered while the fiat api is off",
+      reason: "The currency setting is still showing while the fiat api is off",
     );
 
     await displayRobot.goBack();

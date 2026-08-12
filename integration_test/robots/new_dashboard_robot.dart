@@ -7,8 +7,8 @@ class NewDashboardRobot extends BaseRobot {
   NewDashboardRobot(super.tester);
 
   @override
-  Future<void> isDisplayed() async {
-    await pumpUntilFound(find.byKey(const ValueKey("new_dashboard_page_key")));
+  Future<void> isDisplayed({Duration timeout = const Duration(seconds: 30)}) async {
+    await pumpUntilFound(find.byKey(const ValueKey("new_dashboard_page_key")), timeout: timeout);
   }
 
   Future<void> openHomeTab() async {

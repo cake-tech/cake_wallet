@@ -11,9 +11,6 @@ abstract class BaseRobot {
 
   Future<void> isDisplayed();
 
-  // Wallet networking keeps running under every screen and the test framework fails the
-  // test at teardown with anything it threw, so the failures the app itself ignores have
-  // to be cleared as the test goes.
   void drainBackgroundErrors() {
     final Object? pending = tester.takeException();
 
@@ -78,7 +75,7 @@ abstract class BaseRobot {
 
     await pumpUntilFound(finder, timeout: timeout);
 
-    // A tap during a route transition lands on the animating overlay instead of the widget.
+    // A tap during a route transition lands on the animating overlay instead of the widget
     await settle(max: const Duration(seconds: 2));
 
     await tester.tap(finder.first, warnIfMissed: false);
@@ -113,7 +110,7 @@ abstract class BaseRobot {
   }) async {
     final itemFinder = find.byKey(ValueKey(itemKey));
 
-    // The item can already be on screen, no scrolling needed then.
+    // The item can already be on screen, no scrolling needed
     if (tester.any(itemFinder)) {
       return;
     }
@@ -167,7 +164,7 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  // Bounded instead of pumpAndSettle, the dashboard animates forever and never settles.
+  // We make this bounded instead of pumpAndSettle
   Future<void> settle({Duration max = const Duration(seconds: 3)}) async {
     final endTime = DateTime.now().add(max);
 
@@ -198,6 +195,17 @@ abstract class BaseRobot {
 
   void hasValueKey(String key) {
     expect(find.byKey(ValueKey(key)), findsOneWidget);
+  }
+
+  String describeScreen() {
+    final names = tester.allWidgets
+        .map((widget) => widget.runtimeType.toString())
+        .where((name) => name.endsWith("Page") || name.endsWith("Sheet") || name.endsWith("Screen"))
+        .toSet()
+        .toList()
+      ..sort();
+
+    return names.join(", ");
   }
 
   void hasType<T>() {

@@ -63,9 +63,9 @@ Future<void> _expectRestoredTheRightWallet(
   AppStore appStore,
   WalletType type,
 ) async {
-  final expected = TestWallets.receiveAddressFor(type);
+  final expectedAddress = TestWallets.receiveAddressFor(type);
 
-  if (expected.isEmpty) {
+  if (expectedAddress.isEmpty) {
     robot.tester.printToConsole("No known address for ${type.name}, derivation not verified");
     return;
   }
@@ -78,9 +78,9 @@ Future<void> _expectRestoredTheRightWallet(
         return false;
       }
 
-      return addresses.address == expected ||
-          addresses.addressesMap.containsKey(expected) ||
-          addresses.allAddressesMap.containsKey(expected);
+      return addresses.address == expectedAddress ||
+          addresses.addressesMap.containsKey(expectedAddress) ||
+          addresses.allAddressesMap.containsKey(expectedAddress);
     },
     timeout: const Duration(seconds: 60),
   );
@@ -89,6 +89,6 @@ Future<void> _expectRestoredTheRightWallet(
     settled,
     true,
     reason: "${type.name} restored from a known seed derived "
-        "${appStore.wallet?.walletAddresses.address} and does not know $expected",
+        "${appStore.wallet?.walletAddresses.address} and does not know $expectedAddress",
   );
 }

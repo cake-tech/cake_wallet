@@ -426,6 +426,7 @@ jobs:
           ACTOR: ${{ github.actor }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DART_DEFINES: ${{ inputs.extra_dart_defines }}
         run: |
           if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
             echo "::notice::No slack token or channel configured, skipping the report"
@@ -440,8 +441,6 @@ jobs:
             awk -F= -v key="$2" '$1 == key { print $2; exit }' "$1"
           }
 
-          # tier0 gates the merge, tier1 reports without blocking, and a tier with no
-          # summary never got far enough to write one
           tier_line() {
             local file="$1" label="$2" note="$3"
 
@@ -455,8 +454,8 @@ jobs:
               "$(fmt "$(field "$file" duration)")"
           }
 
-          # A suite whose driver never attached never ran, calling that a failing test
-          # sends whoever reads this looking for a bug that is not there
+          # For scenarios where the suite never ran because of driver issues, 
+          # we can't call it a failing test, so we just log it
           failure_lines() {
             local file="$1" label="$2"
 
@@ -479,6 +478,31 @@ jobs:
             done < <(sed -n 's/^fail=//p' "$file")
           }
 
+          # Adding the results for the funds suites to the report too, so we know if we need to topup
+          chain_lines() {
+            local status_wanted="$1" icon="$2" file
+            local seen=""
+
+            for file in *_summary.txt; do
+              [[ -f "$file" ]] || continue
+
+              while IFS= read -r entry; do
+                [[ -n "$entry" ]] || continue
+
+                local chain="${entry%%|*}"
+                local rest="${entry#*|}"
+                local status="${rest%%|*}"
+                local detail="${rest#*|}"
+
+                [[ "$status" == "$status_wanted" ]] || continue
+                [[ "$seen" == *"[$chain]"* ]] && continue
+                seen="$seen[$chain]"
+
+                printf '\n%s *%s* _%s_' "$icon" "$chain" "$detail"
+              done < <(sed -n 's/^chain=//p' "$file")
+            done
+          }
+
           pass_names() {
             local file="$1" label="$2"
 
@@ -496,8 +520,12 @@ jobs:
           tier1_failed=0
           total_passed=0
 
-          [[ -f tier0_summary.txt ]] && tier0_failed=$(field tier0_summary.txt failed)
-          [[ -f tier1_summary.txt ]] && tier1_failed=$(field tier1_summary.txt failed)
+          if [[ -f all_summary.txt ]]; then
+            tier0_failed=$(field all_summary.txt failed)
+          else
+            [[ -f tier0_summary.txt ]] && tier0_failed=$(field tier0_summary.txt failed)
+            [[ -f tier1_summary.txt ]] && tier1_failed=$(field tier1_summary.txt failed)
+          fi
 
           for file in tier0_summary.txt tier1_summary.txt; do
             [[ -f "$file" ]] || continue
@@ -523,16 +551,38 @@ jobs:
             where="$where  ·  <$REPO_URL/pull/$PR_NUMBER|#$PR_NUMBER ${PR_TITLE:-}>"
           fi
 
-          failures=$(printf '%s%s' \
+          failures=$(printf '%s%s%s' \
             "$(failure_lines tier0_summary.txt tier0)" \
-            "$(failure_lines tier1_summary.txt tier1)")
+            "$(failure_lines tier1_summary.txt tier1)" \
+            "$(failure_lines all_summary.txt suites)")
+
+          if [[ -f all_summary.txt ]]; then
+            primary=$(tier_line all_summary.txt suites '')
+            secondary=""
+          else
+            primary=$(tier_line tier0_summary.txt tier0 '_did not run_')
+            secondary=$(tier_line tier1_summary.txt tier1 "$tier1_note")
+          fi
+
+          chains=$(printf '%s%s%s%s' \
+            "$(chain_lines ok ':white_check_mark:')" \
+            "$(chain_lines empty ':moneybag:')" \
+            "$(chain_lines waiting ':hourglass:')" \
+            "$(chain_lines failed ':x:')")
+
+          needs_funding=$(chain_lines empty ':moneybag:')
+          too_slow=$(chain_lines waiting ':hourglass:')
 
           blocks=$(jq -n \
             --arg headline "$headline" \
             --arg where "$where" \
-            --arg tier0 "$(tier_line tier0_summary.txt tier0 '_did not run_')" \
-            --arg tier1 "$(tier_line tier1_summary.txt tier1 "$tier1_note")" \
+            --arg primary "$primary" \
+            --arg secondary "$secondary" \
             --arg failures "$failures" \
+            --arg chains "$chains" \
+            --arg funding "$needs_funding" \
+            --arg slow "$too_slow" \
+            --arg defines "$(printf '%s' "$DART_DEFINES" | tr ';' ' ')" \
             --arg commit "${COMMIT:0:8}" \
             --arg actor "$ACTOR" \
             --arg repo "$REPO_URL" \
@@ -540,19 +590,34 @@ jobs:
             '[
               { type: "header", text: { type: "plain_text", text: $headline, emoji: true } },
               { type: "section", text: { type: "mrkdwn", text: $where } },
-              { type: "section", fields: [
-                  { type: "mrkdwn", text: $tier0 },
-                  { type: "mrkdwn", text: $tier1 }
-              ] }
+              { type: "section", fields: (
+                  [ { type: "mrkdwn", text: $primary } ]
+                  + (if $secondary == "" then [] else
+                      [ { type: "mrkdwn", text: $secondary } ] end)
+              ) }
             ]
             + (if $failures == "" then [] else
                 [ { type: "section", text: { type: "mrkdwn",
                     text: ("*Did not pass*" + $failures) } } ]
               end)
+            + (if $chains == "" then [] else
+                [ { type: "divider" },
+                  { type: "section", text: { type: "mrkdwn",
+                    text: ("*Chains*" + $chains) } } ]
+              end)
+            + (if $funding == "" then [] else
+                [ { type: "context", elements: [ { type: "mrkdwn",
+                    text: ":moneybag:  The chains above could not cover a send. Top those wallets up and re run the funds workflow, nothing there needs debugging :)." } ] } ]
+              end)
+            + (if $slow == "" then [] else
+                [ { type: "context", elements: [ { type: "mrkdwn",
+                    text: ":hourglass:  Still rescanning when the clock ran out, so nothing was proven either way and the run is not red for them." } ] } ]
+              end)
             + [
               { type: "context", elements: [
                   { type: "mrkdwn",
-                    text: ("<" + $repo + "/commit/" + $commit + "|" + $commit + ">  ·  " + $actor) }
+                    text: ("<" + $repo + "/commit/" + $commit + "|" + $commit + ">  ·  " + $actor
+                           + (if $defines == "" then "" else "  ·  `" + $defines + "`" end)) }
               ] },
               { type: "actions", elements: [
                   { type: "button", url: $run,
@@ -586,8 +651,8 @@ jobs:
             exit 0
           fi
 
-          # Everything that passed goes in a reply, so the channel keeps the short version
-          # and the full list stays one click away
+          # So that the channel is not clutter (and uglyyyy), we put everything that passed in the thread
+          # and the short version is the one that shows up in the channel
           passed=$(printf '%s\n\n%s' \
             "$(pass_names tier0_summary.txt tier0)" "$(pass_names tier1_summary.txt tier1)")
 

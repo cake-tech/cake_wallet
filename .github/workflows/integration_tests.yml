@@ -10,7 +10,6 @@ on:
     paths-ignore:
       - "**.md"
       - "docs/**"
-  # Manual trigger for shakedown runs and reruns outside a PR
   workflow_dispatch:
 
 concurrency:

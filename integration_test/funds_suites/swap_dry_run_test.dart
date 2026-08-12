@@ -4,6 +4,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
 import "../core/app_launcher.dart";
+import "../core/funds_outcome.dart";
 import "../core/test_config.dart";
 import "../flows/funds_flows.dart";
 import "../robots/home_page_robot.dart";
@@ -47,6 +48,7 @@ void main() {
     await swapRobot.confirmQuoteReceived();
 
     tester.printToConsole("${type.name} received a quote, no trade created");
+    FundsOutcome.ok(tester, type.name, "quoted by a provider, no trade created");
 
     await swapRobot.dismissModal();
     await homePageRobot.isDisplayed();

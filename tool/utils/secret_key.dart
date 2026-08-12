@@ -92,6 +92,7 @@ class SecretKey {
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),
+    SecretKey('zcashTestWalletRestoreHeight', () => ''),
     SecretKey('chainflipApiKey', () => ''),
     SecretKey('chainflipAffiliateFee', () => ''),
     SecretKey('kryptonimApiKey', () => ''),

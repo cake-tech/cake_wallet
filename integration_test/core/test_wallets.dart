@@ -96,4 +96,6 @@ class TestWallets {
   static String get moneroLegacySeed => secrets.moneroLegacyTestWalletSeeds;
 
   static String get moneroRestoreBlockHeight => secrets.moneroTestWalletBlockHeight;
+
+  static String get zcashRestoreHeight => secrets.zcashTestWalletRestoreHeight;
 }

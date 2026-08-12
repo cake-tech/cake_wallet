@@ -44,11 +44,11 @@ class WalletFlows {
     await tester.tap(walletFinder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 500));
 
-    await _authFlows.authenticateWithPinIfPrompted();
+    await _authFlows.authenticateWithPin(required: false);
 
     // The row does nothing at all when that wallet is already the open one, and the load
     // itself runs behind a progress overlay, so the store is the only thing that tells us
-    // the switch happened rather than the tap having quietly gone nowhere.
+    // the switch happened.
     final switched = await _dashboardRobot.pumpUntil(
       () => getIt.get<AppStore>().wallet?.name == name,
       timeout: const Duration(minutes: 2),

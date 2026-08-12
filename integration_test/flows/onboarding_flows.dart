@@ -167,6 +167,11 @@ class OnboardingFlows {
           .enterBlockHeightForWalletRestore(TestWallets.moneroRestoreBlockHeight);
     }
 
+    if (type == WalletType.zcash && TestWallets.zcashRestoreHeight.isNotEmpty) {
+      await _restoreFromSeedOrKeysPageRobot
+          .enterBlockHeightForWalletRestore(TestWallets.zcashRestoreHeight);
+    }
+
     if (Platform.isLinux) {
       final password = TestConfig.pin.join("");
       await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(password);
@@ -206,7 +211,6 @@ class OnboardingFlows {
 
     await _verifyWalletSeed();
 
-    // Bitcoin wallets set up a lightning username after seed verification, skip it.
     if (type == WalletType.bitcoin) {
       await _lightningUsernamePageRobot.isDisplayed();
       await _lightningUsernamePageRobot.tapSkip();

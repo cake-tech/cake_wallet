@@ -44,5 +44,12 @@ void main() {
     // - Wait with pumpUntilFound and pumpUntil, never with sleeps or pumpAndSettle.
     // - Tap and read widgets by ValueKey, add keys to lib/ widgets when they are missing.
     // - Assert app state through getIt (AppStore) or the page widget's view model.
+    // - A widget being in the tree does not mean it is on screen. Every dashboard tab
+    //   stays mounted in an IndexedStack, so find.byType on a tab passes from any other
+    //   tab. Check what is in front, the way WalletListPageRobot does.
+    // - A button being findable does not mean it is enabled. Tapping a disabled button
+    //   does nothing at all and reads later as a missing widget somewhere else, so wait
+    //   on whatever the screen itself gates on.
+    // - Add the finished suite to the table in docs/INTEGRATION_TESTS.md.
   });
 }

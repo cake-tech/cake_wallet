@@ -20,8 +20,6 @@ class DisplaySettingsPageRobot extends BaseRobot {
     await tapByKey("display_settings_language");
   }
 
-  // The picker is keyed on the item itself, which for languages is the code rather than the
-  // name shown on screen.
   Future<void> chooseLanguage(String code) async {
     await tapByKey("picker_items_index_${code}_button_key");
 

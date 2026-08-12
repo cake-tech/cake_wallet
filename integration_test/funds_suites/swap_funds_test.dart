@@ -4,6 +4,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
 import "../core/app_launcher.dart";
+import "../core/funds_outcome.dart";
 import "../core/test_config.dart";
 import "../core/test_wallets.dart";
 import "../flows/auth_flows.dart";
@@ -56,7 +57,7 @@ void main() {
 
     await swapRobot.tapSwapButton();
 
-    await authFlows.authenticateWithPinIfPrompted();
+    await authFlows.authenticateWithPin(required: false);
 
     await swapRobot.confirmTradeCreated();
 
@@ -67,5 +68,6 @@ void main() {
     await homePageRobot.isDisplayed();
 
     tester.printToConsole("FUNDS_SWAP_OK: ${type.name}");
+    FundsOutcome.ok(tester, type.name, "trade created and deposit broadcast");
   });
 }
