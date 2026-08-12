@@ -14,8 +14,8 @@ class TokenChainDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: size,
-        height: size,
+        width: size+(_chainIconSize/2),
+        height: size+(_chainIconSize/2),
         child: Stack(
           children: [
             CakeImageWidget(
