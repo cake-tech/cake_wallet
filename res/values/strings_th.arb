@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "กำลังซิงโครไนซ์",
   "sync_status_timed_out": "หมดเวลา",
   "sync_status_unsupported": "โหนดที่ไม่รองรับ",
+  "sync_synced": "ซิงค์แล้ว",
   "sync_syncing": "กำลังซิงค์",
   "sync_timed_out": "การซิงค์หมดเวลา",
   "sync_unsupported_node": "โหนดที่ไม่รองรับ",

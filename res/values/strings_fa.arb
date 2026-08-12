@@ -1181,6 +1181,7 @@
   "sync_status_syncronizing": "در حال همگام‌سازی",
   "sync_status_timed_out": "اتمام زمان",
   "sync_status_unsupported": "نود پشتیبانی‌نشده",
+  "sync_synced": "همگام سازی شد",
   "sync_syncing": "در حال همگام‌سازی",
   "sync_timed_out": "مهلت همگام‌سازی به پایان رسید",
   "sync_unsupported_node": "گره پشتیبانی‌نشده",

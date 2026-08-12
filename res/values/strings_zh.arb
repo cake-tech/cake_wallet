@@ -1182,6 +1182,7 @@
   "sync_status_syncronizing": "同步中",
   "sync_status_timed_out": "超时",
   "sync_status_unsupported": "不受支持的节点",
+  "sync_synced": "已同步",
   "sync_syncing": "同步中",
   "sync_timed_out": "同步超时",
   "sync_unsupported_node": "不受支持的节点",

@@ -1217,6 +1217,7 @@
   "sync_status_syncronizing": "SYNCHRONISIEREN",
   "sync_status_timed_out": "ZEITÜBERSCHREITUNG",
   "sync_status_unsupported": "NICHT UNTERSTÜTZTER NODE",
+  "sync_synced": "Synchronisiert",
   "sync_syncing": "Synchronisiere",
   "sync_timed_out": "Synchronisierung abgelaufen",
   "sync_unsupported_node": "Nicht unterstützter Node",
