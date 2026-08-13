@@ -486,6 +486,7 @@ class SwapProviderPreview extends StatelessWidget {
                   ),
                   if (rate != null)
                     Row(
+                      spacing: 4,
                       children: [
                         Text(
                           "1 ${rate.rate.base.symbol} ≈ ${rate.rate.quote.toStringWithPrecision(fractionalDigits: 6)} ${rate.rate.quote.currency.symbol}",
