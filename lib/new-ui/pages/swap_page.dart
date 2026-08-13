@@ -544,6 +544,18 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   bool _fiatInputMode = false;
 
   @override
+  void initState() {
+    super.initState();
+    // the swap all overlay gets out of the way while the field is focused, so focus changes have
+    // to rebuild us.
+    amountFocusNode.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => BlocConsumer<SwapBloc, SwapState>(
     listener: (context, state) {
       if (state is SwapStateWithInputs) {
@@ -567,6 +579,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final String addressPickerText;
       final String cryptoAmount;
       final bool hasSwapAll;
+      final bool isSwapAll;
       final String fiatAmount;
       final Currency inputCurrency;
       if (state is SwapStateWithInputs) {
@@ -578,6 +591,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
             ? state.payoutAddress?.displayName ?? ""
             : state.source.displayName;
         hasSwapAll = state is SwapInputState ? state.hasSwapAll : false;
+        isSwapAll = !widget.isReceiverCard && state.depositAmount.isSwapAll;
         addressPickerText = widget.isReceiverCard
             ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
             : S.of(context).from;
@@ -591,6 +605,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         currency = widget.bloc.spendingBalance.currency as CryptoCurrency;
         addressEmpty = false;
         hasSwapAll = false;
+        isSwapAll = false;
         addressDescription = "";
         addressPickerText = "";
         fiatAmount = "";
@@ -633,49 +648,76 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             children: [
                               Flexible(
                                 child: IntrinsicWidth(
-                                  child: TextFormField(
-                                    keyboardType: const TextInputType.numberWithOptions(
-                                      signed: false,
-                                      decimal: true,
-                                    ),
-                                    controller: _fiatInputMode
-                                        ? fiatAmountController
-                                        : amountController,
-                                    onChanged: (value) {
-                                      if (value.isNotEmpty) {
-                                        if (state is SwapStateWithInputs) {
-                                          final amount = Money.tryParse(value, inputCurrency);
-                                          if(amount != null) {
-                                            widget.bloc.add(
-                                              widget.isReceiverCard
-                                                  ? PayoutAmountChanged(amount)
-                                                  : DepositAmountChanged(amount),
-                                            );
-                                          }
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      TextFormField(
+                                        keyboardType: const TextInputType.numberWithOptions(
+                                          signed: false,
+                                          decimal: true,
+                                        ),
+                                        controller: _fiatInputMode
+                                            ? fiatAmountController
+                                            : amountController,
+                                        onChanged: (value) {
+                                          if (value.isNotEmpty) {
+                                            if (state is SwapStateWithInputs) {
+                                              final amount = Money.tryParse(value, inputCurrency);
+                                              if(amount != null) {
+                                                widget.bloc.add(
+                                                  widget.isReceiverCard
+                                                      ? PayoutAmountChanged(amount)
+                                                      : DepositAmountChanged(amount),
+                                                );
+                                              }
 
-                                        }
-                                      }
-                                    },
-                                    inputFormatters: [
-                                      if(state is SwapStateWithInputs)
-                                        DecimalInputFormatter(
-                                            maxDecimals: inputCurrency.decimals),
+                                            }
+                                          }
+                                        },
+                                        inputFormatters: [
+                                          if(state is SwapStateWithInputs)
+                                            DecimalInputFormatter(
+                                                maxDecimals: inputCurrency.decimals),
+                                        ],
+                                        focusNode: amountFocusNode,
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          contentPadding: EdgeInsets.zero,
+                                          isDense: true,
+                                          hintText: "0",
+                                          fillColor: Colors.transparent,
+                                          hoverColor: Colors.transparent,
+                                          focusedBorder: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: IgnorePointer(
+                                          child: AnimatedOpacity(
+                                            duration: const Duration(milliseconds: 150),
+                                            opacity: !isSwapAll || amountFocusNode.hasFocus
+                                                ? 0
+                                                : 1,
+                                            child: ExcludeSemantics(
+                                              child: ColoredBox(
+                                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                                child: Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(
+                                                    S.of(context).all,
+                                                    style: const TextStyle(
+                                                      fontSize: 28,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
-                                    focusNode: amountFocusNode,
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    decoration: const InputDecoration(
-                                      contentPadding: EdgeInsets.zero,
-                                      isDense: true,
-                                      hintText: "0",
-                                      fillColor: Colors.transparent,
-                                      hoverColor: Colors.transparent,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                    ),
                                   ),
                                 ),
                               ),
