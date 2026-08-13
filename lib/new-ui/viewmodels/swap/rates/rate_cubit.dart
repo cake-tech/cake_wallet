@@ -78,6 +78,7 @@ class RateCubit extends Cubit<RateState> {
       return;
     }
 
+    rates.sort((a, b) => b.compareTo(a));
     emit(RatesLoaded(from.currency, to, rates));
   }
 }

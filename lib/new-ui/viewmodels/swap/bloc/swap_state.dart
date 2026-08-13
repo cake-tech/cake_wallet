@@ -36,13 +36,13 @@ abstract class SwapStateWithInputs extends SwapState {
 
   @override
   bool get canInitiateSwap {
-    if(source case final ExternalSwapSource s) {
-      if(s.refundAddress.isEmpty) {
+    if (source case final ExternalSwapSource s) {
+      if (s.refundAddress.isEmpty) {
         return false;
       }
     }
 
-    if(payoutAddress == null) {
+    if (payoutAddress == null) {
       return false;
     }
 
@@ -52,7 +52,8 @@ abstract class SwapStateWithInputs extends SwapState {
 
 final class SwapInputState extends SwapStateWithInputs {
   const SwapInputState({
-    required this.memo, required this.depositAmount,
+    required this.memo,
+    required this.depositAmount,
     required this.payoutAmount,
     required this.source,
     required this.payoutAddress,
@@ -82,8 +83,11 @@ final class SwapInputState extends SwapStateWithInputs {
   final bool forceDecentralizedProviders;
 
   @override
-  List<ExchangeProviderDescription> get usableProviders =>
-      forcedProvider != null ? [forcedProvider!] : enabledProviders.where((item) => !forceDecentralizedProviders || !item.isCentralized).toList();
+  List<ExchangeProviderDescription> get usableProviders => forcedProvider != null
+      ? [forcedProvider!]
+      : enabledProviders
+            .where((item) => !forceDecentralizedProviders || !item.isCentralized)
+            .toList();
 
   SwapInputState copyWith({
     SwapAmount? depositAmount,
@@ -96,19 +100,18 @@ final class SwapInputState extends SwapStateWithInputs {
     List<ExchangeProviderDescription>? enabledProviders,
     ExchangeProviderDescription? Function()? forcedProvider,
     bool? forceDecentralizedProviders,
-  }) =>
-      SwapInputState(
-        memo: memo ?? this.memo,
-        depositAmount: depositAmount ?? this.depositAmount,
-        payoutAmount: payoutAmount ?? this.payoutAmount,
-        source: source ?? this.source,
-        payoutAddress: payoutAddress != null ? payoutAddress.call() : this.payoutAddress,
-        isFixedRate: isFixedRate ?? this.isFixedRate,
-        availableProviders: availableProviders ?? this.availableProviders,
-        enabledProviders: enabledProviders ?? this.enabledProviders,
-        forcedProvider: forcedProvider != null ? forcedProvider.call() : this.forcedProvider,
-        forceDecentralizedProviders: forceDecentralizedProviders ?? this.forceDecentralizedProviders
-      );
+  }) => SwapInputState(
+    memo: memo ?? this.memo,
+    depositAmount: depositAmount ?? this.depositAmount,
+    payoutAmount: payoutAmount ?? this.payoutAmount,
+    source: source ?? this.source,
+    payoutAddress: payoutAddress != null ? payoutAddress.call() : this.payoutAddress,
+    isFixedRate: isFixedRate ?? this.isFixedRate,
+    availableProviders: availableProviders ?? this.availableProviders,
+    enabledProviders: enabledProviders ?? this.enabledProviders,
+    forcedProvider: forcedProvider != null ? forcedProvider.call() : this.forcedProvider,
+    forceDecentralizedProviders: forceDecentralizedProviders ?? this.forceDecentralizedProviders,
+  );
 }
 
 final class SwapStateCreating extends SwapStateWithInputs {
@@ -147,35 +150,63 @@ final class SwapStateCreating extends SwapStateWithInputs {
     ExchangeProviderDescription? selectedProvider,
     TradeRequest? request,
     SwapSource? source,
-  }) =>
-      SwapStateCreating(
-        selectedProvider: selectedProvider ?? this.selectedProvider,
-        request: request ?? this.request,
-        source: source ?? this.source,
-      );
+  }) => SwapStateCreating(
+    selectedProvider: selectedProvider ?? this.selectedProvider,
+    request: request ?? this.request,
+    source: source ?? this.source,
+  );
 
-  SwapStateCreationError toError(Object error) =>
-      SwapStateCreationError(
-          selectedProvider: selectedProvider, request: request, source: source, error: error);
+  SwapStateCreationError toError(Object error) => SwapStateCreationError(
+    selectedProvider: selectedProvider,
+    request: request,
+    source: source,
+    error: error,
+  );
 }
 
 final class SwapStateCreationError extends SwapStateCreating implements SwapFailureState {
-  const SwapStateCreationError({required super.selectedProvider, required super.source, required super.request, required this.error});
+  const SwapStateCreationError({
+    required super.selectedProvider,
+    required super.source,
+    required super.request,
+    required this.error,
+  });
 
   @override
   final Object error;
-
 }
 
-final class SwapAwaitingWalletSwitch extends SwapStateCreating {
+final class SwapAwaitingWalletSwitch extends SwapStateWithInputs {
   const SwapAwaitingWalletSwitch({
-    required super.selectedProvider,
+    required this.depositAmount,
+    required this.isFixedRate,
+    required this.memo,
+    required this.payoutAmount,
+    required this.usableProviders,
     required this.source,
-    required super.request,
-  }) : super(source: source);
+    this.payoutAddress,
+  });
 
   @override
   final InternalSwapSource source;
+
+  @override
+  final SwapAmount depositAmount;
+
+  @override
+  final bool isFixedRate;
+
+  @override
+  final String memo;
+
+  @override
+  final SwapAddress? payoutAddress;
+
+  @override
+  final SwapAmount payoutAmount;
+
+  @override
+  final List<ExchangeProviderDescription> usableProviders;
 }
 
 abstract class SwapStateWithTrade extends SwapState {
@@ -194,36 +225,52 @@ final class SwapGeneratingTransaction extends SwapStateWithTrade {
 
 final class SwapAwaitingExternalSend extends SwapStateWithTrade {
   const SwapAwaitingExternalSend({required super.trade, required this.source})
-      : super(source: source);
+    : super(source: source);
 
   @override
   final ExternalSwapSource source;
-
 }
 
-
 abstract class SwapStateWithTransaction extends SwapStateWithTrade {
-  const SwapStateWithTransaction({required super.trade, required this.transaction, required super.source});
-
+  const SwapStateWithTransaction({
+    required super.trade,
+    required this.transaction,
+    required super.source,
+  });
 
   final PendingTransaction transaction;
 
-  SwapTransactionCommitError toError(Object error) => SwapTransactionCommitError(error: error, trade: trade, transaction: transaction, source: source);
+  SwapTransactionCommitError toError(Object error) => SwapTransactionCommitError(
+    error: error,
+    trade: trade,
+    transaction: transaction,
+    source: source,
+  );
 }
 
 final class SwapAwaitingSend extends SwapStateWithTransaction {
   const SwapAwaitingSend({required super.trade, required super.transaction, required super.source});
 }
 
-final class SwapTransactionGenerationError extends SwapGeneratingTransaction implements SwapFailureState{
-  const SwapTransactionGenerationError({required this.error, required super.trade, required super.source});
+final class SwapTransactionGenerationError extends SwapGeneratingTransaction
+    implements SwapFailureState {
+  const SwapTransactionGenerationError({
+    required this.error,
+    required super.trade,
+    required super.source,
+  });
 
   @override
   final Object error;
 }
 
 final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
-  const SwapAwaitingHardwareWallet({required this.type, required super.trade, required super.transaction, required super.source});
+  const SwapAwaitingHardwareWallet({
+    required this.type,
+    required super.trade,
+    required super.transaction,
+    required super.source,
+  });
 
   final HardwareWalletType type;
 }
@@ -233,11 +280,21 @@ final class SwapSending extends SwapStateWithTransaction {
 }
 
 final class SwapTransactionCommitted extends SwapStateWithTransaction {
-  const SwapTransactionCommitted({required super.trade, required super.transaction, required super.source});
+  const SwapTransactionCommitted({
+    required super.trade,
+    required super.transaction,
+    required super.source,
+  });
 }
 
-final class SwapTransactionCommitError extends SwapStateWithTransaction implements SwapFailureState {
-  SwapTransactionCommitError({required this.error, required super.trade, required super.transaction, required super.source});
+final class SwapTransactionCommitError extends SwapStateWithTransaction
+    implements SwapFailureState {
+  SwapTransactionCommitError({
+    required this.error,
+    required super.trade,
+    required super.transaction,
+    required super.source,
+  });
 
   @override
   final Object error;

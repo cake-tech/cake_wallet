@@ -71,6 +71,8 @@ import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -563,17 +565,26 @@ Future<void> setup({
 
   getIt.registerSingleton<TransactionService>(TransactionService(appStore: getIt.get<AppStore>()));
 
+  getIt.registerSingleton<SwapAddressResolver>(SwapAddressResolver(
+      walletSwitchService: getIt.get<WalletSwitchService>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerSingleton<TradeCreator>(TradeCreator(tradesStore: getIt.get<TradesStore>(),
+      appStore: getIt.get<AppStore>(),
+      registry: getIt.get<ExchangeProviderRegistry>()));
+
+
   getIt.registerFactory<SwapBloc>(() =>
       SwapBloc(
-          tradesStore: getIt.get<TradesStore>(),
-          addressResolverService: getIt.get<AddressResolverService>(),
-          transactionService: getIt.get<TransactionService>(),
-          currencyStore: getIt.get<SwapCurrencyStore>(),
-          rateCubit: getIt.get<RateCubit>(),
-          calculator: getIt.get<SwapAmountFactory>(),
-          registry: getIt.get<ExchangeProviderRegistry>(),
-          appStore: getIt
-              .get<AppStore>(), walletSwitchService: getIt.get<WalletSwitchService>()
+        addressResolver: getIt.get<SwapAddressResolver>(),
+        creator: getIt.get<TradeCreator>(),
+        addressResolverService: getIt.get<AddressResolverService>(),
+        transactionService: getIt.get<TransactionService>(),
+        currencyStore: getIt.get<SwapCurrencyStore>(),
+        rateCubit: getIt.get<RateCubit>(),
+        amountFactory: getIt.get<SwapAmountFactory>(),
+        registry: getIt.get<ExchangeProviderRegistry>(),
+        appStore: getIt
+            .get<AppStore>(),
       ));
 
   getIt.registerSingleton(

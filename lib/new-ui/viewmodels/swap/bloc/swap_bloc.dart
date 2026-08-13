@@ -3,10 +3,8 @@ import "dart:async";
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
-import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
-import "package:cake_wallet/core/lightning_invoice_service.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
@@ -15,26 +13,23 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
-import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
-import "package:cake_wallet/store/dashboard/trades_store.dart";
-import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -46,20 +41,19 @@ part "swap_state.dart";
 class SwapBloc extends Bloc<SwapEvent, SwapState>
     with BlocPresentationMixin<SwapState, SwapPresentationEvent> {
   SwapBloc({
-    required TradesStore tradesStore,
+    required TradeCreator creator, required SwapAddressResolver addressResolver,
     required AddressResolverService addressResolverService,
     required TransactionService transactionService,
-    required WalletSwitchService walletSwitchService,
     required this.rateCubit,
     required this.currencyStore,
-    required SwapAmountFactory calculator,
+    required SwapAmountFactory amountFactory,
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
-  }) : _tradesStore = tradesStore,
+  })
+      : _creator = creator, _addressResolver = addressResolver,
        _addressResolverService = addressResolverService,
        _transactionService = transactionService,
-       _walletSwitchService = walletSwitchService,
-       _amountFactory = calculator,
+       _amountFactory = amountFactory,
        _registry = registry,
        _appStore = appStore,
        super(const SwapStateNotLoaded()) {
@@ -87,14 +81,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   final AppStore _appStore;
-  final TradesStore _tradesStore;
   final AddressResolverService _addressResolverService;
-  final WalletSwitchService _walletSwitchService;
   final TransactionService _transactionService;
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
   final SwapCurrencyStore currencyStore;
+  final SwapAddressResolver _addressResolver;
+  final TradeCreator _creator;
   Timer? _rateTimer;
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
@@ -477,57 +471,30 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       return;
     }
     final rates = (rateCubit.state as RatesLoaded).rates.toList();
-    rates.sort((a, b) => b.compareTo(a));
 
     if (state case final SwapStateWithInputs s) {
-      String refundAddress;
-      if (s.source case final ExternalSwapSource source) {
-        refundAddress = source.refundAddress;
-      } else if (s.source case final InternalSwapSource source) {
-        if (source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-          emit(
-            SwapAwaitingWalletSwitch(
-              selectedProvider: rates.first.provider,
-              source: source,
-              request: TradeRequest(
-                refundAddress: "",
-                payoutAddress: s.payoutAddress!.address,
-                depositAmount: s.depositAmount,
-                payoutAmount: s.payoutAmount,
-                isFixedRate: s.isFixedRate,
-              ),
-            ),
-          );
-          await _walletSwitchService.switchToWallet(source.sourceWallet);
+      if(s.source case final InternalSwapSource source) {
+        if(source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
+          emit(SwapAwaitingWalletSwitch(depositAmount: s.depositAmount,
+              isFixedRate: s.isFixedRate,
+              memo: s.memo,
+              payoutAmount: s.payoutAmount,
+              usableProviders: s.usableProviders,
+              source: source));
         }
-        refundAddress = s.depositAmount.currency == CryptoCurrency.btcln
-            ? (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!
-            : _appStore.wallet!.walletAddresses.addressForExchange;
-      } else {
-        // SwapSource is abstract and InternalSwapSource and ExternalSwapSource are the only two implementations
-        // nonetheless, analyzer won't shut up without this else clause if we have strict type checks enabled
-        throw UnsupportedError("should not be reachable");
-      }
-
-      String payoutAddress = s.payoutAddress!.address;
-      if (s.payoutAddress case final InternalWalletSwapAddress address) {
-        payoutAddress = await _addressFromWalletInfo(address.walletInfo, s.payoutAmount.currency);
-      }
-
-      if (payoutAddress.contains("@")) {
-        payoutAddress = await getBolt11FromLightingAddress(payoutAddress) ?? payoutAddress;
       }
 
       final req = TradeRequest(
-        refundAddress: refundAddress,
-        payoutAddress: payoutAddress,
+        refundAddress: await _addressResolver.resolveRefundAddress(
+            s.source, s.depositAmount.currency),
+        payoutAddress: await _addressResolver.resolvePayoutAddress(
+            s.payoutAddress!, s.payoutAmount.currency),
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
         isFixedRate: s.isFixedRate,
         toAddressExtraId: s.memo,
       );
 
-      Trade? trade;
 
       final creatingState = SwapStateCreating(
         source: s.source,
@@ -537,25 +504,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
       emit(creatingState);
 
-      for (final rate in rates) {
-        final provider = _registry.getProvider(rate.provider);
+      final trade = await _creator.createTrade(rates, req);
 
-        try {
-          trade = await provider.createTrade(request: req);
-          await trade.copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex()).save();
-          _tradesStore.setTrade(trade);
-          ExchangeProviderLogger.logSuccess(
-              provider: provider.description, function: "createTrade", requestData: {"req": req});
-          break;
-        } catch (e, st) {
-          ExchangeProviderLogger.logError(provider: provider.description,
-              error: e,
-              stackTrace: st,
-              function: "createTrade",
-              requestData: {"req": req});
-          printV("failed to create trade at ${provider.description.title}: $e");
-        }
-      }
 
       if (trade == null) {
         emit(creatingState.toError(Exception(S.current.none_of_selected_providers_can_exchange)));
@@ -566,24 +516,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(SwapAwaitingExternalSend(trade: trade, source: source));
       } else if (s.source case final InternalSwapSource source) {
         final generatingState = SwapGeneratingTransaction(trade: trade, source: source);
+        emit(generatingState);
+
         try {
-          emit(generatingState);
-          final PendingTransaction tx;
-          if (trade.provider case final TransactionCreationExchangeProvider p) {
-            tx = await p.createTransaction(_appStore.wallet!, trade);
-          } else {
-            final curr = s.depositAmount.currency;
-            // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
-            final output = Output(
-              _appStore.wallet!,
-              _appStore,
-              getIt.get<FiatConversionStore>(),
-              () => curr,
-            );
-            output.setCryptoAmount(s.depositAmount.cryptoAmount.toString());
-            output.address = trade.fundingAddress;
-            tx = await _transactionService.createTransaction([output]);
-          }
+          final tx = await _createSwapTransaction(trade);
           emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
         } catch (e) {
           emit(generatingState.toError(e));
@@ -592,38 +528,22 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
   }
 
-  // HACK: not much more we can do here with the way we fetch the wallet list
-  Future<String> _addressFromWalletInfo(WalletInfo wi, CryptoCurrency curr) async {
-    if (wi.type == .bitcoin) {
-      final _walletAddresses = await wi.getAddresses();
-      if (curr == CryptoCurrency.btcln) {
-        final lightningAddressOfWallet = _walletAddresses.entries
-            .firstWhereOrNull((e) => e.value.contains("LN"))
-            ?.key;
-        if (lightningAddressOfWallet != null) {
-          return lightningAddressOfWallet;
-        }
-      }
-      if (curr == CryptoCurrency.btc) {
-        final segwitAddressOfWallet = _walletAddresses.entries
-            .firstWhereOrNull((e) => e.value.contains("P2WPKH"))
-            ?.key;
-        if (segwitAddressOfWallet != null) {
-          return segwitAddressOfWallet;
-        }
-      }
+  Future<PendingTransaction> _createSwapTransaction(Trade trade) async {
+    if (trade.provider case final TransactionCreationExchangeProvider p) {
+      return  p.createTransaction(_appStore.wallet!, trade);
+    } else {
+      final curr = trade.depositAmount.currency as CryptoCurrency;
+      // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
+      final output = Output(
+        _appStore.wallet!,
+        _appStore,
+        getIt.get<FiatConversionStore>(),
+            () => curr,
+      );
+      output.setCryptoAmount(trade.depositAmount.toString());
+      output.address = trade.fundingAddress;
+      return _transactionService.createTransaction([output]);
     }
-
-    return wi.address;
-  }
-
-
-  int _currentAccountIndex() {
-    if(_appStore.wallet!.type != WalletType.monero) {
-      return 0;
-    }
-
-    return monero!.getCurrentAccount(_appStore.wallet!).id;
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
