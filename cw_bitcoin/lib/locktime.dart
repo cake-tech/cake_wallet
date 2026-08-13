@@ -1,3 +1,5 @@
+import "dart:typed_data";
+
 /// Anti-fee-sniping locktime, set to the current chain tip (exact-tip).
 ///
 /// Matches the exact-tip cluster (payjoin-cli, ldk-node, Bull Bitcoin) and Core's
