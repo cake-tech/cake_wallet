@@ -310,7 +310,20 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     if (state case final SwapInputState s) {
       final SwapAmount newDepositAmount;
       final SwapAmount newPayoutAmount;
-      if (s.isFixedRate) {
+      if (s.isSwapAll) {
+        final newCurrencyWalletType = cryptoCurrencyOrTokenToWalletType(event.newCurrency);
+        final canSendNewCurrency =
+            newCurrencyWalletType == _appStore.wallet!.type &&
+                _appStore.wallet!.balance.keys.any((item) => item.symbol == event.newCurrency.symbol);
+
+        newDepositAmount = canSendNewCurrency
+            ? await _amountFactory.getSwapAllAmount(event.newCurrency)
+            : await _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
+        newPayoutAmount = await _amountFactory.getSwapAmount(
+          Money.zero(s.payoutAmount.currency),
+          s.payoutAmount.currency,
+        );
+      } else if (s.isFixedRate) {
         newDepositAmount = await _amountFactory.getSwapAmount(
           Money.zero(event.newCurrency),
           event.newCurrency,
@@ -338,6 +351,9 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         s.copyWith(
           depositAmount: newDepositAmount,
           payoutAmount: newPayoutAmount,
+          // the swap all amount is pinned to the deposit side, so it has to be the one driving
+          // the rate - otherwise the next rate load would overwrite it.
+          isFixedRate: s.isSwapAll ? false : s.isFixedRate,
           source: newSource,
         ),
       );
