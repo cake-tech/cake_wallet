@@ -83,7 +83,7 @@ class TestConfig {
   };
 
   static String fundsSendAmountFor(WalletType type) => _fundsSendAmounts[type.name] ?? "0.0001";
-  
+
   // Making this two hours to accommodate monero that takes a longgg time syncing
   // also, this would only affect the funded tests which need actual funds to test
   static const Duration walletSyncBudget = Duration(hours: 2);

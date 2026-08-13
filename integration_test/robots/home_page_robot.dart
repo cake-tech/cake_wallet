@@ -1,7 +1,6 @@
 import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
-import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -140,7 +139,7 @@ class HomePageRobot extends BaseRobot {
 
   Future<void> confirmSyncIndicatorShown(Type statusType) async {
     final shown = await pumpUntil(
-      () => tester.any(find.byType(PulsingDot)) || tester.any(find.byKey(ValueKey(statusType))),
+      () => tester.any(find.byKey(const ValueKey("home_page_sync_status_key"))),
     );
 
     expect(
