@@ -131,6 +131,7 @@ class Routes {
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const syncKeyImagesDevices = '/device/sync_key_images';
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';

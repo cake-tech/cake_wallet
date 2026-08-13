@@ -4,7 +4,6 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
@@ -13,6 +12,7 @@ import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -51,6 +51,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -121,7 +122,6 @@ import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
-import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
@@ -141,7 +141,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -888,6 +888,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.setup2faInfoPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
+
+    case Routes.syncKeyImagesDevices:
+      final hardwareWalletType = getIt<AppStore>().wallet!.hardwareWalletType;
+      if (hardwareWalletType == HardwareWalletType.trezor) {
+        return MaterialPageRoute<void>(
+          builder: (_) => SyncKeyImagesSheet(
+            appStore: getIt<AppStore>(),
+            trezorConnectVM: getIt<TrezorConnectViewModel>(),
+          ),
+        );
+      }
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.urqrAnimatedPage:
       return MaterialPageRoute<void>(
