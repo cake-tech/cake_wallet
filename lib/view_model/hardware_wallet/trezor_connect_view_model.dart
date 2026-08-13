@@ -29,6 +29,8 @@ import "package:trezor_flutter/trezor_flutter.dart" as sdk;
 
 part "trezor_connect_view_model.g.dart";
 
+const trezorUseNative = [WalletType.bitcoin, WalletType.monero];
+
 class TrezorConnectViewModel = TrezorConnectViewModelBase with _$TrezorConnectViewModel;
 
 abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with Store {
@@ -243,7 +245,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   }
 
   @override
-  bool isConnected(WalletType type) => type == WalletType.monero
+  bool isConnected(WalletType type) => trezorUseNative.contains(type)
       ? _client != null && _client?.connection.isDisconnected == false
       : true;
 
@@ -253,9 +255,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.monero:
         return monero!.getTrezorHardwareWalletService(_client!);
       case WalletType.bitcoin:
-        return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
+        return bitcoin!.getTrezorHardwareWalletService(null, _client!, true);
       case WalletType.litecoin:
-        return bitcoin!.getTrezorHardwareWalletService(trezorConnect, false);
+        return bitcoin!.getTrezorHardwareWalletService(trezorConnect, null, false);
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getTrezorHardwareWalletService(trezorConnect);

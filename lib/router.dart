@@ -362,9 +362,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ConnectDevicePageParams(
               walletType: availableWalletTypes.first,
               hardwareWalletType: hardwareWalletType,
-              onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                  Routes.chooseHardwareWalletAccount,
-                  arguments: [availableWalletTypes.first, hardwareWalletType]),
+              onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                Routes.chooseHardwareWalletAccount,
+                arguments: [availableWalletTypes.first, hardwareWalletType],
+              ),
               isReconnect: false,
             ),
             getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
@@ -374,19 +375,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
-                Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]);
+            onTypeSelected: (context, type) {
+              if (hardwareWalletType == HardwareWalletType.trezor &&
+                  !trezorUseNative.contains(type)) {
+                Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                );
                 return;
               }
 
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,
-                onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                    Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]),
+                onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                ),
                 isReconnect: false,
               );
 

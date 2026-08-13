@@ -1173,8 +1173,11 @@ abstract class ElectrumWalletBase
     final changeDerivationPath = "${_hardenedDerivationPath(changeBaseDerivationPath)}"
         "/${changeAddress.isHidden ? "1" : "0"}"
         "/${changeAddress.index}";
+    final changeHd = _hdFor(record: changeAddress);
+    final changePubKeyHex = changeHd.publicKey.toHex();
+
     utxoDetails.publicKeys[address.pubKeyHash()] =
-        PublicKeyWithDerivationPath('', changeDerivationPath);
+        PublicKeyWithDerivationPath(changePubKeyHex, changeDerivationPath);
 
     // calcFee updates the silent payment outputs to calculate the tx size accounting
     // for taproot addresses, but if more inputs are needed to make up for fees,
@@ -1620,7 +1623,7 @@ abstract class ElectrumWalletBase
   HardwareWalletService? hardwareWalletService;
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,

@@ -349,6 +349,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.3"
+  fast_base58:
+    dependency: transitive
+    description:
+      name: fast_base58
+      sha256: "9e231dd973fa774d484452bd65d8c09526ba6ab94707b9e712d4d4f79412361e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   ffi:
     dependency: "direct overridden"
     description:
@@ -585,10 +593,10 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: "531da5daba5731d9eca2732881ef2f039b97bf8aa3564e7098dfa99a9b07a8e6"
+      sha256: "59c5a6062505c721c2ca909fa085c52cffe93de995174b8418b54a6acf52eb70"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.3"
+    version: "1.5.6"
   ledger_litecoin:
     dependency: "direct main"
     description:
@@ -602,10 +610,10 @@ packages:
     dependency: transitive
     description:
       name: ledger_usb_plus
-      sha256: "21cc5d976cf7edb3518bd2a0c4164139cbb0817d2e4f2054707fc4edfdf9ce87"
+      sha256: "911df2d1d55cdae612ff2c9db140cf71a9b28a67ba16adfdc4983cd9f02c531e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.8"
   logging:
     dependency: transitive
     description:
@@ -1120,6 +1128,24 @@ packages:
       url: "https://github.com/cake-tech/trezor_connect"
     source: git
     version: "0.0.1"
+  trezor_flutter:
+    dependency: "direct main"
+    description:
+      path: trezor-flutter
+      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      resolved-ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      url: "https://github.com/cake-tech/trezor-flutter"
+    source: git
+    version: "0.1.0"
+  trezor_usb_transport:
+    dependency: transitive
+    description:
+      path: trezor_usb_transport
+      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      resolved-ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      url: "https://github.com/cake-tech/trezor-flutter"
+    source: git
+    version: "0.0.1"
   tuple:
     dependency: transitive
     description:
@@ -1140,10 +1166,10 @@ packages:
     dependency: transitive
     description:
       name: universal_ble
-      sha256: "35d210e93a5938c6a6d1fd3c710cf4ac90b1bdd1b11c8eb2beeb32600672e6e6"
+      sha256: "8325ca9f5cce2fba2b4efef74a4fcfe7144f303b409d6fc6ed16197b00a1a241"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0"
+    version: "1.2.0"
   universal_platform:
     dependency: transitive
     description:
@@ -1181,34 +1207,34 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "81777b08c498a292d93ff2feead633174c386291e35612f8da438d6e92c4447e"
+      sha256: "17bc677f0b301615530dd1d67e0a9828cafa2d0b6b6eae4cd3679b7eac4a273c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.20"
+    version: "6.3.30"
   url_launcher_ios:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: d80b3f567a617cb923546034cc94bfe44eb15f989fe670b37f26abdb9d939cb7
+      sha256: "580fe5dfb51671ae38191d316e027f6b76272b026370708c2d898799750a02b0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.4"
+    version: "6.4.1"
   url_launcher_linux:
     dependency: transitive
     description:
       name: url_launcher_linux
-      sha256: "4e9ba368772369e3e08f231d2301b4ef72b9ff87c31192ef471b380ef29a4935"
+      sha256: d5e14138b3bc193a0f63c10a53c94b91d399df0512b1f29b94a043db7482384a
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.1"
+    version: "3.2.2"
   url_launcher_macos:
     dependency: transitive
     description:
       name: url_launcher_macos
-      sha256: c043a77d6600ac9c38300567f33ef12b0ef4f4783a2c1f00231d2b1941fea13f
+      sha256: "368adf46f71ad3c21b8f06614adb38346f193f3a59ba8fe9a2fd74133070ba18"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.3"
+    version: "3.2.5"
   url_launcher_platform_interface:
     dependency: transitive
     description:
@@ -1221,18 +1247,18 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_web
-      sha256: "4bd2b7b4dc4d4d0b94e5babfffbca8eac1a126c7f3d6ecbc1a11013faa3abba2"
+      sha256: "85c81589622fbc87c1c683aaea164d3604a7777495a79d91e39ffcdec39ddb34"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.1"
+    version: "2.4.3"
   url_launcher_windows:
     dependency: transitive
     description:
       name: url_launcher_windows
-      sha256: "3284b6d2ac454cf34f114e1d3319866fdd1e19cdc329999057e44ffe936cfa77"
+      sha256: "712c70ab1b99744ff066053cbe3e80c73332b38d46e5e945c98689b2e66fc15f"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.4"
+    version: "3.1.5"
   uuid:
     dependency: transitive
     description:
@@ -1322,5 +1348,5 @@ packages:
     source: hosted
     version: "2.2.2"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.29.0"
+  dart: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"

@@ -106,11 +106,11 @@ class LitecoinBitboxService extends HardwareWalletService
 
   @override
   Future<String> signLitecoinTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<PSBTReadyBitcoinOutput> outputs,
     required List<PSBTReadyUtxoWithAddress> inputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
   }) async {
-    final psbt = PSBTTransactionBuild(inputs: inputs, outputs: outputs, cwOutputs: []).psbt;
+    final psbt = PSBTTransactionBuild(inputs: inputs, outputs: outputs).psbt;
 
     final signedPsbt = await manager.signBTCPsbt(bitboxCoinType, base64Encode(psbt.asPsbtV0()));
     final transactionRes = PsbtV2()
