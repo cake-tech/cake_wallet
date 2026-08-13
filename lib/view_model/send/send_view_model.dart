@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
+import 'package:cake_wallet/core/anypay/anypay_models.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
@@ -1728,6 +1729,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (token != null) {
       selectedCryptoCurrency = token;
     }
+  }
+
+  @action
+  void applyAnyPayIntent(AnyPaySendIntent intent) {
+    final currency = intent.currency;
+    if (currency == null) {
+      return;
+    }
+
+    if (intent.request.hasContract) {
+      selectedCryptoCurrency = currency;
+      return;
+    }
+
+    setSelectedCryptoCurrency(currency.title);
   }
 
   String _decodeMethodSelector(String s) =>
