@@ -70,7 +70,8 @@ class _NewHomePageState extends State<NewHomePage> {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: Column(
+                  child: Observer(
+                    builder: (_) => Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
                     spacing: 24,
@@ -189,6 +190,7 @@ class _NewHomePageState extends State<NewHomePage> {
                         ),
                       ),
                     ],
+                  ),
                   ),
                 ),
                 Observer(

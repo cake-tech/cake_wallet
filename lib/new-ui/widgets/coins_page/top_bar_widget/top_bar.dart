@@ -1,5 +1,6 @@
 import "dart:io";
 
+import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
@@ -26,13 +27,7 @@ class TopBar extends StatelessWidget {
   final DashboardViewModel dashboardViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    final walletNameToDisplay = dashboardViewModel.wallet.name.split("_")[0];
-    final truncatedWalletName = walletNameToDisplay.length > 25
-        ? "${walletNameToDisplay.substring(0, 20)}..."
-        : walletNameToDisplay;
-
-    return Padding(
+  Widget build(BuildContext context) => Padding(
       padding: EdgeInsets.only(
         bottom: 10,
         left: 18,
@@ -46,7 +41,13 @@ class TopBar extends StatelessWidget {
             isSyncHeavy: dashboardViewModel.isSyncHeavy,
           );
 
-          final isSyncing = syncBar.showFullBar;
+          final compactSyncBar = SyncBar(
+            dashboardViewModel: dashboardViewModel,
+            isSyncHeavy: dashboardViewModel.isSyncHeavy,
+            forceCompact: true,
+          );
+
+          final isHeavySyncing = syncBar.showFullBar;
 
           final chainIcon = ChainIcon(
             iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
@@ -57,7 +58,7 @@ class TopBar extends StatelessWidget {
 
           final walletInfoBar = WalletInfoBar(
             hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
-            name: truncatedWalletName,
+            name: walletNameToDisplay(dashboardViewModel.wallet.name),
           );
 
           final settingsButton = ModernButton.svg(
@@ -81,27 +82,45 @@ class TopBar extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: AnimatedSwitcher(
+                    child: AnimatedSize(
                       duration: _transitionDuration,
-                      switchInCurve: Curves.easeOut,
-                      switchOutCurve: Curves.easeIn,
-                      transitionBuilder: (child, animation) => FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
-                      child: isSyncing
-                          ? KeyedSubtree(
-                        key: const ValueKey("sync_bar_only"),
-                        child: syncBar,
-                      )
-                          : Row(
-                        key: const ValueKey("wallet_info_bar"),
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      curve: Curves.easeInOut,
+                      alignment: Alignment.center,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Flexible(child: walletInfoBar),
-                          const SizedBox(width: 12),
-                          syncBar,
+                          AnimatedOpacity(
+                            duration: _transitionDuration,
+                            curve: Curves.easeInOut,
+                            opacity: isHeavySyncing ? 0 : 1,
+                            child: IgnorePointer(
+                              ignoring: isHeavySyncing,
+                              child: ExcludeSemantics(
+                                excluding: isHeavySyncing,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Flexible(child: walletInfoBar),
+                                    const SizedBox(width: 12),
+                                    compactSyncBar,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            duration: _transitionDuration,
+                            curve: Curves.easeInOut,
+                            opacity: isHeavySyncing ? 1 : 0,
+                            child: IgnorePointer(
+                              ignoring: !isHeavySyncing,
+                              child: ExcludeSemantics(
+                                excluding: !isHeavySyncing,
+                                child: syncBar,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -114,7 +133,6 @@ class TopBar extends StatelessWidget {
         },
       ),
     );
-  }
 
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {

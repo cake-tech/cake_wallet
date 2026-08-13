@@ -11,10 +11,17 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SyncBar extends StatelessWidget {
-  SyncBar({super.key, required this.dashboardViewModel, required this.isSyncHeavy});
+  SyncBar({
+    super.key,
+    required this.dashboardViewModel,
+    required this.isSyncHeavy,
+    this.forceCompact = false,
+  });
 
   final DashboardViewModel dashboardViewModel;
   final bool isSyncHeavy;
+
+  final bool forceCompact;
 
   static const failStatuses = [
     FailedSyncStatus,
@@ -41,15 +48,16 @@ class SyncBar extends StatelessWidget {
       builder: (_) {
         final status = dashboardViewModel.status;
         final Widget? icon = _getIcon(context, status.runtimeType);
+        final bool useFullBar = showFullBar && !forceCompact;
 
         return SizedBox(
           height: 36,
-          width: showFullBar ? 220 : null,
+          width: useFullBar ? 220 : null,
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [
-              if (!showFullBar) _buildCompactBar(context),
-              if (showFullBar)
+              if (!useFullBar) _buildCompactBar(context),
+              if (useFullBar)
                 // A single node: the localized status text (plus any active
                 // Tor/MWEB/Silent Payments badge) is the label, and the hint says
                 // where tapping leads. Everything inside is redundant with it.

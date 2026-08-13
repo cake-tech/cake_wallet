@@ -35,12 +35,17 @@ class WalletInfoBar extends StatelessWidget {
                 ),
 
         ),
-        Text(
-          name,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+        Flexible(
+          child: Text(
+            name,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            softWrap: false,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          ),
         ),
-      ]);
+      ],);
 }

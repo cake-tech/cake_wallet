@@ -1,4 +1,5 @@
 import "package:bloc/bloc.dart";
+import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
@@ -130,7 +131,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
-    final groupName = event.groupName.trim();
+    final groupName = event.groupName;
 
     emit(current.copyWith(
       groupName: groupName,
@@ -164,7 +165,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
     emit(WalletCreationSummary(
       selectedTypes: current.selectedTypes,
-      groupName: current.groupName,
+      groupName: current.groupName.trim(),
       providedPassphrase: current.providedPassphrase,
       useTestnet: current.useTestnet,
       zcashNetwork: current.zcashNetwork,
@@ -263,10 +264,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
       return 'Group name is required';
     }
 
-    final invalidCharacters = RegExp(r'''[\\/:*?"<>|_']''');
-
-    if (invalidCharacters.hasMatch(trimmedGroupName)) {
-      return 'Group name contains invalid characters';
+    final lengthOrPatternError = WalletNameValidator()(trimmedGroupName);
+    if (lengthOrPatternError != null) {
+      return lengthOrPatternError;
     }
 
     if (creationService.groupNameExists(trimmedGroupName)) {

@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/wallet_name_validator.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         title: GestureDetector(
           onTap: onTitleTapped,
           child: Text(
-            title,
+            walletNameToDisplay(title),
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -121,15 +122,15 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                             height: 35,
                             width: 6,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(16),
                                 bottomRight: Radius.circular(16),
                               ),
                               color: currentColor,
                             ),
                           )
-                        : SizedBox(width: 7),
-                    SizedBox(width: 24),
+                        : const SizedBox(width: 7),
+                    const SizedBox(width: 24),
                     CakeImageWidget(
                       imageUrl: getCryptoCurrencyIconForWalletListItem(item.type),
                       width: 32,

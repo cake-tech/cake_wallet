@@ -45,13 +45,11 @@ class ListItemTextFieldWidget extends StatefulWidget {
 
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
-  Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+  Widget build(BuildContext context) => ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         height: widget.height,
-        builder: (context, textStyle, labelStyle) {
-          return Row(
+        builder: (context, textStyle, labelStyle) => Row(
             children: [
               Expanded(
                 child: TextFormField(
@@ -76,7 +74,5 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                 ),
               ),
             ],
-          );
-        });
-  }
+          ));
 }

@@ -229,20 +229,6 @@ class WalletListBodyState extends State<WalletListBody> {
                                 isSelected: false,
                                 onChildItemTapped: (wallet) =>
                                     wallet.isCurrent ? null : _loadWallet(wallet),
-                                childTrailingWidget: (item) {
-                                  return item.isCurrent
-                                      ? SizedBox.shrink()
-                                      : EditWalletButtonWidget(
-                                          width: 64,
-                                          onTap: () => Navigator.of(context).pushNamed(
-                                            Routes.walletEdit,
-                                            arguments: WalletEditPageArguments(
-                                              walletListViewModel: widget.walletListViewModel,
-                                              editingWallet: item,
-                                            ),
-                                          ),
-                                        );
-                                },
                               );
                             },
                           ),
