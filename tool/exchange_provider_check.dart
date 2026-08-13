@@ -41,7 +41,6 @@ import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/settings/sync_mode.dart";
 import "package:cw_core/amount/money.dart";
@@ -933,12 +932,9 @@ Future<TradeResult> checkProvider(
     final request = TradeRequest(
       refundAddress: placeholderAddress(from.currency as CryptoCurrency),
       payoutAddress: placeholderAddress(to),
-      depositAmount: SwapAmount(cryptoAmount: from, fiatAmount: Money.zero(FiatCurrency.usd)),
+      depositAmount: from,
       isFixedRate: isFixedRate,
-      payoutAmount: SwapAmount(
-        cryptoAmount: rate.rate.convert(from),
-        fiatAmount: Money.zero(FiatCurrency.usd),
-      ),
+      payoutAmount: rate.rate.convert(from),
     );
 
     final trade = await provider.createTrade(request: request);

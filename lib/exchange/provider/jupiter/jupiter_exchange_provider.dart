@@ -174,7 +174,7 @@ class JupiterExchangeProvider extends ExchangeProvider
     final orderParams = JupiterOrderRequest(
       inputMint: inputMint,
       outputMint: outputMint,
-      amount: request.depositAmount.cryptoAmount.amount,
+      amount: request.depositAmount.amount,
       taker: request.refundAddress,
       receiver: isInternalTransfer ? null : request.payoutAddress,
       referralFee: _referralFee,

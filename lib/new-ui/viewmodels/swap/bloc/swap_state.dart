@@ -119,6 +119,8 @@ final class SwapStateCreating extends SwapStateWithInputs {
     required this.selectedProvider,
     required this.source,
     required this.request,
+    required this.depositAmount,
+    required this.payoutAmount,
   });
 
   final TradeRequest request;
@@ -126,10 +128,10 @@ final class SwapStateCreating extends SwapStateWithInputs {
   final ExchangeProviderDescription selectedProvider;
 
   @override
-  SwapAmount get depositAmount => request.depositAmount;
+  final SwapAmount depositAmount;
 
   @override
-  SwapAmount get payoutAmount => request.payoutAmount;
+  final SwapAmount payoutAmount;
 
   @override
   final SwapSource source;
@@ -150,16 +152,22 @@ final class SwapStateCreating extends SwapStateWithInputs {
     ExchangeProviderDescription? selectedProvider,
     TradeRequest? request,
     SwapSource? source,
+    SwapAmount? depositAmount,
+    SwapAmount? payoutAmount,
   }) => SwapStateCreating(
     selectedProvider: selectedProvider ?? this.selectedProvider,
     request: request ?? this.request,
     source: source ?? this.source,
+    depositAmount: depositAmount ?? this.depositAmount,
+    payoutAmount: payoutAmount ?? this.payoutAmount,
   );
 
   SwapStateCreationError toError(Object error) => SwapStateCreationError(
     selectedProvider: selectedProvider,
     request: request,
     source: source,
+    depositAmount: depositAmount,
+    payoutAmount: payoutAmount,
     error: error,
   );
 }
@@ -169,6 +177,8 @@ final class SwapStateCreationError extends SwapStateCreating implements SwapFail
     required super.selectedProvider,
     required super.source,
     required super.request,
+    required super.depositAmount,
+    required super.payoutAmount,
     required this.error,
   });
 

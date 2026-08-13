@@ -2,12 +2,10 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "fakes.dart";
 import "mock_proxy_wrapper.dart";
 
 /// A provider wired to its own mock, built fresh for every test.
@@ -144,9 +142,9 @@ class ProviderScenario {
 
   TradeRequest get request => TradeRequest(
     refundAddress: refundAddress,
-    payoutAddress: ExternalSwapAddress(payoutAddress),
-    depositAmount: swapAmount(depositAmount),
-    payoutAmount: swapAmount(payoutAmount),
+    payoutAddress: payoutAddress,
+    depositAmount: depositAmount,
+    payoutAmount: payoutAmount,
     isFixedRate: isFixedRate,
     toAddressExtraId: toAddressExtraId,
   );

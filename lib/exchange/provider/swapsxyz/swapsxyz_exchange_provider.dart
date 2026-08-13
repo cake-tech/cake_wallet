@@ -341,8 +341,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final dstToken = _getTokenAddress(currency: request.payoutCurrency, chain: dstChain);
 
     final amount = request.isFixedRate
-        ? request.payoutAmount.cryptoAmount
-        : request.depositAmount.cryptoAmount;
+        ? request.payoutAmount
+        : request.depositAmount;
 
     final params = SwapsXyzActionRequest(
       actionType: .swapAction,
@@ -414,8 +414,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
     return SwapsXyzTrade(
       state: TradeState.created,
-      depositAmount: request.depositAmount.cryptoAmount,
-      payoutAmount: request.payoutAmount.cryptoAmount,
+      depositAmount: request.depositAmount,
+      payoutAmount: request.payoutAmount,
       fundingAddress: txTo ?? "",
       createdAt: DateTime.now(),
       id: txId,

@@ -123,9 +123,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     final quoteParams = ChainflipFetchQuotesRequest(
       apiKey: _affiliateKey,
-      sourceAsset: request.depositAmount.currency,
-      destinationAsset: request.payoutAmount.currency,
-      amount: request.depositAmount.cryptoAmount.amount,
+      sourceAsset: request.depositCurrency,
+      destinationAsset: request.payoutCurrency,
+      amount: request.depositAmount.amount,
       commissionBps: _affiliateBps,
     );
 
@@ -135,8 +135,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     final swapParams = ChainflipSwapRequest(
       apiKey: _affiliateKey,
-      sourceAsset: request.depositAmount.currency,
-      destinationAsset: request.payoutAmount.currency,
+      sourceAsset: request.depositCurrency,
+      destinationAsset: request.payoutCurrency,
       destinationAddress: request.payoutAddress,
       minimumPrice: minimumPrice.toString(),
       refundAddress: request.refundAddress,
@@ -156,8 +156,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       provider: description,
       createdAt: DateTime.now(),
       state: TradeState.waiting,
-      depositAmount: request.depositAmount.cryptoAmount,
-      payoutAmount: request.payoutAmount.cryptoAmount,
+      depositAmount: request.depositAmount,
+      payoutAmount: request.payoutAmount,
       fundingAddress: swapResponse.address,
       payoutAddress: request.payoutAddress,
       refundAddress: request.refundAddress,

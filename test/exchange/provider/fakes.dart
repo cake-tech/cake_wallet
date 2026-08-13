@@ -1,8 +1,5 @@
-import "package:cake_wallet/entities/fiat_currency.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/settings_store.dart";
-import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
 /// Stands in for the real store, which pulls in mobx, hive and a dozen services.
@@ -46,10 +43,3 @@ class FakeSolana implements Solana {
     "${invocation.memberName} is not faked on FakeSolana",
   );
 }
-
-/// A [SwapAmount] without the fiat conversion store behind it.
-///
-/// The fiat side is never read by the provider functions, so it is pegged at zero rather
-/// than mocked - a wrong fiat number would be less honest than an obviously absent one.
-SwapAmount swapAmount(Money crypto) =>
-    SwapAmount(cryptoAmount: crypto, fiatAmount: Money.zero(FiatCurrency.usd));

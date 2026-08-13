@@ -167,18 +167,18 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       // since we schedule to calculate the rate every 5 seconds we need to ensure that
       // we have the latest rate id with the given inputs before creating the trade
       await fetchRate(
-        from: request.depositAmount.cryptoAmount,
-        to: request.payoutAmount.cryptoAmount.currency as CryptoCurrency,
+        from: request.depositAmount,
+        to: request.payoutCurrency,
         isFixedRate: request.isFixedRate,
       );
     }
     final params = ChangeNowCreateExchangeRequest(
-      fromCurrency: _normalizeCurrency(request.depositAmount.currency),
-      toCurrency: _normalizeCurrency(request.payoutAmount.currency),
-      fromNetwork: _networkFor(request.depositAmount.currency),
-      toNetwork: _networkFor(request.payoutAmount.currency),
-      fromAmount: request.depositAmount.cryptoAmount.toString(),
-      toAmount: request.payoutAmount.cryptoAmount.toString(),
+      fromCurrency: _normalizeCurrency(request.depositCurrency),
+      toCurrency: _normalizeCurrency(request.payoutCurrency),
+      fromNetwork: _networkFor(request.depositCurrency),
+      toNetwork: _networkFor(request.payoutCurrency),
+      fromAmount: request.depositAmount.toString(),
+      toAmount: request.payoutAmount.toString(),
       address: request.payoutAddress,
       refundAddress: request.refundAddress,
       flow: request.isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
@@ -216,8 +216,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       state: TradeState.created,
       toAddressExtraId: request.toAddressExtraId,
-      depositAmount: request.depositAmount.cryptoAmount,
-      payoutAmount: request.payoutAmount.cryptoAmount,
+      depositAmount: request.depositAmount,
+      payoutAmount: request.payoutAmount,
       payoutAddress: "",
     );
   }

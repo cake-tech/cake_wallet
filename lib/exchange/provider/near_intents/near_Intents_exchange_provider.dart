@@ -168,8 +168,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
 
     final rawAmountStr = request.isFixedRate
-        ? request.payoutAmount.cryptoAmount.amount
-        : request.depositAmount.cryptoAmount.amount;
+        ? request.payoutAmount.amount
+        : request.depositAmount.amount;
 
     final NearIntentsDepositMode depositMode =
         _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;

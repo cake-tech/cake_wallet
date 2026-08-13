@@ -100,7 +100,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final response = await getEstimatedExchangeAmount(
           from: request.depositCurrency,
           to: request.payoutCurrency,
-          amount: request.depositAmount.cryptoAmount.toDouble(),
+          amount: request.depositAmount.toDouble(),
           isFixedRateMode: request.isFixedRate);
       rateId = response.rate?.id;
       validUntil = response.rate?.validUntil;
@@ -130,8 +130,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
     // };
     final body = StealthExCreateExchangeRequest(
         route: StealthExRoute(from: request.depositCurrency, to: request.payoutCurrency),
-        amount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toDouble() : request
-            .depositAmount.cryptoAmount.toDouble(),
+        amount: request.isFixedRate
+            ? request.payoutAmount.toDouble()
+            : request.depositAmount.toDouble(),
         estimation: request.isFixedRate ? .reversed : .direct,
         rate: request.isFixedRate ? .fixed : .floating,
         address: _normalizeAddress(request.payoutAddress),

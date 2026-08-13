@@ -147,9 +147,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final rate = await _getRate(
       from: request.depositCurrency,
       to: request.payoutCurrency,
-      amount: request.isFixedRate
-          ? request.payoutAmount.cryptoAmount
-          : request.depositAmount.cryptoAmount,
+      amount: request.isFixedRate ? request.payoutAmount : request.depositAmount,
       isFixedRate: request.isFixedRate,
     );
 
@@ -174,8 +172,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       payment: request.isFixedRate,
       minKycrating: .c,
       markup: markup,
-      amountFrom: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
-      amountTo: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
+      amountFrom: request.isFixedRate ? null : request.depositAmount.toString(),
+      amountTo: request.isFixedRate ? request.payoutAmount.toString() : null,
       addressMemo: request.toAddressExtraId,
       refund: request.refundAddress,
     );
@@ -198,10 +196,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final responseData = TrocadorTrade.fromJson(json.decode(response.body) as Map<String, dynamic>);
 
     final depositAmount = responseData.amountFrom.isEmpty
-        ? request.depositAmount.cryptoAmount
+        ? request.depositAmount
         : Money.safeParse(responseData.amountFrom, request.depositCurrency);
     final payoutAmount = responseData.amountTo.isEmpty
-        ? request.payoutAmount.cryptoAmount
+        ? request.payoutAmount
         : Money.safeParse(responseData.amountTo, request.payoutCurrency);
 
     return Trade(

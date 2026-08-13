@@ -275,9 +275,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final pairId = "${curFrom}_$curTo";
 
       final payload = XOSwapCreateOrderRequest(pairId: pairId,
-          fromAmount: request.depositAmount.cryptoAmount.toString(),
+          fromAmount: request.depositAmount.toString(),
           fromAddress: request.refundAddress,
-          toAmount: request.payoutAmount.cryptoAmount.toString(),
+          toAmount: request.payoutAmount.toString(),
           toAddress: request.payoutAddress,
           toAddressTag: request.toAddressExtraId
       );

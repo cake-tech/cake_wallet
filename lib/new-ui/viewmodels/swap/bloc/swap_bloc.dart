@@ -489,8 +489,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
             s.source, s.depositAmount.currency),
         payoutAddress: await _addressResolver.resolvePayoutAddress(
             s.payoutAddress!, s.payoutAmount.currency),
-        depositAmount: s.depositAmount,
-        payoutAmount: s.payoutAmount,
+        depositAmount: s.depositAmount.cryptoAmount,
+        payoutAmount: s.payoutAmount.cryptoAmount,
         isFixedRate: s.isFixedRate,
         toAddressExtraId: s.memo,
       );
@@ -500,6 +500,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         source: s.source,
         selectedProvider: rates.max.provider,
         request: req,
+        depositAmount: s.depositAmount,
+        payoutAmount: s.payoutAmount,
       );
 
       emit(creatingState);

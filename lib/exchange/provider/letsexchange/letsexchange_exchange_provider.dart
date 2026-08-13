@@ -98,15 +98,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final networkFrom = _getNetworkType(request.depositAmount.currency);
-    final networkTo = _getNetworkType(request.payoutAmount.currency);
+    final networkFrom = _getNetworkType(request.depositCurrency);
+    final networkTo = _getNetworkType(request.payoutCurrency);
 
     final params = LetsExchangeInfoRequest(
-      from: request.depositAmount.currency.title,
-      to: request.payoutAmount.currency.title,
+      from: request.depositCurrency.title,
+      to: request.payoutCurrency.title,
       networkFrom: networkFrom,
       networkTo: networkTo,
-      amount: request.depositAmount.cryptoAmount.toDouble(),
+      amount: request.depositAmount.toDouble(),
       affiliateId: _affiliateId,
       float: !request.isFixedRate,
     );
@@ -118,10 +118,10 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final returnAddress = _normalizeBchAddress(request.refundAddress);
 
     final tradeParams = LetsExchangeCreateTransactionRequest(
-      coinFrom: request.depositAmount.currency.title,
-      coinTo: request.payoutAmount.currency.title,
-      depositAmount: request.isFixedRate ? null : request.depositAmount.cryptoAmount.toString(),
-      withdrawalAmount: request.isFixedRate ? request.payoutAmount.cryptoAmount.toString() : null,
+      coinFrom: request.depositCurrency.title,
+      coinTo: request.payoutCurrency.title,
+      depositAmount: request.isFixedRate ? null : request.depositAmount.toString(),
+      withdrawalAmount: request.isFixedRate ? request.payoutAmount.toString() : null,
       withdrawal: withdrawalAddress,
       withdrawalExtraId: request.toAddressExtraId ?? "",
       returnAddress: returnAddress,

@@ -1,5 +1,4 @@
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
 class TradeRequest {
@@ -15,14 +14,14 @@ class TradeRequest {
 
   final String refundAddress;
   final String payoutAddress;
-  final SwapAmount depositAmount;
-  final SwapAmount payoutAmount;
+  final Money depositAmount;
+  final Money payoutAmount;
   final String? toAddressExtraId;
   final bool isFixedRate;
 
-  CryptoCurrency get depositCurrency => depositAmount.currency;
+  CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
 
-  CryptoCurrency get payoutCurrency => payoutAmount.currency;
+  CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
   Map<String, dynamic> toJson() => {
       "refundAddress": refundAddress,
