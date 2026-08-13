@@ -93,6 +93,7 @@
   "available": "Dostępne",
   "available_balance": "Dostępne saldo",
   "available_balance_description": "„Dostępne saldo” lub „Potwierdzone saldo” to środki, które można wydać od razu. Jeśli środki pojawiają się w dolnym saldzie, ale nie w górnym, musisz poczekać kilka minut, aż przychodzące środki uzyskają więcej potwierdzeń sieci. Gdy uzyskają więcej potwierdzeń, będzie można je wydać.",
+  "available_balance_short": "Średnia: ${amount}",
   "avg_savings": "Śr. oszczędności",
   "avl": "Avl",
   "awaitDAppProcessing": "Proszę poczekać, aż dApp zakończy przetwarzanie.",

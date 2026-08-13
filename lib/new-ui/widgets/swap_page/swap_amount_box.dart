@@ -223,7 +223,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "${S.of(context).avl}: $available",
+                  S.of(context).available_balance_short(available),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w500,
                         letterSpacing: -0.06,

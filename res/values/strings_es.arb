@@ -93,6 +93,7 @@
   "available": "Disponible",
   "available_balance": "Saldo disponible",
   "available_balance_description": "El “Saldo Disponible” o “Saldo Confirmado” son fondos que pueden gastarse de inmediato. Si los fondos aparecen en el saldo inferior pero no en el saldo superior, deberás esperar unos minutos a que los fondos entrantes obtengan más confirmaciones de la red. Una vez que tengan más confirmaciones, podrás gastarlos.",
+  "available_balance_short": "Valor medio: ${amount}",
   "avg_savings": "Ahorro prom.",
   "avl": "Avl",
   "awaitDAppProcessing": "Espere a que la dApp termine de procesar.",

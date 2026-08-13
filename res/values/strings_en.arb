@@ -96,6 +96,7 @@
   "available": "Available",
   "available_balance": "Available Balance",
   "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
+  "available_balance_short": "Avl: ${amount}",
   "avg_savings": "Avg. Savings",
   "avl": "Avl",
   "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",

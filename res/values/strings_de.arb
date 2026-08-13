@@ -96,6 +96,7 @@
   "available": "Verfügbar",
   "available_balance": "Verfügbares Guthaben",
   "available_balance_description": "Der „Verfügbare Kontostand“ bzw. „Bestätigter Kontostand“ sind Guthaben, die sofort ausgegeben werden können. Wenn Guthaben im unteren Kontostand angezeigt wird, aber nicht im oberen, müssen Sie ein paar Minuten warten, bis die eingehenden Gelder weitere Netzwerkbestätigungen erhalten. Sobald sie mehr Bestätigungen haben, können sie ausgegeben werden.",
+  "available_balance_short": "Durchschnitt: ${amount}",
   "avg_savings": "Durchschn. Ersparnis",
   "avl": "Avl",
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",

@@ -93,6 +93,7 @@
   "available": "Oĩva",
   "available_balance": "Saldo ojepurukuaáva",
   "available_balance_description": "Pe “Available Balance” térã “Confirmed Balance” ha'e umi fondo ikatúva reipuru pya'e. Umi fondo ojehecháramo pe saldo yvýpe ha ndaha'éi pe saldo yvate gotyo, upéicharõ eha'arõ sapy'ami hag̃ua umi fondo og̃uahẽva ohupytyve hag̃ua confirmación de red. Oguerekóvo hetave confirmación, ikatúta reipuru.",
+  "available_balance_short": "Avl: ${amount}.",
   "avg_savings": "Ñongatu mbytegua",
   "avl": "Avl",
   "awaitDAppProcessing": "Eha'arõmi pe dApp omohu'ã hag̃ua hembiapo.",

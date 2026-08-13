@@ -93,6 +93,7 @@
   "available": "Dostupné",
   "available_balance": "Dostupný zůstatek",
   "available_balance_description": "„Dostupný zůstatek“ nebo „Potvrzený zůstatek“ jsou prostředky, které lze okamžitě utratit. Pokud se prostředky zobrazují ve spodním zůstatku, ale ne v horním, musíte několik minut počkat, než příchozí prostředky získají více síťových potvrzení. Jakmile získají více potvrzení, bude možné je utratit.",
+  "available_balance_short": "Avl: ${amount}",
   "avg_savings": "Prům. úspora",
   "avl": "Avl",
   "awaitDAppProcessing": "Počkejte prosím, až dApp dokončí zpracování.",
