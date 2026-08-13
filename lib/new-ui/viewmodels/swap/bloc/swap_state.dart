@@ -30,6 +30,8 @@ abstract class SwapStateWithInputs extends SwapState {
 
   bool get isExternalSend => source is ExternalSwapSource;
 
+  bool get isSwapAll => depositAmount.isSwapAll;
+
   String get memo;
 
   List<ExchangeProviderDescription> get usableProviders;
@@ -52,7 +54,7 @@ abstract class SwapStateWithInputs extends SwapState {
 
 final class SwapInputState extends SwapStateWithInputs {
   const SwapInputState({
-    required this.memo,
+    required this.hasSwapAll, required this.memo,
     required this.depositAmount,
     required this.payoutAmount,
     required this.source,
@@ -77,6 +79,8 @@ final class SwapInputState extends SwapStateWithInputs {
   @override
   final String memo;
 
+  final bool hasSwapAll;
+
   final List<ExchangeProviderDescription> availableProviders;
   final List<ExchangeProviderDescription> enabledProviders;
   final ExchangeProviderDescription? forcedProvider;
@@ -94,6 +98,7 @@ final class SwapInputState extends SwapStateWithInputs {
     SwapAmount? payoutAmount,
     SwapSource? source,
     String? memo,
+    bool? hasSwapAll,
     SwapAddress? Function()? payoutAddress,
     bool? isFixedRate,
     List<ExchangeProviderDescription>? availableProviders,
@@ -104,6 +109,7 @@ final class SwapInputState extends SwapStateWithInputs {
     memo: memo ?? this.memo,
     depositAmount: depositAmount ?? this.depositAmount,
     payoutAmount: payoutAmount ?? this.payoutAmount,
+    hasSwapAll: hasSwapAll ?? this.hasSwapAll,
     source: source ?? this.source,
     payoutAddress: payoutAddress != null ? payoutAddress.call() : this.payoutAddress,
     isFixedRate: isFixedRate ?? this.isFixedRate,

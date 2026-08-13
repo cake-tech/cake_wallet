@@ -557,7 +557,7 @@ Future<void> setup({
 
   getIt.registerLazySingleton<SwapAmountFactory>(() =>
       SwapAmountFactory(
-          fcs: getIt.get<FiatConversionStore>(), settingsStore: getIt.get<SettingsStore>()));
+          fcs: getIt.get<FiatConversionStore>(), appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SwapCurrencyStore>(SwapCurrencyStore.new);
 

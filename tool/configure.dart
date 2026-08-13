@@ -341,6 +341,7 @@ import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/account.dart' as monero_account;
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
@@ -483,6 +484,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   Future<void> syncTrezor(Object wallet);
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
+  Future<Money> getSendingBalance(WalletBase wallet);
 }
 
 abstract class MoneroSubaddressList {

@@ -37,6 +37,10 @@ final class PayoutAmountChanged extends SwapEvent {
   final Money newAmount;
 }
 
+final class SwapAllEnabled extends SwapEvent {
+  const SwapAllEnabled();
+}
+
 final class RatesLoadStarted extends SwapEvent {}
 
 final class DepositCurrencyChanged extends SwapEvent {

@@ -145,16 +145,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
       ),
       child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
         bloc: widget.bloc,
-        listener: (context, event) {
-          if (event is AddressValidationFailed) {
-            _showAddressValidationFailurePopup();
-          }
-          if (event is AliaspayAddressFound) {
-            _showParsedAddressPopup(event.address);
-          }
-          if (event is SwapCreationStarted) {
-            _showConfirmSheet();
-          }
+        listener: (context, event) => switch (event) {
+          AddressValidationFailed() => _showAddressValidationFailurePopup(),
+          AliaspayAddressFound(:final address) => _showParsedAddressPopup(address),
+          SwapCreationStarted() => _showConfirmSheet(),
+          SwapAllNotReady() => _showSwapAllNotReadyPopup(),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
           bloc: widget.bloc,
@@ -305,6 +300,20 @@ class _NewSwapPageState extends State<NewSwapPage> {
           alertTitle: S.of(context).invalid_address,
           alertContent:
               "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
+    }
+  }
+
+  Future<void> _showSwapAllNotReadyPopup() async {
+    if (widget.bloc.state case final SwapStateWithInputs s) {
+      await showPopUp(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).syncing_wallet_alert_title,
+          alertContent: S.of(context).sync_before_swap_all,
           buttonText: S.of(context).ok,
           buttonAction: Navigator.of(context).pop,
         ),
@@ -557,6 +566,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final String addressDescription;
       final String addressPickerText;
       final String cryptoAmount;
+      final bool hasSwapAll;
       final String fiatAmount;
       final Currency inputCurrency;
       if (state is SwapStateWithInputs) {
@@ -567,6 +577,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         addressDescription = widget.isReceiverCard
             ? state.payoutAddress?.displayName ?? ""
             : state.source.displayName;
+        hasSwapAll = state is SwapInputState ? state.hasSwapAll : false;
         addressPickerText = widget.isReceiverCard
             ? (addressEmpty ? S.of(context).select_receiver : S.of(context).to)
             : S.of(context).from;
@@ -579,6 +590,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       } else {
         currency = widget.bloc.spendingBalance.currency as CryptoCurrency;
         addressEmpty = false;
+        hasSwapAll = false;
         addressDescription = "";
         addressPickerText = "";
         fiatAmount = "";
@@ -753,8 +765,22 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     allAmount: widget.isReceiverCard
                         ? null
                         : widget.bloc.spendingBalance.toString(),
-                    allAmountColor: Colors.transparent,
-                    allAmountTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                    allAmountColor: hasSwapAll ? Theme
+                        .of(context)
+                        .colorScheme
+                        .surfaceContainerHigh : Colors.transparent,
+                    allAmountTextColor: hasSwapAll ? Theme
+                        .of(context)
+                        .colorScheme
+                        .primary : Theme
+                        .of(context)
+                        .colorScheme
+                        .onSurfaceVariant,
+                    onAllButtonPressed: (){
+                      if(hasSwapAll) {
+                        widget.bloc.add(const SwapAllEnabled());
+                      }
+                    },
                     cryptoAmount: cryptoAmount,
                     fiatAmount: fiatAmount,
                     cryptoCurrencySymbol: currency.symbol,
@@ -858,28 +884,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                       ],
                     ],
                   ),
-                  // if (widget.isReceiverCard)
-                  //   Observer(builder: (_) {
-                  //     final selected = widget.exchangeViewModel.receiveCurrency;
-                  //     final labelType = memoLabelTypeFor(selected);
-                  //     if (labelType == null) return const SizedBox.shrink();
-                  //
-                  //     final isDestinationTag = labelType == MemoLabelType.destinationTag;
-                  //     final hint = isDestinationTag
-                  //         ? S.of(context).destination_tag_optional
-                  //         : S.of(context).memo_optional;
-                  //     final disclaimer = isDestinationTag
-                  //         ? S.of(context).destination_tag_swap_disclaimer
-                  //         : S.of(context).memo_swap_disclaimer;
-                  //
-                  //     return NewSendMemoInput(
-                  //       memoController: memoController,
-                  //       maxMemoLength: isDestinationTag ? 20 : 256,
-                  //       memoLength: memoController.text.length,
-                  //       hintText: hint,
-                  //       disclaimerText: disclaimer,
-                  //     );
-                  //   }),
+
                 ],
               ),
             ),

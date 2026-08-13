@@ -30,6 +30,7 @@ import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/sync_status.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -62,6 +63,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
     on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
+    on<SwapAllEnabled>(_onSwapAllEnabled, transformer: droppable());
     on<RatesLoadStarted>(_onRatesLoadStarted, transformer: droppable());
     on<DepositCurrencyChanged>(_onDepositCurrencyChanged, transformer: restartable());
     on<PayoutCurrencyChanged>(_onPayoutCurrencyChanged, transformer: restartable());
@@ -139,6 +141,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       SwapInputState(
         depositAmount: initialDepositAmount,
         payoutAmount: initialPayoutAmount,
+        hasSwapAll: _amountFactory.hasSwapAll,
         source: InternalSwapSource(_appStore.wallet!.walletInfo),
         payoutAddress: null,
         memo: "",
@@ -245,6 +248,34 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         ),
       );
       add(RatesLoadStarted());
+    }
+  }
+
+  Future<void> _onSwapAllEnabled(SwapAllEnabled event, Emitter<SwapState> emit) async {
+    if (state case final SwapInputState s) {
+      if (_appStore.wallet!.syncStatus is! SyncedSyncStatus) {
+        // enabling swap all on an unsynced wallet would lead to garbage results because balances either won't match or won't exist.
+        emitPresentation(const SwapAllNotReady());
+      }
+
+      final newDepositAmount = await _amountFactory.getSwapAllAmount(s.depositAmount.currency);
+      final Money newPayoutCryptoAmount;
+      if (rateCubit.state case final RatesLoaded l) {
+        newPayoutCryptoAmount = l.rates.max.rate.convert(newDepositAmount.cryptoAmount);
+      } else {
+        newPayoutCryptoAmount = Money.zero(s.payoutAmount.currency);
+      }
+
+      final newPayoutAmount = await _amountFactory.getSwapAmount(
+        newPayoutCryptoAmount,
+        s.payoutAmount.currency,
+      );
+
+      emit(s.copyWith(
+          depositAmount: newDepositAmount,
+          payoutAmount: newPayoutAmount,
+          isFixedRate: false,
+      ));
     }
   }
 
@@ -521,7 +552,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(generatingState);
 
         try {
-          final tx = await _createSwapTransaction(trade);
+          final tx = await _createSwapTransaction(trade, s.isSwapAll);
           emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
         } catch (e) {
           emit(generatingState.toError(e));
@@ -530,7 +561,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
   }
 
-  Future<PendingTransaction> _createSwapTransaction(Trade trade) async {
+  Future<PendingTransaction> _createSwapTransaction(Trade trade, bool isSendAll) async {
     if (trade.provider case final TransactionCreationExchangeProvider p) {
       return  p.createTransaction(_appStore.wallet!, trade);
     } else {
@@ -542,7 +573,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         getIt.get<FiatConversionStore>(),
             () => curr,
       );
-      output.setCryptoAmount(trade.depositAmount.toString());
+      if(!isSendAll) {
+        output.setCryptoAmount(trade.depositAmount.toString());
+      } else {
+        output.setSendAll(
+            (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+      }
       output.address = trade.fundingAddress;
       return _transactionService.createTransaction([output]);
     }

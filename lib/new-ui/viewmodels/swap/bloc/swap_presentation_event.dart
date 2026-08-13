@@ -19,3 +19,7 @@ final class AliaspayAddressFound extends SwapPresentationEvent {
 final class SwapCreationStarted extends SwapPresentationEvent {
   const SwapCreationStarted();
 }
+
+final class SwapAllNotReady extends SwapPresentationEvent {
+  const SwapAllNotReady();
+}

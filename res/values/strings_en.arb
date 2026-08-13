@@ -1184,6 +1184,7 @@
   "sync_all_wallets": "Sync all wallets",
   "sync_attempting": "Attempting sync",
   "sync_attempting_scan": "Attempting scan",
+  "sync_before_swap_all": "Your wallet needs to be synced before you can use its funds to swap.",
   "sync_connected": "Connected",
   "sync_connecting": "Connecting",
   "sync_not_connected": "Not Connected",
