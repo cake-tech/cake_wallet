@@ -313,7 +313,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               key: ValueKey('new_wallet_page_advanced_settings_button_key'),
               onPressed: () {
                 Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
-                  "type": _walletNewVM.type,
+                  "types": [_walletNewVM.type],
                   "useTestnet": _walletNewVM.useTestnet,
                   "toggleTestnet": _walletNewVM.toggleUseTestnet,
                   "zcashNetwork": _walletNewVM.zcashNetwork,

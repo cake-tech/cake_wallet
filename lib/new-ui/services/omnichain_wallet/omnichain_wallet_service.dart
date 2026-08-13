@@ -8,11 +8,11 @@ import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class OmniChainWalletCreationService {
   OmniChainWalletCreationService({
@@ -94,6 +94,8 @@ class OmniChainWalletCreationService {
         mnemonic: mnemonic,
         options: options,
         makeCurrent: true,
+        useTestnet: request.useTestnet,
+        zcashNetwork: request.zcashNetwork,
       );
 
       final wallet = appStore.wallet;
@@ -177,12 +179,16 @@ class OmniChainWalletCreationService {
     required String? mnemonic,
     required dynamic options,
     required bool makeCurrent,
+    bool useTestnet = false,
+    int zcashNetwork = ZcashNetworkType.mainnet,
   }) async {
     final newArgs =
         NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
 
     final walletNewVM = walletNewVMBuilder(newArgs);
     walletNewVM.name = finalName;
+    walletNewVM.toggleUseTestnet(useTestnet);
+    walletNewVM.setZcashNetwork(zcashNetwork);
     await walletNewVM.create(options: options, makeCurrent: makeCurrent);
   }
 

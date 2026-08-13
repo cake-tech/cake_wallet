@@ -52,7 +52,7 @@ class AdvancedPrivacySettingsPage extends BasePage {
   final void Function(int network) setZcashNetwork;
 
   @override
-  Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(
+  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
         isFromRestore,
         isChildWallet,
         useTestnet,
@@ -65,8 +65,8 @@ class AdvancedPrivacySettingsPage extends BasePage {
       );
 }
 
-class _AdvancedPrivacySettingsBody extends StatefulWidget {
-  const _AdvancedPrivacySettingsBody(
+class AdvancedPrivacySettingsBody extends StatefulWidget {
+  const AdvancedPrivacySettingsBody(
     this.isFromRestore,
     this.isChildWallet,
     this.useTestnet,
@@ -75,8 +75,9 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.setZcashNetwork,
     this.privacySettingsViewModel,
     this.nodeViewModel,
-    this.seedTypeViewModel,
-  );
+    this.seedTypeViewModel, {
+    super.key,
+  });
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
@@ -90,10 +91,10 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
   final void Function(int network) setZcashNetwork;
 
   @override
-  _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
+  State<AdvancedPrivacySettingsBody> createState() => _AdvancedPrivacySettingsBodyState();
 }
 
-class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
+class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
   final TextEditingController confirmPassphraseController = TextEditingController();
   final _formKey = GlobalKey<NodeFormState>();
@@ -109,11 +110,11 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
     confirmPassphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
 
     if (widget.isChildWallet) {
-      if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
+      if (widget.privacySettingsViewModel.singleType == WalletType.bitcoin) {
         widget.seedTypeViewModel.setBitcoinSeedType(BitcoinSeedType.bip39);
       }
 
-      if (widget.privacySettingsViewModel.type == WalletType.nano) {
+      if (widget.privacySettingsViewModel.singleType == WalletType.nano) {
         widget.seedTypeViewModel.setNanoSeedType(NanoSeedType.bip39);
       }
     }
@@ -279,24 +280,26 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                         widget.privacySettingsViewModel.setUseBlinkProtection(value);
                       },
                     ),
-                  SettingsSwitcherCell(
-                    title: S.current.add_custom_node,
-                    value: widget.privacySettingsViewModel.addCustomNode,
-                    onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
-                  ),
-                  if (widget.privacySettingsViewModel.addCustomNode)
-                    Padding(
-                      padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                      child: NodeForm(
-                        key: _formKey,
-                        nodeViewModel: widget.nodeViewModel,
-                      ),
-                    )
+                  if (widget.privacySettingsViewModel.hasCustomNodeOption) ...[
+                    SettingsSwitcherCell(
+                      title: S.current.add_custom_node,
+                      value: widget.privacySettingsViewModel.addCustomNode,
+                      onValueChange: (_, __) =>
+                          widget.privacySettingsViewModel.toggleAddCustomNode(),
+                    ),
+                    if (widget.privacySettingsViewModel.addCustomNode)
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                        child: NodeForm(
+                          key: _formKey,
+                          nodeViewModel: widget.nodeViewModel,
+                        ),
+                      )
+                  ],
                 ],
               );
             }),
-            if (FeatureFlag.hasDevOptions &&
-                widget.privacySettingsViewModel.type == WalletType.zcash)
+            if (FeatureFlag.hasDevOptions && widget.privacySettingsViewModel.supportsZcashNetworkOption)
               SettingsChoicesCell(
                 ChoicesListItem<int>(
                   title: 'Zcash network',
@@ -309,8 +312,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   },
                 ),
               ),
-            if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
-                widget.privacySettingsViewModel.type == WalletType.decred)
+            if (widget.privacySettingsViewModel.supportsTestnetToggle)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
@@ -352,7 +354,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   widget.nodeViewModel.save();
                 }
                 if (testnetValue == true &&
-                    widget.privacySettingsViewModel.type == WalletType.bitcoin) {
+                    widget.privacySettingsViewModel.singleType == WalletType.bitcoin) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
                   // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;

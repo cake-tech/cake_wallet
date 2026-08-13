@@ -1,4 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_advanced_settings_sheet.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
@@ -189,27 +190,39 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                 ),
               ],
               const SizedBox(height: 32),
-              Center(
-                child: Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(999999),
-                  child: InkWell(
+                Center(
+                  child: Material(
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(999999),
-                    onTap: () {
-                      // TODO: advanced settings action
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                      child: Text(
-                        S.of(context).advanced_settings,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(999999),
+                      onTap: () {
+                        final bloc = context.read<OmniChainWalletBloc>();
+
+                        OmniChainAdvancedSettingsSheet.show(
+                          context,
+                          types: state.selectedTypes.toList(),
+                          useTestnet: state.useTestnet,
+                          toggleUseTestnet: (bool? value) =>
+                              bloc.add(OmniChainWalletTestnetToggled(value)),
+                          zcashNetwork: state.zcashNetwork,
+                          setZcashNetwork: (int network) =>
+                              bloc.add(OmniChainWalletZcashNetworkChanged(network)),
+                          isChildWallet: false,
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                        child: Text(
+                          S.of(context).advanced_settings,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
               const Spacer(flex: 3),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),

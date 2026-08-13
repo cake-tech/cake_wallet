@@ -465,8 +465,8 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, List<WalletType>, void>(
+      (types, _) => AdvancedPrivacySettingsViewModel(types, getIt.get<SettingsStore>()));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
@@ -477,7 +477,7 @@ Future<void> setup({
       (newWalletArgs, _) => WalletNewVM(
             getIt.get<AppStore>(),
             getIt.get<WalletCreationService>(param1: newWalletArgs.type),
-            getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: [newWalletArgs.type]),
             getIt.get<SeedSettingsViewModel>(),
             newWalletArguments: newWalletArgs,
           ));

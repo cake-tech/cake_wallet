@@ -863,7 +863,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
-      final type = args['type'] as WalletType;
+      final types = args['types'] as List<WalletType>? ?? [];
       final isFromRestore = args['isFromRestore'] as bool? ?? false;
       final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
@@ -871,9 +871,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
       final setZcashNetwork =
           args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
-      final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
-      final viewModelParam = {'type': type, 'isPow': false};
+      final viewModelParam = {
+        'type': types.length == 1 ? types.first : WalletType.none,
+        'isPow': false,
+      };
 
       return handleRouteWithPlatformAwareness(
         (context) => AdvancedPrivacySettingsPage(
@@ -884,7 +886,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           zcashNetwork: zcashNetwork,
           setZcashNetwork: setZcashNetwork,
           advancedPrivacySettingsViewModel:
-              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+              getIt.get<AdvancedPrivacySettingsViewModel>(param1: types),
           nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
         ),

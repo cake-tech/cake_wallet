@@ -27,6 +27,18 @@ class OmniChainWalletGroupNameChanged extends OmniChainWalletEvent {
 
 class OmniChainWalletGroupNameGenerated extends OmniChainWalletEvent {}
 
+class OmniChainWalletTestnetToggled extends OmniChainWalletEvent {
+  OmniChainWalletTestnetToggled(this.value);
+
+  final bool? value;
+}
+
+class OmniChainWalletZcashNetworkChanged extends OmniChainWalletEvent {
+  OmniChainWalletZcashNetworkChanged(this.network);
+
+  final int network;
+}
+
 class OmniChainWalletCredentialsSubmitted extends OmniChainWalletEvent {}
 
 // ---- Step 3: summary ----

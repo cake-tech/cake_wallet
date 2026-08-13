@@ -1,3 +1,4 @@
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/wallet_type.dart';
 
 const Object _noChange = Object();
@@ -39,12 +40,16 @@ class WalletCreationCustomization extends WalletCreationState {
     this.groupName = "",
     this.groupNameError,
     this.providedPassphrase,
+    this.useTestnet = false,
+    this.zcashNetwork = ZcashNetworkType.mainnet,
   });
 
   final Set<WalletType> selectedTypes;
   final String groupName;
   final String? groupNameError;
   final String? providedPassphrase;
+  final bool useTestnet;
+  final int zcashNetwork;
 
   bool get canContinue => groupName.trim().isNotEmpty && groupNameError == null;
 
@@ -53,12 +58,16 @@ class WalletCreationCustomization extends WalletCreationState {
     Object? groupNameError = _noChange,
     Object? providedMnemonic = _noChange,
     Object? providedPassphrase = _noChange,
+    bool? useTestnet,
+    int? zcashNetwork,
   }) => WalletCreationCustomization(
     selectedTypes: selectedTypes,
     groupName: groupName ?? this.groupName,
     groupNameError: groupNameError == _noChange ? this.groupNameError : groupNameError as String?,
     providedPassphrase:
     providedPassphrase == _noChange ? this.providedPassphrase : providedPassphrase as String?,
+    useTestnet: useTestnet ?? this.useTestnet,
+    zcashNetwork: zcashNetwork ?? this.zcashNetwork,
   );
 }
 
@@ -68,11 +77,15 @@ class WalletCreationSummary extends WalletCreationState {
     required this.selectedTypes,
     required this.groupName,
     this.providedPassphrase,
+    this.useTestnet = false,
+    this.zcashNetwork = ZcashNetworkType.mainnet,
   });
 
   final Set<WalletType> selectedTypes;
   final String groupName;
   final String? providedPassphrase;
+  final bool useTestnet;
+  final int zcashNetwork;
 }
 
 /// Step 4 — the user picks the initial network to open.
@@ -83,6 +96,8 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
     this.primaryType,
     this.creationError,
     this.providedPassphrase,
+    this.useTestnet = false,
+    this.zcashNetwork = ZcashNetworkType.mainnet,
   });
 
   final Set<WalletType> selectedTypes;
@@ -90,6 +105,8 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
   final WalletType? primaryType;
   final String? creationError;
   final String? providedPassphrase;
+  final bool useTestnet;
+  final int zcashNetwork;
 
   bool get canCreate => primaryType != null;
 
@@ -102,6 +119,8 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
       primaryType: primaryType == _noChange ? this.primaryType : primaryType as WalletType?,
       creationError: creationError == _noChange ? this.creationError : creationError as String?,
       providedPassphrase: providedPassphrase,
+      useTestnet: useTestnet,
+      zcashNetwork: zcashNetwork,
     );
 }
 

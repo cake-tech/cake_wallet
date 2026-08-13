@@ -18,6 +18,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     on<OmniChainWalletChainSelectionConfirmed>(_onChainSelectionConfirmed);
     on<OmniChainWalletGroupNameChanged>(_onGroupNameChanged);
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
+    on<OmniChainWalletTestnetToggled>(_onTestnetToggled);
+    on<OmniChainWalletZcashNetworkChanged>(_onZcashNetworkChanged);
     on<OmniChainWalletCredentialsSubmitted>(_onCredentialsSubmitted);
     on<OmniChainWalletSummaryConfirmed>(_onSummaryConfirmed);
     on<OmniChainWalletPrimaryTypeSelected>(_onPrimaryTypeSelected);
@@ -135,7 +137,29 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
       selectedTypes: current.selectedTypes,
       groupName: current.groupName,
       providedPassphrase: current.providedPassphrase,
+      useTestnet: current.useTestnet,
+      zcashNetwork: current.zcashNetwork,
     ));
+  }
+
+  void _onTestnetToggled(
+    OmniChainWalletTestnetToggled event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+
+    emit(current.copyWith(useTestnet: event.value ?? !current.useTestnet));
+  }
+
+  void _onZcashNetworkChanged(
+    OmniChainWalletZcashNetworkChanged event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+
+    emit(current.copyWith(zcashNetwork: event.network));
   }
 
   // ---- Step 3: summary ----
@@ -154,6 +178,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
       groupName: current.groupName,
       primaryType: singleType,
       providedPassphrase: current.providedPassphrase,
+      useTestnet: current.useTestnet,
+      zcashNetwork: current.zcashNetwork,
     ));
 
     if (singleType != null) {
@@ -188,6 +214,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
           primaryType: current.primaryType!,
           groupName: current.groupName,
           passphrase: current.providedPassphrase,
+          useTestnet: current.useTestnet,
+          zcashNetwork: current.zcashNetwork,
         ),
       );
 
