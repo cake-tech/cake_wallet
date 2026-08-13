@@ -3,6 +3,7 @@ import "package:cake_wallet/core/address_resolver/address_resolver_service.dart"
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
@@ -393,8 +394,17 @@ class SwapProviderPreview extends StatelessWidget {
           rate = rs.rates.max;
         }
 
+        ExchangeProviderDescription? forcedProvider;
+        if (state is SwapInputState && rateState is RatesNotFound) {
+          forcedProvider = state.forcedProvider;
+        }
+
         return GestureDetector(
           onTap: () {
+            if (forcedProvider != null) {
+              bloc.add(const ForcedProviderSelected(null));
+              return;
+            }
             if (rate != null) {
               Navigator.of(context).push(
                 CupertinoPageRoute(
@@ -415,31 +425,44 @@ class SwapProviderPreview extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (rateState is RatesNotFound)
-                    Row(
-                      crossAxisAlignment: .center,
-                      spacing: 12,
-                      children: [
-                        CakeImageWidget(
-                          imageUrl: "assets/new-ui/warning.svg",
-                          width: 28,
-                          height: 28,
-                        ),
-                        Column(
-                          crossAxisAlignment: .start,
-                          mainAxisAlignment: .center,
-                          children: [
-                            Text(S.of(context).no_rates_found),
-                            Wrap(
+                    Flexible(
+                      child: Row(
+                        crossAxisAlignment: .center,
+                        spacing: 12,
+                        children: [
+                          CakeImageWidget(
+                            imageUrl: forcedProvider?.image ?? "assets/new-ui/warning.svg",
+                            width: 28,
+                            height: 28,
+                          ),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: .start,
+                              mainAxisAlignment: .center,
                               children: [
                                 Text(
-                                  S.of(context).no_rates_found_desc,
-                                  style: const TextStyle(fontSize: 12),
+                                  forcedProvider == null
+                                      ? S.of(context).no_rates_found
+                                      : S.of(context).no_rate_from_provider(forcedProvider.title),
+                                ),
+                                Wrap(
+                                  children: [
+                                    Text(
+                                      forcedProvider == null
+                                          ? S.of(context).no_rates_found_desc
+                                          : S.of(context).no_rate_from_provider_desc,
+                                      style: TextStyle(fontSize: 12, color: Theme
+                                          .of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
 
                   Row(
