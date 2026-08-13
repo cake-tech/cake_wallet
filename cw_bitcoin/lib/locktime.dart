@@ -15,9 +15,4 @@ int antiFeeSnipingLocktime({
 }
 
 /// Little-endian 4-byte encoding for `BtcTransaction.locktime`.
-List<int> locktimeToBytes(int locktime) => [
-      locktime & 0xff,
-      (locktime >> 8) & 0xff,
-      (locktime >> 16) & 0xff,
-      (locktime >> 24) & 0xff,
-    ];
+List<int> locktimeToBytes(int locktime) => (ByteData(4)..setUint32(0, locktime, Endian.little)).buffer.asUint8List()
