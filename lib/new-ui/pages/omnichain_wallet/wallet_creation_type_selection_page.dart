@@ -118,13 +118,16 @@ class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationType
 
   void _onUnselectAll() => _bloc.add(OmniChainWalletTypesDeselected());
 
-  void _continue() {
+  void _continue() async {
     _bloc.add(OmniChainWalletChainSelectionConfirmed());
 
-    Navigator.of(context).pushNamed(
+    await Navigator.of(context).pushNamed(
       Routes.walletCreationDetailsPage,
       arguments: _bloc,
     );
+
+    if (!mounted) return;
+    _bloc.add(OmniChainWalletChainSelectionReopened());
   }
 
   @override

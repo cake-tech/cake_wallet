@@ -9,13 +9,14 @@ import "package:cw_core/wallet_type.dart";
 
 class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState> {
   OmniChainWalletBloc({
-    required Set<WalletType> allWalletTypes,
+    required this.allWalletTypes,
     required this.creationService,
   }) : super(WalletCreationChainSelection(allWalletTypes: allWalletTypes)) {
     on<OmniChainWalletTypeToggled>(_onWalletTypeToggled);
     on<OmniChainWalletTypesDeselected>(_onWalletTypesDeselected);
     on<OmniChainWalletTypesSelected>(_onWalletTypesSelected);
     on<OmniChainWalletChainSelectionConfirmed>(_onChainSelectionConfirmed);
+    on<OmniChainWalletChainSelectionReopened>(_onChainSelectionReopened);
     on<OmniChainWalletGroupNameChanged>(_onGroupNameChanged);
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
     on<OmniChainWalletTestnetToggled>(_onTestnetToggled);
@@ -26,6 +27,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     on<OmniChainWalletGroupCreateRequested>(_onGroupCreateRequested);
   }
 
+  final Set<WalletType> allWalletTypes;
   final OmniChainWalletCreationService creationService;
 
   // ---- Step 1: chain selection ----
@@ -90,6 +92,33 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     emit(WalletCreationCustomization(
       selectedTypes: Set<WalletType>.unmodifiable(current.selectedTypes),
     ));
+  }
+
+  /// Restores the chain-selection step (e.g. when the user navigates back
+  /// events are only handled while the bloc is in [WalletCreationChainSelection].
+  void _onChainSelectionReopened(
+    OmniChainWalletChainSelectionReopened event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+
+    final Set<WalletType> selectedTypes;
+    switch (current) {
+      case WalletCreationChainSelection _:
+        return; // already there, nothing to do
+      case WalletCreationCustomization customization:
+        selectedTypes = customization.selectedTypes;
+      case WalletCreationSummary summary:
+        selectedTypes = summary.selectedTypes;
+      case WalletCreationOpeningNetwork openingNetwork:
+        selectedTypes = openingNetwork.selectedTypes;
+      case WalletCreationCreating creating:
+        selectedTypes = creating.request.selectedTypes;
+      case WalletCreated _:
+        return;
+    }
+
+    emit(WalletCreationChainSelection(allWalletTypes: allWalletTypes, selectedTypes: selectedTypes));
   }
 
   // ---- Step 2: customization ----

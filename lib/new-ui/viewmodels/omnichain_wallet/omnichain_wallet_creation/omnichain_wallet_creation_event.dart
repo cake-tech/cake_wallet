@@ -17,6 +17,8 @@ class OmniChainWalletTypesSelected extends OmniChainWalletEvent {}
 
 class OmniChainWalletChainSelectionConfirmed extends OmniChainWalletEvent {}
 
+class OmniChainWalletChainSelectionReopened extends OmniChainWalletEvent {}
+
 // ---- Step 2: customization ----
 
 class OmniChainWalletGroupNameChanged extends OmniChainWalletEvent {
