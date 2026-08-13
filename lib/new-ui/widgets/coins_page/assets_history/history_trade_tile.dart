@@ -114,7 +114,12 @@ class HistoryTradeTile extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           if (toChainIcon?.isNotEmpty ?? false)
-            CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12),
+            CakeImageWidget(
+              imageUrl: toChainIcon,
+              width: 12,
+              height: 12,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
         ],
       ),
       leadingIcon: _getLeadingStack(context),

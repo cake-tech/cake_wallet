@@ -13,7 +13,10 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class SingleNetworkCurrencyPicker extends StatefulWidget {
-  const SingleNetworkCurrencyPicker({super.key, required this.args});
+  const SingleNetworkCurrencyPicker({
+    required this.args,
+    super.key,
+  });
 
   final CurrencyPickerArgs args;
 
@@ -45,22 +48,33 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
 
   Money _fiatValueFor(CryptoCurrency c) =>
       _args.balanceByAsset?[c]?.fiat ?? Money.zero(_args.fiatCurrency);
+  CurrencyPickerBalance? _balanceFor(CryptoCurrency c) => balanceForAsset(_args.balanceByAsset, c);
 
   @override
   Widget build(BuildContext context) {
     final native = walletTypeToCryptoCurrency(_network);
     final query = _searchController.text.trim();
-    final tokens =
-        _args.items.where((c) => c != native).where((c) => currencyMatchesQuery(c, query)).toList();
+    final tokens = _args.items
+        .where(
+          (c) =>
+              c != native &&
+              cryptoCurrencyOrTokenToWalletType(c) == _network &&
+              currencyMatchesQuery(c, query),
+        )
+        .toList();
 
     final insertOrder = {for (var i = 0; i < tokens.length; i++) tokens[i]: i};
     tokens.sort((a, b) {
       final av = _fiatValueFor(a);
       final bv = _fiatValueFor(b);
-      if (bv != av) return bv.compareTo(av);
+      if (bv != av) {
+        return bv.compareTo(av);
+      }
       return (insertOrder[a] ?? 0).compareTo(insertOrder[b] ?? 0);
     });
     final nativeMatches = currencyMatchesQuery(native, query);
+
+    final showSectionHeaders = _network != WalletType.bitcoin;
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -69,40 +83,61 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
           child: (nativeMatches || tokens.isNotEmpty)
               ? ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  children: [
-                    if (nativeMatches) ...[
-                      PickerSectionHeader(title: S.of(context).picker_section_gas_token),
-                      CurrencyPickerListContainer(
-                        rows: [
-                          CurrencyPickerRow(
-                            currency: native,
-                            isSelected: _args.selected == native,
-                            trailing: _BalanceTrailing(balance: _args.balanceByAsset?[native]),
-                            onTap: () => _selectCurrency(native),
+                  children: showSectionHeaders
+                      ? [
+                          if (nativeMatches) ...[
+                            PickerSectionHeader(title: S.of(context).picker_section_gas_token),
+                            CurrencyPickerListContainer(
+                              rows: [
+                                CurrencyPickerRow(
+                                  currency: native,
+                                  isSelected: _args.selected == native,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(native)),
+                                  onTap: () => _selectCurrency(native),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          if (tokens.isNotEmpty) ...[
+                            PickerSectionHeader(
+                              title: S
+                                  .of(context)
+                                  .picker_section_tokens_standard(tokenStandardFor(_network)),
+                            ),
+                            CurrencyPickerListContainer(
+                              rows: [
+                                for (final t in tokens)
+                                  CurrencyPickerRow(
+                                    currency: t,
+                                    isSelected: _args.selected == t,
+                                    trailing: _BalanceTrailing(balance: _balanceFor(t)),
+                                    onTap: () => _selectCurrency(t),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ]
+                      : [
+                          CurrencyPickerListContainer(
+                            rows: [
+                              if (nativeMatches)
+                                CurrencyPickerRow(
+                                  currency: native,
+                                  isSelected: _args.selected == native,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(native)),
+                                  onTap: () => _selectCurrency(native),
+                                ),
+                              for (final t in tokens)
+                                CurrencyPickerRow(
+                                  currency: t,
+                                  isSelected: _args.selected == t,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(t)),
+                                  onTap: () => _selectCurrency(t),
+                                ),
+                            ],
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (tokens.isNotEmpty) ...[
-                      PickerSectionHeader(
-                        title: S
-                            .of(context)
-                            .picker_section_tokens_standard(tokenStandardFor(_network)),
-                      ),
-                      CurrencyPickerListContainer(
-                        rows: [
-                          for (final t in tokens)
-                            CurrencyPickerRow(
-                              currency: t,
-                              isSelected: _args.selected == t,
-                              trailing: _BalanceTrailing(balance: _args.balanceByAsset?[t]),
-                              onTap: () => _selectCurrency(t),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
                 )
               : Center(
                   child: Padding(

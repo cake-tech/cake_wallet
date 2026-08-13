@@ -82,6 +82,7 @@ class WCSigningRequestSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: ConfirmSwiper(
             swiperText: swipeLabel,
+            accessibleNavigationModeButtonText: S.of(context).confirm,
             onConfirmed: () {
               if (Navigator.canPop(context)) {
                 Navigator.of(context).pop(WCBottomSheetResult.one);

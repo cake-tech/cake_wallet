@@ -229,11 +229,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   PaymentURI get uri {
     if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
+      final erc20Token = tokenCurrency! as Erc20Token;
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: wallet.walletAddresses.address,
         amount: _amount?.toString() ?? "",
-        contractAddress: (tokenCurrency! as Erc20Token).contractAddress,
+        contractAddress: erc20Token.contractAddress,
+        tokenDecimals: erc20Token.decimal,
       );
     }
     if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
