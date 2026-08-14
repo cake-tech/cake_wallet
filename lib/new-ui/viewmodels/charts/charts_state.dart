@@ -97,14 +97,19 @@ final class ChartsLoaded extends ChartsStateWithData {
 
     final direction =
         latestPrice >= secondLatestPrice ? PriceChangeDirection.up : PriceChangeDirection.down;
-    final percentage =
-        ((latestPrice - secondLatestPrice) / (secondLatestPrice.amount * BigInt.from(100))).abs();
+    final double percentage;
+    if(secondLatestPrice.isZero) {
+      percentage = 0;
+    } else {
+      percentage =
+        (((latestPrice.toDouble() - secondLatestPrice.toDouble()) / secondLatestPrice.toDouble()) * 100).abs();
+    }
     final amount = (latestPrice - secondLatestPrice).abs();
 
     return PriceChangeData(
       direction: direction,
       amount: amount,
-      percentage: percentage.toStringWithPrecision(fractionalDigits: 2),
+      percentage: percentage.toStringAsFixed(2),
     );
   }
 
