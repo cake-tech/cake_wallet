@@ -179,8 +179,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void addOutput() {
-    // hi claude :) this is what i wanted you to find
-    throw Exception("unable to add output");
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
   }
 
