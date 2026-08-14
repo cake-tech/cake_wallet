@@ -899,6 +899,16 @@ abstract class ElectrumWalletBase
   bool _isBelowDust(BigInt amount) =>
       amount <= networkDustAmount && network != BitcoinNetwork.testnet;
 
+  // Random draw priority per outpoint. Assigned lazily with a secure RNG and kept
+  // until the next createTransaction call, so the recursive estimate passes of one
+  // transaction build all see the same input order (reshuffling between passes made
+  // fee estimation unstable). Cleared per transaction so each send is a fresh draw.
+  final Random _coinSelectionRng = Random.secure();
+  final Map<String, int> _coinSelectionOrder = {};
+
+  int _coinSelectionPriority(BitcoinUnspent utx) => _coinSelectionOrder.putIfAbsent(
+      '${utx.hash}:${utx.vout}', () => _coinSelectionRng.nextInt(1 << 32));
+
   UtxoDetails _createUTXOS({
     required bool sendAll,
     required bool paysToSilentPayment,
@@ -934,9 +944,15 @@ abstract class ElectrumWalletBase
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
-    // Single Random Draw: shuffle the pool so selection is non-deterministic, removing the
-    // predictable address/scan order (a fingerprint). MWEB coins are kept last afterwards.
-    availableInputs.shuffle(Random.secure());
+    // Single Random Draw: order the pool by each coin's random priority so selection is
+    // non-deterministic, removing the predictable address/scan order (a fingerprint).
+    // The priority is stable across the repeated calls of one transaction build.
+    // MWEB coins are kept last afterwards.
+    availableInputs.sort((a, b) {
+      final byPriority = _coinSelectionPriority(a).compareTo(_coinSelectionPriority(b));
+      if (byPriority != 0) return byPriority;
+      return '${a.hash}:${a.vout}'.compareTo('${b.hash}:${b.vout}');
+    });
     availableInputs = [
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),
@@ -1470,6 +1486,10 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
+      // New transaction, new random draw: drop the previous input ordering so this
+      // build gets fresh priorities, then keep them fixed for all estimate passes.
+      _coinSelectionOrder.clear();
+
       // start by updating unspent coins
       await updateAllUnspents();
 
