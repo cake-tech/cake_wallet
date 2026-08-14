@@ -1,5 +1,6 @@
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/model/charts/datetime_extension.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/db/sqlite.dart";
@@ -24,26 +25,25 @@ Currency currencyFromApiString(String key) {
 }
 
 class PriceData implements Comparable<PriceData> {
-  const PriceData({required this.time, required this.from, required this.to, required this.price});
+  const PriceData({required this.time, required this.base, required this.quote,});
 
   factory PriceData.fromJson(Map<String, dynamic> json) => PriceData(
         time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
-        from: currencyFromApiString(json["fromCurrency"] as String),
-        to: currencyFromApiString(json["toCurrency"] as String),
-        price: json["price"] as String,
+        base: currencyFromApiString(json["fromCurrency"] as String),
+        quote: Money.parse(
+            json["price"] as String, currencyFromApiString(json["toCurrency"] as String),),
       );
   final DateTime time;
-  final Currency from;
-  final Currency to;
-  final String price;
+  final Currency base;
+  final Money quote;
 
   static const tableName = "PriceData";
 
   Map<String, dynamic> toJson() => {
         "timestamp": time.secondsSinceEpoch.toString(),
-        "price": price,
-        "fromCurrency": from.apiString,
-        "toCurrency": to.apiString,
+        "price": quote.toString(),
+        "fromCurrency": base.apiString,
+        "toCurrency": quote.currency.apiString,
       };
 
   static Future<List<PriceData>> get(
@@ -90,10 +90,13 @@ class PriceData implements Comparable<PriceData> {
 
   @override
   bool operator ==(Object other) =>
-      other is PriceData && time == other.time && from == other.from && to == other.to;
+      other is PriceData &&
+      time == other.time &&
+      base == other.base &&
+      quote.currency == other.quote.currency;
 
   @override
-  int get hashCode => Object.hash(time, from, to);
+  int get hashCode => Object.hash(time, base, quote.currency);
 
   @override
   int compareTo(PriceData other) => time.compareTo(other.time);

@@ -22,7 +22,7 @@ class ChartModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (context) => getIt.get<ChartsBloc>(),
+        create: (context) => getIt.get<ChartsBloc>()..add(Init()),
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,

@@ -79,7 +79,7 @@ final class ChartsLoaded extends ChartsStateWithData {
   final Map<CryptoCurrency, List<PriceData>> _prices;
 
   @override
-  String get fiatTicker => _prices[_prices.keys.first]?.firstOrNull?.from.name ?? "";
+  String get fiatTicker => _prices[_prices.keys.first]?.firstOrNull?.base.name ?? "";
 
   @override
   List<CryptoCurrency> get currencies {
@@ -89,21 +89,22 @@ final class ChartsLoaded extends ChartsStateWithData {
   }
 
   @override
-  String priceDisplayStringFor(CryptoCurrency curr) => _prices[curr]?.lastOrNull?.price ?? "...";
+  String priceDisplayStringFor(CryptoCurrency curr) => _prices[curr]?.lastOrNull?.quote.toString() ?? "...";
 
   PriceChangeData changeDataFor(CryptoCurrency curr) {
-    final latestPrice = double.tryParse(_prices[curr]?.lastOrNull?.price ?? "") ?? 0;
-    final secondLatestPrice = double.tryParse(_prices[curr]?.firstOrNull?.price ?? "") ?? 0;
+    final latestPrice = _prices[curr]?.lastOrNull?.quote ?? Money.zero(FiatCurrency.usd);
+    final secondLatestPrice = _prices[curr]?.firstOrNull?.quote ?? Money.zero(FiatCurrency.usd);
 
     final direction =
         latestPrice >= secondLatestPrice ? PriceChangeDirection.up : PriceChangeDirection.down;
-    final percentage = ((latestPrice - secondLatestPrice) / secondLatestPrice * 100).abs();
+    final percentage =
+        ((latestPrice - secondLatestPrice) / (secondLatestPrice.amount * BigInt.from(100))).abs();
     final amount = (latestPrice - secondLatestPrice).abs();
 
     return PriceChangeData(
       direction: direction,
-      amount: amount.toStringAsFixed(2),
-      percentage: percentage.toStringAsFixed(2),
+      amount: amount,
+      percentage: percentage.toStringWithPrecision(fractionalDigits: 2),
     );
   }
 

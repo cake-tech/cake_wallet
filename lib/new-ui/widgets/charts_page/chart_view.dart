@@ -21,7 +21,7 @@ class PriceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final chartPoints = prices.map((entry) {
       final x = entry.time.millisecondsSinceEpoch.toDouble();
-      final y = double.parse(entry.price);
+      final y = entry.quote.toDouble();
       return FlSpot(x, y);
     }).toList();
 

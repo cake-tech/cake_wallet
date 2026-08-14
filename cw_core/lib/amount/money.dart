@@ -244,4 +244,6 @@ class Money implements Comparable<Money> {
     }
     return currency.symbol;
   }
+
+  Money abs() => _withAmount(amount.abs());
 }
