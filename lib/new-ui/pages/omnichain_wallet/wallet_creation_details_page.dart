@@ -1,10 +1,8 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_advanced_settings_sheet.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -13,7 +11,6 @@ import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class WalletCreationDetailsPage extends BasePage {
   WalletCreationDetailsPage();
@@ -246,64 +243,6 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
           ),
         );
       },
-    );
-  }
-}
-
-class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
-  const OmniChainHowToChangeNetworksSheet({super.key});
-
-  static Future<void> show(BuildContext context) => showCupertinoModalBottomSheet<void>(
-    context: context,
-    barrierColor: Colors.black.withAlpha(85),
-    builder: (_) => const Material(
-      child: OmniChainHowToChangeNetworksSheet(),
-    ),
-  );
-
-  static const _paragraphs = [
-    "You can find the Network Selector on the top left corner of your wallet's homescreen.",
-    "That way, you can easily change networks without having to navigate to a different tab on Cake Wallet.",
-    "If you are familiar with Wallet Groups, this is an improved navigation for them.",
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ModalTopBar(
-          title: "How to Change Network",
-          leadingIcon: const Icon(Icons.arrow_back_ios_new),
-          onLeadingPressed: Navigator.of(context).pop,
-          leadingSemanticLabel: S.of(context).close,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const FrameIconWidget(iconSize: 96),
-              const SizedBox(height: 36),
-              ..._paragraphs.map(
-                    (paragraph) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    paragraph,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
