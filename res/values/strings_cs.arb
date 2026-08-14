@@ -388,7 +388,6 @@
   "edit_backup_password": "Upravit heslo zálohy",
   "edit_card": "Upravit kartu",
   "edit_current": "Upravit aktuální",
-  "edit_label": "Upravit štítek",
   "edit_node": "Upravit uzel",
   "edit_token": "Upravit token",
   "electrum_address_disclaimer": "Při každém použití generujeme novou adresu, ale předchozí adresy stále fungují",

@@ -388,7 +388,6 @@
   "edit_backup_password": "Modifier le mot de passe de sauvegarde",
   "edit_card": "Modifier la carte",
   "edit_current": "Modifier l’actuel",
-  "edit_label": "Modifier l'étiquette",
   "edit_node": "Modifier le nœud",
   "edit_token": "Modifier le jeton",
   "electrum_address_disclaimer": "Nous générons une nouvelle adresse à chaque fois que vous en utilisez une, mais les adresses précédentes continuent de fonctionner",

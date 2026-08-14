@@ -388,7 +388,6 @@
   "edit_backup_password": "编辑备份密码",
   "edit_card": "编辑卡片",
   "edit_current": "编辑当前项",
-  "edit_label": "编辑标签",
   "edit_node": "编辑节点",
   "edit_token": "编辑代币",
   "electrum_address_disclaimer": "我们每次使用一个地址时都会生成一个新地址，但之前的地址仍然有效",

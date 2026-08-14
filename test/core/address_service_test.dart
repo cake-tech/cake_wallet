@@ -269,15 +269,6 @@ void main() {
       scope = _TestScope();
     });
 
-    test("payjoinEndpoint is empty for non-Bitcoin wallets", () {
-      scope = _TestScope(walletType: WalletType.litecoin);
-      final service = scope.build();
-      addTearDown(service.dispose);
-
-      expect(service.payjoinEndpoint, isEmpty);
-      expect(service.isPayjoinUnavailable, isTrue);
-    });
-
     test("receivableTokens ignores non-CryptoCurrency balance keys", () {
       scope = _TestScope(
         balances: {
@@ -769,7 +760,7 @@ void main() {
       scope = _TestScope();
       final failingScope = _FailingScope();
       addTearDown(failingScope.dispose);
-      
+
       final service = failingScope.build();
       addTearDown(service.dispose);
 

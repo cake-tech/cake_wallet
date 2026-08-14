@@ -821,8 +821,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
-      final setZcashNetwork =
-          args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
+      final setZcashNetwork = args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
 
       final viewModelParam = {'type': type, 'isPow': false};
 

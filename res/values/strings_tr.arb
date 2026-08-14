@@ -388,7 +388,6 @@
   "edit_backup_password": "Yedekleme parolasını düzenle",
   "edit_card": "Kartı Düzenle",
   "edit_current": "Geçerli Olanı Düzenle",
-  "edit_label": "Etiketi düzenle",
   "edit_node": "Düğümü Düzenle",
   "edit_token": "Token’ı düzenle",
   "electrum_address_disclaimer": "Bir adresi her kullandığınızda yeni bir adres oluşturuyoruz, ancak önceki adresler de çalışmaya devam eder",

@@ -63,8 +63,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     if (widget.useSatoshi || widget.selectedCurrencyDecimals <= 0) {
       return "0";
     }
-    final hintDecimals =
-        widget.selectedCurrencyDecimals > 8 ? 8 : widget.selectedCurrencyDecimals;
+    final hintDecimals = widget.selectedCurrencyDecimals > 8 ? 8 : widget.selectedCurrencyDecimals;
     return "0.${"0" * hintDecimals}";
   }
 

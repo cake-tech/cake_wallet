@@ -15,6 +15,7 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/debounce.dart";
+import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cw_core/card_design.dart";
@@ -61,9 +62,7 @@ class _AddressesPageBody extends StatelessWidget {
             if (state is! AddressesLoaded || state.failureCode == null) {
               return;
             }
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(S.of(context).error_dialog_content)));
+            showBar(context, S.of(context).error_dialog_content);
           },
           builder: (context, state) => switch (state) {
             AddressesLoading() => const _LoadingWidget(),
@@ -119,18 +118,6 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
     super.initState();
     _searchController = TextEditingController(text: widget.state.searchTerm)
       ..addListener(_onSearchChanged);
-  }
-
-  @override
-  void didUpdateWidget(covariant _LoadedWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.state.walletId != oldWidget.state.walletId &&
-        widget.state.searchTerm != _searchController.text) {
-      _searchController.value = TextEditingValue(
-        text: widget.state.searchTerm,
-        selection: TextSelection.collapsed(offset: widget.state.searchTerm.length),
-      );
-    }
   }
 
   void _onSearchChanged() {
@@ -189,8 +176,7 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                           ),
                           if (!_isPicker && state.showAddManualAddresses)
                             const _AddManualAddressButton(),
-                          if (!_isPicker && state.hasHiddenAddresses)
-                            const _ShowHiddenButton(),
+                          if (!_isPicker && state.hasHiddenAddresses) const _ShowHiddenButton(),
                         ],
                       ),
                     ),
@@ -263,8 +249,7 @@ class _GroupSection extends StatelessWidget {
     }
     return SliverMainAxisGroup(
       slivers: [
-        if (group.header != null)
-          SliverToBoxAdapter(child: _GroupHeader(header: group.header!)),
+        if (group.header != null) SliverToBoxAdapter(child: _GroupHeader(header: group.header!)),
         SliverPadding(
           padding: EdgeInsets.only(bottom: isLast ? 64 : 12),
           sliver: SliverList.separated(
@@ -274,9 +259,8 @@ class _GroupSection extends StatelessWidget {
               return _AddressRow(
                 entry: entry,
                 selected: entry.address == state.activeAddress && !isPicker,
-                first: isFirstGroup &&
-                    index == 0 &&
-                    (state.showHidden || !state.hasHiddenAddresses),
+                first:
+                    isFirstGroup && index == 0 && (state.showHidden || !state.hasHiddenAddresses),
                 last: index == group.entries.length - 1,
                 walletType: state.walletType,
                 hasBalance: state.hasBalance,
@@ -285,7 +269,6 @@ class _GroupSection extends StatelessWidget {
                 canHide: state.canHide,
                 isPicker: isPicker,
                 onSelect: () => onEntrySelected(context, entry.address),
-                onLabelChanged: () {},
                 onAddressHidden: () => context
                     .read<AddressesBloc>()
                     .add(AddressHideToggled(entry.address, hidden: !entry.isHidden)),
@@ -462,9 +445,8 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
         return;
       }
       _designDisposer = reaction<CardDesign?>(
-        (_) => dashboardViewModel.cardDesigns.isNotEmpty
-            ? dashboardViewModel.cardDesigns.first
-            : null,
+        (_) =>
+            dashboardViewModel.cardDesigns.isNotEmpty ? dashboardViewModel.cardDesigns.first : null,
         (value) {
           if (mounted) {
             setState(() => design = value);
@@ -497,12 +479,10 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
               Row(
                 spacing: 10,
                 children: [
-                  Observer(
-                    builder: (_) => BalanceCard(
-                      borderRadius: 5,
-                      width: 50,
-                      design: design ?? CardDesign.genericDefault,
-                    ),
+                  BalanceCard(
+                    borderRadius: 5,
+                    width: 50,
+                    design: design ?? CardDesign.genericDefault,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +549,9 @@ class _ShowHiddenButton extends StatelessWidget {
                       final bloc = context.read<AddressesBloc>();
                       await Navigator.of(context)
                           .pushNamed(Routes.receiveAddresses, arguments: true);
-                      bloc.add(const AddressListRefreshed());
+                      if (!bloc.isClosed) {
+                        bloc.add(const AddressListRefreshed());
+                      }
                     },
                     child: Container(
                       height: 48,
@@ -620,7 +602,6 @@ class _AddressRow extends StatelessWidget {
     required this.canHide,
     required this.isPicker,
     required this.onSelect,
-    required this.onLabelChanged,
     required this.onAddressHidden,
   });
 
@@ -635,7 +616,6 @@ class _AddressRow extends StatelessWidget {
   final bool canHide;
   final bool isPicker;
   final VoidCallback onSelect;
-  final VoidCallback onLabelChanged;
   final VoidCallback onAddressHidden;
 
   @override
@@ -722,21 +702,17 @@ class _AddressRow extends StatelessWidget {
       ),
     );
 
-    final hideLabel =
-        entry.isHidden ? S.of(context).unhide_address : S.of(context).hide_address;
+    final hideLabel = entry.isHidden ? S.of(context).unhide_address : S.of(context).hide_address;
 
     Future<void> editLabel() async {
       final bloc = context.read<AddressesBloc>();
-      final res = await showPopUp<String>(
+      await showPopUp<String>(
         context: context,
         builder: (_) => _AddressLabelInputPopup(
           initialLabel: entry.label ?? "",
           onSaved: (label) => bloc.add(AddressLabelSet(entry.address, label)),
         ),
       );
-      if (res != null) {
-        onLabelChanged();
-      }
     }
 
     Future<void> showInfo() async {
@@ -755,8 +731,7 @@ class _AddressRow extends StatelessWidget {
         customSemanticsActions: isPicker
             ? null
             : <CustomSemanticsAction, VoidCallback>{
-                if (canSetLabel)
-                  CustomSemanticsAction(label: S.of(context).set_label): editLabel,
+                if (canSetLabel) CustomSemanticsAction(label: S.of(context).set_label): editLabel,
                 if (canHide) CustomSemanticsAction(label: hideLabel): onAddressHidden,
                 CustomSemanticsAction(label: S.of(context).show_details): showInfo,
               },
@@ -897,8 +872,7 @@ class _AddressInfoPopup extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (entry.id != null)
-                      Text("${S.of(context).address_index}: ${entry.id}"),
+                    if (entry.id != null) Text("${S.of(context).address_index}: ${entry.id}"),
                     if (entry.id != null &&
                         entry.derivationPath != null &&
                         entry.derivationPath!.isNotEmpty)

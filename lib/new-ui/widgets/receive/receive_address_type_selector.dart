@@ -49,10 +49,13 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
         )
         .toList();
     commonOptions.sort((a, b) {
-      if (widget.lightningMode && a.value.contains("Lightning")) return -1;
-      if (widget.lightningMode && b.value.contains("Lightning")) return 1;
-      if (!widget.lightningMode && a.value.contains("Standard")) return -1;
-      if (!widget.lightningMode && b.value.contains("Standard")) return 1;
+      final preferred = widget.lightningMode ? "Lightning" : "Standard";
+      if (a.value.contains(preferred)) {
+        return -1;
+      }
+      if (b.value.contains(preferred)) {
+        return 1;
+      }
       return a.value.compareTo(b.value);
     });
     final otherOptions = widget.options
@@ -142,8 +145,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                             button: true,
                             expanded: _otherOptionsExpanded,
                             child: InkWell(
-                              highlightColor:
-                                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                              highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.vertical(
                                 top: const Radius.circular(20),
                                 bottom: !_otherOptionsExpanded
@@ -170,8 +172,8 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                       ),
                                       ExcludeSemantics(
                                         child: AnimatedRotation(
-                                          duration: ReceiveAddressTypeSelector
-                                              .otherOptionsExpandDuration,
+                                          duration:
+                                              ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                                           turns: _otherOptionsExpanded ? 0.0 : 0.5,
                                           curve: Curves.easeOut,
                                           child: const CakeImageWidget(
@@ -203,34 +205,34 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                           child: SizedBox(
                             height: _otherOptionsExpanded ? null : 0,
                             child: ListView.separated(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: otherOptions.length,
-                            itemBuilder: (context, index) {
-                              final opt = otherOptions[index];
-                              return ReceiveAddressTypeRow(
-                                option: opt,
-                                walletTypeString: walletTypeString,
-                                roundedTop: false,
-                                roundedBottom: index == otherOptions.length - 1,
-                                selected: widget.selected == opt,
-                                onItemTap: () => Navigator.of(context).pop(opt),
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              if ((widget.selected == otherOptions[index]) ||
-                                  (index != otherOptions.length - 1 &&
-                                      widget.selected == otherOptions[index + 1])) {
-                                return Container();
-                              }
-                              return const Padding(
-                                padding: EdgeInsets.only(left: 44, right: 36),
-                                child: HorizontalSectionDivider(),
-                              );
-                            },
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: otherOptions.length,
+                              itemBuilder: (context, index) {
+                                final opt = otherOptions[index];
+                                return ReceiveAddressTypeRow(
+                                  option: opt,
+                                  walletTypeString: walletTypeString,
+                                  roundedTop: false,
+                                  roundedBottom: index == otherOptions.length - 1,
+                                  selected: widget.selected == opt,
+                                  onItemTap: () => Navigator.of(context).pop(opt),
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                if ((widget.selected == otherOptions[index]) ||
+                                    (index != otherOptions.length - 1 &&
+                                        widget.selected == otherOptions[index + 1])) {
+                                  return Container();
+                                }
+                                return const Padding(
+                                  padding: EdgeInsets.only(left: 44, right: 36),
+                                  child: HorizontalSectionDivider(),
+                                );
+                              },
+                            ),
                           ),
-                        ),
                         ),
                       ),
                     ],

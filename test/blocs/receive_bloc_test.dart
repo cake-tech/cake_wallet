@@ -55,8 +55,7 @@ void main() {
   late StreamController<void> rateChangesController;
   late StreamController<String?> payjoinController;
 
-  ReceiveBloc buildBloc({bool lightningMode = false, CryptoCurrency? initialToken}) =>
-      ReceiveBloc(
+  ReceiveBloc buildBloc({bool lightningMode = false, CryptoCurrency? initialToken}) => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
@@ -73,7 +72,6 @@ void main() {
     List<ReceivePageOption> options = const [],
     List<AddressGroup> addressGroups = const [],
     String currentAddress = "bc1qtestaddress",
-    String payjoinEndpoint = "",
     bool isSilentPayments = false,
     bool isBitcoinViewOnly = false,
     bool isAutoGenerateSubaddressEnabled = false,
@@ -93,7 +91,6 @@ void main() {
     when(() => addressService.addressTypeOptions).thenReturn(options);
     when(() => addressService.computeAddressList()).thenReturn(addressGroups);
     when(() => addressService.currentAddress).thenReturn(currentAddress);
-    when(() => addressService.payjoinEndpoint).thenReturn(payjoinEndpoint);
     when(() => addressService.isSilentPayments).thenReturn(isSilentPayments);
     when(() => addressService.isBitcoinViewOnly).thenReturn(isBitcoinViewOnly);
     when(
@@ -251,10 +248,12 @@ void main() {
             .thenReturn("0.00001235");
         when(() => addressService.canonicalCryptoAmount("1235", CryptoCurrency.btc))
             .thenReturn("1235");
-        when(() => addressService.fetchPaymentRequestUri(
-              rawAmount: any(named: "rawAmount"),
-              token: any(named: "token"),
-            )).thenAnswer((_) async => _btcUri);
+        when(
+          () => addressService.fetchPaymentRequestUri(
+            rawAmount: any(named: "rawAmount"),
+            token: any(named: "token"),
+          ),
+        ).thenAnswer((_) async => _btcUri);
       },
       build: () => buildBloc(lightningMode: true, initialToken: CryptoCurrency.btcln),
       act: (bloc) => bloc.add(const AmountChanged("1235")),
@@ -315,7 +314,10 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "sets tokenCurrency and rebuilds URI",
       setUp: () {
-        wireDefaults(walletCurrency: CryptoCurrency.eth);
+        wireDefaults(
+          walletCurrency: CryptoCurrency.eth,
+          receivableTokens: const [CryptoCurrency.usdc],
+        );
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const TokenPresetSelected(CryptoCurrency.usdc)),
@@ -389,8 +391,7 @@ void main() {
       setUp: () {
         wireDefaults();
         setTypeCompleter = Completer<void>();
-        when(() => addressService.setAddressType(any()))
-            .thenAnswer((_) => setTypeCompleter.future);
+        when(() => addressService.setAddressType(any())).thenAnswer((_) => setTypeCompleter.future);
       },
       build: buildBloc,
       act: (bloc) async {
@@ -539,7 +540,7 @@ void main() {
       build: buildBloc,
       act: (_) async {
         await Future.delayed(const Duration(milliseconds: 20));
-        walletChangesController.add(_FakeWallet());
+        walletChangesController.add(_FakeWalletBase());
         await Future.delayed(const Duration(milliseconds: 20));
       },
       skip: 2, // initial Loading + Loaded
@@ -567,23 +568,31 @@ void main() {
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "payjoin endpoint stream updates state.payjoinEndpoint",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.payjoinEndpoint).thenReturn("https://payjo.in/abc");
-      },
+      "payjoin endpoint stream rebuilds the payment URI",
+      setUp: wireDefaults,
       build: buildBloc,
       act: (_) async {
         await Future.delayed(const Duration(milliseconds: 20));
+        when(
+          () => addressService.buildPaymentUri(
+            rawAmount: any(named: "rawAmount"),
+            token: any(named: "token"),
+          ),
+        ).thenReturn(
+          BitcoinURI(
+            address: _btcAddress.address,
+            amount: "",
+            pjUri: "https://payjo.in/abc",
+          ),
+        );
         payjoinController.add("https://payjo.in/abc");
         await Future.delayed(const Duration(milliseconds: 20));
       },
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
-        expect(state.payjoinEndpoint, "https://payjo.in/abc");
+        expect(state.paymentUri.toString(), contains("pj="));
+        expect(state.hasPayjoin, isTrue);
       },
     );
   });
 }
-
-class _FakeWallet extends Fake implements WalletBase {}

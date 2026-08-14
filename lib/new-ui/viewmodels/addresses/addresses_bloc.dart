@@ -26,7 +26,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     on<AddressLabelSet>(_onLabelSet, transformer: sequential());
     on<AddressAdded>(_onAddressAdded, transformer: droppable());
     on<AddressDeleted>(_onDeleted, transformer: sequential());
-    on<AddressListRefreshed>(_onListRefreshed);
+    on<AddressListRefreshed>(_onListRefreshed, transformer: sequential());
     on<_WalletChanged>(_onWalletChanged, transformer: restartable());
 
     _walletSub = activeWalletService.walletChanges.listen((_) {
@@ -73,6 +73,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
 
+    emit(initial.copyWith(clearFailureCode: true));
     try {
       await addressService.setActiveAddress(event.address);
     } catch (e) {
@@ -175,15 +176,20 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       return;
     }
     if (state case final AddressesLoaded loaded when loaded.walletId == expectedWalletId) {
-      emit(
-        loaded.copyWith(
-          groups: addressService.computeAddressList(),
-          activeAddress: addressService.currentAddress,
-          hasHiddenAddresses: addressService.hasHiddenAddresses,
-          accountLabel: addressService.accountLabel,
-          isSaving: false,
-        ),
-      );
+      try {
+        emit(
+          loaded.copyWith(
+            groups: addressService.computeAddressList(),
+            activeAddress: addressService.currentAddress,
+            hasHiddenAddresses: addressService.hasHiddenAddresses,
+            accountLabel: addressService.accountLabel,
+            isSaving: false,
+          ),
+        );
+      } catch (e) {
+        printV("AddressesBloc refresh failed: $e");
+        emit(loaded.copyWith(isSaving: false));
+      }
     }
   }
 
@@ -195,17 +201,28 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     if (loaded is! AddressesLoaded) {
       return;
     }
-    emit(
-      loaded.copyWith(
-        groups: addressService.computeAddressList(),
-        hasHiddenAddresses: addressService.hasHiddenAddresses,
-        accountLabel: addressService.accountLabel,
-      ),
-    );
+    try {
+      emit(
+        loaded.copyWith(
+          groups: addressService.computeAddressList(),
+          hasHiddenAddresses: addressService.hasHiddenAddresses,
+          accountLabel: addressService.accountLabel,
+        ),
+      );
+    } catch (e) {
+      printV("AddressesBloc list refresh failed: $e");
+    }
   }
 
   Future<void> _onWalletChanged(_WalletChanged event, Emitter<AddressesState> emit) async {
-    add(const AddressesOpened(showHidden: false));
+    if (isClosed) {
+      return;
+    }
+    final showHidden = switch (state) {
+      final AddressesLoaded loaded => loaded.showHidden,
+      _ => false,
+    };
+    add(AddressesOpened(showHidden: showHidden));
   }
 
   AddressesLoaded _buildLoaded({required bool showHidden}) => AddressesLoaded(

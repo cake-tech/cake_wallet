@@ -9,7 +9,7 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 
 class ReceiveInfoBox extends StatelessWidget {
-  ReceiveInfoBox({
+  const ReceiveInfoBox({
     required this.iconPath,
     required this.message,
     required this.onDismissed,
@@ -22,6 +22,7 @@ class ReceiveInfoBox extends StatelessWidget {
   /// address types, so it defaults to true; Zcash also offers static types, for
   /// which the rotation notice would be wrong.
   static ReceiveInfoBox? forWalletType(
+    BuildContext context,
     WalletType type, {
     required VoidCallback onDismissed,
     required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
@@ -30,6 +31,9 @@ class ReceiveInfoBox extends StatelessWidget {
   }) {
     switch (type) {
       case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.haven:
+      case WalletType.none:
         return null;
       case WalletType.ethereum:
       case WalletType.base:
@@ -44,7 +48,7 @@ class ReceiveInfoBox extends StatelessWidget {
         }
         return ReceiveInfoBox(
           iconPath: "",
-          message: S.current.infobox_multichain_named(walletTypeToString(type)),
+          message: S.of(context).infobox_multichain_named(walletTypeToString(type)),
           onDismissed: onDismissed,
           bottomWidget: InfoboxCurrencyRow(
             currencies: supportedCurrencies ?? [],
@@ -52,7 +56,14 @@ class ReceiveInfoBox extends StatelessWidget {
                 "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
           ),
         );
-      default:
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
+      case WalletType.decred:
+      case WalletType.zcash:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) {
           return null;
         }
@@ -61,14 +72,14 @@ class ReceiveInfoBox extends StatelessWidget {
         }
         return ReceiveInfoBox(
           iconPath: "assets/new-ui/info.svg",
-          message: S.current.infobox_auto_address,
+          message: S.of(context).infobox_auto_address,
           onDismissed: onDismissed,
         );
     }
   }
 
-  late final String iconPath;
-  late final String message;
+  final String iconPath;
+  final String message;
   final Widget? bottomWidget;
   final VoidCallback onDismissed;
 
@@ -174,67 +185,67 @@ class InfoboxCurrencyRow extends StatelessWidget {
       child: Row(
         spacing: 8,
         children: [
-        CakeImageWidget(
-          imageUrl: chainIconPath,
-          width: 20,
-          height: 20,
-          colorFilter:
-              ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-        ),
-        Container(
-          height: 28,
-          width: 1,
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        ),
-        SizedBox(
-          height: iconSize + iconBorder * 2,
-          width: stackWidth,
-          child: Stack(
-            children: [
-              Positioned(
-                top: iconBorder,
-                left: overlap * currenciesLimited.length,
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(25),
-                    borderRadius: BorderRadius.circular(9999999),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    size: 16,
-                    color: Colors.white.withAlpha(128),
+          CakeImageWidget(
+            imageUrl: chainIconPath,
+            width: 20,
+            height: 20,
+            colorFilter:
+                ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+          ),
+          Container(
+            height: 28,
+            width: 1,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          ),
+          SizedBox(
+            height: iconSize + iconBorder * 2,
+            width: stackWidth,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: iconBorder,
+                  left: overlap * currenciesLimited.length,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(25),
+                      borderRadius: BorderRadius.circular(9999999),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 16,
+                      color: Colors.white.withAlpha(128),
+                    ),
                   ),
                 ),
-              ),
-              ...currenciesLimited
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => Positioned(
-                      left: 16.0 * entry.key,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            width: iconBorder,
+                ...currenciesLimited
+                    .asMap()
+                    .entries
+                    .map(
+                      (entry) => Positioned(
+                        left: 16.0 * entry.key,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              width: iconBorder,
+                            ),
+                            borderRadius: BorderRadius.circular(9999999),
                           ),
-                          borderRadius: BorderRadius.circular(9999999),
-                        ),
-                        child: TokenImageWidget(
-                          imageUrl: entry.value.iconPath ?? "",
-                          size: 24,
+                          child: TokenImageWidget(
+                            imageUrl: entry.value.iconPath ?? "",
+                            size: 24,
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                  .toList()
-                  .reversed,
-            ],
+                    )
+                    .toList()
+                    .reversed,
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

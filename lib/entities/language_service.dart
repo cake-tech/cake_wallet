@@ -3,9 +3,9 @@ import "package:devicelocale/devicelocale.dart";
 import "package:flutter/widgets.dart";
 import "package:intl/intl.dart";
 
-// This will turn stored language code into Flutter Locale. 
-// Some of our language codes uses an underscore (like "pt_BR") and this must be split into language 
-// and country subtags, if we pass the whole string as the languageCode, GlobalMaterialLocalizations 
+// This will turn stored language code into Flutter Locale.
+// Some of our language codes uses an underscore (like "pt_BR") and this must be split into language
+// and country subtags, if we pass the whole string as the languageCode, GlobalMaterialLocalizations
 // would reject it as an invalid ISO 639-1 code and crash the app on locale switch
 Locale localeFromLanguageCode(String code) {
   final parts = code.split("_");

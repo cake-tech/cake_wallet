@@ -52,8 +52,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                     hasContinue: false, balance: "${balance} ${currency.symbol}")
                                 : UnconfirmedBalanceModal(
                                     balance: balance.toStringWithSymbol(),
-                              currencyIconPath: currency.iconPath ?? "",
-                            );
+                                    currencyIconPath: currency.iconPath ?? "",
+                                  );
                             showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
@@ -76,11 +76,13 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                             )
                                           : CircularProgressIndicator(
                                               strokeWidth: 2,
-                                        backgroundColor:
-                                            Theme.of(context).colorScheme.primary.withAlpha(50),
-                                        color: Theme.of(context).colorScheme.primary,
-                                        value: dashboardViewModel.confirmationProgress,
-                                      ),
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withAlpha(50),
+                                              color: Theme.of(context).colorScheme.primary,
+                                              value: dashboardViewModel.confirmationProgress,
+                                            ),
                                     ),
                                     Row(
                                       spacing: 4,
@@ -91,7 +93,9 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                             color: Theme.of(context).colorScheme.primary,
                                           ),
                                         ),
-                                        Text(isIronwoodMigration ? S.of(context).migrating_to_ironwood : S.of(context).confirming),
+                                        Text(isIronwoodMigration
+                                            ? S.of(context).migrating_to_ironwood
+                                            : S.of(context).confirming),
                                       ],
                                     )
                                   ],
@@ -183,4 +187,3 @@ class UnconfirmedBalanceModal extends StatelessWidget {
     );
   }
 }
-

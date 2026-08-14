@@ -110,7 +110,12 @@ class FiatRateService {
       return null;
     }
 
-    return _pairFor(crypto, to, rate).convert(amount);
+    try {
+      return _pairFor(crypto, to, rate).convert(amount);
+    } catch (e) {
+      printV("fiat conversion failed for ${crypto.title}/${to.title} at $rate: $e");
+      return null;
+    }
   }
 
   Money? convertFromFiat(Money fiatAmount, CryptoCurrency to) {
@@ -123,14 +128,20 @@ class FiatRateService {
       return null;
     }
 
-    return _pairFor(to, fiat, rate).convert(fiatAmount);
+    try {
+      return _pairFor(to, fiat, rate).convert(fiatAmount);
+    } catch (e) {
+      printV("fiat conversion failed for ${to.title}/${fiat.title} at $rate: $e");
+      return null;
+    }
   }
 
   ExchangeRate _pairFor(CryptoCurrency crypto, FiatCurrency fiat, double rate) {
-    if (rate * rate < math.pow(10, crypto.decimals - fiat.decimals)) {
+    if (rate * rate < math.pow(10.0, crypto.decimals - fiat.decimals)) {
+      final digits = math.min(crypto.decimals, 20);
       return ExchangeRate(
         base: fiat,
-        quote: Money.parse((1 / rate).toStringAsFixed(crypto.decimals), crypto),
+        quote: Money.parse((1 / rate).toStringAsFixed(digits), crypto),
       );
     }
     return ExchangeRate(

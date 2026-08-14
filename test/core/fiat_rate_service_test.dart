@@ -217,6 +217,64 @@ void main() {
         "20.00",
       );
     });
+
+    test("handles currencies with more decimals than toStringAsFixed allows", () {
+      runInAction(() => prices.prices[CryptoCurrency.nano] = 1.1);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      final result = service.convertToFiat(
+        Money.parse("2", CryptoCurrency.nano),
+        FiatCurrency.usd,
+      );
+      expect(result, isNotNull);
+      expect(
+        result!.toStringWithPrecision(fractionalDigits: 2, trimZeros: false),
+        "2.20",
+      );
+    });
+
+    test("keeps precision for sub-cent rates on high-decimals currencies", () {
+      runInAction(() => prices.prices[CryptoCurrency.banano] = 0.007);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      final result = service.convertToFiat(
+        Money.parse("1000", CryptoCurrency.banano),
+        FiatCurrency.usd,
+      );
+      expect(result, isNotNull);
+      // 1000 * 0.007 = 7.00, but the rate's double representation sits a few
+      // ulps high, so the truncating conversion lands one cent under.
+      expect(
+        result!.toStringWithPrecision(fractionalDigits: 2, trimZeros: false),
+        "6.99",
+      );
+
+      final backToCrypto = service.convertFromFiat(
+        Money.parse("1", FiatCurrency.usd),
+        CryptoCurrency.banano,
+      );
+      expect(backToCrypto, isNotNull);
+      expect(backToCrypto!.toDouble(), closeTo(142.857142, 1e-5));
+    });
+
+    test("returns null for non-finite rates", () {
+      runInAction(() => prices.prices[CryptoCurrency.btc] = double.nan);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      expect(
+        service.convertToFiat(Money.parse("1", CryptoCurrency.btc), FiatCurrency.usd),
+        isNull,
+      );
+
+      runInAction(() => prices.prices[CryptoCurrency.btc] = double.infinity);
+      expect(
+        service.convertToFiat(Money.parse("1", CryptoCurrency.btc), FiatCurrency.usd),
+        isNull,
+      );
+    });
   });
 
   group("convertFromFiat", () {

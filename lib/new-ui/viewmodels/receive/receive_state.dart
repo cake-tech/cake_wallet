@@ -22,7 +22,6 @@ final class ReceiveLoaded extends ReceiveState {
     required this.requestedAmount,
     required this.fiatEquivalent,
     required this.infoboxDismissed,
-    required this.payjoinEndpoint,
     required this.fetchingInvoice,
     required this.isRotatingAddress,
     required this.paymentUri,
@@ -52,7 +51,6 @@ final class ReceiveLoaded extends ReceiveState {
   final Money? fiatEquivalent;
 
   final bool infoboxDismissed;
-  final String? payjoinEndpoint;
   final bool fetchingInvoice;
   final bool isRotatingAddress;
   final bool isChangingAddressType;
@@ -145,8 +143,6 @@ final class ReceiveLoaded extends ReceiveState {
     Money? fiatEquivalent,
     bool clearFiatEquivalent = false,
     bool? infoboxDismissed,
-    String? payjoinEndpoint,
-    bool clearPayjoinEndpoint = false,
     bool? fetchingInvoice,
     bool? isRotatingAddress,
     bool? isChangingAddressType,
@@ -174,7 +170,6 @@ final class ReceiveLoaded extends ReceiveState {
         requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
         fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
         infoboxDismissed: infoboxDismissed ?? this.infoboxDismissed,
-        payjoinEndpoint: clearPayjoinEndpoint ? null : (payjoinEndpoint ?? this.payjoinEndpoint),
         fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
         isChangingAddressType: isChangingAddressType ?? this.isChangingAddressType,
@@ -204,7 +199,6 @@ final class ReceiveLoaded extends ReceiveState {
         requestedAmount,
         fiatEquivalent,
         infoboxDismissed,
-        payjoinEndpoint,
         fetchingInvoice,
         isRotatingAddress,
         isChangingAddressType,

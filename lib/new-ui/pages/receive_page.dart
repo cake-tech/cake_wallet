@@ -3,31 +3,31 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_address_type_display.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_address_type_selector.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_address_widget.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_amount_display.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_amount_modal.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_label_modal.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_qr_code.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_token_display.dart";
 import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive/payjoin_copy_modal.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_address_type_display.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_address_type_selector.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_address_widget.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_amount_display.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_amount_modal.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_bottom_buttons.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_info_box.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_label_modal.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_label_widget.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_large_amount_preview.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_qr_code.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/receive/anonpay_receive_page.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/utils/qr_util.dart";
 import "package:cake_wallet/utils/share_util.dart";
+import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/receive_page_option.dart";
@@ -48,12 +48,15 @@ class ReceivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
         create: (_) => getIt<ReceiveBloc>(param1: lightningMode, param2: initialToken),
-        child: const _ReceivePageBody(),
+        child: _ReceivePageBody(lightningMode: lightningMode, initialToken: initialToken),
       );
 }
 
 class _ReceivePageBody extends StatefulWidget {
-  const _ReceivePageBody();
+  const _ReceivePageBody({required this.lightningMode, required this.initialToken});
+
+  final bool lightningMode;
+  final CryptoCurrency? initialToken;
 
   @override
   State<_ReceivePageBody> createState() => _ReceivePageBodyState();
@@ -86,13 +89,15 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
               if (state is! ReceiveLoaded || state.failureCode == null) {
                 return;
               }
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(S.of(context).error_dialog_content)));
+              showBar(context, S.of(context).error_dialog_content);
             },
             builder: (context, state) => switch (state) {
               ReceiveLoading() => const _LoadingWidget(),
-              ReceiveFailure() => _FailureWidget(code: state.code),
+              ReceiveFailure() => _FailureWidget(
+                  code: state.code,
+                  lightningMode: widget.lightningMode,
+                  initialToken: widget.initialToken,
+                ),
               ReceiveLoaded() => _LoadedWidget(
                   state: state,
                   largeQrMode: _largeQrMode,
@@ -130,9 +135,15 @@ class _LoadingWidget extends StatelessWidget {
 }
 
 class _FailureWidget extends StatelessWidget {
-  const _FailureWidget({required this.code});
+  const _FailureWidget({
+    required this.code,
+    required this.lightningMode,
+    required this.initialToken,
+  });
 
   final ReceiveFailureCode code;
+  final bool lightningMode;
+  final CryptoCurrency? initialToken;
 
   @override
   Widget build(BuildContext context) {
@@ -154,8 +165,12 @@ class _FailureWidget extends StatelessWidget {
               children: [
                 Text(message),
                 TextButton(
-                  onPressed: () =>
-                      context.read<ReceiveBloc>().add(const ReceiveOpened()),
+                  onPressed: () => context.read<ReceiveBloc>().add(
+                        ReceiveOpened(
+                          lightningMode: lightningMode,
+                          initialToken: initialToken,
+                        ),
+                      ),
                   child: Text(S.of(context).try_again),
                 ),
               ],
@@ -183,6 +198,7 @@ class _LoadedWidget extends StatelessWidget {
     final hasAddressTypeSelector = state.addressTypeOptions.length > 1;
     final hasLabel = state.addressEntry.label != null && state.addressEntry.label!.isNotEmpty;
     final infobox = ReceiveInfoBox.forWalletType(
+      context,
       state.walletType,
       supportedCurrencies: state.receivableTokens,
       onDismissed: () => context.read<ReceiveBloc>().add(const InfoboxDismissed()),
@@ -193,8 +209,7 @@ class _LoadedWidget extends StatelessWidget {
           state.addressType == null ||
           zcash!.isRotatingAddressOption(state.addressType!),
     );
-    final rotationAvailable =
-        state.hasAddressRotation && !_isMwebOption(state.addressType);
+    final rotationAvailable = state.hasAddressRotation && !_isMwebOption(state.addressType);
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -215,9 +230,8 @@ class _LoadedWidget extends StatelessWidget {
                         : state.isRotatingAddress
                             ? const CupertinoActivityIndicator()
                             : const Icon(Icons.refresh),
-                    semanticLabel: largeQrMode
-                        ? S.of(context).share_address
-                        : S.of(context).rotate_address,
+                    semanticLabel:
+                        largeQrMode ? S.of(context).share_address : S.of(context).rotate_address,
                     onPressed: () {
                       if (largeQrMode) {
                         ShareUtil.share(
@@ -251,7 +265,7 @@ class _LoadedWidget extends StatelessWidget {
                 embeddedIconAsset: _qrEmbeddedIcon(state),
                 hasPayjoin: state.hasPayjoin,
                 largeQrMode: largeQrMode,
-                isLightMode: !getIt.get<ThemeStore>().currentTheme.isDark,
+                isLightMode: Theme.of(context).brightness == Brightness.light,
                 onTap: onQrTap,
                 isFetching: state.fetchingInvoice,
               ),
@@ -292,7 +306,6 @@ class _LoadedWidget extends StatelessWidget {
                 ),
               ),
               ReceiveBottomButtons(
-                key: const ValueKey(0),
                 largeQrMode: largeQrMode,
                 copyData: state.hasPayjoin ? null : ClipboardData(text: _copyText(state)),
                 showAccountsButton: state.hasAddressList,
@@ -394,8 +407,7 @@ class _LoadedWidget extends StatelessWidget {
             final displayInitialAmount = state.modalInitialAmount;
             return ReceiveAmountModal(
               key: modalKey,
-              initialAmount:
-                  displayInitialAmount.isEmpty ? initialAmount : displayInitialAmount,
+              initialAmount: displayInitialAmount.isEmpty ? initialAmount : displayInitialAmount,
               selectedCurrencySymbol: state.inputCurrencySymbol,
               selectedCurrencyDecimals: state.inputUsesSats ? 0 : state.inputCurrency.decimals,
               useSatoshi: state.inputUsesSats,
@@ -481,7 +493,9 @@ class _LoadedWidget extends StatelessWidget {
       return;
     }
 
-    bloc.add(AddressTypeSelected(selected));
+    if (!bloc.isClosed) {
+      bloc.add(AddressTypeSelected(selected));
+    }
   }
 
   Future<void> _openAnonPayDonationLink(
@@ -524,6 +538,8 @@ class _LoadedWidget extends StatelessWidget {
   Future<void> _openAddressesPage(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
     await Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
-    bloc.add(const AddressesPageClosed());
+    if (!bloc.isClosed) {
+      bloc.add(const AddressesPageClosed());
+    }
   }
 }

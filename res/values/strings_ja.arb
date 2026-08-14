@@ -388,7 +388,6 @@
   "edit_backup_password": "バックアップパスワードを編集",
   "edit_card": "カードを編集",
   "edit_current": "現在のものを編集",
-  "edit_label": "ラベルを編集する",
   "edit_node": "ノードを編集",
   "edit_token": "トークンを編集",
   "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスも引き続き使用できます",

@@ -388,7 +388,6 @@
   "edit_backup_password": "Editar senha do backup",
   "edit_card": "Editar cartão",
   "edit_current": "Editar atual",
-  "edit_label": "Editar rótulo",
   "edit_node": "Editar nó",
   "edit_token": "Editar token",
   "electrum_address_disclaimer": "Geramos novos endereços sempre que você usa um, mas os endereços anteriores continuam funcionando",

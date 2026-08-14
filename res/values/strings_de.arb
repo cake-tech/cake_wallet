@@ -393,7 +393,6 @@
   "edit_backup_password": "Backup-Passwort bearbeiten",
   "edit_card": "Karte bearbeiten",
   "edit_current": "Aktuelle bearbeiten",
-  "edit_label": "Etikett bearbeiten",
   "edit_node": "Node bearbeiten",
   "edit_token": "Token bearbeiten",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber frühere Adressen funktionieren weiterhin",

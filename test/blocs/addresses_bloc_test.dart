@@ -287,8 +287,12 @@ void main() {
         when(() => addressService.computeAddressList()).thenAnswer((_) {
           call += 1;
           return call == 1
-              ? [_group([_entry("addr1"), _entry("addr2")])]
-              : [_group([_entry("addr1", isHidden: true), _entry("addr2")])];
+              ? [
+                  _group([_entry("addr1"), _entry("addr2")]),
+                ]
+              : [
+                  _group([_entry("addr1", isHidden: true), _entry("addr2")]),
+                ];
         });
         when(() => addressService.currentAddress).thenReturn("addr1");
         when(() => addressService.hasAccounts).thenReturn(false);

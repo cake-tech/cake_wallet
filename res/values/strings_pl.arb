@@ -388,7 +388,6 @@
   "edit_backup_password": "Edytuj hasło kopii zapasowej",
   "edit_card": "Edytuj kartę",
   "edit_current": "Edytuj obecny",
-  "edit_label": "Edytuj etykietę",
   "edit_node": "Edytuj węzeł",
   "edit_token": "Edytuj token",
   "electrum_address_disclaimer": "Generujemy nowy adres za każdym razem, gdy go użyjesz, ale poprzednie adresy nadal działają.",

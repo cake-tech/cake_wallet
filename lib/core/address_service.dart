@@ -49,6 +49,9 @@ class AddressService {
   late final StreamSubscription<WalletBase> _walletSub;
   mobx.ReactionDisposer? _payjoinDisposer;
 
+  WalletBase? _preLightningWallet;
+  ReceivePageOption? _preLightningType;
+
   WalletBase get wallet => _wallet();
   AmountParsingProxy get _amountParsingProxy => _amountParsingProxyGetter();
 
@@ -107,8 +110,8 @@ class AddressService {
   }
 
   AddressGroup _moneroAddresses() {
-    final w = wallet;
-    final subaddresses = monero!.getSubaddressList(w).subaddresses;
+    final wallet = this.wallet;
+    final subaddresses = monero!.getSubaddressList(wallet).subaddresses;
     final primary = subaddresses.firstOrNull;
     final entries = subaddresses
         .map(
@@ -119,8 +122,8 @@ class AddressService {
             isPrimary: identical(s, primary),
             txCount: s.txCount,
             balance: s.received,
-            isHidden: w.walletAddresses.hiddenAddresses.contains(s.address),
-            isManual: w.walletAddresses.manualAddresses.contains(s.address),
+            isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
+            isManual: wallet.walletAddresses.manualAddresses.contains(s.address),
           ),
         )
         .toList();
@@ -128,8 +131,8 @@ class AddressService {
   }
 
   AddressGroup _wowneroAddresses() {
-    final w = wallet;
-    final subaddresses = wownero!.getSubaddressList(w).subaddresses;
+    final wallet = this.wallet;
+    final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
     final primary = subaddresses.firstOrNull;
     final entries = subaddresses
         .map(
@@ -138,8 +141,8 @@ class AddressService {
             address: s.address,
             label: s.label,
             isPrimary: identical(s, primary),
-            isHidden: w.walletAddresses.hiddenAddresses.contains(s.address),
-            isManual: w.walletAddresses.manualAddresses.contains(s.address),
+            isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
+            isManual: wallet.walletAddresses.manualAddresses.contains(s.address),
           ),
         )
         .toList();
@@ -147,11 +150,11 @@ class AddressService {
   }
 
   List<AddressGroup> _electrumAddresses() {
-    final w = wallet;
-    if (bitcoin!.hasSelectedSilentPayments(w)) {
-      final main = bitcoin!.getSilentPaymentAddresses(w).map(_electrumEntry).toList();
+    final wallet = this.wallet;
+    if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+      final main = bitcoin!.getSilentPaymentAddresses(wallet).map(_electrumEntry).toList();
       final received = bitcoin!
-          .getSilentPaymentReceivedAddresses(w)
+          .getSilentPaymentReceivedAddresses(wallet)
           .map((a) => _electrumEntry(a, isOneTimeReceiveAddress: true))
           .toList();
       return [
@@ -160,9 +163,9 @@ class AddressService {
       ];
     }
 
-    var entries = bitcoin!.getSubAddresses(w).map(_electrumEntry).toList();
+    var entries = bitcoin!.getSubAddresses(wallet).map(_electrumEntry).toList();
 
-    if (w.type == WalletType.litecoin && entries.length >= _mwebTruncationThreshold) {
+    if (wallet.type == WalletType.litecoin && entries.length >= _mwebTruncationThreshold) {
       var index = entries.lastIndexWhere((e) => (e.txCount ?? 0) > 0);
       if (index == -1) {
         index = 0;
@@ -178,9 +181,9 @@ class AddressService {
   static const _mwebTruncationTrailingBuffer = 20;
 
   AddressEntry _electrumEntry(ElectrumSubAddress addr, {bool isOneTimeReceiveAddress = false}) {
-    final w = wallet;
-    final hidden = w.walletAddresses.hiddenAddresses.contains(addr.address) ||
-        (w.type == WalletType.bitcoin && addr.isLegacyDerivation);
+    final wallet = this.wallet;
+    final hidden = wallet.walletAddresses.hiddenAddresses.contains(addr.address) ||
+        (wallet.type == WalletType.bitcoin && addr.isLegacyDerivation);
     final isPrimary = !isOneTimeReceiveAddress && addr.id == 0;
     return AddressEntry(
       id: addr.id,
@@ -191,26 +194,26 @@ class AddressService {
       txCount: addr.txCount,
       balance: _amountParsingProxy.getDisplayCryptoString(
         addr.balance,
-        walletTypeToCryptoCurrency(w.type),
+        walletTypeToCryptoCurrency(wallet.type),
       ),
       isLegacyDerivation: addr.isLegacyDerivation,
       derivationPath: addr.derivationPath,
       isHidden: hidden,
-      isManual: w.walletAddresses.manualAddresses.contains(addr.address),
+      isManual: wallet.walletAddresses.manualAddresses.contains(addr.address),
       isOneTimeReceiveAddress: isOneTimeReceiveAddress,
     );
   }
 
   AddressGroup _decredAddresses() {
-    final w = wallet;
+    final wallet = this.wallet;
     final entries = decred!
-        .getAddressInfos(w)
+        .getAddressInfos(wallet)
         .map(
           (i) => AddressEntry(
             address: i.address,
             label: i.label,
-            isHidden: w.walletAddresses.hiddenAddresses.contains(i.address),
-            isManual: w.walletAddresses.manualAddresses.contains(i.address),
+            isHidden: wallet.walletAddresses.hiddenAddresses.contains(i.address),
+            isManual: wallet.walletAddresses.manualAddresses.contains(i.address),
           ),
         )
         .toList();
@@ -218,16 +221,16 @@ class AddressService {
   }
 
   AddressGroup _zcashAddresses() {
-    final w = wallet;
+    final wallet = this.wallet;
     final entries = zcash!
-        .getAddressInfos(w)
+        .getAddressInfos(wallet)
         .map(
           (i) => AddressEntry(
             id: i.mapKey,
             address: i.address,
             label: i.label,
-            isHidden: w.walletAddresses.hiddenAddresses.contains(i.address),
-            isManual: w.walletAddresses.manualAddresses.contains(i.address),
+            isHidden: wallet.walletAddresses.hiddenAddresses.contains(i.address),
+            isManual: wallet.walletAddresses.manualAddresses.contains(i.address),
           ),
         )
         .toList();
@@ -245,8 +248,12 @@ class AddressService {
   }
 
   Future<void> rotateAddress() async {
+    final wallet = this.wallet;
     final newAddress = await _generateNewAddress("");
     if (newAddress == null || newAddress.isEmpty) {
+      return;
+    }
+    if (!identical(wallet, this.wallet)) {
       return;
     }
     wallet.walletAddresses.address = newAddress;
@@ -255,6 +262,7 @@ class AddressService {
   Future<void> addManualAddress(String label) => _generateNewAddress(label);
 
   Future<String?> _generateNewAddress(String label) async {
+    final wallet = this.wallet;
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
@@ -328,6 +336,7 @@ class AddressService {
   }
 
   Future<void> setLabel(String address, String label) async {
+    final wallet = this.wallet;
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
@@ -390,6 +399,7 @@ class AddressService {
   }
 
   Future<void> setHidden(String address, {required bool hidden}) async {
+    final wallet = this.wallet;
     if (hidden) {
       wallet.walletAddresses.hiddenAddresses.add(address);
     } else {
@@ -415,6 +425,7 @@ class AddressService {
   }
 
   Future<void> deleteSilentPaymentAddress(String address) async {
+    final wallet = this.wallet;
     if (wallet.type != WalletType.bitcoin) {
       return;
     }
@@ -424,6 +435,8 @@ class AddressService {
       final mains = bitcoin!.getSilentPaymentAddresses(wallet).toList();
       if (mains.isNotEmpty) {
         wallet.walletAddresses.address = mains.first.address;
+      } else {
+        await applyOpenDefaults(lightningMode: false);
       }
     }
     await wallet.save();
@@ -442,7 +455,9 @@ class AddressService {
 
   List<ReceivePageOption> get addressTypeOptions => wallet.walletAddresses.receivePageOptions;
 
-  Future<void> setAddressType(ReceivePageOption option) async {
+  Future<void> setAddressType(ReceivePageOption option) => _setAddressTypeOn(wallet, option);
+
+  Future<void> _setAddressTypeOn(WalletBase wallet, ReceivePageOption option) async {
     final type = wallet.type;
     if (type == WalletType.bitcoin || type == WalletType.litecoin) {
       await bitcoin!.setAddressType(wallet, bitcoin!.getOptionToType(option));
@@ -457,14 +472,13 @@ class AddressService {
     final type = wallet.type;
     final address = wallet.walletAddresses.address;
 
-    if (token != null && isEVMCompatibleChain(type)) {
-      final erc20Token = token as Erc20Token;
+    if (token is Erc20Token && isEVMCompatibleChain(type)) {
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: address,
         amount: rawAmount,
-        contractAddress: erc20Token.contractAddress,
-        tokenDecimals: erc20Token.decimal,
+        contractAddress: token.contractAddress,
+        tokenDecimals: token.decimal,
       );
     }
     if (token is TronToken && type == WalletType.tron) {
@@ -488,16 +502,11 @@ class AddressService {
     required String rawAmount,
     CryptoCurrency? token,
   }) async {
-    if (token != null && isEVMCompatibleChain(wallet.type)) {
+    if (token is Erc20Token || token is TronToken || token is SPLToken) {
       return buildPaymentUri(rawAmount: rawAmount, token: token);
     }
     return wallet.walletAddresses.getPaymentRequestUri(rawAmount);
   }
-
-  String get payjoinEndpoint =>
-      wallet.type == WalletType.bitcoin ? bitcoin!.getPayjoinEndpoint(wallet) : "";
-
-  bool get isPayjoinUnavailable => payjoinEndpoint.isEmpty;
 
   Stream<String?> get payjoinEndpointChanges => _payjoinController.stream;
 
@@ -507,7 +516,7 @@ class AddressService {
 
     final WalletType type;
     try {
-      type = wallet.type;
+      type = this.wallet.type;
     } on StateError {
       return;
     }
@@ -517,12 +526,12 @@ class AddressService {
       return;
     }
 
-    final w = wallet;
-    _emitPayjoin(_normalize(bitcoin!.getPayjoinEndpoint(w)));
+    final wallet = this.wallet;
+    _emitPayjoin(_emptyToNull(bitcoin!.getPayjoinEndpoint(wallet)));
 
     _payjoinDisposer = mobx.reaction<String>(
-      (_) => bitcoin!.getPayjoinEndpoint(w),
-      (value) => _emitPayjoin(_normalize(value)),
+      (_) => bitcoin!.getPayjoinEndpoint(wallet),
+      (value) => _emitPayjoin(_emptyToNull(value)),
     );
   }
 
@@ -533,7 +542,7 @@ class AddressService {
     _payjoinController.add(value);
   }
 
-  String? _normalize(String v) => v.isEmpty ? null : v;
+  String? _emptyToNull(String v) => v.isEmpty ? null : v;
 
   Future<void> dispose() async {
     _payjoinDisposer?.call();
@@ -588,13 +597,14 @@ class AddressService {
   }
 
   Future<void> applyOpenDefaults({required bool lightningMode}) async {
-    if (bitcoin == null || wallet.type != WalletType.bitcoin) {
+    final wallet = this.wallet;
+    if (wallet.type != WalletType.bitcoin) {
       return;
     }
 
     if (bitcoin!.hasSelectedSilentPayments(wallet) &&
         bitcoin!.getSilentPaymentAddresses(wallet).isEmpty) {
-      await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
+      await _setAddressTypeOn(wallet, bitcoin!.getBitcoinSegwitPageOption());
       if (bitcoin!.getSubAddresses(wallet).isEmpty) {
         await bitcoin!.generateNewAddress(wallet, "");
         await wallet.save();
@@ -609,14 +619,17 @@ class AddressService {
       if (current == lightning) {
         return;
       }
-      if (wallet.walletInfo.addressPageType == null) {
-        await setAddressType(lightning);
-      }
+      _preLightningWallet = wallet;
+      _preLightningType = current;
+      await _setAddressTypeOn(wallet, lightning);
       return;
     }
 
     if (current == lightning) {
-      await setAddressType(bitcoin!.getBitcoinSegwitPageOption());
+      final previous = identical(_preLightningWallet, wallet) ? _preLightningType : null;
+      _preLightningWallet = null;
+      _preLightningType = null;
+      await _setAddressTypeOn(wallet, previous ?? bitcoin!.getBitcoinSegwitPageOption());
     }
   }
 

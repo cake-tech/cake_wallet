@@ -161,30 +161,30 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
       );
 
   Widget _syncingKeyImages() => Column(
-    key: const ValueKey(1),
-    spacing: 12,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        S.of(context).proceed_on_device,
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text(
-          S.of(context).proceed_on_device_description,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        key: const ValueKey(1),
+        spacing: 12,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            S.of(context).proceed_on_device,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            ),
           ),
-        ),
-      )
-    ],
-  );
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              S.of(context).proceed_on_device_description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        ],
+      );
 
   Future<void> _onContinuePressed() async {
     setState(() => _state = _KeyImageSyncState.syncing);

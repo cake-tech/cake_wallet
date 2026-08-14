@@ -388,7 +388,6 @@
   "edit_backup_password": "Uredi lozinku sigurnosne kopije",
   "edit_card": "Uredi karticu",
   "edit_current": "Uredi trenutačno",
-  "edit_label": "Uredi oznaku",
   "edit_node": "Uredi čvor",
   "edit_token": "Uredi token",
   "electrum_address_disclaimer": "Svaki put kada upotrijebite adresu, generiramo novu, ali prethodne adrese i dalje rade",
