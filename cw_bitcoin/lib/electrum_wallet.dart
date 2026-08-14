@@ -4,15 +4,6 @@ import 'dart:isolate';
 import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/coin_selection.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -22,6 +13,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
+import 'package:cw_bitcoin/coin_selection.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
@@ -29,6 +21,7 @@ import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -272,25 +265,25 @@ abstract class ElectrumWalletBase
   // vbytes an input of the given script type adds to a transaction. The generic
   // estimate above assumes P2WPKH (68); legacy and taproot inputs differ enough
   // to break changeless-match arithmetic if not accounted for.
-  static int estimatedInputSize(BitcoinAddressType type) {
-    if (type == P2pkhAddressType.p2pkh) return 148;
-    if (type == P2shAddressType.p2wpkhInP2sh) return 91;
-    if (type == SegwitAddresType.p2tr) return 58;
-    if (type == SegwitAddresType.p2wsh) return 105;
-    if (type == SilentPaymentsAddresType.p2sp) return 58; // spent via taproot
-    return 68;
-  }
+  static int estimatedInputSize(BitcoinAddressType type) => switch (type) {
+        P2pkhAddressType.p2pkh => 148,
+        P2shAddressType.p2wpkhInP2sh => 91,
+        SegwitAddresType.p2wsh => 105,
+        SegwitAddresType.p2tr => 58,
+        SilentPaymentsAddresType.p2sp => 58, // spent via taproot
+        _ => 68,
+      };
 
   // vbytes an output of the given script type adds to a transaction. Silent
   // payment outputs are delivered as taproot.
-  static int estimatedOutputSize(BitcoinAddressType type) {
-    if (type == P2pkhAddressType.p2pkh) return 34;
-    if (type == P2shAddressType.p2wpkhInP2sh) return 32;
-    if (type == SegwitAddresType.p2tr) return 43;
-    if (type == SegwitAddresType.p2wsh) return 43;
-    if (type == SilentPaymentsAddresType.p2sp) return 43;
-    return 31;
-  }
+  static int estimatedOutputSize(BitcoinAddressType type) => switch (type) {
+        P2pkhAddressType.p2pkh => 34,
+        P2shAddressType.p2wpkhInP2sh => 32,
+        SegwitAddresType.p2tr => 43,
+        SegwitAddresType.p2wsh => 43,
+        SilentPaymentsAddresType.p2sp => 43,
+        _ => 31,
+      };
 
   // Parses the account index from a BIP-44/49/84/86 derivation path.
   // e.g. "m/84'/0'/1'" → 1.  Returns 0 for unrecognised formats.
@@ -899,16 +892,6 @@ abstract class ElectrumWalletBase
   bool _isBelowDust(BigInt amount) =>
       amount <= networkDustAmount && network != BitcoinNetwork.testnet;
 
-  // Random draw priority per outpoint. Assigned lazily with a secure RNG and kept
-  // until the next createTransaction call, so the recursive estimate passes of one
-  // transaction build all see the same input order (reshuffling between passes made
-  // fee estimation unstable). Cleared per transaction so each send is a fresh draw.
-  final Random _coinSelectionRng = Random.secure();
-  final Map<String, int> _coinSelectionOrder = {};
-
-  int _coinSelectionPriority(BitcoinUnspent utx) => _coinSelectionOrder.putIfAbsent(
-      '${utx.hash}:${utx.vout}', () => _coinSelectionRng.nextInt(1 << 32));
-
   UtxoDetails _createUTXOS({
     required bool sendAll,
     required bool paysToSilentPayment,
@@ -916,43 +899,40 @@ abstract class ElectrumWalletBase
     int? inputsCount,
     int feeRate = 0,
     int? outputsVBytes,
+    List<BitcoinUnspent>? shuffledInputs,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
-    List<UtxoWithAddress> utxos = [];
-    List<Outpoint> vinOutpoints = [];
-    List<ECPrivateInfo> inputPrivKeyInfos = [];
+    final utxos = <UtxoWithAddress>[];
+    final vinOutpoints = <Outpoint>[];
+    final inputPrivKeyInfos = <ECPrivateInfo>[];
     final publicKeys = <String, PublicKeyWithDerivationPath>{};
     int allInputsAmount = 0;
     bool spendsSilentPayment = false;
     bool spendsUnconfirmedTX = false;
 
-    int leftAmount = credentialsAmount;
-    var availableInputs = unspentCoins.where((utx) {
-      if (!utx.isSending || utx.isFrozen) {
-        return false;
-      }
+    shuffledInputs ??= unspentCoins
+        .where((utx) {
+          if (!utx.isSending || utx.isFrozen) {
+            return false;
+          }
 
-      switch (coinTypeToSpendFrom) {
-        case UnspentCoinType.mweb:
-          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
-        case UnspentCoinType.nonMweb:
-          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
-        case UnspentCoinType.any:
-        case UnspentCoinType.lightning:
-          return true;
-      }
-    }).toList();
+          switch (coinTypeToSpendFrom) {
+            case UnspentCoinType.mweb:
+              return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+            case UnspentCoinType.nonMweb:
+              return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+            case UnspentCoinType.any:
+            case UnspentCoinType.lightning:
+              return true;
+          }
+        })
+        .shuffled(Random.secure())
+        .toList();
+
+    var leftAmount = credentialsAmount;
+    var availableInputs = shuffledInputs;
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
-    // Single Random Draw: order the pool by each coin's random priority so selection is
-    // non-deterministic, removing the predictable address/scan order (a fingerprint).
-    // The priority is stable across the repeated calls of one transaction build.
-    // MWEB coins are kept last afterwards.
-    availableInputs.sort((a, b) {
-      final byPriority = _coinSelectionPriority(a).compareTo(_coinSelectionPriority(b));
-      if (byPriority != 0) return byPriority;
-      return '${a.hash}:${a.vout}'.compareTo('${b.hash}:${b.vout}');
-    });
     availableInputs = [
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
       ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),
@@ -970,14 +950,13 @@ abstract class ElectrumWalletBase
         !availableInputs.any((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb);
     if (canTryChangeless) {
       final match = changelessMatch(
-        values: [for (final u in availableInputs) u.value],
+        values: availableInputs.map((i) => i.value).toList(),
         // estimatedTransactionSize(0, 0) is the fixed tx overhead (version,
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
-        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
-        inputCosts: [
-          for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
-        ],
+        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes) * feeRate,
+        inputCosts: availableInputs
+            .map((u) => estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate)
+            .toList(),
         window: networkDustAmount.toInt(),
       );
       if (match != null) {
@@ -1085,6 +1064,7 @@ abstract class ElectrumWalletBase
       allInputsAmount: allInputsAmount,
       spendsSilentPayment: spendsSilentPayment,
       spendsUnconfirmedTX: spendsUnconfirmedTX,
+      shuffledInputs: shuffledInputs,
     );
   }
 
@@ -1157,6 +1137,7 @@ abstract class ElectrumWalletBase
     int? inputsCount,
     String? memo,
     bool? useUnconfirmed,
+    List<BitcoinUnspent>? shuffledUnspents,
     bool hasSilentPayment = false,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
@@ -1247,6 +1228,7 @@ abstract class ElectrumWalletBase
           memo: memo,
           hasSilentPayment: hasSilentPayment,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          shuffledUnspents: utxoDetails.shuffledInputs,
         );
       }
 
@@ -1486,10 +1468,6 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
-      // New transaction, new random draw: drop the previous input ordering so this
-      // build gets fresh priorities, then keep them fixed for all estimate passes.
-      _coinSelectionOrder.clear();
-
       // start by updating unspent coins
       await updateAllUnspents();
 
@@ -2301,8 +2279,6 @@ abstract class ElectrumWalletBase
         }
       }
 
-      // If still not enough, add UTXOs until the fee is covered, drawing them at
-      // random instead of in the predictable wallet scan order (address, then age).
       if (remainingFee > BigInt.zero) {
         final unusedUtxos = unspentCoins
             .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
@@ -4505,6 +4481,7 @@ BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
 
 class UtxoDetails {
   final List<BitcoinUnspent> availableInputs;
+  final List<BitcoinUnspent> shuffledInputs;
   final List<BitcoinUnspent> unconfirmedCoins;
   final List<UtxoWithAddress> utxos;
   final List<Outpoint> vinOutpoints;
@@ -4517,6 +4494,7 @@ class UtxoDetails {
   UtxoDetails({
     required this.availableInputs,
     required this.unconfirmedCoins,
+    required this.shuffledInputs,
     required this.utxos,
     required this.vinOutpoints,
     required this.inputPrivKeyInfos,
