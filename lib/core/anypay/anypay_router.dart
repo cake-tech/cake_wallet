@@ -1,9 +1,19 @@
+import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 
 class AnyPayRouter {
+  static final List<RegExp> _swapIncompatibleAddressPatterns = [
+    RegExp("^(?:${AddressValidator.silentPaymentAddressPatternMainnet})\$"),
+    RegExp("^(?:${AddressValidator.silentPaymentAddressPatternTestnet})\$"),
+    RegExp("^(?:${AddressValidator.mWebAddressPattern})\$"),
+  ];
+
+  static bool _isSwapIncompatibleAddress(String address) =>
+      _swapIncompatibleAddressPatterns.any((pattern) => pattern.hasMatch(address));
+
   static AnyPayDecision route(
     AnyPayRequest request,
     WalletSnapshot snapshot,
@@ -53,6 +63,7 @@ class AnyPayRouter {
       wallets: snapshot.walletsOfType(detectedType),
       token: resolution is TokenResolved ? resolution.token : null,
       amountOverride: resolution is TokenResolved ? resolution.amountOverride : null,
+      canSwap: !_isSwapIncompatibleAddress(request.address),
     );
   }
 

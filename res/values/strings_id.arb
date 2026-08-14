@@ -1153,6 +1153,8 @@
   "swap_id": "ID Swap",
   "swap_provider_initial_desc": "Pilih jenis penyedia swap yang Anda inginkan untuk digunakan saat melakukan swap",
   "swap_providers": "Penyedia swap",
+  "swap_unavailable_needs_network_wallet": "Jenis alamat ini tidak dapat menerima dana dari swap. Anda memerlukan dompet ${network} untuk mengirim ke alamat ini.",
+  "swap_unavailable_switch_to_network": "Jenis alamat ini tidak dapat menerima dana dari swap. Beralih ke dompet ${network} Anda untuk melanjutkan.",
   "sweeping_wallet": "Dompet sweep",
   "sweeping_wallet_alert": "Ini seharusnya tidak memakan waktu lama. JANGAN TINGGALKAN LAYAR INI ATAU DANA YANG DISAPU DAPAT HILANG.",
   "swipe_to_bridge": "Geser untuk menjembatani",

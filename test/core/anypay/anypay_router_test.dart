@@ -361,4 +361,54 @@ void main() {
       expect(AnyPayRouter.requestedEvmChainId(parse(recipient), snapshot(chainId: 1)), null);
     });
   });
+
+  group("swap incompatible recipients", () {
+    final spAddress = "sp1${"q" * 113}";
+    final mwebAddress = "ltcmweb1q${"a" * 90}";
+
+    test("a silent payment address with a bitcoin wallet switches without a swap offer", () {
+      final decision = AnyPayRouter.route(
+        parse(spAddress),
+        snapshot(type: WalletType.monero, wallets: [walletOf(WalletType.bitcoin)]),
+        const NoTokenRequested(),
+      );
+
+      final crossChain = decision as AnyPayCrossChainPayment;
+      expect(crossChain.targetWalletType, WalletType.bitcoin);
+      expect(crossChain.hasCompatibleWallet, true);
+      expect(crossChain.canSwap, false);
+    });
+
+    test("a silent payment address with no bitcoin wallet cannot swap either", () {
+      final decision = AnyPayRouter.route(
+        parse(spAddress),
+        snapshot(type: WalletType.monero),
+        const NoTokenRequested(),
+      );
+
+      final crossChain = decision as AnyPayCrossChainPayment;
+      expect(crossChain.hasCompatibleWallet, false);
+      expect(crossChain.canSwap, false);
+    });
+
+    test("an mweb address never offers a swap", () {
+      final decision = AnyPayRouter.route(
+        parse(mwebAddress),
+        snapshot(),
+        const NoTokenRequested(),
+      );
+
+      expect((decision as AnyPayCrossChainPayment).canSwap, false);
+    });
+
+    test("a plain btc address keeps the swap offer", () {
+      final decision = AnyPayRouter.route(
+        parse(btcAddress),
+        snapshot(type: WalletType.monero),
+        const NoTokenRequested(),
+      );
+
+      expect((decision as AnyPayCrossChainPayment).canSwap, true);
+    });
+  });
 }

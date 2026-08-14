@@ -1184,6 +1184,8 @@
   "swap_provider_initial_desc": "Wählen Sie die Art des Swap-Anbieters aus, die Sie beim Tauschen bevorzugen.",
   "swap_providers": "Swap-Anbieter",
   "swap_reverse_direction": "Swap-Richtung umkehren",
+  "swap_unavailable_needs_network_wallet": "Dieser Adresstyp kann keine Gelder von einem Swap erhalten. Sie benötigen ein ${network}-Wallet, um es an diese Adresse zu senden.",
+  "swap_unavailable_switch_to_network": "Dieser Adresstyp kann keine Gelder von einem Swap erhalten. Wechseln Sie zu Ihrem ${network}-Wallet, um fortzufahren.",
   "sweeping_wallet": "Wallet leeren",
   "sweeping_wallet_alert": "Das sollte nicht lange dauern. Verlassen Sie diesen Bildschirm nicht, sonst können die geleerten Guthaben verloren gehen.",
   "swipe_to_bridge": "Zum Bridging wischen",

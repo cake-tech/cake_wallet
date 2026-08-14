@@ -1228,6 +1228,11 @@ class _NewSendPageState extends State<NewSendPage> {
     final destinationNetworkName = networkDisplayName(destinationType, decision.targetChainId);
     final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? "";
 
+    if (!decision.canSwap && !decision.hasCompatibleWallet) {
+      _showAnyPayError(S.of(context).swap_unavailable_needs_network_wallet(destinationNetworkName));
+      return;
+    }
+
     final currentType = widget.sendViewModel.wallet.type;
     final currentChainId =
         isEVMCompatibleChain(currentType) && evm != null ? _currentEvmChainIdOrMainnet() : null;
@@ -1249,18 +1254,23 @@ class _NewSendPageState extends State<NewSendPage> {
         CupertinoPageRoute(
           builder: (pageContext) => NetworkDecisionPage(
             title: decisionTitle,
-            description: S.of(context).send_to_network_description(
-                  destinationNetworkName,
-                  currentNetworkName,
-                ),
+            description: decision.canSwap
+                ? S.of(context).send_to_network_description(
+                      destinationNetworkName,
+                      currentNetworkName,
+                    )
+                : S.of(context).swap_unavailable_switch_to_network(destinationNetworkName),
             destinationIconPath: destinationNetworkIcon,
             primaryText: S.of(context).switch_to_x_wallet(destinationNetworkName),
             primaryIconPath: "assets/new-ui/wallet_filled.svg",
             onPrimary: () =>
                 _onSwitchWalletSelected(pageContext, request, decision, fallbackCurrency),
-            secondaryText: S.of(context).swap_from_network(currentNetworkName),
-            secondaryIconPath: "assets/new-ui/swap_arrows.svg",
-            onSecondary: () => _openSwapFromSend(pageContext, request, decision),
+            secondaryText: decision.canSwap
+                ? S.of(context).swap_from_network(currentNetworkName)
+                : S.of(context).cancel,
+            secondaryIconPath: decision.canSwap ? "assets/new-ui/swap_arrows.svg" : null,
+            onSecondary:
+                decision.canSwap ? () => _openSwapFromSend(pageContext, request, decision) : null,
           ),
         ),
       );

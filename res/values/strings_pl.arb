@@ -1150,6 +1150,8 @@
   "swap_id": "ID wymiany",
   "swap_provider_initial_desc": "Wybierz typ dostawcy swapów, którego wolisz używać podczas swapowania w",
   "swap_providers": "Dostawcy wymiany",
+  "swap_unavailable_needs_network_wallet": "Ten typ adresu nie może otrzymywać środków z wymiany. Aby wysłać przesyłkę na ten adres, potrzebujesz portfela ${network}.",
+  "swap_unavailable_switch_to_network": "Ten typ adresu nie może otrzymywać środków z wymiany. Aby kontynuować, przejdź do portfela ${network}.",
   "sweeping_wallet": "Opróżnianie portfela",
   "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE OPUSZCZAJ TEGO EKRANU, W PRZECIWNYM RAZIE ZAMIATANE ŚRODKI MOGĄ ZOSTAĆ UTRACONE.",
   "swipe_to_bridge": "Przesuń, aby zmostkować",

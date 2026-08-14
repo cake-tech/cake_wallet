@@ -1151,6 +1151,8 @@
   "swap_id": "兑换 ID",
   "swap_provider_initial_desc": "选择您在换入时偏好使用的兑换服务提供商类型",
   "swap_providers": "兑换服务提供商",
+  "swap_unavailable_needs_network_wallet": "此地址类型无法从交换中接收资金。您需要一个 ${network} 钱包才能发送到此地址。",
+  "swap_unavailable_switch_to_network": "此地址类型无法从交换中接收资金。切换到您的 ${network} 钱包以继续。",
   "sweeping_wallet": "正在归集钱包",
   "sweeping_wallet_alert": "这应该不会花很长时间。请勿离开此屏幕，否则被归集的资金可能会丢失。",
   "swipe_to_bridge": "滑动以跨链桥接",

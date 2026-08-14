@@ -1150,6 +1150,8 @@
   "swap_id": "Swap ID",
   "swap_provider_initial_desc": "Piliin ang uri ng swap provider na mas gusto mong gamitin kapag nagsa-swap",
   "swap_providers": "Mga provider ng swap",
+  "swap_unavailable_needs_network_wallet": "Ang uri ng address na ito ay hindi makakatanggap ng mga pondo mula sa isang swap. Kailangan mo ng ${network} wallet upang maipadala sa address na ito.",
+  "swap_unavailable_switch_to_network": "Ang uri ng address na ito ay hindi makakatanggap ng mga pondo mula sa isang swap. Lumipat sa iyong ${network} wallet upang magpatuloy.",
   "sweeping_wallet": "Sweeping wallet",
   "sweeping_wallet_alert": "Hindi ito dapat magtagal. HUWAG UMALIS SA SCREEN NA ITO O MAARING MAWALA ANG MGA NA-SWEEP NA PONDO.",
   "swipe_to_bridge": "Mag-swipe para mag-bridge",

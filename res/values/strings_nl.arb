@@ -1150,6 +1150,8 @@
   "swap_id": "Swap-ID",
   "swap_provider_initial_desc": "Selecteer het type swapprovider dat je wilt gebruiken bij het swappen",
   "swap_providers": "Swapproviders",
+  "swap_unavailable_needs_network_wallet": "Dit adrestype kan geen geld ontvangen van een swap. U heeft een portemonnee van ${network} nodig om naar dit adres te kunnen verzenden.",
+  "swap_unavailable_switch_to_network": "Dit adrestype kan geen geld ontvangen van een swap. Schakel over naar uw ${network}-portemonnee om door te gaan.",
   "sweeping_wallet": "Wallet wordt geveegd",
   "sweeping_wallet_alert": "Dit duurt niet lang. VERLAAT DIT SCHERM NIET, ANDERS KUNNEN DE FONDSEN VERLOREN GAAN.",
   "swipe_to_bridge": "Veeg om te bridgen",

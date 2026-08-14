@@ -1151,6 +1151,8 @@
   "swap_id": "ID Swap",
   "swap_provider_initial_desc": "Yan iru olupese swap ti o fẹ́ lò nígbà tí o bá ń swap sínú",
   "swap_providers": "Awọn olupese swap",
+  "swap_unavailable_needs_network_wallet": "Iru adirẹsi yii ko le gba owo lati swap kan. O nilo apamọwọ ${network} lati fi ranṣẹ si adirẹsi yii.",
+  "swap_unavailable_switch_to_network": "Iru adirẹsi yii ko le gba owo lati swap kan. Yipada si apamọwọ ${network} rẹ lati tẹsiwaju.",
   "sweeping_wallet": "Wallet ìkó",
   "sweeping_wallet_alert": "Eyi kò yẹ kí ó pẹ́. MÁ ṢE KÚRÒ LÓRÍ IBÓJÚ YÌÍ TÁBÍ OWÓ TÍ A TI SWEEP LÈ SỌ́NÙ.",
   "swipe_to_bridge": "Fà láti so ìjápọ̀",

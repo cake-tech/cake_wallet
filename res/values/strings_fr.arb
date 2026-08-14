@@ -1150,6 +1150,8 @@
   "swap_id": "ID d’échange",
   "swap_provider_initial_desc": "Sélectionnez le type de fournisseur de swap que vous préférez utiliser lors d’un swap",
   "swap_providers": "Fournisseurs de swap",
+  "swap_unavailable_needs_network_wallet": "Ce type d'adresse ne peut pas recevoir de fonds provenant d'un swap. Vous avez besoin d'un portefeuille ${network} pour envoyer à cette adresse.",
+  "swap_unavailable_switch_to_network": "Ce type d'adresse ne peut pas recevoir de fonds provenant d'un swap. Basculez vers votre portefeuille ${network} pour continuer.",
   "sweeping_wallet": "Balayage du portefeuille",
   "sweeping_wallet_alert": "Cela ne devrait pas prendre longtemps. NE QUITTEZ PAS CET ÉCRAN, SINON LES FONDS BALAYÉS RISQUENT D’ÊTRE PERDUS.",
   "swipe_to_bridge": "Glissez pour transférer (bridge)",

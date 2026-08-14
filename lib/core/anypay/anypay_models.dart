@@ -121,6 +121,7 @@ class AnyPayCrossChainPayment extends AnyPayDecision {
     this.targetChainId,
     this.token,
     this.amountOverride,
+    this.canSwap = true,
   });
 
   final WalletType targetWalletType;
@@ -128,6 +129,7 @@ class AnyPayCrossChainPayment extends AnyPayDecision {
   final List<WalletInfo> wallets;
   final CryptoCurrency? token;
   final String? amountOverride;
+  final bool canSwap;
 
   bool get hasCompatibleWallet => wallets.isNotEmpty;
 }

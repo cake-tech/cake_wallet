@@ -1150,6 +1150,8 @@
   "swap_id": "ID směny",
   "swap_provider_initial_desc": "Vyberte typ poskytovatele swapu, kterého chcete používat při swapování v",
   "swap_providers": "Poskytovatelé swapu",
+  "swap_unavailable_needs_network_wallet": "Tento typ adresy nemůže přijímat prostředky ze swapu. K odeslání na tuto adresu potřebujete peněženku ${network}.",
+  "swap_unavailable_switch_to_network": "Tento typ adresy nemůže přijímat prostředky ze swapu. Chcete-li pokračovat, přepněte na svou peněženku ${network}.",
   "sweeping_wallet": "Peněženka pro sweep",
   "sweeping_wallet_alert": "To by nemělo trvat dlouho. NEOPUŠTĚJTE TUTO OBRAZOVKU, JINAK MOHOU BÝT PŘESUNUTÉ PROSTŘEDKY ZTRACENY.",
   "swipe_to_bridge": "Přemostění přejetím prstem",

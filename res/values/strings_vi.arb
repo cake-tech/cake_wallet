@@ -1151,6 +1151,8 @@
   "swap_id": "ID Swap",
   "swap_provider_initial_desc": "Chọn loại nhà cung cấp hoán đổi mà bạn muốn sử dụng khi hoán đổi trong ứng dụng",
   "swap_providers": "Nhà cung cấp hoán đổi",
+  "swap_unavailable_needs_network_wallet": "Loại địa chỉ này không thể nhận tiền từ trao đổi. Bạn cần có ví ${network} để gửi tới địa chỉ này.",
+  "swap_unavailable_switch_to_network": "Loại địa chỉ này không thể nhận tiền từ trao đổi. Chuyển sang ví ${network} của bạn để tiếp tục.",
   "sweeping_wallet": "Quét ví",
   "sweeping_wallet_alert": "Việc này sẽ không mất nhiều thời gian. KHÔNG RỜI KHỎI MÀN HÌNH NÀY, NẾU KHÔNG SỐ TIỀN ĐÃ QUÉT CÓ THỂ BỊ MẤT.",
   "swipe_to_bridge": "Vuốt để bắc cầu",
