@@ -102,7 +102,7 @@ SelectedCoins? changelessMatch({
     return null;
   }
 
-  return SelectedCoins([for (final i in match.indices) keep[i]], hasChange: false);
+  return SelectedCoins(match.indices.map((i) => keep[i]).toList(), hasChange: false);
 }
 
 class InsufficientFundsException implements Exception {
@@ -130,7 +130,7 @@ SelectedCoins selectCoins({
 
   SelectedCoins? map(SelectedCoins? s) => s == null
       ? null
-      : SelectedCoins([for (final i in s.indices) keep[i]], hasChange: s.hasChange);
+      : SelectedCoins(s.indices.map((i) => keep[i]).toList(), hasChange: s.hasChange);
 
   final bnb = map(branchAndBound(eff, target, costOfChange));
   if (bnb != null) {
