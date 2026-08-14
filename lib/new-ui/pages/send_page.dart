@@ -291,6 +291,20 @@ class _NewSendPageState extends State<NewSendPage> {
         if (!mounted) {
           return;
         }
+
+        final state = widget.sendViewModel.state;
+        if (loadingBottomSheetContext != null ||
+            state is IsExecutingState ||
+            state is TransactionCommitting) {
+          printV("dropping incoming payment link while the send flow is busy");
+          return;
+        }
+
+        final route = ModalRoute.of(context);
+        if (route != null && !route.isCurrent) {
+          Navigator.of(context).popUntil((r) => r == route);
+        }
+
         await _runAnyPayFlow(link.toString());
       });
     }

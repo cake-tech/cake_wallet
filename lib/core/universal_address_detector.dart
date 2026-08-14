@@ -240,8 +240,7 @@ class UniversalAddressDetector {
 
       // Zcash (transparent, Sapling shielded, unified)
       _DetectionPattern(
-        pattern:
-            RegExp(r"^(?:t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300})$"),
+        pattern: RegExp("^(?:${AddressValidator.zcashAddressPattern})\$"),
         currency: CryptoCurrency.zec,
       ),
 
