@@ -437,7 +437,9 @@ Future<void> setup({
     () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"),
   );
 
-  getIt.registerLazySingleton(() => TrezorConnectViewModel(getIt<TrezorConnect>()));
+  getIt.registerLazySingleton(
+    () => TrezorConnectViewModel(getIt<TrezorConnect>(), getIt<SecureStorage>()),
+  );
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
 
