@@ -39,7 +39,8 @@ void main() {
   test('changelessMatch finds a set whose effective sum lands in the window', () {
     // inputCost 100: values [50, 400, 300, 200] -> eff [dropped, 300, 200, 100]
     // target 500, window 46: eff {300, 200} = 500, exact
-    final r = changelessMatch(values: [50, 400, 300, 200], target: 500, inputCost: 100, window: 46);
+    final r = changelessMatch(
+        values: [50, 400, 300, 200], target: 500, inputCosts: [100, 100, 100, 100], window: 46);
     expect(r, isNotNull);
     expect(r!.hasChange, isFalse);
     final effSum = r.indices.map((i) => [50, 400, 300, 200][i] - 100).reduce((a, b) => a + b);
@@ -47,7 +48,9 @@ void main() {
     expect(r.indices.contains(0), isFalse); // negative-eff coin never selected
   });
   test('changelessMatch returns null when no subset lands in the window', () {
-    expect(changelessMatch(values: [10000, 9000], target: 500, inputCost: 100, window: 46), isNull);
+    expect(
+        changelessMatch(values: [10000, 9000], target: 500, inputCosts: [100, 100], window: 46),
+        isNull);
   });
   test('selectCoins throws when insufficient', () {
     expect(() => selectCoins(values:[100,100],target:500,inputCost:0,costOfChange:5,minChange:10),
@@ -61,7 +64,10 @@ void main() {
     final values = [60700, 30000, 21800, 9000, 5000];
     const target = amount + (34 * 1 + 10) * feeRate;
     final r = changelessMatch(
-        values: values, target: target, inputCost: 68 * feeRate, window: 546);
+        values: values,
+        target: target,
+        inputCosts: List.filled(values.length, 68 * feeRate),
+        window: 546);
     expect(r, isNotNull);
     final inAmount = r!.indices.map((i) => values[i]).reduce((a, b) => a + b);
     final feeNoChange = (68 * r.indices.length + 34 * 1 + 10) * feeRate;
@@ -73,7 +79,22 @@ void main() {
     // 300 even effective values, odd target, zero window: no subset can ever match,
     // so the search must stop at maxTries instead of exploring 2^300 branches.
     final values = List<int>.generate(300, (i) => 1000000 + i * 2);
-    final r = changelessMatch(values: values, target: 1500001, inputCost: 10, window: 0);
+    final r = changelessMatch(
+        values: values, target: 1500001, inputCosts: List.filled(300, 10), window: 0);
     expect(r, isNull);
+  });
+  test('changelessMatch charges each input its own script-type cost', () {
+    // Legacy input (148 vB) vs segwit input (68 vB) at 10 sat/vB: same value, but
+    // the legacy coin's effective value is 800 lower. Target only reachable when
+    // the cheaper segwit coin is chosen: eff segwit = 10000-680 = 9320.
+    const feeRate = 10;
+    final r = changelessMatch(
+      values: [10000, 10000],
+      target: 9320,
+      inputCosts: [148 * feeRate, 68 * feeRate],
+      window: 0,
+    );
+    expect(r, isNotNull);
+    expect(r!.indices, equals([1]));
   });
 }

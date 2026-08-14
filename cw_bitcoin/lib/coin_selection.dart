@@ -43,20 +43,22 @@ SelectedCoins? singleRandomDraw(List<int> effValues, int target, int minChange, 
 }
 
 /// Branch-and-bound over effective values (value minus the cost of spending the
-/// input at the current fee rate). A match means the excess over [target] stays
-/// within [window], so the remainder can be absorbed into the fee instead of
-/// creating a change output. Returns null when no such subset exists.
+/// input at the current fee rate). [inputCosts] is parallel to [values] so each
+/// input pays for its own script type's size. A match means the excess over
+/// [target] stays within [window], so the remainder can be absorbed into the fee
+/// instead of creating a change output. Returns null when no such subset exists.
 SelectedCoins? changelessMatch({
   required List<int> values,
   required int target,
-  required int inputCost,
+  required List<int> inputCosts,
   required int window,
   int maxTries = 100000,
 }) {
+  assert(values.length == inputCosts.length);
   final keep = <int>[];
   final eff = <int>[];
   for (var i = 0; i < values.length; i++) {
-    final e = effectiveValue(values[i], inputCost);
+    final e = effectiveValue(values[i], inputCosts[i]);
     if (e > 0) {
       keep.add(i);
       eff.add(e);

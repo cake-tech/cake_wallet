@@ -269,6 +269,29 @@ abstract class ElectrumWalletBase
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
 
+  // vbytes an input of the given script type adds to a transaction. The generic
+  // estimate above assumes P2WPKH (68); legacy and taproot inputs differ enough
+  // to break changeless-match arithmetic if not accounted for.
+  static int estimatedInputSize(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 148;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 91;
+    if (type == SegwitAddresType.p2tr) return 58;
+    if (type == SegwitAddresType.p2wsh) return 105;
+    if (type == SilentPaymentsAddresType.p2sp) return 58; // spent via taproot
+    return 68;
+  }
+
+  // vbytes an output of the given script type adds to a transaction. Silent
+  // payment outputs are delivered as taproot.
+  static int estimatedOutputSize(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 34;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 32;
+    if (type == SegwitAddresType.p2tr) return 43;
+    if (type == SegwitAddresType.p2wsh) return 43;
+    if (type == SilentPaymentsAddresType.p2sp) return 43;
+    return 31;
+  }
+
   // Parses the account index from a BIP-44/49/84/86 derivation path.
   // e.g. "m/84'/0'/1'" → 1.  Returns 0 for unrecognised formats.
   static int _parseAccountIndex(String? derivationPath) {
@@ -882,7 +905,7 @@ abstract class ElectrumWalletBase
     int credentialsAmount = 0,
     int? inputsCount,
     int feeRate = 0,
-    int outputsCount = 0,
+    int? outputsVBytes,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     List<UtxoWithAddress> utxos = [];
@@ -926,14 +949,19 @@ abstract class ElectrumWalletBase
         inputsCount == null &&
         credentialsAmount > 0 &&
         feeRate > 0 &&
-        outputsCount > 0 &&
+        outputsVBytes != null &&
+        outputsVBytes > 0 &&
         !availableInputs.any((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb);
     if (canTryChangeless) {
-      final perInputVBytes = estimatedTransactionSize(1, 0) - estimatedTransactionSize(0, 0);
       final match = changelessMatch(
         values: [for (final u in availableInputs) u.value],
-        target: credentialsAmount + estimatedTransactionSize(0, outputsCount) * feeRate,
-        inputCost: perInputVBytes * feeRate,
+        // estimatedTransactionSize(0, 0) is the fixed tx overhead (version,
+        // counters, locktime); the outputs' own vbytes come pre-computed per type.
+        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
+        inputCosts: [
+          for (final u in availableInputs)
+            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+        ],
         window: networkDustAmount.toInt(),
       );
       if (match != null) {
@@ -1161,12 +1189,25 @@ abstract class ElectrumWalletBase
       }
     }
 
+    // Per-type output sizes for the changeless target. MWEB outputs follow a
+    // different size model entirely, so they disable the changeless path (null).
+    int? outputsVBytes = 0;
+    for (final out in outputs) {
+      final type =
+          out.isSilentPayment == true ? SilentPaymentsAddresType.p2sp : _getScriptType(out.address);
+      if (type == SegwitAddresType.mweb) {
+        outputsVBytes = null;
+        break;
+      }
+      outputsVBytes = outputsVBytes! + estimatedOutputSize(type);
+    }
+
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount.amount.toInt(),
       inputsCount: inputsCount,
       feeRate: feeRate,
-      outputsCount: outputs.length,
+      outputsVBytes: outputsVBytes,
       paysToSilentPayment: hasSilentPayment,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
