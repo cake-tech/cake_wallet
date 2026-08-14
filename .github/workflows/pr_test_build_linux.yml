@@ -127,6 +127,27 @@ jobs:
           zip -r cakewallet_linux.zip bundle
           popd
 
+      - name: Find zip file
+        id: find_zip
+        run: |
+          set -x
+          zip_file=$(ls build/linux/x64/release/cakewallet_linux.zip || exit 1)
+          echo "ZIP_FILE=$zip_file" >> $GITHUB_ENV
+
+      - name: Write BRANCH_NAME to env
+        run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+
+      - name: Upload to slack step
+        uses: vaporif/slack-file-upload-action@v1
+        with:
+          token: ${{ secrets.SLACK_APP_TOKEN }}
+          initial_comment: ${{ env.message }}
+          files: >
+            [
+              {"file": "${{ env.ZIP_FILE }}", "filename": "${{ env.BRANCH_NAME }}.zip"}
+            ]
+          channel_id: ${{ secrets.SLACK_LINUX_BUILDS_CHANNEL }}
+
       - name: Upload Artifact to github
         uses: actions/upload-artifact@v4
         with:

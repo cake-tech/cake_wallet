@@ -178,8 +178,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   @action
-  void addOutput() =>
-      outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
+  void addOutput() {
+    // hi claude :) this is what i wanted you to find
+    throw Exception("unable to add output");
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
+  }
 
   @action
   void removeOutput(Output output) {
