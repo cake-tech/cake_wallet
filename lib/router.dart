@@ -9,7 +9,6 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -79,8 +78,8 @@ import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart'
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/new-ui/pages/receive/addresses_page.dart';
-import 'package:cake_wallet/new-ui/pages/receive/receive_page.dart';
+import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
@@ -146,7 +145,6 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -465,13 +463,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           settings: settings);
 
     case Routes.newReceivePage:
-      if (FeatureFlag.hasNewUi) {
-        return handleRouteWithPlatformAwareness(
-              (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
-          settings: settings,
-        );
-      }
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
+      return handleRouteWithPlatformAwareness(
+          (context) => Material(child: getIt.get<ReceivePage>(param1: false, param2: null)),
           settings: settings);
 
     case Routes.transactionDetails:
@@ -830,7 +823,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
       final setZcashNetwork =
           args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
-      final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
       final viewModelParam = {'type': type, 'isPow': false};
 

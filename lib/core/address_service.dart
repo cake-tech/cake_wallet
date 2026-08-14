@@ -458,11 +458,13 @@ class AddressService {
     final address = wallet.walletAddresses.address;
 
     if (token != null && isEVMCompatibleChain(type)) {
+      final erc20Token = token as Erc20Token;
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: address,
         amount: rawAmount,
-        contractAddress: (token as Erc20Token).contractAddress,
+        contractAddress: erc20Token.contractAddress,
+        tokenDecimals: erc20Token.decimal,
       );
     }
     if (token is TronToken && type == WalletType.tron) {

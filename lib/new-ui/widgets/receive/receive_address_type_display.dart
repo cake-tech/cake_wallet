@@ -39,54 +39,66 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
       iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Row(
-        key: ValueKey("$text$largeQrMode"),
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 12,
-        children: [
-          if (iconPath != null)
-            CakeImageWidget(
-              imageUrl: iconPath,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
-              ),
-            ),
-          Text(
-            text,
-            style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.primary),
-          ),
-          if (!largeQrMode)
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(999999),
-              ),
-              child: isLoading
-                  ? const Padding(
-                      padding: EdgeInsets.all(4),
-                      child: CupertinoActivityIndicator(radius: 7),
-                    )
-                  : IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: onTap,
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
+    // The row and the chevron button trigger the same picker, so only the
+    // row is exposed and the chevron is treated as decoration.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        label: S.of(context).address_type,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Row(
+            key: ValueKey("$text$largeQrMode"),
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 12,
+            children: [
+              if (iconPath != null)
+                ExcludeSemantics(
+                  child: CakeImageWidget(
+                    imageUrl: iconPath,
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcIn,
                     ),
-            ),
-        ],
+                  ),
+                ),
+              Text(
+                text,
+                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.primary),
+              ),
+              if (!largeQrMode)
+                ExcludeSemantics(
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(999999),
+                    ),
+                    child: isLoading
+                        ? const Padding(
+                            padding: EdgeInsets.all(4),
+                            child: CupertinoActivityIndicator(radius: 7),
+                          )
+                        : IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: onTap,
+                            icon: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                          ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

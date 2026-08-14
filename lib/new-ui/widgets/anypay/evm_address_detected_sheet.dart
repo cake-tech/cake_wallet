@@ -1,6 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:flutter/material.dart";
 
@@ -37,6 +37,7 @@ class EvmAddressDetectedSheet extends StatelessWidget {
             ModalTopBar(
               title: "",
               trailingIcon: const Icon(Icons.close),
+              trailingSemanticLabel: S.of(context).close,
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 32),

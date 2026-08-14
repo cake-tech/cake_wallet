@@ -21,6 +21,7 @@ import "package:cw_core/card_design.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
@@ -414,14 +415,22 @@ class _AddressSearchBox extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(99999),
                 ),
-                child: BaseTextFormField(
-                  controller: controller,
-                  hintText: S.of(context).search,
-                  placeholderTextStyle: const TextStyle(fontWeight: FontWeight.w600),
-                  prefixIcon: const Icon(Icons.search),
-                  fillColor: Colors.transparent,
-                  borderRadius: BorderRadius.circular(99999),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                // The hint names the field only while it is empty, so the label
+                // is supplied once there is text to keep exactly one
+                // announcement.
+                child: MergeSemantics(
+                  child: Semantics(
+                    label: controller.text.isEmpty ? null : S.of(context).search,
+                    child: BaseTextFormField(
+                      controller: controller,
+                      hintText: S.of(context).search,
+                      placeholderTextStyle: const TextStyle(fontWeight: FontWeight.w600),
+                      prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
+                      fillColor: Colors.transparent,
+                      borderRadius: BorderRadius.circular(99999),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -552,30 +561,38 @@ class _ShowHiddenButton extends StatelessWidget {
         child: Column(
           children: [
             Material(
-              child: InkWell(
-                onTap: () async {
-                  final bloc = context.read<AddressesBloc>();
-                  await Navigator.of(context)
-                      .pushNamed(Routes.receiveAddresses, arguments: true);
-                  bloc.add(const AddressListRefreshed());
-                },
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(S.of(context).show_hidden_addresses),
-                        const RotatedBox(
-                          quarterTurns: 1,
-                          child: CakeImageWidget(imageUrl: "assets/new-ui/dropdown_arrow.svg"),
+              child: MergeSemantics(
+                child: Semantics(
+                  button: true,
+                  child: InkWell(
+                    onTap: () async {
+                      final bloc = context.read<AddressesBloc>();
+                      await Navigator.of(context)
+                          .pushNamed(Routes.receiveAddresses, arguments: true);
+                      bloc.add(const AddressListRefreshed());
+                    },
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(S.of(context).show_hidden_addresses),
+                            const ExcludeSemantics(
+                              child: RotatedBox(
+                                quarterTurns: 1,
+                                child:
+                                    CakeImageWidget(imageUrl: "assets/new-ui/dropdown_arrow.svg"),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -695,68 +712,96 @@ class _AddressRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (selected) const CakeImageWidget(imageUrl: "assets/new-ui/checkmark.svg"),
+            // The row's selected state carries this information.
+            if (selected)
+              const ExcludeSemantics(
+                child: CakeImageWidget(imageUrl: "assets/new-ui/checkmark.svg"),
+              ),
           ],
         ),
       ),
     );
 
-    return GestureDetector(
-      onTap: onSelect,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: isPicker
-            ? row
-            : LongPressPopupBuilder(
-                popup: LongPressMenu(
-                  items: [
-                    if (canSetLabel)
-                      LongPressMenuItem(
-                        label: S.of(context).set_label,
-                        iconPath: "assets/new-ui/address_set_label.svg",
-                        onSelected: () async {
-                          final bloc = context.read<AddressesBloc>();
-                          Navigator.of(context, rootNavigator: true).pop();
-                          final res = await showPopUp<String>(
-                            context: context,
-                            builder: (_) => _AddressLabelInputPopup(
-                              initialLabel: entry.label ?? "",
-                              onSaved: (label) =>
-                                  bloc.add(AddressLabelSet(entry.address, label)),
-                            ),
-                          );
-                          if (res != null) {
-                            onLabelChanged();
-                          }
-                        },
-                      ),
-                    if (canHide)
-                      LongPressMenuItem(
-                        label: entry.isHidden
-                            ? S.of(context).unhide_address
-                            : S.of(context).hide_address,
-                        iconPath: "assets/new-ui/address_hide.svg",
-                        onSelected: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                          onAddressHidden();
-                        },
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    LongPressMenuItem(
-                      label: S.of(context).show_details,
-                      iconPath: "assets/images/info_icon.svg",
-                      onSelected: () async {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        await showPopUp<void>(
-                          context: context,
-                          builder: (context) => _AddressInfoPopup(entry: entry),
-                        );
-                      },
+    final hideLabel =
+        entry.isHidden ? S.of(context).unhide_address : S.of(context).hide_address;
+
+    Future<void> editLabel() async {
+      final bloc = context.read<AddressesBloc>();
+      final res = await showPopUp<String>(
+        context: context,
+        builder: (_) => _AddressLabelInputPopup(
+          initialLabel: entry.label ?? "",
+          onSaved: (label) => bloc.add(AddressLabelSet(entry.address, label)),
+        ),
+      );
+      if (res != null) {
+        onLabelChanged();
+      }
+    }
+
+    Future<void> showInfo() async {
+      await showPopUp<void>(
+        context: context,
+        builder: (context) => _AddressInfoPopup(entry: entry),
+      );
+    }
+
+    // The row is a single control: selection on tap, and the actions that are
+    // otherwise reachable only by long press exposed as custom actions.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        customSemanticsActions: isPicker
+            ? null
+            : <CustomSemanticsAction, VoidCallback>{
+                if (canSetLabel)
+                  CustomSemanticsAction(label: S.of(context).set_label): editLabel,
+                if (canHide) CustomSemanticsAction(label: hideLabel): onAddressHidden,
+                CustomSemanticsAction(label: S.of(context).show_details): showInfo,
+              },
+        child: GestureDetector(
+          onTap: onSelect,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: isPicker
+                ? row
+                : LongPressPopupBuilder(
+                    popup: LongPressMenu(
+                      items: [
+                        if (canSetLabel)
+                          LongPressMenuItem(
+                            label: S.of(context).set_label,
+                            iconPath: "assets/new-ui/address_set_label.svg",
+                            onSelected: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                              editLabel();
+                            },
+                          ),
+                        if (canHide)
+                          LongPressMenuItem(
+                            label: hideLabel,
+                            iconPath: "assets/new-ui/address_hide.svg",
+                            onSelected: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                              onAddressHidden();
+                            },
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        LongPressMenuItem(
+                          label: S.of(context).show_details,
+                          iconPath: "assets/images/info_icon.svg",
+                          onSelected: () {
+                            Navigator.of(context, rootNavigator: true).pop();
+                            showInfo();
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: row,
-              ),
+                    child: row,
+                  ),
+          ),
+        ),
       ),
     );
   }

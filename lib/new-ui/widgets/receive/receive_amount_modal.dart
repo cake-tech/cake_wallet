@@ -96,41 +96,57 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     spacing: 12,
                     children: [
                       if (widget.showTokenPicker) ...[
-                        Text(S.of(context).token),
-                        GestureDetector(
-                          onTap: widget.onTokenPickerTap,
-                          child: Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    spacing: 8,
+                        // The caption is reused as the picker's semantics label,
+                        // so it must not be announced as a separate node.
+                        ExcludeSemantics(child: Text(S.of(context).token)),
+                        MergeSemantics(
+                          child: Semantics(
+                            button: true,
+                            label: S.of(context).select_token,
+                            child: GestureDetector(
+                              onTap: widget.onTokenPickerTap,
+                              child: Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      TokenImageWidget(imageUrl: widget.tokenIconPath, size: 32),
-                                      Text(widget.tokenTitle.toUpperCase()),
+                                      Row(
+                                        spacing: 8,
+                                        children: [
+                                          ExcludeSemantics(
+                                            child: TokenImageWidget(
+                                              imageUrl: widget.tokenIconPath,
+                                              size: 32,
+                                            ),
+                                          ),
+                                          Text(widget.tokenTitle.toUpperCase()),
+                                        ],
+                                      ),
+                                      const ExcludeSemantics(
+                                        child: RotatedBox(
+                                          quarterTurns: 2,
+                                          child: CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                  const RotatedBox(
-                                    quarterTurns: 2,
-                                    child: CakeImageWidget(
-                                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ],
                       const SizedBox(),
-                      Text(S.of(context).amount),
+                      // The caption is reused as the field's semantics label.
+                      ExcludeSemantics(child: Text(S.of(context).amount)),
                       Row(
                         children: [
                           Expanded(
@@ -148,67 +164,82 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                   width: 2,
                                 ),
                               ),
-                              child: TextField(
-                                textAlign: TextAlign.left,
-                                textAlignVertical: TextAlignVertical.center,
-                                controller: _amountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                  signed: false,
-                                  decimal: widget.selectedCurrencyDecimals > 0,
-                                ),
-                                inputFormatters: [
-                                  DecimalInputFormatter(
-                                    maxDecimals: widget.selectedCurrencyDecimals,
-                                  ),
-                                ],
-                                decoration: InputDecoration(
-                                  hint: Text(
-                                    _amountHint,
+                              child: MergeSemantics(
+                                child: Semantics(
+                                  label: S.of(context).amount,
+                                  child: TextField(
                                     textAlign: TextAlign.left,
+                                    textAlignVertical: TextAlignVertical.center,
+                                    controller: _amountController,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: widget.selectedCurrencyDecimals > 0,
+                                    ),
+                                    inputFormatters: [
+                                      DecimalInputFormatter(
+                                        maxDecimals: widget.selectedCurrencyDecimals,
+                                      ),
+                                    ],
+                                    decoration: InputDecoration(
+                                      hint: Text(
+                                        _amountHint,
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                      border: InputBorder.none,
+                                      filled: true,
+                                      fillColor: Colors.transparent,
+                                    ),
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.5),
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
-                                  border: InputBorder.none,
-                                  filled: true,
-                                  fillColor: Colors.transparent,
                                 ),
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                               ),
                             ),
                           ),
                           Expanded(
                             flex: 25,
-                            child: GestureDetector(
-                              onTap: widget.onCurrencyPickerTap,
-                              child: Container(
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(18),
-                                    bottomRight: Radius.circular(18),
-                                  ),
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 4,
-                                  children: [
-                                    Text(
-                                      widget.selectedCurrencySymbol,
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurface,
+                            child: MergeSemantics(
+                              child: Semantics(
+                                button: true,
+                                label: S.of(context).select_fiat_currency_title,
+                                child: GestureDetector(
+                                  onTap: widget.onCurrencyPickerTap,
+                                  child: Container(
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.only(
+                                        topRight: Radius.circular(18),
+                                        bottomRight: Radius.circular(18),
                                       ),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
                                     ),
-                                    Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Theme.of(context).colorScheme.primary,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: 4,
+                                      children: [
+                                        Text(
+                                          widget.selectedCurrencySymbol,
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                        ExcludeSemantics(
+                                          child: Icon(
+                                            Icons.keyboard_arrow_down,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),

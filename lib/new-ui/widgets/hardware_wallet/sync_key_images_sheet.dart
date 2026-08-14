@@ -1,5 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
@@ -56,6 +56,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
                         Icons.close,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
+                      leadingSemanticLabel: S.of(context).close,
                       onLeadingPressed: () => showPopUp(
                         context: context,
                         builder: (context) => AlertWithTwoActions(

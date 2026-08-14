@@ -137,40 +137,51 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                           top: const Radius.circular(20),
                           bottom: _otherOptionsExpanded ? Radius.zero : const Radius.circular(20),
                         ),
-                        child: InkWell(
-                          highlightColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.vertical(
-                            top: const Radius.circular(20),
-                            bottom:
-                                !_otherOptionsExpanded ? Radius.zero : const Radius.circular(20),
-                          ),
-                          onTap: () => setState(
-                            () => _otherOptionsExpanded = !_otherOptionsExpanded,
-                          ),
-                          child: SizedBox(
-                            height: 64,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    S.of(context).more_options,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
+                        child: MergeSemantics(
+                          child: Semantics(
+                            button: true,
+                            expanded: _otherOptionsExpanded,
+                            child: InkWell(
+                              highlightColor:
+                                  Theme.of(context).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.vertical(
+                                top: const Radius.circular(20),
+                                bottom: !_otherOptionsExpanded
+                                    ? Radius.zero
+                                    : const Radius.circular(20),
+                              ),
+                              onTap: () => setState(
+                                () => _otherOptionsExpanded = !_otherOptionsExpanded,
+                              ),
+                              child: SizedBox(
+                                height: 64,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        S.of(context).more_options,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                      ExcludeSemantics(
+                                        child: AnimatedRotation(
+                                          duration: ReceiveAddressTypeSelector
+                                              .otherOptionsExpandDuration,
+                                          turns: _otherOptionsExpanded ? 0.0 : 0.5,
+                                          curve: Curves.easeOut,
+                                          child: const CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  AnimatedRotation(
-                                    duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
-                                    turns: _otherOptionsExpanded ? 0.0 : 0.5,
-                                    curve: Curves.easeOut,
-                                    child: const CakeImageWidget(
-                                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -185,9 +196,13 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                         duration: ReceiveAddressTypeSelector.otherOptionsExpandDuration,
                         curve: Curves.easeOut,
                         alignment: Alignment.topCenter,
-                        child: SizedBox(
-                          height: _otherOptionsExpanded ? null : 0,
-                          child: ListView.separated(
+                        // Collapsed to zero height: keep the options out of
+                        // the semantics tree so they cannot be focused.
+                        child: ExcludeSemantics(
+                          excluding: !_otherOptionsExpanded,
+                          child: SizedBox(
+                            height: _otherOptionsExpanded ? null : 0,
+                            child: ListView.separated(
                             shrinkWrap: true,
                             padding: EdgeInsets.zero,
                             physics: const NeverScrollableScrollPhysics(),
@@ -215,6 +230,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                               );
                             },
                           ),
+                        ),
                         ),
                       ),
                     ],
@@ -263,68 +279,77 @@ class ReceiveAddressTypeRow extends StatelessWidget {
         top: roundedTop ? const Radius.circular(20) : Radius.zero,
         bottom: roundedBottom ? const Radius.circular(20) : Radius.zero,
       ),
-      child: InkWell(
-        onTap: onItemTap,
-        child: Container(
-          height: rowHeight,
-          decoration: BoxDecoration(
-            color:
-                selected ? Theme.of(context).colorScheme.surfaceContainerHigh : Colors.transparent,
-            borderRadius: BorderRadius.vertical(
-              top: roundedTop ? const Radius.circular(20) : Radius.zero,
-              bottom: roundedBottom ? const Radius.circular(20) : Radius.zero,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+      child: MergeSemantics(
+        child: Semantics(
+          selected: selected,
+          inMutuallyExclusiveGroup: true,
+          child: InkWell(
+            onTap: onItemTap,
+            child: Container(
+              height: rowHeight,
+              decoration: BoxDecoration(
+                color: selected
+                    ? Theme.of(context).colorScheme.surfaceContainerHigh
+                    : Colors.transparent,
+                borderRadius: BorderRadius.vertical(
+                  top: roundedTop ? const Radius.circular(20) : Radius.zero,
+                  bottom: roundedBottom ? const Radius.circular(20) : Radius.zero,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (iconPath != null)
-                      CakeImageWidget(
-                        imageUrl: iconPath,
-                        width: iconSize,
-                        height: iconSize,
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.onSurfaceVariant,
-                          BlendMode.srcIn,
-                        ),
-                      )
-                    else
-                      const SizedBox(width: iconSize, height: iconSize),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            option.value,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          if (option.description != null)
-                            Text(
-                              option.description!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    Row(
+                      children: [
+                        if (iconPath != null)
+                          ExcludeSemantics(
+                            child: CakeImageWidget(
+                              imageUrl: iconPath,
+                              width: iconSize,
+                              height: iconSize,
+                              colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                                BlendMode.srcIn,
                               ),
                             ),
-                        ],
-                      ),
+                          )
+                        else
+                          const SizedBox(width: iconSize, height: iconSize),
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                option.value,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                              if (option.description != null)
+                                Text(
+                                  option.description!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
+                    ExcludeSemantics(child: RoundedCheckbox(value: selected)),
                   ],
                 ),
-                RoundedCheckbox(value: selected),
-              ],
+              ),
             ),
           ),
         ),

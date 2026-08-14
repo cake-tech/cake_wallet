@@ -3,7 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
-import 'package:cake_wallet/new-ui/pages/receive/receive_page.dart';
+import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';

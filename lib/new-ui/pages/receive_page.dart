@@ -28,8 +28,10 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/utils/qr_util.dart";
 import "package:cake_wallet/utils/share_util.dart";
+import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/receive_page_option.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -187,6 +189,9 @@ class _LoadedWidget extends StatelessWidget {
       autoGenerateSubaddressStatus: state.isLightning
           ? AutoGenerateSubaddressStatus.disabled
           : state.autoGenerateSubaddressStatus,
+      addressRotates: state.walletType != WalletType.zcash ||
+          state.addressType == null ||
+          zcash!.isRotatingAddressOption(state.addressType!),
     );
     final rotationAvailable =
         state.hasAddressRotation && !_isMwebOption(state.addressType);
@@ -267,11 +272,23 @@ class _LoadedWidget extends StatelessWidget {
                 address: state.addressEntry.address,
                 walletType: state.walletType,
               ),
-              GestureDetector(
-                onTap: () => _showLabelModal(context, state),
-                child: ReceiveLabelWidget(
-                  name: state.addressEntry.label ?? "",
-                  largeQrMode: largeQrMode,
+              // The label chip animates to zero height when there is no
+              // label (or in large QR mode); keep it out of the semantics
+              // tree entirely while it is collapsed.
+              ExcludeSemantics(
+                excluding: largeQrMode || !hasLabel,
+                child: MergeSemantics(
+                  child: Semantics(
+                    button: true,
+                    hint: S.of(context).set_label,
+                    child: GestureDetector(
+                      onTap: () => _showLabelModal(context, state),
+                      child: ReceiveLabelWidget(
+                        name: state.addressEntry.label ?? "",
+                        largeQrMode: largeQrMode,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               ReceiveBottomButtons(

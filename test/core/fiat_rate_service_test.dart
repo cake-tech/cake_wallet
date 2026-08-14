@@ -179,11 +179,42 @@ void main() {
         FiatCurrency.usd,
       );
       expect(result, isNotNull);
-      // 30000 * 0.00033333 = ~9.9999. Rounded to USD decimals (2) → "10.00",
-      // rendered without trailing zeros as "10".
+      // 30000 * 0.00033333 = ~9.9999, truncated toward zero at USD decimals (2).
       expect(
         result!.toStringWithPrecision(fractionalDigits: 2, trimZeros: false),
-        "10.00",
+        "9.99",
+      );
+    });
+
+    test("keeps precision for sub-dollar rates", () {
+      runInAction(() => prices.prices[CryptoCurrency.doge] = 0.0824);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      final result = service.convertToFiat(
+        Money.parse("100", CryptoCurrency.doge),
+        FiatCurrency.usd,
+      );
+      expect(result, isNotNull);
+      expect(
+        result!.toStringWithPrecision(fractionalDigits: 2, trimZeros: false),
+        "8.24",
+      );
+    });
+
+    test("keeps precision for sub-cent rates", () {
+      runInAction(() => prices.prices[CryptoCurrency.shib] = 0.00002);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      final result = service.convertToFiat(
+        Money.parse("1000000", CryptoCurrency.shib),
+        FiatCurrency.usd,
+      );
+      expect(result, isNotNull);
+      expect(
+        result!.toStringWithPrecision(fractionalDigits: 2, trimZeros: false),
+        "20.00",
       );
     });
   });
@@ -245,6 +276,19 @@ void main() {
       expect(result, isNotNull);
       expect(result!.currency, CryptoCurrency.btc);
       expect(result.toDouble(), closeTo(0.5, 1e-8));
+    });
+
+    test("keeps precision for sub-dollar rates", () {
+      runInAction(() => prices.prices[CryptoCurrency.doge] = 0.0824);
+      final service = _build(prices, settings);
+      addTearDown(service.dispose);
+
+      final result = service.convertFromFiat(
+        Money.parse("100", FiatCurrency.usd),
+        CryptoCurrency.doge,
+      );
+      expect(result, isNotNull);
+      expect(result!.toDouble(), closeTo(1213.592233, 1e-6));
     });
 
     test("round-trips convertToFiat / convertFromFiat within currency decimals", () {

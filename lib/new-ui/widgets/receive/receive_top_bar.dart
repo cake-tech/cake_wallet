@@ -17,14 +17,7 @@ class ModalTopBar extends StatelessWidget {
     this.trailingWidget,
     this.leadingSemanticLabel,
     this.trailingSemanticLabel,
-  })  : assert(
-          leadingIcon == null || (leadingSemanticLabel != null && leadingSemanticLabel != ""),
-          "leadingIcon requires a non-empty leadingSemanticLabel",
-        ),
-        assert(
-          trailingIcon == null || (trailingSemanticLabel != null && trailingSemanticLabel != ""),
-          "trailingIcon requires a non-empty trailingSemanticLabel",
-        ) {
+  }) {
     if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }

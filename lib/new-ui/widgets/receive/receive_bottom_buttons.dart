@@ -56,6 +56,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                 // is data to copy, otherwise it opens the payjoin copy modal.
                 CopyWrapper(
                   data: widget.copyData,
+                  isSensitive: true,
                   controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: ModernButton.svg(

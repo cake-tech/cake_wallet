@@ -570,6 +570,7 @@
   "info": "Info",
   "infobox_auto_address": "Ihre Empfangsadresse wird jedes Mal gewechselt, wenn Sie eine Transaktion erhalten",
   "infobox_multichain": "Mit dieser Adresse können Sie beliebige Token oder Sammlerstücke im folgenden Netzwerk empfangen:",
+  "infobox_multichain_named": "Mit dieser Adresse können Sie beliebige Token oder Sammlerstücke auf ${chain} empfangen",
   "infobox_rotation": "Ihre Empfangsadresse wird jedes Mal rotiert, wenn Sie diesen Bildschirm schließen und erneut öffnen",
   "input": "Eingabe",
   "inputs": "Eingaben",

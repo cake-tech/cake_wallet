@@ -1,10 +1,12 @@
 import "dart:async";
+import "dart:math" as math;
 
 import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -102,26 +104,39 @@ class FiatRateService {
     if (_isFiatDisabled || amount.currency is! CryptoCurrency) {
       return null;
     }
-    final rate = rateFor(amount.currency as CryptoCurrency, to);
+    final crypto = amount.currency as CryptoCurrency;
+    final rate = rateFor(crypto, to);
     if (rate == null || rate <= 0.0) {
       return null;
     }
 
-    final fiatValue = amount.toDouble() * rate;
-    return Money.parse(fiatValue.toStringAsFixed(to.decimals), to);
+    return _pairFor(crypto, to, rate).convert(amount);
   }
 
   Money? convertFromFiat(Money fiatAmount, CryptoCurrency to) {
     if (_isFiatDisabled || fiatAmount.currency is! FiatCurrency) {
       return null;
     }
-    final rate = rateFor(to, fiatAmount.currency as FiatCurrency);
+    final fiat = fiatAmount.currency as FiatCurrency;
+    final rate = rateFor(to, fiat);
     if (rate == null || rate <= 0.0) {
       return null;
     }
 
-    final cryptoValue = fiatAmount.toDouble() / rate;
-    return Money.parse(cryptoValue.toStringAsFixed(to.decimals), to);
+    return _pairFor(to, fiat, rate).convert(fiatAmount);
+  }
+
+  ExchangeRate _pairFor(CryptoCurrency crypto, FiatCurrency fiat, double rate) {
+    if (rate * rate < math.pow(10, crypto.decimals - fiat.decimals)) {
+      return ExchangeRate(
+        base: fiat,
+        quote: Money.parse((1 / rate).toStringAsFixed(crypto.decimals), crypto),
+      );
+    }
+    return ExchangeRate(
+      base: crypto,
+      quote: Money.parse(rate.toStringAsFixed(fiat.decimals), fiat),
+    );
   }
 
   Future<void> dispose() async {

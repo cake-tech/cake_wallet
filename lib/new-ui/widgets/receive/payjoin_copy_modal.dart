@@ -5,6 +5,7 @@ import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/clipboard_util.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 
 class PayjoinCopyModal extends StatelessWidget {
@@ -39,7 +40,7 @@ class PayjoinCopyModal extends StatelessWidget {
                     "": [
                       ListItemRegularRow(
                         keyValue: "btc",
-                        label: "Standard",
+                        label: S.of(context).standard,
                         iconPath: "assets/new-ui/pjmodal_btc.svg",
                         onTap: () {
                           ClipboardUtil.setSensitiveDataToClipboard(
@@ -50,6 +51,7 @@ class PayjoinCopyModal extends StatelessWidget {
                             ),
                             isSensitive: true,
                           );
+                          _announceCopied(context);
                           Navigator.of(context).pop();
                         },
                       ),
@@ -62,6 +64,7 @@ class PayjoinCopyModal extends StatelessWidget {
                             ClipboardData(text: uri.toString()),
                             isSensitive: true,
                           );
+                          _announceCopied(context);
                           Navigator.of(context).pop();
                         },
                       ),
@@ -74,4 +77,20 @@ class PayjoinCopyModal extends StatelessWidget {
           ),
         ),
       );
+
+  // Copying pops this sheet right away, so no widget survives to carry a
+  // semantics state change: this path still needs a direct announcement. It is
+  // skipped on platforms that deprecate announcements (android, where they
+  // clear TalkBack's speech queue and the system shows its own clipboard
+  // confirmation anyway).
+  void _announceCopied(BuildContext context) {
+    if (!MediaQuery.supportsAnnounceOf(context)) {
+      return;
+    }
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      S.of(context).copied,
+      Directionality.of(context),
+    );
+  }
 }
