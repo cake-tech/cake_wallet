@@ -83,6 +83,8 @@ final class FiatCurrencyChanged extends SwapEvent {
   final FiatCurrency newCurrency;
 }
 
+final class DefaultFeeSelected extends SwapEvent {}
+
 final class ForceDecentralizedExchangesToggled extends SwapEvent {}
 
 final class SwapInitiated extends SwapEvent {}

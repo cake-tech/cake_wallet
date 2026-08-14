@@ -73,6 +73,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -574,9 +575,11 @@ Future<void> setup({
       appStore: getIt.get<AppStore>(),
       registry: getIt.get<ExchangeProviderRegistry>()));
 
+  getIt.registerSingleton<FeesHelper>(FeesHelper(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SwapBloc>(() =>
       SwapBloc(
+        feesHelper: getIt.get<FeesHelper>(),
         addressResolver: getIt.get<SwapAddressResolver>(),
         creator: getIt.get<TradeCreator>(),
         addressResolverService: getIt.get<AddressResolverService>(),

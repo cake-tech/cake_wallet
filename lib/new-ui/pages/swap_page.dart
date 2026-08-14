@@ -26,6 +26,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/list_extension.dart";
@@ -114,27 +115,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
     super.dispose();
   }
 
-  // void _showFeeAlert(BuildContext context) async {
-  //   await Future<void>.delayed(Duration(seconds: 1));
-  //   if (!context.mounted) {
-  //     return;
-  //   }
-  //
-  //   final confirmed = await showPopUp<bool>(
-  //           context: context,
-  //           builder: (dialogContext) => AlertWithTwoActions(
-  //                 alertTitle: S.of(context).low_fee,
-  //                 alertContent: S.of(context).low_fee_alert,
-  //                 leftButtonText: S.of(context).ignor,
-  //                 rightButtonText: S.of(context).use_suggested,
-  //                 actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-  //                 actionRightButton: () => Navigator.of(dialogContext).pop(true))) ??
-  //       false;
-  //   if (confirmed) {
-  //     widget.exchangeViewModel.feesViewModel.setDefaultTransactionPriority();
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) => KeyboardHideOverlay(
     unfocusOnTap: true,
@@ -150,6 +130,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           AliaspayAddressFound(:final address) => _showParsedAddressPopup(address),
           SwapCreationStarted() => _showConfirmSheet(),
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
+          LowFeeAlert() => _showFeeAlert(),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
           bloc: widget.bloc,
@@ -280,6 +261,34 @@ class _NewSwapPageState extends State<NewSwapPage> {
       ),
     ),
   );
+
+  Future<void> _showFeeAlert() async {
+    if (mounted) {
+      final confirmed = await showPopUp<bool>(
+          context: context,
+          builder: (dialogContext) =>
+              AlertWithTwoActions(
+                  alertTitle: S
+                      .of(context)
+                      .low_fee,
+                  alertContent: S
+                      .of(context)
+                      .low_fee_alert,
+                  leftButtonText: S
+                      .of(context)
+                      .ignor,
+                  rightButtonText: S
+                      .of(context)
+                      .use_suggested,
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true))) ??
+          false;
+      if (confirmed) {
+        widget.bloc.add(DefaultFeeSelected());
+      }
+    }
+  }
+
 
   Future<void> _showConfirmSheet() async {
     final page = SwapConfirmSheet(bloc: widget.bloc);

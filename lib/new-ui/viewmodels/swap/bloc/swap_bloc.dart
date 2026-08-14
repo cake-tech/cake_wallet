@@ -20,6 +20,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
@@ -42,7 +43,7 @@ part "swap_state.dart";
 class SwapBloc extends Bloc<SwapEvent, SwapState>
     with BlocPresentationMixin<SwapState, SwapPresentationEvent> {
   SwapBloc({
-    required TradeCreator creator, required SwapAddressResolver addressResolver,
+    required FeesHelper feesHelper, required TradeCreator creator, required SwapAddressResolver addressResolver,
     required AddressResolverService addressResolverService,
     required TransactionService transactionService,
     required this.rateCubit,
@@ -51,7 +52,9 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
   })
-      : _creator = creator, _addressResolver = addressResolver,
+      : _feesHelper = feesHelper,
+        _creator = creator,
+        _addressResolver = addressResolver,
        _addressResolverService = addressResolverService,
        _transactionService = transactionService,
        _amountFactory = amountFactory,
@@ -79,6 +82,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     on<SwapInitiated>(_onSwapInitiated, transformer: droppable());
     on<SendConfirmed>(_onSendConfirmed, transformer: droppable());
     on<MemoChanged>(_onMemoChanged, transformer: restartable());
+    on<DefaultFeeSelected>(_onDefaultFeeSelected, transformer: sequential());
     add(_Init());
   }
 
@@ -91,6 +95,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   final SwapCurrencyStore currencyStore;
   final SwapAddressResolver _addressResolver;
   final TradeCreator _creator;
+  final FeesHelper _feesHelper;
   Timer? _rateTimer;
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
@@ -151,6 +156,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         forceDecentralizedProviders: _appStore.settingsStore.forceDecentralizedExchanges,
       ),
     );
+
+    if(_feesHelper.isLowFee) {
+      unawaited(Future.delayed(const Duration(seconds: 1)).then((_) =>
+          emitPresentation(const LowFeeAlert())));
+    }
   }
 
   @override
@@ -509,6 +519,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       _appStore.settingsStore.forceDecentralizedExchanges = newState;
       emit(s.copyWith(forceDecentralizedProviders: newState));
     }
+  }
+
+  Future<void> _onDefaultFeeSelected(DefaultFeeSelected event, Emitter<SwapState> emit) async {
+    _feesHelper.setDefaultTransactionPriority();
   }
 
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {

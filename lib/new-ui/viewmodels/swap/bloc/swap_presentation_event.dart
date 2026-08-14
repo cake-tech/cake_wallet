@@ -23,3 +23,7 @@ final class SwapCreationStarted extends SwapPresentationEvent {
 final class SwapAllNotReady extends SwapPresentationEvent {
   const SwapAllNotReady();
 }
+
+final class LowFeeAlert extends SwapPresentationEvent {
+  const LowFeeAlert();
+}
