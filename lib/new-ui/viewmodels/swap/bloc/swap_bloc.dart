@@ -592,7 +592,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<PendingTransaction> _createSwapTransaction(Trade trade, bool isSendAll) async {
-    if (trade.provider case final TransactionCreationExchangeProvider p) {
+    if (_registry.getProvider(trade.provider) case final TransactionCreationExchangeProvider p) {
       return  p.createTransaction(_appStore.wallet!, trade);
     } else {
       final curr = trade.depositAmount.currency as CryptoCurrency;
