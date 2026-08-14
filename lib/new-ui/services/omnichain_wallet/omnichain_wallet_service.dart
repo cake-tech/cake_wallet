@@ -94,6 +94,7 @@ class OmniChainWalletCreationService {
         mnemonic: mnemonic,
         options: options,
         makeCurrent: true,
+        isGroupCreationDeferred: true,
         useTestnet: request.useTestnet,
         zcashNetwork: request.zcashNetwork,
       );
@@ -167,6 +168,7 @@ class OmniChainWalletCreationService {
       mnemonic: mnemonic,
       options: options,
       makeCurrent: true,
+      isGroupCreationDeferred: true,
     );
 
     await walletManager.updateWalletGroups();
@@ -179,6 +181,7 @@ class OmniChainWalletCreationService {
     required String? mnemonic,
     required dynamic options,
     required bool makeCurrent,
+    required bool isGroupCreationDeferred,
     bool useTestnet = false,
     int zcashNetwork = ZcashNetworkType.mainnet,
   }) async {
@@ -189,7 +192,7 @@ class OmniChainWalletCreationService {
     walletNewVM.name = finalName;
     walletNewVM.toggleUseTestnet(useTestnet);
     walletNewVM.setZcashNetwork(zcashNetwork);
-    await walletNewVM.create(options: options, makeCurrent: makeCurrent);
+    await walletNewVM.create(options: options, makeCurrent: makeCurrent, isGroupCreationDeferred: isGroupCreationDeferred);
   }
 
   Future<void> _createWalletPlaceholders(

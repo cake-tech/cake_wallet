@@ -132,6 +132,20 @@ class WalletCreationCreating extends WalletCreationState {
   final WalletCreationOpeningNetwork request;
 }
 
+/// Step 6 — the group exists and its primary is the current wallet, but the
+/// dashboard is still gated behind seed backup + verification.
+class WalletCreationSeedBackup extends WalletCreationState {
+  const WalletCreationSeedBackup({
+    required this.groupName,
+    required this.selectedTypes,
+    required this.primaryType,
+  });
+
+  final String groupName;
+  final Set<WalletType> selectedTypes;
+  final WalletType primaryType;
+}
+
 /// Terminal step — the group exists; the app navigates to the dashboard.
 class WalletCreated extends WalletCreationState {
   const WalletCreated({required this.groupName});

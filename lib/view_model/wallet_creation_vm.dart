@@ -185,7 +185,11 @@ abstract class WalletCreationVMBase with Store {
       await credentials.walletInfo!.save();
       await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
-      _appStore.authenticationStore.allowedCreate();
+
+      if (!isGroupCreationDeferred) {
+        _appStore.authenticationStore.allowedCreate();
+      }
+
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");

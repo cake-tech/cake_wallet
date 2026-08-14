@@ -115,6 +115,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
         selectedTypes = openingNetwork.selectedTypes;
       case WalletCreationCreating creating:
         selectedTypes = creating.request.selectedTypes;
+      case WalletCreationSeedBackup _:
+        return; // group already created — no going back
       case WalletCreated _:
         return;
     }
@@ -249,7 +251,11 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
         ),
       );
 
-      emit(WalletCreated(groupName: current.groupName));
+      emit(WalletCreationSeedBackup(
+        groupName: current.groupName,
+        selectedTypes: current.selectedTypes,
+        primaryType: current.primaryType!,
+      ));
     } catch (e) {
       emit(current.copyWith(creationError: e.toString()));
     }
