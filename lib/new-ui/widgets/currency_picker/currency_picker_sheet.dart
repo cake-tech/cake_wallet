@@ -47,7 +47,7 @@ class CurrencyPickerSheet extends StatelessWidget {
                 onLeadingPressed: () => Navigator.of(context).maybePop(),
               ),
               Expanded(
-                child: args.isPreFiltered
+                child: args.useSingleNetworkLayout
                     ? SingleNetworkCurrencyPicker(args: args)
                     : MultiNetworkCurrencyPicker(args: args),
               ),

@@ -181,23 +181,28 @@ class ChangelogItemWidget extends StatelessWidget {
             width: 36,
             colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
           ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
-          children: [
-            if (item.title.isNotEmpty)
-              Text(
-                item.title,
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-            if (item.description.isNotEmpty)
-              Text(item.description,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
+            children: [
+              if (item.title.isNotEmpty)
+                Text(
+                  item.title,
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              if (item.description.isNotEmpty)
+                Text(
+                  item.description,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ))
-          ],
+                  ),
+                )
+            ],
+          ),
         )
       ],
     );
   }
 }
+
