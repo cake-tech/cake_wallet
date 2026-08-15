@@ -215,6 +215,12 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
 Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
+  final leftoverBackupTmp = Directory('${appDir.path}/~_BACKUP_TMP');
+  if (leftoverBackupTmp.existsSync()) {
+    try {
+      leftoverBackupTmp.deleteSync(recursive: true);
+    } catch (_) {}
+  }
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
