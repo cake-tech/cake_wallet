@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -104,8 +105,30 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.arbitrum,
       ].contains(_wallet.type));
 
+  String localizedPriorityTitle(TransactionPriority priority) {
+    switch (priority.title.toLowerCase()) {
+      case 'automatic':
+        return S.current.automatic;
+      case 'slow':
+        return S.current.transaction_priority_slow;
+      case 'medium':
+        return S.current.transaction_priority_medium;
+      case 'fast':
+        return S.current.transaction_priority_fast;
+      case 'fastest':
+        return S.current.transaction_priority_fastest;
+      case 'custom':
+        return S.current.custom;
+      case 'regular':
+        return S.current.transaction_priority_regular;
+      default:
+        return priority.title;
+    }
+  }
+
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
+    final localized = localizedPriorityTitle(_priority);
 
     if ([
       WalletType.bitcoin,
@@ -114,14 +137,16 @@ abstract class OtherSettingsViewModelBase with Store {
       WalletType.dogecoin,
     ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+      final labeled = bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+      return labeled.replaceFirst(_priority.title, localized);
     }
 
-    return priority.toString();
+    return localized;
   }
 
   String getDisplayBitcoinPriority(dynamic priority, int customValue) {
     final _priority = priority as TransactionPriority;
+    final localized = localizedPriorityTitle(_priority);
 
     if ([
       WalletType.bitcoin,
@@ -130,10 +155,12 @@ abstract class OtherSettingsViewModelBase with Store {
       WalletType.dogecoin,
     ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      final labeled =
+          bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      return labeled.replaceFirst(_priority.title, localized);
     }
 
-    return priority.toString();
+    return localized;
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
