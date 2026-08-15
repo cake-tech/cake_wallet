@@ -227,7 +227,10 @@ final class ReceiveFailure extends ReceiveState {
 }
 
 enum ReceiveFailureCode {
-  walletNotReady,
   addressListUnavailable,
+  addressTypeChangeFailed,
+  addressRotationFailed,
+  labelUpdateFailed,
   invoiceFetchFailed,
+  fiatRateUnavailable,
 }

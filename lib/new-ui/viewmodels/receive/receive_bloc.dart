@@ -113,6 +113,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
     Money? requestedAmount;
     Money? fiatEquivalent;
+    bool rateUnavailable = false;
 
     if (raw.isEmpty) {
       requestedAmount = null;
@@ -131,6 +132,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         requestedAmount = fiatRateService.convertFromFiat(fiatMoney, receiveCrypto);
         if (requestedAmount != null) {
           fiatEquivalent = fiatMoney;
+        } else {
+          rateUnavailable = true;
         }
       }
     } else {
@@ -144,6 +147,22 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     }
 
     final rawCryptoForUri = requestedAmount?.toStringWithPrecision() ?? "";
+
+    if (rateUnavailable) {
+      if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
+        emit(
+          loaded.copyWith(
+            clearRequestedAmount: true,
+            clearFiatEquivalent: true,
+            paymentUri: loaded.isLightning
+                ? null
+                : addressService.buildPaymentUri(rawAmount: "", token: loaded.tokenCurrency),
+            failureCode: ReceiveFailureCode.fiatRateUnavailable,
+          ),
+        );
+      }
+      return;
+    }
 
     if (state case final ReceiveLoaded loaded when loaded.isLightning) {
       emit(
@@ -174,6 +193,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           fiatEquivalent: fiatEquivalent,
           clearFiatEquivalent: fiatEquivalent == null,
           paymentUri: uri,
+          clearFailureCode: true,
         ),
       );
     }
@@ -278,7 +298,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         emit(
           loaded.copyWith(
             isChangingAddressType: false,
-            failureCode: ReceiveFailureCode.addressListUnavailable,
+            failureCode: ReceiveFailureCode.addressTypeChangeFailed,
           ),
         );
       }
@@ -346,7 +366,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           emit(
             current.copyWith(
               isChangingAddressType: false,
-              failureCode: ReceiveFailureCode.addressListUnavailable,
+              failureCode: ReceiveFailureCode.addressTypeChangeFailed,
             ),
           );
         }
@@ -397,7 +417,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         emit(
           loaded.copyWith(
             isRotatingAddress: false,
-            failureCode: ReceiveFailureCode.addressListUnavailable,
+            failureCode: ReceiveFailureCode.addressRotationFailed,
           ),
         );
       }
@@ -419,7 +439,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
       if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-        emit(loaded.copyWith(failureCode: ReceiveFailureCode.addressListUnavailable));
+        emit(loaded.copyWith(failureCode: ReceiveFailureCode.labelUpdateFailed));
       }
       return;
     }
@@ -571,9 +591,19 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       }
       if (state case final ReceiveLoaded loaded
           when loaded.walletId == walletId && loaded.isLightning) {
+        PaymentURI? plainUri;
+        try {
+          plainUri = addressService.buildPaymentUri(rawAmount: "", token: null);
+        } catch (e) {
+          printV("ReceiveBloc plain lightning uri rebuild failed: $e");
+        }
+
         emit(
           loaded.copyWith(
             fetchingInvoice: false,
+            clearRequestedAmount: true,
+            clearFiatEquivalent: true,
+            paymentUri: plainUri,
             failureCode: ReceiveFailureCode.invoiceFetchFailed,
           ),
         );

@@ -89,7 +89,7 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
               if (state is! ReceiveLoaded || state.failureCode == null) {
                 return;
               }
-              showBar(context, S.of(context).error_dialog_content);
+              showBar(context, _failureMessage(context, state.failureCode!));
             },
             builder: (context, state) => switch (state) {
               ReceiveLoading() => const _LoadingWidget(),
@@ -134,6 +134,15 @@ class _LoadingWidget extends StatelessWidget {
       );
 }
 
+String _failureMessage(BuildContext context, ReceiveFailureCode code) => switch (code) {
+      ReceiveFailureCode.addressListUnavailable => S.of(context).receive_error_address_list,
+      ReceiveFailureCode.addressTypeChangeFailed => S.of(context).receive_error_address_type,
+      ReceiveFailureCode.addressRotationFailed => S.of(context).receive_error_address_rotation,
+      ReceiveFailureCode.labelUpdateFailed => S.of(context).receive_error_label_update,
+      ReceiveFailureCode.invoiceFetchFailed => S.of(context).receive_error_invoice,
+      ReceiveFailureCode.fiatRateUnavailable => S.of(context).receive_error_fiat_rate,
+    };
+
 class _FailureWidget extends StatelessWidget {
   const _FailureWidget({
     required this.code,
@@ -147,7 +156,7 @@ class _FailureWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = S.of(context).error_dialog_content;
+    final message = _failureMessage(context, code);
     return Column(
       children: [
         ModalTopBar(
