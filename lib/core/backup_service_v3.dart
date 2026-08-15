@@ -404,6 +404,7 @@ class BackupServiceV3 extends $BackupService {
     }
 
     tmpDir.createSync();
+    try {
     zipEncoder.create(archivePath);
     outer:
     for (var entity in fileEntities) {
@@ -490,6 +491,7 @@ class BackupServiceV3 extends $BackupService {
       printV("Writing completed in ${stopwatch.elapsed}");
     }
     await raf.close();
+    await dataBinWriter.close();
 
     // Give the file to the user
 
@@ -513,9 +515,21 @@ This backup was created on ${DateTime.now().toIso8601String()}
     await zip.addFile(metadataFile, 'metadata.json');
     await zip.addFile(readmeFile, 'README.txt');
     await zip.close();
-    // tmpDir.deleteSync(recursive: true);
-    final file = File(archivePathExport);
-    return file;
+    final exportFile = File('${appDir.path}/backup_${now}.zip');
+    if (exportFile.existsSync()) {
+      exportFile.deleteSync();
+    }
+    await File(archivePathExport).copy(exportFile.path);
+    return exportFile;
+    } finally {
+      if (tmpDir.existsSync()) {
+        try {
+          tmpDir.deleteSync(recursive: true);
+        } catch (e) {
+          printV('Failed to delete backup temp directory: $e');
+        }
+      }
+    }
   }
 
   Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {
