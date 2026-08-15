@@ -56,6 +56,11 @@ abstract class WalletEditViewModelBase with Store {
         newName,
         password: password,
       );
+      await _walletListViewModel.syncOpenedWalletAfterRename(
+        walletItem.type,
+        walletItem.name,
+        newName,
+      );
     }
 
     _walletListViewModel.updateList();

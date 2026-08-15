@@ -39,9 +39,22 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());
     await saveBackup(newName);
 
+    final typeDir = await pathForWalletTypeDir(type: getType());
     currentWalletInfo.id = WalletBase.idFor(newName, getType());
     currentWalletInfo.name = newName;
+    currentWalletInfo.dirPath = p.join(typeDir, newName);
+    currentWalletInfo.path = await pathForWallet(name: newName, type: getType());
     await currentWalletInfo.save();
+
+    final staleRows = await WalletInfo.selectList(
+      'name = ? AND type = ?',
+      [currentName, getType().index],
+    );
+    for (final stale in staleRows) {
+      if (stale.internalId != currentWalletInfo.internalId) {
+        await WalletInfo.delete(stale);
+      }
+    }
 
     final oldDir = Directory(p.join(await pathForWalletTypeDir(type: getType()), currentName));
     if (oldDir.existsSync()) {
