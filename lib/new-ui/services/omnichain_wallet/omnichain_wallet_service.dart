@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
-import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
@@ -31,13 +30,11 @@ class OmniChainWalletCreationService {
 
   static const defaultMoneroOptions = [defaultSeedLanguage, MoneroSeedType.bip39];
 
-  List<String> getAllCustomGroupNames() {
-    return walletManager.walletGroups
+  List<String> getAllCustomGroupNames() => walletManager.walletGroups
         .map((g) => g.groupName)
         .where((name) => name != null && name.isNotEmpty)
         .cast<String>()
         .toList();
-  }
 
   Future<List<WalletInfo>> getCurrentWalletGroupWallets() async {
     final currentWalletInfo = appStore.wallet?.walletInfo;
@@ -77,9 +74,6 @@ class OmniChainWalletCreationService {
 
       if (types.isEmpty) throw 'No wallet types provided.';
       if (groupName.isEmpty) throw 'No wallet name provided.';
-
-      if (!onlyBIP39Selected(types.toList()))
-        throw 'Only BIP39-based wallet types are supported in a group.';
 
       dynamic options;
 
@@ -171,6 +165,26 @@ class OmniChainWalletCreationService {
       isGroupCreationDeferred: true,
     );
 
+    await walletManager.updateWalletGroups();
+  }
+
+  Future<void> addNetworksToCurrentGroup(Set<WalletType> types) async {
+    final currentInfo = appStore.wallet?.walletInfo;
+    if (currentInfo == null) throw Exception('No current wallet');
+
+    final groupKey = walletManager.resolveGroupKey(currentInfo);
+    final groupName = walletManager.getGroupName(currentInfo) ?? '';
+
+    // existing group types (incl. the current wallet)
+    final existing = (await getCurrentWalletGroupWallets()).map((w) => w.type).toSet();
+    final newTypes = types.difference(existing).toList();
+    if (newTypes.isEmpty) return;
+
+    await _createWalletPlaceholders(
+      groupKey: groupKey,
+      groupName: groupName,
+      restTypes: newTypes,
+    );
     await walletManager.updateWalletGroups();
   }
 

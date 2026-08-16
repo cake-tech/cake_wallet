@@ -15,9 +15,8 @@ class OmniChainWalletManagingBloc
     on<OmniChainWalletManagingSearchChanged>(_onSearchChanged);
     on<OmniChainWalletManagingCurrentWalletSelected>(_onCurrentWalletSelected);
     on<OmniChainWalletManagingWalletSelected>(_onWalletSelected);
-    on<OmniChainWalletManagingActivateSelectedWallet>(
-      _onActivateSelectedWallet,
-    );
+    on<OmniChainWalletManagingActivateSelectedWallet>(_onActivateSelectedWallet);
+    on<OmniChainWalletManagingNetworksAdded>(_onNetworksAdded);
   }
 
   final OmniChainWalletCreationService omniChainWalletCreationService;
@@ -74,27 +73,31 @@ class OmniChainWalletManagingBloc
   }
 
   Future<void> _onActivateSelectedWallet(
-    OmniChainWalletManagingActivateSelectedWallet event,
-    Emitter<OmniChainWalletManagingState> emit,
-  ) async {
-    if (event.walletInfo.type == state.currentNetwork) {
-      return;
-    }
+      OmniChainWalletManagingActivateSelectedWallet event,
+      Emitter<OmniChainWalletManagingState> emit,
+      ) async {
+    if (event.walletInfo.type == state.currentNetwork) return;
 
-    emit(state.copyWith(
-      selectedWallet: event.walletInfo,
-      isLoading: true,
-    ));
+    emit(state.copyWith(selectedWallet: event.walletInfo, isLoading: true, error: null));
 
     try {
       await omniChainWalletCreationService.activatePlaceholderWallet(event.walletInfo);
-
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, closeRequested: true));
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      ));
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
+  }
+
+  Future<void> _onNetworksAdded(
+    OmniChainWalletManagingNetworksAdded event,
+    Emitter<OmniChainWalletManagingState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      await omniChainWalletCreationService.addNetworksToCurrentGroup(event.types);
+      add(OmniChainWalletManagingLoaded());
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 

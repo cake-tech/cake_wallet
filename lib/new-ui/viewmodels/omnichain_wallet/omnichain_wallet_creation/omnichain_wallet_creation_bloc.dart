@@ -4,7 +4,6 @@ import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_gro
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
-import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cw_core/generate_name.dart";
 import "package:cw_core/wallet_type.dart";
 
@@ -35,21 +34,12 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
   void _onWalletTypeToggled(OmniChainWalletTypeToggled event, Emitter<WalletCreationState> emit) {
     final current = state;
-    if (current is! WalletCreationChainSelection) {
-      return;
-    }
+    if (current is! WalletCreationChainSelection) return;
 
-    final updatedSelectedTypes = Set<WalletType>.from(current.selectedTypes);
+    final updatedSelectedTypes = current.selectedTypes;
 
     if (event.isSelected) {
-      if (isBIP39Wallet(event.type)) {
-        updatedSelectedTypes.removeWhere((type) => !isBIP39Wallet(type));
-        updatedSelectedTypes.add(event.type);
-      } else {
-        updatedSelectedTypes
-          ..clear()
-          ..add(event.type);
-      }
+      updatedSelectedTypes.add(event.type);
     } else {
       updatedSelectedTypes.remove(event.type);
     }
@@ -72,15 +62,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   void _onWalletTypesSelected(
       OmniChainWalletTypesSelected event, Emitter<WalletCreationState> emit) {
     final current = state;
-    if (current is! WalletCreationChainSelection) {
-      return;
-    }
+    if (current is! WalletCreationChainSelection) return;
 
-    emit(
-      current.copyWith(
-        selectedTypes: current.allWalletTypes.where(isBIP39Wallet).toSet(),
-      ),
-    );
+    emit(current.copyWith(selectedTypes: current.allWalletTypes));
   }
 
   void _onChainSelectionConfirmed(
@@ -121,7 +105,8 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
         return;
     }
 
-    emit(WalletCreationChainSelection(allWalletTypes: allWalletTypes, selectedTypes: selectedTypes));
+    emit(
+        WalletCreationChainSelection(allWalletTypes: allWalletTypes, selectedTypes: selectedTypes));
   }
 
   // ---- Step 2: customization ----

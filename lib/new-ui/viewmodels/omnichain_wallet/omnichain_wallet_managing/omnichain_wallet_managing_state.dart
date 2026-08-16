@@ -9,9 +9,10 @@ class OmniChainWalletManagingState {
     this.wallets = const [],
     this.filteredWallets = const [],
     this.selectedWallet,
-    this.searchQuery = '',
+    this.searchQuery = "",
     this.isLoading = false,
     this.error,
+    this.closeRequested = false,
   });
 
   final WalletType? currentNetwork;
@@ -21,6 +22,7 @@ class OmniChainWalletManagingState {
   final String searchQuery;
   final bool isLoading;
   final String? error;
+  final bool closeRequested;
 
   OmniChainWalletManagingState copyWith({
     WalletType? currentNetwork,
@@ -30,16 +32,17 @@ class OmniChainWalletManagingState {
     String? searchQuery,
     bool? isLoading,
     String? error,
-  }) {
-    return OmniChainWalletManagingState(
-      currentNetwork: currentNetwork ?? this.currentNetwork,
-      wallets: wallets ?? this.wallets,
-      filteredWallets: filteredWallets ?? this.filteredWallets,
-      selectedWallet:
-          selectedWallet == _noChange ? this.selectedWallet : selectedWallet as WalletInfo?,
-      searchQuery: searchQuery ?? this.searchQuery,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-    );
-  }
+    bool? closeRequested,
+  }) =>
+      OmniChainWalletManagingState(
+        currentNetwork: currentNetwork ?? this.currentNetwork,
+        wallets: wallets ?? this.wallets,
+        filteredWallets: filteredWallets ?? this.filteredWallets,
+        selectedWallet:
+            selectedWallet == _noChange ? this.selectedWallet : selectedWallet as WalletInfo?,
+        searchQuery: searchQuery ?? this.searchQuery,
+        isLoading: isLoading ?? this.isLoading,
+        error: error,
+        closeRequested: closeRequested ?? this.closeRequested,
+      );
 }

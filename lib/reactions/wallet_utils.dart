@@ -1,4 +1,4 @@
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/wallet_type.dart";
 
 bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {
@@ -37,13 +37,6 @@ bool isElectrumWallet(WalletType walletType) {
     default:
       return false;
   }
-}
-
-bool onlyBIP39Selected(List<WalletType> types) {
-  for (var type in types) {
-    if (!isBIP39Wallet(type)) return false;
-  }
-  return true;
 }
 
 bool hasTokens(WalletType walletType) {

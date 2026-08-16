@@ -1,4 +1,5 @@
-import 'package:cw_core/wallet_info.dart';
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 
 sealed class OmniChainWalletManagingEvent {}
 
@@ -22,4 +23,10 @@ class OmniChainWalletManagingWalletSelected extends OmniChainWalletManagingEvent
   OmniChainWalletManagingWalletSelected(this.walletInfo);
 
   final WalletInfo walletInfo;
+}
+
+class OmniChainWalletManagingNetworksAdded extends OmniChainWalletManagingEvent {
+  OmniChainWalletManagingNetworksAdded(this.types);
+
+  final Set<WalletType> types;
 }

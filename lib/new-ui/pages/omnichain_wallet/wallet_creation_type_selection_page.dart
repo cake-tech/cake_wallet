@@ -11,6 +11,7 @@ import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
 import "package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -26,6 +27,11 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
+enum OmniChainNetworksMode {
+  allNetworks,
+  customize,
+}
+
 class WalletCreationTypeSelectionPage extends BasePage {
   WalletCreationTypeSelectionPage({
     required this.newWalletTypeArguments,
@@ -36,18 +42,22 @@ class WalletCreationTypeSelectionPage extends BasePage {
   @override
   String get title => "Wallet Networks";
 
+  bool isSupportedHardwareWalletType(WalletType type) {
+    if (newWalletTypeArguments.hardwareWalletType == null) return true;
+
+    final supportedConnectionTypes = DeviceConnectionType.supportedConnectionTypes(
+      type,
+      newWalletTypeArguments.hardwareWalletType!,
+      Platform.isIOS,
+    );
+
+    return supportedConnectionTypes.isNotEmpty;
+  }
+
   @override
   Widget body(BuildContext context) {
     final flowWalletTypes = availableWalletTypes
-        .where(
-          (element) =>
-              newWalletTypeArguments.hardwareWalletType == null ||
-              DeviceConnectionType.supportedConnectionTypes(
-                element,
-                newWalletTypeArguments.hardwareWalletType!,
-                Platform.isIOS,
-              ).isNotEmpty,
-        )
+        .where((element) => isBIP39Wallet(element) && isSupportedHardwareWalletType(element))
         .toList();
 
     return BlocProvider(
@@ -57,7 +67,6 @@ class WalletCreationTypeSelectionPage extends BasePage {
       ),
       child: WalletCreationTypeSelectionPageBody(
         isCreate: newWalletTypeArguments.isCreate,
-        hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
         availableWalletTypes: flowWalletTypes,
       ),
     );
@@ -65,19 +74,12 @@ class WalletCreationTypeSelectionPage extends BasePage {
 }
 
 class WalletCreationTypeSelectionPageBody extends StatefulWidget {
-  const WalletCreationTypeSelectionPageBody({
-    required this.isCreate,
-    required this.availableWalletTypes,
-    this.onTypeSelected,
-    this.hardwareWalletType,
-  });
+  const WalletCreationTypeSelectionPageBody(
+      {required this.isCreate, required this.availableWalletTypes, this.onTypeSelected});
 
   final bool isCreate;
   final List<WalletType> availableWalletTypes;
   final void Function(BuildContext, WalletType)? onTypeSelected;
-  final HardwareWalletType? hardwareWalletType;
-
-  bool get isHardwareWallet => hardwareWalletType != null;
 
   @override
   State<WalletCreationTypeSelectionPageBody> createState() =>
@@ -86,8 +88,6 @@ class WalletCreationTypeSelectionPageBody extends StatefulWidget {
 
 class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationTypeSelectionPageBody> {
   OmniChainNetworksMode _mode = OmniChainNetworksMode.allNetworks;
-
-  List<WalletType> get _types => widget.availableWalletTypes;
 
   bool get _isCustomizing => _mode == OmniChainNetworksMode.customize;
 
@@ -118,7 +118,7 @@ class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationType
 
   void _onUnselectAll() => _bloc.add(OmniChainWalletTypesDeselected());
 
-  void _continue() async {
+  Future<void> _continue() async {
     _bloc.add(OmniChainWalletChainSelectionConfirmed());
 
     await Navigator.of(context).pushNamed(
@@ -190,7 +190,7 @@ class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationType
                         ? Padding(
                             padding: const EdgeInsets.only(top: 24),
                             child: OmniChainNetworksList(
-                              types: _types,
+                              types: widget.availableWalletTypes,
                               isSelected: state.isSelected,
                               onTypeToggled: _onTypeToggled,
                               onSelectAll: _onSelectAll,
@@ -251,11 +251,6 @@ class _HowToChangeNetworksLink extends StatelessWidget {
       ),
     );
   }
-}
-
-enum OmniChainNetworksMode {
-  allNetworks,
-  customize,
 }
 
 class OmniChainNetworksModeSelector extends StatelessWidget {
