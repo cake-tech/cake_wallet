@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_managing/omnichain_wallet_managing_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_managing/omnichain_wallet_managing_state.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_event.dart';
+import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_state.dart';
 
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';

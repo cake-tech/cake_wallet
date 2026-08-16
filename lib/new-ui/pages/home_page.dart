@@ -3,7 +3,7 @@ import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_change_network_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/managing/omnichain_change_network_page.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";

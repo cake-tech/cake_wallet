@@ -11,12 +11,13 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_details_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_opening_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_success_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_available_network_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_details_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_summary_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_wallet_opening_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -173,7 +174,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 

@@ -1,8 +1,8 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_managing/omnichain_wallet_managing_bloc.dart";
-import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_managing/omnichain_wallet_managing_event.dart";
-import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_managing/omnichain_wallet_managing_state.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_state.dart";
 import "package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/new_search_bar.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";

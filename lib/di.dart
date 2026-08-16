@@ -59,10 +59,10 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_details_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_opening_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_success_page.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_creation_type_selection_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_available_network_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_details_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_summary_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_wallet_opening_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';

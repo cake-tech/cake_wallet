@@ -2,8 +2,8 @@ import "package:bloc/bloc.dart";
 import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
-import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_event.dart";
-import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/omnichain_wallet_creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
 import "package:cw_core/generate_name.dart";
 import "package:cw_core/wallet_type.dart";
 
