@@ -215,6 +215,10 @@ class WalletRestorePage extends BasePage {
             walletRestoreFromKeysFormKey.currentState!.privateKeyController.text;
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
+        if (walletRestoreViewModel.hasBlockchainHeightSelector) {
+          credentials['height'] =
+              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState?.height;
+        }
       } else {
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
