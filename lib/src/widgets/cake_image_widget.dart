@@ -38,6 +38,24 @@ class CakeImageWidget extends StatelessWidget {
       return _buildErrorWidget(context);
     }
 
+    if (_isEmoji(imageUrl!)) {
+      final size = height ?? width ?? 24;
+
+      return SizedBox(
+        height: height,
+        width: width,
+        child: Center(
+          child: Text(
+            imageUrl!,
+            style: TextStyle(
+              fontSize: size * 0.75,
+              height: 1,
+            ),
+          ),
+        ),
+      );
+    }
+
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
     final isAsset = imageUrl!.startsWith('assets/');
     final effectiveColorFilter =
@@ -124,6 +142,20 @@ class CakeImageWidget extends StatelessWidget {
               size: 24,
             ),
       ),
+    );
+  }
+
+  bool _isEmoji(String value) {
+    if (value.startsWith("assets/") ||
+        value.startsWith("http://") ||
+        value.startsWith("https://")) {
+      return false;
+    }
+
+    return value.runes.any(
+          (rune) =>
+      (rune >= 0x1F300 && rune <= 0x1FAFF) ||
+          (rune >= 0x2600 && rune <= 0x27BF),
     );
   }
 }

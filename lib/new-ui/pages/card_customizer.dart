@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import "package:cake_wallet/new-ui/widgets/select_background_color_widget.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +64,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<CardCustomizerBloc, CardCustomizerState>(
+  Widget build(BuildContext context) => BlocListener<CardCustomizerBloc, CardCustomizerState>(
       listenWhen: (previous, current) => previous.accountName != current.accountName,
       listener: (context, state) {
         if (accountNameController.text != state.accountName) {
@@ -267,77 +267,12 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                       )
                                     : const SizedBox.shrink(key: ValueKey('icon_style_hidden')),
                               ),
-                              SizedBox(height: 8),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(16)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    spacing: 8.0,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(S.of(context).color),
-                                      Container(
-                                          width: double.infinity,
-                                          child: Wrap(
-                                            direction: Axis.horizontal,
-                                            spacing: 4, // space between items in a row
-                                            runSpacing: 8,
-                                            children: List.generate(state.availableColors.length,
-                                                (index) {
-                                              return Material(
-                                                borderRadius: BorderRadius.circular(999999999),
-                                                child: InkWell(
-                                                  borderRadius: BorderRadius.circular(999999999),
-                                                  onTap: () {
-                                                    context
-                                                        .read<CardCustomizerBloc>()
-                                                        .add(ColorSelected(index));
-                                                  },
-                                                  child: Stack(
-                                                    children: [
-                                                      AnimatedOpacity(
-                                                        duration: Duration(milliseconds: 200),
-                                                        opacity: index == state.selectedColorIndex
-                                                            ? 1
-                                                            : 0,
-                                                        child: Container(
-                                                            width: 32,
-                                                            height: 32,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(99999999),
-                                                                border: Border.all(
-                                                                    color: Theme.of(context)
-                                                                        .colorScheme
-                                                                        .onSurface))),
-                                                      ),
-                                                      AnimatedScale(
-                                                        duration: Duration(milliseconds: 200),
-                                                        scale: index == state.selectedColorIndex
-                                                            ? 0.8
-                                                            : 1,
-                                                        child: Container(
-                                                          width: 32,
-                                                          height: 32,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(99999999),
-                                                              gradient:
-                                                                  state.availableColors[index]),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              );
-                                            }),
-                                          )),
-                                    ],
-                                  ),
-                                ),
+                              const SizedBox(height: 8),
+                              SelectBackgroundColorWidget(
+                                colors: state.availableColors,
+                                selectedIndex: state.selectedColorIndex,
+                                onColorSelected: (index) =>
+                                    context.read<CardCustomizerBloc>().add(ColorSelected(index)),
                               )
                             ],
                           ),
@@ -350,5 +285,4 @@ class _CardCustomizerState extends State<CardCustomizer> {
         },
       ),
     );
-  }
 }

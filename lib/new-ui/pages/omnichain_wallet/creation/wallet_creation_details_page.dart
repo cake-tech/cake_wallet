@@ -1,5 +1,7 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_advanced_settings_sheet.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_select_icon_sheet.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
@@ -97,7 +99,13 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                             height: 100,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                              gradient: OmniChainWalletEmojiPickerSheet.backgroundColors(
+                                  context)[state.walletIconColorIndex],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              state.walletIcon ?? "",
+                              style: const TextStyle(fontSize: 48),
                             ),
                           ),
                           Positioned(
@@ -108,8 +116,22 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                               shape: const CircleBorder(),
                               child: InkWell(
                                 customBorder: const CircleBorder(),
-                                onTap: () {
-                                  // TODO: add icon picker action
+
+                                onTap: () async {
+                                  final OmniChainEmojiPicker? selection = await OmniChainWalletIconPickerSheet.show(
+                                    context,
+                                    initialEmoji: state.walletIcon,
+                                    initialColorIndex: state.walletIconColorIndex,
+                                  );
+
+                                  if (selection != null && context.mounted) {
+                                    context.read<OmniChainWalletBloc>().add(
+                                      OmniChainWalletIconChanged(
+                                        selection.emoji,
+                                        selection.colorIndex,
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: SizedBox(
                                   width: 36,
@@ -187,39 +209,39 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                 ),
               ],
               const SizedBox(height: 32),
-                Center(
-                  child: Material(
-                    color: Colors.transparent,
+              Center(
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(999999),
+                  child: InkWell(
                     borderRadius: BorderRadius.circular(999999),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(999999),
-                      onTap: () {
-                        final bloc = context.read<OmniChainWalletBloc>();
+                    onTap: () {
+                      final bloc = context.read<OmniChainWalletBloc>();
 
-                        OmniChainAdvancedSettingsSheet.show(
-                          context,
-                          types: state.selectedTypes.toList(),
-                          useTestnet: state.useTestnet,
-                          toggleUseTestnet: (bool? value) =>
-                              bloc.add(OmniChainWalletTestnetToggled(value)),
-                          zcashNetwork: state.zcashNetwork,
-                          setZcashNetwork: (int network) =>
-                              bloc.add(OmniChainWalletZcashNetworkChanged(network)),
-                          isChildWallet: false,
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                        child: Text(
-                          S.of(context).advanced_settings,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
+                      OmniChainAdvancedSettingsSheet.show(
+                        context,
+                        types: state.selectedTypes.toList(),
+                        useTestnet: state.useTestnet,
+                        toggleUseTestnet: (bool? value) =>
+                            bloc.add(OmniChainWalletTestnetToggled(value)),
+                        zcashNetwork: state.zcashNetwork,
+                        setZcashNetwork: (int network) =>
+                            bloc.add(OmniChainWalletZcashNetworkChanged(network)),
+                        isChildWallet: false,
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      child: Text(
+                        S.of(context).advanced_settings,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                     ),
                   ),
                 ),
+              ),
               const Spacer(flex: 3),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),

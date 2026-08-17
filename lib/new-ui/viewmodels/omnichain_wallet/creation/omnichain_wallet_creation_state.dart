@@ -38,6 +38,8 @@ class WalletCreationCustomization extends WalletCreationState {
   const WalletCreationCustomization({
     required this.selectedTypes,
     this.groupName = "",
+    this.walletIcon,
+    this.walletIconColorIndex = 0,
     this.groupNameError,
     this.providedPassphrase,
     this.useTestnet = false,
@@ -46,6 +48,8 @@ class WalletCreationCustomization extends WalletCreationState {
 
   final Set<WalletType> selectedTypes;
   final String groupName;
+  final String? walletIcon;
+  final int walletIconColorIndex;
   final String? groupNameError;
   final String? providedPassphrase;
   final bool useTestnet;
@@ -55,15 +59,19 @@ class WalletCreationCustomization extends WalletCreationState {
 
   WalletCreationCustomization copyWith({
     String? groupName,
+    Object? walletIcon = _noChange,
+    int? walletIconColorIndex,
     Object? groupNameError = _noChange,
-    Object? providedMnemonic = _noChange,
     Object? providedPassphrase = _noChange,
     bool? useTestnet,
     int? zcashNetwork,
   }) => WalletCreationCustomization(
     selectedTypes: selectedTypes,
     groupName: groupName ?? this.groupName,
-    groupNameError: groupNameError == _noChange ? this.groupNameError : groupNameError as String?,
+    walletIcon: walletIcon == _noChange ? this.walletIcon : walletIcon as String?,
+    walletIconColorIndex: walletIconColorIndex ?? this.walletIconColorIndex,
+    groupNameError:
+    groupNameError == _noChange ? this.groupNameError : groupNameError as String?,
     providedPassphrase:
     providedPassphrase == _noChange ? this.providedPassphrase : providedPassphrase as String?,
     useTestnet: useTestnet ?? this.useTestnet,

@@ -25,6 +25,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     on<OmniChainWalletSummaryConfirmed>(_onSummaryConfirmed);
     on<OmniChainWalletPrimaryTypeSelected>(_onPrimaryTypeSelected);
     on<OmniChainWalletGroupCreateRequested>(_onGroupCreateRequested);
+    on<OmniChainWalletIconChanged>(_onIconChanged);
   }
 
   final Set<WalletType> allWalletTypes;
@@ -244,6 +245,15 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     } catch (e) {
       emit(current.copyWith(creationError: e.toString()));
     }
+  }
+
+  void _onIconChanged(OmniChainWalletIconChanged event, Emitter<WalletCreationState> emit) {
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+    emit(current.copyWith(
+      walletIcon: event.emoji,
+      walletIconColorIndex: event.colorIndex,
+    ));
   }
 
   // ---- Helpers ----

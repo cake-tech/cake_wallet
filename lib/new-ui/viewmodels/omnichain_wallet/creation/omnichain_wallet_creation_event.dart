@@ -56,3 +56,10 @@ class OmniChainWalletPrimaryTypeSelected extends OmniChainWalletEvent {
 }
 
 class OmniChainWalletGroupCreateRequested extends OmniChainWalletEvent {}
+
+class OmniChainWalletIconChanged extends OmniChainWalletEvent {
+  OmniChainWalletIconChanged(this.emoji, this.colorIndex);
+
+  final String emoji;
+  final int colorIndex;
+}
