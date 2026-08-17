@@ -556,13 +556,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ? WillPopScope(
                   child: getIt.get<WalletUnlockPage>(
                       param1: WalletUnlockArguments(
-                          callback: settings.arguments as OnAuthenticationFinished),
+                          callback: (settings.arguments as AuthPageArgs).onAuthenticationFinished),
                       param2: false,
                       instanceName: 'wallet_unlock_verifiable'),
                   onWillPop: () async => false)
               : WillPopScope(
                   child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
+                      param1: settings.arguments as AuthPageArgs),
                   onWillPop: () async => false));
 
     case Routes.silentPaymentsSettings:

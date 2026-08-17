@@ -45,14 +45,13 @@ class DesktopSidebarWrapper extends BasePage {
         ),
         trailing: InkWell(
           onTap: () {
-            Navigator.of(context).pushNamed(
-              Routes.unlock,
-              arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+            Navigator.of(context).pushNamed(Routes.unlock, arguments: AuthPageArgs(
+              onAuthenticationFinished: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
                 if (isAuthenticatedSuccessfully) {
                   auth.close();
                 }
               },
-            );
+            ));
           },
           child: Icon(Icons.lock_outline),
         ),
