@@ -1183,6 +1183,7 @@
   "sync_status_syncronizing": "SINCRONIZANDO",
   "sync_status_timed_out": "TEMPO ESGOTADO",
   "sync_status_unsupported": "NÓ NÃO SUPORTADO",
+  "sync_synced": "Sincronizado",
   "sync_syncing": "Sincronizando",
   "sync_timed_out": "Tempo limite da sincronização esgotado",
   "sync_unsupported_node": "Nó não suportado",

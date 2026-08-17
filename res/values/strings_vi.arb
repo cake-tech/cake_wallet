@@ -1182,6 +1182,7 @@
   "sync_status_syncronizing": "ĐANG ĐỒNG BỘ HÓA",
   "sync_status_timed_out": "HẾT THỜI GIAN",
   "sync_status_unsupported": "NÚT KHÔNG ĐƯỢC HỖ TRỢ",
+  "sync_synced": "Đã đồng bộ hóa",
   "sync_syncing": "Đang đồng bộ",
   "sync_timed_out": "Đồng bộ hóa đã hết thời gian",
   "sync_unsupported_node": "Nút không được hỗ trợ",

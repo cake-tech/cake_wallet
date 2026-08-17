@@ -1182,6 +1182,7 @@
   "sync_status_syncronizing": "СИНХРОНИЗАЦИЯ",
   "sync_status_timed_out": "ИСТЕКЛО ВРЕМЯ ОЖИДАНИЯ",
   "sync_status_unsupported": "НЕПОДДЕРЖИВАЕМЫЙ УЗЕЛ",
+  "sync_synced": "Синхронизировано",
   "sync_syncing": "Синхронизация",
   "sync_timed_out": "Время ожидания синхронизации истекло",
   "sync_unsupported_node": "Неподдерживаемый узел",
