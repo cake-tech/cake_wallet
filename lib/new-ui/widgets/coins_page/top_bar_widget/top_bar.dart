@@ -102,12 +102,7 @@ class _TopBarState extends State<TopBar> {
 
         final isHeavySyncing = syncBar.showFullBar;
 
-        final Widget leading = dashboardViewModel.hasLightning
-            ? LightningSwitcher(
-          lightningMode: widget.lightningMode,
-          onLightningSwitchPress: widget.onLightningSwitchPress,
-        )
-            : ChainIcon(
+        final Widget leading = ChainIcon(
           iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
           dashboardViewModel: dashboardViewModel,
           isSyncHeavy: dashboardViewModel.isSyncHeavy,

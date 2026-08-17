@@ -103,7 +103,13 @@ class _NewHomePageState extends State<NewHomePage> {
                               ),
                             ),
                           );
+                        }, lightningMode: dashboardVM.lightningMode,
+                        onLightningSwitchPress: () {
+                          setState(() {
+                            dashboardVM.lightningMode = !dashboardVM.lightningMode;
+                          });
                         },
+
                       ),
                       if (dashboardVM.hasLightning)
                         LightningSwitcher(
