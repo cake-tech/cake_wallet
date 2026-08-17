@@ -182,7 +182,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
 
   Widget trailingWidgetForItem(
     BuildContext context,
-    KeychainData item,
+    KeychainDataV1 item,
     KeychainRestoreState state,
   ) {
     if (state is KeychainRestoreSelection && state.walletsSelected.contains(item)) {

@@ -45,12 +45,18 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
     final keychainData = (await _keychain.getAll())
         .where((item) => !existingWalletNames.contains(item.name))
         .toList();
+
+    final unsupportedKeychainData = await _keychain.getUnsupported();
+
     if (keychainData.isEmpty) {
       emit(const KeychainRestoreNoWallets());
       return;
     }
 
-    emit(KeychainRestoreSelection(walletsAvailable: keychainData, walletsSelected: {}));
+    emit(KeychainRestoreSelection(
+        walletsAvailable: keychainData,
+        walletsUnsupported: unsupportedKeychainData,
+        walletsSelected: {}));
   }
 
   Future<void> _onWalletToggled(WalletToggled event, Emitter<KeychainRestoreState> emit) async {
@@ -72,6 +78,7 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
       KeychainRestoring restoringState = KeychainRestoring(
           walletsRestored: {},
           walletsFailed: {},
+          walletsUnsupported: s.walletsUnsupported,
           walletsAvailable: s.walletsAvailable,
           walletsSelected: s.walletsSelected);
       emit(restoringState);
@@ -97,6 +104,7 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
       }
       emit(KeychainRestoreComplete(
           walletInfos: walletInfos,
+          walletsUnsupported: restoringState.walletsUnsupported,
           walletsRestored: restoringState.walletsRestored,
           walletsFailed: restoringState.walletsFailed,
           walletsAvailable: restoringState.walletsAvailable,

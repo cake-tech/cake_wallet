@@ -1,6 +1,6 @@
 import "package:cw_keychain/src/keychain_api.g.dart";
 
-export "src/keychain_api.g.dart" show KeychainData;
+export "src/keychain_api.g.dart" show KeychainDataV1, UnsupportedKeychainData;
 
 class CwKeychain {
 
@@ -20,14 +20,19 @@ class CwKeychain {
     }
   }
 
-  Future<List<KeychainData>> getAll() => _api.getAll();
+  Future<List<KeychainDataV1>> getAll() => _api.getAll();
 
   // returns id, id is in form "$name_$walletTypeRaw"
   // if you submit another item with the same id, it will overwrite!!!
-  Future<String> put(KeychainData item) => _api.put(item);
+  Future<String> put(KeychainDataV1 item) => _api.put(item);
 
   // stays silent if id doesn't exist
   Future<void> delete(String id) => _api.delete(id);
 
-  Future<KeychainData?> get(String id) => _api.get(id);
+  Future<KeychainDataV1?> get(String id) => _api.get(id);
+
+  Future<List<UnsupportedKeychainData>> getUnsupported() => _api.getUnsupported();
+
+
+  Future<void> putFakeUnsupported() => _api.putFakeUnsupported();
 }

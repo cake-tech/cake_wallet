@@ -19,7 +19,7 @@ import "package:cw_keychain/cw_keychain.dart";
 import "package:cw_zcash/cw_zcash.dart";
 
 class KeychainRestoreUtilities {
-  static Future<WalletCredentials> credentialsFromKeychainData(KeychainData data) async {
+  static Future<WalletCredentials> credentialsFromKeychainData(KeychainDataV1 data) async {
     final type = deserializeFromInt(data.walletTypeRaw);
     final password = generateWalletPassword();
     final WalletCredentials credentials;

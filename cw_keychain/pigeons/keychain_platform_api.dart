@@ -10,8 +10,20 @@ import "package:pigeon/pigeon.dart";
     swiftOptions: SwiftOptions(),
   ),
 )
-class KeychainData {
-  KeychainData({
+
+
+// if we get an unknown version of keychain data, this is returned.
+// this ensures wallets created in newer versions are still visible on the list in older ones
+// they won't be readable, but at least we can show a "please update" message
+class UnsupportedKeychainData {
+  UnsupportedKeychainData({required this.name, required this.walletTypeRaw});
+
+  final String name;
+  final int walletTypeRaw;
+}
+
+class KeychainDataV1 {
+  KeychainDataV1({
     required this.name,
     required this.walletTypeRaw,
     required this.seed,
@@ -41,14 +53,20 @@ abstract class KeychainPlatformApi {
   bool available();
 
   @async
-  List<KeychainData> getAll();
+  List<KeychainDataV1> getAll();
 
   @async
-  String put(KeychainData item);
+  String put(KeychainDataV1 item);
 
   @async
   void delete(String id);
 
   @async
-  KeychainData? get(String id);
+  KeychainDataV1? get(String id);
+
+  @async
+  List<UnsupportedKeychainData> getUnsupported();
+
+  @async
+  void putFakeUnsupported();
 }
