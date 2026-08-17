@@ -137,6 +137,10 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   /// Each wallet implementation should override this to make a single, efficient call
   /// Returns true if the node is healthy, false otherwise
   Future<bool> checkNodeHealth();
+
+  bool get hasPayjoinSupport => false;
+  bool get hasLightningSupport => false;
+  bool get hasSilentPaymentsScanning => false;
   
   bool receiveOptionAvailable(ReceivePageOption option) => true;
 }

@@ -25,6 +25,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
 
   @computed
+  bool get hasSilentPaymentsScanning => _wallet.hasSilentPaymentsScanning;
+
+  @computed
   bool get hasMWEB => _wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
 
   @computed
@@ -108,11 +111,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePayjoin => _settingsStore.usePayjoin;
 
   @computed
-  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
+  bool get canUsePayjoin => _wallet.hasPayjoinSupport && DeviceInfo.instance.isMobile;
 
   @computed
-  bool get canUseLightning =>
-      _wallet.type == WalletType.bitcoin && !Platform.isWindows && !Platform.isLinux;
+  bool get canUseLightning => _wallet.hasLightningSupport;
 
   @computed
   bool get useLightning => _wallet.type == WalletType.bitcoin && bitcoin!.useLightning(_wallet);

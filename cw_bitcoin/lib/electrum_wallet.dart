@@ -381,6 +381,7 @@ abstract class ElectrumWalletBase
   @override
   bool isTestnet;
 
+  @override
   bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
   @observable
