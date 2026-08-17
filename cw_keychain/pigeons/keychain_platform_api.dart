@@ -4,8 +4,8 @@ import "package:pigeon/pigeon.dart";
   PigeonOptions(
     dartOut: "lib/src/keychain_api.g.dart",
     dartOptions: DartOptions(),
-    kotlinOut: "android/src/main/kotlin/com/cakewallet/cw_keychain/KeychainApi.g.kt",
-    kotlinOptions: KotlinOptions(package: "com.cakewallet.cw_keychain"),
+    // kotlinOut: "android/src/main/kotlin/com/cakewallet/cw_keychain/KeychainApi.g.kt",
+    // kotlinOptions: KotlinOptions(package: "com.cakewallet.cw_keychain"),
     swiftOut: "darwin/Classes/KeychainApi.g.swift",
     swiftOptions: SwiftOptions(),
   ),

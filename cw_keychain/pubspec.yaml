@@ -21,9 +21,6 @@ dependency_overrides:
 flutter:
   plugin:
     platforms:
-      android:
-        package: com.cakewallet.cw_keychain
-        pluginClass: CwKeychainPlugin
       ios:
         pluginClass: CwKeychainPlugin
         sharedDarwinSource: true
