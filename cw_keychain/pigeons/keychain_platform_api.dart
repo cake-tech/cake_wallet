@@ -15,9 +15,15 @@ import "package:pigeon/pigeon.dart";
 // if we get an unknown version of keychain data, this is returned.
 // this ensures wallets created in newer versions are still visible on the list in older ones
 // they won't be readable, but at least we can show a "please update" message
+// if you're making a new KeychainData version please at least make sure it has these three fields
 class UnsupportedKeychainData {
-  UnsupportedKeychainData({required this.name, required this.walletTypeRaw});
+  UnsupportedKeychainData({
+    required this.name,
+    required this.walletTypeRaw,
+    required this.version,
+  });
 
+  final int version;
   final String name;
   final int walletTypeRaw;
 }

@@ -9,23 +9,31 @@ final class KeychainRestoreNotLoaded extends KeychainRestoreState {
   const KeychainRestoreNotLoaded();
 }
 
-final class KeychainRestoreNoWallets extends KeychainRestoreState {
-  const KeychainRestoreNoWallets();
+final class KeychainRestoreNoWallets extends KeychainRestoreStateWithUnsupportedWallets {
+  const KeychainRestoreNoWallets({required super.walletsUnsupported});
+
 }
 
 final class KeychainRestoreUnavailable extends KeychainRestoreState {
   const KeychainRestoreUnavailable();
 }
 
-abstract class KeychainRestoreStateWithWallets extends KeychainRestoreState {
-  const KeychainRestoreStateWithWallets({
+abstract class KeychainRestoreStateWithUnsupportedWallets extends KeychainRestoreState {
+  const KeychainRestoreStateWithUnsupportedWallets({
     required this.walletsUnsupported,
+  });
+
+  final List<UnsupportedKeychainData> walletsUnsupported;
+}
+
+abstract class KeychainRestoreStateWithWallets extends KeychainRestoreStateWithUnsupportedWallets {
+  const KeychainRestoreStateWithWallets({
+    required super.walletsUnsupported,
     required this.walletsAvailable,
     required this.walletsSelected,
   });
 
   final List<KeychainDataV1> walletsAvailable;
-  final List<UnsupportedKeychainData> walletsUnsupported;
   final Set<KeychainDataV1> walletsSelected;
 }
 

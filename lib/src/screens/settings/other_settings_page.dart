@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -21,6 +22,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_keychain/cw_keychain.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
@@ -226,6 +228,24 @@ class OtherSettingsPage extends BasePage {
                     onTap: () async {
                       final dbDebugMarker = await sqliteDebugMarkerFile();
                       dbDebugMarker.create();
+                    }),
+                ListItemRegularRow(
+                    keyValue: "[dev] add fake unsupported keychain item",
+                    label: "[dev] add fake unsupported keychain item",
+                    onTap: () async {
+                      final keychain = CwKeychain();
+                      if (!(await keychain.available())) {
+                        return;
+                      }
+                      await keychain.putFakeUnsupported();
+                      await showPopUp(
+                          context: context,
+                          builder: (context) => AlertWithOneAction(
+                              alertTitle: "done",
+                              alertContent:
+                                  "there's a fake item, version 999, name chuj, wallet type 2, in keychain",
+                              buttonText: "okay :3",
+                              buttonAction: Navigator.of(context).pop));
                     }),
               ]
       }),

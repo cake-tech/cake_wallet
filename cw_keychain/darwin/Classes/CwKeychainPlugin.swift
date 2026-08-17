@@ -56,16 +56,27 @@ private struct KeychainDataWrapper: Codable {
 private struct UnsupportedKeychainDataWrapper: Codable {
     let name: String
     let walletTypeRaw: Int64
+    let version: Int64
+
+    var accountId: String {
+        return "\(name)_\(walletTypeRaw)"
+    }
+
+    var isUnsupported: Bool {
+        return version > 1
+    }
 
     init(from pigeonData: UnsupportedKeychainData) {
         self.name = pigeonData.name
         self.walletTypeRaw = pigeonData.walletTypeRaw
+        self.version = pigeonData.version
     }
 
     func toPigeonData() -> UnsupportedKeychainData {
         return UnsupportedKeychainData(
+            version: version,
             name: name,
-            walletTypeRaw: walletTypeRaw,
+            walletTypeRaw: walletTypeRaw
         )
     }
 }
@@ -282,7 +293,13 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
                 if let data = dict[kSecValueData as String] as? Data {
                     do {
                         let wrapper = try decoder.decode(UnsupportedKeychainDataWrapper.self, from: data)
-                        self.print_with_prefix("unsupported decoded ok: \(wrapper.name)")
+
+                        guard wrapper.isUnsupported else {
+                            self.print_with_prefix("skip supported item: \(wrapper.accountId) (version \(wrapper.version))")
+                            continue
+                        }
+
+                        self.print_with_prefix("unsupported decoded ok: \(wrapper.accountId) (version \(wrapper.version ?? 1))")
                         results.append(wrapper.toPigeonData())
                     } catch {
                         self.print_with_prefix("skip decoding item: \(error)\n\(data)")
@@ -298,8 +315,8 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
         DispatchQueue.global(qos: .userInitiated).async {
             self.print_with_prefix("put")
             let wrapper = UnsupportedKeychainDataWrapper(from: UnsupportedKeychainData(
+                version: 999,
                     name: "chuj",
-                // what is 2? don't know, don't care
                 walletTypeRaw: 2
             ))
 
@@ -309,7 +326,7 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
                 let deleteQuery: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
                     kSecAttrService as String: Self.serviceName,
-                    kSecAttrAccount as String: "chuj_2",
+                    kSecAttrAccount as String: wrapper.accountId,
                     kSecAttrSynchronizable as String: true
                 ]
 
@@ -318,7 +335,7 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
                 let addQuery: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
                     kSecAttrService as String: Self.serviceName,
-                    kSecAttrAccount as String: "chuj_2",
+                    kSecAttrAccount as String: wrapper.accountId,
                     kSecValueData as String: walletData,
                     kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked,
                     kSecAttrSynchronizable as String: true

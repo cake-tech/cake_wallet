@@ -98,14 +98,14 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                             getDescriptionText(state.runtimeType),
                             textAlign: TextAlign.center,
                           ),
-                          if (state is KeychainRestoreStateWithWallets)
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 32),
                                 child: SingleChildScrollView(
                                   child: NewListSections(
                                     sections: {
-                                      "": state.walletsAvailable
+                                      if (state is KeychainRestoreStateWithWallets)
+                                        "": state.walletsAvailable
                                           .map((item) {
                                             final walletType = deserializeFromInt(item.walletTypeRaw);
                                             final iconPath =
@@ -134,8 +134,8 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                                           })
                                           .whereType<ListItemRegularRow>()
                                           .toList(),
-                                      
-                                      "unsupported": state.walletsUnsupported.map((item) {
+                                      if (state is KeychainRestoreStateWithUnsupportedWallets)
+                                        "unsupported": state.walletsUnsupported.map((item) {
 
                                         final walletType = deserializeFromInt(item.walletTypeRaw);
                                         final iconPath =
