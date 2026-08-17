@@ -165,23 +165,33 @@ int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
 
 int cachedNodeHeight = 0;
 bool isHeightRefreshing = false;
+
+Future<int>? _nodeHeightInFlight;
+
+Future<int> _refreshNodeHeight() {
+  final inFlight = _nodeHeightInFlight;
+  if (inFlight != null) return inFlight;
+  final wptrAddress = currentWallet!.ffiAddress();
+  isHeightRefreshing = true;
+  final f = Isolate.run(() async {
+    return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+  }).then((h) {
+    cachedNodeHeight = h;
+    return h;
+  }).catchError((_) => cachedNodeHeight).whenComplete(() {
+    isHeightRefreshing = false;
+    _nodeHeightInFlight = null;
+  });
+  _nodeHeightInFlight = f;
+  return f;
+}
+
 int getNodeHeightSync() {
   if (isHeightRefreshing == false) {
     if (cachedNodeHeight != 0 && getWlptr()?.height() == 1) {
       return cachedNodeHeight;
     }
-    (() async {
-      try {
-        isHeightRefreshing = true;
-        final wptrAddress = currentWallet!.ffiAddress();
-        cachedNodeHeight = await Isolate.run(() async {
-          return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
-        });
-      } catch (_) {
-      } finally {
-        isHeightRefreshing = false;
-      }
-    })();
+    unawaited(_refreshNodeHeight());
   }
   return cachedNodeHeight;
 }
@@ -319,6 +329,9 @@ class SyncListener {
   int _cachedBlockchainHeight;
   int _lastKnownBlockHeight;
   int _initialSyncHeight;
+  int _lastKnownNodeHeight = 0;
+  int _ticksSinceEmit = 0;
+  static const int _heartbeatTicks = 5;
 
   Future<int> getNodeHeightOrUpdate(int baseHeight) async {
     if (_cachedBlockchainHeight < baseHeight || _cachedBlockchainHeight == 0) {
@@ -331,6 +344,8 @@ class SyncListener {
   void _start() {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
+    _lastKnownNodeHeight = 0;
+    _ticksSinceEmit = 0;
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
@@ -355,11 +370,17 @@ class SyncListener {
       }
       final bchHeight = max(nodeHeight, syncHeight);
       // printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
-      if (_lastKnownBlockHeight == syncHeight) {
+
+      _ticksSinceEmit++;
+      final nothingChanged = _lastKnownBlockHeight == syncHeight &&
+          _lastKnownNodeHeight == nodeHeight;
+      if (nothingChanged && _ticksSinceEmit < _heartbeatTicks) {
         return;
       }
+      _ticksSinceEmit = 0;
 
       _lastKnownBlockHeight = syncHeight;
+      _lastKnownNodeHeight = nodeHeight;
       final track = bchHeight - _initialSyncHeight;
       final diff = track - (bchHeight - syncHeight);
       final ptc = diff <= 0 ? 0.0 : diff / track;
@@ -410,7 +431,11 @@ void startRefresh() => startRefreshSync();
 
 Future<void> store() async => _storeSync(0);
 
-Future<int> getNodeHeight() async => getNodeHeightSync();
+Future<int> getNodeHeight() async {
+  final cached = getNodeHeightSync();
+  if (cached != 0) return cached;
+  return _refreshNodeHeight();
+}
 
 void rescanBlockchainAsync() => currentWallet!.rescanBlockchainAsync();
 
