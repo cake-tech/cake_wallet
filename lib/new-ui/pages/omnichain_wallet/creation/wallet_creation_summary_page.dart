@@ -29,16 +29,18 @@ class WalletCreationSuccessPageBody extends StatelessWidget {
         listenWhen: (_, current) =>
             (current is WalletCreationOpeningNetwork && !current.canCreate) ||
             current is WalletCreationSeedBackup,
-        listener: (context, state) {
-          if (state is WalletCreationSeedBackup) {
-            Navigator.of(context).pushNamed(Routes.preSeedPage);
-            return;
-          }
-          Navigator.of(context).pushNamed(
-            Routes.walletCreationOpeningPage,
-            arguments: context.read<OmniChainWalletBloc>(),
-          );
-        },
+    listener: (context, state) {
+      if (state is WalletCreationSeedBackup) {
+        final navigator = Navigator.of(context);
+        navigator.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        navigator.pushNamed(Routes.preSeedPage);
+        return;
+      }
+      Navigator.of(context).pushNamed(
+        Routes.walletCreationOpeningPage,
+        arguments: context.read<OmniChainWalletBloc>(),
+      );
+    },
         builder: (context, state) {
           final isCreating = state is WalletCreationCreating;
 
