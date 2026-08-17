@@ -204,11 +204,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         return createRoute(RouteSettings(name: Routes.welcomePage));
       }
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(
-          param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+        (_) => getIt.get<SetupPinCodePage>(param1: SetupPinCodeArgs(
+          onSuccessfulPinSetup: (context, dynamic _) {
             Navigator.of(context.context).pushNamed(Routes.welcomePage);
           },
-        ),
+          isInitialSetup: true,
+        )),
         fullscreenDialog: true,
       );
 
@@ -284,7 +285,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
 
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(param1: callback),
+        (_) => getIt.get<SetupPinCodePage>(param1: SetupPinCodeArgs(onSuccessfulPinSetup: callback)),
       );
 
     case Routes.restoreWalletType:
@@ -308,7 +309,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
 
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(param1: callback, param2: true),
+        (_) => getIt.get<SetupPinCodePage>(
+            param1: SetupPinCodeArgs(onSuccessfulPinSetup: callback, isDuressPin: true)),
       );
 
     case Routes.restoreOptions:

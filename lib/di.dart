@@ -1354,21 +1354,19 @@ Future<void> setup({
     }
   });
 
-  getIt.registerFactoryParam<SetupPinCodeViewModel, bool?, void>(
-    (isDuressPin, _) => SetupPinCodeViewModel(
+  getIt.registerFactoryParam<SetupPinCodeViewModel, SetupPinCodeArgs, void>(
+    (args, _) => SetupPinCodeViewModel(
       getIt.get<AuthService>(),
       getIt.get<SettingsStore>(),
-      isDuressPin: isDuressPin ?? false,
+      args: args,
       biometricAuth: getIt.get<BiometricAuth>(),
     ),
   );
 
-  getIt.registerFactoryParam<SetupPinCodePage, void Function(PinCodeState<PinCodeWidget>, String),
-      bool?>(
-    (onSuccessfulPinSetup, isDuressPin) => SetupPinCodePage(
-      getIt.get<SetupPinCodeViewModel>(param1: isDuressPin),
-      onSuccessfulPinSetup: onSuccessfulPinSetup,
-      isDuressPin: isDuressPin ?? false,
+  getIt.registerFactoryParam<SetupPinCodePage, SetupPinCodeArgs, void>(
+    (args, _) => SetupPinCodePage(
+      getIt.get<SetupPinCodeViewModel>(param1: args),
+      args: args,
     ),
   );
 

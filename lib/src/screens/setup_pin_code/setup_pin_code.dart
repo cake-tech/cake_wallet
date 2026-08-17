@@ -7,9 +7,22 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
+class SetupPinCodeArgs {
+  SetupPinCodeArgs(
+      {required this.onSuccessfulPinSetup,
+      this.isDuressPin = false,
+      this.isInitialSetup = false});
+
+  final void Function(PinCodeState<PinCodeWidget>, String)? onSuccessfulPinSetup;
+  final bool isDuressPin;
+  final bool isInitialSetup;
+}
+
 class SetupPinCodePage extends BasePage {
-  SetupPinCodePage(this.pinCodeViewModel, {this.onSuccessfulPinSetup, this.isDuressPin = false})
-      : pinCodeStateKey = GlobalKey<PinCodeState>();
+  SetupPinCodePage(this.pinCodeViewModel, {required SetupPinCodeArgs args})
+      : pinCodeStateKey = GlobalKey<PinCodeState>(),
+        onSuccessfulPinSetup = args.onSuccessfulPinSetup,
+        isDuressPin = args.isDuressPin;
 
   final SetupPinCodeViewModel pinCodeViewModel;
   final void Function(PinCodeState<PinCodeWidget>, String)? onSuccessfulPinSetup;
@@ -49,9 +62,10 @@ class SetupPinCodePage extends BasePage {
           await pinCodeViewModel.setupPinCode();
 
           if(!isDuressPin) {
-            if(await pinCodeViewModel.isBiometricAuthenticated()) {
-              pinCodeViewModel.enableBiometricAuth();
-
+            if(pinCodeViewModel.isInitialSetup) {
+              if(await pinCodeViewModel.isBiometricAuthenticated()) {
+                pinCodeViewModel.enableBiometricAuth();
+              }
             }
             Navigator.of(context).pop();
             if (pinCodeStateKey.currentState != null) {
