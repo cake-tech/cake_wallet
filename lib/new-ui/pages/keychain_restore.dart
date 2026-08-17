@@ -134,6 +134,14 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                                           })
                                           .whereType<ListItemRegularRow>()
                                           .toList(),
+                                      
+                                      "unsupported": state.walletsUnsupported.map((item) {
+
+                                        final walletType = deserializeFromInt(item.walletTypeRaw);
+                                        final iconPath =
+                                            walletTypeToCryptoCurrency(walletType).iconPath;
+                                        return ListItemRegularRow(keyValue: item.name, label: item.name, iconPath: iconPath, subtitle: S.of(context).unsupported_keychain_item);
+                                      }).toList()
                                     },
                                   ),
                                 ),
