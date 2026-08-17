@@ -10,11 +10,11 @@ class CwKeychain {
   final KeychainPlatformApi _api;
 
   // checks if api is available
-  // on apple, always true. on android, true if we have gms and google cloud backup
+  // on apple, true if we have icloud.
   // PLEASE check this before you call ANY other function, they WILL throw if this is false
   Future<bool> available() async {
     try {
-      return _api.available();
+      return await _api.available();
     } catch(e) {
       return false;
     }

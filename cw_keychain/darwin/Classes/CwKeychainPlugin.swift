@@ -95,8 +95,11 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
         KeychainPlatformApiSetup.setUp(binaryMessenger: messenger, api: instance)
     }
 
+
     func available() -> Bool {
-        return true
+        // https://developer.apple.com/documentation/foundation/filemanager/ubiquityidentitytoken
+        // de facto this is a check if user is signed into icloud
+        return FileManager.default.ubiquityIdentityToken != nil
     }
 
 
@@ -299,7 +302,7 @@ public class CwKeychainPlugin: NSObject, FlutterPlugin, KeychainPlatformApi {
                             continue
                         }
 
-                        self.print_with_prefix("unsupported decoded ok: \(wrapper.accountId) (version \(wrapper.version ?? 1))")
+                        self.print_with_prefix("unsupported decoded ok: \(wrapper.accountId) (version \(wrapper.version))")
                         results.append(wrapper.toPigeonData())
                     } catch {
                         self.print_with_prefix("skip decoding item: \(error)\n\(data)")
