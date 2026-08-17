@@ -143,6 +143,7 @@ class OtherSettingsPage extends BasePage {
                 },
               }),
             ),
+          if(_otherSettingsViewModel.hasSignVerify)
           ListItemRegularRow(
               keyValue: "security_backup_page_sign_and_verify",
               label: S.of(context).sign_verify_title,
