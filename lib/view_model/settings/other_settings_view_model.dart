@@ -173,6 +173,10 @@ abstract class OtherSettingsViewModelBase with Store {
     return null;
   }
 
+  bool get hasPayjoin => _wallet.hasPayjoinSupport;
+
+  bool get hasLightning => _wallet.hasLightningSupport;
+
   Future<File?> getLightningLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/lightning.log");
