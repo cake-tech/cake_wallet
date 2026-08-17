@@ -1,20 +1,21 @@
 import "dart:io";
 
-import "package:bip39/bip39.dart" as bip39;
-import "package:cw_core/encryption_file_utils.dart";
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/erc20_token.dart";
-import "package:cw_core/pathForWallet.dart";
-import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/wallet_base.dart";
-import "package:cw_core/wallet_info.dart";
-import "package:cw_core/wallet_service.dart";
-import "package:cw_core/wallet_type.dart";
-import "package:path/path.dart" as p;
-import "package:cw_evm/clients/evm_chain_client.dart";
-import "package:cw_evm/evm_chain_client_factory.dart";
-import "package:cw_evm/evm_chain_registry.dart";
-import "package:cw_evm/evm_chain_wallet.dart";
-import "package:cw_evm/evm_chain_wallet_creation_credentials.dart";
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:path/path.dart' as p;
+import 'package:cw_evm/clients/evm_chain_client.dart';
+import 'package:cw_evm/evm_chain_client_factory.dart';
+import 'package:cw_evm/evm_chain_exceptions.dart';
+import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 
 /// Unified service for all EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
 ///
@@ -210,6 +211,10 @@ class EVMChainWalletService extends WalletService<
     EVMChainRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
+    if (!bip39.validateMnemonic(credentials.mnemonic)) {
+      throw EVMChainMnemonicIsIncorrectException();
+    }
+
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type

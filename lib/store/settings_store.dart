@@ -151,6 +151,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
       required this.balanceHideCounter,
+        required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -766,6 +767,9 @@ abstract class SettingsStoreBase with Store {
         (int balanceHideCounter) =>
             _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter));
 
+    reaction((_) => zcashMigrationModalViewed,
+        (val) => _sharedPreferences.setBool(PreferencesKey.zcashMigrationModalViewed, val));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -1075,6 +1079,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool mwebAdDismissed;
 
+  @observable
+  bool zcashMigrationModalViewed;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1350,6 +1357,7 @@ abstract class SettingsStoreBase with Store {
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
     final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
+    final zcashMigrationModalViewed = sharedPreferences.getBool(PreferencesKey.zcashMigrationModalViewed) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1762,6 +1770,7 @@ abstract class SettingsStoreBase with Store {
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
       balanceHideCounter: balanceHideCounter,
+      zcashMigrationModalViewed: zcashMigrationModalViewed
     );
   }
 

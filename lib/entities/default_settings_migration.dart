@@ -634,6 +634,9 @@ Future<void> defaultSettingsMigration(
             enabled: false,
           );
           break;
+        case 70:
+          await _addTbbTokenToExistingSolanaWallets();
+          break;
         default:
           break;
       }
@@ -1313,5 +1316,35 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
     }
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
+  }
+}
+
+Future<void> _addTbbTokenToExistingSolanaWallets() async {
+  try {
+    final tbbToken = SPLToken(
+      name: "The Bitcoin Bull",
+      symbol: "TBB",
+      mintAddress: "42cXQvAAr7hcPBPWAS4ocVtDyeJ4Fa6gRR2uG4gppump",
+      decimal: 6,
+      mint: "tbb",
+      enabled: false,
+      iconPath: "assets/images/tbb_icon.png",
+    );
+
+    final allWallets = await WalletInfo.getAll();
+
+    final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
+
+    for (final walletInfo in solanaWallets) {
+     final existingToken = await SPLToken.getByMint(walletInfo.name, tbbToken.mintAddress);
+
+      if (existingToken != null) {
+        continue;
+      }
+
+      await SPLToken.copyWith(tbbToken, walletName: walletInfo.name).save();
+    }
+  } catch (e) {
+    printV("Error in TBB migration: $e");
   }
 }

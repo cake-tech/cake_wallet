@@ -9,10 +9,9 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import "package:cw_core/wallet_type.dart";
+import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 bool _trueFunc(DashboardViewModel _) => true;
 
@@ -26,10 +25,21 @@ bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
-bool _isCupcake(DashboardViewModel vm) =>
-    vm.wallet.hardwareWalletType == HardwareWalletType.cupcake;
+bool _requiresKeyImageSync(DashboardViewModel vm) =>
+    vm.wallet.type == WalletType.monero &&
+    [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
 
 class SettingsListItem {
+  const SettingsListItem(
+    this.iconPath,
+    this.title,
+    this.route, {
+    this.requireAuth = false,
+    this.use2fa = _falseFunc,
+    this.condition = _trueFunc,
+    this.routeArgs,
+  });
+
   final String iconPath;
   final String title;
   final String route;
@@ -37,20 +47,14 @@ class SettingsListItem {
   final bool requireAuth;
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
-
-  const SettingsListItem(this.iconPath, this.title, this.route,
-      {this.routeArgs = null,
-      this.requireAuth = false,
-      this.use2fa = _falseFunc,
-      this.condition = _trueFunc});
 }
 
 class SettingsSectionData {
+  const SettingsSectionData(this.title, this.titleIconPath, this.items);
+
   final String title;
   final String titleIconPath;
   final List<SettingsListItem> items;
-
-  const SettingsSectionData(this.title, this.titleIconPath, this.items);
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
@@ -71,9 +75,13 @@ class SettingsSectionData {
         condition: _hasWalletConnect),
     //SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
     //SettingsListItem("assets/new-ui/settings_row_icons/mweb.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
-    SettingsListItem("assets/new-ui/settings_row_icons/cupcake.svg", S.current.export_outputs,
-        Routes.urqrAnimatedPage,
-        routeArgs: {'export-outputs': 'export-outputs'}, condition: _isCupcake),
+    SettingsListItem(
+      "assets/new-ui/settings_row_icons/sync-balance.svg",
+      S.current.resync_device,
+      Routes.syncKeyImagesDevices,
+      routeArgs: {'export-outputs': 'export-outputs'},
+      condition: _requiresKeyImageSync,
+    ),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
   ]);
@@ -152,8 +160,9 @@ class SettingsMainPage extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       child: Column(children: [
         ModalTopBar(
-          title: "Settings",
+          title: S.of(context).settings_title,
           leadingIcon: Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
           onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
           onTrailingPressed: () {},
         ),

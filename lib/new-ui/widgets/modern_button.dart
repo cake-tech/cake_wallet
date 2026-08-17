@@ -11,6 +11,11 @@ class ModernButton extends StatelessWidget {
   final Color? backgroundColor;
   final double? iconSize;
   final String? label;
+
+  /// Accessible name announced by screen readers. Falls back to [label] (the
+  /// visible caption) when omitted, so one of the two is required. Must be
+  /// localized by the caller.
+  final String? semanticLabel;
   static const iconSvgSizeRatio = 2 / 3;
 
   const ModernButton(
@@ -21,7 +26,8 @@ class ModernButton extends StatelessWidget {
       this.iconSize,
       this.iconColor,
       this.backgroundColor,
-      this.label})
+      this.label,
+      this.semanticLabel})
       : svgPath = null;
 
   const ModernButton.svg(
@@ -32,7 +38,8 @@ class ModernButton extends StatelessWidget {
       this.iconSize,
       this.iconColor,
       this.backgroundColor,
-      this.label})
+      this.label,
+      this.semanticLabel})
       : icon = null;
 
   @override
@@ -56,31 +63,42 @@ class ModernButton extends StatelessWidget {
             child: icon!,
           );
 
-    return Column(
-      spacing: 8,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: resolvedBackgroundColor,
-            borderRadius: BorderRadius.circular(size),
-          ),
-          width: size,
-          height: size,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: onPressed,
-            icon: resolvedIcon,
-          ),
+    // A single accessibility node for the whole control: the visible caption
+    // duplicates the accessible name, so it is excluded to avoid a second,
+    // detached stop for screen readers.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        label: semanticLabel ?? label,
+        child: Column(
+          spacing: 8,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: resolvedBackgroundColor,
+                borderRadius: BorderRadius.circular(size),
+              ),
+              width: size,
+              height: size,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: onPressed,
+                icon: ExcludeSemantics(child: resolvedIcon),
+              ),
+            ),
+            if (label != null && label!.isNotEmpty)
+              ExcludeSemantics(
+                child: Text(
+                  label!,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+              )
+          ],
         ),
-        if (label != null && label!.isNotEmpty)
-          Text(
-            label!,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.onSurface),
-          )
-      ],
+      ),
     );
   }
 }

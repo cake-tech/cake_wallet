@@ -24,55 +24,65 @@ class CurrencyPickerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            _IconWithBadge(currency: currency, badgePath: chainBadgePath),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      currency.fullName ?? currency.title,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
+              children: [
+                ExcludeSemantics(
+                  child: _IconWithBadge(currency: currency, badgePath: chainBadgePath),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          currency.fullName ?? currency.title,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ),
+                      if (chainPillLabel != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                    ),
+                          child: Text(
+                            chainPillLabel!,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.onSecondaryContainer,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  if (chainPillLabel != null) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: colors.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        chainPillLabel!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: colors.onSecondaryContainer,
-                            ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                trailing,
+                const SizedBox(width: 8),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: isSelected ? colors.primary : colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            trailing,
-            const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: isSelected ? colors.primary : colors.onSurfaceVariant,
-            ),
-          ],
+          ),
         ),
       ),
     );
