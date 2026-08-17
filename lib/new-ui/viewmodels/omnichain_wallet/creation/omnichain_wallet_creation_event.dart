@@ -41,6 +41,12 @@ class OmniChainWalletZcashNetworkChanged extends OmniChainWalletEvent {
   final int network;
 }
 
+class OmniChainWalletPassphraseChanged extends OmniChainWalletEvent {
+  OmniChainWalletPassphraseChanged(this.passphrase);
+
+  final String? passphrase;
+}
+
 class OmniChainWalletCredentialsSubmitted extends OmniChainWalletEvent {}
 
 // ---- Step 3: summary ----

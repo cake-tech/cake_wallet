@@ -21,6 +21,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     on<OmniChainWalletGroupNameGenerated>(_onGroupNameGenerated);
     on<OmniChainWalletTestnetToggled>(_onTestnetToggled);
     on<OmniChainWalletZcashNetworkChanged>(_onZcashNetworkChanged);
+    on<OmniChainWalletPassphraseChanged>(_onPassphraseChanged);
     on<OmniChainWalletCredentialsSubmitted>(_onCredentialsSubmitted);
     on<OmniChainWalletSummaryConfirmed>(_onSummaryConfirmed);
     on<OmniChainWalletPrimaryTypeSelected>(_onPrimaryTypeSelected);
@@ -178,6 +179,16 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     if (current is! WalletCreationCustomization) return;
 
     emit(current.copyWith(zcashNetwork: event.network));
+  }
+
+  void _onPassphraseChanged(
+    OmniChainWalletPassphraseChanged event,
+    Emitter<WalletCreationState> emit,
+  ) {
+    final current = state;
+    if (current is! WalletCreationCustomization) return;
+
+    emit(current.copyWith(providedPassphrase: event.passphrase));
   }
 
   // ---- Step 3: summary ----

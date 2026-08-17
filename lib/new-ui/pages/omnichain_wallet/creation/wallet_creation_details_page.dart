@@ -228,6 +228,8 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                         setZcashNetwork: (int network) =>
                             bloc.add(OmniChainWalletZcashNetworkChanged(network)),
                         isChildWallet: false,
+                        onPassphraseSaved: (String? passphrase) =>
+                            bloc.add(OmniChainWalletPassphraseChanged(passphrase)),
                       );
                     },
                     child: Padding(

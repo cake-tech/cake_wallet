@@ -76,6 +76,7 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
     this.privacySettingsViewModel,
     this.nodeViewModel,
     this.seedTypeViewModel, {
+    this.onPassphraseSaved,
     super.key,
   });
 
@@ -89,6 +90,8 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
   final Function(bool? val) toggleUseTestnet;
   final int zcashNetwork;
   final void Function(int network) setZcashNetwork;
+
+  final void Function(String? passphrase)? onPassphraseSaved;
 
   @override
   State<AdvancedPrivacySettingsBody> createState() => _AdvancedPrivacySettingsBodyState();
@@ -135,8 +138,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Observer(builder: (_) {
-              return SettingsChoicesCell(
+            Observer(builder: (_) => SettingsChoicesCell(
                 ChoicesListItem<FiatApiMode>(
                   title: S.current.fiat_api,
                   items: FiatApiMode.all,
@@ -144,10 +146,8 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   onItemSelected: (FiatApiMode mode) =>
                       widget.privacySettingsViewModel.setFiatApiMode(mode),
                 ),
-              );
-            }),
-            Observer(builder: (_) {
-              return SettingsChoicesCell(
+              )),
+            Observer(builder: (_) => SettingsChoicesCell(
                 ChoicesListItem<ExchangeApiMode>(
                   title: S.current.swap,
                   items: ExchangeApiMode.all,
@@ -155,12 +155,10 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   onItemSelected: (ExchangeApiMode mode) =>
                       widget.privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
-              );
-            }),
+              )),
             if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
                 !widget.isChildWallet)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
+              Observer(builder: (_) => SettingsChoicesCell(
                   ChoicesListItem<MoneroSeedType>(
                     title: S.current.seedtype,
                     items: MoneroSeedType.all,
@@ -168,11 +166,9 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                     onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
                     displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
                   ),
-                );
-              }),
+                )),
             if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
+              Observer(builder: (_) => SettingsChoicesCell(
                   ChoicesListItem<BitcoinSeedType>(
                     title: S.current.seedtype,
                     items: BitcoinSeedType.all,
@@ -185,11 +181,9 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       }
                     },
                   ),
-                );
-              }),
+                )),
             if (widget.privacySettingsViewModel.isNanoSeedTypeOptionsEnabled)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
+              Observer(builder: (_) => SettingsChoicesCell(
                   ChoicesListItem<NanoSeedType>(
                     title: S.current.seedtype,
                     items: NanoSeedType.all,
@@ -202,19 +196,19 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       }
                     },
                   ),
-                );
-              }),
+                )),
             if (!widget.isFromRestore)
               Observer(builder: (_) {
-                if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
+                if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption) {
                   return SettingsPickerCell<SeedPhraseLength>(
                     title: S.current.seed_phrase_length,
                     items: SeedPhraseLength.values,
                     selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                    onItemSelected: (SeedPhraseLength length) {
+                    onItemSelected: (length) {
                       widget.privacySettingsViewModel.setSeedPhraseLength(length);
                     },
                   );
+                }
                 return Container();
               }),
             if (widget.privacySettingsViewModel.hasPassphraseOption && !widget.isFromRestore)
@@ -232,7 +226,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                           onTap: () => setState(() {
                             obscurePassphrase = !obscurePassphrase;
                           }),
-                          child: Icon(
+                          child: const Icon(
                             Icons.remove_red_eye,
                           ),
                         ),
@@ -262,8 +256,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ),
                 ),
               ),
-            Observer(builder: (_) {
-              return Column(
+            Observer(builder: (_) => Column(
                 children: [
                   SettingsSwitcherCell(
                     title: S.current.disable_bulletin,
@@ -297,8 +290,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       )
                   ],
                 ],
-              );
-            }),
+              )),
             if (FeatureFlag.hasDevOptions && widget.privacySettingsViewModel.supportsZcashNetworkOption)
               SettingsChoicesCell(
                 ChoicesListItem<int>(
@@ -368,6 +360,9 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                 }
 
                 widget.seedTypeViewModel.setPassphrase(passphraseController.text);
+                widget.onPassphraseSaved?.call(
+                  passphraseController.text.isEmpty ? null : passphraseController.text,
+                );
 
                 Navigator.pop(context);
               },

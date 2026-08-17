@@ -30,6 +30,8 @@ class OmniChainWalletCreationService {
 
   static const defaultMoneroOptions = [defaultSeedLanguage, MoneroSeedType.bip39];
 
+  String? _lastGroupPassphrase;
+
   List<String> getAllCustomGroupNames() => walletManager.walletGroups
         .map((g) => g.groupName)
         .where((name) => name != null && name.isNotEmpty)
@@ -91,6 +93,7 @@ class OmniChainWalletCreationService {
         isGroupCreationDeferred: true,
         useTestnet: request.useTestnet,
         zcashNetwork: request.zcashNetwork,
+        passphrase: request.passphrase,
       );
 
       final wallet = appStore.wallet;
@@ -105,7 +108,9 @@ class OmniChainWalletCreationService {
         throw Exception('Failed to resolve mnemonic (shared) for group.');
       }
 
-      final String? sharedPassphrase = request.passphrase ?? wallet.passphrase;
+      // Remember the passphrase for this session so that activating one of
+      // the group's other networks later reuses the same BIP39 passphrase.
+      _lastGroupPassphrase = request.passphrase;
 
       final restTypesRaw = types.where((type) => type != primaryType).toList();
 
@@ -163,6 +168,7 @@ class OmniChainWalletCreationService {
       options: options,
       makeCurrent: true,
       isGroupCreationDeferred: true,
+      passphrase: _lastGroupPassphrase ?? currentWallet.passphrase,
     );
 
     await walletManager.updateWalletGroups();
@@ -198,6 +204,7 @@ class OmniChainWalletCreationService {
     required bool isGroupCreationDeferred,
     bool useTestnet = false,
     int zcashNetwork = ZcashNetworkType.mainnet,
+    String? passphrase,
   }) async {
     final newArgs =
         NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
@@ -206,6 +213,7 @@ class OmniChainWalletCreationService {
     walletNewVM.name = finalName;
     walletNewVM.toggleUseTestnet(useTestnet);
     walletNewVM.setZcashNetwork(zcashNetwork);
+    walletNewVM.seedSettingsViewModel.setPassphrase(passphrase);
     await walletNewVM.create(options: options, makeCurrent: makeCurrent, isGroupCreationDeferred: isGroupCreationDeferred);
   }
 

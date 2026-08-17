@@ -20,6 +20,7 @@ class OmniChainAdvancedSettingsSheet extends StatelessWidget {
     required this.advancedPrivacySettingsViewModel,
     required this.nodeViewModel,
     required this.seedSettingsViewModel,
+    this.onPassphraseSaved,
     super.key,
   });
 
@@ -32,6 +33,7 @@ class OmniChainAdvancedSettingsSheet extends StatelessWidget {
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
+  final void Function(String? passphrase)? onPassphraseSaved;
 
   static Future<void> show(
     BuildContext context, {
@@ -42,6 +44,7 @@ class OmniChainAdvancedSettingsSheet extends StatelessWidget {
     required void Function(int network) setZcashNetwork,
     bool isFromRestore = false,
     bool isChildWallet = false,
+    void Function(String? passphrase)? onPassphraseSaved,
   }) {
     final viewModelParam = {
       "type": types.length == 1 ? types.first : WalletType.none,
@@ -63,6 +66,7 @@ class OmniChainAdvancedSettingsSheet extends StatelessWidget {
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: types),
           nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
+          onPassphraseSaved: onPassphraseSaved,
         ),
       ),
     );
@@ -91,6 +95,7 @@ class OmniChainAdvancedSettingsSheet extends StatelessWidget {
                 advancedPrivacySettingsViewModel,
                 nodeViewModel,
                 seedSettingsViewModel,
+                onPassphraseSaved: onPassphraseSaved,
               ),
             ),
           ],
