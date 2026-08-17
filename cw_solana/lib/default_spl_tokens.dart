@@ -101,6 +101,15 @@ class DefaultSPLTokens {
       enabled: false,
     ),
     SPLToken(
+      name: "The Bitcoin Bull",
+      symbol: "TBB",
+      mintAddress: "42cXQvAAr7hcPBPWAS4ocVtDyeJ4Fa6gRR2uG4gppump",
+      decimal: 6,
+      mint: "tbb",
+      iconPath: "assets/images/tbb_icon.png",
+      enabled: false,
+    ),
+    SPLToken(
       name: "Tether Gold",
       symbol: "XAUT0",
       mintAddress: "AymATz4TCL9sWNEEV9Kvyz45CHVhDZ6kUgjTJPzLpU9P",

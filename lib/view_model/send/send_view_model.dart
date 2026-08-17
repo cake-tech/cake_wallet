@@ -137,9 +137,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return null;
     }, (_) async {
       // When chain changes, update currencies and selected currency
+      final selectionAtChainChange = selectedCryptoCurrency;
       await Future.delayed(const Duration(milliseconds: 100));
       currencies = wallet.balance.keys.toList();
-      selectedCryptoCurrency = wallet.currency;
+      if (selectedCryptoCurrency == selectionAtChainChange) {
+        selectedCryptoCurrency = wallet.currency;
+      }
       updateSendingBalance();
     });
   }
@@ -1731,9 +1734,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String? payjoinUri;
 
   @action
-  Future<void> fetchTokenForContractAddress(String contractAddress) async {
+  Future<void> fetchTokenForContractAddress(String contractAddress,
+      {WalletType? walletType}) async {
     final token = await TokenUtilities.findTokenByAddress(
-      walletType: wallet.type,
+      walletType: walletType ?? wallet.type,
       address: contractAddress,
     );
 
