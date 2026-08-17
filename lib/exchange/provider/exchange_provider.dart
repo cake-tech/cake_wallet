@@ -53,3 +53,7 @@ abstract interface class TransactionCreationExchangeProvider {
 abstract interface class TransactionCommitExchangeProvider {
   Future<void> commitTransaction(PendingTransaction tx);
 }
+
+abstract interface class TransactionRegistrationExchangeProvider {
+  Future<void> registerTransaction(String txHash);
+}
