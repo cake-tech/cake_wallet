@@ -54,7 +54,11 @@ class WalletCreationService {
     }
 
     try {
-      return (await keychain.getAll()).any((item) => item.name.toLowerCase() == name.toLowerCase());
+      final v1names = (await keychain.getAll()).map((item) => item.name.toLowerCase());
+      final unsupportedNames =
+          (await keychain.getUnsupported()).map((item) => item.name.toLowerCase());
+
+      return [...v1names, ...unsupportedNames].any((item) => item == name.toLowerCase());
     } catch (_) {
       return false;
     }
