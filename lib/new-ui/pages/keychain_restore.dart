@@ -107,9 +107,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                                       if (state is KeychainRestoreStateWithWallets)
                                         "": state.walletsAvailable
                                           .map((item) {
-                                            final walletType = deserializeFromInt(item.walletTypeRaw);
-                                            final iconPath =
-                                                walletTypeToCryptoCurrency(walletType).iconPath;
+                                            final iconPath = deserializeFromInt(item.walletTypeRaw).iconPath;
 
                                             if (state is KeychainRestoreStateWithWalletProgress &&
                                                 !state.walletsSelected.contains(item)) {
