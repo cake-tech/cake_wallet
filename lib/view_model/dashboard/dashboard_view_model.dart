@@ -55,7 +55,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -1502,7 +1502,8 @@ abstract class DashboardViewModelBase with Store {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
           final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-          final jsonSource = await read(path: path, password: password);
+          final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);
+          final jsonSource = await encryption.read(path: path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 
