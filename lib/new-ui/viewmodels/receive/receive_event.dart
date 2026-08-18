@@ -5,9 +5,8 @@ sealed class ReceiveEvent {
 }
 
 final class ReceiveOpened extends ReceiveEvent {
-  const ReceiveOpened({this.lightningMode = false, this.initialToken});
+  const ReceiveOpened({this.initialToken});
 
-  final bool lightningMode;
   final CryptoCurrency? initialToken;
 }
 
@@ -58,7 +57,9 @@ final class _WalletChanged extends ReceiveEvent {
 }
 
 final class _FiatRateChanged extends ReceiveEvent {
-  const _FiatRateChanged();
+  const _FiatRateChanged(this.fiat);
+
+  final FiatCurrency fiat;
 }
 
 final class _PayjoinEndpointChanged extends ReceiveEvent {

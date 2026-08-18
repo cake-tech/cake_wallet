@@ -52,16 +52,8 @@ void main() {
   late _MockFiatRateService fiatRateService;
   late _MockActiveWalletService activeWalletService;
   late StreamController<WalletBase> walletChangesController;
-  late StreamController<void> rateChangesController;
+  late StreamController<FiatCurrency> rateChangesController;
   late StreamController<String?> payjoinController;
-
-  ReceiveBloc buildBloc({bool lightningMode = false, CryptoCurrency? initialToken}) => ReceiveBloc(
-        addressService: addressService,
-        fiatRateService: fiatRateService,
-        activeWalletService: activeWalletService,
-        lightningMode: lightningMode,
-        initialToken: initialToken,
-      );
 
   void wireDefaults({
     WalletType walletType = WalletType.bitcoin,
@@ -115,7 +107,7 @@ void main() {
     ).thenReturn(initialUri ?? _btcUri);
     when(() => addressService.payjoinEndpointChanges).thenAnswer((_) => payjoinController.stream);
 
-    when(() => fiatRateService.defaultFiat).thenReturn(FiatCurrency.usd);
+    when(() => fiatRateService.currentFiat).thenReturn(FiatCurrency.usd);
     when(() => fiatRateService.rateChanges).thenAnswer((_) => rateChangesController.stream);
     when(() => fiatRateService.ensureRateFor(any(), any())).thenAnswer((_) async {});
 
@@ -127,7 +119,7 @@ void main() {
     fiatRateService = _MockFiatRateService();
     activeWalletService = _MockActiveWalletService();
     walletChangesController = StreamController<WalletBase>.broadcast();
-    rateChangesController = StreamController<void>.broadcast();
+    rateChangesController = StreamController<FiatCurrency>.broadcast();
     payjoinController = StreamController<String?>.broadcast();
   });
 
@@ -141,14 +133,23 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "emits Loading then Loaded on init",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       expect: () => [isA<ReceiveLoading>(), isA<ReceiveLoaded>()],
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "applies lightning open defaults when lightningMode is true",
+      "applies lightning open defaults when opened with the lightning token",
       setUp: wireDefaults,
-      build: () => buildBloc(lightningMode: true),
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+        initialToken: CryptoCurrency.btcln,
+      ),
       verify: (bloc) {
         verify(() => addressService.applyOpenDefaults(lightningMode: true)).called(1);
         final state = bloc.state as ReceiveLoaded;
@@ -157,9 +158,13 @@ void main() {
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "applies non-lightning open defaults when lightningMode is false",
+      "applies non-lightning open defaults without the lightning token",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       verify: (_) {
         verify(() => addressService.applyOpenDefaults(lightningMode: false)).called(1);
       },
@@ -170,7 +175,12 @@ void main() {
       setUp: () {
         wireDefaults(walletCurrency: CryptoCurrency.eth);
       },
-      build: () => buildBloc(initialToken: CryptoCurrency.usdc),
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+        initialToken: CryptoCurrency.usdc,
+      ),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.tokenCurrency, CryptoCurrency.usdc);
@@ -183,7 +193,12 @@ void main() {
       setUp: () {
         wireDefaults(walletCurrency: CryptoCurrency.btc);
       },
-      build: () => buildBloc(initialToken: CryptoCurrency.btc),
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+        initialToken: CryptoCurrency.btc,
+      ),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.tokenCurrency, isNull);
@@ -196,7 +211,11 @@ void main() {
         wireDefaults();
         when(() => addressService.computeAddressList()).thenThrow(Exception("boom"));
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       expect: () => [isA<ReceiveLoading>(), isA<ReceiveFailure>()],
     );
   });
@@ -206,11 +225,15 @@ void main() {
       "parses crypto amount and computes fiat equivalent",
       setUp: () {
         wireDefaults();
-        when(() => fiatRateService.convertToFiat(any(), any())).thenReturn(
+        when(() => fiatRateService.convert(any(), any())).thenReturn(
           Money.parse("50000.00", FiatCurrency.usd),
         );
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AmountChanged("1.0")),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
@@ -223,7 +246,11 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "clears amounts on empty input",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AmountChanged("")),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
@@ -255,7 +282,12 @@ void main() {
           ),
         ).thenAnswer((_) async => _btcUri);
       },
-      build: () => buildBloc(lightningMode: true, initialToken: CryptoCurrency.btcln),
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+        initialToken: CryptoCurrency.btcln,
+      ),
       act: (bloc) => bloc.add(const AmountChanged("1235")),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
@@ -269,11 +301,15 @@ void main() {
       "rapid changes end in the state for the last input (restartable)",
       setUp: () {
         wireDefaults();
-        when(() => fiatRateService.convertToFiat(any(), any())).thenReturn(
+        when(() => fiatRateService.convert(any(), any())).thenReturn(
           Money.parse("0.00", FiatCurrency.usd),
         );
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) {
         bloc
           ..add(const AmountChanged("1.0"))
@@ -292,11 +328,15 @@ void main() {
       "in fiat input mode, converts fiat to crypto via FiatRateService",
       setUp: () {
         wireDefaults();
-        when(() => fiatRateService.convertFromFiat(any(), any())).thenReturn(
+        when(() => fiatRateService.convert(any(), any())).thenReturn(
           Money.parse("0.5", CryptoCurrency.btc),
         );
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) async {
         bloc.add(const InputCurrencySelected(FiatCurrency.usd));
         await Future.delayed(const Duration(milliseconds: 30));
@@ -304,8 +344,7 @@ void main() {
         await Future.delayed(const Duration(milliseconds: 30));
       },
       verify: (_) {
-        verify(() => fiatRateService.convertFromFiat(any(), CryptoCurrency.btc))
-            .called(greaterThan(0));
+        verify(() => fiatRateService.convert(any(), CryptoCurrency.btc)).called(greaterThan(0));
       },
     );
   });
@@ -319,7 +358,11 @@ void main() {
           receivableTokens: const [CryptoCurrency.usdc],
         );
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const TokenPresetSelected(CryptoCurrency.usdc)),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
@@ -332,7 +375,12 @@ void main() {
       setUp: () {
         wireDefaults(walletCurrency: CryptoCurrency.eth);
       },
-      build: () => buildBloc(initialToken: CryptoCurrency.usdc),
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+        initialToken: CryptoCurrency.usdc,
+      ),
       act: (bloc) => bloc.add(const TokenPresetSelected(CryptoCurrency.eth)),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
@@ -350,7 +398,11 @@ void main() {
         wireDefaults();
         when(() => addressService.setAddressType(any())).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet)),
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
@@ -364,7 +416,11 @@ void main() {
         wireDefaults();
         when(() => addressService.setAddressType(any())).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressTypeSelected(ReceivePageOption.anonPayInvoice)),
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
@@ -378,7 +434,11 @@ void main() {
         wireDefaults();
         when(() => addressService.setAddressType(any())).thenThrow(Exception("boom"));
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet)),
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
@@ -393,7 +453,11 @@ void main() {
         setTypeCompleter = Completer<void>();
         when(() => addressService.setAddressType(any())).thenAnswer((_) => setTypeCompleter.future);
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) async {
         await Future<void>.delayed(const Duration(milliseconds: 10));
         bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet));
@@ -420,7 +484,11 @@ void main() {
         wireDefaults();
         when(() => addressService.rotateAddress()).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressRotated()),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
@@ -438,7 +506,11 @@ void main() {
         when(() => addressService.rotateAddress()).thenAnswer((_) => completer.future);
         Future.delayed(const Duration(milliseconds: 20), completer.complete);
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) {
         bloc
           ..add(const AddressRotated())
@@ -456,7 +528,11 @@ void main() {
         wireDefaults();
         when(() => addressService.rotateAddress()).thenThrow(Exception("boom"));
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressRotated()),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
@@ -473,7 +549,11 @@ void main() {
         wireDefaults();
         when(() => addressService.setLabel(any(), any())).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const LabelSubmitted("Donations")),
       wait: const Duration(milliseconds: 20),
       verify: (_) {
@@ -489,7 +569,11 @@ void main() {
         wireDefaults();
         when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const InfoboxDismissed()),
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
@@ -505,7 +589,11 @@ void main() {
         wireDefaults(infoboxDismissed: true);
         when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const InfoboxDismissed()),
       wait: const Duration(milliseconds: 20),
       verify: (_) {
@@ -518,7 +606,11 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "refreshes address entry and payment URI",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) => bloc.add(const AddressesPageClosed()),
       wait: const Duration(milliseconds: 20),
       verify: (_) {
@@ -537,7 +629,11 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "wallet change triggers re-init (Loading emit)",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (_) async {
         await Future.delayed(const Duration(milliseconds: 20));
         walletChangesController.add(_FakeWalletBase());
@@ -551,26 +647,34 @@ void main() {
       "fiat rate change refreshes fiatEquivalent when amount is set",
       setUp: () {
         wireDefaults();
-        when(() => fiatRateService.convertToFiat(any(), any())).thenReturn(
+        when(() => fiatRateService.convert(any(), any())).thenReturn(
           Money.parse("50000.00", FiatCurrency.usd),
         );
       },
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (bloc) async {
         bloc.add(const AmountChanged("1.0"));
         await Future.delayed(const Duration(milliseconds: 20));
-        rateChangesController.add(null);
+        rateChangesController.add(FiatCurrency.usd);
         await Future.delayed(const Duration(milliseconds: 20));
       },
       verify: (_) {
-        verify(() => fiatRateService.convertToFiat(any(), any())).called(greaterThan(1));
+        verify(() => fiatRateService.convert(any(), any())).called(greaterThan(1));
       },
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
       "payjoin endpoint stream rebuilds the payment URI",
       setUp: wireDefaults,
-      build: buildBloc,
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
       act: (_) async {
         await Future.delayed(const Duration(milliseconds: 20));
         when(

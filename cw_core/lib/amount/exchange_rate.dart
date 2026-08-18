@@ -1,4 +1,7 @@
+import "dart:math";
+
 import 'package:cw_core/amount/money.dart';
+import "package:cw_core/amount/money_double.dart";
 import 'package:cw_core/currency.dart';
 
 class ExchangeRate {
@@ -10,6 +13,32 @@ class ExchangeRate {
   final Money quote;
 
   const ExchangeRate({required this.base, required this.quote});
+
+  /// Builds a pair from a raw [rate], the price of one whole [base] unit in
+  /// [quoteCurrency].
+  ///
+  /// Returns null unless [rate] is a finite positive number. The quote only
+  /// keeps [quoteCurrency]'s decimal places, so a small rate is stored
+  /// flipped to keep its precision: 0.00002 USD per SHIB would round down
+  /// to 0.00 USD, while the flipped 50000 SHIB per USD stores exactly.
+  static ExchangeRate? tryFromDouble({
+    required Currency base,
+    required Currency quoteCurrency,
+    required double rate,
+  }) {
+    if (rate <= 0.0 || !rate.isFinite) {
+      return null;
+    }
+
+    final crossover = sqrt(pow(10.0, base.decimals - quoteCurrency.decimals));
+    if (rate < crossover) {
+      final quote = (1 / rate).tryToMoney(base);
+      return quote == null ? null : ExchangeRate(base: quoteCurrency, quote: quote);
+    }
+
+    final quote = rate.tryToMoney(quoteCurrency);
+    return quote == null ? null : ExchangeRate(base: base, quote: quote);
+  }
 
   /// Converts [amount] between the base and quote currencies.
   ///

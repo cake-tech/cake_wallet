@@ -25,7 +25,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     required this.addressService,
     required this.fiatRateService,
     required this.activeWalletService,
-    bool lightningMode = false,
     CryptoCurrency? initialToken,
   }) : super(const ReceiveLoading()) {
     on<ReceiveOpened>(_onOpened, transformer: restartable());
@@ -46,9 +45,9 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         add(const _WalletChanged());
       }
     });
-    _rateSub = fiatRateService.rateChanges.listen((_) {
+    _rateSub = fiatRateService.rateChanges.listen((fiat) {
       if (!isClosed) {
-        add(const _FiatRateChanged());
+        add(_FiatRateChanged(fiat));
       }
     });
     _payjoinSub = addressService.payjoinEndpointChanges.listen((_) {
@@ -57,7 +56,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       }
     });
 
-    add(ReceiveOpened(lightningMode: lightningMode, initialToken: initialToken));
+    add(ReceiveOpened(initialToken: initialToken));
   }
 
   final AddressService addressService;
@@ -65,7 +64,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   final ActiveWalletService activeWalletService;
 
   late final StreamSubscription<WalletBase> _walletSub;
-  late final StreamSubscription<void> _rateSub;
+  late final StreamSubscription<FiatCurrency> _rateSub;
   late final StreamSubscription<String?> _payjoinSub;
 
   @override
@@ -81,7 +80,9 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
     try {
       final initialWalletId = addressService.walletId;
-      await addressService.applyOpenDefaults(lightningMode: event.lightningMode);
+      await addressService.applyOpenDefaults(
+        lightningMode: event.initialToken == CryptoCurrency.btcln,
+      );
       addressService.applyAutoGenerateOverride();
 
       if (isClosed) {
@@ -92,8 +93,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
 
-      final token = event.lightningMode ? CryptoCurrency.btcln : event.initialToken;
-      emit(_buildLoaded(initialToken: token));
+      emit(_buildLoaded(initialToken: event.initialToken));
     } catch (e) {
       printV("ReceiveBloc _onOpened failed: $e");
       if (!isClosed) {
@@ -129,7 +129,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         if (state case final ReceiveLoaded current when current.walletId != initial.walletId) {
           return;
         }
-        requestedAmount = fiatRateService.convertFromFiat(fiatMoney, receiveCrypto);
+        requestedAmount = fiatRateService.convert(fiatMoney, receiveCrypto);
         if (requestedAmount != null) {
           fiatEquivalent = fiatMoney;
         } else {
@@ -141,8 +141,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       final canonical = addressService.canonicalCryptoAmount(raw, inputCrypto);
       requestedAmount = receiveCrypto.tryParseAmount(canonical);
       if (requestedAmount != null) {
-        fiatEquivalent =
-            fiatRateService.convertToFiat(requestedAmount, fiatRateService.defaultFiat);
+        fiatEquivalent = fiatRateService.convert(requestedAmount, fiatRateService.currentFiat);
       }
     }
 
@@ -215,7 +214,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       ),
     );
 
-    if (event.currency is FiatCurrency && event.currency != fiatRateService.defaultFiat) {
+    if (event.currency is FiatCurrency && event.currency != fiatRateService.currentFiat) {
       await fiatRateService.ensureRateFor(
         _receiveCryptoCurrency(initial),
         event.currency as FiatCurrency,
@@ -229,8 +228,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         when loaded.walletId == initial.walletId && loaded.requestedAmount != null) {
       final displayFiat = event.currency is FiatCurrency
           ? event.currency as FiatCurrency
-          : fiatRateService.defaultFiat;
-      final newFiat = fiatRateService.convertToFiat(loaded.requestedAmount!, displayFiat);
+          : fiatRateService.currentFiat;
+      final newFiat = fiatRateService.convert(loaded.requestedAmount!, displayFiat);
       emit(loaded.copyWith(fiatEquivalent: newFiat, clearFiatEquivalent: newFiat == null));
     }
   }
@@ -519,7 +518,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
       final receiveCrypto = _receiveCryptoCurrency(loaded);
-      final newCrypto = fiatRateService.convertFromFiat(loaded.fiatEquivalent!, receiveCrypto);
+      final newCrypto = fiatRateService.convert(loaded.fiatEquivalent!, receiveCrypto);
       final rawCryptoForUri = newCrypto?.toStringWithPrecision() ?? "";
       final uri = addressService.buildPaymentUri(
         rawAmount: rawCryptoForUri,
@@ -538,8 +537,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     if (loaded.requestedAmount == null) {
       return;
     }
-    final newFiat =
-        fiatRateService.convertToFiat(loaded.requestedAmount!, fiatRateService.defaultFiat);
+    final newFiat = fiatRateService.convert(loaded.requestedAmount!, event.fiat);
     emit(loaded.copyWith(fiatEquivalent: newFiat, clearFiatEquivalent: newFiat == null));
   }
 

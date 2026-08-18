@@ -550,12 +550,11 @@ Future<void> setup({
         amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
       ));
 
-  getIt.registerFactoryParam<ReceiveBloc, bool, CryptoCurrency?>(
-    (lightningMode, initialToken) => ReceiveBloc(
+  getIt.registerFactoryParam<ReceiveBloc, CryptoCurrency?, void>(
+    (initialToken, _) => ReceiveBloc(
       addressService: getIt.get<AddressService>(),
       fiatRateService: getIt.get<FiatRateService>(),
       activeWalletService: getIt.get<ActiveWalletService>(),
-      lightningMode: lightningMode,
       initialToken: initialToken,
     ),
   );

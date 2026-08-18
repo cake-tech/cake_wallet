@@ -46,16 +46,18 @@ class ReceivePage extends StatelessWidget {
   final CryptoCurrency? initialToken;
 
   @override
-  Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
-        create: (_) => getIt<ReceiveBloc>(param1: lightningMode, param2: initialToken),
-        child: _ReceivePageBody(lightningMode: lightningMode, initialToken: initialToken),
-      );
+  Widget build(BuildContext context) {
+    final token = lightningMode ? CryptoCurrency.btcln : initialToken;
+    return BlocProvider<ReceiveBloc>(
+      create: (_) => getIt<ReceiveBloc>(param1: token),
+      child: _ReceivePageBody(initialToken: token),
+    );
+  }
 }
 
 class _ReceivePageBody extends StatefulWidget {
-  const _ReceivePageBody({required this.lightningMode, required this.initialToken});
+  const _ReceivePageBody({required this.initialToken});
 
-  final bool lightningMode;
   final CryptoCurrency? initialToken;
 
   @override
@@ -95,7 +97,6 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
               ReceiveLoading() => const _LoadingWidget(),
               ReceiveFailure() => _FailureWidget(
                   code: state.code,
-                  lightningMode: widget.lightningMode,
                   initialToken: widget.initialToken,
                 ),
               ReceiveLoaded() => _LoadedWidget(
@@ -146,12 +147,10 @@ String _failureMessage(BuildContext context, ReceiveFailureCode code) => switch 
 class _FailureWidget extends StatelessWidget {
   const _FailureWidget({
     required this.code,
-    required this.lightningMode,
     required this.initialToken,
   });
 
   final ReceiveFailureCode code;
-  final bool lightningMode;
   final CryptoCurrency? initialToken;
 
   @override
@@ -175,10 +174,7 @@ class _FailureWidget extends StatelessWidget {
                 Text(message),
                 TextButton(
                   onPressed: () => context.read<ReceiveBloc>().add(
-                        ReceiveOpened(
-                          lightningMode: lightningMode,
-                          initialToken: initialToken,
-                        ),
+                        ReceiveOpened(initialToken: initialToken),
                       ),
                   child: Text(S.of(context).try_again),
                 ),
