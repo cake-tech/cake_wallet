@@ -59,7 +59,7 @@ void main() {
     WalletType walletType = WalletType.bitcoin,
     CryptoCurrency? walletCurrency,
     List<CryptoCurrency> receivableTokens = const [],
-    bool infoboxDismissed = false,
+    bool isInfoboxDismissed = false,
     bool hasAccounts = false,
     List<ReceivePageOption> options = const [],
     List<AddressGroup> addressGroups = const [],
@@ -67,7 +67,6 @@ void main() {
     bool isSilentPayments = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool isZCashTransparent = true,
-    AddressAccount? currentAccount,
     ReceivePageOption? selectedAddressType,
     PaymentURI? initialUri,
   }) {
@@ -76,7 +75,7 @@ void main() {
     when(() => addressService.walletName).thenReturn("wallet-a");
     when(() => addressService.walletCurrency).thenReturn(walletCurrency ?? CryptoCurrency.btc);
     when(() => addressService.receivableTokens).thenReturn(receivableTokens);
-    when(() => addressService.infoboxDismissed).thenReturn(infoboxDismissed);
+    when(() => addressService.isInfoboxDismissed).thenReturn(isInfoboxDismissed);
     when(() => addressService.hasAccounts).thenReturn(hasAccounts);
     when(() => addressService.addressTypeOptions).thenReturn(options);
     when(() => addressService.computeAddressList()).thenReturn(addressGroups);
@@ -91,10 +90,9 @@ void main() {
         .thenAnswer((invocation) => invocation.positionalArguments[0] as String);
     when(() => addressService.autoGenerateSubaddressStatus)
         .thenReturn(AutoGenerateSubaddressStatus.disabled);
-    when(() => addressService.hasTokensList).thenReturn(false);
+    when(() => addressService.hasTokens).thenReturn(false);
     when(() => addressService.applyOpenDefaults(lightningMode: any(named: "lightningMode")))
         .thenAnswer((_) async {});
-    when(() => addressService.currentAccount).thenReturn(currentAccount);
     when(() => addressService.selectedAddressType).thenReturn(selectedAddressType);
     when(
       () => addressService.buildPaymentUri(
@@ -360,7 +358,7 @@ void main() {
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
       ),
-      act: (bloc) => bloc.add(const TokenPresetSelected(CryptoCurrency.usdc)),
+      act: (bloc) => bloc.add(const TokenSelected(CryptoCurrency.usdc)),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.tokenCurrency, CryptoCurrency.usdc);
@@ -378,7 +376,7 @@ void main() {
         activeWalletService: activeWalletService,
         initialToken: CryptoCurrency.usdc,
       ),
-      act: (bloc) => bloc.add(const TokenPresetSelected(CryptoCurrency.eth)),
+      act: (bloc) => bloc.add(const TokenSelected(CryptoCurrency.eth)),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.tokenCurrency, isNull);
@@ -561,7 +559,7 @@ void main() {
 
   group("infobox", () {
     blocTest<ReceiveBloc, ReceiveState>(
-      "marks infoboxDismissed once",
+      "marks the infobox dismissed once",
       setUp: () {
         wireDefaults();
         when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
@@ -575,7 +573,7 @@ void main() {
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
-        expect(state.infoboxDismissed, isTrue);
+        expect(state.isInfoboxDismissed, isTrue);
         verify(() => addressService.dismissInfobox()).called(1);
       },
     );
@@ -583,7 +581,7 @@ void main() {
     blocTest<ReceiveBloc, ReceiveState>(
       "no-op when already dismissed",
       setUp: () {
-        wireDefaults(infoboxDismissed: true);
+        wireDefaults(isInfoboxDismissed: true);
         when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
       },
       build: () => ReceiveBloc(

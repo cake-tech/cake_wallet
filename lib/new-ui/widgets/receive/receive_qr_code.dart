@@ -25,7 +25,7 @@ class ReceiveQrCode extends StatelessWidget {
   final bool isFetching;
 
   static const double largeQrModeBottomPadding = 140;
-  static const Duration animDuration = Duration(milliseconds: 500);
+  static const Duration animationDuration = Duration(milliseconds: 500);
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +39,10 @@ class ReceiveQrCode extends StatelessWidget {
       children: [
         AnimatedSlide(
           curve: Curves.easeOutCubic,
-          duration: animDuration,
+          duration: animationDuration,
           offset: largeQrMode ? const Offset(0, -1) : Offset.zero,
           child: AnimatedOpacity(
-            duration: animDuration,
+            duration: animationDuration,
             opacity: largeQrMode ? 1 : 0,
             child: CakeImageWidget(
               imageUrl: isLightMode
@@ -61,7 +61,7 @@ class ReceiveQrCode extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               child: TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0, end: targetY),
-                duration: animDuration,
+                duration: animationDuration,
                 curve: Curves.easeOutCubic,
                 builder: (context, value, child) => Transform.translate(
                   offset: Offset(0, value),
@@ -73,9 +73,9 @@ class ReceiveQrCode extends StatelessWidget {
                       curve: Curves.easeOutCubic,
                       alignment: Alignment.bottomCenter,
                       scale: qrScale,
-                      duration: animDuration,
+                      duration: animationDuration,
                       child: AnimatedContainer(
-                        duration: animDuration,
+                        duration: animationDuration,
                         curve: Curves.easeOutCubic,
                         width: qrSize,
                         height: qrSize,
@@ -96,7 +96,7 @@ class ReceiveQrCode extends StatelessWidget {
                               alignment: Alignment.center,
                               children: [
                                 AnimatedOpacity(
-                                  duration: animDuration,
+                                  duration: animationDuration,
                                   opacity: isFetching ? 0.35 : 1,
                                   child: QrImage(
                                     data: qrData,
@@ -134,7 +134,7 @@ class ReceiveQrCode extends StatelessWidget {
                         ),
                       ),
                     AnimatedSize(
-                      duration: animDuration,
+                      duration: animationDuration,
                       curve: Curves.easeOutCubic,
                       child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding + 40 : 0),
                     ),

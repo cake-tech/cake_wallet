@@ -30,7 +30,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     on<ReceiveOpened>(_onOpened, transformer: restartable());
     on<AmountChanged>(_onAmountChanged, transformer: restartable());
     on<InputCurrencySelected>(_onInputCurrencySelected, transformer: restartable());
-    on<TokenPresetSelected>(_onTokenPresetSelected, transformer: sequential());
+    on<TokenSelected>(_onTokenSelected, transformer: sequential());
     on<AddressTypeSelected>(_onAddressTypeSelected, transformer: sequential());
     on<AddressRotated>(_onAddressRotated, transformer: droppable());
     on<LabelSubmitted>(_onLabelSubmitted, transformer: sequential());
@@ -168,7 +168,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           clearRequestedAmount: requestedAmount == null,
           fiatEquivalent: fiatEquivalent,
           clearFiatEquivalent: fiatEquivalent == null,
-          fetchingInvoice: true,
+          isFetchingInvoice: true,
           clearFailureCode: true,
         ),
       );
@@ -232,8 +232,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     }
   }
 
-  Future<void> _onTokenPresetSelected(
-    TokenPresetSelected event,
+  Future<void> _onTokenSelected(
+    TokenSelected event,
     Emitter<ReceiveState> emit,
   ) async {
     final loaded = state;
@@ -354,7 +354,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
             isZCashTransparent: addressService.isZCashTransparent,
             walletType: addressService.walletType,
             isChangingAddressType: false,
-            fetchingInvoice: invoiceAmountToFetch != null,
+            isFetchingInvoice: invoiceAmountToFetch != null,
           ),
         );
       } catch (e) {
@@ -450,7 +450,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
   Future<void> _onInfoboxDismissed(InfoboxDismissed event, Emitter<ReceiveState> emit) async {
     final initial = state;
-    if (initial is! ReceiveLoaded || initial.infoboxDismissed) {
+    if (initial is! ReceiveLoaded || initial.isInfoboxDismissed) {
       return;
     }
 
@@ -464,7 +464,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
     if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-      emit(loaded.copyWith(infoboxDismissed: true));
+      emit(loaded.copyWith(isInfoboxDismissed: true));
     }
   }
 
@@ -575,7 +575,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         return;
       }
       if (state case final ReceiveLoaded loaded when matchesRequest(loaded)) {
-        emit(loaded.copyWith(paymentUri: uri, fetchingInvoice: false, clearFailureCode: true));
+        emit(loaded.copyWith(paymentUri: uri, isFetchingInvoice: false, clearFailureCode: true));
       }
     } catch (e) {
       printV("ReceiveBloc lightning invoice fetch failed: $e");
@@ -593,7 +593,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
 
         emit(
           loaded.copyWith(
-            fetchingInvoice: false,
+            isFetchingInvoice: false,
             clearRequestedAmount: true,
             clearFiatEquivalent: true,
             paymentUri: plainUri,
@@ -619,8 +619,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       receivableTokens: addressService.receivableTokens,
       requestedAmount: null,
       fiatEquivalent: null,
-      infoboxDismissed: addressService.infoboxDismissed,
-      fetchingInvoice: false,
+      isInfoboxDismissed: addressService.isInfoboxDismissed,
+      isFetchingInvoice: false,
       isRotatingAddress: false,
       paymentUri: uri,
       isSilentPayments: addressService.isSilentPayments,
@@ -632,7 +632,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       walletId: addressService.walletId,
       walletType: addressService.walletType,
       walletCurrency: addressService.walletCurrency,
-      hasTokensList: addressService.hasTokensList,
+      hasTokens: addressService.hasTokens,
     );
   }
 

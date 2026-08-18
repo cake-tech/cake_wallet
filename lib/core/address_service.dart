@@ -8,7 +8,7 @@ import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
-import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart" as wallet_utils;
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
@@ -64,9 +64,9 @@ class AddressService {
   List<CryptoCurrency> get receivableTokens =>
       wallet.balance.keys.whereType<CryptoCurrency>().toList();
 
-  bool get hasTokensList => hasTokens(wallet.type);
+  bool get hasTokens => wallet_utils.hasTokens(wallet.type);
 
-  bool get infoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
+  bool get isInfoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
 
   bool get hasAccounts => const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
 
@@ -521,7 +521,7 @@ class AddressService {
     _payjoinController.add(value);
   }
 
-  String? _emptyToNull(String v) => v.isEmpty ? null : v;
+  String? _emptyToNull(String value) => value.isEmpty ? null : value;
 
   Future<void> dispose() async {
     _payjoinDisposer?.call();

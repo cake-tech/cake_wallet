@@ -3,18 +3,18 @@ import "package:flutter/material.dart";
 
 class ReceiveLabelWidget extends StatelessWidget {
   const ReceiveLabelWidget({
-    required this.name,
+    required this.label,
     required this.largeQrMode,
     super.key,
   });
 
-  final String name;
+  final String label;
   final bool largeQrMode;
 
   @override
   Widget build(BuildContext context) => AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        height: largeQrMode || name.isEmpty ? 0 : 36,
+        height: largeQrMode || label.isEmpty ? 0 : 36,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(999),
@@ -39,7 +39,7 @@ class ReceiveLabelWidget extends StatelessWidget {
                 ),
               ),
               Text(
-                name,
+                label,
                 style:
                     TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),

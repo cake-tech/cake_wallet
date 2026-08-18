@@ -260,9 +260,9 @@ class _GroupSection extends StatelessWidget {
               return _AddressRow(
                 entry: entry,
                 selected: entry.address == state.activeAddress && !isPicker,
-                first:
+                isFirst:
                     isFirstGroup && index == 0 && (state.showHidden || !state.hasHiddenAddresses),
-                last: index == group.entries.length - 1,
+                isLast: index == group.entries.length - 1,
                 walletType: state.walletType,
                 hasReceived: state.hasAccounts,
                 canSetLabel: state.canSetLabel,
@@ -372,7 +372,6 @@ class _TopBar extends StatelessWidget {
         leadingIcon: const Icon(Icons.arrow_back),
         leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: Navigator.of(context).pop,
-        onTrailingPressed: () {},
       );
 }
 
@@ -593,8 +592,8 @@ class _AddressRow extends StatelessWidget {
   const _AddressRow({
     required this.entry,
     required this.selected,
-    required this.first,
-    required this.last,
+    required this.isFirst,
+    required this.isLast,
     required this.walletType,
     required this.hasReceived,
     required this.canSetLabel,
@@ -606,8 +605,8 @@ class _AddressRow extends StatelessWidget {
 
   final AddressEntry entry;
   final bool selected;
-  final bool first;
-  final bool last;
+  final bool isFirst;
+  final bool isLast;
   final WalletType walletType;
   final bool hasReceived;
   final bool canSetLabel;
@@ -626,8 +625,8 @@ class _AddressRow extends StatelessWidget {
             ? Theme.of(context).colorScheme.surfaceContainerHigh
             : Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(first ? 16 : 0),
-          bottom: Radius.circular(last ? 16 : 0),
+          top: Radius.circular(isFirst ? 16 : 0),
+          bottom: Radius.circular(isLast ? 16 : 0),
         ),
       ),
       child: Padding(
@@ -678,25 +677,27 @@ class _AddressRow extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      Row(
-                        spacing: 4,
-                        children: [
-                          Text(
-                            "${hasReceived ? S.of(context).received : S.of(context).balance}:",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      MergeSemantics(
+                        child: Row(
+                          spacing: 4,
+                          children: [
+                            Text(
+                              "${hasReceived ? S.of(context).received : S.of(context).balance}:",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                          MoneyText.optional(
-                            entry.balance,
-                            showSymbol: false,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            MoneyText.optional(
+                              entry.balance,
+                              showSymbol: false,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),

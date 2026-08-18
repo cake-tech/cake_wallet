@@ -22,8 +22,8 @@ final class InputCurrencySelected extends ReceiveEvent {
   final Currency currency;
 }
 
-final class TokenPresetSelected extends ReceiveEvent {
-  const TokenPresetSelected(this.token);
+final class TokenSelected extends ReceiveEvent {
+  const TokenSelected(this.token);
 
   final CryptoCurrency? token;
 }

@@ -107,7 +107,7 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
 
   void _toggleLargeQr(BuildContext context, ReceiveLoaded state) {
     setState(() => _largeQrMode = !_largeQrMode);
-    if (!state.infoboxDismissed) {
+    if (!state.isInfoboxDismissed) {
       context.read<ReceiveBloc>().add(const InfoboxDismissed());
     }
   }
@@ -124,7 +124,6 @@ class _LoadingWidget extends StatelessWidget {
             leadingIcon: const Icon(Icons.close),
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-            onTrailingPressed: () {},
           ),
           const Expanded(child: Center(child: CircularProgressIndicator())),
         ],
@@ -159,7 +158,6 @@ class _FailureWidget extends StatelessWidget {
           leadingIcon: const Icon(Icons.close),
           leadingSemanticLabel: S.of(context).close,
           onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          onTrailingPressed: () {},
         ),
         Expanded(
           child: Center(
@@ -210,7 +208,7 @@ class _LoadedWidget extends StatelessWidget {
           state.addressType == null ||
           zcash!.isRotatingAddressOption(state.addressType!),
     );
-    final rotationAvailable = state.hasAddressRotation && !_isMwebOption(state.addressType);
+    final isRotationAvailable = state.hasAddressRotation && !_isMwebOption(state.addressType);
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -222,7 +220,7 @@ class _LoadedWidget extends StatelessWidget {
           leadingSemanticLabel: S.of(context).close,
           trailingWidget: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
-            child: largeQrMode || rotationAvailable
+            child: largeQrMode || isRotationAvailable
                 ? ModernButton(
                     key: ValueKey(largeQrMode),
                     size: 36,
@@ -239,7 +237,7 @@ class _LoadedWidget extends StatelessWidget {
                           text: state.paymentUri.toString(),
                           context: context,
                         );
-                      } else if (rotationAvailable) {
+                      } else if (isRotationAvailable) {
                         context.read<ReceiveBloc>().add(const AddressRotated());
                       }
                     },
@@ -265,7 +263,7 @@ class _LoadedWidget extends StatelessWidget {
                 hasPayjoin: state.hasPayjoin,
                 largeQrMode: largeQrMode,
                 onTap: onQrTap,
-                isFetching: state.fetchingInvoice,
+                isFetching: state.isFetchingInvoice,
               ),
               if (state.tokenCurrency != null && !state.isLightning)
                 ReceiveTokenDisplay(
@@ -296,7 +294,7 @@ class _LoadedWidget extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () => _showLabelModal(context, state),
                       child: ReceiveLabelWidget(
-                        name: state.addressEntry.label ?? "",
+                        label: state.addressEntry.label ?? "",
                         largeQrMode: largeQrMode,
                       ),
                     ),
@@ -323,11 +321,11 @@ class _LoadedWidget extends StatelessWidget {
                   child: AnimatedAlign(
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeOutCubic,
-                    heightFactor: state.infoboxDismissed ? 0 : 1,
+                    heightFactor: state.isInfoboxDismissed ? 0 : 1,
                     alignment: Alignment.center,
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 200),
-                      opacity: state.infoboxDismissed ? 0 : 1,
+                      opacity: state.isInfoboxDismissed ? 0 : 1,
                       curve: Curves.easeOutCubic,
                       child: infobox,
                     ),
@@ -383,7 +381,7 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _showAmountModal(BuildContext context, ReceiveLoaded initialState) async {
     final bloc = context.read<ReceiveBloc>();
-    final initialAmount = initialState.modalInitialAmount;
+    final amountAtOpen = initialState.amountInInputCurrency;
 
     await showMaterialModalBottomSheet<void>(
       context: context,
@@ -399,14 +397,14 @@ class _LoadedWidget extends StatelessWidget {
             }
             final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
             final modalKey = ValueKey<String>(state.tokenCurrency?.title ?? "wallet");
-            final displayInitialAmount = state.modalInitialAmount;
+            final currentAmount = state.amountInInputCurrency;
             return ReceiveAmountModal(
               key: modalKey,
-              initialAmount: displayInitialAmount.isEmpty ? initialAmount : displayInitialAmount,
+              initialAmount: currentAmount.isEmpty ? amountAtOpen : currentAmount,
               selectedCurrencySymbol: state.inputCurrencySymbol,
               selectedCurrencyDecimals: state.inputUsesSats ? 0 : state.inputCurrency.decimals,
               useSatoshi: state.inputUsesSats,
-              showTokenPicker: state.hasTokensList,
+              showTokenPicker: state.hasTokens,
               tokenIconPath: displayCrypto.iconPath ?? "",
               tokenTitle: displayCrypto.title,
               onAmountSubmitted: (raw) => bloc.add(AmountChanged(raw)),
@@ -444,7 +442,7 @@ class _LoadedWidget extends StatelessWidget {
       args: CurrencyPickerArgs(
         items: state.receivableTokens,
         selected: state.tokenCurrency,
-        onSelected: (currency) => bloc.add(TokenPresetSelected(currency)),
+        onSelected: (currency) => bloc.add(TokenSelected(currency)),
         symbolResolver: (c) => c.title,
       ),
     );
@@ -453,7 +451,6 @@ class _LoadedWidget extends StatelessWidget {
   Future<void> _showAddressTypePicker(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
     final currentSelected = state.addressType ?? ReceivePageOption.mainnet;
-    final lightningMode = state.isLightning;
     final selected = await showCupertinoModalBottomSheet<ReceivePageOption>(
       context: context,
       barrierColor: Colors.black.withAlpha(80),
@@ -462,7 +459,7 @@ class _LoadedWidget extends StatelessWidget {
           options: state.addressTypeOptions,
           selected: currentSelected,
           walletType: state.walletType,
-          lightningMode: lightningMode,
+          isLightning: state.isLightning,
         ),
       ),
     );

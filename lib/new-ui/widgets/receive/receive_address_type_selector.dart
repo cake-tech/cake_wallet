@@ -13,17 +13,17 @@ class ReceiveAddressTypeSelector extends StatefulWidget {
     required this.options,
     required this.selected,
     required this.walletType,
-    required this.lightningMode,
+    required this.isLightning,
     super.key,
   });
 
   final List<ReceivePageOption> options;
   final ReceivePageOption selected;
   final WalletType walletType;
-  final bool lightningMode;
+  final bool isLightning;
 
   static const otherOptionsExpandDuration = Duration(milliseconds: 300);
-  static const otherOptionsTreshold = 3;
+  static const otherOptionsThreshold = 3;
 
   @override
   State<ReceiveAddressTypeSelector> createState() => _ReceiveAddressTypeSelectorState();
@@ -44,11 +44,11 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
         .where(
           (element) =>
               element.isCommon ||
-              widget.options.length <= ReceiveAddressTypeSelector.otherOptionsTreshold,
+              widget.options.length <= ReceiveAddressTypeSelector.otherOptionsThreshold,
         )
         .toList();
     commonOptions.sort((a, b) {
-      final preferred = widget.lightningMode ? "Lightning" : "Standard";
+      final preferred = widget.isLightning ? "Lightning" : "Standard";
       if (a.value.contains(preferred)) {
         return -1;
       }
@@ -61,7 +61,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
         .where(
           (element) =>
               !element.isCommon &&
-              widget.options.length > ReceiveAddressTypeSelector.otherOptionsTreshold,
+              widget.options.length > ReceiveAddressTypeSelector.otherOptionsThreshold,
         )
         .toList();
 
@@ -82,7 +82,6 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).pop,
-              onTrailingPressed: () {},
             ),
             const SizedBox(height: 24),
             Padding(

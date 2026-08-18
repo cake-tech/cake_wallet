@@ -76,7 +76,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: Text(
-                          "${fiatEquivalent!.toStringWithPrecision()} ${fiatEquivalent!.currency.name}",
+                          "${fiatEquivalent!.toStringWithPrecision()} ${fiatEquivalent!.currency.symbol}",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 16,

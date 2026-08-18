@@ -83,7 +83,6 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                 ModalTopBar(
                   title: S.of(context).set_amount,
                   onLeadingPressed: Navigator.of(context).pop,
-                  onTrailingPressed: () {},
                   leadingIcon: const Icon(Icons.close),
                   leadingSemanticLabel: S.of(context).close,
                 ),

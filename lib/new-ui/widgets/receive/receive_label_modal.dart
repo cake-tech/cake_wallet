@@ -80,7 +80,6 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop,
-                onTrailingPressed: () {},
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),

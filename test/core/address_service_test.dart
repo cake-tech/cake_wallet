@@ -192,12 +192,12 @@ void main() {
       );
     });
 
-    test("infoboxDismissed reads wallet.walletInfo.receiveInfoboxDismissed", () {
+    test("isInfoboxDismissed reads wallet.walletInfo.receiveInfoboxDismissed", () {
       scope = _TestScope(infoboxDismissed: true);
       final service = scope.build();
       addTearDown(service.dispose);
 
-      expect(service.infoboxDismissed, isTrue);
+      expect(service.isInfoboxDismissed, isTrue);
     });
 
     test("hasAccounts is true only for Monero and Wownero", () {

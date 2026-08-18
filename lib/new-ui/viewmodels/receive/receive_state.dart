@@ -21,8 +21,8 @@ final class ReceiveLoaded extends ReceiveState {
     required this.receivableTokens,
     required this.requestedAmount,
     required this.fiatEquivalent,
-    required this.infoboxDismissed,
-    required this.fetchingInvoice,
+    required this.isInfoboxDismissed,
+    required this.isFetchingInvoice,
     required this.isRotatingAddress,
     required this.paymentUri,
     required this.isSilentPayments,
@@ -34,7 +34,7 @@ final class ReceiveLoaded extends ReceiveState {
     required this.walletId,
     required this.walletType,
     required this.walletCurrency,
-    required this.hasTokensList,
+    required this.hasTokens,
     this.isChangingAddressType = false,
     this.failureCode,
   });
@@ -50,8 +50,8 @@ final class ReceiveLoaded extends ReceiveState {
   final Money? requestedAmount;
   final Money? fiatEquivalent;
 
-  final bool infoboxDismissed;
-  final bool fetchingInvoice;
+  final bool isInfoboxDismissed;
+  final bool isFetchingInvoice;
   final bool isRotatingAddress;
   final bool isChangingAddressType;
 
@@ -67,7 +67,7 @@ final class ReceiveLoaded extends ReceiveState {
   final String walletId;
   final WalletType walletType;
   final CryptoCurrency walletCurrency;
-  final bool hasTokensList;
+  final bool hasTokens;
   final ReceiveFailureCode? failureCode;
 
   bool get hasPayjoin =>
@@ -108,25 +108,25 @@ final class ReceiveLoaded extends ReceiveState {
   String get receiveCryptoSymbol => _cryptoSymbol(tokenCurrency ?? walletCurrency, receiveUsesSats);
 
   String get inputCurrencySymbol {
-    final c = inputCurrency;
-    if (c is CryptoCurrency) {
-      return _cryptoSymbol(c, inputUsesSats);
+    final currency = inputCurrency;
+    if (currency is CryptoCurrency) {
+      return _cryptoSymbol(currency, inputUsesSats);
     }
-    return c.name.toUpperCase();
+    return currency.symbol;
   }
 
-  String get modalInitialAmount {
+  String get amountInInputCurrency {
     if (inputCurrency is FiatCurrency) {
       return fiatEquivalent?.toStringWithPrecision() ?? "";
     }
     return requestedAmountDisplay;
   }
 
-  static String _cryptoSymbol(CryptoCurrency c, bool useSats) {
+  static String _cryptoSymbol(CryptoCurrency currency, bool useSats) {
     if (useSats) {
       return "sats";
     }
-    final title = c.title;
+    final title = currency.title;
     return title.length <= 8 ? title : title.substring(0, 8);
   }
 
@@ -142,8 +142,8 @@ final class ReceiveLoaded extends ReceiveState {
     bool clearRequestedAmount = false,
     Money? fiatEquivalent,
     bool clearFiatEquivalent = false,
-    bool? infoboxDismissed,
-    bool? fetchingInvoice,
+    bool? isInfoboxDismissed,
+    bool? isFetchingInvoice,
     bool? isRotatingAddress,
     bool? isChangingAddressType,
     PaymentURI? paymentUri,
@@ -156,7 +156,7 @@ final class ReceiveLoaded extends ReceiveState {
     String? walletId,
     WalletType? walletType,
     CryptoCurrency? walletCurrency,
-    bool? hasTokensList,
+    bool? hasTokens,
     ReceiveFailureCode? failureCode,
     bool clearFailureCode = false,
   }) =>
@@ -169,8 +169,8 @@ final class ReceiveLoaded extends ReceiveState {
         receivableTokens: receivableTokens ?? this.receivableTokens,
         requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
         fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
-        infoboxDismissed: infoboxDismissed ?? this.infoboxDismissed,
-        fetchingInvoice: fetchingInvoice ?? this.fetchingInvoice,
+        isInfoboxDismissed: isInfoboxDismissed ?? this.isInfoboxDismissed,
+        isFetchingInvoice: isFetchingInvoice ?? this.isFetchingInvoice,
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
         isChangingAddressType: isChangingAddressType ?? this.isChangingAddressType,
         paymentUri: paymentUri ?? this.paymentUri,
@@ -184,7 +184,7 @@ final class ReceiveLoaded extends ReceiveState {
         walletId: walletId ?? this.walletId,
         walletType: walletType ?? this.walletType,
         walletCurrency: walletCurrency ?? this.walletCurrency,
-        hasTokensList: hasTokensList ?? this.hasTokensList,
+        hasTokens: hasTokens ?? this.hasTokens,
         failureCode: clearFailureCode ? null : (failureCode ?? this.failureCode),
       );
 
@@ -198,8 +198,8 @@ final class ReceiveLoaded extends ReceiveState {
         receivableTokens,
         requestedAmount,
         fiatEquivalent,
-        infoboxDismissed,
-        fetchingInvoice,
+        isInfoboxDismissed,
+        isFetchingInvoice,
         isRotatingAddress,
         isChangingAddressType,
         paymentUri.toString(),
@@ -212,7 +212,7 @@ final class ReceiveLoaded extends ReceiveState {
         walletId,
         walletType,
         walletCurrency,
-        hasTokensList,
+        hasTokens,
         failureCode,
       ];
 }
