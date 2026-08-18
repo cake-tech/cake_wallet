@@ -1139,25 +1139,25 @@ class _NewSendPageState extends State<NewSendPage> {
     AnyPayEvaluation evaluation, {
     CryptoCurrency? fallbackCurrency,
   }) async {
-    final fill = await _anyPayFlow.handleEvaluation(
+    final evaluationResult = await _anyPayFlow.handleEvaluation(
       context,
       evaluation,
       fallbackCurrency: fallbackCurrency,
     );
-    if (fill == null || !mounted) {
+    if (evaluationResult == null || !mounted) {
       return;
     }
 
     try {
       await _applyIntent(
-        fill.request,
-        token: fill.token,
-        fallbackCurrency: fill.fallbackCurrency,
-        amountOverride: fill.amountOverride,
+        evaluationResult.request,
+        token: evaluationResult.token,
+        fallbackCurrency: evaluationResult.fallbackCurrency,
+        amountOverride: evaluationResult.amountOverride,
       );
     } catch (e) {
       printV("Payment flow error: $e");
-      _applyPaymentRequest(fill.request.paymentRequest);
+      _applyPaymentRequest(evaluationResult.request.paymentRequest);
     }
   }
 
