@@ -108,41 +108,36 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
 
-    final raw = event.raw.replaceAll(",", ".");
+    final amount = event.amount;
     final receiveCrypto = _receiveCryptoCurrency(initial);
 
     Money? requestedAmount;
     Money? fiatEquivalent;
     bool rateUnavailable = false;
 
-    if (raw.isEmpty) {
+    if (amount == null) {
       requestedAmount = null;
       fiatEquivalent = null;
-    } else if (initial.inputCurrency is FiatCurrency) {
-      final fiatCurrency = initial.inputCurrency as FiatCurrency;
-      final fiatMoney = fiatCurrency.tryParseAmount(raw);
-      if (fiatMoney != null) {
-        await fiatRateService.ensureRateFor(receiveCrypto, fiatCurrency);
-        if (isClosed) {
-          return;
-        }
-        if (state case final ReceiveLoaded current when current.walletId != initial.walletId) {
-          return;
-        }
-        requestedAmount = fiatRateService.convert(fiatMoney, receiveCrypto);
-        if (requestedAmount != null) {
-          fiatEquivalent = fiatMoney;
-        } else {
-          rateUnavailable = true;
-        }
+    } else if (amount.currency is FiatCurrency) {
+      final fiatCurrency = amount.currency as FiatCurrency;
+      await fiatRateService.ensureRateFor(receiveCrypto, fiatCurrency);
+      if (isClosed) {
+        return;
+      }
+      if (state case final ReceiveLoaded current when current.walletId != initial.walletId) {
+        return;
+      }
+      requestedAmount = fiatRateService.convert(amount, receiveCrypto);
+      if (requestedAmount != null) {
+        fiatEquivalent = amount;
+      } else {
+        rateUnavailable = true;
       }
     } else {
-      final inputCrypto = initial.tokenCurrency ?? addressService.walletCurrency;
-      final canonical = addressService.canonicalCryptoAmount(raw, inputCrypto);
-      requestedAmount = receiveCrypto.tryParseAmount(canonical);
-      if (requestedAmount != null) {
-        fiatEquivalent = fiatRateService.convert(requestedAmount, fiatRateService.currentFiat);
-      }
+      requestedAmount = amount.currency == CryptoCurrency.btcln
+          ? Money(amount.amount, CryptoCurrency.btc)
+          : amount;
+      fiatEquivalent = fiatRateService.convert(requestedAmount, fiatRateService.currentFiat);
     }
 
     if (rateUnavailable) {
@@ -258,7 +253,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         clearTokenCurrency: token == null,
         inputCurrency: newInputCurrency,
         inputUsesSats: addressService.useSatoshi(newInputCurrency),
-        receiveUsesSats: addressService.useSatoshi(receiveCrypto),
         paymentUri: uri,
         clearRequestedAmount: true,
         clearFiatEquivalent: true,
@@ -338,7 +332,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           invoiceAmountToFetch = loaded.requestedAmount;
         }
 
-        final nextReceiveCrypto = nextToken ?? addressService.walletCurrency;
         emit(
           loaded.copyWith(
             addressType: event.option,
@@ -348,7 +341,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
             clearTokenCurrency: clearToken,
             inputCurrency: nextInput,
             inputUsesSats: addressService.useSatoshi(nextInput),
-            receiveUsesSats: addressService.useSatoshi(nextReceiveCrypto),
             isSilentPayments: addressService.isSilentPayments,
             isLightning: isCurrentRequestLightning,
             isZCashTransparent: addressService.isZCashTransparent,
@@ -609,7 +601,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     final inputCurrency = tokenCurrency ?? addressService.walletCurrency;
     final uri = addressService.buildPaymentUri(token: tokenCurrency);
 
-    final receiveCrypto = tokenCurrency ?? addressService.walletCurrency;
     return ReceiveLoaded(
       addressEntry: _currentAddressEntry(),
       addressType: addressService.selectedAddressType,
@@ -628,7 +619,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       autoGenerateSubaddressStatus: addressService.autoGenerateSubaddressStatus,
       isZCashTransparent: addressService.isZCashTransparent,
       inputUsesSats: addressService.useSatoshi(inputCurrency),
-      receiveUsesSats: addressService.useSatoshi(receiveCrypto),
       walletId: addressService.walletId,
       walletType: addressService.walletType,
       walletCurrency: addressService.walletCurrency,

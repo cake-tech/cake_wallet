@@ -13,14 +13,12 @@ class ReceiveAddressTypeSelector extends StatefulWidget {
     required this.options,
     required this.selected,
     required this.walletType,
-    required this.isLightning,
     super.key,
   });
 
   final List<ReceivePageOption> options;
   final ReceivePageOption selected;
   final WalletType walletType;
-  final bool isLightning;
 
   static const otherOptionsExpandDuration = Duration(milliseconds: 300);
   static const otherOptionsThreshold = 3;
@@ -48,7 +46,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
         )
         .toList();
     commonOptions.sort((a, b) {
-      final preferred = widget.isLightning ? "Lightning" : "Standard";
+      final preferred = widget.selected.value.contains("Lightning") ? "Lightning" : "Standard";
       if (a.value.contains(preferred)) {
         return -1;
       }

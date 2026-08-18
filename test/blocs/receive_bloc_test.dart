@@ -86,8 +86,6 @@ void main() {
     ).thenReturn(isAutoGenerateSubaddressEnabled);
     when(() => addressService.isZCashTransparent).thenReturn(isZCashTransparent);
     when(() => addressService.useSatoshi(any())).thenReturn(false);
-    when(() => addressService.canonicalCryptoAmount(any(), any()))
-        .thenAnswer((invocation) => invocation.positionalArguments[0] as String);
     when(() => addressService.autoGenerateSubaddressStatus)
         .thenReturn(AutoGenerateSubaddressStatus.disabled);
     when(() => addressService.hasTokens).thenReturn(false);
@@ -217,7 +215,7 @@ void main() {
 
   group("amount changes", () {
     blocTest<ReceiveBloc, ReceiveState>(
-      "parses crypto amount and computes fiat equivalent",
+      "sets crypto amount and computes fiat equivalent",
       setUp: () {
         wireDefaults();
         when(() => fiatRateService.convert(any(), any())).thenReturn(
@@ -229,7 +227,7 @@ void main() {
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
       ),
-      act: (bloc) => bloc.add(const AmountChanged("1.0")),
+      act: (bloc) => bloc.add(AmountChanged(Money.parse("1.0", CryptoCurrency.btc))),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
@@ -239,14 +237,14 @@ void main() {
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "clears amounts on empty input",
+      "clears amounts when amount is null",
       setUp: wireDefaults,
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
       ),
-      act: (bloc) => bloc.add(const AmountChanged("")),
+      act: (bloc) => bloc.add(const AmountChanged(null)),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
@@ -256,39 +254,25 @@ void main() {
     );
 
     // Regression: satoshiForLightning display mode + lightning token used to
-    // multiply the amount by 10^8 per modal round-trip because the BTCLN→BTC
-    // substitution in _receiveCryptoCurrency was applied before the sats
-    // check (useSatoshi(BTC) is false in that mode, but useSatoshi(BTCLN) is
-    // true). See bug where "1235" showed as "123500000000 sats".
+    // multiply the amount by 10^8 per modal round-trip. The modal parses sats
+    // input against BTCLN; the bloc must store the request denominated in BTC
+    // without touching the base-unit amount.
     blocTest<ReceiveBloc, ReceiveState>(
-      "lightning token in satoshi-for-lightning mode treats input as sats",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.useSatoshi(CryptoCurrency.btcln)).thenReturn(true);
-        when(() => addressService.useSatoshi(CryptoCurrency.btc)).thenReturn(false);
-        when(() => addressService.canonicalCryptoAmount("1235", CryptoCurrency.btcln))
-            .thenReturn("0.00001235");
-        when(() => addressService.canonicalCryptoAmount("1235", CryptoCurrency.btc))
-            .thenReturn("1235");
-        when(
-          () => addressService.fetchPaymentRequestUri(
-            amount: any(named: "amount"),
-            token: any(named: "token"),
-          ),
-        ).thenAnswer((_) async => _btcUri);
-      },
+      "amount denominated in BTCLN is stored as BTC",
+      setUp: wireDefaults,
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
         initialToken: CryptoCurrency.btcln,
       ),
-      act: (bloc) => bloc.add(const AmountChanged("1235")),
+      act: (bloc) => bloc.add(
+        AmountChanged(Money.tryParse("1235", CryptoCurrency.btcln, isBaseUnit: true)),
+      ),
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
-        // 1235 sats = 1235 in the base-unit BigInt (BTC decimals=8, stored as sats).
-        expect(state.requestedAmount?.amount.toString(), "1235");
+        expect(state.requestedAmount, Money(BigInt.from(1235), CryptoCurrency.btc));
       },
     );
 
@@ -307,20 +291,19 @@ void main() {
       ),
       act: (bloc) {
         bloc
-          ..add(const AmountChanged("1.0"))
-          ..add(const AmountChanged("2.0"))
-          ..add(const AmountChanged("3.0"));
+          ..add(AmountChanged(Money.parse("1.0", CryptoCurrency.btc)))
+          ..add(AmountChanged(Money.parse("2.0", CryptoCurrency.btc)))
+          ..add(AmountChanged(Money.parse("3.0", CryptoCurrency.btc)));
       },
       wait: const Duration(milliseconds: 100),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
-        // 3.0 BTC in sats = 300_000_000
-        expect(state.requestedAmount?.amount.toString(), "300000000");
+        expect(state.requestedAmount, Money.parse("3.0", CryptoCurrency.btc));
       },
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "in fiat input mode, converts fiat to crypto via FiatRateService",
+      "a fiat amount is converted to crypto via FiatRateService",
       setUp: () {
         wireDefaults();
         when(() => fiatRateService.convert(any(), any())).thenReturn(
@@ -335,7 +318,7 @@ void main() {
       act: (bloc) async {
         bloc.add(const InputCurrencySelected(FiatCurrency.usd));
         await Future.delayed(const Duration(milliseconds: 30));
-        bloc.add(const AmountChanged("100"));
+        bloc.add(AmountChanged(Money.parse("100", FiatCurrency.usd)));
         await Future.delayed(const Duration(milliseconds: 30));
       },
       verify: (_) {
@@ -652,7 +635,7 @@ void main() {
         activeWalletService: activeWalletService,
       ),
       act: (bloc) async {
-        bloc.add(const AmountChanged("1.0"));
+        bloc.add(AmountChanged(Money.parse("1.0", CryptoCurrency.btc)));
         await Future.delayed(const Duration(milliseconds: 20));
         rateChangesController.add(FiatCurrency.usd);
         await Future.delayed(const Duration(milliseconds: 20));

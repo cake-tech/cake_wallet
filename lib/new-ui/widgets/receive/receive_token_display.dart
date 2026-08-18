@@ -1,3 +1,4 @@
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
@@ -21,8 +22,8 @@ class ReceiveTokenDisplay extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 8,
       children: [
-        Text(
-          token.title,
+        CurrencySymbolText(
+          token,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,

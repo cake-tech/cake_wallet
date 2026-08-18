@@ -1,34 +1,34 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:flutter/material.dart";
 
 class ReceiveAmountModal extends StatefulWidget {
   const ReceiveAmountModal({
     required this.initialAmount,
-    required this.selectedCurrencySymbol,
-    required this.selectedCurrencyDecimals,
+    required this.selectedCurrency,
     required this.useSatoshi,
     required this.showTokenPicker,
-    required this.tokenIconPath,
-    required this.tokenTitle,
+    required this.token,
     required this.onAmountSubmitted,
     required this.onCurrencyPickerTap,
     required this.onTokenPickerTap,
     super.key,
   });
 
-  final String initialAmount;
-  final String selectedCurrencySymbol;
-  final int selectedCurrencyDecimals;
+  final Money? initialAmount;
+  final Currency selectedCurrency;
   final bool useSatoshi;
   final bool showTokenPicker;
-  final String tokenIconPath;
-  final String tokenTitle;
-  final void Function(String amount) onAmountSubmitted;
+  final CryptoCurrency token;
+  final void Function(Money? amount) onAmountSubmitted;
   final VoidCallback onCurrencyPickerTap;
   final VoidCallback onTokenPickerTap;
 
@@ -42,7 +42,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: widget.initialAmount);
+    _amountController = TextEditingController(
+      text: widget.initialAmount?.toStringWithPrecision(useBaseUnit: widget.useSatoshi) ?? "",
+    );
   }
 
   @override
@@ -51,19 +53,19 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     super.dispose();
   }
 
-  bool _isParseable(String raw) {
-    final normalized = raw.replaceAll(",", ".");
-    if (widget.useSatoshi) {
-      return BigInt.tryParse(normalized) != null;
-    }
-    return double.tryParse(normalized) != null;
-  }
+  int get _inputDecimals => widget.useSatoshi ? 0 : widget.selectedCurrency.decimals;
+
+  Money? _parseAmount(String raw) => Money.tryParse(
+        raw.replaceAll(",", "."),
+        widget.selectedCurrency,
+        isBaseUnit: widget.useSatoshi,
+      );
 
   String get _amountHint {
-    if (widget.useSatoshi || widget.selectedCurrencyDecimals <= 0) {
+    if (_inputDecimals <= 0) {
       return "0";
     }
-    final hintDecimals = widget.selectedCurrencyDecimals > 8 ? 8 : widget.selectedCurrencyDecimals;
+    final hintDecimals = _inputDecimals > 8 ? 8 : _inputDecimals;
     return "0.${"0" * hintDecimals}";
   }
 
@@ -119,11 +121,11 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                         children: [
                                           ExcludeSemantics(
                                             child: TokenImageWidget(
-                                              imageUrl: widget.tokenIconPath,
+                                              imageUrl: widget.token.iconPath ?? "",
                                               size: 32,
                                             ),
                                           ),
-                                          Text(widget.tokenTitle.toUpperCase()),
+                                          CurrencySymbolText(widget.token),
                                         ],
                                       ),
                                       const ExcludeSemantics(
@@ -171,11 +173,11 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     controller: _amountController,
                                     keyboardType: TextInputType.numberWithOptions(
                                       signed: false,
-                                      decimal: widget.selectedCurrencyDecimals > 0,
+                                      decimal: _inputDecimals > 0,
                                     ),
                                     inputFormatters: [
                                       DecimalInputFormatter(
-                                        maxDecimals: widget.selectedCurrencyDecimals,
+                                        maxDecimals: _inputDecimals,
                                       ),
                                     ],
                                     decoration: InputDecoration(
@@ -223,8 +225,9 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       spacing: 4,
                                       children: [
-                                        Text(
-                                          widget.selectedCurrencySymbol,
+                                        CurrencySymbolText(
+                                          widget.selectedCurrency,
+                                          useBaseUnit: widget.useSatoshi,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurface,
                                           ),
@@ -249,8 +252,13 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                         text: S.of(context).continue_text,
                         onPressed: () {
                           final raw = _amountController.text.trim();
-                          if (raw.isEmpty || _isParseable(raw)) {
-                            widget.onAmountSubmitted(raw);
+                          if (raw.isEmpty) {
+                            widget.onAmountSubmitted(null);
+                          } else {
+                            final amount = _parseAmount(raw);
+                            if (amount != null) {
+                              widget.onAmountSubmitted(amount);
+                            }
                           }
                           Navigator.of(context).pop();
                         },

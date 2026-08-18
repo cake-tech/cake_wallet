@@ -30,7 +30,6 @@ final class ReceiveLoaded extends ReceiveState {
     required this.autoGenerateSubaddressStatus,
     required this.isZCashTransparent,
     required this.inputUsesSats,
-    required this.receiveUsesSats,
     required this.walletId,
     required this.walletType,
     required this.walletCurrency,
@@ -62,7 +61,6 @@ final class ReceiveLoaded extends ReceiveState {
   final AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
   final bool isZCashTransparent;
   final bool inputUsesSats;
-  final bool receiveUsesSats;
 
   final String walletId;
   final WalletType walletType;
@@ -97,38 +95,8 @@ final class ReceiveLoaded extends ReceiveState {
 
   bool get hasAddressRotation => hasAddressList && walletType != WalletType.zcash;
 
-  String get requestedAmountDisplay {
-    final amount = requestedAmount;
-    if (amount == null) {
-      return "";
-    }
-    return amount.toStringWithPrecision(useBaseUnit: receiveUsesSats);
-  }
-
-  String get receiveCryptoSymbol => _cryptoSymbol(tokenCurrency ?? walletCurrency, receiveUsesSats);
-
-  String get inputCurrencySymbol {
-    final currency = inputCurrency;
-    if (currency is CryptoCurrency) {
-      return _cryptoSymbol(currency, inputUsesSats);
-    }
-    return currency.symbol;
-  }
-
-  String get amountInInputCurrency {
-    if (inputCurrency is FiatCurrency) {
-      return fiatEquivalent?.toStringWithPrecision() ?? "";
-    }
-    return requestedAmountDisplay;
-  }
-
-  static String _cryptoSymbol(CryptoCurrency currency, bool useSats) {
-    if (useSats) {
-      return "sats";
-    }
-    final title = currency.title;
-    return title.length <= 8 ? title : title.substring(0, 8);
-  }
+  Money? get amountInInputCurrency =>
+      inputCurrency is FiatCurrency ? fiatEquivalent : requestedAmount;
 
   ReceiveLoaded copyWith({
     AddressEntry? addressEntry,
@@ -152,7 +120,6 @@ final class ReceiveLoaded extends ReceiveState {
     AutoGenerateSubaddressStatus? autoGenerateSubaddressStatus,
     bool? isZCashTransparent,
     bool? inputUsesSats,
-    bool? receiveUsesSats,
     String? walletId,
     WalletType? walletType,
     CryptoCurrency? walletCurrency,
@@ -180,7 +147,6 @@ final class ReceiveLoaded extends ReceiveState {
             autoGenerateSubaddressStatus ?? this.autoGenerateSubaddressStatus,
         isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
         inputUsesSats: inputUsesSats ?? this.inputUsesSats,
-        receiveUsesSats: receiveUsesSats ?? this.receiveUsesSats,
         walletId: walletId ?? this.walletId,
         walletType: walletType ?? this.walletType,
         walletCurrency: walletCurrency ?? this.walletCurrency,
@@ -208,7 +174,6 @@ final class ReceiveLoaded extends ReceiveState {
         autoGenerateSubaddressStatus,
         isZCashTransparent,
         inputUsesSats,
-        receiveUsesSats,
         walletId,
         walletType,
         walletCurrency,

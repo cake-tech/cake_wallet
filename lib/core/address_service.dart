@@ -621,9 +621,6 @@ class AddressService {
 
   bool useSatoshi(Currency currency) => _amountParsingProxy.useSatoshi(currency);
 
-  String canonicalCryptoAmount(String raw, CryptoCurrency currency) =>
-      _amountParsingProxy.getCanonicalCryptoAmount(raw, currency);
-
   String get accountLabel => currentAccount?.label ?? "";
 
   bool _isElectrumType(WalletType type) =>

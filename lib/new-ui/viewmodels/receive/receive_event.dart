@@ -11,9 +11,9 @@ final class ReceiveOpened extends ReceiveEvent {
 }
 
 final class AmountChanged extends ReceiveEvent {
-  const AmountChanged(this.raw);
+  const AmountChanged(this.amount);
 
-  final String raw;
+  final Money? amount;
 }
 
 final class InputCurrencySelected extends ReceiveEvent {

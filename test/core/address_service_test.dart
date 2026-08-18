@@ -575,7 +575,7 @@ void main() {
     );
   });
 
-  group("useSatoshi + canonicalCryptoAmount", () {
+  group("useSatoshi", () {
     test("useSatoshi(btc) is false under bitcoin display mode", () {
       scope = _TestScope();
       final service = scope.build(mode: BitcoinAmountDisplayMode.bitcoin);
@@ -602,31 +602,6 @@ void main() {
       expect(service.useSatoshi(CryptoCurrency.btc), isFalse);
     });
 
-    test("canonicalCryptoAmount returns raw when not satoshi mode", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.bitcoin);
-      addTearDown(service.dispose);
-
-      expect(service.canonicalCryptoAmount("0.5", CryptoCurrency.btc), "0.5");
-    });
-
-    test("canonicalCryptoAmount treats input as sats under satoshi mode", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshi);
-      addTearDown(service.dispose);
-
-      // 50000000 sats → 0.5 BTC (8 decimals).
-      expect(service.canonicalCryptoAmount("50000000", CryptoCurrency.btc), "0.5");
-    });
-
-    test("canonicalCryptoAmount ignores empty input", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshi);
-      addTearDown(service.dispose);
-
-      expect(service.canonicalCryptoAmount("", CryptoCurrency.btc), "");
-    });
-
     test("useSatoshi is always false for non-BTC currencies regardless of display mode", () {
       for (final mode in const [
         BitcoinAmountDisplayMode.bitcoin,
@@ -646,24 +621,6 @@ void main() {
         service.dispose();
       }
       scope = _TestScope();
-    });
-
-    test("canonicalCryptoAmount for non-BTC currencies always returns raw", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshi);
-      addTearDown(service.dispose);
-
-      expect(service.canonicalCryptoAmount("1.5", CryptoCurrency.eth), "1.5");
-      expect(service.canonicalCryptoAmount("42", CryptoCurrency.xmr), "42");
-    });
-
-    test("canonicalCryptoAmount under satoshi mode treats unparseable input as zero", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshi);
-      addTearDown(service.dispose);
-
-      // Non-numeric parses to BigInt.zero → 0 formatted → "0".
-      expect(service.canonicalCryptoAmount("abc", CryptoCurrency.btc), "0");
     });
   });
 

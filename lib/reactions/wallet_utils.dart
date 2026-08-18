@@ -32,7 +32,6 @@ bool isElectrumWallet(WalletType walletType) {
     case WalletType.bitcoin:
     case WalletType.litecoin:
     case WalletType.bitcoinCash:
-    case WalletType.dogecoin:
       return true;
     default:
       return false;

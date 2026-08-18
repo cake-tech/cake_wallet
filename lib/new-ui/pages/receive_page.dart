@@ -125,7 +125,7 @@ class _LoadingWidget extends StatelessWidget {
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           ),
-          const Expanded(child: Center(child: CircularProgressIndicator())),
+          const Expanded(child: Center(child: CupertinoActivityIndicator(radius: 14))),
         ],
       );
 }
@@ -252,8 +252,7 @@ class _LoadedWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               ReceiveAmountDisplay(
-                displayAmount: state.requestedAmountDisplay,
-                cryptoSymbol: state.receiveCryptoSymbol,
+                amount: state.requestedAmount,
                 fiatEquivalent: state.fiatEquivalent,
                 largeQrMode: largeQrMode,
               ),
@@ -312,8 +311,7 @@ class _LoadedWidget extends StatelessWidget {
                 onAddressesButtonPressed: () => _openAddressesPage(context, state),
               ),
               ReceiveLargeAmountPreview(
-                amount: state.requestedAmountDisplay,
-                currency: state.receiveCryptoSymbol,
+                amount: state.requestedAmount,
                 largeQrMode: largeQrMode,
               ),
               if (infobox != null && !state.isLightning)
@@ -397,17 +395,14 @@ class _LoadedWidget extends StatelessWidget {
             }
             final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
             final modalKey = ValueKey<String>(state.tokenCurrency?.title ?? "wallet");
-            final currentAmount = state.amountInInputCurrency;
             return ReceiveAmountModal(
               key: modalKey,
-              initialAmount: currentAmount.isEmpty ? amountAtOpen : currentAmount,
-              selectedCurrencySymbol: state.inputCurrencySymbol,
-              selectedCurrencyDecimals: state.inputUsesSats ? 0 : state.inputCurrency.decimals,
+              initialAmount: state.amountInInputCurrency ?? amountAtOpen,
+              selectedCurrency: state.inputCurrency,
               useSatoshi: state.inputUsesSats,
               showTokenPicker: state.hasTokens,
-              tokenIconPath: displayCrypto.iconPath ?? "",
-              tokenTitle: displayCrypto.title,
-              onAmountSubmitted: (raw) => bloc.add(AmountChanged(raw)),
+              token: displayCrypto,
+              onAmountSubmitted: (amount) => bloc.add(AmountChanged(amount)),
               onCurrencyPickerTap: () => _pickInputCurrency(context, state, bloc),
               onTokenPickerTap: () => _pickToken(context, state, bloc),
             );
@@ -459,7 +454,6 @@ class _LoadedWidget extends StatelessWidget {
           options: state.addressTypeOptions,
           selected: currentSelected,
           walletType: state.walletType,
-          isLightning: state.isLightning,
         ),
       ),
     );

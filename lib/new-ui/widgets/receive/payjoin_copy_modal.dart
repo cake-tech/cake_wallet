@@ -49,7 +49,7 @@ class PayjoinCopyModal extends StatelessWidget {
                                   ? BitcoinURI(amount: uri.amount, address: uri.address).toString()
                                   : uri.address,
                             ),
-                            isSensitive: true,
+                            isSensitive: false,
                           );
                           _announceCopied(context);
                           Navigator.of(context).pop();
@@ -62,7 +62,7 @@ class PayjoinCopyModal extends StatelessWidget {
                         onTap: () {
                           ClipboardUtil.setSensitiveDataToClipboard(
                             ClipboardData(text: uri.toString()),
-                            isSensitive: true,
+                            isSensitive: false,
                           );
                           _announceCopied(context);
                           Navigator.of(context).pop();

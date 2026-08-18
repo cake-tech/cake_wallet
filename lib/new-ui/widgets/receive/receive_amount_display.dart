@@ -1,23 +1,25 @@
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cw_core/amount/money.dart";
 import "package:flutter/material.dart";
 
 class ReceiveAmountDisplay extends StatelessWidget {
   const ReceiveAmountDisplay({
-    required this.displayAmount,
-    required this.cryptoSymbol,
+    required this.amount,
     required this.fiatEquivalent,
     required this.largeQrMode,
     super.key,
   });
 
-  final String displayAmount;
-  final String cryptoSymbol;
+  final Money? amount;
   final Money? fiatEquivalent;
   final bool largeQrMode;
 
   @override
   Widget build(BuildContext context) {
-    final hidden = largeQrMode || displayAmount.isEmpty;
+    final amount = this.amount;
+    final fiatEquivalent = this.fiatEquivalent;
+    final hidden = largeQrMode || amount == null;
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
@@ -52,22 +54,27 @@ class ReceiveAmountDisplay extends StatelessWidget {
                         child: Row(
                           spacing: 8,
                           children: [
-                            Text(
-                              displayAmount,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                            if (amount != null) ...[
+                              MoneyText(
+                                amount,
+                                showSymbol: false,
+                                isHiddenAmount: false,
+                                fractionalDigits: 20,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            Text(
-                              cryptoSymbol,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                              CurrencySymbolText(
+                                amount.currency,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
@@ -75,8 +82,9 @@ class ReceiveAmountDisplay extends StatelessWidget {
                     if (fiatEquivalent != null)
                       Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Text(
-                          "${fiatEquivalent!.toStringWithPrecision()} ${fiatEquivalent!.currency.symbol}",
+                        child: MoneyText(
+                          fiatEquivalent,
+                          isHiddenAmount: false,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 16,

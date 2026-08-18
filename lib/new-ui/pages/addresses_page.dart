@@ -82,7 +82,7 @@ class _LoadingWidget extends StatelessWidget {
         spacing: 12,
         children: [
           _TopBar(title: S.of(context).addresses),
-          const Expanded(child: Center(child: CircularProgressIndicator())),
+          const Expanded(child: Center(child: CupertinoActivityIndicator(radius: 14))),
         ],
       );
 }
