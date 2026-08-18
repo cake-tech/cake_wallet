@@ -38,7 +38,6 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
-        iconPath: widget.iconPath,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         onTap: () {
@@ -52,6 +51,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                 child: Row(
                   spacing: 8,
                   children: [
+                    CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24,),
                     Flexible(
                       child: Text(widget.label, style: textStyle, softWrap: true),
                     ),

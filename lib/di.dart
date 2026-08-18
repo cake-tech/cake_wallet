@@ -61,12 +61,14 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/keychain_management.dart";
 import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_management/keychain_management_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_restore/keychain_restore_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
@@ -447,6 +449,14 @@ Future<void> setup({
 
   getIt.registerFactoryParam<KeychainRestorePage, KeychainRestorePageParams, void>((params, _) =>
       KeychainRestorePage(bloc: getIt.get<KeychainRestoreBloc>(), isInitial: params.isInitial));
+
+  getIt.registerFactory<KeychainManagementBloc>(() => KeychainManagementBloc(
+      keychain: getIt.get<CwKeychain>(),
+      walletLoadingService: getIt.get<WalletLoadingService>(),
+      settingsStore: getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<KeychainManagementPage>(
+      () => KeychainManagementPage(bloc: getIt.get<KeychainManagementBloc>()));
 
   getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 

@@ -1,17 +1,23 @@
 part of "keychain_management_bloc.dart";
 
 @immutable
-sealed class KeychainManagementState {}
+sealed class KeychainManagementState {
+  const KeychainManagementState();
+}
 
-final class KeychainManagementNotLoaded extends KeychainManagementState {}
+final class KeychainManagementNotLoaded extends KeychainManagementState {
+  const KeychainManagementNotLoaded();
+}
 
-final class KeychainManagementUnavailable extends KeychainManagementState {}
+final class KeychainManagementUnavailable extends KeychainManagementState {
+  const KeychainManagementUnavailable();
+}
 
 final class KeychainManagementLoaded extends KeychainManagementState {
-  KeychainManagementLoaded(
+  const KeychainManagementLoaded(
       {required this.localWallets,
-      required this.keychainWallets,
-      required this.unsupportedKeychainItems});
+        required this.keychainWallets,
+        required this.unsupportedKeychainItems});
 
   final List<WalletInfo> localWallets;
   final List<KeychainDataV1> keychainWallets;
@@ -30,4 +36,16 @@ final class KeychainManagementLoaded extends KeychainManagementState {
         .where((item) => !unsavableNames.contains(item.name))
         .toList();
   }
+
+  KeychainManagementLoaded copyWith({
+    List<WalletInfo>? localWallets,
+    List<KeychainDataV1>? keychainWallets,
+    List<UnsupportedKeychainData>? unsupportedKeychainItems,
+  }) => KeychainManagementLoaded(
+      localWallets: localWallets ?? this.localWallets,
+      keychainWallets: keychainWallets ?? this.keychainWallets,
+      unsupportedKeychainItems:
+      unsupportedKeychainItems ?? this.unsupportedKeychainItems,
+    );
+
 }

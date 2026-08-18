@@ -33,6 +33,7 @@ class CwKeychain {
 
   Future<List<UnsupportedKeychainData>> getUnsupported() => _api.getUnsupported();
 
-
+  // this is used for debug purposes to see if it properly displays the "please update app" thingie
+  // user-accessible ui should never call this
   Future<void> putFakeUnsupported() => _api.putFakeUnsupported();
 }

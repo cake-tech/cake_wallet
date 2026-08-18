@@ -51,9 +51,8 @@ class KeychainManagementPage extends StatelessWidget {
                             S.of(context).saved_to_cloud(cloudServiceName): state.keychainWallets
                                 .map(
                                   (item) => ListItemToggle(
-                                    iconPath: walletTypeToCryptoCurrency(
-                                      deserializeFromInt(item.walletTypeRaw),
-                                    ).iconPath,
+                                    iconPath:
+                                      deserializeFromInt(item.walletTypeRaw).iconPath,
                                     keyValue: item.name,
                                     label: item.name,
                                     value: true,
@@ -66,7 +65,7 @@ class KeychainManagementPage extends StatelessWidget {
                             S.of(context).not_saved: state.savableWallets
                                 .map(
                                   (item) => ListItemToggle(
-                                    iconPath: walletTypeToCryptoCurrency(item.type).iconPath,
+                                    iconPath: item.type.iconPath,
                                     keyValue: item.name,
                                     label: item.name,
                                     value: false,

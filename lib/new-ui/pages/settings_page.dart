@@ -62,11 +62,6 @@ class SettingsSectionData {
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
-    SettingsListItem(
-        "assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
-        routeArgs: true,
-        requireAuth: true,
-        use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage,
         condition: _hasLightning),
@@ -88,6 +83,10 @@ class SettingsSectionData {
 
   static SettingsSectionData appSettings =
       SettingsSectionData(S.current.app_settings, "assets/new-ui/cake-setting.svg", [
+        SettingsListItem(
+            "assets/new-ui/settings_row_icons/seed.svg", S.current.recovery_and_keys, Routes.recovery,
+            requireAuth: true,
+            use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections,
         Routes.connectionSync),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),

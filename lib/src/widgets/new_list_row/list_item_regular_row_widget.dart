@@ -157,9 +157,12 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                             ? textStyle
                                             : textStyle.copyWith(color: foregroundColor)),
                                   if (subtitle != null)
-                                    Text(
-                                      subtitle!,
-                                      style: labelStyle.copyWith(fontSize: 12),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: Text(
+                                        subtitle!,
+                                        style: labelStyle.copyWith(fontSize: 12),
+                                      ),
                                     ),
                                 ],
                               ),

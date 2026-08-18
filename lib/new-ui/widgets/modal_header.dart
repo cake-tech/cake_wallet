@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 class ModalHeader extends StatelessWidget {
   const ModalHeader(
       {super.key,
-      required this.iconPath,
-      required this.message,
-      required this.title,
-      this.bottomWidget});
+        required this.iconPath,
+        required this.message,
+        required this.title,
+        this.bottomWidget});
 
   final String iconPath;
   final String title;
@@ -15,15 +15,16 @@ class ModalHeader extends StatelessWidget {
   final Widget? bottomWidget;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16)),
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SizedBox(
+            width: MediaQuery.sizeOf(context).width,
             child: Column(
               spacing: 10,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -50,18 +51,18 @@ class ModalHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (bottomWidget != null) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child:
-                  Container(height: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh),
-            ),
-            ClipRRect(
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-                child: bottomWidget!)
-          ]
-        ],
-      ),
-    );
-  }
+        ),
+        if (bottomWidget != null) ...[
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18),
+            child:
+            Container(height: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+          ),
+          ClipRRect(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+              child: bottomWidget!)
+        ]
+      ],
+    ),
+  );
 }
