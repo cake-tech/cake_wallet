@@ -1,5 +1,3 @@
-import "dart:async";
-
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/amount_validator.dart";
@@ -260,8 +258,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
         (bool isReceiveAmountEditable) {},
       ));
 
-      _disposers
-          .add(reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) {
+      _disposers.add(
+          reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) async {
         if (state is TradeIsCreatedFailure) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -300,13 +298,15 @@ class _NewSwapPageState extends State<NewSwapPage> {
             exchangeTradeViewModel: vm,
             receiveAmount: receiveAmount,
           );
-          unawaited(
-            showMaterialModalBottomSheet(
+          try {
+            await showMaterialModalBottomSheet<void>(
               context: context,
               builder: (context) => page,
               backgroundColor: Colors.transparent,
-            ).whenComplete(() => widget.exchangeViewModel.tradeStarted = false),
-          );
+            );
+          } finally {
+            widget.exchangeViewModel.tradeStarted = false;
+          }
         }
       }));
 

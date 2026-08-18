@@ -82,10 +82,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final fiatAmountController = TextEditingController();
   final amountFocusNode = FocusNode();
   final memoController = TextEditingController();
+  final _amountFieldKey = GlobalKey<FormFieldState<String>>();
   mobx.ReactionDisposer? _memoReactionDisposer;
 
   @override
   void initState() {
+    amountController
+        .addListener(() => _amountFieldKey.currentState?.didChange(amountController.text));
+
     if (widget.isReceiverCard) {
       memoController.text = widget.exchangeViewModel.receiveAddressExtraId;
 
@@ -260,139 +264,168 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
             child: Column(
               spacing: 12,
               children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: amountFocusNode.requestFocus,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    spacing: 4,
+                FormField<String>(
+                  key: _amountFieldKey,
+                  initialValue: amountController.text,
+                  validator: _fiatInputMode ? null : widget.currencyValueValidator,
+                  builder: (state) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: amountFocusNode.requestFocus,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           spacing: 4,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Flexible(
-                              child: IntrinsicWidth(
-                                child: Observer(
-                                  builder: (_) {
-                                    final showFetching = !widget.isReceiverCard &&
-                                        widget.exchangeViewModel.isFixedRateMode &&
-                                        widget.exchangeViewModel.receiveAmount.isNotEmpty &&
-                                        widget.exchangeViewModel.depositAmount.isEmpty;
-                                    return TextFormField(
-                                      keyboardType: TextInputType.numberWithOptions(
-                                        signed: false,
-                                        decimal: !widget.useBaseUnit,
+                            Expanded(
+                              child: Row(
+                                spacing: 4,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: IntrinsicWidth(
+                                      child: Observer(
+                                        builder: (_) {
+                                          final showFetching = !widget.isReceiverCard &&
+                                              widget.exchangeViewModel.isFixedRateMode &&
+                                              widget.exchangeViewModel.receiveAmount.isNotEmpty &&
+                                              widget.exchangeViewModel.depositAmount.isEmpty;
+                                          return TextField(
+                                            keyboardType: TextInputType.numberWithOptions(
+                                              signed: false,
+                                              decimal: !widget.useBaseUnit,
+                                            ),
+                                            onChanged: state.didChange,
+                                            controller: _fiatInputMode
+                                                ? fiatAmountController
+                                                : amountController,
+                                            focusNode: amountFocusNode,
+                                            style: TextStyle(
+                                              fontSize: 28,
+                                              color: Theme.of(context).colorScheme.onSurface,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                            decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.zero,
+                                              isDense: true,
+                                              hintText: showFetching ? S.of(context).fetching : "0",
+                                              fillColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              focusedBorder: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                            ),
+                                            inputFormatters: <TextInputFormatter>[
+                                              DecimalInputFormatter(
+                                                maxDecimals: widget.useBaseUnit
+                                                    ? 0
+                                                    : widget.currency.decimals,
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
-                                      validator:
-                                          _fiatInputMode ? null : widget.currencyValueValidator,
-                                      controller:
-                                          _fiatInputMode ? fiatAmountController : amountController,
-                                      focusNode: amountFocusNode,
-                                      style: TextStyle(
-                                        fontSize: 28,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.zero,
-                                        isDense: true,
-                                        hintText: showFetching ? S.of(context).fetching : "0",
-                                        fillColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        focusedBorder: InputBorder.none,
-                                        enabledBorder: InputBorder.none,
-                                      ),
-                                      inputFormatters: <TextInputFormatter>[
-                                        DecimalInputFormatter(
-                                          maxDecimals:
-                                              widget.useBaseUnit ? 0 : widget.currency.decimals,
+                                    ),
+                                  ),
+                                  if (_fiatInputMode)
+                                    Center(
+                                      child: Text(
+                                        widget.exchangeViewModel.fiat.title,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                            if (_fiatInputMode)
-                              Center(
-                                child: Text(
-                                  widget.exchangeViewModel.fiat.title,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            GestureDetector(
+                              onTap: _presentCurrencyPicker,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(999999),
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 4, bottom: 4, left: 4, right: 4),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CakeImageWidget(
+                                        imageUrl: widget.currency.iconPath ?? "",
+                                        width: 28,
+                                        height: 28,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        currencyToShow,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
+                                        const SizedBox(width: 4),
+                                        CakeImageWidget(
+                                          imageUrl: chainIconPath,
+                                          width: 12,
+                                          height: 12,
+                                          colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.onSurfaceVariant,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ] else
+                                        const SizedBox(width: 10),
+                                      Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(9999999999),
+                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: RotatedBox(
+                                            quarterTurns: 2,
+                                            child: CakeImageWidget(
+                                              imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                              width: 4,
+                                              height: 4,
+                                              colorFilter: ColorFilter.mode(
+                                                Theme.of(context).colorScheme.primary,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                    ],
                                   ),
                                 ),
                               ),
+                            ),
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: _presentCurrencyPicker,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(999999),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 4, bottom: 4, left: 4, right: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CakeImageWidget(
-                                  imageUrl: widget.currency.iconPath ?? "",
-                                  width: 28,
-                                  height: 28,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  currencyToShow,
-                                  textAlign: TextAlign.center,
-                                ),
-                                if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
-                                  const SizedBox(width: 4),
-                                  CakeImageWidget(
-                                    imageUrl: chainIconPath,
-                                    width: 12,
-                                    height: 12,
-                                    colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.onSurfaceVariant,
-                                      BlendMode.srcIn,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                ] else
-                                  const SizedBox(width: 10),
-                                Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(9999999999),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
-                                    child: RotatedBox(
-                                      quarterTurns: 2,
-                                      child: CakeImageWidget(
-                                        imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                                        width: 4,
-                                        height: 4,
-                                        colorFilter: ColorFilter.mode(
-                                          Theme.of(context).colorScheme.primary,
-                                          BlendMode.srcIn,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                              ],
+                      if (state.hasError)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Semantics(
+                            container: true,
+                            liveRegion: true,
+                            label: "${S.of(context).amount}${state.errorText!}",
+                            excludeSemantics: true,
+                            child: Text(
+                              state.errorText!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),

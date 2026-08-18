@@ -6,6 +6,33 @@ import "package:cw_core/erc20_token.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 
+class _FakeTokenLookup implements AnyPayTokenLookup {
+  _FakeTokenLookup({this.onFindToken, this.onFindChainId});
+
+  final Future<CryptoCurrency?> Function({required WalletType walletType, required String address})?
+      onFindToken;
+  final Future<int?> Function(String contractAddress, {int? excludingChainId})? onFindChainId;
+
+  @override
+  Future<CryptoCurrency?> findTokenByAddress({
+    required WalletType walletType,
+    required String address,
+  }) {
+    if (onFindToken == null) {
+      fail("no token lookup expected");
+    }
+    return onFindToken!(walletType: walletType, address: address);
+  }
+
+  @override
+  Future<int?> findEvmChainIdForContract(String contractAddress, {int? excludingChainId}) {
+    if (onFindChainId == null) {
+      fail("no chain sweep expected");
+    }
+    return onFindChainId!(contractAddress, excludingChainId: excludingChainId);
+  }
+}
+
 void main() {
   const recipient = "0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41";
   const usdtEthContract = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
@@ -46,11 +73,7 @@ void main() {
   AnyPayRequest parse(String input) => AnyPayParser.fromRaw(input);
 
   test("a request without a contract needs no resolution", () async {
-    final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async =>
-          fail("no lookup expected"),
-      findEvmChainIdForContract: (contract, {excludingChainId}) async => fail("no sweep expected"),
-    );
+    final resolver = AnyPayResolver(tokenLookup: _FakeTokenLookup());
 
     final resolution = await resolver.resolve(
       parse("ethereum:$recipient@1?value=1e18"),
@@ -63,11 +86,12 @@ void main() {
   test("a token on the explicit target chain resolves with its amount", () async {
     final lookedUp = <WalletType>[];
     final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async {
-        lookedUp.add(walletType);
-        return walletType == WalletType.ethereum ? usdt : null;
-      },
-      findEvmChainIdForContract: (contract, {excludingChainId}) async => fail("no sweep expected"),
+      tokenLookup: _FakeTokenLookup(
+        onFindToken: ({required walletType, required address}) async {
+          lookedUp.add(walletType);
+          return walletType == WalletType.ethereum ? usdt : null;
+        },
+      ),
     );
 
     final resolution = await resolver.resolve(
@@ -85,11 +109,13 @@ void main() {
   test("an unknown token on an explicit chain is not swept to other chains", () async {
     bool sweepCalled = false;
     final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async => null,
-      findEvmChainIdForContract: (contract, {excludingChainId}) async {
-        sweepCalled = true;
-        return 137;
-      },
+      tokenLookup: _FakeTokenLookup(
+        onFindToken: ({required walletType, required address}) async => null,
+        onFindChainId: (contract, {excludingChainId}) async {
+          sweepCalled = true;
+          return 137;
+        },
+      ),
     );
 
     final resolution = await resolver.resolve(
@@ -103,12 +129,14 @@ void main() {
 
   test("a chainless token unknown on the current chain reroutes through the sweep", () async {
     final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async =>
-          walletType == WalletType.ethereum ? usdt : null,
-      findEvmChainIdForContract: (contract, {excludingChainId}) async {
-        expect(excludingChainId, 8453);
-        return 1;
-      },
+      tokenLookup: _FakeTokenLookup(
+        onFindToken: ({required walletType, required address}) async =>
+            walletType == WalletType.ethereum ? usdt : null,
+        onFindChainId: (contract, {excludingChainId}) async {
+          expect(excludingChainId, 8453);
+          return 1;
+        },
+      ),
     );
 
     final resolution = await resolver.resolve(
@@ -123,8 +151,10 @@ void main() {
 
   test("a chainless token unknown everywhere stays unknown", () async {
     final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async => null,
-      findEvmChainIdForContract: (contract, {excludingChainId}) async => null,
+      tokenLookup: _FakeTokenLookup(
+        onFindToken: ({required walletType, required address}) async => null,
+        onFindChainId: (contract, {excludingChainId}) async => null,
+      ),
     );
 
     final resolution = await resolver.resolve(
@@ -138,12 +168,13 @@ void main() {
   test("a solana token resolves against the detected wallet type", () async {
     const usdcSol = CryptoCurrency.usdtSol;
     final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async {
-        expect(walletType, WalletType.solana);
-        expect(address, usdcSolMint);
-        return usdcSol;
-      },
-      findEvmChainIdForContract: (contract, {excludingChainId}) async => fail("no sweep expected"),
+      tokenLookup: _FakeTokenLookup(
+        onFindToken: ({required walletType, required address}) async {
+          expect(walletType, WalletType.solana);
+          expect(address, usdcSolMint);
+          return usdcSol;
+        },
+      ),
     );
 
     final resolution = await resolver.resolve(
@@ -158,11 +189,7 @@ void main() {
   });
 
   test("an evm contract without the evm proxy stays unknown without any lookups", () async {
-    final resolver = AnyPayResolver(
-      findTokenByAddress: ({required walletType, required address}) async =>
-          fail("no lookup expected"),
-      findEvmChainIdForContract: (contract, {excludingChainId}) async => fail("no sweep expected"),
-    );
+    final resolver = AnyPayResolver(tokenLookup: _FakeTokenLookup());
 
     final resolution = await resolver.resolve(
       parse("ethereum:$usdtEthContract@1/transfer?address=$recipient&uint256=1000000"),

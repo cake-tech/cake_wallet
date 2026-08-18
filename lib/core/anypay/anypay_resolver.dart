@@ -5,22 +5,11 @@ import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 
-typedef TokenLookup = Future<CryptoCurrency?> Function({
-  required WalletType walletType,
-  required String address,
-});
-typedef EvmChainIdLookup = Future<int?> Function(String contractAddress, {int? excludingChainId});
-
 class AnyPayResolver {
-  AnyPayResolver({
-    TokenLookup? findTokenByAddress,
-    EvmChainIdLookup? findEvmChainIdForContract,
-  })  : _findTokenByAddress = findTokenByAddress ?? TokenUtilities.findTokenByAddress,
-        _findEvmChainIdForContract =
-            findEvmChainIdForContract ?? TokenUtilities.findEvmChainIdForContract;
+  AnyPayResolver({AnyPayTokenLookup? tokenLookup})
+      : _tokenLookup = tokenLookup ?? const TokenUtilitiesLookup();
 
-  final TokenLookup _findTokenByAddress;
-  final EvmChainIdLookup _findEvmChainIdForContract;
+  final AnyPayTokenLookup _tokenLookup;
 
   Future<AnyPayResolution> resolve(AnyPayRequest request, WalletSnapshot snapshot) async {
     if (!request.hasContract) {
@@ -34,7 +23,7 @@ class AnyPayResolver {
       return _resolveEvm(request, snapshot, contract);
     }
 
-    final token = await _findTokenByAddress(
+    final token = await _tokenLookup.findTokenByAddress(
       walletType: detectedType ?? snapshot.type,
       address: contract,
     );
@@ -58,7 +47,8 @@ class AnyPayResolver {
 
     final lookupType = snapshot.supportedEvmChains[requestedChainId];
     if (lookupType != null) {
-      final token = await _findTokenByAddress(walletType: lookupType, address: contract);
+      final token =
+          await _tokenLookup.findTokenByAddress(walletType: lookupType, address: contract);
       if (token != null) {
         return TokenResolved(
           token: token,
@@ -71,12 +61,15 @@ class AnyPayResolver {
     // The QRs from our old app versions omit the chainId on mainnet, so a contract the target
     // network does not know may still belong to another EVM network.
     if (request.chainBinding is ChainlessEvm) {
-      final reboundChainId =
-          await _findEvmChainIdForContract(contract, excludingChainId: requestedChainId);
+      final reboundChainId = await _tokenLookup.findEvmChainIdForContract(
+        contract,
+        excludingChainId: requestedChainId,
+      );
       final reboundType =
           reboundChainId != null ? snapshot.supportedEvmChains[reboundChainId] : null;
       if (reboundType != null) {
-        final token = await _findTokenByAddress(walletType: reboundType, address: contract);
+        final token =
+            await _tokenLookup.findTokenByAddress(walletType: reboundType, address: contract);
         if (token != null) {
           return TokenResolved(
             token: token,
@@ -89,4 +82,28 @@ class AnyPayResolver {
 
     return TokenUnknown(contract);
   }
+}
+
+abstract class AnyPayTokenLookup {
+  Future<CryptoCurrency?> findTokenByAddress({
+    required WalletType walletType,
+    required String address,
+  });
+
+  Future<int?> findEvmChainIdForContract(String contractAddress, {int? excludingChainId});
+}
+
+class TokenUtilitiesLookup implements AnyPayTokenLookup {
+  const TokenUtilitiesLookup();
+
+  @override
+  Future<CryptoCurrency?> findTokenByAddress({
+    required WalletType walletType,
+    required String address,
+  }) =>
+      TokenUtilities.findTokenByAddress(walletType: walletType, address: address);
+
+  @override
+  Future<int?> findEvmChainIdForContract(String contractAddress, {int? excludingChainId}) =>
+      TokenUtilities.findEvmChainIdForContract(contractAddress, excludingChainId: excludingChainId);
 }
