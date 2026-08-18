@@ -62,6 +62,7 @@ class KeychainCreationBloc extends Bloc<KeychainCreationEvent, KeychainCreationS
             passphrase: _appStore.wallet!.passphrase,
             seedTypeRaw: seedTypeRaw,
             blockHeight: await restoreHeight,
+            creationTime: DateTime.now().millisecondsSinceEpoch,
           ),);
         } catch(e) {
           emitPresentation(KeychainSaveFailed(error: e));

@@ -35,6 +35,7 @@ class KeychainDataV1 {
     required this.seed,
     required this.derivationTypeRaw,
     required this.networkRaw,
+    required this.creationTime,
     this.seedTypeRaw,
     this.blockHeight,
     this.passphrase,
@@ -52,6 +53,8 @@ class KeychainDataV1 {
   final int? seedTypeRaw;
   final int? blockHeight;
   final String? passphrase;
+  // stored as millisecondsSinceEpoch
+  final int creationTime;
 }
 
 @HostApi()

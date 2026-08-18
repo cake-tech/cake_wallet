@@ -54,6 +54,7 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
           passphrase: wallet.passphrase,
           seedTypeRaw: seedTypeRaw(wallet.type),
           blockHeight: await restoreHeight(wallet),
+          creationTime: DateTime.now().millisecondsSinceEpoch,
         ),);
 
         emit(s.copyWith(keychainWallets: await _keychain.getAll()));

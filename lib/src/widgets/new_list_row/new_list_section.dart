@@ -120,6 +120,7 @@ class NewListSections extends StatelessWidget {
       return ListItemToggleWidget(
         keyValue: item.keyValue,
         label: item.label,
+        subtitle: item.subtitle,
         leadingEndWidget: item.leadingEndWidget,
         iconPath: item.iconPath,
         value: item.value,

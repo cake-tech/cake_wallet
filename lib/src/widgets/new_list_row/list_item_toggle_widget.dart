@@ -8,6 +8,7 @@ class ListItemToggleWidget extends StatefulWidget {
     super.key,
     required this.keyValue,
     required this.label,
+    this.subtitle,
     this.iconPath,
     required this.value,
     required this.onChanged,
@@ -19,6 +20,7 @@ class ListItemToggleWidget extends StatefulWidget {
   final String keyValue;
   final String? iconPath;
   final String label;
+  final String? subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
   final Widget? leadingEndWidget;
@@ -53,7 +55,21 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                   children: [
                     CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24,),
                     Flexible(
-                      child: Text(widget.label, style: textStyle, softWrap: true),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.label, style: textStyle, softWrap: true),
+                          if (widget.subtitle != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Text(
+                                widget.subtitle!,
+                                style: labelStyle.copyWith(fontSize: 12),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                     if (widget.leadingEndWidget != null) widget.leadingEndWidget!
                   ],

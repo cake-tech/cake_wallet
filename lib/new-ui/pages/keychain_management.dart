@@ -6,6 +6,7 @@ import "package:cake_wallet/new-ui/viewmodels/keychain_management/keychain_manag
 import "package:cake_wallet/new-ui/widgets/modal_header.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/utils/date_formatter.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -55,6 +56,12 @@ class KeychainManagementPage extends StatelessWidget {
                                       deserializeFromInt(item.walletTypeRaw).iconPath,
                                     keyValue: item.name,
                                     label: item.name,
+                                    subtitle:
+                                        "${S.of(context).saved} ${DateFormatter.withCurrentLocal(hasTime: false).format(
+                                      DateTime.fromMillisecondsSinceEpoch(
+                                        item.creationTime,
+                                      ),
+                                    )}",
                                     value: true,
                                     onChanged: (val) {
                                       bloc.add(ItemUnsaved(state.keychainWallets.indexOf(item)));
