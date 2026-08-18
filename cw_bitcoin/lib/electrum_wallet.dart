@@ -471,6 +471,7 @@ abstract class ElectrumWalletBase
       privateKey: privateKey ?? '',
       publicKey: publicKey ?? '',
       xpub: xpub,
+      masterFingerprint: _masterHD?.fingerPrint.toHex() ?? '',
     );
   }
 
@@ -749,6 +750,9 @@ abstract class ElectrumWalletBase
     }
   }
 
+  static bool _isValidFeeRates(List<int> feeRates) =>
+      feeRates.length == 3 && feeRates.every((rate) => rate > 0);
+
   @action
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
@@ -775,7 +779,7 @@ abstract class ElectrumWalletBase
     }
 
     final feeRates = await electrumClient.feeRates(network: network);
-    if (feeRates != [0, 0, 0]) {
+    if (_isValidFeeRates(feeRates)) {
       _feeRates = feeRates;
     } else if (isTestnet) {
       _feeRates = [1, 1, 1];
@@ -1023,7 +1027,7 @@ abstract class ElectrumWalletBase
       vinOutpoints: utxoDetails.vinOutpoints,
     );
 
-    if (fee == 0) {
+    if (fee <= 0) {
       throw BitcoinTransactionNoFeeException();
     }
 
@@ -1204,7 +1208,7 @@ abstract class ElectrumWalletBase
       ));
     }
 
-    if (fee == 0) {
+    if (fee <= 0) {
       throw BitcoinTransactionNoFeeException();
     }
 
@@ -2512,16 +2516,16 @@ abstract class ElectrumWalletBase
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
     BitcoinAddressType type,
   ) async {
-
     final addressesByType =
-    walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
+        walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
 
     final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
-    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true, legacy: false, type: type);
     final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
-    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true, legacy: true, type: type);
 
-    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
+    walletAddresses.hiddenAddresses
+        .addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
@@ -2636,13 +2640,13 @@ abstract class ElectrumWalletBase
 
   Future<void> fetchTransactionsForAddressTypeBatch(
       Map<String, ElectrumTransactionInfo> historiesWithDetails, BitcoinAddressType type) async {
-
     final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
-    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true, legacy: false, type: type);
     final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
-    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true, legacy: true, type: type);
 
-    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
+    walletAddresses.hiddenAddresses
+        .addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     await fetchTransactionsForAddressesBranchBatch(
@@ -2664,7 +2668,7 @@ abstract class ElectrumWalletBase
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-       receiveLegacy,
+      receiveLegacy,
       isHidden: false,
       isLegacyDerivation: true,
     );
@@ -2748,10 +2752,13 @@ abstract class ElectrumWalletBase
     }
   }
 
-  List<BitcoinAddressRecord> getAddressBranchByType({required bool hidden, required bool legacy, required BitcoinAddressType
-  type}) => walletAddresses.allAddresses.where((addr) => addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
-        .toList()
-      ..sort((a, b) => a.index.compareTo(b.index));
+  List<BitcoinAddressRecord> getAddressBranchByType(
+          {required bool hidden, required bool legacy, required BitcoinAddressType type}) =>
+      walletAddresses.allAddresses
+          .where((addr) =>
+              addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
+          .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
 
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {
