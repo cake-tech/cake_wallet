@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -8,7 +9,9 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -184,8 +187,67 @@ abstract class OtherSettingsViewModelBase with Store {
   Future<File?> getPayjoinLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/payjoin.log");
+    final buf = StringBuffer();
 
-    if (await logFile.exists()) return logFile;
-    return null;
+    buf.writeln('=== Payjoin Export ===');
+    buf.writeln('Wallet: ${_wallet.name} (${walletType})');
+    buf.writeln('Wallet ID: ${_wallet.id}');
+    buf.writeln('Generated: ${DateTime.now().toIso8601String()}');
+    buf.writeln('');
+
+    try {
+      final box = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
+      final allSessions = box.values.toList();
+      final sessions = allSessions.where((s) => s.walletId == _wallet.id).toList();
+      buf.writeln('Total sessions in Hive box: ${allSessions.length}');
+      buf.writeln('Sessions for this wallet: ${sessions.length}');
+      buf.writeln('Sessions for other wallets: ${allSessions.length - sessions.length}');
+      if (sessions.isNotEmpty) {
+        buf.writeln('');
+        buf.writeln('--- Session Data ---');
+        for (final session in sessions) {
+          buf.writeln('');
+          buf.writeln(
+              'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}');
+          buf.writeln('Status: ${session.status}');
+          buf.writeln('URI: ${session.pjUri ?? "-"}');
+          buf.writeln('Receiver: ${session.receiver ?? "-"}');
+          buf.writeln('Sender: ${session.sender ?? "-"}');
+          buf.writeln('Amount: ${session.rawAmount ?? "-"}');
+          buf.writeln('TxID: ${session.txId ?? "-"}');
+          buf.writeln('Used Fallback: ${session.usedFallback}');
+          buf.writeln('Error: ${session.error ?? "-"}');
+
+          try {
+            final eventsBox = await CakeHive.openBox<String>('PayjoinSessionEvents');
+            final eventKey = session.isSenderSession
+                ? 'send_${session.pjUri}'
+                : 'recv_${session.receiver}';
+            final raw = eventsBox.get(eventKey);
+            if (raw != null) {
+              final events = List<String>.from(jsonDecode(raw) as List);
+              if (events.isNotEmpty) {
+                buf.writeln('Protocol Events:');
+                for (final event in events) {
+                  buf.writeln('  $event');
+                }
+              }
+            }
+          } catch (_) {}
+        }
+        buf.writeln('');
+        buf.writeln('--- End Session Data ---');
+      }
+    } catch (_) {}
+
+    if (await logFile.exists()) {
+      buf.writeln('');
+      buf.writeln('--- Raw Payjoin Log ---');
+      buf.writeln(await logFile.readAsString());
+    }
+
+    final exportPath = "$path/payjoin_export.txt";
+    await File(exportPath).writeAsString(buf.toString());
+    return File(exportPath);
   }
 }

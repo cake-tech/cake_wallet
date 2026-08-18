@@ -65,6 +65,7 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -118,7 +119,6 @@ import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
-import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -142,12 +142,16 @@ import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settin
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_payjoin_servers_page.dart';
+import 'package:cake_wallet/view_model/payjoin/payjoin_server_list_view_model.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
@@ -266,6 +270,7 @@ import 'package:cake_wallet/view_model/settings/connection_sync_view_model.dart'
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/payjoin_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
@@ -1056,6 +1061,9 @@ Future<void> setup({
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory(() =>
+      PayjoinSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
+
   getIt.registerFactory(
       () => MwebSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
@@ -1149,6 +1157,10 @@ Future<void> setup({
       () => SilentPaymentsSettingsPage(getIt.get<SilentPaymentsSettingsViewModel>()));
 
   getIt.registerFactory(() => SilentPaymentsLogPage(getIt.get<SilentPaymentsSettingsViewModel>()));
+
+  getIt.registerFactory(() => PayjoinSettingsPage(getIt.get<PayjoinSettingsViewModel>()));
+
+  getIt.registerFactory(() => PayjoinLogPage(getIt.get<PayjoinSettingsViewModel>()));
 
   getIt.registerFactory(() => MwebSettingsPage(getIt.get<MwebSettingsViewModel>()));
 
@@ -1660,10 +1672,10 @@ Future<void> setup({
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
 
-  getIt.registerFactoryParam<PayjoinDetailsPage, String, TransactionInfo?>(
-      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsPage(
-          payjoinDetailsViewModel:
-              getIt.get<PayjoinDetailsViewModel>(param1: sessionId, param2: transactionInfo)));
+  getIt.registerFactoryParam<PayjoinDetailsModal, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsModal(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(
+              param1: sessionId, param2: transactionInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));
@@ -1684,6 +1696,11 @@ Future<void> setup({
         nodeListViewModel: getIt.get<NodeListViewModel>(param1: isPow),
         dashboardViewModel: getIt.get<DashboardViewModel>());
   });
+
+  getIt.registerFactory<PayjoinServerListViewModel>(() => PayjoinServerListViewModel());
+
+  getIt.registerFactory<ManagePayjoinServersPage>(
+      () => ManagePayjoinServersPage(viewModel: getIt.get<PayjoinServerListViewModel>()));
 
   getIt.registerFactory(
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),

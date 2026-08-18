@@ -334,7 +334,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
-    payjoinManager.cleanupSessions();
     await lightningWallet?.close();
     super.close(shouldCleanup: shouldCleanup);
   }
@@ -523,6 +522,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
+    // Defensive: the send view model should have already stripped self-send
+    // payjoin URIs at scan time via SendViewModel.setPayjoinUri. Keep this
+    // check as a backstop in case a self-send URI reaches here directly.
+    if (payjoinUri != null && payjoinManager.isSelfSendPayjoinUri(payjoinUri)) {
+      printV('Stripping self-addressed payjoin at createTransaction ($payjoinUri)');
+      if (!tx.shouldCommitUR()) return tx;
+    }
     if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(
@@ -552,10 +558,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final originalPsbt =
         await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
+    final shouldSaveRecipientAddress = credentials.shouldSaveRecipientAddress;
+    final pjUri = payjoinUri!;
     tx.commitOverride = () async {
-      final sender =
-          await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
-      payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri, amount: tx.amount.amount);
+      await payjoinManager.initSender(pjUri, originalPsbt, int.parse(tx.feeRate));
+      final parsedUri = Uri.parse(pjUri);
+      final recipientAddress = shouldSaveRecipientAddress
+          ? (parsedUri.queryParameters['address'] ?? parsedUri.path)
+          : null;
+      payjoinManager.spawnNewSender(
+        pjUrl: pjUri,
+        originalPsbt: originalPsbt,
+        amount: tx.amount.amount,
+        recipientAddress: recipientAddress?.isEmpty == true ? null : recipientAddress,
+      );
     };
 
     return tx;
@@ -585,24 +601,56 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
-    final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
+    printV('[signPsbt] enter; utxos=${utxos.length}; psbtLen=${preProcessedPsbt.length}');
+    final psbt = PsbtV2();
+    try {
+      psbt.deserializeV0(base64Decode(preProcessedPsbt));
+    } catch (e, s) {
+      printV('[signPsbt] deserializeV0 FAILED: $e\n$s');
+      rethrow;
+    }
+    printV('[signPsbt] deserialized OK; inputs=${psbt.getGlobalInputCount()} outputs=${psbt.getGlobalOutputCount()}');
+    for (var i = 0; i < psbt.getGlobalInputCount(); i++) {
+      final txid = BytesUtils.toHexString(psbt.getInputPreviousTxid(i).reversed.toList());
+      final vout = psbt.getInputOutputIndex(i);
+      final wit = psbt.getInputWitnessUtxo(i);
+      String? finWit;
+      try { finWit = BytesUtils.toHexString(psbt.getInputFinalScriptwitness(i)); } catch (_) {}
+      printV('[signPsbt] in[$i] txid=$txid vout=$vout witUtxo=${wit != null} finWit=${finWit != null}');
+    }
 
-    await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
-      return utxo.utxo.isP2tr()
-          ? key.signTapRoot(
-              txDigest,
-              sighash: sighash,
-              tweak: utxo.utxo.isSilentPayment != true,
-            )
-          : key.signInput(txDigest, sigHash: sighash);
-    }, (txId, vout) async {
-      final txHex = await electrumClient.getTransactionHex(hash: txId);
-      final output = BtcTransaction.fromRaw(txHex).outputs[vout];
-      return TaprootAmountScriptPair(output.amount, output.scriptPubKey);
-    });
+    try {
+      await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
+        return utxo.utxo.isP2tr()
+            ? key.signTapRoot(
+                txDigest,
+                sighash: sighash,
+                tweak: utxo.utxo.isSilentPayment != true,
+              )
+            : key.signInput(txDigest, sigHash: sighash);
+      }, (txId, vout) async {
+        printV('[signPsbt] getTaprootPair fetch txId=$txId vout=$vout');
+        final txHex = await electrumClient.getTransactionHex(hash: txId);
+        final output = BtcTransaction.fromRaw(txHex).outputs[vout];
+        return TaprootAmountScriptPair(output.amount, output.scriptPubKey);
+      });
+      printV('[signPsbt] signWithUTXO completed');
+    } catch (e, s) {
+      printV('[signPsbt] signWithUTXO FAILED: $e\n$s');
+      rethrow;
+    }
 
-    psbt.finalizeV0();
-    return base64Encode(psbt.asPsbtV0());
+    try {
+      psbt.finalizeV0();
+      printV('[signPsbt] finalizeV0 completed');
+    } catch (e, s) {
+      printV('[signPsbt] finalizeV0 FAILED: $e\n$s');
+      rethrow;
+    }
+
+    final result = base64Encode(psbt.asPsbtV0());
+    printV('[signPsbt] exit; resultLen=${result.length}');
+    return result;
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {

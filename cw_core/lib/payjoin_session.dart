@@ -52,6 +52,18 @@ class PayjoinSession extends HiveObject {
   // @HiveField(8)
   String? error;
 
+  // @HiveField(9)
+  String? originalPsbt;
+
+  // @HiveField(10)
+  bool usedFallback = false;
+
+  // @HiveField(11)
+  String? recipientAddress;
+
+  // @HiveField(12)
+  DateTime? expiresAt;
+
   bool get isSenderSession => sender != null;
 
   BigInt get amount => BigInt.parse(rawAmount ?? "0");
@@ -60,6 +72,7 @@ class PayjoinSession extends HiveObject {
 
 enum PayjoinSessionStatus {
   created,
+  waiting,
   inProgress,
   success,
   unrecoverable,

@@ -183,12 +183,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     await wallet.walletInfo.save();
   }
 
-  // payjoinEndpoint getter is broken, but uri works
   bool get hasPayjoin =>
       wallet.type == WalletType.bitcoin &&
       !isLightning &&
       !isSilentPayments &&
-      uri.toString().contains("payjo.in");
+      _appStore.settingsStore.usePayjoin &&
+      payjoinEndpoint.isNotEmpty;
 
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
@@ -247,7 +247,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return wallet.walletAddresses.getPaymentUri(_amount);
   }
 
-  bool get isPayjoinAvailable => !isPayjoinUnavailable && !isSilentPayments && !isLightning;
+  bool get isPayjoinAvailable => _appStore.settingsStore.usePayjoin && !isPayjoinUnavailable && !isSilentPayments && !isLightning;
 
   @computed
   ObservableList<ListItem> get items => ObservableList<ListItem>()

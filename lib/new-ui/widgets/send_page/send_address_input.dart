@@ -47,18 +47,75 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
   FocusNode? node;
   GlobalKey<FormFieldState<String>> formFieldKey = GlobalKey<FormFieldState<String>>();
 
+  // Guards against re-entrant normalization when we rewrite the controller
+  // text from inside the listener (which would otherwise re-trigger the
+  // listener with the stripped address and cause feedback loops).
+  bool _isNormalizing = false;
+
   @override
   void initState() {
     super.initState();
     node = widget.focusNode ?? FocusNode();
     node!.addListener(_onFocusChange);
-    widget.addressController
-        .addListener(() => formFieldKey.currentState?.didChange(widget.addressController.text));
+    widget.addressController.addListener(_onAddressChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.addressController.removeListener(_onAddressChanged);
+    super.dispose();
   }
 
   void _onFocusChange() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _onAddressChanged() {
+    if (_isNormalizing) return;
+    final raw = widget.addressController.text;
+
+    // Detect a BIP21 URI typed or system-pasted directly into the field.
+    // The strict address validator would otherwise reject the full URI as
+    // "not recognized", and the payjoin `pj=`/`amount=` params would never
+    // reach the send view model. Normalize by collapsing the field to the
+    // bare address and dispatching the original URI via [onURIScanned].
+    if (_isBip21Uri(raw)) {
+      _isNormalizing = true;
+      try {
+        final uri = Uri.parse(raw);
+        final bare = uri.path;
+        if (bare.isNotEmpty && bare != raw) {
+          widget.addressController.text = bare;
+          // Defer the callback so the controller/text-field rebuild settles
+          // before downstream handlers mutate state based on it.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) widget.onURIScanned?.call(uri);
+          });
+        }
+        formFieldKey.currentState?.didChange(bare);
+      } finally {
+        _isNormalizing = false;
+      }
+      return;
+    }
+
+    formFieldKey.currentState?.didChange(raw);
+  }
+
+  /// Returns true if [input] looks like a BIP21 payment URI such as
+  /// `bitcoin:bc1q...?amount=0.001&pj=https://...`. A bare address never
+  /// has both a scheme separator and a query string.
+  bool _isBip21Uri(String input) {
+    if (!input.contains(':') || !input.contains('?')) return false;
+    try {
+      final uri = Uri.parse(input);
+      return uri.scheme.isNotEmpty &&
+          uri.queryParameters.isNotEmpty &&
+          uri.path.isNotEmpty;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -197,41 +254,42 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
     if (code == null) return;
     if (code.isEmpty) return;
 
-    try {
-      final uri = Uri.parse(code);
-      // probably should remove this and let the `onURIScanned` handle it, but for now,
-      // will fix that it takes the token contract address
-      if (!uri.path.contains("/transfer")) {
-        widget.addressController.text = uri.path;
-      }
-      widget.onURIScanned?.call(uri);
-    } catch (_) {
-      widget.addressController.text = code;
-    }
+    if (_applyScannedOrPasted(code)) return;
+
+    widget.onPushPasteButton?.call(context);
   }
 
   Future<void> _pasteAddress(BuildContext context) async {
     final clipboard = await Clipboard.getData('text/plain');
     final address = clipboard?.text ?? '';
 
-    if (address.isNotEmpty) {
-      // if it has query parameters then it's a valid uri
-      // added because Uri.parse(address) can parse a normal address string and would still be valid
-      if (address.contains("=")) {
-        try {
-          final uri = Uri.parse(address);
-          widget.addressController.text = uri.path;
-          widget.onURIScanned?.call(uri);
-          return;
-        } catch (_) {
-          widget.addressController.text = address;
-        }
-      } else {
-        widget.addressController.text = address;
-      }
-    }
+    if (address.isEmpty) return;
 
+    if (_applyScannedOrPasted(address)) return;
+
+    widget.addressController.text = address;
     widget.onPushPasteButton?.call(context);
+  }
+
+  /// Normalizes a scanned/pasted string that turns out to be a BIP21 payment
+  /// URI. Sets the visible field text to the bare address and dispatches the
+  /// full URI through [onURIScanned] so the send view model receives the
+  /// `amount=`/`pj=` parameters.
+  ///
+  /// Returns true if [input] was recognized as a BIP21 URI and handled.
+  bool _applyScannedOrPasted(String input) {
+    if (!_isBip21Uri(input)) return false;
+    try {
+      final uri = Uri.parse(input);
+      // Bare on-chain address goes in the visible field; the full URI
+      // (including `pj=`, `amount=`, ERC681 contract path, etc.) is delivered
+      // via onURIScanned so the send view model can parse it.
+      widget.addressController.text = uri.path;
+      widget.onURIScanned?.call(uri);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {

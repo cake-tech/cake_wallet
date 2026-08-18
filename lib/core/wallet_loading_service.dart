@@ -10,6 +10,8 @@ import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/payjoin/payjoin_server.dart';
 import 'package:cw_core/exceptions.dart' show WalletDeprecationException;
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -68,6 +70,15 @@ class WalletLoadingService {
       final walletService = walletServiceFactory.call(type);
       final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
       final wallet = await walletService.openWallet(name, walletPassword);
+
+      if (type == WalletType.bitcoin) {
+        final config = PayjoinServer.loadUrlsFromPrefs(sharedPreferences);
+        bitcoin!.configurePayjoinMailroom(
+          wallet,
+          config.relays,
+          config.directories,
+        );
+      }
 
       if (type == WalletType.monero) {
         await updateMoneroWalletPassword(wallet);

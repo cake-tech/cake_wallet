@@ -79,7 +79,7 @@ import 'package:cake_wallet/src/screens/new_wallet/wallet_group_existing_seed_de
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
-import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -103,10 +103,13 @@ import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settin
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/manage_payjoin_servers_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/payjoin_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
@@ -576,6 +579,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<SilentPaymentsLogPage>(),
       );
 
+    case Routes.payjoinSettings:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<PayjoinSettingsPage>(),
+      );
+
+    case Routes.payjoinLogs:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<PayjoinLogPage>(),
+      );
+
     case Routes.mwebSettings:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<MwebSettingsPage>(),
@@ -876,7 +889,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final transactionInfo = arguments[1] as TransactionInfo?;
       return CupertinoPageRoute<void>(
           builder: (_) =>
-              getIt.get<PayjoinDetailsPage>(param1: sessionId, param2: transactionInfo));
+              Material(child: getIt.get<PayjoinDetailsModal>(param1: sessionId, param2: transactionInfo)));
 
     case Routes.desktop_actions:
       return PageRouteBuilder(
@@ -949,6 +962,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
+
+    case Routes.managePayjoinServers:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<ManagePayjoinServersPage>());
 
     case Routes.walletConnectConnectionsListing:
       return MaterialPageRoute<void>(
