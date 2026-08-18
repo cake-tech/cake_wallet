@@ -238,10 +238,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
         hasHiddenAddresses: addressService.hasHiddenAddresses,
         showAddManualAddresses: !addressService.isAutoGenerateSubaddressEnabled ||
             const {WalletType.monero, WalletType.wownero}.contains(addressService.walletType),
-        hasBalance: addressService.isBalanceAvailable,
-        hasReceived: addressService.isReceivedAvailable,
         canSetLabel: addressService.canSetLabel,
         canHide: addressService.canHide,
-        isSilentPayments: addressService.isSilentPayments,
       );
 }

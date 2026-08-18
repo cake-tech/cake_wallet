@@ -40,19 +40,15 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class ReceivePage extends StatelessWidget {
-  const ReceivePage({super.key, this.lightningMode = false, this.initialToken});
+  const ReceivePage({super.key, this.initialToken});
 
-  final bool lightningMode;
   final CryptoCurrency? initialToken;
 
   @override
-  Widget build(BuildContext context) {
-    final token = lightningMode ? CryptoCurrency.btcln : initialToken;
-    return BlocProvider<ReceiveBloc>(
-      create: (_) => getIt<ReceiveBloc>(param1: token),
-      child: _ReceivePageBody(initialToken: token),
-    );
-  }
+  Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
+        create: (_) => getIt<ReceiveBloc>(param1: initialToken),
+        child: _ReceivePageBody(initialToken: initialToken),
+      );
 }
 
 class _ReceivePageBody extends StatefulWidget {
@@ -260,9 +256,7 @@ class _LoadedWidget extends StatelessWidget {
               ReceiveAmountDisplay(
                 displayAmount: state.requestedAmountDisplay,
                 cryptoSymbol: state.receiveCryptoSymbol,
-                fiatAmount: state.fiatEquivalent?.toStringWithPrecision() ?? "",
-                fiatSymbol: state.fiatEquivalent?.currency.name ?? "",
-                showFiat: state.fiatEquivalent != null,
+                fiatEquivalent: state.fiatEquivalent,
                 largeQrMode: largeQrMode,
               ),
               ReceiveQrCode(
@@ -270,7 +264,6 @@ class _LoadedWidget extends StatelessWidget {
                 embeddedIconAsset: _qrEmbeddedIcon(state),
                 hasPayjoin: state.hasPayjoin,
                 largeQrMode: largeQrMode,
-                isLightMode: Theme.of(context).brightness == Brightness.light,
                 onTap: onQrTap,
                 isFetching: state.fetchingInvoice,
               ),
@@ -313,12 +306,12 @@ class _LoadedWidget extends StatelessWidget {
               ReceiveBottomButtons(
                 largeQrMode: largeQrMode,
                 copyData: state.hasPayjoin ? null : ClipboardData(text: _copyText(state)),
-                showAccountsButton: state.hasAddressList,
+                showAddressesButton: state.hasAddressList,
                 showLabelButton: state.hasAddressList && !hasLabel,
-                onCopyButtonPressed: () => _onCopy(context, state),
+                onCopyButtonPressed: () => _showPayjoinCopyModal(context, state),
                 onAmountButtonPressed: () => _showAmountModal(context, state),
                 onLabelButtonPressed: () => _showLabelModal(context, state),
-                onAccountsButtonPressed: () => _openAddressesPage(context, state),
+                onAddressesButtonPressed: () => _openAddressesPage(context, state),
               ),
               ReceiveLargeAmountPreview(
                 amount: state.requestedAmountDisplay,
@@ -364,10 +357,7 @@ class _LoadedWidget extends StatelessWidget {
     return getQrImage(state.walletType);
   }
 
-  void _onCopy(BuildContext context, ReceiveLoaded state) {
-    if (!state.hasPayjoin) {
-      return;
-    }
+  void _showPayjoinCopyModal(BuildContext context, ReceiveLoaded state) {
     showModalBottomSheet<void>(
       isScrollControlled: true,
       context: context,

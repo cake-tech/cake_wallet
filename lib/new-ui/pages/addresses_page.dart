@@ -8,6 +8,7 @@ import "package:cake_wallet/new-ui/long_press_popup.dart";
 import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/base_text_form_field.dart";
@@ -263,8 +264,7 @@ class _GroupSection extends StatelessWidget {
                     isFirstGroup && index == 0 && (state.showHidden || !state.hasHiddenAddresses),
                 last: index == group.entries.length - 1,
                 walletType: state.walletType,
-                hasBalance: state.hasBalance,
-                hasReceived: state.hasReceived,
+                hasReceived: state.hasAccounts,
                 canSetLabel: state.canSetLabel,
                 canHide: state.canHide,
                 isPicker: isPicker,
@@ -596,7 +596,6 @@ class _AddressRow extends StatelessWidget {
     required this.first,
     required this.last,
     required this.walletType,
-    required this.hasBalance,
     required this.hasReceived,
     required this.canSetLabel,
     required this.canHide,
@@ -610,7 +609,6 @@ class _AddressRow extends StatelessWidget {
   final bool first;
   final bool last;
   final WalletType walletType;
-  final bool hasBalance;
   final bool hasReceived;
   final bool canSetLabel;
   final bool canHide;
@@ -680,12 +678,25 @@ class _AddressRow extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      Text(
-                        "${hasReceived ? S.of(context).received : S.of(context).balance}: ${entry.balance ?? ""}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      Row(
+                        spacing: 4,
+                        children: [
+                          Text(
+                            "${hasReceived ? S.of(context).received : S.of(context).balance}:",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          MoneyText.optional(
+                            entry.balance,
+                            showSymbol: false,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -860,11 +871,7 @@ class _AddressInfoPopup extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadiusGeometry.lerp(
-                  BorderRadius.circular(12),
-                  BorderRadius.circular(24),
-                  0.5,
-                ),
+                borderRadius: BorderRadius.circular(18),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),

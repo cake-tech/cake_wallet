@@ -21,16 +21,14 @@ class ActiveWalletService {
   late final mobx.ReactionDisposer _disposeReaction;
 
   WalletBase get wallet {
-    final w = _appStore.wallet;
-    if (w == null) {
+    final wallet = _appStore.wallet;
+    if (wallet == null) {
       throw StateError(
         "No wallet is active yet",
       );
     }
-    return w;
+    return wallet;
   }
-
-  bool get hasWallet => _appStore.wallet != null;
 
   Stream<WalletBase> get walletChanges => _controller.stream;
 

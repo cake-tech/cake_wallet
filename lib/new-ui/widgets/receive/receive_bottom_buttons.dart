@@ -8,11 +8,11 @@ class ReceiveBottomButtons extends StatelessWidget {
   const ReceiveBottomButtons({
     required this.largeQrMode,
     required this.onCopyButtonPressed,
-    required this.onAccountsButtonPressed,
+    required this.onAddressesButtonPressed,
     required this.onAmountButtonPressed,
     required this.onLabelButtonPressed,
     required this.showLabelButton,
-    required this.showAccountsButton,
+    required this.showAddressesButton,
     required this.copyData,
     super.key,
   });
@@ -22,9 +22,9 @@ class ReceiveBottomButtons extends StatelessWidget {
   final VoidCallback onCopyButtonPressed;
   final VoidCallback onAmountButtonPressed;
   final VoidCallback onLabelButtonPressed;
-  final VoidCallback onAccountsButtonPressed;
+  final VoidCallback onAddressesButtonPressed;
   final bool showLabelButton;
-  final bool showAccountsButton;
+  final bool showAddressesButton;
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +85,12 @@ class ReceiveBottomButtons extends StatelessWidget {
                     onPressed: onLabelButtonPressed,
                     label: S.of(context).label,
                   ),
-                if (showAccountsButton)
+                if (showAddressesButton)
                   ModernButton.svg(
                     size: 60,
                     iconSize: 32,
                     svgPath: "assets/new-ui/addr-book.svg",
-                    onPressed: onAccountsButtonPressed,
+                    onPressed: onAddressesButtonPressed,
                     label: S.of(context).addresses,
                   ),
               ],

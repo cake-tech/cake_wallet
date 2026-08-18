@@ -145,8 +145,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       }
     }
 
-    final rawCryptoForUri = requestedAmount?.toStringWithPrecision() ?? "";
-
     if (rateUnavailable) {
       if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
         emit(
@@ -155,7 +153,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
             clearFiatEquivalent: true,
             paymentUri: loaded.isLightning
                 ? null
-                : addressService.buildPaymentUri(rawAmount: "", token: loaded.tokenCurrency),
+                : addressService.buildPaymentUri(token: loaded.tokenCurrency),
             failureCode: ReceiveFailureCode.fiatRateUnavailable,
           ),
         );
@@ -178,11 +176,11 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       await _fetchLightningInvoice(
         emit,
         walletId: initial.walletId,
-        rawAmount: rawCryptoForUri,
+        amount: requestedAmount,
       );
     } else if (state case final ReceiveLoaded loaded) {
       final uri = addressService.buildPaymentUri(
-        rawAmount: rawCryptoForUri,
+        amount: requestedAmount,
         token: loaded.tokenCurrency,
       );
       emit(
@@ -252,7 +250,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     final newInputCurrency =
         loaded.inputCurrency is CryptoCurrency ? receiveCrypto : loaded.inputCurrency;
 
-    final uri = addressService.buildPaymentUri(rawAmount: "", token: token);
+    final uri = addressService.buildPaymentUri(token: token);
 
     emit(
       loaded.copyWith(
@@ -308,11 +306,11 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
     if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
-      String? invoiceAmountToFetch;
+      Money? invoiceAmountToFetch;
       try {
         final newAddress = _currentAddressEntry();
         final newUri = addressService.buildPaymentUri(
-          rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
+          amount: loaded.requestedAmount,
           token: loaded.tokenCurrency,
         );
         final isCurrentRequestLightning = newUri is LightningPaymentRequest;
@@ -337,7 +335,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         }
 
         if (isCurrentRequestLightning && loaded.requestedAmount != null) {
-          invoiceAmountToFetch = loaded.requestedAmount!.toStringWithPrecision();
+          invoiceAmountToFetch = loaded.requestedAmount;
         }
 
         final nextReceiveCrypto = nextToken ?? addressService.walletCurrency;
@@ -376,7 +374,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
         await _fetchLightningInvoice(
           emit,
           walletId: initial.walletId,
-          rawAmount: invoiceAmountToFetch,
+          amount: invoiceAmountToFetch,
         );
       }
     }
@@ -400,7 +398,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           loaded.copyWith(
             addressEntry: _currentAddressEntry(),
             paymentUri: addressService.buildPaymentUri(
-              rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
+              amount: loaded.requestedAmount,
               token: loaded.tokenCurrency,
             ),
             isRotatingAddress: false,
@@ -483,7 +481,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       loaded.copyWith(
         addressEntry: _currentAddressEntry(),
         paymentUri: addressService.buildPaymentUri(
-          rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
+          amount: loaded.requestedAmount,
           token: loaded.tokenCurrency,
         ),
       ),
@@ -519,9 +517,8 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       }
       final receiveCrypto = _receiveCryptoCurrency(loaded);
       final newCrypto = fiatRateService.convert(loaded.fiatEquivalent!, receiveCrypto);
-      final rawCryptoForUri = newCrypto?.toStringWithPrecision() ?? "";
       final uri = addressService.buildPaymentUri(
-        rawAmount: rawCryptoForUri,
+        amount: newCrypto,
         token: loaded.tokenCurrency,
       );
       emit(
@@ -557,7 +554,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     emit(
       loaded.copyWith(
         paymentUri: addressService.buildPaymentUri(
-          rawAmount: loaded.requestedAmount?.toStringWithPrecision() ?? "",
+          amount: loaded.requestedAmount,
           token: loaded.tokenCurrency,
         ),
       ),
@@ -567,15 +564,13 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   Future<void> _fetchLightningInvoice(
     Emitter<ReceiveState> emit, {
     required String walletId,
-    required String rawAmount,
+    Money? amount,
   }) async {
     bool matchesRequest(ReceiveLoaded loaded) =>
-        loaded.walletId == walletId &&
-        loaded.isLightning &&
-        (loaded.requestedAmount?.toStringWithPrecision() ?? "") == rawAmount;
+        loaded.walletId == walletId && loaded.isLightning && loaded.requestedAmount == amount;
 
     try {
-      final uri = await addressService.fetchPaymentRequestUri(rawAmount: rawAmount, token: null);
+      final uri = await addressService.fetchPaymentRequestUri(amount: amount, token: null);
       if (isClosed) {
         return;
       }
@@ -591,7 +586,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
           when loaded.walletId == walletId && loaded.isLightning) {
         PaymentURI? plainUri;
         try {
-          plainUri = addressService.buildPaymentUri(rawAmount: "", token: null);
+          plainUri = addressService.buildPaymentUri();
         } catch (e) {
           printV("ReceiveBloc plain lightning uri rebuild failed: $e");
         }
@@ -612,7 +607,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
   ReceiveLoaded _buildLoaded({CryptoCurrency? initialToken}) {
     final tokenCurrency = _resolveTokenCurrency(initialToken);
     final inputCurrency = tokenCurrency ?? addressService.walletCurrency;
-    final uri = addressService.buildPaymentUri(rawAmount: "", token: tokenCurrency);
+    final uri = addressService.buildPaymentUri(token: tokenCurrency);
 
     final receiveCrypto = tokenCurrency ?? addressService.walletCurrency;
     return ReceiveLoaded(

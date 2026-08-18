@@ -35,7 +35,7 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
     }
 
     var iconPath = selected.iconPath;
-    if (iconPath != null && walletTypeString == "Litecoin" && text.contains("Standard")) {
+    if (iconPath != null && walletType == WalletType.litecoin && text.contains("Standard")) {
       iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
     }
 

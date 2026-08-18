@@ -1,21 +1,18 @@
+import "package:cw_core/amount/money.dart";
 import "package:flutter/material.dart";
 
 class ReceiveAmountDisplay extends StatelessWidget {
   const ReceiveAmountDisplay({
     required this.displayAmount,
     required this.cryptoSymbol,
-    required this.fiatAmount,
-    required this.fiatSymbol,
-    required this.showFiat,
+    required this.fiatEquivalent,
     required this.largeQrMode,
     super.key,
   });
 
   final String displayAmount;
   final String cryptoSymbol;
-  final String fiatAmount;
-  final String fiatSymbol;
-  final bool showFiat;
+  final Money? fiatEquivalent;
   final bool largeQrMode;
 
   @override
@@ -75,11 +72,11 @@ class ReceiveAmountDisplay extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (showFiat)
+                    if (fiatEquivalent != null)
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: Text(
-                          "$fiatAmount $fiatSymbol",
+                          "${fiatEquivalent!.toStringWithPrecision()} ${fiatEquivalent!.currency.name}",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontSize: 16,

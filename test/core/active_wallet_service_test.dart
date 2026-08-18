@@ -45,34 +45,6 @@ void main() {
     });
   });
 
-  group("hasWallet", () {
-    test("is false when no wallet is active", () {
-      final service = ActiveWalletService(appStore);
-      addTearDown(service.dispose);
-
-      expect(service.hasWallet, isFalse);
-    });
-
-    test("is true once a wallet is set", () {
-      appStore.setWallet(_MockWallet());
-      final service = ActiveWalletService(appStore);
-      addTearDown(service.dispose);
-
-      expect(service.hasWallet, isTrue);
-    });
-
-    test("tracks wallet transitions", () {
-      final service = ActiveWalletService(appStore);
-      addTearDown(service.dispose);
-
-      expect(service.hasWallet, isFalse);
-      appStore.setWallet(_MockWallet());
-      expect(service.hasWallet, isTrue);
-      appStore.setWallet(null);
-      expect(service.hasWallet, isFalse);
-    });
-  });
-
   group("walletChanges stream", () {
     test("emits when the wallet transitions from null to a wallet", () async {
       final service = ActiveWalletService(appStore);

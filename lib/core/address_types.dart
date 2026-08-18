@@ -1,14 +1,11 @@
+import "package:cw_core/amount/money.dart";
+
 class AddressEntry {
   const AddressEntry({
     required this.address,
     this.id,
     this.label,
-    this.isPrimary = false,
-    this.isChange = false,
     this.isHidden = false,
-    this.isManual = false,
-    this.isLegacyDerivation = false,
-    this.isOneTimeReceiveAddress = false,
     this.derivationPath,
     this.txCount,
     this.balance,
@@ -17,15 +14,10 @@ class AddressEntry {
   final String address;
   final int? id;
   final String? label;
-  final bool isPrimary;
-  final bool isChange;
   final bool isHidden;
-  final bool isManual;
-  final bool isLegacyDerivation;
-  final bool isOneTimeReceiveAddress;
   final String? derivationPath;
   final int? txCount;
-  final String? balance;
+  final Money? balance;
 }
 
 sealed class AddressGroupHeader {

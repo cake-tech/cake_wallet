@@ -89,7 +89,8 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).receive,
             action: () async {
-              final page = getIt.get<ReceivePage>(param1: lightningMode);
+              final page =
+                  getIt.get<ReceivePage>(param1: lightningMode ? CryptoCurrency.btcln : null);
               if (FeatureFlag.hasNewUiExtraPages) {
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,

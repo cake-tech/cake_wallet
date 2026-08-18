@@ -40,7 +40,6 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
 
   @override
   Widget build(BuildContext context) {
-    final walletTypeString = walletTypeToString(widget.walletType);
     final commonOptions = widget.options
         .where(
           (element) =>
@@ -102,7 +101,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                     final opt = commonOptions[index];
                     return ReceiveAddressTypeRow(
                       option: opt,
-                      walletTypeString: walletTypeString,
+                      walletType: widget.walletType,
                       roundedTop: index == 0,
                       roundedBottom: index == commonOptions.length - 1,
                       selected: widget.selected == opt,
@@ -213,7 +212,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                 final opt = otherOptions[index];
                                 return ReceiveAddressTypeRow(
                                   option: opt,
-                                  walletTypeString: walletTypeString,
+                                  walletType: widget.walletType,
                                   roundedTop: false,
                                   roundedBottom: index == otherOptions.length - 1,
                                   selected: widget.selected == opt,
@@ -251,7 +250,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
 class ReceiveAddressTypeRow extends StatelessWidget {
   const ReceiveAddressTypeRow({
     required this.option,
-    required this.walletTypeString,
+    required this.walletType,
     required this.roundedTop,
     required this.roundedBottom,
     required this.selected,
@@ -260,7 +259,7 @@ class ReceiveAddressTypeRow extends StatelessWidget {
   });
 
   final ReceivePageOption option;
-  final String walletTypeString;
+  final WalletType walletType;
   final bool roundedTop;
   final bool roundedBottom;
   final bool selected;
@@ -272,7 +271,9 @@ class ReceiveAddressTypeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var iconPath = option.iconPath;
-    if (iconPath != null && walletTypeString == "Litecoin" && option.value.contains("Standard")) {
+    if (iconPath != null &&
+        walletType == WalletType.litecoin &&
+        option.value.contains("Standard")) {
       iconPath = "assets/new-ui/address-type-picker-icons/litecoin.svg";
     }
     return Material(

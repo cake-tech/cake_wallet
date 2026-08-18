@@ -864,11 +864,8 @@ Future<void> setup({
         getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
-  getIt.registerFactoryParam<ReceivePage, bool?, CryptoCurrency?>(
-    (lightningMode, initialToken) => ReceivePage(
-      lightningMode: lightningMode ?? false,
-      initialToken: initialToken,
-    ),
+  getIt.registerFactoryParam<ReceivePage, CryptoCurrency?, void>(
+    (initialToken, _) => ReceivePage(initialToken: initialToken),
   );
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(

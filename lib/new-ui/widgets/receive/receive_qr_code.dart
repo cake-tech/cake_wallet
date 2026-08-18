@@ -12,7 +12,6 @@ class ReceiveQrCode extends StatelessWidget {
     required this.embeddedIconAsset,
     required this.hasPayjoin,
     required this.largeQrMode,
-    required this.isLightMode,
     required this.onTap,
     this.isFetching = false,
     super.key,
@@ -22,7 +21,6 @@ class ReceiveQrCode extends StatelessWidget {
   final String embeddedIconAsset;
   final bool hasPayjoin;
   final bool largeQrMode;
-  final bool isLightMode;
   final VoidCallback onTap;
   final bool isFetching;
 
@@ -31,6 +29,7 @@ class ReceiveQrCode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
     final targetY = largeQrMode ? largeQrModeBottomPadding + 50.0 : 0.0;
     final qrSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.5;
     final qrScale = largeQrMode ? 1.7 : 1.0;

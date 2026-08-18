@@ -10,9 +10,9 @@ import "package:flutter/material.dart";
 
 class ReceiveInfoBox extends StatelessWidget {
   const ReceiveInfoBox({
-    required this.iconPath,
     required this.message,
     required this.onDismissed,
+    this.iconPath,
     this.bottomWidget,
     super.key,
   });
@@ -47,7 +47,6 @@ class ReceiveInfoBox extends StatelessWidget {
           return null;
         }
         return ReceiveInfoBox(
-          iconPath: "",
           message: S.of(context).infobox_multichain_named(walletTypeToString(type)),
           onDismissed: onDismissed,
           bottomWidget: InfoboxCurrencyRow(
@@ -78,7 +77,7 @@ class ReceiveInfoBox extends StatelessWidget {
     }
   }
 
-  final String iconPath;
+  final String? iconPath;
   final String message;
   final Widget? bottomWidget;
   final VoidCallback onDismissed;
@@ -97,7 +96,7 @@ class ReceiveInfoBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                if (iconPath.isNotEmpty)
+                if (iconPath != null)
                   ExcludeSemantics(
                     child: CakeImageWidget(
                       imageUrl: iconPath,

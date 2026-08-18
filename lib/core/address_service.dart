@@ -15,6 +15,7 @@ import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
@@ -57,8 +58,7 @@ class AddressService {
 
   String get walletName => wallet.name;
   WalletType get walletType => wallet.type;
-  int? get walletChainId => wallet.chainId;
-  String get walletId => wallet.walletInfo.name;
+  String get walletId => wallet.id;
   CryptoCurrency get walletCurrency => wallet.currency;
 
   List<CryptoCurrency> get receivableTokens =>
@@ -112,18 +112,15 @@ class AddressService {
   AddressGroup _moneroAddresses() {
     final wallet = this.wallet;
     final subaddresses = monero!.getSubaddressList(wallet).subaddresses;
-    final primary = subaddresses.firstOrNull;
     final entries = subaddresses
         .map(
           (s) => AddressEntry(
             id: s.id,
             address: s.address,
             label: s.label,
-            isPrimary: identical(s, primary),
             txCount: s.txCount,
-            balance: s.received,
+            balance: Money.tryParse(s.received ?? "", CryptoCurrency.xmr),
             isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
-            isManual: wallet.walletAddresses.manualAddresses.contains(s.address),
           ),
         )
         .toList();
@@ -133,16 +130,13 @@ class AddressService {
   AddressGroup _wowneroAddresses() {
     final wallet = this.wallet;
     final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
-    final primary = subaddresses.firstOrNull;
     final entries = subaddresses
         .map(
           (s) => AddressEntry(
             id: s.id,
             address: s.address,
             label: s.label,
-            isPrimary: identical(s, primary),
             isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
-            isManual: wallet.walletAddresses.manualAddresses.contains(s.address),
           ),
         )
         .toList();
@@ -153,10 +147,8 @@ class AddressService {
     final wallet = this.wallet;
     if (bitcoin!.hasSelectedSilentPayments(wallet)) {
       final main = bitcoin!.getSilentPaymentAddresses(wallet).map(_electrumEntry).toList();
-      final received = bitcoin!
-          .getSilentPaymentReceivedAddresses(wallet)
-          .map((a) => _electrumEntry(a, isOneTimeReceiveAddress: true))
-          .toList();
+      final received =
+          bitcoin!.getSilentPaymentReceivedAddresses(wallet).map(_electrumEntry).toList();
       return [
         AddressGroup(entries: main),
         AddressGroup(header: const SilentPaymentsReceivedHeader(), entries: received),
@@ -180,27 +172,18 @@ class AddressService {
   static const _mwebTruncationThreshold = 1000;
   static const _mwebTruncationTrailingBuffer = 20;
 
-  AddressEntry _electrumEntry(ElectrumSubAddress addr, {bool isOneTimeReceiveAddress = false}) {
+  AddressEntry _electrumEntry(ElectrumSubAddress addr) {
     final wallet = this.wallet;
     final hidden = wallet.walletAddresses.hiddenAddresses.contains(addr.address) ||
         (wallet.type == WalletType.bitcoin && addr.isLegacyDerivation);
-    final isPrimary = !isOneTimeReceiveAddress && addr.id == 0;
     return AddressEntry(
       id: addr.id,
       address: addr.address,
       label: addr.name,
-      isPrimary: isPrimary,
-      isChange: addr.isChange,
       txCount: addr.txCount,
-      balance: _amountParsingProxy.getDisplayCryptoString(
-        addr.balance,
-        walletTypeToCryptoCurrency(wallet.type),
-      ),
-      isLegacyDerivation: addr.isLegacyDerivation,
+      balance: Money.fromInt(addr.balance, walletTypeToCryptoCurrency(wallet.type)),
       derivationPath: addr.derivationPath,
       isHidden: hidden,
-      isManual: wallet.walletAddresses.manualAddresses.contains(addr.address),
-      isOneTimeReceiveAddress: isOneTimeReceiveAddress,
     );
   }
 
@@ -213,7 +196,6 @@ class AddressService {
             address: i.address,
             label: i.label,
             isHidden: wallet.walletAddresses.hiddenAddresses.contains(i.address),
-            isManual: wallet.walletAddresses.manualAddresses.contains(i.address),
           ),
         )
         .toList();
@@ -230,7 +212,6 @@ class AddressService {
             address: i.address,
             label: i.label,
             isHidden: wallet.walletAddresses.hiddenAddresses.contains(i.address),
-            isManual: wallet.walletAddresses.manualAddresses.contains(i.address),
           ),
         )
         .toList();
@@ -238,7 +219,7 @@ class AddressService {
   }
 
   List<AddressGroup> _singleAddressGroup(String address) => [
-        AddressGroup(entries: [AddressEntry(address: address, isPrimary: true)]),
+        AddressGroup(entries: [AddressEntry(address: address)]),
       ];
 
   String get currentAddress => wallet.walletAddresses.address;
@@ -468,9 +449,10 @@ class AddressService {
     }
   }
 
-  PaymentURI buildPaymentUri({required String rawAmount, CryptoCurrency? token}) {
+  PaymentURI buildPaymentUri({Money? amount, CryptoCurrency? token}) {
     final type = wallet.type;
     final address = wallet.walletAddresses.address;
+    final rawAmount = amount?.toStringWithPrecision() ?? "";
 
     if (token is Erc20Token && isEVMCompatibleChain(type)) {
       return ERC681URI(
@@ -498,14 +480,11 @@ class AddressService {
     return wallet.walletAddresses.getPaymentUri(rawAmount);
   }
 
-  Future<PaymentURI> fetchPaymentRequestUri({
-    required String rawAmount,
-    CryptoCurrency? token,
-  }) async {
+  Future<PaymentURI> fetchPaymentRequestUri({Money? amount, CryptoCurrency? token}) async {
     if (token is Erc20Token || token is TronToken || token is SPLToken) {
-      return buildPaymentUri(rawAmount: rawAmount, token: token);
+      return buildPaymentUri(amount: amount, token: token);
     }
-    return wallet.walletAddresses.getPaymentRequestUri(rawAmount);
+    return wallet.walletAddresses.getPaymentRequestUri(amount?.toStringWithPrecision() ?? "");
   }
 
   Stream<String?> get payjoinEndpointChanges => _payjoinController.stream;
@@ -562,18 +541,6 @@ class AddressService {
       return AddressAccount(id: acc.id, label: acc.label);
     }
     return null;
-  }
-
-  bool get isBalanceAvailable => _isElectrumType(wallet.type);
-
-  bool get isReceivedAvailable =>
-      const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
-
-  bool get isBitcoinViewOnly {
-    if (wallet.type != WalletType.bitcoin) {
-      return false;
-    }
-    return (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isEmpty;
   }
 
   bool get isAutoGenerateSubaddressEnabled {

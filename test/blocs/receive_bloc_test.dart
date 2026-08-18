@@ -36,7 +36,7 @@ class _FakeCurrency extends Fake implements Currency {}
 
 class _FakeWalletBase extends Fake implements WalletBase {}
 
-const _btcAddress = AddressEntry(address: "bc1qtestaddress", isPrimary: true);
+const _btcAddress = AddressEntry(address: "bc1qtestaddress");
 final _btcUri = BitcoinURI(address: _btcAddress.address, amount: "");
 
 void main() {
@@ -65,7 +65,6 @@ void main() {
     List<AddressGroup> addressGroups = const [],
     String currentAddress = "bc1qtestaddress",
     bool isSilentPayments = false,
-    bool isBitcoinViewOnly = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool isZCashTransparent = true,
     AddressAccount? currentAccount,
@@ -76,7 +75,6 @@ void main() {
     when(() => addressService.walletId).thenReturn("wallet-a");
     when(() => addressService.walletName).thenReturn("wallet-a");
     when(() => addressService.walletCurrency).thenReturn(walletCurrency ?? CryptoCurrency.btc);
-    when(() => addressService.walletChainId).thenReturn(null);
     when(() => addressService.receivableTokens).thenReturn(receivableTokens);
     when(() => addressService.infoboxDismissed).thenReturn(infoboxDismissed);
     when(() => addressService.hasAccounts).thenReturn(hasAccounts);
@@ -84,7 +82,6 @@ void main() {
     when(() => addressService.computeAddressList()).thenReturn(addressGroups);
     when(() => addressService.currentAddress).thenReturn(currentAddress);
     when(() => addressService.isSilentPayments).thenReturn(isSilentPayments);
-    when(() => addressService.isBitcoinViewOnly).thenReturn(isBitcoinViewOnly);
     when(
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
@@ -101,7 +98,7 @@ void main() {
     when(() => addressService.selectedAddressType).thenReturn(selectedAddressType);
     when(
       () => addressService.buildPaymentUri(
-        rawAmount: any(named: "rawAmount"),
+        amount: any(named: "amount"),
         token: any(named: "token"),
       ),
     ).thenReturn(initialUri ?? _btcUri);
@@ -277,7 +274,7 @@ void main() {
             .thenReturn("1235");
         when(
           () => addressService.fetchPaymentRequestUri(
-            rawAmount: any(named: "rawAmount"),
+            amount: any(named: "amount"),
             token: any(named: "token"),
           ),
         ).thenAnswer((_) async => _btcUri);
@@ -617,7 +614,7 @@ void main() {
         // Rebuilds URI on refresh
         verify(
           () => addressService.buildPaymentUri(
-            rawAmount: any(named: "rawAmount"),
+            amount: any(named: "amount"),
             token: any(named: "token"),
           ),
         ).called(greaterThan(1));
@@ -679,7 +676,7 @@ void main() {
         await Future.delayed(const Duration(milliseconds: 20));
         when(
           () => addressService.buildPaymentUri(
-            rawAmount: any(named: "rawAmount"),
+            amount: any(named: "amount"),
             token: any(named: "token"),
           ),
         ).thenReturn(

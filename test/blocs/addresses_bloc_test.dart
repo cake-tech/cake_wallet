@@ -22,13 +22,11 @@ AddressGroup _group(List<AddressEntry> entries, {AddressGroupHeader? header}) =>
 AddressEntry _entry(
   String address, {
   bool isHidden = false,
-  bool isPrimary = false,
   String? label,
 }) =>
     AddressEntry(
       address: address,
       isHidden: isHidden,
-      isPrimary: isPrimary,
       label: label,
     );
 
@@ -56,7 +54,6 @@ void main() {
     bool isAutoGenerateSubaddressEnabled = false,
     bool canSetLabel = true,
     bool canHide = true,
-    bool isSilentPayments = false,
   }) {
     when(() => addressService.computeAddressList()).thenReturn(groups);
     when(() => addressService.currentAddress).thenReturn(currentAddress);
@@ -70,11 +67,8 @@ void main() {
     when(
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
-    when(() => addressService.isBalanceAvailable).thenReturn(false);
-    when(() => addressService.isReceivedAvailable).thenReturn(false);
     when(() => addressService.canSetLabel).thenReturn(canSetLabel);
     when(() => addressService.canHide).thenReturn(canHide);
-    when(() => addressService.isSilentPayments).thenReturn(isSilentPayments);
     when(() => activeWalletService.walletChanges).thenAnswer((_) => walletChangesController.stream);
   }
 
@@ -303,11 +297,8 @@ void main() {
         when(() => addressService.accountLabel).thenReturn("");
         when(() => addressService.hasHiddenAddresses).thenReturn(false);
         when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
-        when(() => addressService.isBalanceAvailable).thenReturn(false);
-        when(() => addressService.isReceivedAvailable).thenReturn(false);
         when(() => addressService.canSetLabel).thenReturn(true);
         when(() => addressService.canHide).thenReturn(true);
-        when(() => addressService.isSilentPayments).thenReturn(false);
         when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
             .thenAnswer((_) async {});
         when(() => activeWalletService.walletChanges)

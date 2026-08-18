@@ -6,6 +6,7 @@ import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
@@ -166,15 +167,13 @@ void main() {
   });
 
   group("chain-agnostic getters", () {
-    test("walletType / walletCurrency / walletChainId reflect wallet fields", () {
+    test("walletType / walletCurrency reflect wallet fields", () {
       scope = _TestScope(walletType: WalletType.monero);
-      when(() => scope.wallet.chainId).thenReturn(137);
       final service = scope.build();
       addTearDown(service.dispose);
 
       expect(service.walletType, WalletType.monero);
       expect(service.walletCurrency, CryptoCurrency.xmr);
-      expect(service.walletChainId, 137);
     });
 
     test("receivableTokens returns crypto keys from wallet.balance", () {
@@ -319,48 +318,6 @@ void main() {
         scope = _TestScope(walletType: t);
         final service = scope.build();
         expect(service.canSetLabel, isFalse, reason: t.toString());
-        service.dispose();
-      }
-    });
-
-    test("isBalanceAvailable is true only for electrum chains", () {
-      const electrum = {
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin,
-      };
-      const others = {
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.solana,
-        WalletType.tron,
-        WalletType.zcash,
-      };
-      for (final t in electrum) {
-        scope = _TestScope(walletType: t);
-        final service = scope.build();
-        expect(service.isBalanceAvailable, isTrue, reason: t.toString());
-        service.dispose();
-      }
-      for (final t in others) {
-        scope = _TestScope(walletType: t);
-        final service = scope.build();
-        expect(service.isBalanceAvailable, isFalse, reason: t.toString());
-        service.dispose();
-      }
-    });
-
-    test("isReceivedAvailable is true only for monero and wownero", () {
-      for (final entry in const {
-        WalletType.monero: true,
-        WalletType.wownero: true,
-        WalletType.bitcoin: false,
-        WalletType.zcash: false,
-      }.entries) {
-        scope = _TestScope(walletType: entry.key);
-        final service = scope.build();
-        expect(service.isReceivedAvailable, entry.value, reason: entry.key.toString());
         service.dispose();
       }
     });
@@ -595,7 +552,7 @@ void main() {
         final service = scope.build();
         addTearDown(service.dispose);
 
-        final result = service.buildPaymentUri(rawAmount: "1");
+        final result = service.buildPaymentUri(amount: Money.parse("1", CryptoCurrency.btc));
 
         expect(result, same(uri));
       },
@@ -610,7 +567,8 @@ void main() {
         final service = scope.build();
         addTearDown(service.dispose);
 
-        final result = await service.fetchPaymentRequestUri(rawAmount: "100");
+        final result =
+            await service.fetchPaymentRequestUri(amount: Money.parse("100", CryptoCurrency.btc));
 
         expect(result, same(uri));
       },
