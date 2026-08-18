@@ -1,3 +1,4 @@
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ class ListItemToggleWidget extends StatefulWidget {
     super.key,
     required this.keyValue,
     required this.label,
+    this.iconPath,
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
@@ -15,6 +17,7 @@ class ListItemToggleWidget extends StatefulWidget {
   });
 
   final String keyValue;
+  final String? iconPath;
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
@@ -35,6 +38,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+        iconPath: widget.iconPath,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         onTap: () {

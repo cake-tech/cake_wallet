@@ -121,6 +121,7 @@ class NewListSections extends StatelessWidget {
         keyValue: item.keyValue,
         label: item.label,
         leadingEndWidget: item.leadingEndWidget,
+        iconPath: item.iconPath,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
