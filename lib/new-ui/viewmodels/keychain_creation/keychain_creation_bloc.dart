@@ -1,10 +1,9 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
-import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_presentation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_wallet_extension.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:cw_keychain/cw_keychain.dart";
 import "package:meta/meta.dart";
@@ -49,21 +48,7 @@ class KeychainCreationBloc extends Bloc<KeychainCreationEvent, KeychainCreationS
       emit(KeychainStateSaving(useKeychain: s.useKeychain));
       if (s.useKeychain) {
         try {
-          final derivationInfo = await _appStore.wallet!.walletInfo.getDerivationInfo();
-          await _keychain.put(KeychainDataV1(
-            name: _appStore.wallet!.name,
-            walletTypeRaw: serializeToInt(_appStore.wallet!.type),
-            // we only support mainnet and testnet right now
-            networkRaw: _appStore.wallet!.isTestnet ? 1 : 0,
-            // "1" is "default"
-            derivationTypeRaw: derivationInfo.derivationType?.index ?? 1,
-            derivationPath: derivationInfo.derivationPath,
-            seed: _appStore.wallet!.seed!,
-            passphrase: _appStore.wallet!.passphrase,
-            seedTypeRaw: seedTypeRaw,
-            blockHeight: await restoreHeight,
-            creationTime: DateTime.now().millisecondsSinceEpoch,
-          ),);
+          await _keychain.put(_appStore.wallet!.keychainData);
         } catch(e) {
           emitPresentation(KeychainSaveFailed(error: e));
           return;
@@ -71,23 +56,5 @@ class KeychainCreationBloc extends Bloc<KeychainCreationEvent, KeychainCreationS
       }
       emit(KeychainStateComplete(redirectToSeed: !s.useKeychain));
     }
-  }
-
-  int? get seedTypeRaw => switch (_appStore.wallet!.type) {
-        WalletType.monero => _appStore.settingsStore.moneroSeedType.raw,
-        WalletType.bitcoin => _appStore.settingsStore.bitcoinSeedType.raw,
-        WalletType.nano => _appStore.settingsStore.nanoSeedType.raw,
-        _ => null
-      };
-
-
-  Future<int?> get restoreHeight async {
-    if (_appStore.wallet!.type == WalletType.monero) {
-      return monero!.getRestoreHeight(_appStore.wallet!);
-    }
-    if (_appStore.wallet!.type == WalletType.zcash) {
-      return int.tryParse(zcash!.getKeys(_appStore.wallet!)["restoreHeight"]?.toString() ?? "");
-    }
-    return null;
   }
 }

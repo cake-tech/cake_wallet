@@ -452,8 +452,7 @@ Future<void> setup({
 
   getIt.registerFactory<KeychainManagementBloc>(() => KeychainManagementBloc(
       keychain: getIt.get<CwKeychain>(),
-      walletLoadingService: getIt.get<WalletLoadingService>(),
-      settingsStore: getIt.get<SettingsStore>()));
+      walletLoadingService: getIt.get<WalletLoadingService>(),));
 
   getIt.registerFactory<KeychainManagementPage>(
       () => KeychainManagementPage(bloc: getIt.get<KeychainManagementBloc>()));
