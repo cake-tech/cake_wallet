@@ -1131,7 +1131,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
               (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
             );
-
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
           id: pendingTransaction!.evmTxHashFromRawHex!,
           height: 0,
