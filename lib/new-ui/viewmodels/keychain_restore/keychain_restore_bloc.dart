@@ -47,7 +47,6 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
         .toList();
 
     final unsupportedKeychainData = await _keychain.getUnsupported();
-    print(unsupportedKeychainData);
 
     if (keychainData.isEmpty) {
       emit(KeychainRestoreNoWallets(walletsUnsupported: unsupportedKeychainData));
