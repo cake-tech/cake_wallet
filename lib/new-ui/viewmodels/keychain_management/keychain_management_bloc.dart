@@ -18,6 +18,7 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
     on<_Init>(_init);
     on<ItemSaved>(_onItemSaved);
     on<ItemUnsaved>(_onItemUnsaved);
+    on<KeychainCleared>(_onKeychainCleared);
     add(const _Init());
   }
 
@@ -52,6 +53,25 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
       final id = "${item.name}_${item.walletTypeRaw}";
       await _keychain.delete(id);
       emit(s.copyWith(keychainWallets: await _keychain.getAll()));
+    }
+  }
+
+  Future<void> _onKeychainCleared(
+      KeychainCleared event, Emitter<KeychainManagementState> emit,) async {
+    if (state case final KeychainManagementLoaded s) {
+      final ids = [
+        ...s.keychainWallets.map((item) => "${item.name}_${item.walletTypeRaw}"),
+        ...s.unsupportedKeychainItems.map((item) => "${item.name}_${item.walletTypeRaw}"),
+      ];
+
+      for (final id in ids) {
+        await _keychain.delete(id);
+      }
+
+      emit(s.copyWith(
+        keychainWallets: await _keychain.getAll(),
+        unsupportedKeychainItems: await _keychain.getUnsupported(),
+      ),);
     }
   }
 }

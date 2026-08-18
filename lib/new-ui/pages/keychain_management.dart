@@ -5,9 +5,12 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_management/keychain_management_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/modal_header.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/date_formatter.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -114,8 +117,15 @@ class KeychainManagementPage extends StatelessWidget {
                                           subtitle: S
                                               .of(context)
                                               .unsupported_keychain_item,
-                                          showArrow: false)).toList()
-                              },
+                                          showArrow: false,),).toList(),
+                                if(state.unsupportedKeychainItems.isNotEmpty || state.keychainWallets.isNotEmpty)
+                              "": [
+                                ListItemRegularRow(
+                                    keyValue: "delete all",
+                                    label: S.of(context).delete_all_keychain_data,
+                                    onTap: () => _confirmClear(context), foregroundColor: Theme.of(context).colorScheme.error, showArrow: false)
+                              ]
+                          },
                             ),
                         ],
                       ),
@@ -125,4 +135,22 @@ class KeychainManagementPage extends StatelessWidget {
               ),
         ),
       );
+
+  Future<void> _confirmClear(BuildContext context) async {
+    final confirmed = await showPopUp<bool>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(dialogContext).delete_all_keychain_data,
+        alertContent: S.of(dialogContext).clear_keychain_confirmation,
+        leftButtonText: S.of(dialogContext).yes,
+        rightButtonText: S.of(dialogContext).no,
+        actionLeftButton: () => Navigator.of(dialogContext).pop(true),
+        actionRightButton: () => Navigator.of(dialogContext).pop(false),
+      ),
+    );
+
+    if (confirmed ?? false) {
+      bloc.add(const KeychainCleared());
+    }
+  }
 }
