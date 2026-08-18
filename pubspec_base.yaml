@@ -8,8 +8,7 @@ dependencies:
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
-      ref: cake-4.0.2
-      version: 4.0.2
+      ref: dced28909a82e1906e7c510ae8ca807a1658c898
   shared_preferences: 2.5.3
   # provider: ^6.0.3
   rxdart: ^0.28.0
@@ -86,8 +85,7 @@ dependencies:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: main
-      version: 1.0.0
+      ref: 3aba867dcab6737f6707782f5db15d71f303db38
   flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
   shared_preferences_android: ^2.4.8
@@ -142,7 +140,7 @@ dependencies:
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
+      ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
   flutter_daemon:
     git:
       url: https://github.com/MrCyjaneK/flutter_daemon
@@ -183,50 +181,69 @@ dev_dependencies:
   translator:
     git:
       url: https://github.com/cake-tech/google-translator.git
-      version: 1.0.0
+      ref: b36571ec11efd838afda010adcc21a4e95302745
   msix: ^3.16.9
 
-dependency_overrides:
-  bech32:
-    git:
-      url: https://github.com/cake-tech/bech32.git
-  web3dart:
-    git:
-      url: https://github.com/cake-tech/web3dart.git
-      ref: cake
-  protobuf: ^3.1.0
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
-  ffi: 2.1.0
-  ledger_flutter_plus:
-    git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-  socks5_proxy:
-    git:
-      url: https://github.com/LacticWhale/socks_dart.git
-      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  web_socket_channel: ^3.0.2
-  freezed_annotation: 2.4.4
-  intl: 0.20.2
-  qr_flutter:
-    git:
-      url: https://github.com/cake-tech/qr.flutter.git
-      ref: cake-4.0.2
-      version: 4.0.2
-  file_picker:
-    git:
-      url: https://github.com/cake-tech/flutter_file_picker.git
-      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
-  decimal: ^2.3.3
-  flutter_rust_bridge: 2.11.1
-  flutter_secure_storage_windows: 3.1.2
-  universal_ble:
-    git:
-      url: https://github.com/cake-tech/universal_ble.git
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+# These are required for the app to build.
+# Note that this comment is parsed by scripts/create_overrides.sh, so plz don't break/remove it.
+# dependency_overrides:
+#   bech32:
+#     git:
+#       url: https://github.com/cake-tech/bech32.git
+#       ref: 05755063b593aa6cca0a4820a318e0ce17de6192
+#   web3dart:
+#     git:
+#       url: https://github.com/cake-tech/web3dart.git
+#       ref: aa3f932dbf54eda651b7bd01ad00204acf998bd0
+#   protobuf: ^3.1.0
+#   bitcoin_base:
+#     git:
+#       url: https://github.com/cake-tech/bitcoin_base
+#       ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
+#   ffi: 2.1.0
+#   ledger_flutter_plus:
+#     git:
+#       url: https://github.com/cake-tech/ledger-flutter-plus
+#       ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+#   ledger_usb_plus:
+#     git:
+#       url: https://github.com/cake-tech/ledger-usb-plus
+#       ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+#   socks5_proxy:
+#     git:
+#       url: https://github.com/LacticWhale/socks_dart.git
+#       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
+#   web_socket_channel: ^3.0.2
+#   freezed_annotation: 2.4.4
+#   intl: 0.20.2
+#   qr_flutter:
+#     git:
+#       url: https://github.com/cake-tech/qr.flutter.git
+#       ref: dced28909a82e1906e7c510ae8ca807a1658c898
+#   file_picker:
+#     git:
+#       url: https://github.com/cake-tech/flutter_file_picker.git
+#       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+#   decimal: ^2.3.3
+#   flutter_rust_bridge: 2.11.1
+#   flutter_secure_storage_windows: 3.1.2
+#   universal_ble:
+#     git:
+#       url: https://github.com/cake-tech/universal_ble.git
+#       ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+#   flutter_secure_storage:
+#     git:
+#       url: https://github.com/cake-tech/flutter_secure_storage.git
+#       path: flutter_secure_storage
+#       ref: ca897a08677edb443b366352dd7412735e098e7b
+#   blockchain_utils:
+#     git:
+#       url: https://github.com/cake-tech/blockchain_utils
+#       ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
+#   cake_backup:
+#     git:
+#       url: https://github.com/cake-tech/cake_backup.git
+#       ref: 3aba867dcab6737f6707782f5db15d71f303db38
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
