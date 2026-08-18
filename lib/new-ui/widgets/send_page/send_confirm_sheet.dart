@@ -508,7 +508,6 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                             onTap: () {
                               Navigator.of(context).pushNamed(Routes.addressBookAddContact,
                                   arguments: ContactRecord(
-                                      CakeHive.box<Contact>(Contact.boxName),
                                       Contact(
                                           name: "",
                                           address: widget.sendViewModel!.outputs.first.address,

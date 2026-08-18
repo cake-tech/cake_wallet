@@ -35,7 +35,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
-import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
@@ -328,7 +328,6 @@ final getIt = GetIt.instance;
 var _isSetupFinished = false;
 // late Box<Node> _nodeSource;
 // late Box<Node> _powNodeSource;
-late Box<Contact> _contactSource;
 late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
@@ -337,7 +336,6 @@ late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
-  required Box<Contact> contactSource,
   required Box<Template> templates,
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
@@ -348,7 +346,6 @@ Future<void> setup({
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
 }) async {
-  _contactSource = contactSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
@@ -1096,13 +1093,14 @@ Future<void> setup({
   getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>(
       (Map<String, String> urQr, _) => AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
-  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>((ContactRecord? contact, _) =>
-      ContactViewModel(_contactSource, getIt.get<AppStore>(), getIt.get<AddressResolverService>(),
-          contact: contact));
+  getIt.registerLazySingleton<ContactService>(ContactService.new);
 
-  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>((contact, _) =>
+      ContactViewModel(getIt.get<ContactService>(), getIt.get<AppStore>(),
+          getIt.get<AddressResolverService>(), contact: contact,),);
+
+  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>((cur, _) =>
+      ContactListViewModel(getIt.get<ContactService>(), cur, getIt.get<SettingsStore>(),),);
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
       (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
