@@ -94,9 +94,6 @@ class SettingsSectionData {
         Routes.displaySettingsPage),
     SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.security,
         Routes.securityBackupPage),
-    SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", S.current.backup, Routes.backup,
-        requireAuth: true,
-        use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
   ]);
 
   static SettingsSectionData otherSettings = SettingsSectionData("", "", [
