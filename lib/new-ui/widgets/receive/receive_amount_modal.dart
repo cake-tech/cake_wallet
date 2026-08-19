@@ -227,7 +227,6 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                       children: [
                                         CurrencySymbolText(
                                           widget.selectedCurrency,
-                                          useBaseUnit: widget.useSatoshi,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurface,
                                           ),

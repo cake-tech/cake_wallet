@@ -1,4 +1,3 @@
-import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cw_core/amount/money.dart";
 import "package:flutter/material.dart";
@@ -51,13 +50,10 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            if (amount != null) ...[
-                              MoneyText(
+                        child: amount == null
+                            ? const SizedBox.shrink()
+                            : MoneyText(
                                 amount,
-                                showSymbol: false,
                                 isHiddenAmount: false,
                                 fractionalDigits: 20,
                                 style: TextStyle(
@@ -66,17 +62,6 @@ class ReceiveAmountDisplay extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              CurrencySymbolText(
-                                amount.currency,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
                       ),
                     ),
                     if (fiatEquivalent != null)
