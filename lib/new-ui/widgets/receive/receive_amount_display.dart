@@ -50,9 +50,7 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8),
-                        child: amount == null
-                            ? const SizedBox.shrink()
-                            : MoneyText(
+                        child: MoneyText.optional(
                                 amount,
                                 isHiddenAmount: false,
                                 fractionalDigits: 20,
