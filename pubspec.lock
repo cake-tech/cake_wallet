@@ -1871,8 +1871,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
-      resolved-ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+      ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
+      resolved-ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
       url: "https://github.com/cake-tech/ledger-usb-plus"
     source: git
     version: "1.0.8"
@@ -2884,8 +2884,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite
-      ref: "094cc31b82df7f9ba04f330f13b50e345f777079"
-      resolved-ref: "094cc31b82df7f9ba04f330f13b50e345f777079"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
     version: "2.4.2+1"
@@ -2893,8 +2893,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite_android
-      ref: "7e7159b59572e04024258417072428d1cffca1cc"
-      resolved-ref: "7e7159b59572e04024258417072428d1cffca1cc"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
     version: "2.4.2+3"
@@ -2911,8 +2911,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite_common_ffi
-      ref: "7482da6f456feb715eecdff8a6287bb30d01481f"
-      resolved-ref: "7482da6f456feb715eecdff8a6287bb30d01481f"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
     version: "2.4.0+3"
@@ -2920,8 +2920,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite_darwin
-      ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
-      resolved-ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
     version: "2.4.2"
@@ -2929,8 +2929,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite_platform_interface
-      ref: "03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0"
-      resolved-ref: "03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
     version: "2.4.0"
@@ -3161,8 +3161,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-      resolved-ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"

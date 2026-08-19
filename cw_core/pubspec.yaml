@@ -43,12 +43,39 @@ dependencies:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
-  sqflite: ^2.4.1
-  sqflite_common_ffi: ^2.3.4+4
+  sqflite:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite
+  sqflite_android:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_android
+  sqflite_common:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_common
+  sqflite_common_ffi:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_common_ffi
+  sqflite_darwin:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_darwin
+  sqflite_platform_interface:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_platform_interface
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:
   flutter_test:

@@ -229,3 +229,5 @@ scripts/reown_flutter
 android/.kotlin
 scripts/.cache
 pubspec.lock
+
+scripts/sqlite
