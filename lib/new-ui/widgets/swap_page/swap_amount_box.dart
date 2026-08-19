@@ -8,6 +8,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
@@ -149,95 +150,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final colors = Theme.of(context).colorScheme;
 
     if (widget.sourceSelectorMode) {
-      final available = _sourceBalance()?.amount.split(" ").first ?? "—";
-      return Column(
-        spacing: 12,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: _presentCurrencyPicker,
-            child: Container(
-              height: 52,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  CakeImageWidget(
-                    imageUrl: widget.currency.iconPath ?? "",
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    currencyToShow,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(letterSpacing: -0.08),
-                  ),
-                  if (chainIconPath != null && chainIconPath.isNotEmpty) ...[
-                    const SizedBox(width: 4),
-                    CakeImageWidget(
-                      imageUrl: chainIconPath,
-                      width: 12,
-                      height: 12,
-                      colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
-                    ),
-                  ],
-                  const Spacer(),
-                  CakeImageWidget(
-                    imageUrl: "assets/new-ui/chooser.svg",
-                    width: 12,
-                    height: 12,
-                    colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CakeImageWidget(
-                        imageUrl: "assets/new-ui/wallet_filled.svg",
-                        width: 16,
-                        height: 16,
-                        colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          widget.walletName ?? "",
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: -0.06,
-                                color: colors.onSurfaceVariant,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  S.of(context).available_balance_short(available),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: -0.06,
-                        color: colors.primary,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      return SwapSourceSelector(
+        currencyIconPath: widget.currency.iconPath ?? "",
+        currencyLabel: currencyToShow,
+        chainIconPath: chainIconPath,
+        walletName: widget.walletName,
+        availableBalance: _sourceBalance()?.amount.split(" ").first ?? "—",
+        onTap: _presentCurrencyPicker,
       );
     }
 

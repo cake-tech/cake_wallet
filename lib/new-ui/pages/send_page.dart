@@ -260,25 +260,10 @@ class _NewSendPageState extends State<NewSendPage> {
         if (!mounted) {
           return;
         }
-        final rawInput = widget.initialRawInput;
-
-        if (rawInput != null) {
-          await _runAnyPayFlow(rawInput);
-          return;
-        }
-
-        final evaluation =
-            await widget.anyPayService.evaluatePaymentRequest(widget.initialPaymentRequest!);
-
-        if (!mounted) {
-          return;
-        }
-
-        if (await _handleIfOpenCryptoPay(evaluation.request.rawInput)) {
-          return;
-        }
-
-        await _handleEvaluation(evaluation);
+        await _runAnyPayFlow(
+          rawInput: widget.initialRawInput,
+          paymentRequest: widget.initialPaymentRequest,
+        );
       });
     }
 
@@ -301,7 +286,7 @@ class _NewSendPageState extends State<NewSendPage> {
           Navigator.of(context).popUntil((r) => r == route);
         }
 
-        await _runAnyPayFlow(link.toString());
+        await _runAnyPayFlow(rawInput: link.toString());
       });
     }
 
@@ -488,7 +473,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 output.resetParsedAddress();
                                                 await _resolveAddressForOutput(output);
 
-                                                await _runAnyPayFlow(uri.toString());
+                                                await _runAnyPayFlow(rawInput: uri.toString());
                                               },
                                               onEditingComplete: _addressFocusNode.unfocus,
                                               onPushAddressBookButton: (_) {
@@ -1104,15 +1089,21 @@ class _NewSendPageState extends State<NewSendPage> {
     return true;
   }
 
-  Future<void> _runAnyPayFlow(String input) async {
-    if (await _handleIfOpenCryptoPay(input)) {
-      return;
-    }
+  Future<void> _runAnyPayFlow({String? rawInput, PaymentRequest? paymentRequest}) async {
+    assert(rawInput != null || paymentRequest != null);
 
-    final evaluation = await widget.anyPayService.evaluateRawInput(input);
+    final evaluation = rawInput != null
+        ? await widget.anyPayService.evaluateRawInput(rawInput)
+        : await widget.anyPayService.evaluatePaymentRequest(paymentRequest!);
+
     if (!mounted) {
       return;
     }
+
+    if (await _handleIfOpenCryptoPay(evaluation.request.rawInput)) {
+      return;
+    }
+
     await _handleEvaluation(evaluation);
   }
 
@@ -1128,11 +1119,7 @@ class _NewSendPageState extends State<NewSendPage> {
       note: parsed.note.isNotEmpty ? parsed.note : _memoControllers[_selectedOutput].text,
     );
 
-    final evaluation = await widget.anyPayService.evaluatePaymentRequest(merged);
-    if (!mounted) {
-      return;
-    }
-    await _handleEvaluation(evaluation);
+    await _runAnyPayFlow(paymentRequest: merged);
   }
 
   Future<void> _handleEvaluation(
