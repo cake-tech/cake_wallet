@@ -1371,32 +1371,32 @@ dependency_overrides:
   sqflite:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 094cc31b82df7f9ba04f330f13b50e345f777079
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite
   sqflite_android:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 7e7159b59572e04024258417072428d1cffca1cc
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite_android
   sqflite_common:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite_common
   sqflite_common_ffi:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 7482da6f456feb715eecdff8a6287bb30d01481f
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite_common_ffi
   sqflite_darwin:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite_darwin
   sqflite_platform_interface:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0
+      ref: 263864b51650c9d64b569de5bf48d45f73245aec
       path: ./sqflite_platform_interface
   sqlite3:
     git:
