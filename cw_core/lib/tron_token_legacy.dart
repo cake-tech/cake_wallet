@@ -1,10 +1,12 @@
 import "package:cw_core/cake_hive.dart";
+import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/hive_type_ids.dart";
 import "package:cw_core/tron_token.dart" as tron_new;
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:hive/hive.dart";
+import "package:sqflite/sqflite.dart";
 
 part "tron_token_legacy.part.dart";
 
@@ -23,7 +25,6 @@ Future<void> performTronTokenHiveMigration() async {
 
 // @HiveType(typeId: TronToken.typeId)
 class TronToken extends HiveObject {
-
   TronToken({
     required this.name,
     required this.symbol,
@@ -85,15 +86,19 @@ class TronToken extends HiveObject {
         }
 
         final box = await CakeHive.openBox<TronToken>(tokenBoxName);
-        final tokens = box.values.toList();
 
-        for (final rawName in entry.value) {
-          for (final token in tokens) {
+        for (final key in box.keys.toList()) {
+          final token = box.get(key);
+          if (token == null) {
+            continue;
+          }
+
+          for (final rawName in entry.value) {
             await token.migrateToSqlite(walletName: rawName);
           }
+          await box.delete(key);
         }
 
-        await box.clear();
         await box.deleteFromDisk();
       } catch (e) {
         printV("Error migrating tron token box $tokenBoxName: $e, continuing anyway");
@@ -102,7 +107,7 @@ class TronToken extends HiveObject {
   }
 
   Future<void> migrateToSqlite({required String walletName}) async {
-    final newToken = tron_new.TronToken(
+    final row = tron_new.TronToken(
       name: name,
       symbol: symbol,
       contractAddress: contractAddress,
@@ -112,7 +117,13 @@ class TronToken extends HiveObject {
       tag: tag,
       isPotentialScam: isPotentialScam,
       walletName: walletName,
+    ).toMap();
+    row[tron_new.TronToken.selfIdColumn] = null;
+
+    await db!.insert(
+      tron_new.TronToken.tableName,
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    await newToken.save();
   }
 }

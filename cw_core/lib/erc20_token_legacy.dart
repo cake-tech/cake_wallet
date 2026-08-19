@@ -1,10 +1,12 @@
 import "package:cw_core/cake_hive.dart";
+import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/erc20_token.dart" as erc20_new;
 import "package:cw_core/hive_type_ids.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:hive/hive.dart";
+import "package:sqflite/sqflite.dart";
 
 part "erc20_token_legacy.part.dart";
 
@@ -101,15 +103,14 @@ class Erc20Token extends HiveObject {
           }
 
           final box = await CakeHive.openBox<Erc20Token>(tokenBoxName);
-          final merged = _mergeByLowercaseContract(box.values.toList());
 
-          for (final rawName in entry.value) {
-            for (final token in merged) {
-              await token.migrateToSqlite(walletName: rawName, chainId: chainEntry.key);
+          for (final group in _mergeByLowercaseContract(box)) {
+            for (final rawName in entry.value) {
+              await group.token.migrateToSqlite(walletName: rawName, chainId: chainEntry.key);
             }
+            await box.deleteAll(group.sourceKeys);
           }
 
-          await box.clear();
           await box.deleteFromDisk();
         } catch (e) {
           printV("Error migrating erc20 token box $tokenBoxName: $e, continuing anyway");
@@ -129,54 +130,60 @@ class Erc20Token extends HiveObject {
       }
 
       final box = await CakeHive.openBox<Erc20Token>(boxName);
-      final merged = _mergeByLowercaseContract(box.values.toList());
+      final ethereumWallets =
+          wallets.where((wallet) => wallet.type == WalletType.ethereum).toList();
 
-      for (final wallet in wallets) {
-        if (wallet.type != WalletType.ethereum) {
-          continue;
+      for (final group in _mergeByLowercaseContract(box)) {
+        for (final wallet in ethereumWallets) {
+          await group.token.migrateToSqlite(walletName: wallet.name, chainId: 1);
         }
-
-        for (final token in merged) {
-          await token.migrateToSqlite(walletName: wallet.name, chainId: 1);
-        }
+        await box.deleteAll(group.sourceKeys);
       }
 
-      await box.clear();
       await box.deleteFromDisk();
     } catch (e) {
       printV("Error migrating legacy global erc20 token box: $e, continuing anyway");
     }
   }
 
-  static List<Erc20Token> _mergeByLowercaseContract(List<Erc20Token> tokens) {
-    final merged = <String, Erc20Token>{};
+  static List<_MergedTokenGroup> _mergeByLowercaseContract(Box<Erc20Token> box) {
+    final groups = <String, _MergedTokenGroup>{};
 
-    for (final token in tokens) {
-      final lowerKey = token.contractAddress.toLowerCase();
-      final existing = merged[lowerKey];
-
-      if (existing == null) {
-        merged[lowerKey] = token;
+    for (final key in box.keys) {
+      final token = box.get(key);
+      if (token == null) {
         continue;
       }
 
-      merged[lowerKey] = Erc20Token(
-        name: token.name,
-        symbol: token.symbol,
-        contractAddress: lowerKey,
-        decimal: token.decimal,
-        enabled: token.enabled || existing.enabled,
-        iconPath: (token.iconPath?.isNotEmpty ?? false) ? token.iconPath : existing.iconPath,
-        tag: token.tag ?? existing.tag,
-        isPotentialScam: token.isPotentialScam || existing.isPotentialScam,
+      final lowerKey = token.contractAddress.toLowerCase();
+      final existing = groups[lowerKey];
+
+      if (existing == null) {
+        groups[lowerKey] = _MergedTokenGroup(token: token, sourceKeys: [key]);
+        continue;
+      }
+
+      groups[lowerKey] = _MergedTokenGroup(
+        token: Erc20Token(
+          name: token.name,
+          symbol: token.symbol,
+          contractAddress: lowerKey,
+          decimal: token.decimal,
+          enabled: token.enabled || existing.token.enabled,
+          iconPath:
+              (token.iconPath?.isNotEmpty ?? false) ? token.iconPath : existing.token.iconPath,
+          tag: token.tag ?? existing.token.tag,
+          isPotentialScam: token.isPotentialScam || existing.token.isPotentialScam,
+        ),
+        sourceKeys: [...existing.sourceKeys, key],
       );
     }
 
-    return merged.values.toList();
+    return groups.values.toList();
   }
 
   Future<void> migrateToSqlite({required String walletName, required int chainId}) async {
-    final newToken = erc20_new.Erc20Token(
+    final row = erc20_new.Erc20Token(
       name: name,
       symbol: symbol,
       contractAddress: contractAddress,
@@ -187,7 +194,20 @@ class Erc20Token extends HiveObject {
       isPotentialScam: isPotentialScam,
       walletName: walletName,
       chainId: chainId,
+    ).toMap();
+    row[erc20_new.Erc20Token.selfIdColumn] = null;
+
+    await db!.insert(
+      erc20_new.Erc20Token.tableName,
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    await newToken.save();
   }
+}
+
+class _MergedTokenGroup {
+  _MergedTokenGroup({required this.token, required this.sourceKeys});
+
+  final Erc20Token token;
+  final List<dynamic> sourceKeys;
 }

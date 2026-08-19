@@ -263,6 +263,46 @@ Future<void> main() async {
         expect(after, before);
       });
 
+      test("an interrupted migration re-drains over existing rows without duplicating", () async {
+        // Simulates a run that inserted rows into sqlite but died before the box was
+        // emptied: the box reappears holding a token that already has a row (USDC,
+        // re-enabled in the box copy) plus one the interrupted run never reached (BONK)
+        final box = await CakeHive.openBox<spl_legacy.SPLToken>("sol_wallet_SPLTokens");
+        await box.put(
+          "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          spl_legacy.SPLToken(
+            name: "USD Coin",
+            symbol: "USDC",
+            mintAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            decimal: 6,
+            mint: "usdc",
+            enabled: true,
+          ),
+        );
+        await box.put(
+          "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+          spl_legacy.SPLToken(
+            name: "Bonk",
+            symbol: "BONK",
+            mintAddress: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+            decimal: 5,
+            mint: "bonk",
+            enabled: true,
+          ),
+        );
+        await box.close();
+
+        await spl_legacy.performSplTokenHiveMigration();
+
+        final tokens = await spl_sql.SPLToken.getAllForWallet("sol wallet");
+        expect(tokens.length, 2, reason: "the re-drain must not duplicate the existing USDC row");
+
+        final usdc = tokens.firstWhere((t) => t.symbol == "USDC");
+        expect(usdc.enabled, true, reason: "the box copy wins over the stale row on re-drain");
+
+        expect(await CakeHive.boxExists("sol_wallet_SPLTokens"), false);
+      });
+
       test("save without wallet context throws", () {
         final token = erc20_sql.Erc20Token(
           name: "No Context",

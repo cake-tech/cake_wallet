@@ -1,10 +1,12 @@
 import "package:cw_core/cake_hive.dart";
+import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/hive_type_ids.dart";
 import "package:cw_core/spl_token.dart" as spl_new;
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:hive/hive.dart";
+import "package:sqflite/sqflite.dart";
 
 part "spl_token_legacy.part.dart";
 
@@ -23,7 +25,6 @@ Future<void> performSplTokenHiveMigration() async {
 
 // @HiveType(typeId: SPLToken.typeId)
 class SPLToken extends HiveObject {
-
   SPLToken({
     required this.name,
     required this.symbol,
@@ -89,15 +90,19 @@ class SPLToken extends HiveObject {
         }
 
         final box = await CakeHive.openBox<SPLToken>(tokenBoxName);
-        final tokens = box.values.toList();
 
-        for (final rawName in entry.value) {
-          for (final token in tokens) {
+        for (final key in box.keys.toList()) {
+          final token = box.get(key);
+          if (token == null) {
+            continue;
+          }
+
+          for (final rawName in entry.value) {
             await token.migrateToSqlite(walletName: rawName);
           }
+          await box.delete(key);
         }
 
-        await box.clear();
         await box.deleteFromDisk();
       } catch (e) {
         printV("Error migrating spl token box $tokenBoxName: $e, continuing anyway");
@@ -106,7 +111,7 @@ class SPLToken extends HiveObject {
   }
 
   Future<void> migrateToSqlite({required String walletName}) async {
-    final newToken = spl_new.SPLToken(
+    final row = spl_new.SPLToken(
       name: name,
       symbol: symbol,
       mintAddress: mintAddress,
@@ -117,7 +122,13 @@ class SPLToken extends HiveObject {
       tag: tag,
       isPotentialScam: isPotentialScam,
       walletName: walletName,
+    ).toMap();
+    row[spl_new.SPLToken.selfIdColumn] = null;
+
+    await db!.insert(
+      spl_new.SPLToken.tableName,
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    await newToken.save();
   }
 }
