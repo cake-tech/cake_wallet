@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
@@ -504,9 +505,11 @@ class CakePayBuyCardPage extends BasePage {
     } else {
       try {
         await cakePayBuyCardViewModel.createOrder();
-      } catch (_) {
+      } on CakePayUnauthorizedException {
         cakePayBuyCardViewModel.isSimulatingFlow = false;
-        await cakePayBuyCardViewModel.logout();
+        if (context.mounted) {
+          Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+        }
       }
     }
     cakePayBuyCardViewModel.isPurchasing = false;
