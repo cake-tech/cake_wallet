@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -446,6 +447,15 @@ abstract class ElectrumWalletBase
       currentChainTip = newTip;
     }
     return currentChainTip ?? 0;
+  }
+
+  /// Anti-fee-sniping locktime (current tip, exact-tip), LE-encoded for
+  /// `BitcoinTransactionBuilder`.
+  Future<List<int>> _antiFeeSnipingLocktime() async {
+    return locktimeToBytes(antiFeeSnipingLocktime(
+      chainTip: await getCurrentChainTip(),
+      synced: syncStatus is SyncedSyncStatus,
+    ));
   }
 
   @override
@@ -1516,6 +1526,8 @@ abstract class ElectrumWalletBase
           });
       }
 
+      final locktime = await _antiFeeSnipingLocktime();
+
       BasedBitcoinTransacationBuilder txb;
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
@@ -1540,6 +1552,7 @@ abstract class ElectrumWalletBase
           inputOrdering: BitcoinOrdering.shuffle,
           outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
+          locktime: locktime,
         );
       }
 
@@ -2306,6 +2319,7 @@ abstract class ElectrumWalletBase
         inputOrdering: BitcoinOrdering.shuffle,
         outputOrdering: BitcoinOrdering.shuffle,
         enableRBF: true,
+        locktime: await _antiFeeSnipingLocktime(),
       );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
