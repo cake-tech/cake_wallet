@@ -7,6 +7,7 @@ import "package:cake_wallet/exchange/exchange_trade_state.dart";
 import "package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -27,6 +28,7 @@ import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/utils/debounce.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
@@ -51,6 +53,7 @@ class NewSwapPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     CryptoCurrency? initialCurrency,
     this.fromSend,
+    this.balanceViewModel,
   }) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -69,6 +72,7 @@ class NewSwapPage extends StatefulWidget {
   final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final SwapFromSendArgs? fromSend;
+  final BalanceViewModel? balanceViewModel;
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -92,6 +96,25 @@ class _NewSwapPageState extends State<NewSwapPage> {
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
           .contains(widget.exchangeViewModel.depositCurrency) &&
       !(widget.exchangeViewModel.status is SyncedSyncStatus);
+
+  Map<CryptoCurrency, CurrencyPickerBalance>? _depositBalanceByAsset() {
+    final balanceViewModel = widget.balanceViewModel;
+    if (balanceViewModel == null) {
+      return null;
+    }
+
+    return {
+      for (final r in balanceViewModel.formattedBalances)
+        r.asset: CurrencyPickerBalance(
+          amount: "${r.availableBalance} ${r.asset.title}",
+          fiat: balanceViewModel.isFiatDisabled
+              ? null
+              : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
+          fiatValue:
+              balanceViewModel.isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+        ),
+    };
+  }
 
   @override
   void initState() {
@@ -633,7 +656,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       walletName: fromSend != null
                                           ? widget.exchangeViewModel.wallet.name
                                           : null,
-                                      balanceByAsset: fromSend?.depositBalanceByAsset,
+                                      balanceByAsset:
+                                          fromSend != null ? _depositBalanceByAsset() : null,
                                       useSingleNetworkLayout: fromSend != null,
                                       filteredNetwork: fromSend != null
                                           ? widget.exchangeViewModel.wallet.type

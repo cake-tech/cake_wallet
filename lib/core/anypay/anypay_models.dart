@@ -157,13 +157,6 @@ class AnyPayEvaluation {
   final AnyPayDecision decision;
 }
 
-class AnyPaySendIntent {
-  AnyPaySendIntent({required this.request, this.currency});
-
-  final AnyPayRequest request;
-  final CryptoCurrency? currency;
-}
-
 class AnyPaySwapIntent {
   AnyPaySwapIntent({
     required this.request,

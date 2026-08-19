@@ -1167,9 +1167,10 @@ class _NewSendPageState extends State<NewSendPage> {
     CryptoCurrency? fallbackCurrency,
     String? amountOverride,
   }) async {
-    widget.sendViewModel.applyAnyPayIntent(
-      AnyPaySendIntent(request: request, currency: token ?? fallbackCurrency),
-    );
+    final currency = token ?? fallbackCurrency;
+    if (currency != null) {
+      widget.sendViewModel.applyAnyPayCurrency(currency);
+    }
 
     if (token == null && fallbackCurrency != null && request.amount.isEmpty) {
       widget.sendViewModel.outputs[_selectedOutput].setCryptoAmount("");

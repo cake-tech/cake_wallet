@@ -1,28 +1,29 @@
 import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/exceptions.dart";
 import "package:cw_core/wallet_info.dart";
 
 class WalletSwitchService {
-  WalletSwitchService({required this.walletLoadingService, required this.appStore});
+  WalletSwitchService({
+    required WalletLoadingService walletLoadingService,
+    required AppStore appStore,
+  })  : _walletLoadingService = walletLoadingService,
+        _appStore = appStore;
 
-  final WalletLoadingService walletLoadingService;
-  final AppStore appStore;
+  final AppStore _appStore;
+  final WalletLoadingService _walletLoadingService;
 
-  Future<bool> switchToWallet(WalletInfo walletInfo) async {
-    try {
-      final wallet = await walletLoadingService.load(walletInfo.type, walletInfo.name);
+  Future<void> switchToWallet(WalletInfo walletInfo) async {
+    final wallet = await _walletLoadingService.load(walletInfo.type, walletInfo.name);
 
-      if (wallet.name != walletInfo.name || wallet.type != walletInfo.type) {
-        printV("wallet switch loaded ${wallet.name} instead of ${walletInfo.name}");
-        return false;
-      }
-
-      await appStore.changeCurrentWallet(wallet);
-      return true;
-    } catch (e) {
-      printV("wallet switch failed: $e");
-      return false;
+    // load() recovers from a corrupted wallet by opening any other wallet it can,
+    // so the one it returns may not be the one that was requested.
+    if (wallet.name != walletInfo.name || wallet.type != walletInfo.type) {
+      throw WalletSwitchException(
+        "wallet switch loaded ${wallet.name} instead of ${walletInfo.name}",
+      );
     }
+
+    await _appStore.changeCurrentWallet(wallet);
   }
 }

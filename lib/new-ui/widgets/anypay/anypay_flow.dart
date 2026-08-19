@@ -350,11 +350,8 @@ class AnyPayFlow {
       getIt.get<AddressResolverService>(),
       null,
       walletSwitcherViewModel: walletSwitcherViewModel,
-      fromSend: SwapFromSendArgs.fromIntent(
-        intent,
-        sendViewModel.balanceViewModel,
-        isFiatDisabled: sendViewModel.isFiatDisabled,
-      ),
+      fromSend: SwapFromSendArgs.fromIntent(intent),
+      balanceViewModel: sendViewModel.balanceViewModel,
     );
     await Navigator.of(presentContext).push<void>(
       CupertinoPageRoute(

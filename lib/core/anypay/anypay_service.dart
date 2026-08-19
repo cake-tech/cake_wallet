@@ -111,8 +111,10 @@ class AnyPayService {
   }
 
   Future<bool> switchWalletForPayment(WalletInfo walletInfo, {int? chainId}) async {
-    final switched = await walletSwitchService.switchToWallet(walletInfo);
-    if (!switched) {
+    try {
+      await walletSwitchService.switchToWallet(walletInfo);
+    } catch (e) {
+      printV("wallet switch failed: $e");
       return false;
     }
 
