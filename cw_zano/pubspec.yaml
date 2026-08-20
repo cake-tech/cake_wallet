@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  bip39: ^1.0.6
   ffi: ^2.0.1
   http: ^1.1.0
   path_provider: ^2.0.11
@@ -25,7 +26,7 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c.git
-      ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
+      ref: a27384fe5cc98a568c1c0e1be8e102f86d435956
       path: impls/monero.dart
 dev_dependencies:
   flutter_test:

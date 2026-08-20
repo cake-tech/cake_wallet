@@ -76,31 +76,34 @@ mixin ZanoWalletApi {
 
   Future<File> _getWalletSecretsFile() async {
     final dir = await getWalletDir();
-    final file = File(p.join(dir.path, "zano-secrets.json.bin"));
-    return file;
+    return File(p.join(dir.path, 'zano-secrets.json.bin'));
   }
 
   Future<Map<String, dynamic>> _getSecrets() async {
-    final file = await _getWalletSecretsFile();
-    if (!file.existsSync()) {
+    try {
+      final file = await _getWalletSecretsFile();
+      if (!file.existsSync()) {
+        return {};
+      }
+      final data = file.readAsBytesSync();
+      final b64 = convert.base64.encode(data);
+      final respStr = await invokeMethod('decrypt_data', {'buff': b64});
+      final resp = convert.json.decode(respStr);
+      final dataBytes = convert.base64.decode(resp['result']['res_buff'] as String);
+      final dataStr = convert.utf8.decode(dataBytes);
+      return convert.json.decode(dataStr) as Map<String, dynamic>;
+    } catch (e) {
+      printV('error reading zano secrets $e');
       return {};
     }
-    final data = file.readAsBytesSync();
-    final b64 = convert.base64.encode(data);
-    final respStr = await invokeMethod("decrypt_data", {"buff": "$b64"});
-    final resp = convert.json.decode(respStr);
-    final dataBytes = convert.base64.decode(resp["result"]["res_buff"] as String);
-    final dataStr = convert.utf8.decode(dataBytes);
-    final dataObject = convert.json.decode(dataStr);
-    return dataObject as Map<String, dynamic>;
   }
 
   Future<void> _setSecrets(Map<String, dynamic> data) async {
     final dataStr = convert.json.encode(data);
     final b64 = convert.base64.encode(convert.utf8.encode(dataStr));
-    final respStr = await invokeMethod("encrypt_data", {"buff": "$b64"});
+    final respStr = await invokeMethod('encrypt_data', {'buff': b64});
     final resp = convert.json.decode(respStr);
-    final dataBytes = convert.base64.decode(resp["result"]["res_buff"] as String);
+    final dataBytes = convert.base64.decode(resp['result']['res_buff'] as String);
     final file = await _getWalletSecretsFile();
     file.writeAsBytesSync(dataBytes);
   }
@@ -124,7 +127,25 @@ mixin ZanoWalletApi {
     return _setWalletSecret("passphrase", passphrase);
   }
 
+  Future<String?> getBip39Mnemonic() async {
+    return await _getWalletSecret("bip39_mnemonic");
+  }
+
+  Future<void> setBip39Secrets({
+    required String mnemonic,
+    required int creationTimestamp,
+  }) async {
+    final secrets = await _getSecrets();
+    secrets["bip39_mnemonic"] = mnemonic;
+    secrets["creation_timestamp"] = creationTimestamp.toString();
+    await _setSecrets(secrets);
+  }
+
   Future<String> getSeed() async {
+    final bip39Mnemonic = await getBip39Mnemonic();
+    if (bip39Mnemonic != null && bip39Mnemonic.isNotEmpty) {
+      return bip39Mnemonic;
+    }
     final passphrase = await getPassphrase();
     final respStr = await invokeMethod("get_restore_info", {"seed_password": passphrase ?? ""});
     final resp = convert.json.decode(respStr);
@@ -328,10 +349,59 @@ mixin ZanoWalletApi {
     return result;
   }
 
+  Future<CreateWalletResult> restoreWalletFromDerivations(
+    String path,
+    String password,
+    String secretDerivation, {
+    bool isAuditable = false,
+    required int creationTimestamp,
+  }) async {
+    printV('restore_wallet_from_derivations path $path');
+    final params = jsonEncode({
+      "creation_timestamp": creationTimestamp,
+      "is_auditable": isAuditable,
+      "pass": password,
+      "path": path,
+      "secret_derivation": secretDerivation,
+    });
+    final json = await callSyncMethod('restore_from_derivations', 0, params);
+    final map = jsonDecode(json) as Map<String, dynamic>?;
+    if (map?['error'] != null) {
+      final code = map!['error']!['code'] ?? '';
+      final message = map['error']!['message'] ?? '';
+      if (code == Consts.errorWrongSeed) {
+        throw RestoreFromSeedsException(
+            'Error restoring wallet\nPlease check the seed words are correct. Additionally, if you created this wallet with a passphrase please add it under the Advanced Settings page.');
+      } else if (code == Consts.errorAlreadyExists) {
+        throw RestoreFromSeedsException('Error restoring wallet, already exists');
+      }
+      throw RestoreFromSeedsException('Error restoring wallet, $message ($code)');
+    }
+    if (map?['result'] == null) {
+      throw RestoreFromSeedsException('Error restoring wallet, empty response');
+    }
+    final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
+    openWalletCache[path] = result;
+    printV('restore_wallet_from_derivations ${result.name} ${result.wi.address}');
+    return result;
+  }
+
   Future<CreateWalletResult> restoreWalletFromSeed(
-      String path, String password, String seed, String? passphrase) async {
+    String path,
+    String password,
+    String seed,
+    String? passphrase, {
+    required int creationTimestamp,
+  }) async {
     printV('restore_wallet path $path');
-    final json = zano.PlainWallet_restore(seed, path, password, passphrase ?? '');
+    final params = jsonEncode({
+      "creation_timestamp": creationTimestamp,
+      "pass": password,
+      "path": path,
+      "seed_phrase": seed,
+      "seed_pass": passphrase ?? '',
+    });
+    final json = await callSyncMethod('restore', 0, params);
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map!['error']!['code'] ?? '';
