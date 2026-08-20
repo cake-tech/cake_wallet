@@ -18,6 +18,9 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cw_core/erc20_token_legacy.dart' show performErc20TokenHiveMigration;
+import 'package:cw_core/spl_token_legacy.dart' show performSplTokenHiveMigration;
+import 'package:cw_core/tron_token_legacy.dart' show performTronTokenHiveMigration;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -113,6 +116,10 @@ class $BackupService {
   Future<void> verifyWallets() async {
     await performHiveMigration(); // for backups made before sqlite migration
     await performTradeHiveMigration(_secureStorage);
+    await performErc20TokenHiveMigration();
+    await performSplTokenHiveMigration();
+    await performTronTokenHiveMigration();
+
     correctWallets = (await WalletInfo.getAll())
         .where((info) => availableWalletTypes.contains(info.type))
         .toList();

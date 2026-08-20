@@ -17,11 +17,16 @@ class TokenImageWidget extends StatefulWidget {
     required this.imageUrl,
     required this.size,
     this.errorWidget,
+    this.semanticsLabel,
   });
 
   final String imageUrl;
   final double size;
   final Widget? errorWidget;
+
+  /// Accessible name for the token artwork. Leave `null` (the default) when the
+  /// token is already named by adjacent text, so the image stays decorative.
+  final String? semanticsLabel;
 
   @override
   State<TokenImageWidget> createState() => _TokenImageWidgetState();
@@ -132,6 +137,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
         fit: BoxFit.cover,
         filterQuality: FilterQuality.high,
         errorWidget: widget.errorWidget,
+        semanticsLabel: widget.semanticsLabel,
       ),
     );
 
