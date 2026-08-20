@@ -296,8 +296,16 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (hasCurrencySelector)
-            BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
-          BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,curr: fiatCurrency, onTap: onFiatSelectorPressed),
+            BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S
+                .of(context)
+                .sell : S
+                .of(context)
+                .buy, curr: cryptoCurrency, onTap: onCurrencySelectorPressed),
+          BuySellCurrencyPickerPill(title: mode == BuySellPageMode.sell ? S
+              .of(context)
+              .receive : S
+              .of(context)
+              .purchase_with, curr: fiatCurrency, onTap: onFiatSelectorPressed),
 
           Text(
             mode == BuySellPageMode.sell
