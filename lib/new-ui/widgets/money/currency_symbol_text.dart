@@ -1,5 +1,4 @@
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
-import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency/currency.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -137,7 +136,7 @@ class CurrencySymbolText extends StatelessWidget {
   /// (semi-transparent grey).
   final Color? selectionColor;
 
-  /// Show the amount in the base unit format of [Money.currency]
+  /// Show the amount in the base unit format of [currency]
   ///
   /// If null, the displayAmountsInSatoshi setting is used.
   final bool? useBaseUnit;

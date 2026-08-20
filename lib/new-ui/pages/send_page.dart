@@ -25,6 +25,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/picker.dart";
@@ -65,6 +66,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
@@ -562,7 +564,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                             allAmount: widget.sendViewModel.balance,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
-                                                (await widget.sendViewModel.sendingBalance).toString(),
+                                                (await widget.sendViewModel.sendingBalance)
+                                                    .toString(),
                                               );
                                               await output.calculateEstimatedFee();
                                             },
@@ -732,7 +735,12 @@ class _NewSendPageState extends State<NewSendPage> {
 
     _amountControllers[_selectedOutput].text = output.isFiatEntry
         ? output.fiatAmountMoney.toString()
-        : output.cryptoAmountMoney.toString();
+        : output.cryptoAmountMoney.toStringWithPrecision(
+            useBaseUnit: context
+                .read<MoneySettingsCubit>()
+                .state
+                .useBaseUnit(output.cryptoAmountMoney.currency),
+          );
   }
 
   void _setOutput(int index) {
