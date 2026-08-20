@@ -1,48 +1,6 @@
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cake_wallet/new-ui/model/charts/price_api_client.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'dart:convert';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-
-const _fiatApiClearNetAuthority = 'prices.cakewallet.com';
-const _fiatApiOnionAuthority = '46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion';
-const _fiatApiPath = '/v2/rates';
-
-Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
-  final Map<String, String> queryParams = {
-    'interval_count': '1',
-    'base': crypto.split(".").first,
-    'quote': fiat,
-  };
-
-  num price = 0.0;
-
-  try {
-    final onionUri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
-    final clearnetUri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
-
-    final response = await ProxyWrapper()
-        .get(onionUri: onionUri, clearnetUri: torOnly ? onionUri : clearnetUri, headers: {
-      "x-api-key": secrets.fiatApiKey,
-    });
-
-    if (response.statusCode != 200) {
-      return 0.0;
-    }
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final results = responseJSON['results'] as Map<String, dynamic>;
-
-    if (results.isNotEmpty) {
-      price = results.values.first as num;
-    }
-
-    return price.toDouble();
-  } catch (e) {
-    return price.toDouble();
-  }
-}
 
 /// Override specific [CryptoCurrency] to fix its price to the price of another
 /// e.g. nDEPS should have the same price as DEPS, but only DEPS is tracked
@@ -57,5 +15,14 @@ class FiatConversionService {
     required FiatCurrency fiat,
     required bool torOnly,
   }) async =>
-      await _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
+      (await PriceApiClient.getLatestPrice(
+        LatestPriceRequest(
+          from: _overrideCryptoCurrency(crypto),
+          to: fiat,
+        ),
+        torOnly: torOnly,
+      ))
+          ?.quote
+          .toDouble() ??
+      0.0;
 }
