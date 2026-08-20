@@ -97,7 +97,6 @@ class PriceApiClient {
     LatestPriceRequest request, {
     bool torOnly = false,
   }) async {
-    print(request.from.apiString);
     final data = await _getJson(torOnly ? request.onionUri : request.uri);
     if (data == null) {
       return null;
