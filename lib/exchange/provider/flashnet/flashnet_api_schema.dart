@@ -1,8 +1,12 @@
 // spec reference: https://orchestration.flashnet.xyz/openapi.json
 //
-// covers /v1/orchestration/limits, /quote, /submit and /status. every amount the API sends or
+// covers /v1/orchestration/limits, /estimate, /quote, /submit and /status. every amount the API sends or
 // takes is a decimal string in the asset's smallest unit (or in USD cents where the field says
-// so), so they stay String here instead of being parsed into something lossy
+// so), so they stay String here instead of being parsed into something lossy.
+//
+// asset codes stay String rather than becoming an enum: the supported list is long, churns with
+// every listing, and the spec only pins it on requests anyway. the codes are case sensitive
+// though, so build them with FlashnetExchangeProvider._normalizeCurrency instead of by hand
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
@@ -66,101 +70,6 @@ enum FlashnetChain {
   @JsonValue("zcash")
   zcash,
   unknown,
-}
-
-/// the spec only uses this enum on requests - every response field carrying an asset is a plain
-/// string - so there is deliberately no unknown member to accidentally send
-enum FlashnetAsset {
-  @JsonValue("AAPL")
-  aapl,
-  @JsonValue("AMD")
-  amd,
-  @JsonValue("AMZN")
-  amzn,
-  @JsonValue("BNB")
-  bnb,
-  @JsonValue("BTC")
-  btc,
-  @JsonValue("CASHCAT")
-  cashcat,
-  @JsonValue("DAI")
-  dai,
-  @JsonValue("ETH")
-  eth,
-  @JsonValue("GOOGL")
-  googl,
-  @JsonValue("HSUSD")
-  hsusd,
-  @JsonValue("HYPE")
-  hype,
-  // "IF" verbatim - if is a reserved word
-  @JsonValue("IF")
-  ifAsset,
-  @JsonValue("LTC")
-  ltc,
-  @JsonValue("MON")
-  mon,
-  @JsonValue("NVDA")
-  nvda,
-  @JsonValue("PIPEDOG")
-  pipedog,
-  @JsonValue("POL")
-  pol,
-  @JsonValue("PONS")
-  pons,
-  @JsonValue("PYUSD")
-  pyusd,
-  @JsonValue("PathUSD")
-  pathUsd,
-  @JsonValue("SOL")
-  sol,
-  @JsonValue("SPCX")
-  spcx,
-  @JsonValue("SPY")
-  spy,
-  @JsonValue("STONKBROKER")
-  stonkbroker,
-  @JsonValue("TENDIES")
-  tendies,
-  @JsonValue("TON")
-  ton,
-  @JsonValue("TRX")
-  trx,
-  @JsonValue("TSLA")
-  tsla,
-  @JsonValue("UP")
-  up,
-  @JsonValue("USDB")
-  usdb,
-  @JsonValue("USDC")
-  usdc,
-  @JsonValue("USDC.e")
-  usdcE,
-  @JsonValue("USDG")
-  usdg,
-  @JsonValue("USDT")
-  usdt,
-  @JsonValue("USDe")
-  usde,
-  // that is a tugrik sign (U+20AE), not a T - Tether's omnichain USDT0
-  @JsonValue("USD₮0")
-  usdt0,
-  @JsonValue("WBNB")
-  wbnb,
-  @JsonValue("WBTC")
-  wbtc,
-  @JsonValue("WEN")
-  wen,
-  @JsonValue("XMR")
-  xmr,
-  @JsonValue("XRP")
-  xrp,
-  @JsonValue("ZEC")
-  zec,
-  @JsonValue("cbBTC")
-  cbBtc,
-  @JsonValue("tBTC")
-  tBtc,
 }
 
 /// which leg of the quote the amount pins. exact_out requires whole cents on stablecoin
@@ -330,12 +239,13 @@ class FlashnetLimitsRequest {
 
   @JsonKey(name: "sourceChain", includeIfNull: false)
   final FlashnetChain? sourceChain;
+  /// case sensitive flashnet asset code, e.g. "BTC", "USDC.e", "cbBTC"
   @JsonKey(name: "sourceAsset", includeIfNull: false)
-  final FlashnetAsset? sourceAsset;
+  final String? sourceAsset;
   @JsonKey(name: "destinationChain", includeIfNull: false)
   final FlashnetChain? destinationChain;
   @JsonKey(name: "destinationAsset", includeIfNull: false)
-  final FlashnetAsset? destinationAsset;
+  final String? destinationAsset;
 
   Map<String, dynamic> toJson() => _$FlashnetLimitsRequestToJson(this);
 }
@@ -562,6 +472,7 @@ class FlashnetLimitRoute {
 
   @JsonKey(name: "sourceChain", unknownEnumValue: FlashnetChain.unknown)
   final FlashnetChain sourceChain;
+  /// case sensitive flashnet asset code, e.g. "BTC", "USDC.e", "cbBTC"
   @JsonKey(name: "sourceAsset")
   final String sourceAsset;
   @JsonKey(name: "destinationChain", unknownEnumValue: FlashnetChain.unknown)
@@ -598,6 +509,208 @@ class FlashnetLimitsResponse {
   /// empty when nothing matches the filter, which is how an unsupported pair reads
   @JsonKey(name: "routes")
   final List<FlashnetLimitRoute> routes;
+}
+
+
+
+/// one cost the destination chain imposes on delivery, on top of the flashnet fee - creating a
+/// solana associated token account is the one seen in the wild. undocumented in the spec, so the
+/// fields past type stay nullable and type and assumption stay String rather than becoming enums
+/// on the strength of two observed values ("solana_associated_token_account", and
+/// "assumed_missing" / "observed_exists")
+@JsonSerializable(createToJson: false)
+class FlashnetNetworkCost {
+  const FlashnetNetworkCost({
+    required this.type,
+    this.amount,
+    this.asset,
+    this.nativeAmount,
+    this.nativeAsset,
+    this.assumption,
+  });
+
+  factory FlashnetNetworkCost.fromJson(Map<String, dynamic> json) =>
+      _$FlashnetNetworkCostFromJson(json);
+
+  @JsonKey(name: "type")
+  final String type;
+
+  /// what it costs denominated in the fee asset, which is what actually comes off the delivery
+  @JsonKey(name: "amount")
+  final String? amount;
+  @JsonKey(name: "asset")
+  final String? asset;
+
+  /// and the same cost in the destination chain's native coin
+  @JsonKey(name: "nativeAmount")
+  final String? nativeAmount;
+  @JsonKey(name: "nativeAsset")
+  final String? nativeAsset;
+
+  /// whether the cost was measured or guessed. it reads assumed_missing until the estimate is
+  /// given a recipientAddress to check against, then flips to observed_exists and drops to zero
+  /// where the account is already there
+  @JsonKey(name: "assumption")
+  final String? assumption;
+}
+
+/// query for GET /v1/orchestration/estimate. the cheap unauthenticated preview of a quote: same
+/// pricing, no deposit address, nothing created, so nothing to expire. rate limited per IP for
+/// unauthenticated callers only.
+///
+/// pass recipientAddress whenever it is known. without it the orchestrator has to assume the
+/// destination account does not exist yet and prices the network cost of creating it into the
+/// estimate, which understates the rate on a destination the user already holds
+@JsonSerializable(createFactory: false)
+class FlashnetEstimateRequest {
+  const FlashnetEstimateRequest({
+    required this.sourceChain,
+    required this.sourceAsset,
+    required this.destinationChain,
+    required this.destinationAsset,
+    required this.amount,
+    this.amountMode,
+    this.deliveryMode,
+    this.recipientAddress,
+    this.slippageBps,
+  });
+
+  @JsonKey(name: "sourceChain")
+  final FlashnetChain sourceChain;
+
+  /// case sensitive flashnet asset code, e.g. "BTC", "USDC.e", "cbBTC"
+  @JsonKey(name: "sourceAsset")
+  final String sourceAsset;
+  @JsonKey(name: "destinationChain")
+  final FlashnetChain destinationChain;
+  @JsonKey(name: "destinationAsset")
+  final String destinationAsset;
+
+  /// smallest units, digits only. the destination amount under amountMode exact_out
+  @JsonKey(name: "amount")
+  final String amount;
+
+  @JsonKey(name: "amountMode", includeIfNull: false)
+  final FlashnetAmountMode? amountMode;
+  @JsonKey(name: "deliveryMode", includeIfNull: false)
+  final FlashnetDeliveryMode? deliveryMode;
+
+  @JsonKey(name: "recipientAddress", includeIfNull: false)
+  final String? recipientAddress;
+
+  /// 0 to 1000 (10%)
+  @JsonKey(name: "slippageBps", includeIfNull: false)
+  final int? slippageBps;
+
+  Map<String, dynamic> toJson() => _$FlashnetEstimateRequestToJson(this);
+}
+
+/// response of GET /v1/orchestration/estimate. the same priced shape a quote answers with, minus
+/// everything to do with actually placing the order, plus the resolved source and destination
+/// asset details.
+///
+/// the networkCost fields are absent from the spec but real in the responses, and they are not
+/// part of totalFeeAmount's sibling fees - read them before treating estimatedOut as final
+@JsonSerializable(createToJson: false)
+class FlashnetEstimateResponse {
+  const FlashnetEstimateResponse({
+    required this.estimatedOut,
+    required this.feeAmount,
+    required this.feeBps,
+    required this.feeAsset,
+    required this.route,
+    required this.source,
+    required this.destination,
+    this.amountMode,
+    this.targetAmountOut,
+    this.requiredAmountIn,
+    this.maxAcceptedAmountIn,
+    this.inputBufferBps,
+    this.deliveryMode,
+    this.roundingFeeAmount,
+    this.totalFeeAmount,
+    this.appFeeAmount,
+    this.appFeePlatformCutAmount,
+    this.appFees,
+    this.feeAssetDetails,
+    this.feeAmountUsd,
+    this.totalFeeAmountUsd,
+    this.networkCostAmount,
+    this.networkCostAsset,
+    this.networkCostRequired,
+    this.networkCosts,
+  });
+
+  factory FlashnetEstimateResponse.fromJson(Map<String, dynamic> json) =>
+      _$FlashnetEstimateResponseFromJson(json);
+
+  /// destination asset smallest units. equals targetAmountOut on an exact_out estimate
+  @JsonKey(name: "estimatedOut")
+  final String estimatedOut;
+
+  @JsonKey(name: "feeAmount")
+  final String feeAmount;
+  @JsonKey(name: "feeBps")
+  final int feeBps;
+  @JsonKey(name: "feeAsset")
+  final String feeAsset;
+
+  /// the legs the swap would route over. entries are bare asset codes on some routes and
+  /// chain:asset on others, so this is for display, not for parsing
+  @JsonKey(name: "route")
+  final List<String> route;
+
+  @JsonKey(name: "source")
+  final FlashnetAssetDetails source;
+  @JsonKey(name: "destination")
+  final FlashnetAssetDetails destination;
+
+  /// only echoed back on an exact_out estimate, along with the four fields below
+  @JsonKey(name: "amountMode", unknownEnumValue: FlashnetAmountMode.unknown)
+  final FlashnetAmountMode? amountMode;
+
+  @JsonKey(name: "targetAmountOut")
+  final String? targetAmountOut;
+  @JsonKey(name: "requiredAmountIn")
+  final String? requiredAmountIn;
+  @JsonKey(name: "maxAcceptedAmountIn")
+  final String? maxAcceptedAmountIn;
+  @JsonKey(name: "inputBufferBps")
+  final int? inputBufferBps;
+
+  /// only ever fixed - a variable estimate leaves this off
+  @JsonKey(name: "deliveryMode", unknownEnumValue: FlashnetDeliveryMode.unknown)
+  final FlashnetDeliveryMode? deliveryMode;
+
+  @JsonKey(name: "roundingFeeAmount")
+  final String? roundingFeeAmount;
+  @JsonKey(name: "totalFeeAmount")
+  final String? totalFeeAmount;
+  @JsonKey(name: "appFeeAmount")
+  final String? appFeeAmount;
+  @JsonKey(name: "appFeePlatformCutAmount")
+  final String? appFeePlatformCutAmount;
+
+  /// only comes back for callers whose key carries app fees
+  @JsonKey(name: "appFees")
+  final List<FlashnetAppFeeQuote>? appFees;
+
+  @JsonKey(name: "feeAssetDetails")
+  final FlashnetAssetDetails? feeAssetDetails;
+  @JsonKey(name: "feeAmountUsd")
+  final String? feeAmountUsd;
+  @JsonKey(name: "totalFeeAmountUsd")
+  final String? totalFeeAmountUsd;
+
+  /// the networkCosts total, in the fee asset. absent entirely on routes that impose none
+  @JsonKey(name: "networkCostAmount")
+  final String? networkCostAmount;
+  @JsonKey(name: "networkCostAsset")
+  final String? networkCostAsset;
+  @JsonKey(name: "networkCostRequired")
+  final bool? networkCostRequired;
+  @JsonKey(name: "networkCosts")
+  final List<FlashnetNetworkCost>? networkCosts;
 }
 
 
@@ -676,12 +789,13 @@ class FlashnetQuoteRequest {
 
   @JsonKey(name: "sourceChain")
   final FlashnetChain sourceChain;
+  /// case sensitive flashnet asset code, e.g. "BTC", "USDC.e", "cbBTC"
   @JsonKey(name: "sourceAsset")
-  final FlashnetAsset sourceAsset;
+  final String sourceAsset;
   @JsonKey(name: "destinationChain")
   final FlashnetChain destinationChain;
   @JsonKey(name: "destinationAsset")
-  final FlashnetAsset destinationAsset;
+  final String destinationAsset;
 
   /// smallest units, digits only. with amountMode exact_out this is the destination amount and
   /// stablecoin destinations must land on whole cents
