@@ -1871,8 +1871,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
-      resolved-ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+      ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
+      resolved-ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
       url: "https://github.com/cake-tech/ledger-usb-plus"
     source: git
     version: "1.0.8"
@@ -2050,8 +2050,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "impls/monero.dart"
-      ref: a27384fe5cc98a568c1c0e1be8e102f86d435956
-      resolved-ref: a27384fe5cc98a568c1c0e1be8e102f86d435956
+      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
+      resolved-ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
       url: "https://github.com/mrcyjanek/monero_c.git"
     source: git
     version: "0.0.0"
@@ -3161,8 +3161,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-      resolved-ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"
