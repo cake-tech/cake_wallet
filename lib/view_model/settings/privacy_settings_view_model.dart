@@ -28,7 +28,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get hasSilentPaymentsScanning => _wallet.hasSilentPaymentsScanning;
 
   @computed
-  bool get hasMWEB => _wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
+  bool get hasMWEB =>
+      _wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid) &&
+          !_wallet.isHardwareWallet;
 
   @computed
   bool get isAutoGenerateSubaddressesEnabled =>
