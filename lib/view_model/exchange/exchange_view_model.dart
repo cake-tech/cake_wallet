@@ -6,7 +6,6 @@ import 'dart:developer';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -420,6 +419,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @observable
   bool tradeStarted = false;
+
+  @observable
+  bool noProviderForPair = false;
 
   @observable
   bool isSendFromExternal = false;
@@ -939,6 +941,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bestRate = _sortedAvailableProviders.keys.first;
       bestRateProvider = _sortedAvailableProviders.values.first;
     }
+    noProviderForPair = _sortedAvailableProviders.isEmpty;
   }
 
   @action
@@ -1559,24 +1562,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.none:
         break;
     }
-  }
-
-  String? _addressTypeValidation(String refundAddress, String receiveAddress) {
-    final isRefundAddressSP =
-        RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refundAddress);
-    if (isRefundAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_refund}';
-
-    final isReceiveAddressSP =
-        RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(receiveAddress);
-    if (isReceiveAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_receive}';
-
-    final isRefundAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(refundAddress);
-    if (isRefundAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_refund}';
-
-    final isReceiveAddressMWEB =
-        RegExp(AddressValidator.mWebAddressPattern).hasMatch(receiveAddress);
-    if (isReceiveAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_receive}';
-    return null;
   }
 
   void _defineIsReceiveAmountEditable() {

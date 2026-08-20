@@ -33,6 +33,7 @@ import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
@@ -60,6 +61,7 @@ class NewSwapPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     CryptoCurrency? initialCurrency,
     this.fromSend,
+    this.balanceViewModel,
   }) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
@@ -78,6 +80,7 @@ class NewSwapPage extends StatefulWidget {
   final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final SwapFromSendArgs? fromSend;
+  final BalanceViewModel? balanceViewModel;
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -101,6 +104,25 @@ class _NewSwapPageState extends State<NewSwapPage> {
       [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
           .contains(widget.exchangeViewModel.depositCurrency) &&
       !(widget.exchangeViewModel.status is SyncedSyncStatus);
+
+  Map<CryptoCurrency, CurrencyPickerBalance>? _depositBalanceByAsset() {
+    final balanceViewModel = widget.balanceViewModel;
+    if (balanceViewModel == null) {
+      return null;
+    }
+
+    return {
+      for (final r in balanceViewModel.formattedBalances)
+        r.asset: CurrencyPickerBalance(
+          amount: "${r.availableBalance} ${r.asset.title}",
+          fiat: balanceViewModel.isFiatDisabled
+              ? null
+              : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
+          fiatValue:
+              balanceViewModel.isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+        ),
+    };
+  }
 
   @override
   void initState() {
@@ -267,8 +289,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
         (bool isReceiveAmountEditable) {},
       ));
 
-      _disposers
-          .add(reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) {
+      _disposers.add(
+          reaction((_) => widget.exchangeViewModel.tradeState, (ExchangeTradeState state) async {
         if (state is TradeIsCreatedFailure) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -307,11 +329,15 @@ class _NewSwapPageState extends State<NewSwapPage> {
             exchangeTradeViewModel: vm,
             receiveAmount: receiveAmount,
           );
-          showMaterialModalBottomSheet(
-            context: context,
-            builder: (context) => page,
-            backgroundColor: Colors.transparent,
-          );
+          try {
+            await showMaterialModalBottomSheet<void>(
+              context: context,
+              builder: (context) => page,
+              backgroundColor: Colors.transparent,
+            );
+          } finally {
+            widget.exchangeViewModel.tradeStarted = false;
+          }
         }
       }));
 
@@ -638,7 +664,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       walletName: fromSend != null
                                           ? widget.exchangeViewModel.wallet.name
                                           : null,
-                                      balanceByAsset: fromSend?.depositBalanceByAsset,
+                                      balanceByAsset:
+                                          fromSend != null ? _depositBalanceByAsset() : null,
                                       useSingleNetworkLayout: fromSend != null,
                                       filteredNetwork: fromSend != null
                                           ? widget.exchangeViewModel.wallet.type

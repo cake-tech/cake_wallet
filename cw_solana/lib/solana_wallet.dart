@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
@@ -28,7 +27,6 @@ import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:hex/hex.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:on_chain/solana/solana.dart' hide Store;
@@ -67,10 +65,6 @@ abstract class SolanaWalletBase
       encryptionFileUtils: encryptionFileUtils,
     );
 
-    if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
-      CakeHive.registerAdapter(SPLTokenAdapter());
-    }
-
     _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
@@ -90,7 +84,7 @@ abstract class SolanaWalletBase
 
   Future<void>? _currentRefresh;
 
-  late final Box<SPLToken> splTokensBox;
+  List<SPLToken> _splTokens = [];
 
   @override
   WalletAddresses walletAddresses;
@@ -133,9 +127,7 @@ abstract class SolanaWalletBase
       );
 
   Future<void> init() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
-
-    splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
+    _splTokens = await SPLToken.getAllForWallet(walletInfo.name);
 
     await _checkForExistingScamTokens();
 
@@ -160,8 +152,6 @@ abstract class SolanaWalletBase
   String get _scamCheckDoneKey => 'solana_scam_check_v2_done_${walletInfo.name}';
 
   Future<void> _checkForExistingScamTokens() async {
-    if (!splTokensBox.isOpen) return;
-
     final prefs = await _sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
 
@@ -169,7 +159,7 @@ abstract class SolanaWalletBase
     final defaultSymbolsUpper =
         DefaultSPLTokens().initialSPLTokens.map((t) => t.symbol.toUpperCase()).toSet();
 
-    for (final token in splTokensBox.values) {
+    for (final token in _splTokens) {
       final suspicious = isTokenPropertiesSuspicious(
         token,
         cachedDefaultMints: defaultMints,
@@ -421,7 +411,7 @@ abstract class SolanaWalletBase
   }
 
   Future<void> updateSPLTokenTransactions({List<String>? specificMints}) async {
-    final allTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
+    final allTokens = _splTokens.where((t) => t.enabled).toList(growable: false);
 
     // Filter to specific mints if provided
     final tokens = specificMints != null
@@ -618,11 +608,11 @@ abstract class SolanaWalletBase
     List<String>? tokenMints,
   }) async {
     // Remove disabled tokens first to keep state clean
-    for (var token in splTokensBox.values.where((t) => !t.enabled)) {
+    for (var token in _splTokens.where((t) => !t.enabled)) {
       balance.remove(token);
     }
 
-    final enabledTokens = splTokensBox.values.where((t) => t.enabled).toList(growable: false);
+    final enabledTokens = _splTokens.where((t) => t.enabled).toList(growable: false);
     if (enabledTokens.isEmpty) return;
 
     final tokens = tokenMints == null || tokenMints.isEmpty
@@ -677,35 +667,48 @@ abstract class SolanaWalletBase
     }
   }
 
-  List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();
+  List<SPLToken> get splTokenCurrencies => _splTokens.toList();
 
   SPLToken? splTokenBySymbol(String symbol) {
-    for (final token in splTokensBox.values) {
+    for (final token in _splTokens) {
       if (token.symbol == symbol) return token;
     }
 
     return null;
   }
 
-  void addInitialTokens() {
+  SPLToken? _findCachedToken(String mintAddress) {
+    for (final token in _splTokens) {
+      if (token.mintAddress == mintAddress) return token;
+    }
+
+    return null;
+  }
+
+  void _upsertCachedToken(SPLToken token) {
+    _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
+    _splTokens.add(token);
+  }
+
+  Future<void> addInitialTokens() async {
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
     for (var token in initialSPLTokens) {
-      if (!splTokensBox.containsKey(token.mintAddress)) {
-        splTokensBox.put(token.mintAddress, token);
-      } else {
-        // update existing token
-        final existingToken = splTokensBox.get(token.mintAddress);
-        splTokensBox.put(
-            token.mintAddress, SPLToken.copyWith(token, enabled: existingToken!.enabled));
-      }
+      final existingToken = _findCachedToken(token.mintAddress);
+
+      final newToken = SPLToken.copyWith(
+        token,
+        enabled: existingToken?.enabled ?? token.enabled,
+        walletName: walletInfo.name,
+      );
+
+      await newToken.save();
+      _upsertCachedToken(newToken);
     }
   }
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {
     try {
-      if (!splTokensBox.isOpen) return SolanaMoralisDiscoveryResult.empty;
-
       final address = walletAddresses.address;
       if (address.isEmpty) return SolanaMoralisDiscoveryResult.empty;
 
@@ -713,7 +716,7 @@ abstract class SolanaWalletBase
       if (walletTokens.isEmpty) return SolanaMoralisDiscoveryResult.empty;
 
       final existingMints = {
-        for (final token in splTokensBox.values) token.mintAddress: token,
+        for (final token in _splTokens) token.mintAddress: token,
       };
 
       final defaultMints = DefaultSPLTokens().initialSPLTokens.map((t) => t.mintAddress).toSet();
@@ -849,7 +852,9 @@ abstract class SolanaWalletBase
     final isSuspicious = isTokenPropertiesSuspicious(token);
     token.isPotentialScam = token.isPotentialScam || isSuspicious;
 
-    await splTokensBox.put(token.mintAddress, token);
+    token.walletName = walletInfo.name;
+    await token.save();
+    _upsertCachedToken(token);
 
     if (token.enabled) {
       final tokenBalance = await _client.getSplTokenBalance(token, solanaAddress) ??
@@ -869,13 +874,10 @@ abstract class SolanaWalletBase
       sources.add(_nativeSource);
     }
 
-    if (splTokensBox.isOpen) {
-      sources.addAll(splTokensBox.values
-          .where((t) => t.symbol == token.symbol)
-          .map((t) => t.mintAddress));
+    sources.addAll(_splTokens.where((t) => t.symbol == token.symbol).map((t) => t.mintAddress));
 
-      await splTokensBox.delete(token.mintAddress);
-    }
+    await SPLToken.deleteForWallet(walletInfo.name, token.mintAddress);
+    _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);

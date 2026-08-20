@@ -1741,6 +1741,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  @action
+  void applyAnyPayCurrency(CryptoCurrency currency) {
+    selectedCryptoCurrency = currency;
+  }
+
   String _decodeMethodSelector(String s) =>
       (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
 }
