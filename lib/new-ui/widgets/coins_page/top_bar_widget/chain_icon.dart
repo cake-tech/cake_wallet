@@ -10,18 +10,20 @@ class ChainIcon extends StatelessWidget {
       {super.key,
       required this.iconPath,
       required this.dashboardViewModel,
-      required this.isSyncHeavy});
+      required this.isSyncHeavy,
+      required this.showSyncedMessage});
 
   final String iconPath;
   final bool isSyncHeavy;
   final DashboardViewModel dashboardViewModel;
+  final bool showSyncedMessage;
 
   @override
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
         final progress = dashboardViewModel.status.progress();
-        final done = !isSyncHeavy || progress >= 1;
+        final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
 
         return Stack(
           children: [
@@ -30,10 +32,10 @@ class ChainIcon extends StatelessWidget {
               opacity: done ? 0 : 1,
               // Faded out means "nothing to report", so it must leave the tree too.
               child: ExcludeSemantics(
-                excluding: done,
+                excluding: done || showSyncedMessage,
                 child: CircularProgressIndicator(
                   value: progress,
-                  color: Color(0xFFFFB84E),
+                  color: showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E),
                   strokeWidth: 2,
                   semanticsLabel: S.of(context).synchronizing,
                   semanticsValue: "${(progress * 100).round()}%",

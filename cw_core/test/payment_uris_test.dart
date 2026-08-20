@@ -78,13 +78,13 @@ void main() {
     const recipient = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6";
     const contract = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
-    test("builds a plain native transfer on mainnet", () {
+    test("includes the mainnet chainId on a plain native transfer", () {
       final uri = ERC681URI(chainId: 1, address: recipient, amount: "", contractAddress: null);
 
-      expect(uri.toString(), "ethereum:$recipient");
+      expect(uri.toString(), "ethereum:$recipient@1");
     });
 
-    test("appends the chainId for non-mainnet native transfers", () {
+    test("appends the chainId for native transfers", () {
       final uri = ERC681URI(chainId: 137, address: recipient, amount: "", contractAddress: null);
 
       expect(uri.toString(), "ethereum:$recipient@137");
@@ -93,7 +93,22 @@ void main() {
     test("emits the native amount in ERC-681 scientific notation", () {
       final uri = ERC681URI(chainId: 1, address: recipient, amount: "1", contractAddress: null);
 
-      expect(uri.toString(), "ethereum:$recipient?value=1.0e18");
+      expect(uri.toString(), "ethereum:$recipient@1?value=1.0e18");
+    });
+
+    test("includes the mainnet chainId in the transfer form", () {
+      final uri = ERC681URI(
+        chainId: 1,
+        address: recipient,
+        amount: "200.172148",
+        contractAddress: contract,
+        tokenDecimals: 6,
+      );
+
+      expect(
+        uri.toString(),
+        "ethereum:$contract@1/transfer?address=$recipient&amount=200.172148",
+      );
     });
 
     test("builds the transfer form for a token", () {
@@ -189,7 +204,7 @@ void main() {
         rawTokenAmount: "1000000",
       );
 
-      expect(uri.toString(), "ethereum:$contract/transfer?address=$recipient&uint256=1000000");
+      expect(uri.toString(), "ethereum:$contract@1/transfer?address=$recipient&uint256=1000000");
     });
 
     test("parses a scientific notation value", () {

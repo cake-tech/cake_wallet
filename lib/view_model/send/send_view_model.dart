@@ -126,9 +126,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         super(appStore: _appStore) {
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
-    unspentCoinsListViewModel
-        .initialSetup();
-        // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
+    unspentCoinsListViewModel.initialSetup();
+    // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
     reaction((_) {
       if (isEVMCompatibleChain(wallet.type)) {
@@ -1718,15 +1717,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String? payjoinUri;
 
   @action
-  Future<void> fetchTokenForContractAddress(String contractAddress) async {
+  Future<void> fetchTokenForContractAddress(String contractAddress,
+      {WalletType? walletType}) async {
     final token = await TokenUtilities.findTokenByAddress(
-      walletType: wallet.type,
+      walletType: walletType ?? wallet.type,
       address: contractAddress,
     );
 
     if (token != null) {
       selectedCryptoCurrency = token;
     }
+  }
+
+  @action
+  void applyAnyPayCurrency(CryptoCurrency currency) {
+    selectedCryptoCurrency = currency;
   }
 
   String _decodeMethodSelector(String s) =>
