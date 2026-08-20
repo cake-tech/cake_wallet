@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Cake Wallet
+Comment=A noncustodial multi-currency wallet
+Icon=cake_wallet
+Exec=cake_wallet
+Categories=Office;Finance;
+X-Nemo-Application-Type=generic
+
+[X-Sailjail]
+Sandboxing=Disabled

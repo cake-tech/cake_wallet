@@ -1,0 +1,43 @@
+Name: cake_wallet
+Summary: A noncustodial multi-currency wallet
+Version: @VERSION@
+Release: @BUILD_NUMBER@
+Group: Applications/Office
+License: MIT
+Sources:
+- '%{name}-%{version}.tar.bz2'
+Description: |
+    Cake Wallet build for Sailfish OS
+Configure: none
+Builder: none
+Requires:
+- flutter-sfos-@FLUTTER_VERSION@
+NoIconCache: true
+PkgBR:
+- clang
+- cmake
+- make
+- git
+- unzip
+- curl
+ExtraInstall: |
+  rpm -Uvh --force flutter-sfos-@FLUTTER_VERSION@-*.aarch64.rpm
+  /usr/libexec/flutter-sfos/@FLUTTER_VERSION@/flutter-sfos-aot "$PWD" "$PWD/build/sfos/bundle"
+  mkdir -p %{buildroot}%{_datadir}/cake_wallet
+  mkdir -p %{buildroot}%{_bindir}
+  mkdir -p %{buildroot}%{_datadir}/applications
+  cp -a build/sfos/bundle/. %{buildroot}%{_datadir}/cake_wallet/
+  rm -f %{buildroot}%{_datadir}/cake_wallet/lib/libflutter_engine.so \
+    %{buildroot}%{_datadir}/cake_wallet/lib/libflutter_elinux_*.so
+  install -m 755 elinux/cake_wallet.sh %{buildroot}%{_bindir}/cake_wallet
+  install -m 644 elinux/cake_wallet.desktop %{buildroot}%{_datadir}/applications/cake_wallet.desktop
+  for size in 86x86 108x108 128x128 172x172 256x256; do
+    mkdir -p %{buildroot}%{_datadir}/icons/hicolor/$size/apps
+    install -m 644 elinux/icons/$size/cake_wallet.png \
+      %{buildroot}%{_datadir}/icons/hicolor/$size/apps/cake_wallet.png
+  done
+Files:
+- '%{_bindir}/cake_wallet'
+- '%{_datadir}/applications/cake_wallet.desktop'
+- '%{_datadir}/icons/hicolor/*/apps/%{name}.png'
+- '%{_datadir}/cake_wallet/'

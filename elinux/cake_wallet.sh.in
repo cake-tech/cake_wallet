@@ -1,0 +1,38 @@
+#!/bin/sh
+set -eu
+
+BUNDLE=/usr/share/NAME
+BIN=$BUNDLE/NAME
+VER=@FLUTTER_VERSION@
+
+if [ ! -x "$BIN" ]; then
+	echo "missing app binary $BIN" >&2
+	exit 1
+fi
+
+SFOSLIB=
+for d in /usr/lib64/flutter-sfos/$VER /usr/lib/flutter-sfos/$VER; do
+	if [ -f "$d/libflutter_elinux_wayland.so" ]; then
+		SFOSLIB=$d
+		break
+	fi
+done
+if [ -z "$SFOSLIB" ]; then
+	echo "flutter-sfos-$VER is not installed" >&2
+	exit 1
+fi
+
+export LD_LIBRARY_PATH="$BUNDLE/lib:$SFOSLIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+SCALE_ARGS=
+if [ -n "${FLUTTER_SCALE:-}" ]; then
+	SCALE_ARGS="--force-scale-factor=$FLUTTER_SCALE"
+fi
+
+exec "$BIN" \
+	--bundle="$BUNDLE" \
+	--fullscreen \
+	$SCALE_ARGS \
+	--app-id="${FLUTTER_APP_ID:-NAME}" \
+	--onscreen-keyboard \
+	--title="TITLE"

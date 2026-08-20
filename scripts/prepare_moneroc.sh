@@ -16,8 +16,10 @@ fi
 # NOTE: Make sure to update monero_c prebuilds link in workflow files
 # https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
 git fetch -a
-git checkout 5952bef2ec01b0b7e57c11613cbdc081dcd727c5
+git checkout d40974f1756032399c9aedbc8ececb5ebe3745c0
 git reset --hard
+sed -i.bak 's|codeberg.org/wownero|github.com/wownero-mirror|g' .gitmodules
+
 git submodule update --init --force --recursive
 
 for coin in monero wownero zano;

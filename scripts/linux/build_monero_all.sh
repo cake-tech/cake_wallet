@@ -7,16 +7,18 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
+if [[ -f "/usr/bin/protoc" ]]; then
+    echo "[!] /usr/bin/protoc found - please get rid of it before building."
+    echo "or alternatively fix it somewhere in simplybs/monero_c"
+    exit 1
+fi
+
 for COIN in monero wownero;
 do
     pushd ../monero_c
-        # Determine target architecture based on system architecture
-        if [[ $(uname -m) == "arm64" || $(uname -m) == "aarch64" ]]; then
-            target="aarch64-linux-gnu"
-        else
-            target="x86_64-linux-gnu"
-        fi
-
-        ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
+        for target in x86_64-linux-gnu aarch64-linux-gnu;
+        do
+            ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
+        done
     popd
 done

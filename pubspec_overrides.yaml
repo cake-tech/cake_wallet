@@ -960,7 +960,7 @@ dependency_overrides:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c.git
-      ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
+      ref: 5818a9c8dc4f774613ea45e61eb1135283befd56
       path: ./impls/monero.dart
   msgpack_dart:
     git:
@@ -1371,32 +1371,32 @@ dependency_overrides:
   sqflite:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite
   sqflite_android:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite_android
   sqflite_common:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite_common
   sqflite_common_ffi:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite_common_ffi
   sqflite_darwin:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite_darwin
   sqflite_platform_interface:
     git:
       url: https://github.com/tekartik/sqflite
-      ref: 263864b51650c9d64b569de5bf48d45f73245aec
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
       path: ./sqflite_platform_interface
   sqlite3:
     git:

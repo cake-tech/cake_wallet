@@ -231,3 +231,11 @@ scripts/.cache
 pubspec.lock
 
 scripts/sqlite
+
+scripts/sfos
+
+*.rpm
+
+elinux/cake_wallet.desktop
+elinux/launcher.sh
+rpm/app.yaml

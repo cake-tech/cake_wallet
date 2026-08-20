@@ -39,7 +39,7 @@ build() {
     --file     "$SCRIPT_DIR/Dockerfile.${name}" \
     --tag      "$CW_DOCKER_REGISTRY:linux-deps-amd64-${name}-$(tinysha "$SCRIPT_DIR/Dockerfile.${name}")-${version}" \
     "$@" \
-    "$REPO_ROOT"
+    "$REPO_ROOT" 2>&1 | cat
   if [[ "x$CW_DOCKER_USE_CLOUD" == "xtrue" ]]
   then
     docker push "$CW_DOCKER_REGISTRY:linux-deps-amd64-${name}-$(tinysha "$SCRIPT_DIR/Dockerfile.${name}")-${version}"

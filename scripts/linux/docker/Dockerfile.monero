@@ -4,9 +4,12 @@ FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 ARG UID=10001
 ARG GID=10001
 ARG USER=builder
+
 RUN groupadd -g "$GID" "$USER" && \
     useradd  -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
 
+RUN apt autoremove protobuf-compiler -y
+    
 RUN sudo chown $UID:$GID -R /w /root
 USER builder
 RUN mkdir -p /w/scripts/linux
