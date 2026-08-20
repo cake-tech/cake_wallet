@@ -9,6 +9,21 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 const priceApiHost = "prices.cakewallet.com";
+const priceApiHostOnion = "46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion";
+
+class LatestPriceRequest {
+  LatestPriceRequest({required this.from, required this.to});
+
+  final Currency from;
+  final Currency to;
+
+  Uri get uri => Uri.https(priceApiHost, "/v3/rates", {
+        "base": from.apiString,
+        "quote": to.apiString,
+      });
+
+  Uri get onionUri => Uri.https(priceApiHostOnion, uri.path, uri.queryParameters);
+}
 
 class PriceRequest {
   const PriceRequest({
@@ -33,6 +48,8 @@ class PriceRequest {
         "quote": from.apiString,
         "base": to.apiString,
       });
+
+  Uri get onionUri => Uri.https(priceApiHostOnion, uri.path, uri.queryParameters);
 }
 
 class PriceApiClient {
@@ -51,10 +68,10 @@ class PriceApiClient {
     }
   }
 
-  static Future<List<PriceData>> getPrices(PriceRequest request) async {
+  static Future<List<PriceData>> getPrices(PriceRequest request, {bool torOnly = false}) async {
     final List<PriceData> ret = [];
     printV(request.uri);
-    final data = await _getJson(request.uri);
+    final data = await _getJson(torOnly ? request.onionUri : request.uri);
     if (data == null) {
       return [];
     }
@@ -74,5 +91,26 @@ class PriceApiClient {
       );
     }
     return ret;
+  }
+
+  static Future<PriceData?> getLatestPrice(
+    LatestPriceRequest request, {
+    bool torOnly = false,
+  }) async {
+    print(request.from.apiString);
+    final data = await _getJson(torOnly ? request.onionUri : request.uri);
+    if (data == null) {
+      return null;
+    }
+    final results = data["results"] as Map<String, dynamic>?;
+    if (results == null) {
+      return null;
+    }
+    final result = results[results.keys.first];
+    return PriceData(
+      time: DateTime.now(),
+      base: request.from,
+      quote: Money.parse((result as num).toStringAsFixed(2), request.to),
+    );
   }
 }
