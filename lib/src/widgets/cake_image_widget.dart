@@ -131,7 +131,7 @@ class CakeImageWidget extends StatelessWidget {
   /// A caller-supplied [loadingWidget] owns its own semantics; the built-in
   /// spinner is purely visual and must not become an unnamed focus stop.
   Widget _buildLoadingWidget() =>
-      loadingWidget ?? const ExcludeSemantics(child:SizedBox(
+      loadingWidget ?? ExcludeSemantics(child:SizedBox(
           height: height,
           width: width,
           child: Center(child: CupertinoActivityIndicator())));
