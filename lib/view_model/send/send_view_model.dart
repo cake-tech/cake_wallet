@@ -167,9 +167,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get isEVMWallet => isEVMCompatibleChain(walletType);
 
-  @action
   CryptoCurrency _outputCryptoCurrencyHandler([CryptoCurrency? override]) {
-    if (override != null && override != selectedCryptoCurrency) selectedCryptoCurrency = override;
+    if (override != null && override != selectedCryptoCurrency) {
+      runInAction(() => selectedCryptoCurrency = override);
+    }
 
     return selectedCryptoCurrency;
   }
