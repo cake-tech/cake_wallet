@@ -90,7 +90,9 @@
                 <data android:scheme="polygon" />
                 <data android:scheme="polygon-wallet" />
                 <data android:scheme="polygon_wallet" />
+                <data android:scheme="solana" />
                 <data android:scheme="solana-wallet" />
+                <data android:scheme="solana_wallet" />
                 <data android:scheme="tron" />
                 <data android:scheme="tron-wallet" />
                 <data android:scheme="tron_wallet" />

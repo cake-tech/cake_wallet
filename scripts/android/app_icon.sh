@@ -34,7 +34,7 @@ cp -a $APP_LOGO $APP_LOGO_DEST_PATH
 cp -a $ANDROID_ICON $ANDROID_ICON_DEST_PATH
 cp -a $ANDROID_ICON_SET/. $ANDROID_ICON_SET_DEST_PATH/
 
-set -x
+set +x
 if [[ $GITHUB_HUH == "yeah" ]]; then
 	pwd
 	for file in $(find $CAKE_ROOT/android/app/src/main/res -name "*.png") $APP_LOGO $CAKEWALLET_PATH $ASSETS_DIR/images/cakewallet_logo.png $ASSETS_DIR/images/cakewallet_icon_*.png $(find $CAKEWALLET_ICON_SET_PATH -name "*.png"); do
@@ -42,7 +42,4 @@ if [[ $GITHUB_HUH == "yeah" ]]; then
 		bash $CAKE_ROOT/scripts/branch_icon.sh ${BRANCH_NAME}-asd $file &> /dev/null
 	done
 fi
-set +x
-
-
-
+set -x

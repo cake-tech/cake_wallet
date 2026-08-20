@@ -5,31 +5,37 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:flutter/material.dart";
 
-class SwapFromNetworkPage extends StatelessWidget {
-  const SwapFromNetworkPage({
+class NetworkDecisionPage extends StatelessWidget {
+  const NetworkDecisionPage({
     required this.title,
-    required this.primaryButtonText,
-    required this.destinationNetworkName,
-    required this.destinationNetworkIconPath,
-    required this.currentNetworkName,
-    required this.currentNetworkIconPath,
-    required this.onProceed,
+    required this.description,
+    required this.destinationIconPath,
+    required this.primaryText,
+    required this.onPrimary,
+    required this.secondaryText,
+    this.currentIconPath,
+    this.primaryIconPath,
+    this.secondaryIconPath,
+    this.onSecondary,
     super.key,
-    this.primaryHasSwapIcon = false,
   });
 
   final String title;
-  final String primaryButtonText;
-  final bool primaryHasSwapIcon;
-  final String destinationNetworkName;
-  final String destinationNetworkIconPath;
-  final String currentNetworkName;
-  final String currentNetworkIconPath;
-  final VoidCallback onProceed;
+  final String description;
+  final String destinationIconPath;
+  final String? currentIconPath;
+  final String primaryText;
+  final VoidCallback onPrimary;
+  final String? primaryIconPath;
+  final String secondaryText;
+  final String? secondaryIconPath;
+  final VoidCallback? onSecondary;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final primaryIcon = primaryIconPath;
+    final secondaryIcon = secondaryIconPath;
     return Material(
       color: colors.surface,
       child: SafeArea(
@@ -40,9 +46,6 @@ class SwapFromNetworkPage extends StatelessWidget {
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context).maybePop(),
-              trailingIcon: const Icon(Icons.close),
-              trailingSemanticLabel: S.of(context).close,
-              onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             Expanded(
               child: Center(
@@ -51,30 +54,11 @@ class SwapFromNetworkPage extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 12,
-                        children: [
-                          CakeImageWidget(
-                            imageUrl: currentNetworkIconPath,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.contain,
-                            color: isMonochromeSymbolIcon(currentNetworkIconPath)
-                                ? colors.primary
-                                : null,
-                          ),
-                          Icon(Icons.arrow_forward, color: colors.primary, size: 28),
-                          CakeImageWidget(
-                            imageUrl: destinationNetworkIconPath,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.contain,
-                            color: isMonochromeSymbolIcon(destinationNetworkIconPath)
-                                ? colors.primary
-                                : null,
-                          ),
-                        ],
+                      ExcludeSemantics(
+                        child: _DecisionHeader(
+                          destinationIconPath: destinationIconPath,
+                          currentIconPath: currentIconPath,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       Text(
@@ -88,10 +72,7 @@ class SwapFromNetworkPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        S.of(context).swap_from_network_description(
-                              destinationNetworkName,
-                              currentNetworkName,
-                            ),
+                        description,
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
@@ -109,23 +90,31 @@ class SwapFromNetworkPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   NewPrimaryButton(
-                    onPressed: onProceed,
-                    image: primaryHasSwapIcon
+                    onPressed: onPrimary,
+                    image: primaryIcon != null
                         ? CakeImageWidget(
-                            imageUrl: "assets/new-ui/swap_arrows.svg",
+                            imageUrl: primaryIcon,
                             width: 24,
                             height: 24,
                             colorFilter: ColorFilter.mode(colors.onPrimary, BlendMode.srcIn),
                           )
                         : null,
-                    text: primaryButtonText,
+                    text: primaryText,
                     color: colors.primary,
                     textColor: colors.onPrimary,
                   ),
                   const SizedBox(height: 12),
                   NewPrimaryButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    text: S.of(context).cancel,
+                    onPressed: onSecondary ?? () => Navigator.of(context).maybePop(),
+                    image: secondaryIcon != null
+                        ? CakeImageWidget(
+                            imageUrl: secondaryIcon,
+                            width: 24,
+                            height: 24,
+                            colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
+                          )
+                        : null,
+                    text: secondaryText,
                     color: colors.surfaceContainer,
                     textColor: colors.primary,
                   ),
@@ -135,6 +124,51 @@ class SwapFromNetworkPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _DecisionHeader extends StatelessWidget {
+  const _DecisionHeader({required this.destinationIconPath, this.currentIconPath});
+
+  final String destinationIconPath;
+  final String? currentIconPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final current = currentIconPath;
+
+    if (current == null) {
+      return CakeImageWidget(
+        imageUrl: destinationIconPath,
+        width: 75,
+        height: 75,
+        fit: BoxFit.contain,
+        color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 12,
+      children: [
+        CakeImageWidget(
+          imageUrl: current,
+          width: 50,
+          height: 50,
+          fit: BoxFit.contain,
+          color: isMonochromeSymbolIcon(current) ? colors.primary : null,
+        ),
+        Icon(Icons.arrow_forward, color: colors.primary, size: 28),
+        CakeImageWidget(
+          imageUrl: destinationIconPath,
+          width: 50,
+          height: 50,
+          fit: BoxFit.contain,
+          color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
+        ),
+      ],
     );
   }
 }

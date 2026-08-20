@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'tron_token.dart';
+part of "tron_token_legacy.dart";
 
 // **************************************************************************
 // TypeAdapterGenerator
