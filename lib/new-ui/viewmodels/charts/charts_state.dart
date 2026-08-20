@@ -102,7 +102,8 @@ final class ChartsLoaded extends ChartsStateWithData {
       percentage = 0;
     } else {
       percentage =
-        (((latestPrice.toDouble() - secondLatestPrice.toDouble()) / secondLatestPrice.toDouble()) * 100).abs();
+          (((double.parse(latestPrice.toString()) - double.parse(secondLatestPrice.toString())) /
+              double.parse(secondLatestPrice.toString())) * 100).abs();
     }
     final amount = (latestPrice - secondLatestPrice).abs();
 
