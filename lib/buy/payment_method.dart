@@ -115,7 +115,7 @@ extension PaymentTypeTitle on PaymentType {
       case PaymentType.creditCard:
       case PaymentType.debitCard:
       case PaymentType.yellowCardBankTransfer:
-        return 'assets/images/card.svg';
+        return 'assets/new-ui/buy_payment_methods/debit_card.svg';
       case PaymentType.bankTransfer:
         return 'assets/images/bank_light.svg';
       case PaymentType.skrill:
@@ -209,7 +209,7 @@ class PaymentMethod extends SelectableOption {
         paymentMethodType: type ?? PaymentType.unknown,
         customPaymentMethodType: json['paymentTypeId'] as String?,
         customTitle: json['name'] as String? ?? 'Unknown',
-        customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
+        customIconPath: json['icon'] as String? ?? 'assets/new-ui/buy_payment_methods/debit_card.svg',
         customDescription: json['description'] as String?);
   }
 
@@ -217,14 +217,14 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
         paymentMethodType: paymentType,
         customTitle: paymentMethod,
-        customIconPath: 'assets/images/card.png');
+        customIconPath: 'assets/new-ui/buy_payment_methods/debit_card.svg');
   }
 
   factory PaymentMethod.fromMoonPayJson(Map<String, dynamic> json, PaymentType paymentType) {
     return PaymentMethod(
         paymentMethodType: paymentType,
         customTitle: json['paymentMethod'] as String,
-        customIconPath: 'assets/images/card.png');
+        customIconPath: 'assets/new-ui/buy_payment_methods/debit_card.svg');
   }
 
   factory PaymentMethod.fromMeldJson(Map<String, dynamic> json) {
@@ -233,7 +233,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
         paymentMethodType: type ?? PaymentType.unknown,
         customTitle: json['name'] as String? ?? 'Unknown',
-        customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
+        customIconPath: logos['dark'] as String? ?? 'assets/new-ui/buy_payment_methods/debit_card.svg',
         customDescription: json['description'] as String?);
   }
 
@@ -242,7 +242,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
       paymentMethodType: type ?? PaymentType.unknown,
       customTitle: json['payment_method'] as String? ?? 'Unknown',
-      customIconPath: 'assets/images/card.png',
+      customIconPath: 'assets/new-ui/buy_payment_methods/debit_card.svg',
     );
   }
 
