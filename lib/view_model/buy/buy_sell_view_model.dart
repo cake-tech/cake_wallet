@@ -171,17 +171,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     return maxAmount.toStringAsFixed(2);
   }
 
-  Money amountForQuote(Quote quote) => Money.parse(
+  Money amountForQuote(Quote quote) => Money.safeParse(
       (double.parse(fiatAmount) / quote.rate).toStringAsFixed(cryptoCurrency.decimals),
       cryptoCurrency);
 
-  Money fiatAmountForQuote(Quote quote) {
-    return Money.parse(
+  Money fiatAmountForQuote(Quote quote) => Money.safeParse(
         (fiatConversionStore.prices[cryptoCurrency]! *
                 double.parse(amountForQuote(quote).toString()))
             .toStringAsFixed(2),
         fiatCurrency);
-  }
 
   // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
   static final Map<FiatCurrency, List<String>> _defaultAmountsMap = {
