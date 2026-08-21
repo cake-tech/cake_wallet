@@ -149,7 +149,6 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -445,6 +444,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
+      final initialRawInput = args?["rawLink"] as String?;
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return handleRouteWithPlatformAwareness(
@@ -452,6 +452,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           child: getIt.get<NewSendPage>(
             param1: SendPageParams(
                 initialPaymentRequest: initialPaymentRequest,
+                initialRawInput: initialRawInput,
                 unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
           ),
         ),
@@ -473,7 +474,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newReceivePage:
       if (FeatureFlag.hasNewUi) {
         return handleRouteWithPlatformAwareness(
-              (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
+          (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
           settings: settings,
         );
       }
@@ -830,9 +831,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
-      final setZcashNetwork =
-          args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
-      final restoredWallet = args['restoredWallet'] as RestoredWallet?;
+      final setZcashNetwork = args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
 
       final viewModelParam = {'type': type, 'isPow': false};
 
