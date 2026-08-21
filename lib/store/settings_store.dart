@@ -1790,12 +1790,16 @@ abstract class SettingsStoreBase with Store {
   Future<void> reload() async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
 
-    fiatCurrency = FiatCurrency.deserialize(
-        raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+    final savedFiatCurrency = sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey);
+    if (savedFiatCurrency != null) {
+      fiatCurrency = FiatCurrency.deserialize(raw: savedFiatCurrency);
+    }
 
-    priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
-            raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
-        priority[WalletType.monero]!;
+    if (monero != null &&
+        sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) != null) {
+      priority[WalletType.monero] = monero!.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
+    }
 
     if (wownero != null &&
         sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
