@@ -56,24 +56,6 @@ class CakeImageWidget extends StatelessWidget {
     final effectiveColorFilter =
         colorFilter ?? (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
 
-    final Widget? fallbackImage = (fallbackImagePath?.isNotEmpty ?? false)
-        ? CakeImageWidget(
-            imageUrl: fallbackImagePath,
-            height: height,
-            width: width,
-            fit: fit,
-            loadingWidget: loadingWidget,
-            errorWidget: errorWidget,
-            color: color,
-            colorFilter: colorFilter,
-            borderRadius: borderRadius,
-            alignment: alignment,
-            allowDrawingOutsideViewBox: allowDrawingOutsideViewBox,
-            filterQuality: filterQuality,
-            semanticsLabel: semanticsLabel,
-          )
-        : null;
-
     Widget imageWidget;
     if (isAsset) {
       if (isSvg) {
@@ -113,6 +95,24 @@ class CakeImageWidget extends StatelessWidget {
         );
       }
     } else {
+      final Widget? fallbackImage = (fallbackImagePath?.isNotEmpty ?? false)
+          ? CakeImageWidget(
+              imageUrl: fallbackImagePath,
+              height: height,
+              width: width,
+              fit: fit,
+              loadingWidget: loadingWidget,
+              errorWidget: errorWidget,
+              color: color,
+              colorFilter: colorFilter,
+              borderRadius: borderRadius,
+              alignment: alignment,
+              allowDrawingOutsideViewBox: allowDrawingOutsideViewBox,
+              filterQuality: filterQuality,
+              semanticsLabel: semanticsLabel,
+            )
+          : null;
+
       imageWidget = isSvg
           ? SvgPicture.network(
               imageUrl!,

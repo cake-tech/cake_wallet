@@ -1,3 +1,5 @@
+import "dart:math" show min;
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -78,11 +80,17 @@ class AssetDetailsModal extends StatelessWidget {
                       height: 75,
                       child: Stack(
                         children: [
-                          if (iconPath.isNotEmpty)
+                          if (iconPath.isNotEmpty || asset?.networkIconUrl != null)
                             TokenImageWidget(
                               imageUrl: iconPath,
                               networkImageUrl: asset?.networkIconUrl,
                               size: 75,
+                              errorWidget: Text(
+                                title.substring(0, min(2, title.length)),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
                             )
                           else
                             Container(

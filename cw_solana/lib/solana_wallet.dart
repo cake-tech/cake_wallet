@@ -131,8 +131,6 @@ abstract class SolanaWalletBase
 
     await _checkForExistingScamTokens();
 
-    _refreshTokenIcons();
-
     // Create the privatekey using either the mnemonic or the privateKey
     _solanaPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
@@ -764,6 +762,8 @@ abstract class SolanaWalletBase
       await newToken.save();
       _upsertCachedToken(newToken);
     }
+
+    _refreshTokenIcons();
   }
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {

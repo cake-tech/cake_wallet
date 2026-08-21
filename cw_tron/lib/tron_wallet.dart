@@ -109,8 +109,6 @@ abstract class TronWalletBase
   Future<void> init() async {
     await initTronTokens();
 
-    _refreshTokenIcons();
-
     await walletAddresses.init();
     await transactionHistory.init();
     _tronPrivateKey = await getPrivateKey(
@@ -196,6 +194,8 @@ abstract class TronWalletBase
       await newToken.save();
       _upsertCachedToken(newToken);
     }
+
+    _refreshTokenIcons();
   }
 
   Future<void> initTronTokens() async {

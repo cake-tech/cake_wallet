@@ -501,7 +501,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
       if (item.iconPath != null) {
         return TokenImageWidget(
           imageUrl: item.iconPath!,
-          networkImageUrl: item is CryptoCurrency ? item.networkIconUrl : null,
           size: 20.0,
         );
       } else {
