@@ -223,21 +223,21 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> updateTrade(Trade trade) async {
     final headers = {apiHeaderKey: apiKey};
-    final params = ChangeNowByIdRequest(id: id);
+    final params = ChangeNowByIdRequest(id: trade.id);
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params.toJson());
     final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode == 404) {
-      throw TradeNotFoundException(id, provider: description);
+      throw TradeNotFoundException(trade.id, provider: description);
     }
 
     if (response.statusCode == 400) {
       final responseJSON = ChangeNowErrorResponse.fromJson(
         json.decode(response.body) as Map<String, dynamic>,
       );
-      throw TradeNotFoundException(id, provider: description, description: responseJSON.message);
+      throw TradeNotFoundException(trade.id, provider: description, description: responseJSON.message);
     }
 
     if (response.statusCode != 200) {
@@ -248,36 +248,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       json.decode(response.body) as Map<String, dynamic>,
     );
 
-    // Parsing 'from' currency
-    final fromCurrency = responseJSON.fromCurrency;
-    final fromNetwork = responseJSON.fromNetwork;
-    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? "");
-    final fromTag = fromCurrency.toUpperCase() == _normalizedFromNetwork.toUpperCase()
-        ? null
-        : _normalizedFromNetwork;
-    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag)!;
-
-    // Parsing 'to' currency
-    final toCurrency = responseJSON.toCurrency;
-    final toNetwork = responseJSON.toNetwork;
-    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? "");
-    final toTag = toCurrency.toUpperCase() == _normalizedToNetwork.toUpperCase()
-        ? null
-        : _normalizedToNetwork;
-    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag)!;
-
-    return Trade(
-      id: id,
-      provider: description,
-      state: responseJSON.status,
-      extraId: responseJSON.payinExtraId,
-      expiredAt: responseJSON.validUntil,
-      outputTransaction: responseJSON.payoutHash,
-      payoutAddress: responseJSON.payoutAddress,
-      depositAmount: Money.safeParse(responseJSON.amountFrom, from),
-      payoutAmount: Money.safeParse(responseJSON.amountTo, to),
-      fundingAddress: responseJSON.payinAddress,
-      refundAddress: responseJSON.refundAddress ?? "",
+    return trade.copyWith(
+        state: responseJSON.status,
+        createdAt: responseJSON.createdAt,
+        expiredAt: responseJSON.validUntil,
+        extraId: responseJSON.payinExtraId,
+        outputTransaction: responseJSON.payoutHash,
+        depositAmount: Money.safeParse(responseJSON.amountFrom, trade.depositCurrency),
+        payoutAmount: Money.safeParse(responseJSON.amountTo, trade.payoutCurrency)
     );
   }
 
@@ -307,12 +285,4 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
-
-  String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
-    "MATIC" => "POL",
-    "CCHAIN" => "AVAXC",
-    "ARBITRUM" => "ARB",
-    "NANO" => "XNO",
-    _ => network,
-  };
 }

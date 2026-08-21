@@ -192,8 +192,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final body = SwapTradeOrderRequest(orderId: id);
+  Future<Trade> updateTrade(Trade trade) async {
+    final body = SwapTradeOrderRequest(orderId: trade.id);
 
     final uri = Uri.https(apiAuthority, order);
     final response = await proxyWrapper.post(
@@ -217,19 +217,17 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
     final responseData = responseBody.data!;
 
-    return Trade(
-      id: responseData.orderId,
-      provider: description,
+    return trade.copyWith(
       state: responseData.status,
       memo: responseData.memo,
       createdAt: responseData.createdAt,
       depositAmount: Money.safeParse(
         responseData.amountSend,
-        CryptoCurrency.safeParseCurrencyFromString(responseData.coinSend)!,
+        trade.depositCurrency,
       ),
       payoutAmount: Money.safeParse(
         responseData.amountReceive,
-        CryptoCurrency.safeParseCurrencyFromString(responseData.coinReceive)!,
+        trade.payoutCurrency,
       ),
       fundingAddress: responseData.serverAddress,
       payoutAddress: responseData.recipient,

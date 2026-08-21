@@ -174,7 +174,7 @@ class TradeMonitor {
     }
 
     try {
-      final updated = trade.mergeFindTradeByIdResult(await provider.findTradeById(id: trade.id));
+      final updated = await provider.updateTrade(trade);
       printV('Trade ${trade.id} updated: ${trade.state}');
       await updated.save();
 

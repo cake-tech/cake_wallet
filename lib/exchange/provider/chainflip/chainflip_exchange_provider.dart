@@ -13,7 +13,6 @@ import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/utils/print_verbose.dart";
 
 class ChainflipExchangeProvider extends ExchangeProvider {
   ChainflipExchangeProvider({super.proxyWrapper});
@@ -165,8 +164,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-      final channelParts = id.split("-");
+  Future<Trade> updateTrade(Trade trade) async {
+      final channelParts = trade.id.split("-");
       final network = channelParts[1];
       final normalizedNetwork = _normalizeNetworkName(network);
 
@@ -180,7 +179,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final statusResponse = await _getStatus(statusParams);
 
       if (statusResponse == null) {
-        throw Exception("Trade not found for id: $id");
+        throw Exception("Trade not found for id: ${trade.id}");
       }
 
       final status = statusResponse.status;
@@ -198,9 +197,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final isRefund = status.refundEgress != null;
       final amount = isRefund ? refundAmount : receiveAmount;
 
-      final newTrade = Trade(
-        id: id,
-        provider: description,
+      return trade.copyWith(
         state: currentState,
         outputTransaction: status.swapEgress?.transactionReference,
         isRefund: isRefund,
@@ -211,7 +208,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         refundAddress: "",
       );
 
-      return newTrade;
   }
 
   String _normalizeNetworkName(String name) {

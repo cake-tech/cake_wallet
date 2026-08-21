@@ -197,24 +197,6 @@ class Trade {
       fundingAddress: row["fundingAddress"] as String,
     );
 
-  Trade mergeFindTradeByIdResult(Trade updated) => copyWith(
-      state: updated.state,
-      createdAt: createdAt ?? updated.createdAt,
-      expiredAt: updated.expiredAt,
-      isRefund: updated.isRefund,
-      payoutAmount: updated.payoutAmount,
-      fundingAddress: updated.fundingAddress,
-      extraId: updated.extraId,
-      outputTransaction: updated.outputTransaction,
-      refundAddress: updated.refundAddress,
-      payoutAddress: updated.payoutAddress,
-      password: updated.password,
-      providerId: updated.providerId,
-      providerName: updated.providerName,
-      memo: updated.memo,
-      txId: updated.txId,
-    );
-
   Trade copyWith({
     TradeState? state,
     Money? depositAmount,

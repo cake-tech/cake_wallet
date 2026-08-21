@@ -132,7 +132,7 @@ abstract class TradeDetailsViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      trade = trade.mergeFindTradeByIdResult(await _provider!.findTradeById(id: trade.id));
+      trade = await _provider!.updateTrade(trade);
       await trade.save();
 
       _updateItems();

@@ -79,25 +79,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     "ARB",
   ];
 
-  String _normalizeXOSwapsNetwork(String string) {
-    final lower = string.toLowerCase();
-
-    if (lower.endsWith("matic0a883d9b")) {
-      return string.replaceFirst(RegExp(r"matic0a883d9b$", caseSensitive: false), "POL");
-    }
-    if (lower.endsWith("matic86e249c1")) {
-      return string.replaceFirst(RegExp(r"matic86e249c1$", caseSensitive: false), "POL");
-    }
-    if (lower.endsWith("bscddedf0f8")) {
-      return string.replaceFirst(RegExp(r"bscddedf0f8$", caseSensitive: false), "BSC");
-    }
-    if (lower.endsWith("basemainnetb5a52617")) {
-      return string.replaceFirst(RegExp(r"basemainnetb5a52617$", caseSensitive: false), "BASE");
-    }
-
-    return string;
-  }
-
   @override
   String get title => "XOSwap";
 
@@ -312,88 +293,31 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-      final uri = Uri.https(_apiAuthority, "$_apiPath$_orders/$id");
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
+  Future<Trade> updateTrade(Trade trade) async {
+    final uri = Uri.https(_apiAuthority, "$_apiPath$_orders/${trade.id}");
+    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
-      if (response.statusCode != 200) {
-        final error = XOSwapErrorResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
-        if ( error.code == "NOT_FOUND") {
-          throw Exception("Trade not found");
-        }
-        throw Exception(error);
+    if (response.statusCode != 200) {
+      final error = XOSwapErrorResponse.fromJson(
+          json.decode(response.body) as Map<String, dynamic>);
+      if (error.code == "NOT_FOUND") {
+        throw Exception("Trade not found");
       }
-      final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
-
-      final pairId = responseData.pairId;
-      final pairParts = pairId.split("_");
-      final fromAsset = pairParts.isNotEmpty ? pairParts[0] : "";
-      final normalizedFromAsset = _normalizeXOSwapsNetwork(fromAsset);
-      String? fromAssetTag = _extractTagFromAsset(normalizedFromAsset);
-
-      String fromAssetBase = fromAssetTag != null
-          ? normalizedFromAsset.substring(0, normalizedFromAsset.length - fromAssetTag.length)
-          : normalizedFromAsset;
-
-      // Special case for USDT defaulting to ETH tag
-      if (fromAssetBase == "USDT" && fromAssetTag == null) {
-        fromAssetTag = "ETH";
-      }
-
-      // Special case for BASE defaulting to BASE tag
-      if (fromAssetBase == "BASE" && fromAssetTag == null) {
-        fromAssetTag = "BASE";
-        fromAssetBase = "ETH";
-      }
-
-      final toAsset = pairParts.length > 1 ? pairParts[1] : "";
-      final normalizedToAsset = _normalizeXOSwapsNetwork(toAsset);
-      String? toAssetTag = _extractTagFromAsset(normalizedToAsset);
-
-      String toAssetBase = toAssetTag != null
-          ? normalizedToAsset.substring(0, normalizedToAsset.length - toAssetTag.length)
-          : normalizedToAsset;
-
-      // Special case for USDT defaulting to ETH tag
-      if (toAssetBase == "USDT" && toAssetTag == null) {
-        toAssetTag = "ETH";
-      }
-
-      // Special case for BASE defaulting to BASE tag
-      if (toAssetBase == "BASE" && toAssetTag == null) {
-        toAssetTag = "BASE";
-        toAssetBase = "ETH";
-      }
-
-      final fromCurrency =
-          CryptoCurrency.safeParseCurrencyFromString(fromAssetBase, tag: fromAssetTag);
-      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAssetBase, tag: toAssetTag);
-
-
-      return Trade(
-        id: responseData.id,
-        provider: description,
-        refundAddress: responseData.fromAddress,
-fundingAddress: responseData.payInAddress,
-        depositAmount: Money.safeParse(responseData.amount.value, fromCurrency!),
-        payoutAmount: Money.safeParse(responseData.toAmount?.value ?? 0, toCurrency!),
-        state: responseData.status,
-        createdAt: responseData.createdAt,
-        payoutAddress: responseData.toAddress,
-        extraId: responseData.payInAddressTag,
-      );
-  }
-
-  // ensure something remains before tag (at least 2 chars)
-  String? _extractTagFromAsset(String asset) {
-    for (final tag in supportedTags) {
-      if (asset.endsWith(tag)) {
-        final prefixLength = asset.length - tag.length;
-        if (prefixLength >= 2) {
-          return tag;
-        }
-      }
+      throw Exception(error);
     }
-    return null;
+    final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+
+
+    return trade.copyWith(
+      refundAddress: responseData.fromAddress,
+      fundingAddress: responseData.payInAddress,
+      depositAmount: Money.safeParse(responseData.amount.value, trade.depositCurrency),
+      payoutAmount: Money.safeParse(responseData.toAmount?.value ?? 0, trade.payoutCurrency),
+      state: responseData.status,
+      createdAt: responseData.createdAt,
+      payoutAddress: responseData.toAddress,
+      extraId: responseData.payInAddressTag,
+    );
   }
+
 }
