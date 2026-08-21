@@ -1021,6 +1021,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'bitcoin': btc,
     'bitcoincash': bch,
     'polygon': maticpoly,
+    'solana': sol,
     'nano-gpt': nano,
     'secret': scrt,
     'stellar': xlm,

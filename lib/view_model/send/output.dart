@@ -263,6 +263,7 @@ abstract class OutputBase with Store {
   void updateWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
+    estimatedFee = Money.zero(cryptoCurrencyHandler());
   }
 
   @action

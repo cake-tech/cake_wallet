@@ -8,6 +8,7 @@ import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
@@ -56,12 +57,11 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
@@ -175,7 +175,6 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -197,7 +196,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
-import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/seed_settings_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
@@ -252,7 +250,6 @@ import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_cr
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
-import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
@@ -955,7 +952,8 @@ Future<void> setup({
       authService: getIt.get<AuthService>(),
       params: params,
       contactListViewModel: getIt.get<ContactListViewModel>(),
-      paymentViewModel: getIt.get<PaymentViewModel>(),
+      anyPayService: getIt.get<AnyPayService>(),
+      linkViewModel: getIt.get<LinkViewModel>(),
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
     );
   });
@@ -1278,6 +1276,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => PaymentViewModel(
         appStore: getIt.get<AppStore>(),
+      ));
+
+  getIt.registerFactory(() => AnyPayService(
+        appStore: getIt.get<AppStore>(),
+        walletSwitchService: getIt.get<WalletSwitchService>(),
       ));
 
   getIt.registerFactory(() => WalletSwitcherViewModel(

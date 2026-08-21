@@ -118,8 +118,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     if (state case final SwapStateWithInputs s) {
       await rateCubit.fetchRates(
         s.usableProviders,
-        from: s.depositAmount.cryptoAmount,
-        to: s.payoutAmount.currency,
+        from: s.isFixedRate ? s.payoutAmount.cryptoAmount : s.depositAmount.cryptoAmount,
+        to: s.isFixedRate ? s.depositAmount.currency : s.payoutAmount.currency,
         isFixedRate: s.isFixedRate,
       );
     }

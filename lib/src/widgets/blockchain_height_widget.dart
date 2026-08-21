@@ -65,7 +65,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
       try {
         final int _height;
         if (restoreHeightController.text.isNotEmpty) {
-          _height = int.tryParse(restoreHeightController.text) ?? 0;
+          final digits = restoreHeightController.text.replaceAll(RegExp(r'[^0-9]'), '');
+          _height = int.tryParse(digits) ?? 0;
         } else {
           _height = 0;
         }

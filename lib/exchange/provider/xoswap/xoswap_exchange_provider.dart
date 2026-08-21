@@ -201,7 +201,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       throw Exception("no rate from xoswap");
     }
 
-    final amount = from.toDouble();
+    final amount = double.parse(from.toString());
     double result;
     if (!isFixedRate) {
       double bestOutput = 0;
