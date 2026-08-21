@@ -192,9 +192,6 @@ class FlashnetExchangeProvider extends ExchangeProvider
       refundAddress: request.refundAddress,
       extraId: respData.depositMemo,
       toAddressExtraId: request.toAddressExtraId,
-      // only returned to client keys (fnp_), and status reads are refused without it. it is
-      // bound to this quote, so it has nowhere to live but on the trade
-      password: respData.readToken,
     );
   }
 
@@ -214,7 +211,7 @@ class FlashnetExchangeProvider extends ExchangeProvider
       id: respData.orderId,
       state: respData.status,
       txId: txHash,
-      password: respData.readToken ?? trade.password,
+      password: respData.readToken,
     );
   }
 
