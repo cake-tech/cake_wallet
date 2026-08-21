@@ -23,7 +23,7 @@ abstract class FiatConversionStoreBase with Store {
             crypto: target, fiat: amount.currency as FiatCurrency, torOnly: false);
       }
       final price = prices[target];
-      final convertedValue = amount.toDouble() / price!;
+      final convertedValue = double.parse(amount.toString()) / price!;
       return Money.safeParse(convertedValue, target);
     }
     else if (amount.currency is CryptoCurrency && target is FiatCurrency) {
@@ -33,7 +33,7 @@ abstract class FiatConversionStoreBase with Store {
       }
       final price = prices[amount.currency];
 
-      final convertedValue = amount.toDouble() * price!;
+      final convertedValue = double.parse(amount.toString()) * price!;
       return Money.safeParse(convertedValue, target);
     }
     throw ArgumentError("for now, only fiat <-> crypto conversions are supported");
