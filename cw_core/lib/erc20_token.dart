@@ -188,15 +188,6 @@ class Erc20Token extends CryptoCurrency {
   @override
   int get hashCode => contractAddress.hashCode;
 
-  int get chainId => switch (tag) {
-        "ETH" => 1,
-        "POL" => 137,
-        "BASE" => 8453,
-        "ARB" => 42161,
-        "BSC" => 56,
-        _ => throw ArgumentError()
-      };
-
   @override
   String get serialized => "evm.$contractAddress.$chainId";
 }

@@ -514,20 +514,4 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     }
   }
 
-  String? _getCurrencyChainIconPath(CryptoCurrency curr) {
-    try {
-      if (curr.chainIconPath != null) {
-        return curr.chainIconPath!;
-      }
-
-      if (curr.tag != null) {
-        final currencyFromTag = CryptoCurrency.fromString(curr.tag!);
-
-        if (currencyFromTag.chainIconPath != null) {
-          return currencyFromTag.chainIconPath!;
-        }
-      }
-    } catch (_) {}
-    return null;
-  }
 }

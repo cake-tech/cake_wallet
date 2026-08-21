@@ -14,11 +14,14 @@ import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -38,6 +41,7 @@ class NewSwapPage extends StatefulWidget {
     this.authService,
     this.adrResService,
     this.initialPaymentRequest, {
+      this.fromSend,
     CryptoCurrency? initialCurrency,
   }) {
     if (initialCurrency != null) {
@@ -49,6 +53,7 @@ class NewSwapPage extends StatefulWidget {
   final AuthService authService;
   final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
+  final SwapFromSendArgs? fromSend;
 
   @override
   State<NewSwapPage> createState() => _NewSwapPageState();
@@ -60,28 +65,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
   @override
   void initState() {
     super.initState();
-    // if (widget.exchangeViewModel.feesViewModel.isLowFee) {
-    //   _showFeeAlert(context);
-    // }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // if (!widget.exchangeViewModel.decentralizedExchangesPromptDismissed) {
-      //   showMaterialModalBottomSheet(
-      //       context: context,
-      //       backgroundColor: Colors.transparent,
-      //       isDismissible: false,
-      //       builder: (context) {
-      //         return SwapProviderInitialPreferenceModal();
-      //       }).then((val) {
-      //     widget.exchangeViewModel.dismissDecentralizedExchangesPrompt();
-      //     if (val is bool && val == true && !widget.exchangeViewModel.forceDecentralizedExchanges) {
-      //       widget.exchangeViewModel.toggleForceDecentralizedExchanges();
-      //     }
-      //   });
-      // }
-
       if (widget.initialPaymentRequest != null) {
-        // try {
         final newCurr = CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
         widget.bloc.add(DepositCurrencyChanged(newCurr));
         widget.bloc.add(
@@ -90,10 +76,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
         widget.bloc.add(
           PayoutAddressChanged(ExternalSwapAddress(widget.initialPaymentRequest!.address)),
         );
-        // } catch (e) {
-        //   printV("error: ${e.toString()}");
-        //   // TODO
-        // }
+      }
+      
+      if(widget.fromSend != null) {
+        widget.bloc.add(PayoutCurrencyChanged(widget.fromSend!.receiveCurrency));
+        widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(widget.fromSend!.recipientAddress)));
+        if(widget.fromSend!.receiveAmount != null) {
+          widget.bloc.add(PayoutAmountChanged(widget.fromSend!.receiveAmount!));
+        }
       }
     });
   }
@@ -163,6 +153,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                 controller: ModalScrollController.of(context),
                                 child: Column(
                                   children: [
+                                    if(widget.fromSend != null)
+                                      SwapSourceSelector(bloc: widget.bloc)
+                                    else
                                     SwapAmountBox(isReceiverCard: false, bloc: widget.bloc),
                                     SwapLimitPopup(bloc: widget.bloc),
                                     Padding(
@@ -203,7 +196,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           children: [
                             // if (widget.wallet.status is! SyncedSyncStatus)
                             //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
-                            if (widget.bloc.state is SwapStateWithInputs &&
+                            if (widget.fromSend == null && widget.bloc.state is SwapStateWithInputs &&
                                 (widget.bloc.state as SwapStateWithInputs).isFixedRate)
                               Text(
                                 S.of(context).exchange_rate_is_fixed,
@@ -212,6 +205,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                   fontSize: 12,
                                 ),
                               ),
+                            if(widget.fromSend != null)
+                              AnyPaySwapFooter(bloc: widget.bloc),
                             SwapProviderPreview(bloc: widget.bloc),
                             BlocBuilder<RateCubit, RateState>(
                               bloc: widget.bloc.rateCubit,
@@ -306,7 +301,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
   }
 
   Future<void> _showSwapAllNotReadyPopup() async {
-    if (widget.bloc.state case final SwapStateWithInputs s) {
       await showPopUp(
         context: context,
         builder: (context) => AlertWithOneAction(
@@ -316,7 +310,6 @@ class _NewSwapPageState extends State<NewSwapPage> {
           buttonAction: Navigator.of(context).pop,
         ),
       );
-    }
   }
 
   Future<void> _showParsedAddressPopup(ParsedAddress address) async {
@@ -521,4 +514,3 @@ class SwapProviderPreview extends StatelessWidget {
     ),
   );
 }
-
