@@ -23,6 +23,7 @@ class SwapSourceSelector extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return BlocBuilder<SwapBloc, SwapState>(
+      bloc: bloc,
       builder: (context, state) {
         if (state is! SwapStateWithInputs) {
           return const SizedBox.shrink();

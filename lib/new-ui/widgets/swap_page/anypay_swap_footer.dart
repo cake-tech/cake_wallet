@@ -51,7 +51,6 @@ class AnyPaySwapFooter extends StatelessWidget {
 
           final provider = rate?.provider;
           final depositAmount = state.depositAmount;
-          final depositSymbol = state.depositAmount.currency.symbol;
           final depositFiat = state.depositAmount.fiatAmount;
           return Row(
             children: [
@@ -67,7 +66,7 @@ class AnyPaySwapFooter extends StatelessWidget {
                   child: AutoSizeText.rich(
                     TextSpan(
                       children: [
-                        TextSpan(text: "$depositAmount $depositSymbol"),
+                        TextSpan(text: "${depositAmount.cryptoAmount.toStringWithSymbol()}"),
                         TextSpan(
                           text: "  ≈ ${depositFiat.toStringWithSymbol(fractionalDigits: 2)}",
                           style: TextStyle(color: colors.onSurfaceVariant),
