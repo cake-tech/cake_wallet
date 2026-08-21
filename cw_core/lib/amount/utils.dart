@@ -1,22 +1,3 @@
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/format_fixed.dart';
-import 'package:cw_core/parse_fixed.dart';
-
-BigInt transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
-  if (sourceDecimals == targetDecimals) {
-    return source;
-  }
-
-  if (sourceDecimals > targetDecimals) {
-    return parseFixed(
-      formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals),
-      targetDecimals,
-    );
-  } else {
-    return parseFixed(formatFixed(source, sourceDecimals), targetDecimals);
-  }
-}
-
 String trimTrailingFractionZeros(String value) {
   if (!value.contains('.')) {
     return value;

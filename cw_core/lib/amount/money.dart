@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:cw_core/amount/utils.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/format_fixed.dart";
@@ -206,7 +207,7 @@ class Money implements Comparable<Money> {
     if (currency != null && amount == null && decimals == null &&
         currency.decimals != this.decimals) {
       return Money(
-        transformAmount(this.amount, this.decimals, currency.decimals),
+        _transformAmount(this.amount, this.decimals, currency.decimals),
         currency,
         currency.decimals,
       );
@@ -221,9 +222,25 @@ class Money implements Comparable<Money> {
     }
   }
 
+  BigInt _scaleUp(BigInt value, int decimals) =>
+      decimals == 0 ? value : value * BigInt.from(10).pow(decimals);
+
+  BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
+    if (sourceDecimals == targetDecimals) {
+      return source;
+    }
+
+    if (sourceDecimals > targetDecimals) {
+      return parseFixed(
+        formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals),
+        targetDecimals,
+      );
+    } else {
+      return _scaleUp(source, targetDecimals - sourceDecimals);
+    }
+  }
+
   ({BigInt a, BigInt b, int decimals}) _align(Money other) {
-    BigInt _scaleUp(BigInt value, int decimals) =>
-        decimals == 0 ? value : value * BigInt.from(10).pow(decimals);
 
     final decimals = max(this.decimals, other.decimals);
     return (
@@ -276,7 +293,7 @@ class Money implements Comparable<Money> {
   }) =>
       formatFixed(
         decimals > currency.decimals && useBaseUnit
-            ? transformAmount(amount, decimals, currency.decimals)
+            ? _transformAmount(amount, decimals, currency.decimals)
             : amount,
         useBaseUnit ? 0 : currency.decimals,
         fractionalDigits: fractionalDigits,
