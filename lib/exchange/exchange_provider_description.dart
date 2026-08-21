@@ -98,7 +98,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
   static const flashnet = ExchangeProviderDescription(title: "Flashnet",
       raw: 17,
       image: "assets/new-ui/trade_providers/flashnet.svg",
-      isCentralized: true);
+      isCentralized: false);
 
   static ExchangeProviderDescription deserialize({required int raw}) =>
       switch (raw) {

@@ -26,12 +26,14 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/sync_status.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -575,6 +577,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
+      if(_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
+        await _creator.persistTrade(trade);
+      }
+
       if (s.source case final ExternalSwapSource source) {
         emit(SwapAwaitingExternalSend(trade: trade, source: source));
       } else if (s.source case final InternalSwapSource source) {
@@ -619,11 +625,17 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       emit(SwapSending(trade: s.trade, transaction: s.transaction, source: s.source));
       try {
         await _transactionService.commitTransaction(s.transaction);
+        if (_registry.getProvider(s.trade.provider)
+        case final TransactionRegistrationExchangeProvider p) {
+          final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
+          await p.registerTransaction(s.trade, txHash);
+          await _creator.persistTrade(s.trade);
+        }
         emit(
-          SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source),
-        );
+            SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source));
       } catch (e) {
         emit(s.toError(e));
+        return;
       }
     }
   }

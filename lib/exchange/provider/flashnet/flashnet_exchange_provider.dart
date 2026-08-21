@@ -1,26 +1,37 @@
+import "dart:convert";
+
+import "dart:math";
+
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
-import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/flashnet/flashnet_api_schema.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_zano/zano_wallet_api.dart";
 
 class FlashnetExchangeProvider extends ExchangeProvider
     implements TransactionRegistrationExchangeProvider {
 
   static const baseUrl = "orchestration.flashnet.xyz";
   static const limitsPath = "/v1/orchestration/limits";
+  static const estimatePath = "/v1/orchestration/estimate";
   static const quotePath = "/v1/orchestration/quote";
+  static const submitPath = "/v1/orchestration/submit";
   static const apiKey = secrets.flashnetClientKey;
   static const slippageBps = 50;
+  static const affiliateId = "cake_wallet";
+
+  static const headers = {
+    "Authorization": "Bearer ${apiKey}",
+    "Content-Type": "application/json",
+  };
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -47,11 +58,11 @@ class FlashnetExchangeProvider extends ExchangeProvider
       destinationChain: _chainFor(to)
     );
 
-    final resp = await proxyWrapper.get(clearnetUri: Uri.https(baseUrl, limitsPath, req.toJson()));
+    final resp = await proxyWrapper.get(headers: headers, clearnetUri: Uri.https(baseUrl, limitsPath, req.toJson()));
     if(resp.statusCode < 200 || resp.statusCode > 299) {
       throw Exception("status code: ${resp.statusCode}");
     }
-    final respData = FlashnetLimitsResponse.fromJson(jsonDecode(resp.body));
+    final respData = FlashnetLimitsResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
 
 
 
@@ -102,14 +113,15 @@ class FlashnetExchangeProvider extends ExchangeProvider
         amount: from.toStringWithPrecision(useBaseUnit: true),
         amountMode: isFixedRate ? .exactOut : .exactIn,
         deliveryMode: isFixedRate ? .fixed : .variable,
-        slippageBps: 50,
+        slippageBps: slippageBps,
+      affiliateId: affiliateId
     );
 
-    final resp = await proxyWrapper.get(clearnetUri: Uri.https(baseUrl, quotePath, req.toJson()));
+    final resp = await proxyWrapper.get(headers: headers, clearnetUri: Uri.https(baseUrl, estimatePath, req.toJson()));
     if(resp.statusCode < 200 || resp.statusCode > 299) {
       throw Exception("status code: ${resp.statusCode}");
     }
-    final respData = FlashnetEstimateResponse.fromJson(jsonDecode(resp.body));
+    final respData = FlashnetEstimateResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
 
 
     return ProviderRate(provider: description,
@@ -121,10 +133,92 @@ class FlashnetExchangeProvider extends ExchangeProvider
 
 
   @override
-  Future<Trade> createTrade({required TradeRequest request}) {
-    // TODO: implement createTrade
-    throw UnimplementedError();
+  Future<Trade> createTrade({required TradeRequest request}) async {
+    final req = FlashnetQuoteRequest(
+      sourceChain: _chainFor(request.depositCurrency),
+      sourceAsset: _normalizeCurrency(request.depositCurrency),
+      destinationChain: _chainFor(request.payoutCurrency),
+      destinationAsset: _normalizeCurrency(request.payoutCurrency),
+      amount:
+      request.isFixedRate ?
+      request.payoutAmount.toStringWithPrecision(useBaseUnit: true)
+          : request.depositAmount.toStringWithPrecision(useBaseUnit: true),
+      amountMode: request.isFixedRate ? .exactOut : .exactIn,
+      deliveryMode: request.isFixedRate ? .fixed : .variable,
+      recipientAddress: request.payoutAddress,
+      refundAddress: request.refundAddress,
+      affiliateId: affiliateId,
+      slippageBps: slippageBps,
+
+      refundChain: _chainFor(request.depositCurrency),
+    );
+
+    final resp = await proxyWrapper.post(
+        headers: {...headers, "X-Idempotency-Key": _idempotencyKey},
+        clearnetUri: Uri.https(baseUrl, quotePath),
+        body: jsonEncode(req.toJson()));
+
+    if(resp.statusCode < 200 || resp.statusCode > 299) {
+      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
+    }
+
+    final respData = FlashnetQuoteResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+
+    return Trade(
+      id: respData.quoteId,
+      provider: description,
+      state: TradeState.created,
+      createdAt: DateTime.now(),
+      expiredAt: respData.expiresAt,
+      // exact_out prices the input as requiredAmountIn, exact_in quotes as amountIn
+      depositAmount: Money.parse(
+        respData.requiredAmountIn ?? respData.amountIn,
+        request.depositCurrency,
+        isBaseUnit: true,
+      ),
+      payoutAmount: Money.parse(
+        respData.estimatedOut,
+        request.payoutCurrency,
+        isBaseUnit: true,
+      ),
+      fundingAddress: respData.depositAddress,
+      payoutAddress: request.payoutAddress,
+      refundAddress: request.refundAddress,
+      extraId: respData.depositMemo,
+      toAddressExtraId: request.toAddressExtraId,
+      password: respData.readToken,
+    );
   }
+
+  @override
+  Future<Trade> registerTransaction(Trade trade, String txHash) async {
+    final req = switch (_chainFor(trade.depositCurrency)) {
+      FlashnetChain.bitcoin => FlashnetSubmitRequest(quoteId: trade.id, bitcoinTxid: txHash),
+      FlashnetChain.spark => FlashnetSubmitRequest(quoteId: trade.id, sparkTxHash: txHash),
+      FlashnetChain.lightning => FlashnetSubmitRequest(quoteId: trade.id), // not a mistake, ln requires no txid
+      _ => FlashnetSubmitRequest(quoteId: trade.id, txHash: txHash),
+    };
+
+    final resp = await proxyWrapper.post(
+      headers: {
+        ...headers,
+        "X-Idempotency-Key": "${trade.id}:$txHash",
+      },
+      clearnetUri: Uri.https(baseUrl, submitPath),
+      body: jsonEncode(req.toJson()),
+    );
+
+    if (resp.statusCode < 200 || resp.statusCode > 299) {
+      print(resp.body);
+      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
+    }
+
+    final respData =
+        FlashnetSubmitResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+
+    return trade.copyWith(id: respData.orderId, state: respData.status, txId: txHash);
+  }
+
 
 
   @override
@@ -134,16 +228,15 @@ class FlashnetExchangeProvider extends ExchangeProvider
   }
 
 
-  @override
-  Future<void> registerTransaction(String txHash) {
-    // TODO: implement registerTransaction
-    throw UnimplementedError();
-  }
-
-
 
   @override
   String get title => description.title;
+
+  String get _idempotencyKey {
+    final rnd = Random.secure();
+
+    return List.generate(16, (_) => rnd.nextInt(256).toRadixString(16).padLeft(2, "0")).join();
+  }
 
   String _normalizeCurrency(CryptoCurrency currency) => switch (currency.title.toUpperCase()) {
     "USDC.E" => "USDC.e",

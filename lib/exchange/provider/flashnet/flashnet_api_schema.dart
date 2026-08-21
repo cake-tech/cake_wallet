@@ -8,6 +8,8 @@
 // every listing, and the spec only pins it on requests anyway. the codes are case sensitive
 // though, so build them with FlashnetExchangeProvider._normalizeCurrency instead of by hand
 
+import "dart:convert";
+
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
 import "package:json_annotation/json_annotation.dart";
@@ -554,13 +556,60 @@ class FlashnetNetworkCost {
   final String? assumption;
 }
 
+/// Uri.https rejects any query value that is not a String or an Iterable<String>, and fails with
+/// "int is not a subtype of Iterable" rather than anything readable, so the one integer query
+/// param is stringified here instead of at the call site. the POST bodies keep their real ints,
+/// which is what the spec types them as there
+class FlashnetQueryIntConverter implements JsonConverter<int, String> {
+  const FlashnetQueryIntConverter();
+
+  @override
+  int fromJson(String json) => int.parse(json);
+
+  @override
+  String toJson(int value) => value.toString();
+}
+
+/// a GET has nowhere to put a nested array, so /estimate takes its fee lists as JSON in the
+/// query string. the POST /quote body takes the same lists as real json, hence the separate
+/// converters here - these only ever encode, nothing decodes an outbound query
+class FlashnetQueryAppFeesConverter implements JsonConverter<List<FlashnetAppFeeRequest>, String> {
+  const FlashnetQueryAppFeesConverter();
+
+  @override
+  List<FlashnetAppFeeRequest> fromJson(String json) =>
+      throw UnsupportedError("flashnet never sends appFees back as a query string");
+
+  @override
+  String toJson(List<FlashnetAppFeeRequest> value) =>
+      jsonEncode(value.map((e) => e.toJson()).toList());
+}
+
+/// the docs allow a bare comma separated list too, but only the json form can carry the
+/// { affiliateId, feeBps } entries, so everything goes out as json
+class FlashnetQueryAffiliateIdsConverter
+    implements JsonConverter<List<FlashnetAffiliateIdEntry>, String> {
+  const FlashnetQueryAffiliateIdsConverter();
+
+  @override
+  List<FlashnetAffiliateIdEntry> fromJson(String json) =>
+      throw UnsupportedError("flashnet never sends affiliateIds back as a query string");
+
+  @override
+  String toJson(List<FlashnetAffiliateIdEntry> value) =>
+      jsonEncode(value.map(const FlashnetAffiliateIdEntryConverter().toJson).toList());
+}
+
 /// query for GET /v1/orchestration/estimate. the cheap unauthenticated preview of a quote: same
-/// pricing, no deposit address, nothing created, so nothing to expire. rate limited per IP for
-/// unauthenticated callers only.
+/// pricing, no deposit address, nothing created, so nothing to expire. 120 requests a minute per
+/// IP, and per IP only for unauthenticated callers.
 ///
 /// pass recipientAddress whenever it is known. without it the orchestrator has to assume the
 /// destination account does not exist yet and prices the network cost of creating it into the
-/// estimate, which understates the rate on a destination the user already holds
+/// estimate, which understates the rate on a destination the user already holds.
+///
+/// appFees, affiliateId and affiliateIds are absent from the openapi spec but documented and
+/// live - see https://docs.flashnet.xyz/products/orchestration/api/quotes-and-orders
 @JsonSerializable(createFactory: false)
 class FlashnetEstimateRequest {
   const FlashnetEstimateRequest({
@@ -573,6 +622,9 @@ class FlashnetEstimateRequest {
     this.deliveryMode,
     this.recipientAddress,
     this.slippageBps,
+    this.appFees,
+    this.affiliateId,
+    this.affiliateIds,
   });
 
   @JsonKey(name: "sourceChain")
@@ -598,9 +650,18 @@ class FlashnetEstimateRequest {
   @JsonKey(name: "recipientAddress", includeIfNull: false)
   final String? recipientAddress;
 
-  /// 0 to 1000 (10%)
   @JsonKey(name: "slippageBps", includeIfNull: false)
+  @FlashnetQueryIntConverter()
   final int? slippageBps;
+
+  @JsonKey(name: "appFees", includeIfNull: false)
+  @FlashnetQueryAppFeesConverter()
+  final List<FlashnetAppFeeRequest>? appFees;
+  @JsonKey(name: "affiliateId", includeIfNull: false)
+  final String? affiliateId;
+  @JsonKey(name: "affiliateIds", includeIfNull: false)
+  @FlashnetQueryAffiliateIdsConverter()
+  final List<FlashnetAffiliateIdEntry>? affiliateIds;
 
   Map<String, dynamic> toJson() => _$FlashnetEstimateRequestToJson(this);
 }

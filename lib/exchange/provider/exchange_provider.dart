@@ -55,5 +55,5 @@ abstract interface class TransactionCommitExchangeProvider {
 }
 
 abstract interface class TransactionRegistrationExchangeProvider {
-  Future<void> registerTransaction(String txHash);
+  Future<Trade> registerTransaction(Trade trade, String txHash);
 }
