@@ -2,6 +2,8 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "utils.dart";
+
 void main() {
   group("Money", () {
     test("parse", () {
@@ -460,6 +462,34 @@ void main() {
         expect(coarseOne.compareTo(fineOne) == 0, equals(coarseOne == fineOne));
         expect(Money(BigInt.two, CryptoCurrency.btc, 0).compareTo(fineOne), isPositive);
         expect(Money(BigInt.zero, CryptoCurrency.btc, 0).compareTo(fineOne), isNegative);
+      });
+
+      test("toStringWithPrecision", () {
+        expect(
+          Money.parse("60000.123456", USD, strictParsing: false).toStringWithPrecision(),
+          "60000.12",
+        );
+        expect(
+          Money.parse("1.23456789", USD, strictParsing: false).toStringWithPrecision(),
+          "1.23",
+        );
+        expect(Money(BigInt.one, CryptoCurrency.btc, 0).toStringWithPrecision(), "1");
+        expect(
+          Money(BigInt.one, CryptoCurrency.btc, 0).toStringWithPrecision(useBaseUnit: true),
+          "100000000",
+        );
+      });
+
+      test("toString", () {
+        expect(
+          Money.parse("60000.123456", CryptoCurrency.btc, strictParsing: false).toString(),
+          "60000.123456",
+        );
+        expect(
+          Money.parse("1.23456789", CryptoCurrency.btc, strictParsing: false).toString(),
+          "1.23456789",
+        );
+        expect(Money(BigInt.one, CryptoCurrency.btc, 0).toString(), "1");
       });
     });
   });
