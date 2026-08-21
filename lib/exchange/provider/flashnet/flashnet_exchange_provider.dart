@@ -217,7 +217,6 @@ class FlashnetExchangeProvider extends ExchangeProvider
     );
 
     if (resp.statusCode < 200 || resp.statusCode > 299) {
-      print(resp.body);
       throw Exception("status code: ${resp.statusCode}\n${resp.body}");
     }
 
