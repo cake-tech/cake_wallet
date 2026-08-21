@@ -256,8 +256,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final uri = await _getUri(tradePath, {"id": id});
+  Future<Trade> updateTrade(Trade trade) async {
+    final uri = await _getUri(tradePath, {"id": trade.id});
     return proxyWrapper.get(clearnetUri: uri, headers: {"API-Key": apiKey}).then((response) {
       if (response.statusCode != 200) {
         throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
@@ -266,31 +266,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final responseListJson = json.decode(response.body) as List;
       final responseData = TrocadorTrade.fromJson(responseListJson.first as Map<String, dynamic>);
 
-      final _normalizedFromNetwork = _normalizeNetworkType(responseData.networkFrom);
-      final fromTag =
-          _normalizedFromNetwork.isEmpty ||
-              _normalizedFromNetwork == responseData.tickerFrom.toUpperCase() ||
-              _normalizedFromNetwork == "Mainnet"
-          ? null
-          : _normalizedFromNetwork;
-
-      final from = CryptoCurrency.safeParseCurrencyFromString(
-        responseData.tickerFrom,
-        tag: fromTag,
-      );
-
-      final _normalizedToNetwork = _normalizeNetworkType(responseData.networkTo);
-      final toTag =
-          _normalizedToNetwork.isEmpty ||
-              _normalizedToNetwork == responseData.tickerFrom.toUpperCase() ||
-              _normalizedFromNetwork == "Mainnet"
-          ? null
-          : _normalizedToNetwork;
-      final to = CryptoCurrency.safeParseCurrencyFromString(responseData.tickerTo, tag: toTag);
-
-      return Trade(
-        id: id,
-        provider: description,
+      return trade.copyWith(
         refundAddress: responseData.refundAddress ?? "",
         createdAt: responseData.date?.toLocal(),
         state: responseData.status,
@@ -299,8 +275,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         password: responseData.password,
         providerId: responseData.idProvider,
         extraId: responseData.addressProviderMemo,
-        depositAmount: Money.safeParse(responseData.amountFrom, from!),
-        payoutAmount: Money.safeParse(responseData.amountTo, to!),
+        depositAmount: Money.safeParse(responseData.amountFrom, trade.depositCurrency),
+        payoutAmount: Money.safeParse(responseData.amountTo, trade.payoutCurrency),
         fundingAddress: responseData.addressProvider,
       );
     });
@@ -373,15 +349,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
-
-  String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
-    "ERC20" => "ETH",
-    "TRC20" => "TRX",
-    "BEP20" => "BSC",
-    "LIGHTNING" => "LN",
-    "MATIC" => "POL",
-    _ => network,
-  };
 
   Future<Uri> _getUri(String path, Map<String, dynamic> queryParams) async {
     final uri = Uri.https(onionApiAuthority, path, queryParams);

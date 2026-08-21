@@ -470,8 +470,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final uri = Uri.https(_baseUrl, _getStatus, {"txId": id});
+  Future<Trade> updateTrade(Trade trade) async {
+    final uri = Uri.https(_baseUrl, _getStatus, {"txId": trade.id});
     final resp = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
 
     if (resp.statusCode != 200) {
@@ -497,13 +497,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final srcPaymentToken = srcTransaction?.paymentToken;
     final dstPaymentToken = dstTransaction?.paymentToken;
 
-    final fromSymbol = srcPaymentToken?.symbol ?? "";
-    final toSymbol = dstPaymentToken?.symbol ?? "";
 
-    CryptoCurrency? toCurrency;
-    if (toSymbol.isNotEmpty) {
-      toCurrency = CryptoCurrency.safeParseCurrencyFromString(toSymbol);
-    }
 
     final txHash = srcTransaction?.txHash;
 
@@ -511,7 +505,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final srcAmountRaw = srcPaymentToken?.amount;
     final dstAmountRaw = dstPaymentToken?.amount;
 
-    final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromSymbol);
 
     // Timestamps can be num or "123n"  handle both
     final srcTs = srcTransaction?.timestamp;
@@ -532,8 +525,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       sourceTokenDecimals: srcPaymentToken?.decimals ?? 0,
       sourceTokenAmountRaw: srcPaymentToken?.amount.toString() ?? "",
       requiresTokenApproval: false,
-      depositAmount: Money(srcAmountRaw ?? BigInt.zero, fromCurrency!),
-      payoutAmount: Money(dstAmountRaw ?? BigInt.zero, toCurrency!),
+      depositAmount: Money(srcAmountRaw ?? BigInt.zero, trade.depositCurrency),
+      payoutAmount: Money(dstAmountRaw ?? BigInt.zero, trade.payoutCurrency),
       routerData: "",
       routerValue: "",
     );

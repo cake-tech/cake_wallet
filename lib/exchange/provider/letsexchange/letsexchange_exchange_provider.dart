@@ -173,14 +173,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> updateTrade(Trade trade) async {
     final headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
       "Authorization": apiKey,
     };
 
-    final url = Uri.https(_baseUrl, "$_getTransactionPath/$id");
+    final url = Uri.https(_baseUrl, "$_getTransactionPath/${trade.id}");
     final response = await proxyWrapper.get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
@@ -213,29 +213,21 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     //
     // final extraId = responseJSON["deposit_extra_id"] as String?;
 
-    return Trade(
-      id: id,
-      provider: description,
-      payoutAddress: responseData.withdrawal!,
-      refundAddress: responseData.returnAddress!,
-      state: responseData.status!,
+    return trade.copyWith(
+      payoutAddress: responseData.withdrawal,
+      refundAddress: responseData.returnAddress,
+      state: responseData.status,
       isRefund: responseData.status == TradeState.refund,
       extraId: responseData.depositExtraId,
       depositAmount: Money.safeParse(
         responseData.depositAmount,
-        CryptoCurrency.safeParseCurrencyFromString(
-          responseData.coinFrom,
-          tag: _normalizeNetworkType(responseData.coinFromNetwork!),
-        )!,
+        trade.depositCurrency
       ),
       payoutAmount: Money.safeParse(
         responseData.withdrawalAmount,
-        CryptoCurrency.safeParseCurrencyFromString(
-          responseData.coinTo,
-          tag: _normalizeNetworkType(responseData.coinToNetwork!),
-        )!,
+        trade.payoutCurrency
       ),
-      fundingAddress: responseData.deposit!,
+      fundingAddress: responseData.deposit,
     );
   }
 
@@ -280,14 +272,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return _normalizeTitleToNetwork(currency.title);
   }
-
-  String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
-    "ERC20" => "ETH",
-    "TRC20" => "TRX",
-    "BEP20" => "BSC",
-    "ARBITRUM" => "ARB",
-    _ => network,
-  };
 
   String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
     "ARB" => "ARBITRUM",

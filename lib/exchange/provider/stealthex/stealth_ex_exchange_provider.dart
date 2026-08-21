@@ -192,10 +192,10 @@ class StealthExExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> updateTrade(Trade trade)  async {
     final headers = {"Authorization": apiKey, "Content-Type": "application/json"};
 
-    final uri = Uri.parse("$_baseUrl$_exchangesPath/$id");
+    final uri = Uri.parse("$_baseUrl$_exchangesPath/${trade.id}");
     final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode != 200) {
@@ -203,20 +203,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
     }
     final responseData = StealthExExchange.fromJson(
         json.decode(response.body) as Map<String, dynamic>);
-    // Parsing 'from' currency with network tag
-    final fromTag = responseData.deposit.network == "mainnet" ? null : responseData.deposit.network;
-    final from = CryptoCurrency.safeParseCurrencyFromString(
-        responseData.deposit.symbol, tag: fromTag);
-    // Parsing 'to' currency with network tag
-    final toTag = responseData.withdrawal.network == "mainnet" ? null : responseData.withdrawal
-        .network;
-    final to = CryptoCurrency.safeParseCurrencyFromString(
-        responseData.withdrawal.symbol, tag: toTag);
 
 
-    return Trade(
-      id: responseData.id,
-      provider: description,
+    return trade.copyWith(
       fundingAddress: responseData.deposit.address,
       payoutAddress: responseData.withdrawal.address,
       refundAddress: responseData.refundAddress ?? "",
@@ -224,8 +213,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: responseData.createdAt,
       isRefund: responseData.status == .refunded,
       extraId: responseData.deposit.extraId,
-      depositAmount: Money.safeParse(responseData.deposit.amount, from!),
-      payoutAmount: Money.safeParse(responseData.withdrawal.amount, to!),
+      depositAmount: Money.safeParse(responseData.deposit.amount, trade.depositCurrency),
+      payoutAmount: Money.safeParse(responseData.withdrawal.amount, trade.payoutCurrency),
     );
   }
 

@@ -199,13 +199,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final findTradeByIdPath = "$transactionsPath/$id";
+  Future<Trade> updateTrade(Trade trade) async {
+    final findTradeByIdPath = "$transactionsPath/${trade.id}";
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
     final response = await proxyWrapper.get(clearnetUri: uri);
 
     if (response.statusCode == 404) {
-      throw TradeNotFoundException(id, provider: description);
+      throw TradeNotFoundException(trade.id, provider: description);
     }
 
     if (response.statusCode == 400) {
@@ -213,7 +213,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       final errors = responseJSON["errors"] as Map<String, dynamic>?;
       final errorMessage = errors?.values.join(", ") ?? response.body;
 
-      throw TradeNotFoundException(id, provider: description, description: errorMessage);
+      throw TradeNotFoundException(trade.id, provider: description, description: errorMessage);
     }
 
     if (response.statusCode != 200) {
@@ -223,33 +223,15 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final responseData = ExolixTransactionResponse.fromJson(responseJSON);
 
-    // Parsing 'from' currency
-    final coinFrom = responseData.coinFrom.coinCode;
-    final coinFromNetwork = responseData.coinFrom.network;
-    final _normalizedFromNetwork = _normalizeNetworkType(coinFromNetwork);
-    final fromTag = coinFrom.toUpperCase() == _normalizedFromNetwork.toUpperCase()
-        ? null
-        : coinFromNetwork;
-    final from = CryptoCurrency.safeParseCurrencyFromString(coinFrom, tag: fromTag);
-
-    // Parsing 'to' currency
-    final coinTo = responseData.coinTo.coinCode;
-    final coinToNetwork = responseData.coinTo.network;
-    final _normalizedToNetwork = _normalizeNetworkType(coinToNetwork);
-    final toTag = coinTo.toUpperCase() == _normalizedToNetwork.toUpperCase() ? null : coinToNetwork;
-    final to = CryptoCurrency.safeParseCurrencyFromString(coinTo, tag: toTag);
-
-    return Trade(
-      id: id,
-      provider: description,
+    return trade.copyWith(
       state: responseData.status,
       extraId: responseData.depositExtraId,
       outputTransaction: responseData.hashOut.hash,
       payoutAddress: responseData.withdrawalAddress,
-      depositAmount: Money.safeParse(responseData.amount, from!),
-      payoutAmount: Money.safeParse(responseData.amountTo, to!),
+      depositAmount: Money.safeParse(responseData.amount, trade.depositCurrency),
+      payoutAmount: Money.safeParse(responseData.amountTo, trade.payoutCurrency),
       fundingAddress: responseData.depositAddress,
-      refundAddress: responseData.refundAddress ?? "",
+      refundAddress: responseData.refundAddress,
     );
   }
 
@@ -264,10 +246,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _normalizeNetworkType(String network) => switch (network.toUpperCase()) {
-    "ARBITRUM" => "ARB",
-    _ => network,
-  };
 
   CryptoCurrency _overrideFromCryptoCurrency(CryptoCurrency currency) {
     if (currency == CryptoCurrency.zec) {

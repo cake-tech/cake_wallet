@@ -203,8 +203,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final param = {"depositAddress": id};
+  Future<Trade> updateTrade(Trade trade)  async {
+    final param = {"depositAddress": trade.id};
     final uri = Uri.https(_baseUrl, "$_versionPath$_statusPath", param);
 
     final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
@@ -216,27 +216,14 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final data = NearIntentsStatusResponse.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );
-    // final statusRaw = (data['status'] as String?) ?? 'UNKNOWN';
-    //
-    // final quoteResponse = data['quoteResponse'] as Map<String, dynamic>? ?? {};
-    // final quoteRequest = quoteResponse['quoteRequest'] as Map<String, dynamic>? ?? {};
-    //
-    // final refundTo = quoteRequest['refundTo'] as String? ?? '';
-    // final recipient = quoteRequest['recipient'] as String? ?? '';
-    //
+
     final quoteResponse = data.quoteResponse;
     final quoteRequest = quoteResponse.quoteRequest;
     final quote = quoteResponse.quote;
 
-    final tokens = await _getSupportedTokens();
 
-    final from = _nearAssetIdToCurrency(quoteRequest.originAsset, tokens);
 
-    final to = _nearAssetIdToCurrency(quoteRequest.destinationAsset, tokens);
-
-    return Trade(
-      id: id,
-      provider: description,
+    return trade.copyWith(
       fundingAddress: quote.depositAddress ?? "",
       payoutAddress: quoteRequest.recipient,
       refundAddress: quoteRequest.refundTo,
@@ -244,8 +231,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: data.swapDetails.originChainTxHashes.firstOrNull?.hash,
       extraId: quote.depositMemo,
       isRefund: data.status == .refunded,
-      depositAmount: Money.safeParse(quote.amountInFormatted, from!),
-      payoutAmount: Money.safeParse(quote.amountOutFormatted, to!),
+      depositAmount: Money.safeParse(quote.amountInFormatted, trade.depositCurrency),
+      payoutAmount: Money.safeParse(quote.amountOutFormatted, trade.payoutCurrency),
     );
   }
 
@@ -346,11 +333,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     _ => tag.toLowerCase(),
   };
 
-  String? _normalizeNearBlockchainToTag(String? blockchain) => switch (blockchain) {
-    "tron" => "TRX",
-    "avax" => "AVAXC",
-    _ => blockchain?.toUpperCase(),
-  };
 
   NearIntentsToken? currencyToNearAssetId(
     CryptoCurrency currency,
@@ -381,28 +363,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     );
 
     return token;
-  }
-
-  CryptoCurrency? _nearAssetIdToCurrency(String assetId, List<NearIntentsToken> supported) {
-    if (supported.isEmpty) {
-      return null;
-    }
-
-    final token = supported.firstWhereOrNull((t) => t.assetId == assetId);
-
-    if (token == null) {
-      return null;
-    }
-
-    final title = token.symbol.toUpperCase().replaceAll(RegExp(r"\s*\([^)]*\)"), "");
-
-    final normalizedNetwork = _normalizeNearBlockchainToTag(token.blockchain);
-
-    final isNativeAsset = assetId.contains(":native:coin");
-
-    final tag = isNativeAsset || normalizedNetwork == title ? null : normalizedNetwork;
-
-    return CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
   }
 
   DateTime _buildDeadline() => DateTime.now().toUtc().add(const Duration(hours: 2));

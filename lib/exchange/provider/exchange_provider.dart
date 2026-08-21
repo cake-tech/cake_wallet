@@ -38,7 +38,7 @@ abstract class ExchangeProvider {
   Future<Trade> createTrade(
       {required TradeRequest request,});
 
-  Future<Trade> findTradeById({required String id});
+  Future<Trade> updateTrade(Trade trade);
 
   Future<ProviderRate> fetchRate({required Money from, required CryptoCurrency to, required bool isFixedRate});
 

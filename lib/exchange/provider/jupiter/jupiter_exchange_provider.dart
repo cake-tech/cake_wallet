@@ -280,7 +280,7 @@ class JupiterExchangeProvider extends ExchangeProvider
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) {
+  Future<Trade> updateTrade(Trade trade) {
     // Jupiter Ultra Swap API doesn't track trades by our trade ID
     //
     // Status tracking options:
