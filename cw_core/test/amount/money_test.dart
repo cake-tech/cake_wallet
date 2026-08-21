@@ -27,7 +27,7 @@ void main() {
       expect(() => Money.parse("1,11", CryptoCurrency.btc), throwsFormatException);
 
       // To many decimals
-      expect(() => Money.parse("-1.000000000000000", CryptoCurrency.btc), throwsFormatException);
+      expect(() => Money.parse("-1.0000000000000001", CryptoCurrency.btc), throwsFormatException);
 
       money = Money.parse("1", CryptoCurrency.btc, isBaseUnit: true);
       expect(money.amount, BigInt.from(1));
@@ -66,7 +66,7 @@ void main() {
       expect(money?.amount, isNull);
 
       // To many decimals
-      money = Money.tryParse("-1.000000000000000", CryptoCurrency.btc);
+      money = Money.tryParse("-1.0000000000000001", CryptoCurrency.btc);
       expect(money?.amount, isNull);
 
       money = Money.tryParse("1", CryptoCurrency.btc, isBaseUnit: true);
@@ -371,6 +371,95 @@ void main() {
             "sats 100000000",
           );
         });
+      });
+    });
+
+    group("different scales", () {
+      final coarseOne = Money(BigInt.one, CryptoCurrency.btc, 0);
+      final fineOne = Money(BigInt.from(100000000), CryptoCurrency.btc, 8);
+
+      test("== across scales", () {
+        expect(coarseOne, equals(fineOne));
+        expect(coarseOne, isNot(equals(Money(BigInt.two, CryptoCurrency.btc, 0))));
+      });
+
+      test("equal values across scales hash equally", () {
+        expect(coarseOne.hashCode, equals(fineOne.hashCode));
+
+        expect(
+          Money(BigInt.from(-11), CryptoCurrency.btc, 1).hashCode,
+          equals(Money(BigInt.from(-110000000), CryptoCurrency.btc, 8).hashCode),
+        );
+      });
+
+      test("zero hashes equally at every scale", () {
+        final hashes = [0, 1, 8, 18, 30]
+            .map((s) => Money(BigInt.zero, CryptoCurrency.btc, s).hashCode)
+            .toSet();
+
+        expect(hashes, hasLength(1));
+      });
+
+      test("whole units are not confused with their digits", () {
+        // (100, scale 0) is one hundred, not one: stripping must stop at 0.
+        final oneHundred = Money(BigInt.from(100), CryptoCurrency.btc, 0);
+
+        expect(oneHundred, isNot(equals(coarseOne)));
+        expect(oneHundred.hashCode, isNot(equals(coarseOne.hashCode)));
+      });
+
+      test("Set deduplicates across scales", () {
+        expect(
+          {
+            Money(BigInt.from(11), CryptoCurrency.btc, 1),
+            Money(BigInt.from(110000000), CryptoCurrency.btc, 8),
+            Money(BigInt.from(1100), CryptoCurrency.btc, 3),
+          },
+          hasLength(1),
+        );
+      });
+
+      test("+ aligns operands", () {
+        expect(coarseOne + fineOne, equals(Money(BigInt.two, CryptoCurrency.btc, 0)));
+        expect(coarseOne + fineOne, equals(fineOne + coarseOne));
+      });
+
+      test("- aligns operands", () {
+        // Regression: this used to subtract the raw amounts, i.e. 1 - 100000000.
+        expect((coarseOne - fineOne).isZero, isTrue);
+        expect((fineOne - coarseOne).isZero, isTrue);
+
+        final threeCoarse = Money(BigInt.from(3), CryptoCurrency.btc, 0);
+        expect(threeCoarse - fineOne, equals(Money(BigInt.two, CryptoCurrency.btc, 0)));
+        expect(threeCoarse - fineOne, equals(-(fineOne - threeCoarse)));
+      });
+
+      test("the result keeps the finer scale", () {
+        expect((coarseOne + fineOne).decimals, greaterThanOrEqualTo(fineOne.decimals));
+      });
+
+      test("sub-unit precision survives a coarse operand", () {
+        final oneSatoshi = Money(BigInt.one, CryptoCurrency.btc, 8);
+
+        expect(
+          coarseOne + oneSatoshi,
+          equals(Money(BigInt.from(100000001), CryptoCurrency.btc, 8)),
+        );
+      });
+
+      test("comparison operators align", () {
+        expect(coarseOne < fineOne, isFalse);
+        expect(coarseOne <= fineOne, isTrue);
+        expect(coarseOne >= fineOne, isTrue);
+        expect(coarseOne > fineOne, isFalse);
+        expect(Money(BigInt.two, CryptoCurrency.btc, 0) > fineOne, isTrue);
+      });
+
+      test("compareTo aligns and agrees with ==", () {
+        expect(coarseOne.compareTo(fineOne), isZero);
+        expect(coarseOne.compareTo(fineOne) == 0, equals(coarseOne == fineOne));
+        expect(Money(BigInt.two, CryptoCurrency.btc, 0).compareTo(fineOne), isPositive);
+        expect(Money(BigInt.zero, CryptoCurrency.btc, 0).compareTo(fineOne), isNegative);
       });
     });
   });
