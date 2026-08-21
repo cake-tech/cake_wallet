@@ -196,6 +196,38 @@ void main() {
       });
     });
 
+    group("Zcash Address Detection", () {
+      test("detects Zcash transparent address", () {
+        const address = "t1V9mnyk5Z5cTNMCkLbaDwSskgJZucTLdgW";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+        expect(result.address, address);
+      });
+
+      test("detects Zcash shielded address", () {
+        const address =
+            "zsab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efgh56kl";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+      });
+
+      test("detects Zcash unified address", () {
+        const address =
+            "u1z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+      });
+    });
+
     group('Wownero Address Detection', () {
       test('detects Wownero address', () {
         const address =
@@ -267,6 +299,90 @@ void main() {
 
         expect(result.isValid, false);
         expect(result.errorMessage, 'Unable to detect valid cryptocurrency address');
+      });
+    });
+
+    group("EVM chainId URI Detection", () {
+      const recipient = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6";
+      const contract = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
+      test("detects the polygon network from an ERC-681 chainId", () {
+        const uri = "ethereum:$recipient@137?value=1.0e18";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.polygon);
+        expect(result.chainId, 137);
+        expect(result.address, recipient);
+        expect(result.amount, "1");
+      });
+
+      test("detects the base network from an ERC-681 chainId", () {
+        const uri = "ethereum:$recipient@8453";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.base);
+        expect(result.chainId, 8453);
+        expect(result.address, recipient);
+      });
+
+      test("extracts the recipient from an ERC-681 token transfer URI", () {
+        const uri = "ethereum:$contract@1/transfer?address=$recipient&uint256=1000000";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.ethereum);
+        expect(result.chainId, 1);
+        expect(result.address, recipient);
+      });
+
+      test("preserves an unsupported chainId so routing can reject it", () {
+        const uri = "ethereum:$recipient@999999";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.ethereum);
+        expect(result.chainId, 999999);
+        expect(result.address, recipient);
+      });
+    });
+
+    group("Token URI Detection", () {
+      test("detects a Solana pay URI with an spl-token param", () {
+        const address = "4Nd1mYvNQyJ8BDVXLgkvSGpVdQMZ3hxwVFkfwXNq6Wgk";
+        const uri =
+            "solana:$address?amount=1.5&spl-token=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.sol);
+        expect(result.detectedWalletType, WalletType.solana);
+        expect(result.address, address);
+        expect(result.amount, "1.5");
+      });
+
+      test("detects a Tron URI with a token param", () {
+        const address = "TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL";
+        const uri = "tron:$address?amount=2&token=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.trx);
+        expect(result.detectedWalletType, WalletType.tron);
+        expect(result.address, address);
+        expect(result.amount, "2");
+      });
+
+      test("detects a bare Solana URI without params", () {
+        const address = "4Nd1mYvNQyJ8BDVXLgkvSGpVdQMZ3hxwVFkfwXNq6Wgk";
+        const uri = "solana:$address";
+        final result = UniversalAddressDetector.detectAddress(uri);
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.solana);
+        expect(result.address, address);
+        expect(result.amount, "");
       });
     });
   });

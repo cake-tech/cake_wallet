@@ -1,15 +1,9 @@
 PODS:
   - bitbox_flutter (0.0.1):
     - Flutter
-  - breez_sdk_spark_flutter (0.14.0):
-    - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
   - CryptoSwift (1.8.4)
-  - cw_decred (0.0.1):
-    - Flutter
-  - cw_mweb (0.0.1):
-    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -67,8 +61,6 @@ PODS:
     - Flutter
   - flutter_mailer (0.0.1):
     - Flutter
-  - flutter_native_splash (2.4.3):
-    - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
   - fluttertoast (0.0.2):
@@ -79,13 +71,9 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - local_auth_darwin (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
-  - payjoin_flutter (0.23.0)
   - permission_handler_apple (9.4.8):
     - Flutter
   - quick_actions_ios (0.0.1):
@@ -93,10 +81,6 @@ PODS:
   - reown_yttrium (0.0.1):
     - Flutter
     - YttriumWrapper (= 0.8.35)
-  - rive_common (0.0.1):
-    - Flutter
-  - rlz (0.0.1):
-    - Flutter
   - SDWebImage (5.21.2):
     - SDWebImage/Core (= 5.21.2)
   - SDWebImage/Core (5.21.2)
@@ -107,8 +91,6 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sp_scanner (0.0.1):
-    - Flutter
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
@@ -153,11 +135,8 @@ PODS:
 
 DEPENDENCIES:
   - bitbox_flutter (from `.symlinks/plugins/bitbox_flutter/ios`)
-  - breez_sdk_spark_flutter (from `.symlinks/plugins/breez_sdk_spark_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
-  - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
-  - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -169,24 +148,18 @@ DEPENDENCIES:
   - flutter_local_authentication (from `.symlinks/plugins/flutter_local_authentication/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_mailer (from `.symlinks/plugins/flutter_mailer/ios`)
-  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
-  - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - payjoin_flutter (from `.symlinks/plugins/payjoin_flutter/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - quick_actions_ios (from `.symlinks/plugins/quick_actions_ios/ios`)
   - reown_yttrium (from `.symlinks/plugins/reown_yttrium/ios`)
-  - rive_common (from `.symlinks/plugins/rive_common/ios`)
-  - rlz (from `.symlinks/plugins/rlz/ios`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - torch_dart (from `.symlinks/plugins/torch_dart/ios`)
@@ -209,14 +182,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bitbox_flutter:
     :path: ".symlinks/plugins/bitbox_flutter/ios"
-  breez_sdk_spark_flutter:
-    :path: ".symlinks/plugins/breez_sdk_spark_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  cw_decred:
-    :path: ".symlinks/plugins/cw_decred/ios"
-  cw_mweb:
-    :path: ".symlinks/plugins/cw_mweb/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -239,8 +206,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   flutter_mailer:
     :path: ".symlinks/plugins/flutter_mailer/ios"
-  flutter_native_splash:
-    :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   fluttertoast:
@@ -251,30 +216,20 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/in_app_review/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
-  local_auth_darwin:
-    :path: ".symlinks/plugins/local_auth_darwin/darwin"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
-  payjoin_flutter:
-    :path: ".symlinks/plugins/payjoin_flutter/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   quick_actions_ios:
     :path: ".symlinks/plugins/quick_actions_ios/ios"
   reown_yttrium:
     :path: ".symlinks/plugins/reown_yttrium/ios"
-  rive_common:
-    :path: ".symlinks/plugins/rive_common/ios"
-  rlz:
-    :path: ".symlinks/plugins/rlz/ios"
   sensitive_clipboard:
     :path: ".symlinks/plugins/sensitive_clipboard/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  sp_scanner:
-    :path: ".symlinks/plugins/sp_scanner/ios"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   sqlite3_flutter_libs:
@@ -292,7 +247,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitbox_flutter: 9505732798041c413152669751beeaecc5fe400f
-  breez_sdk_spark_flutter: ed3b6709b8ce9b40309d8728640eade5b19e8a0d
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   cw_decred: a02cf30175a46971c1e2fa22c48407534541edc6
@@ -323,8 +277,6 @@ SPEC CHECKSUMS:
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
   quick_actions_ios: 500fcc11711d9f646739093395c4ae8eec25f779
   reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
-  rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
-  rlz: 3f4022361f540a5c26d9d2474fea1d2455b69d8d
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -336,11 +288,11 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   torch_dart: f4620705d10f05492fab047f2fa1c3a600e7d17d
   uni_links: ed8c961e47ed9ce42b6d91e1de8049e38a4b3152
-  universal_ble: a322ebabee64f0ec27a313e89a5dd6967f37a60f
+  universal_ble: 45519b2aeafe62761e2c6309f8927edb5288b914
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
-PODFILE CHECKSUM: b08d7f4c8d9c64f5648599a30caea878b0f7616a
+PODFILE CHECKSUM: 18601c2df1b9c6704d6a786e4e6777ae88178c28
 
 COCOAPODS: 1.16.2
