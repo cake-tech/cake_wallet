@@ -223,7 +223,12 @@ class FlashnetExchangeProvider extends ExchangeProvider
     final respData =
         FlashnetSubmitResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
 
-    return trade.copyWith(id: respData.orderId, state: respData.status, txId: txHash);
+    return trade.copyWith(
+      id: respData.orderId,
+      state: respData.status,
+      txId: txHash,
+      password: respData.readToken ?? trade.password,
+    );
   }
 
 
@@ -239,8 +244,11 @@ class FlashnetExchangeProvider extends ExchangeProvider
     }
 
     if (resp.statusCode == 403) {
+      final error = FlashnetErrorResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+
       throw TradeNotFoundException(trade.id, provider: description,
-          description: "flashnet read token is invalid or expired");
+          description: "${error.error.code}: ${error.error.message} "
+              "(read token ${trade.password}, ${trade.password?.length ?? 0} chars)");
     }
 
     if (resp.statusCode < 200 || resp.statusCode > 299) {

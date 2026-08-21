@@ -1109,7 +1109,7 @@ class FlashnetSubmitRequest {
 @JsonSerializable(createToJson: false)
 @TradeStateConverter()
 class FlashnetSubmitResponse {
-  const FlashnetSubmitResponse({required this.orderId, required this.status});
+  const FlashnetSubmitResponse({required this.orderId, required this.status, this.readToken});
 
   factory FlashnetSubmitResponse.fromJson(Map<String, dynamic> json) =>
       _$FlashnetSubmitResponseFromJson(json);
@@ -1117,10 +1117,11 @@ class FlashnetSubmitResponse {
   @JsonKey(name: "orderId")
   final String orderId;
 
-  /// partner visible status. the spec leaves it open ended, so unrecognised values survive as a
-  /// raw TradeState rather than being dropped
   @JsonKey(name: "status")
   final TradeState status;
+
+  @JsonKey(name: "readToken")
+  final String? readToken;
 }
 
 
