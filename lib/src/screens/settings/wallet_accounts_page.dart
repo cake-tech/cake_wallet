@@ -18,6 +18,8 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
@@ -49,12 +51,25 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   final List<AccountCustomizerListItem> _items = [];
 
+  ReactionDisposer? _accountsReaction;
+
   WalletAccountListViewModel get accountListViewModel =>
       widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
 
   @override
   void initState() {
     super.initState();
+
+    _accountsReaction = reaction(
+          (_) => accountListViewModel.accounts
+          .map((account) => '${account.id}:${account.label}')
+          .join(','),
+          (_) {
+        if (!mounted) return;
+        loadCards();
+      },
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await widget.dashboardViewModel.loadCardDesigns();
       if (!mounted) return;
@@ -80,15 +95,17 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   @override
   void dispose() {
+    _accountsReaction?.call();
     accountListViewModel.reload();
     saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
     super.dispose();
   }
 
   void loadCards() {
-    _items.clear();
-
     final accounts = accountListViewModel.accounts;
+    if (accounts.isEmpty && _items.isNotEmpty) return;
+
+    _items.clear();
     for (int i = 0; i < accounts.length; i++) {
       final index = widget.dashboardViewModel.cardOrder[i];
 
@@ -114,104 +131,106 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
           order: index,
           accountListItem: accounts[index]));
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (accountListViewModel.accounts.isEmpty) return SizedBox.shrink();
+  Widget build(BuildContext context) => Observer(builder: (context) {
+      if (accountListViewModel.accounts.isEmpty) return const SizedBox.shrink();
 
-    return Container(
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: S.of(context).wallet_accounts,
-            leadingIcon: Icon(Icons.close),
-            leadingSemanticLabel: S.of(context).close,
-            onLeadingPressed: Navigator.of(context).maybePop,
-            trailingIcon: Icon(Icons.refresh),
-            trailingSemanticLabel: S.of(context).reset,
-            onTrailingPressed: showResetDialog,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: Text(
-              S.of(context).account_customizer_desc,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      return Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: S.of(context).wallet_accounts,
+              leadingIcon: Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
+              onLeadingPressed: Navigator.of(context).maybePop,
+              trailingIcon: Icon(Icons.refresh),
+              trailingSemanticLabel: S.of(context).reset,
+              onTrailingPressed: showResetDialog,
             ),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  controller: ModalScrollController.of(context),
-                  padding: EdgeInsets.only(bottom: 196),
-                  child: CardsView(
-                    key: ValueKey(
-                        '${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}'),
-                    dashboardViewModel: widget.dashboardViewModel,
-                    lightningMode: widget.dashboardViewModel.lightningMode,
-                    maxVisibleCards: null,
-                    allowCompactMode: false,
-                    onCustomizeTapped: _openCardCustomizer,
-                    onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: Text(
+                S.of(context).account_customizer_desc,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: ModalScrollController.of(context),
+                    padding: EdgeInsets.only(bottom: 196),
+                    child: CardsView(
+                      key: ValueKey(
+                          '${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}'),
+                      dashboardViewModel: widget.dashboardViewModel,
+                      lightningMode: widget.dashboardViewModel.lightningMode,
+                      maxVisibleCards: null,
+                      allowCompactMode: false,
+                      enableReorder: true,
+                      onReorder: _onCardsReordered,
+                      onCustomizeTapped: _openCardCustomizer,
+                      onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+                    ),
                   ),
-                ),
-                SafeArea(
-                    child: Padding(
-                        padding: EdgeInsets.only(bottom: 50),
-                        child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: MergeSemantics(
-                                  child: Semantics(
-                                    button: true,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(999999),
-                                      onTap: _showAddAccountModal,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surfaceContainer,
-                                            borderRadius: BorderRadius.circular(999999)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            spacing: 8,
-                                            children: [
-                                              Icon(
-                                                Icons.add,
-                                                size: 28,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                              Text(
-                                                S.of(context).add_account,
-                                                style: TextStyle(
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                    fontWeight: FontWeight.w500),
-                                              )
-                                            ],
+                  SafeArea(
+                      child: Padding(
+                          padding: EdgeInsets.only(bottom: 50),
+                          child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: MergeSemantics(
+                                    child: Semantics(
+                                      button: true,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(999999),
+                                        onTap: _showAddAccountModal,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: Theme.of(context).colorScheme.surfaceContainer,
+                                              borderRadius: BorderRadius.circular(999999)),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              spacing: 8,
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  size: 28,
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                ),
+                                                Text(
+                                                  S.of(context).add_account,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                      fontWeight: FontWeight.w500),
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            )))),
-              ],
+                              )))),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
+    });
 
   bool _checkReadyToManage() {
     if (widget.dashboardViewModel.wallet.type == WalletType.bitcoin) {
@@ -239,19 +258,19 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) => Material(
-            child: AccountCreationModal(
-              state: () => widget.accountEditOrCreateViewModel.state,
-              onPressed: (label) async {
-                widget.accountEditOrCreateViewModel.label = label;
-                await widget.accountEditOrCreateViewModel.save();
-                if (!context.mounted) return;
+          child: AccountCreationModal(
+            state: () => widget.accountEditOrCreateViewModel.state,
+            onPressed: (label) async {
+              widget.accountEditOrCreateViewModel.label = label;
+              await widget.accountEditOrCreateViewModel.save();
+              if (!context.mounted) return;
 
-                if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
-                  Navigator.of(context).pop(true);
-                }
-              },
-            ),
-          ));
+              if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
+                Navigator.of(context).pop(true);
+              }
+            },
+          ),
+        ));
 
     if (res != null && res is bool && res == true) {
       await accountListViewModel.reload();
@@ -279,8 +298,41 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       dashboardViewModel: widget.dashboardViewModel,
       lightningMode: widget.dashboardViewModel.lightningMode,
       useCupertinoScaffold: false,
-      onSaved: loadCards,
+      onSaved: _reloadAccountsAndCards,
     );
+  }
+
+  Future<void> _reloadAccountsAndCards() async {
+    await accountListViewModel.reload();
+    await widget.dashboardViewModel.loadCardDesigns();
+    if (!mounted) return;
+    loadCards();
+  }
+
+  void _onCardsReordered(int oldRealIndex, int newRealIndex) {
+    final accounts = accountListViewModel.accounts;
+    if (oldRealIndex < 0 ||
+        newRealIndex < 0 ||
+        oldRealIndex >= accounts.length ||
+        newRealIndex >= accounts.length) {
+      return;
+    }
+
+    final oldAccountId = accounts[oldRealIndex].id;
+    final newAccountId = accounts[newRealIndex].id;
+
+    final from = _items.indexWhere((item) => item.accountListItem.id == oldAccountId);
+    final to = _items.indexWhere((item) => item.accountListItem.id == newAccountId);
+    if (from < 0 || to < 0 || from == to) return;
+
+
+    final insertIndex = from < to ? to + 1 : to;
+    reorder(from, insertIndex);
+
+    saveCardOrder().then((_) {
+      if (!mounted) return;
+      widget.dashboardViewModel.loadCardDesigns();
+    });
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -321,11 +373,18 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       final item = _items[orderIndex];
       printV("${item.accountListItem.id}: $orderIndex");
 
+      final existing = await BalanceCardStyleSettings.get(
+        widget.dashboardViewModel.wallet.walletInfo.internalId,
+        item.accountListItem.id,
+      );
+
       await BalanceCardStyleSettings.fromCardDesign(
           walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
           accountIndex: item.accountListItem.id,
           cardOrder: orderIndex,
-          design: item.card.design)
+          design: item.card.design,
+          iconStyleIndex: existing?.iconStyleIndex ?? 0,
+          gradientIndexOverride: existing?.gradientIndex)
           .insert();
     }
   }
@@ -334,14 +393,14 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     final res = await showPopUp(
         context: context,
         builder: (context) => AlertWithTwoActions(
-              alertTitle: S.of(context).reset,
-              alertContent: S.of(context).card_order_reset_desc,
-              leftButtonText: S.of(context).yes,
-              rightButtonText: S.of(context).no,
-              actionLeftButton: () {
-                Navigator.of(context).pop(true);
-              },
-              actionRightButton: Navigator.of(context).pop));
+            alertTitle: S.of(context).reset,
+            alertContent: S.of(context).card_order_reset_desc,
+            leftButtonText: S.of(context).yes,
+            rightButtonText: S.of(context).no,
+            actionLeftButton: () {
+              Navigator.of(context).pop(true);
+            },
+            actionRightButton: Navigator.of(context).pop));
     if (res != null && res is bool && res) {
       reset();
     }

@@ -284,16 +284,31 @@ class WalletInfoAccount {
     required String label,
     bool isSelected = false,
   }) async {
-    return await db!.insert(
-      tableName,
-      {
+    return await db!.transaction((txn) async {
+      final updated = await txn.update(
+        tableName,
+        {'label': label, 'isSelected': isSelected ? 1 : 0},
+        where: 'walletInfoId = ? AND accountIndex = ?',
+        whereArgs: [walletInfoId, accountIndex],
+      );
+
+      if (updated > 0) {
+        final row = await txn.query(
+          tableName,
+          where: 'walletInfoId = ? AND accountIndex = ?',
+          whereArgs: [walletInfoId, accountIndex],
+          limit: 1,
+        );
+        return row.first[selfIdColumn] as int;
+      }
+
+      return await txn.insert(tableName, {
         'walletInfoId': walletInfoId,
         'accountIndex': accountIndex,
         'label': label,
         'isSelected': isSelected ? 1 : 0,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+      });
+    });
   }
 
   static Future<void> setSelected({

@@ -249,7 +249,6 @@ abstract class ElectrumWalletBase
 
   static const int addressHistoryChunkSize = 150;
   static const int transactionChunkSize = 150;
-  static const int inputTransactionChunkSize = 150;
   static const int discoveryHistoryChunkSize = 20;
   static const int transactionBatchTimeoutMs = 15000;
   static const int batchTestTimeoutMs = 4000;

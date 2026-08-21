@@ -23,13 +23,15 @@ import 'balance_card.dart';
 class CardsView extends StatefulWidget {
   const CardsView(
       {super.key,
-      required this.dashboardViewModel,
-      required this.lightningMode,
-      required this.onCompactModeBackgroundCardsTapped,
-      required this.onCustomizeTapped,
-      this.actions,
-      this.maxVisibleCards = 5,
-      this.allowCompactMode = true});
+        required this.dashboardViewModel,
+        required this.lightningMode,
+        required this.onCompactModeBackgroundCardsTapped,
+        required this.onCustomizeTapped,
+        this.actions,
+        this.maxVisibleCards = 5,
+        this.allowCompactMode = true,
+        this.enableReorder = false,
+        this.onReorder});
 
   final DashboardViewModel dashboardViewModel;
   final VoidCallback onCompactModeBackgroundCardsTapped;
@@ -39,6 +41,9 @@ class CardsView extends StatefulWidget {
 
   final int? maxVisibleCards;
   final bool allowCompactMode;
+  final bool enableReorder;
+
+  final void Function(int oldRealIndex, int newRealIndex)? onReorder;
 
   _CardsViewState createState() => _CardsViewState();
 }
@@ -46,6 +51,9 @@ class CardsView extends StatefulWidget {
 class _CardsViewState extends State<CardsView> {
   late int _selectedIndex;
   bool isFirstBuild = true;
+
+  int? _dragVisualIndex;
+  int? _hoverVisualIndex;
 
   static const Duration animDuration = Duration(milliseconds: 200);
   static const int compactModeTreshold = 6;
@@ -67,9 +75,10 @@ class _CardsViewState extends State<CardsView> {
     _selectedIndex = _currentSelectedVisualIndex();
 
     _disposers.add(reaction(
-      (_) => widget.dashboardViewModel.cardOrder.values.toList(),
-      (_) {
+          (_) => widget.dashboardViewModel.cardOrder.values.toList(),
+          (_) {
         if (!mounted) return;
+        if (_dragVisualIndex != null) return;
         setState(() {
           _selectedIndex = _currentSelectedVisualIndex();
         });
@@ -77,9 +86,10 @@ class _CardsViewState extends State<CardsView> {
     ));
 
     _disposers.add(reaction(
-      (_) => widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id,
-      (_) {
+          (_) => widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id,
+          (_) {
         if (!mounted) return;
+        if (_dragVisualIndex != null) return;
         setState(() {
           _selectedIndex = _currentSelectedVisualIndex();
         });
@@ -87,9 +97,10 @@ class _CardsViewState extends State<CardsView> {
     ));
 
     _disposers.add(reaction(
-      (_) => widget.dashboardViewModel.accountListViewModel?.accounts.length,
-      (_) {
+          (_) => widget.dashboardViewModel.accountListViewModel?.accounts.length,
+          (_) {
         if (!mounted) return;
+        if (_dragVisualIndex != null) return;
         setState(() {
           _selectedIndex = _currentSelectedVisualIndex();
         });
@@ -118,6 +129,21 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
+  int _previewVisualIndex(int visualIndex) {
+    final drag = _dragVisualIndex;
+    final hover = _hoverVisualIndex;
+    if (drag == null || hover == null || drag == hover) return visualIndex;
+
+    if (visualIndex == drag) return hover;
+
+    if (drag < hover) {
+      if (visualIndex > drag && visualIndex <= hover) return visualIndex - 1;
+    } else {
+      if (visualIndex >= hover && visualIndex < drag) return visualIndex + 1;
+    }
+    return visualIndex;
+  }
+
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       bool compactMode, double overlapAmount) {
     final accountListViewModel = widget.dashboardViewModel.accountListViewModel;
@@ -125,7 +151,8 @@ class _CardsViewState extends State<CardsView> {
     final baseTop = overlapAmount * (numCards - 1);
     final scaleFactor = compactMode ? 1 : 0.96;
 
-    final howFarBehind = (_selectedIndex - visualIndex + numCards) % numCards;
+    final effectiveVisualIndex = _previewVisualIndex(visualIndex);
+    final howFarBehind = (_selectedIndex - effectiveVisualIndex + numCards) % numCards;
     final scale = pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
@@ -133,6 +160,7 @@ class _CardsViewState extends State<CardsView> {
     final left = (parentWidth - effectiveCardWidth) / 2.0;
 
     final isSelected = _selectedIndex == visualIndex;
+    final isDragged = _dragVisualIndex == visualIndex;
     final accounts = accountListViewModel?.accounts;
     final cardLabel = (accounts != null && realIndex < accounts.length)
         ? accounts[realIndex].label
@@ -160,6 +188,103 @@ class _CardsViewState extends State<CardsView> {
       HapticFeedback.heavyImpact();
     }
 
+    final cardChild = Semantics(
+      button: true,
+      selected: isSelected,
+      label: cardLabel,
+      hint: isSelected
+          ? (widget.dashboardViewModel.balanceViewModel.displayMode ==
+          BalanceDisplayMode.hiddenBalance
+          ? S.of(context).long_press_show_balance
+          : S.of(context).long_press_hide_balance)
+          : null,
+      onTap: onCardTap,
+      onLongPress: isSelected ? onCardLongPress : null,
+      child: GestureDetector(
+        excludeFromSemantics: true,
+        onTap: onCardTap,
+        onLongPress: widget.enableReorder ? null : onCardLongPress,
+        child: Observer(builder: (_) {
+          if (!widget.lightningMode &&
+              realIndex >= (accountListViewModel?.accounts.length ?? 1)) {
+            return Container();
+          }
+
+          final account = !widget.lightningMode &&
+              realIndex < (accountListViewModel?.accounts.length ?? 0)
+              ? accountListViewModel?.accounts[realIndex]
+              : null;
+
+          // The second balance should always be the lightning balance
+          final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
+              .getMainBalanceRecord(widget.lightningMode);
+
+          late final String walletBalance;
+          late final String walletFiatBalance;
+          if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+            if (widget.dashboardViewModel.balanceViewModel.displayMode ==
+                BalanceDisplayMode.hiddenBalance) {
+              walletBalance = '●●●●●●';
+              walletFiatBalance = '●●●●●●';
+            } else {
+              walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
+              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
+            }
+          } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
+            walletBalance = "";
+            walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+          } else {
+            walletBalance = walletBalanceRecord?.availableBalance ?? "0";
+            walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+          }
+
+          final CardDesign cardDesign;
+          if (widget.dashboardViewModel.cardDesigns.isEmpty) {
+            cardDesign = CardDesign.genericDefault;
+          } else if (widget.lightningMode) {
+            cardDesign = widget.dashboardViewModel.cardDesigns.last;
+          } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
+            cardDesign = CardDesign.genericDefault;
+          } else {
+            cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+          }
+
+          final String accountName;
+          final String accountBalance;
+          if (account == null) {
+            accountName = "";
+            accountBalance = "";
+          } else {
+            accountName = account.label;
+            accountBalance = account.balance ?? "0.00";
+          }
+
+          final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
+              ? ""
+              : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+
+          return BalanceCard(
+            width: effectiveCardWidth,
+            accountName: accountName,
+            accountBalance: accountBalance,
+            designSwitchDuration: Duration(milliseconds: 150),
+            assetName: assetName,
+            capitalizeAssetName: _shouldCapitalizeAssetName(),
+            balance: walletBalance,
+            accountIndex: account?.id,
+            fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
+                widget.dashboardViewModel.settingsStore.fiatCurrency.title,
+            fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
+            fiatBalance: walletFiatBalance,
+            selected: isSelected,
+            onCustomizeTapped: isSelected ? widget.onCustomizeTapped : null,
+            design: cardDesign,
+            actions: widget.actions ?? [],
+          );
+        }),
+      ),
+    );
+
     return AnimatedPositioned(
       key: ValueKey("$visualIndex $realIndex"),
       duration: animDuration,
@@ -170,108 +295,69 @@ class _CardsViewState extends State<CardsView> {
         duration: animDuration,
         curve: Curves.easeOut,
         scale: scale,
-        // The card is the tap target; the balances and the card's own buttons stay
-        // reachable as children of this node.
-        child: Semantics(
-          button: true,
-          selected: isSelected,
-          label: cardLabel,
-          hint: isSelected
-              ? (widget.dashboardViewModel.balanceViewModel.displayMode ==
-              BalanceDisplayMode.hiddenBalance
-              ? S.of(context).long_press_show_balance
-              : S.of(context).long_press_hide_balance)
-              : null,
-          onTap: onCardTap,
-          onLongPress: isSelected ? onCardLongPress : null,
-          child: GestureDetector(
-            excludeFromSemantics: true,
-            onTap: onCardTap,
-            onLongPress: onCardLongPress,
-            child: Observer(builder: (_) {
-              if (!widget.lightningMode &&
-                  realIndex >= (accountListViewModel?.accounts.length ?? 1)) {
-                return Container();
-              }
-
-              final account = !widget.lightningMode &&
-                  realIndex < (accountListViewModel?.accounts.length ?? 0)
-                  ? accountListViewModel?.accounts[realIndex]
-                  : null;
-
-              // The second balance should always be the lightning balance
-              final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
-                  .getMainBalanceRecord(widget.lightningMode);
-
-              late final String walletBalance;
-              late final String walletFiatBalance;
-              if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-                if (widget.dashboardViewModel.balanceViewModel.displayMode ==
-                    BalanceDisplayMode.hiddenBalance) {
-                  walletBalance = '●●●●●●';
-                  walletFiatBalance = '●●●●●●';
-                } else {
-                  walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-                  walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
-                }
-              } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
-                walletBalance = "";
-                walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
-              } else {
-                walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-                walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
-              }
-
-              // the card designs is empty if widget gets built before it loads.
-              // should get populated before user sees anything
-              final CardDesign cardDesign;
-              if (widget.dashboardViewModel.cardDesigns.isEmpty) {
-                cardDesign = CardDesign.genericDefault;
-              } else if (widget.lightningMode) {
-                cardDesign = widget.dashboardViewModel.cardDesigns.last;
-              } else if (realIndex >= widget.dashboardViewModel.cardDesigns.length) {
-                cardDesign = CardDesign.genericDefault;
-              } else {
-                cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
-              }
-
-              final String accountName;
-              final String accountBalance;
-              if (account == null) {
-                accountName = "";
-                accountBalance = "";
-              } else {
-                accountName = account.label;
-                accountBalance = account.balance ?? "0.00";
-              }
-
-              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
-                  ? ""
-                  : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
-
-              return BalanceCard(
-                width: effectiveCardWidth,
-                accountName: accountName,
-                accountBalance: accountBalance,
-                designSwitchDuration: Duration(milliseconds: 150),
-                assetName: assetName,
-                capitalizeAssetName: _shouldCapitalizeAssetName(),
-                balance: walletBalance,
-                accountIndex: account?.id,
-                fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                    widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
-                fiatBalance: walletFiatBalance,
-                selected: isSelected,
-                onCustomizeTapped: isSelected ? widget.onCustomizeTapped : null,
-                design: cardDesign,
-                actions: widget.actions ?? [],
-              );
-            }),
-          ),
-        ),
+        child: widget.enableReorder && !widget.lightningMode && !compactMode
+            ? _wrapDraggable(visualIndex, realIndex, numCards, isDragged, cardChild)
+            : cardChild,
       ),
     );
+  }
+
+  Widget _wrapDraggable(
+      int visualIndex, int realIndex, int numCards, bool isDragged, Widget cardChild) => DragTarget<int>(
+      onWillAcceptWithDetails: (details) {
+        if (details.data == visualIndex) return false;
+        if (_hoverVisualIndex != visualIndex) {
+          setState(() => _hoverVisualIndex = visualIndex);
+        }
+        return true;
+      },
+      onAcceptWithDetails: (details) {
+        final fromVisual = details.data;
+        final toVisual = _hoverVisualIndex ?? visualIndex;
+        _commitReorder(fromVisual, toVisual, numCards);
+      },
+      builder: (context, candidateData, rejectedData) {
+        return LongPressDraggable<int>(
+          data: visualIndex,
+          onDragStarted: () => setState(() {
+            _dragVisualIndex = visualIndex;
+            _hoverVisualIndex = visualIndex;
+          }),
+          onDraggableCanceled: (_, __) => _clearDrag(),
+          onDragEnd: (_) {
+            if (_dragVisualIndex != null) _clearDrag();
+          },
+          feedback: Material(
+            color: Colors.transparent,
+            child: SizedBox(width: effectiveCardWidth, child: cardChild),
+          ),
+
+          childWhenDragging: const SizedBox.shrink(),
+          child: cardChild,
+        );
+      },
+    );
+
+  void _clearDrag() {
+    if (!mounted) return;
+    setState(() {
+      _dragVisualIndex = null;
+      _hoverVisualIndex = null;
+    });
+  }
+
+  void _commitReorder(int fromVisual, int toVisual, int numCards) {
+    final fromReal = _realIndexForVisualIndex(fromVisual, numCards);
+    final toReal = _realIndexForVisualIndex(toVisual, numCards);
+
+    setState(() {
+      _dragVisualIndex = null;
+      _hoverVisualIndex = null;
+    });
+
+    if (fromReal != toReal) {
+      widget.onReorder?.call(fromReal, toReal);
+    }
   }
 
   String get assetTitleFallback =>
@@ -300,10 +386,10 @@ class _CardsViewState extends State<CardsView> {
 
   double _getBoxHeight(int numCards, double overlapAmount) {
     return
-        /* height of initial card */
-        (2 / 3.2) * (effectiveCardWidth) +
-            /* height of bg card * amount of bg cards */
-            overlapAmount * ((numCards) - 1);
+      /* height of initial card */
+      (2 / 3.2) * (effectiveCardWidth) +
+          /* height of bg card * amount of bg cards */
+          overlapAmount * ((numCards) - 1);
   }
 
   int _visibleCardsCount() {
@@ -344,7 +430,7 @@ class _CardsViewState extends State<CardsView> {
     }
 
     final selectedRealIndex = accounts.indexWhere(
-      (account) => account.id == selectedAccount.id,
+          (account) => account.id == selectedAccount.id,
     );
 
     if (selectedRealIndex < 0) {
