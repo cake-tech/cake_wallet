@@ -175,7 +175,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       (double.parse(fiatAmount) / quote.rate).toStringAsFixed(cryptoCurrency.decimals),
       cryptoCurrency);
 
-  @computed
   Money? fiatAmountForQuote(Quote quote) {
     if(fiatConversionStore.prices[cryptoCurrency] == null) {
       return null;
