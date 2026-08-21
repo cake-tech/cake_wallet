@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "इसे बंद करने से, कुछ मामलों में शुल्क दरें गलत हो सकती हैं, इसलिए आप अपने लेनदेन के लिए शुल्क ज़्यादा या कम चुका सकते हैं",
   "disable_fiat": "फिएट अक्षम करें",
   "disable_sell": "सेल कार्रवाई अक्षम करें",
+  "disable_token_image_refresh": "टोकन छवि ताज़ा करना अक्षम करें",
   "disable_tor": "Tor अक्षम करें",
   "disable_trade_option": "ट्रेड विकल्प अक्षम करें",
   "disableBatteryOptimization": "बैटरी ऑप्टिमाइज़ेशन अक्षम करें",

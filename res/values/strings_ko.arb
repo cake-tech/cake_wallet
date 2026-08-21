@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "이 기능을 끄면 경우에 따라 수수료율이 정확하지 않을 수 있어, 거래 수수료를 과다 또는 과소 지불하게 될 수 있습니다.",
   "disable_fiat": "법정화폐 비활성화",
   "disable_sell": "판매 기능 비활성화",
+  "disable_token_image_refresh": "토큰 이미지 새로 고침 비활성화",
   "disable_tor": "Tor 비활성화",
   "disable_trade_option": "거래 옵션 비활성화",
   "disableBatteryOptimization": "배터리 최적화 끄기",

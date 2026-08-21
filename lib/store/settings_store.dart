@@ -72,6 +72,7 @@ abstract class SettingsStoreBase with Store {
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
+      required bool initialDisableTokenImageRefresh,
       required this.useBlinkProtection,
       required bool initialWalletListAscending,
       required bool initialContactListAscending,
@@ -191,6 +192,7 @@ abstract class SettingsStoreBase with Store {
         disableTradeOption = initialDisableTrade,
         disableAutomaticExchangeStatusUpdates = initialDisableAutomaticExchangeStatusUpdates,
         disableBulletin = initialDisableBulletin,
+        disableTokenImageRefresh = initialDisableTokenImageRefresh,
         walletListOrder = initialWalletListOrder,
         contactListOrder = initialContactListOrder,
         walletListAscending = initialWalletListAscending,
@@ -383,6 +385,11 @@ abstract class SettingsStoreBase with Store {
         (_) => disableBulletin,
         (bool disableBulletin) =>
             sharedPreferences.setBool(PreferencesKey.disableBulletinKey, disableBulletin));
+
+    reaction(
+        (_) => disableTokenImageRefresh,
+        (bool disableTokenImageRefresh) => sharedPreferences.setBool(
+            PreferencesKey.disableTokenImageRefreshKey, disableTokenImageRefresh));
 
     reaction(
         (_) => walletListOrder,
@@ -866,6 +873,9 @@ abstract class SettingsStoreBase with Store {
   bool disableBulletin;
 
   @observable
+  bool disableTokenImageRefresh;
+
+  @observable
   FilterListOrderType walletListOrder;
 
   @observable
@@ -1270,6 +1280,8 @@ abstract class SettingsStoreBase with Store {
     final disableAutomaticExchangeStatusUpdates =
         sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
+    final disableTokenImageRefresh =
+        sharedPreferences.getBool(PreferencesKey.disableTokenImageRefreshKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final contactListOrder =
@@ -1676,6 +1688,7 @@ abstract class SettingsStoreBase with Store {
       initialDisableTrade: disableTradeOption,
       initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
       initialDisableBulletin: disableBulletin,
+      initialDisableTokenImageRefresh: disableTokenImageRefresh,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
       initialContactListOrder: contactListOrder,
@@ -1883,6 +1896,8 @@ abstract class SettingsStoreBase with Store {
             disableAutomaticExchangeStatusUpdates;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
+    disableTokenImageRefresh = sharedPreferences.getBool(PreferencesKey.disableTokenImageRefreshKey) ??
+        disableTokenImageRefresh;
     walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     contactListOrder =

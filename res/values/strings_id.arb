@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Dengan mematikan ini, tarif biaya mungkin tidak akurat dalam beberapa kasus, sehingga Anda mungkin akan membayar biaya transaksi terlalu mahal atau terlalu murah",
   "disable_fiat": "Nonaktifkan fiat",
   "disable_sell": "Nonaktifkan tindakan jual",
+  "disable_token_image_refresh": "Nonaktifkan Penyegaran Gambar Token",
   "disable_tor": "Nonaktifkan Tor",
   "disable_trade_option": "Nonaktifkan opsi perdagangan",
   "disableBatteryOptimization": "Nonaktifkan Optimasi Baterai",

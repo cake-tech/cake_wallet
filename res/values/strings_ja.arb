@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "これをオフにすると、場合によっては手数料レートが不正確になる可能性があり、取引の手数料を払い過ぎたり、払い足りなかったりすることがあります",
   "disable_fiat": "法定通貨を無効にする",
   "disable_sell": "売却操作を無効にする",
+  "disable_token_image_refresh": "トークンイメージの更新を無効にする",
   "disable_tor": "Torを無効にする",
   "disable_trade_option": "取引オプションを無効化",
   "disableBatteryOptimization": "バッテリー最適化を無効にする",

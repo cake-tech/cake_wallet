@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Isključivanjem ovoga, stope naknada u nekim bi slučajevima mogle biti netočne, pa biste mogli preplatiti ili premalo platiti naknade za svoje transakcije",
   "disable_fiat": "Onemogući fiat",
   "disable_sell": "Onemogući prodaju",
+  "disable_token_image_refresh": "Onemogući osvježavanje slike tokena",
   "disable_tor": "Onemogući Tor",
   "disable_trade_option": "Onemogući opciju trgovanja",
   "disableBatteryOptimization": "Onemogući optimizaciju baterije",

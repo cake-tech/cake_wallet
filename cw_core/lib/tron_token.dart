@@ -10,6 +10,7 @@ class TronToken extends CryptoCurrency {
     required this.decimal,
     bool enabled = true,
     this.iconPath,
+    this.networkIconUrl,
     this.tag = "TRX",
     this.isPotentialScam = false,
     this.id = 0,
@@ -32,6 +33,7 @@ class TronToken extends CryptoCurrency {
           decimal: (map["decimal"] ?? 0) as int,
           enabled: _getBoolFromDB(map["enabled"], defaultValue: true),
           iconPath: map["iconPath"] as String?,
+          networkIconUrl: map["networkIconUrl"] as String?,
           tag: map["tag"] as String?,
           isPotentialScam: _getBoolFromDB(map["isPotentialScam"]),
           id: (map[selfIdColumn] ?? 0) as int,
@@ -51,6 +53,7 @@ class TronToken extends CryptoCurrency {
         _enabled = enabled ?? other.enabled,
         tag = tag ?? other.tag,
         iconPath = icon ?? other.iconPath,
+        networkIconUrl = other.networkIconUrl,
         isPotentialScam = other.isPotentialScam,
         id = 0,
         walletName = walletName ?? other.walletName,
@@ -71,6 +74,9 @@ class TronToken extends CryptoCurrency {
 
   @override
   final String? iconPath;
+
+  @override
+  String? networkIconUrl;
 
   @override
   final String? tag;
@@ -109,6 +115,7 @@ class TronToken extends CryptoCurrency {
         "decimal": decimal,
         "enabled": _enabled ? 1 : 0,
         "iconPath": iconPath,
+        "networkIconUrl": networkIconUrl,
         "tag": tag,
         "isPotentialScam": isPotentialScam ? 1 : 0,
       };

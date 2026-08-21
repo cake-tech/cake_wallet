@@ -544,6 +544,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 : widget.sendViewModel.selectedCryptoCurrency
                                                         .iconPath ??
                                                     "",
+                                            currencyNetworkImageUrl: output.isFiatEntry
+                                                ? null
+                                                : widget
+                                                    .sendViewModel.selectedCryptoCurrency.networkIconUrl,
                                             hasPicker: output.isFiatEntry ||
                                                 widget.sendViewModel.hasMultipleTokens,
                                             onPickerClicked: () => _presentCurrencyPicker(context),

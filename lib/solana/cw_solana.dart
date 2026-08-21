@@ -100,6 +100,7 @@ class CWSolana extends Solana {
       mint: token.name.toUpperCase(),
       enabled: token.enabled,
       iconPath: token.iconPath,
+      networkIconUrl: token.networkIconUrl,
       isPotentialScam: token.isPotentialScam,
     );
 

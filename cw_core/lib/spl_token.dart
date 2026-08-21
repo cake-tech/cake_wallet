@@ -3,7 +3,6 @@ import "package:cw_core/db/sqlite.dart";
 import "package:sqflite/sqflite.dart";
 
 class SPLToken extends CryptoCurrency {
-
   SPLToken({
     required this.name,
     required this.symbol,
@@ -11,6 +10,7 @@ class SPLToken extends CryptoCurrency {
     required this.decimal,
     required this.mint,
     this.iconPath,
+    this.networkIconUrl,
     this.tag = "SOL",
     bool enabled = true,
     this.isPotentialScam = false,
@@ -54,6 +54,7 @@ class SPLToken extends CryptoCurrency {
         mint = other.mint,
         tag = tag ?? other.tag,
         iconPath = icon ?? other.iconPath,
+        networkIconUrl = other.networkIconUrl,
         isPotentialScam = other.isPotentialScam,
         id = 0,
         walletName = walletName ?? other.walletName,
@@ -77,6 +78,7 @@ class SPLToken extends CryptoCurrency {
           mint: map["mint"] as String? ?? "",
           enabled: _getBoolFromDB(map["enabled"], defaultValue: true),
           iconPath: map["iconPath"] as String?,
+          networkIconUrl: map["networkIconUrl"] as String?,
           tag: map["tag"] as String?,
           isPotentialScam: _getBoolFromDB(map["isPotentialScam"]),
           id: (map[selfIdColumn] ?? 0) as int,
@@ -98,6 +100,9 @@ class SPLToken extends CryptoCurrency {
 
   @override
   final String? iconPath;
+
+  @override
+  String? networkIconUrl;
 
   @override
   final String? tag;
@@ -134,6 +139,7 @@ class SPLToken extends CryptoCurrency {
       "mint": mint,
       "enabled": _enabled ? 1 : 0,
       "iconPath": iconPath,
+      "networkIconUrl": networkIconUrl,
       "tag": tag,
       "isPotentialScam": isPotentialScam ? 1 : 0,
     };

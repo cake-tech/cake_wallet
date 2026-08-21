@@ -81,6 +81,7 @@ class AssetDetailsModal extends StatelessWidget {
                           if (iconPath.isNotEmpty)
                             TokenImageWidget(
                               imageUrl: iconPath,
+                              networkImageUrl: asset?.networkIconUrl,
                               size: 75,
                             )
                           else

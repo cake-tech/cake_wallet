@@ -344,6 +344,7 @@
   "disable_fee_api_warning": "Ao desativar isso, as taxas de rede podem ficar imprecisas em alguns casos, então você pode acabar pagando taxas demais ou de menos nas suas transações",
   "disable_fiat": "Desativar fiat",
   "disable_sell": "Desativar ação de venda",
+  "disable_token_image_refresh": "Desativar atualização de imagem de token",
   "disable_tor": "Desativar Tor",
   "disable_trade_option": "Desativar opção de negociação",
   "disableBatteryOptimization": "Desativar otimização de bateria",

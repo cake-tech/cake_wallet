@@ -97,6 +97,7 @@ class AssetTile extends StatelessWidget {
                             child: iconPath.isNotEmpty
                                 ? TokenImageWidget(
                                     imageUrl: iconPath,
+                                    networkImageUrl: balance.asset.networkIconUrl,
                                     size: 36,
                                   )
                                 : Container(

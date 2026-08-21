@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Ao desativar isso, as taxas de comissão podem ser imprecisas em alguns casos, então você pode acabar pagando taxas demais ou de menos nas suas transações",
   "disable_fiat": "Desativar moeda fiduciária",
   "disable_sell": "Desativar ação de venda",
+  "disable_token_image_refresh": "Desativar atualização de imagem de token",
   "disable_tor": "Desativar Tor",
   "disable_trade_option": "Desativar a opção de troca",
   "disableBatteryOptimization": "Desativar a otimização da bateria",

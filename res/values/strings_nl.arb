@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Door dit uit te schakelen kunnen de tarieven in sommige gevallen onnauwkeurig zijn, waardoor je mogelijk te veel of te weinig betaalt voor je transacties",
   "disable_fiat": "Schakel Fiat uit",
   "disable_sell": "Verkoopactie uitschakelen",
+  "disable_token_image_refresh": "Schakel tokenafbeelding vernieuwen uit",
   "disable_tor": "Schakel Tor uit",
   "disable_trade_option": "Schakel trade-optie uit",
   "disableBatteryOptimization": "Schakel de batterijoptimalisatie uit",

@@ -653,6 +653,7 @@ class _RecentPill extends StatelessWidget {
           children: [
             TokenImageWidget(
               imageUrl: currency.iconPath ?? '',
+              networkImageUrl: currency.networkIconUrl,
               size: 24,
             ),
             const SizedBox(width: 8),

@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Disattivando questa opzione, le tariffe delle commissioni potrebbero essere imprecise in alcuni casi, quindi potresti finire per pagare commissioni troppo alte o troppo basse per le tue transazioni",
   "disable_fiat": "Disabilita valuta fiat",
   "disable_sell": "Disabilita l'azione di vendita",
+  "disable_token_image_refresh": "Disabilita aggiornamento immagine token",
   "disable_tor": "Disattiva Tor",
   "disable_trade_option": "Disabilita l'opzione di trading",
   "disableBatteryOptimization": "Disattiva l'ottimizzazione della batteria",

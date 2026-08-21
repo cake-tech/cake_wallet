@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Khi tắt tính năng này, mức phí có thể không chính xác trong một số trường hợp, khiến bạn có thể trả phí quá cao hoặc quá thấp cho các giao dịch của mình.",
   "disable_fiat": "Tắt tiền pháp định",
   "disable_sell": "Tắt thao tác bán",
+  "disable_token_image_refresh": "Tắt tính năng làm mới hình ảnh mã thông báo",
   "disable_tor": "Tắt Tor",
   "disable_trade_option": "Tắt tùy chọn giao dịch",
   "disableBatteryOptimization": "Tắt tối ưu hóa pin",

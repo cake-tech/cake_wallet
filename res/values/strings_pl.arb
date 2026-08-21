@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Wyłączając tę opcję, stawki opłat mogą być w niektórych przypadkach niedokładne, więc możesz przepłacić lub niedopłacić opłaty za swoje transakcje.",
   "disable_fiat": "Wyłącz waluty fiducjarne",
   "disable_sell": "Wyłącz akcję sprzedaży",
+  "disable_token_image_refresh": "Wyłącz odświeżanie obrazu tokenu",
   "disable_tor": "Wyłącz Tor",
   "disable_trade_option": "Wyłącz opcję handlu",
   "disableBatteryOptimization": "Wyłącz optymalizację baterii",

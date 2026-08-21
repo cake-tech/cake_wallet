@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "عند إيقاف تشغيل هذا، قد تكون معدلات الرسوم غير دقيقة في بعض الحالات، وقد ينتهي بك الأمر إلى دفع رسوم أعلى أو أقل من اللازم لمعاملاتك.",
   "disable_fiat": "تعطيل العملات الورقية",
   "disable_sell": "تعطيل إجراء البيع",
+  "disable_token_image_refresh": "تعطيل تحديث صورة الرمز المميز",
   "disable_tor": "تعطيل Tor",
   "disable_trade_option": "تعطيل خيار التداول",
   "disableBatteryOptimization": "تعطيل تحسين البطارية",

@@ -359,6 +359,7 @@
   "disable_fee_api_warning": "Bunu kapatırsanız, ücret oranları bazı durumlarda doğru olmayabilir; bu nedenle işlemlerinizin ücretlerini fazla ya da eksik ödeyebilirsiniz.",
   "disable_fiat": "Fiat'ı devre dışı bırak",
   "disable_sell": "Satış eylemini devre dışı bırak",
+  "disable_token_image_refresh": "Jeton Görüntüsü Yenilemeyi Devre Dışı Bırak",
   "disable_tor": "Tor'u devre dışı bırak",
   "disable_trade_option": "Ticaret seçeneğini devre dışı bırak",
   "disableBatteryOptimization": "Pil optimizasyonunu devre dışı bırakın",
