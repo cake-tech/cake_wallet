@@ -7,6 +7,7 @@ import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/flashnet/flashnet_api_schema.dart";
 import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
@@ -24,6 +25,7 @@ class FlashnetExchangeProvider extends ExchangeProvider
   static const estimatePath = "/v1/orchestration/estimate";
   static const quotePath = "/v1/orchestration/quote";
   static const submitPath = "/v1/orchestration/submit";
+  static const statusPath = "/v1/orchestration/status";
   static const apiKey = secrets.flashnetClientKey;
   static const slippageBps = 50;
   static const affiliateId = "cake_wallet";
@@ -186,6 +188,8 @@ class FlashnetExchangeProvider extends ExchangeProvider
       refundAddress: request.refundAddress,
       extraId: respData.depositMemo,
       toAddressExtraId: request.toAddressExtraId,
+      // only returned to client keys (fnp_), and status reads are refused without it. it is
+      // bound to this quote, so it has nowhere to live but on the trade
       password: respData.readToken,
     );
   }
@@ -220,11 +224,44 @@ class FlashnetExchangeProvider extends ExchangeProvider
   }
 
 
-
   @override
-  Future<Trade> findTradeById({required String id}) {
-    // TODO: implement findTradeById
-    throw UnimplementedError();
+  Future<Trade> updateTrade(Trade trade) async {
+    final req = FlashnetStatusRequest(id: trade.id, readToken: trade.password);
+
+    final resp = await proxyWrapper.get(headers: headers,
+        clearnetUri: Uri.https(baseUrl, statusPath, req.toJson()));
+
+    if (resp.statusCode == 404) {
+      throw TradeNotFoundException(trade.id, provider: description);
+    }
+
+    if (resp.statusCode == 403) {
+      throw TradeNotFoundException(trade.id, provider: description,
+          description: "flashnet read token is invalid or expired");
+    }
+
+    if (resp.statusCode < 200 || resp.statusCode > 299) {
+      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
+    }
+
+    final respData =
+    FlashnetStatusResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+    final order = respData.order;
+
+    return trade.copyWith(
+      state: order.status,
+      isRefund: order.refundTxHash != null,
+      txId: order.sourceTxHash,
+      outputTransaction: order.destinationTxHash,
+      fundingAddress: order.depositAddress,
+      payoutAddress: order.destinationAddress,
+      depositAmount: order.amountIn == null
+          ? null
+          : Money.parse(order.amountIn, trade.depositCurrency, isBaseUnit: true),
+      payoutAmount: order.amountIn == null
+          ? null
+          : Money.parse(order.amountOut, trade.payoutCurrency, isBaseUnit: true),
+    );
   }
 
 
@@ -276,28 +313,5 @@ class FlashnetExchangeProvider extends ExchangeProvider
     "TRX" => FlashnetChain.tron,
     _ => throw Exception("unsupported chain"),
   };
-
-  String? _normalizeChainToTag(FlashnetChain chain) => switch (chain) {
-    FlashnetChain.ethereum => "ETH",
-    FlashnetChain.bsc => "BSC",
-    FlashnetChain.polygon => "POL",
-    FlashnetChain.arbitrum => "ARB",
-    FlashnetChain.base => "BASE",
-    FlashnetChain.avalanche => "AVAXC",
-    FlashnetChain.solana => "SOL",
-    FlashnetChain.tron => "TRX",
-    FlashnetChain.lightning => "LN",
-    _ => null,
-  };
-
-  CryptoCurrency _normalizeToCurrency(FlashnetChain? chain, String asset) {
-
-
-    final title = asset.toUpperCase();
-    final tag = chain == null ? null : _normalizeChainToTag(chain);
-
-    return CryptoCurrency.safeParseCurrencyFromString(title, tag: tag == title ? null : tag)!;
-  }
-
 
 }
