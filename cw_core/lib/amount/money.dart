@@ -243,7 +243,7 @@ class Money implements Comparable<Money> {
   static int _getActualDecimals(String value, Currency currency) {
     final comps = value.split(".");
     if (comps.length > 2) {
-      return currency.decimals;
+      throw FormatException("Money._getActualDecimals: too many decimal points, value, $value");
     }
 
     return max(comps.length == 2 ? comps[1].length : 0, currency.decimals);
