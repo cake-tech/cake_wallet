@@ -143,8 +143,10 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
       secondaryLabel: quote.rampName != null ? quote.provider.title : null,
       subtitle: quote.badges.isEmpty ? null : quote.badges.join(" - "),
       subtitleColor: Theme.of(context).colorScheme.primary,
-      iconPath: quote.darkIconPath,
-      onTap: () {
+        iconPath: Theme.of(context).brightness == Brightness.light
+            ? quote.lightIconPath
+            : quote.darkIconPath,
+        onTap: () {
         widget.buySellViewModel.changeOption(quote);
         navigateToConfirmation(context);
       },

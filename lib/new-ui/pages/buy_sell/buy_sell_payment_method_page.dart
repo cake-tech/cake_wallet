@@ -44,7 +44,9 @@ class BuySellPaymentMethodPage extends StatelessWidget {
                         keyValue: item.title,
                         label: item.title,
                         showArrow: false,
-                        iconPath: item.darkIconPath,
+                    iconPath: Theme.of(context).brightness == Brightness.light
+                            ? item.lightIconPath
+                            : item.darkIconPath,
                         iconColor: item.paymentMethodType.isMonochromeIcon
                             ? Theme.of(context).colorScheme.onSurfaceVariant
                             : null,

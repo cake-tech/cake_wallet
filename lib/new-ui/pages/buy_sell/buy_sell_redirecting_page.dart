@@ -84,7 +84,9 @@ class _BuySellRedirectingPageState extends State<BuySellRedirectingPage> {
                         spacing: 24,
                         children: [
                           CakeImageWidget(
-                            imageUrl: widget.buySellViewModel.selectedQuote!.darkIconPath,
+                            imageUrl: Theme.of(context).brightness == Brightness.light
+                                ? widget.buySellViewModel.selectedQuote!.lightIconPath
+                                : widget.buySellViewModel.selectedQuote!.darkIconPath,
                             width: 64,
                             height: 64,
                           ),

@@ -70,7 +70,9 @@ class BuySellConfirmationPage extends StatelessWidget {
                                 spacing: 8,
                                 children: [
                                   CakeImageWidget(
-                                    imageUrl: buySellViewModel.selectedQuote!.darkIconPath,
+                                    imageUrl: Theme.of(context).brightness == Brightness.light
+                                        ? buySellViewModel.selectedQuote!.lightIconPath
+                                        : buySellViewModel.selectedQuote!.darkIconPath,
                                     width: 24,
                                     height: 24,
                                   ),
