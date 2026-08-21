@@ -27,9 +27,9 @@ class FlashnetExchangeProvider extends ExchangeProvider
   static const submitPath = "/v1/orchestration/submit";
   static const statusPath = "/v1/orchestration/status";
 
-  /// flashnet prefixes ids by kind, and a trade holds a quote id until /submit trades it for an
-  /// order id
-  static const quoteIdPrefix = "q_";
+  static const _submitPropagationRetries = 3;
+  static const _submitRetryDelay = Duration(seconds: 1);
+
   static const apiKey = secrets.flashnetClientKey;
   static const slippageBps = 50;
   static const affiliateId = "cake_wallet";
@@ -207,24 +207,8 @@ class FlashnetExchangeProvider extends ExchangeProvider
       _ => FlashnetSubmitRequest(quoteId: trade.id, txHash: txHash),
     };
 
-    // HACK: fixes race condition if the tx doesn't propagate in time for this request.
-    await Future.delayed(const Duration(seconds: 2));
+    final respData = await _getSubmitResponse(req, "${trade.id}:$txHash");
 
-    final resp = await proxyWrapper.post(
-      headers: {
-        ...headers,
-        "X-Idempotency-Key": "${trade.id}:$txHash",
-      },
-      clearnetUri: Uri.https(baseUrl, submitPath),
-      body: jsonEncode(req.toJson()),
-    );
-
-    if (resp.statusCode < 200 || resp.statusCode > 299) {
-      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
-    }
-
-    final respData =
-        FlashnetSubmitResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
 
     return trade.copyWith(
       id: respData.orderId,
@@ -234,6 +218,48 @@ class FlashnetExchangeProvider extends ExchangeProvider
     );
   }
 
+  Future<FlashnetSubmitResponse> _getSubmitResponse(FlashnetSubmitRequest req,
+      String idempotencyKey) async {
+    int attempt = 1;
+
+
+    // flashnet requires the tx to have been propagated before /submit.
+    // if it's not propagated the api will return tx_not_found
+    // this means we have to keep trying /submit until it's propagated, usually just a few seconds
+    while (true) {
+      await Future<void>.delayed(_submitRetryDelay * attempt);
+      final resp = await proxyWrapper.post(
+        headers: {
+          ...headers,
+          "X-Idempotency-Key": idempotencyKey,
+        },
+        clearnetUri: Uri.https(baseUrl, submitPath),
+        body: jsonEncode(req.toJson()),
+      );
+
+      if (resp.statusCode == 400) {
+        final error =
+            FlashnetErrorResponse
+                .fromJson(jsonDecode(resp.body) as Map<String, dynamic>)
+                .error;
+
+        if (error.code == "tx_not_found") {
+          attempt++;
+          if (attempt > _submitPropagationRetries) {
+            throw Exception("max submit retries exceeded");
+          }
+          continue;
+        } else {
+          throw Exception(error.code);
+        }
+      }
+
+      if (resp.statusCode < 200 || resp.statusCode > 299) {
+        throw Exception("status code: ${resp.statusCode}\n${resp.body}");
+      }
+      return FlashnetSubmitResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+    }
+  }
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
