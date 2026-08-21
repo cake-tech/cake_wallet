@@ -1,4 +1,4 @@
-
+import "package:cake_wallet/core/amount_validator.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -8,18 +8,24 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:permission_handler/permission_handler.dart";
 
@@ -45,8 +51,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   @override
   void initState() {
     super.initState();
-    // the swap all overlay gets out of the way while the field is focused, so focus changes have
-    // to rebuild us.
     amountFocusNode.addListener(() {
       if (mounted) {
         setState(() {});
@@ -515,5 +519,22 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         widget.bloc.add(const SourceChanged(ExternalSwapSource("")));
       }
     }
+  }
+
+  String? _getCurrencyChainIconPath(CryptoCurrency curr) {
+    try {
+      if (curr.chainIconPath != null) {
+        return curr.chainIconPath!;
+      }
+
+      if (curr.tag != null) {
+        final currencyFromTag = CryptoCurrency.fromString(curr.tag!);
+
+        if (currencyFromTag.chainIconPath != null) {
+          return currencyFromTag.chainIconPath!;
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 }

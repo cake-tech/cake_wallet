@@ -210,10 +210,6 @@ class Money implements Comparable<Money> {
   @override
   int get hashCode => amount.hashCode ^ currency.hashCode;
 
-  // Added this to reduce the hops we do to convert Money to double
-  // for fiat conversion and display
-  double toDouble() => amount / multiplierOf(currency.decimals);
-
   @override
   String toString() => formatFixed(amount, currency.decimals);
 

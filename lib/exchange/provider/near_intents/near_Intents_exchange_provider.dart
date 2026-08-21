@@ -346,6 +346,13 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     final symbol = currency.title.toUpperCase();
     final blockchain = _normalizeTagToNearBlockchain(currency.tag ?? currency.title);
 
+    // Use the native Bitcoin asset routed through Omni Bridge.
+    if (currency == CryptoCurrency.btc) {
+      return supported.firstWhereOrNull(
+            (t) => t.assetId == "1cs_v1:btc:native:coin",
+      );
+    }
+
     // Native asset (no contract)
     final native = supported.firstWhereOrNull(
       (t) =>
