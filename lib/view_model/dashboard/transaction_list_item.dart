@@ -43,8 +43,39 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.solana ||
       balanceViewModel.wallet.type == WalletType.tron;
 
+  // Mirrors TransactionDetailsViewModelBase.isAmountPending.
+  bool get isAmountPending {
+    // A partially-owned send's amount only grows as more inputs resolve, so
+    // it's not final yet - only relevant for outgoing txs.
+    if (transaction.direction != TransactionDirection.outgoing) {
+      return false;
+    }
+
+    final inputsOwnershipFullyResolved =
+        transaction.additionalInfo['inputsOwnershipFullyResolved'] as bool?;
+    // Checked first: every input being resolved guarantees the amount is
+    // exact, safe since this tx will never be re-fetched again to change it.
+    if (inputsOwnershipFullyResolved == true) {
+      return false;
+    }
+
+    final isWalletDisplayAmountExact =
+        transaction.additionalInfo['isWalletDisplayAmountExact'] as bool?;
+    // A fully self-owned send is exact once inputs are *locally* confirmed
+    // ours, before inputsOwnershipFullyResolved (which waits on the fee too).
+    if (isWalletDisplayAmountExact != null) {
+      return !isWalletDisplayAmountExact;
+    }
+    // For history persisted before isWalletDisplayAmountExact existed,
+    // keeps it from looking pending again after an upgrade.
+    return inputsOwnershipFullyResolved == false;
+  }
+
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
+    if (isAmountPending) {
+      return '...';
+    }
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       return _appStore.amountParsingProxy
           .asDisplayStringWithSymbol(transaction.amount)
@@ -55,11 +86,6 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
-    if (balanceViewModel.wallet.type == WalletType.bitcoin &&
-        transaction.additionalInfo['hasMissingInputTx'] == true) {
-      return 'Transaction has missing data';
-    }
-
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
     }
@@ -190,6 +216,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedFiatAmount {
+    if (isAmountPending) {
+      return '...';
+    }
+
     var amount = '';
 
     switch (balanceViewModel.wallet.type) {

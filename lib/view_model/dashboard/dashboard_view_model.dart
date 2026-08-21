@@ -138,7 +138,13 @@ abstract class DashboardViewModelBase with Store {
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+      sortedTransactions.sort((a, b) {
+        final dateCompare = a.date.compareTo(b.date);
+        if (dateCompare != 0) {
+          return dateCompare;
+        }
+        return a.id.compareTo(b.id);
+      });
 
       transactions = ObservableList.of(
         sortedTransactions.map(
@@ -168,7 +174,13 @@ abstract class DashboardViewModelBase with Store {
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+      sortedTransactions.sort((a, b) {
+        final dateCompare = a.date.compareTo(b.date);
+        if (dateCompare != 0) {
+          return dateCompare;
+        }
+        return a.id.compareTo(b.id);
+      });
 
       transactions = ObservableList.of(
         sortedTransactions.map(
@@ -182,7 +194,13 @@ abstract class DashboardViewModelBase with Store {
       );
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+      sortedTransactions.sort((a, b) {
+        final dateCompare = a.date.compareTo(b.date);
+        if (dateCompare != 0) {
+          return dateCompare;
+        }
+        return a.id.compareTo(b.id);
+      });
 
       transactions = ObservableList.of(
         sortedTransactions.map(
@@ -214,27 +232,8 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer =
+        reaction((_) => _transactionsWatchValue(), _transactionDisposerCallback, delay: 300);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -381,7 +380,7 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? zcashMigrationReactionDisposer;
 
   @action
-  void addZcashMigrationReaction()  {
+  void addZcashMigrationReaction() {
     zcashMigrationReactionDisposer?.reaction.dispose();
     zcashMigrationReactionDisposer = null;
 
@@ -499,6 +498,30 @@ abstract class DashboardViewModelBase with Store {
     cardOrder = newOrder.asObservable();
   }
 
+  int _transactionsWatchValue() {
+    final txs = appStore.wallet!.transactionHistory.transactions.values;
+    final length = txs.length;
+    if (length == 0) {
+      return 0;
+    }
+
+    if ([WalletType.solana, WalletType.tron].contains(wallet.type)) {
+      final pendingCount = txs.where((item) => item.isPending).length;
+      return length * (pendingCount + 1);
+    }
+
+    int fingerprint = length;
+    for (final tx in txs) {
+      fingerprint = fingerprint ^
+          tx.confirmations.hashCode ^
+          tx.isPending.hashCode ^
+          tx.fee.hashCode ^
+          tx.amount.amount.hashCode ^
+          tx.direction.hashCode;
+    }
+    return fingerprint;
+  }
+
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
     if (_isTransactionDisposerCallbackRunning) return;
@@ -531,20 +554,38 @@ abstract class DashboardViewModelBase with Store {
       String _txIdentityString(String txHash, TransactionDirection direction) =>
           "${txHash}_$direction";
       String _txIdentityStringConfirmations(
-              String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
-          "${txHash}_${direction}_${confirmations}_$isPending";
+        String txHash,
+        TransactionDirection direction,
+        int confirmations,
+        bool isPending,
+        Object? fee,
+      ) =>
+          "${txHash}_${direction}_${confirmations}_${isPending}_$fee";
 
       final existingKeys = transactions
-          .map((item) => _txIdentityStringConfirmations(
+          .map(
+            (item) => _txIdentityStringConfirmations(
               item.transaction.txHash,
               item.transaction.direction,
               item.transaction.confirmations,
-              item.transaction.isPending))
+              item.transaction.isPending,
+              item.transaction.fee,
+            ),
+          )
           .toSet();
 
       final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
-              tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
+          .where(
+            (tx) => !existingKeys.contains(
+              _txIdentityStringConfirmations(
+                tx.txHash,
+                tx.direction,
+                tx.confirmations,
+                tx.isPending,
+                tx.fee,
+              ),
+            ),
+          )
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
@@ -1345,27 +1386,8 @@ abstract class DashboardViewModelBase with Store {
       _chainChangeDisposer = null;
     }
 
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer =
+        reaction((_) => _transactionsWatchValue(), _transactionDisposerCallback, delay: 300);
   }
 
   @action
@@ -1587,6 +1609,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> refreshDashboard() async {
-    reconnect();
+    await reconnect();
+    await wallet.startSync();
   }
 }
