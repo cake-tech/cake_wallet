@@ -42,7 +42,8 @@ abstract class WalletKitServiceBase with Store {
   )   : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
         auth = ObservableList<PendingSessionAuthRequest>(),
-        isInitialized = false;
+        isInitialized = false,
+        isLoadingConnections = true;
 
   final AppStore appStore;
   final SharedPreferences sharedPreferences;
@@ -53,6 +54,9 @@ abstract class WalletKitServiceBase with Store {
 
   @observable
   bool isInitialized;
+
+  @observable
+  bool isLoadingConnections;
 
   /// The list of requests from the dapp
   @observable
@@ -144,18 +148,16 @@ abstract class WalletKitServiceBase with Store {
       }
     }
 
-    await _emitEvent();
-
     _refreshPairings();
 
-    sessions.clear();
-    auth.clear();
+    _reloadSessionsForCurrentWallet();
 
-    final newSessions = _walletKit.sessions.getAll();
-    sessions.addAll(newSessions);
+    auth.clear();
 
     final newAuthRequests = _walletKit.sessionAuthRequests.getAll();
     auth.addAll(newAuthRequests);
+
+    isLoadingConnections = false;
 
     if (isEVMCompatibleChain(appStore.wallet!.type)) {
       for (final cId in EVMChainId.values) {
@@ -180,6 +182,14 @@ abstract class WalletKitServiceBase with Store {
         );
       }
     }
+
+    unawaited(() async {
+      try {
+        await _emitEvent();
+      } catch (e) {
+        printV("emitEvent failed: $e");
+      }
+    }());
   }
 
   @action
@@ -232,8 +242,21 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
+  void resetConnectionsState() {
+    sessions.clear();
+    auth.clear();
+    pairings.clear();
+
+    isInitialized = false;
+    isLoadingConnections = true;
+  }
+
+  @action
   Future<void> onDispose() async {
-    log('walletKit dispose');
+    log("walletKit dispose");
+
+    resetConnectionsState();
+
     _walletKit.core.removeLogListener(_logListener);
 
     _walletKit.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
@@ -255,12 +278,6 @@ abstract class WalletKitServiceBase with Store {
     } catch (e) {
       printV("walletKit relay disconnect: $e");
     }
-
-    sessions.clear();
-    auth.clear();
-    pairings.clear();
-
-    isInitialized = false;
   }
 
   ReownWalletKit get walletKit => _walletKit;
@@ -544,8 +561,7 @@ abstract class WalletKitServiceBase with Store {
     }
 
     await _removePairingTopicFromLocalStorage(topic);
-    sessions.clear();
-    sessions.addAll(_walletKit.sessions.getAll());
+    _reloadSessionsForCurrentWallet();
     _refreshPairings();
   }
 
@@ -569,8 +585,7 @@ abstract class WalletKitServiceBase with Store {
       printV('disconnectSession: $e');
     }
 
-    sessions.clear();
-    sessions.addAll(_walletKit.sessions.getAll());
+    _reloadSessionsForCurrentWallet();
 
     if (pairingTopic != null &&
         !_walletKit.sessions.getAll().any((s) => s.pairingTopic == pairingTopic)) {
@@ -627,6 +642,24 @@ abstract class WalletKitServiceBase with Store {
     ).toList();
 
     pairings.addAll(filteredPairings);
+  }
+
+  @action
+  void _reloadSessionsForCurrentWallet() {
+    sessions.clear();
+
+    final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+    if (chainKeys.isEmpty) {
+      return;
+    }
+
+    final walletPublicKey = chainKeys.first.publicKey;
+
+    sessions.addAll(
+      _walletKit.sessions
+          .getAll()
+          .where((session) => MethodsUtils.isSessionOwnedByWallet(session, walletPublicKey)),
+    );
   }
 
   @action

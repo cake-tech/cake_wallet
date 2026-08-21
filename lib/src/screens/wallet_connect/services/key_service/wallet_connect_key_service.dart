@@ -43,30 +43,36 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   @override
   List<ChainKeyModel> getKeys(WalletBase wallet) {
-    final keys = [
-      ChainKeyModel(
-        chains: [
-          'eip155:1',
-          'eip155:5',
-          'eip155:56',
-          'eip155:137',
-          'eip155:8453',
-          'eip155:42161',
-          'eip155:80001',
-        ],
-        privateKey: _getPrivateKeyForWallet(wallet),
-        publicKey: _getPublicKeyForWallet(wallet),
-      ),
-      ChainKeyModel(
-        chains: [
-          'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
-          'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
-        ],
-        privateKey: _getPrivateKeyForWallet(wallet),
-        publicKey: _getPublicKeyForWallet(wallet),
-      ),
-    ];
-    return keys;
+    if (isEVMCompatibleChain(wallet.type)) {
+      return [
+        ChainKeyModel(
+          chains: [
+            'eip155:1',
+            'eip155:56',
+            'eip155:137',
+            'eip155:8453',
+            'eip155:42161',
+          ],
+          privateKey: _getPrivateKeyForWallet(wallet),
+          publicKey: _getPublicKeyForWallet(wallet),
+        ),
+      ];
+    }
+
+    if (wallet.type == WalletType.solana) {
+      return [
+        ChainKeyModel(
+          chains: [
+            'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
+            'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
+          ],
+          privateKey: _getPrivateKeyForWallet(wallet),
+          publicKey: _getPublicKeyForWallet(wallet),
+        ),
+      ];
+    }
+
+    return [];
   }
 
   @override

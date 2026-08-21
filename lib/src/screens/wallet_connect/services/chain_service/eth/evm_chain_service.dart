@@ -310,7 +310,10 @@ class EvmChainServiceImpl {
     final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
 
-    if (data == null) return;
+    if (data == null) {
+      _respondMalformedRequest(topic, pRequest.id);
+      return;
+    }
 
     if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
@@ -368,7 +371,10 @@ class EvmChainServiceImpl {
     final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
 
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
-    if (data == null) return;
+    if (data == null) {
+      _respondMalformedRequest(topic, pRequest.id);
+      return;
+    }
 
     if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
@@ -414,6 +420,18 @@ class EvmChainServiceImpl {
     }
 
     _handleResponseForTopic(topic, response);
+  }
+
+  void _respondMalformedRequest(String topic, int requestId) {
+    final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+    _handleResponseForTopic(
+      topic,
+      JsonRpcResponse(
+        id: requestId,
+        jsonrpc: "2.0",
+        error: JsonRpcError(code: error.code, message: error.message),
+      ),
+    );
   }
 
   bool _isRequestAuthorized(String topic, {String? requestAddress}) {
