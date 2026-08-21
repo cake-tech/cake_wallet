@@ -26,6 +26,10 @@ class FlashnetExchangeProvider extends ExchangeProvider
   static const quotePath = "/v1/orchestration/quote";
   static const submitPath = "/v1/orchestration/submit";
   static const statusPath = "/v1/orchestration/status";
+
+  /// flashnet prefixes ids by kind, and a trade holds a quote id until /submit trades it for an
+  /// order id
+  static const quoteIdPrefix = "q_";
   static const apiKey = secrets.flashnetClientKey;
   static const slippageBps = 50;
   static const affiliateId = "cake_wallet";
@@ -258,7 +262,7 @@ class FlashnetExchangeProvider extends ExchangeProvider
       depositAmount: order.amountIn == null
           ? null
           : Money.parse(order.amountIn, trade.depositCurrency, isBaseUnit: true),
-      payoutAmount: order.amountIn == null
+      payoutAmount: order.amountOut == null
           ? null
           : Money.parse(order.amountOut, trade.payoutCurrency, isBaseUnit: true),
     );
