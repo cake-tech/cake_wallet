@@ -1419,6 +1419,7 @@
   "wc_permission_sign_messages": "Potpisivati ​​poruke i upisane podatke",
   "wc_permission_switch_chains": "Prebacite i dodajte EVM lance",
   "wc_permission_view_balance": "Pogledajte svoj novčanik i aktivnost",
+  "wc_request_for_different_wallet": "Ovaj je zahtjev upućen za drugi novčanik. Otvorite novčanik povezan s ovom aplikacijom i pokušajte ponovno.",
   "wc_scam_warning_message": "Čini se da ovaj zahtjev potječe iz poznate prijevare. Molimo nastavite s oprezom.",
   "wc_scam_warning_title": "UPOZORENJE!",
   "wc_scan_qr": "Skeniraj QR",

@@ -1421,6 +1421,7 @@
   "wc_permission_sign_messages": "Sa hannu kan saƙonni da rubutattun bayanai",
   "wc_permission_switch_chains": "Canja kuma ƙara sarƙoƙin EVM",
   "wc_permission_view_balance": "Duba ma'auni na walat ɗin ku da aiki",
+  "wc_request_for_different_wallet": "An yi wannan buƙatar don wani walat ɗin daban. Bude walat ɗin da aka haɗa zuwa wannan app ɗin kuma a sake gwadawa.",
   "wc_scam_warning_message": "Wannan buƙatar ta bayyana daga wata zamba da aka sani. Da fatan za a ci gaba da taka tsantsan.",
   "wc_scam_warning_title": "GARGADI!",
   "wc_scan_qr": "Duba QR",

@@ -1419,6 +1419,7 @@
   "wc_permission_sign_messages": "پیام ها و داده های تایپ شده را امضا کنید",
   "wc_permission_switch_chains": "زنجیره های EVM را تغییر دهید و اضافه کنید",
   "wc_permission_view_balance": "موجودی و فعالیت کیف پول خود را مشاهده کنید",
+  "wc_request_for_different_wallet": "این درخواست برای یک کیف پول متفاوت انجام شده است. کیف پول متصل به این برنامه را باز کنید و دوباره امتحان کنید.",
   "wc_scam_warning_message": "به نظر می رسد این درخواست از یک کلاهبرداری شناخته شده باشد. لطفا با احتیاط ادامه دهید",
   "wc_scam_warning_title": "هشدار!",
   "wc_scan_qr": "اسکن QR",

@@ -11,8 +11,26 @@ import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class MethodsUtils {
-  static final walletKit = getIt.get<WalletKitService>().walletKit;
+  static ReownWalletKit get walletKit => getIt.get<WalletKitService>().walletKit;
   static final bottomSheetService = getIt.get<BottomSheetService>();
+
+  static bool isSessionOwnedByWallet(SessionData? session, String walletPublicKey) {
+    if (session == null || walletPublicKey.isEmpty) {
+      return false;
+    }
+
+    final accounts = session.namespaces.values.expand((namespace) => namespace.accounts);
+
+    return accounts.any((account) => isSameAccount(account.split(":").last, walletPublicKey));
+  }
+
+  static bool isSameAccount(String a, String b) {
+    if (a.startsWith("0x") && b.startsWith("0x")) {
+      return a.toLowerCase() == b.toLowerCase();
+    }
+
+    return a == b;
+  }
 
   static const _transactionMethods = {
     'eth_sendTransaction',

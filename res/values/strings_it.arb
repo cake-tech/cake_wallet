@@ -1421,6 +1421,7 @@
   "wc_permission_sign_messages": "Firmare messaggi e dati digitati",
   "wc_permission_switch_chains": "Cambia e aggiungi catene EVM",
   "wc_permission_view_balance": "Visualizza il saldo e l'attività del tuo portafoglio",
+  "wc_request_for_different_wallet": "Questa richiesta è stata effettuata per un portafoglio diverso. Apri il portafoglio connesso a questa app e riprova.",
   "wc_scam_warning_message": "Questa richiesta sembra provenire da una truffa nota. Si prega di procedere con cautela.",
   "wc_scam_warning_title": "AVVERTIMENTO!",
   "wc_scan_qr": "Scansione QR",

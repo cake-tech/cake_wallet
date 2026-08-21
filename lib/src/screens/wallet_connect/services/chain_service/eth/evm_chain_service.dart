@@ -1,3 +1,4 @@
+import "dart:async";
 import 'dart:convert';
 
 import 'package:cake_wallet/di.dart';
@@ -5,6 +6,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -18,6 +20,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wall
 import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
+import "package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/evm/evm.dart';
@@ -95,6 +98,12 @@ class EvmChainServiceImpl {
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest);
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -143,6 +152,12 @@ class EvmChainServiceImpl {
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest);
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -191,6 +206,12 @@ class EvmChainServiceImpl {
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -238,6 +259,12 @@ class EvmChainServiceImpl {
 
     final pRequest = walletKit.pendingRequests.getAll().last;
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -284,6 +311,11 @@ class EvmChainServiceImpl {
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
 
     if (data == null) return;
+
+    if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
 
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -338,6 +370,11 @@ class EvmChainServiceImpl {
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
     if (data == null) return;
 
+    if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     final transaction = await _approveTransaction(
@@ -377,6 +414,57 @@ class EvmChainServiceImpl {
     }
 
     _handleResponseForTopic(topic, response);
+  }
+
+  bool _isRequestAuthorized(String topic, {String? requestAddress}) {
+    final wallet = appStore.wallet;
+    if (wallet == null) {
+      return false;
+    }
+
+    final keys = wcKeyService.getKeysForChain(wallet);
+    if (keys.isEmpty) {
+      return false;
+    }
+
+    final walletAddress = keys.first.publicKey;
+
+    if (!MethodsUtils.isSessionOwnedByWallet(walletKit.sessions.get(topic), walletAddress)) {
+      return false;
+    }
+
+    if (requestAddress != null && !MethodsUtils.isSameAccount(requestAddress, walletAddress)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+    unawaited(
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          message: S.current.wc_request_for_different_wallet,
+        ),
+      ),
+    );
+
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: const JsonRpcError(
+            code: 4100,
+            message: "The requested account has not been authorized by the user.",
+          ),
+        ),
+      );
+    } catch (e) {
+      printV("rejectUnauthorizedRequest: $e");
+    }
   }
 
   void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {

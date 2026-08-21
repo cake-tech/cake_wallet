@@ -60,6 +60,7 @@ abstract class AppStoreBase with Store {
   Future<void> changeCurrentWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
     final changingToSameWalletType = this.wallet?.type == wallet.type;
+    final previousWalletType = this.wallet?.type;
 
     await this.wallet?.close(shouldCleanup: !changingToSameWalletType);
     this.wallet = wallet;
@@ -67,6 +68,8 @@ abstract class AppStoreBase with Store {
 
     if (isWalletConnectCompatibleChain(wallet.type)) {
       unawaited(_setupWalletConnect());
+    } else if (previousWalletType != null && isWalletConnectCompatibleChain(previousWalletType)) {
+      unawaited(_disposeWalletConnect());
     }
     await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
     await getIt
@@ -82,6 +85,14 @@ abstract class AppStoreBase with Store {
       await wcService.init();
     } catch (e, s) {
       printV("WalletConnect setup failed: $e\n$s");
+    }
+  }
+
+  Future<void> _disposeWalletConnect() async {
+    try {
+      await getIt.get<WalletKitService>().onDispose();
+    } catch (e) {
+      printV("WalletConnect teardown failed: $e");
     }
   }
 }

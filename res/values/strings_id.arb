@@ -1422,6 +1422,7 @@
   "wc_permission_sign_messages": "Menandatangani pesan dan mengetik data",
   "wc_permission_switch_chains": "Beralih dan tambahkan rantai EVM",
   "wc_permission_view_balance": "Lihat saldo dan aktivitas dompet Anda",
+  "wc_request_for_different_wallet": "Permintaan ini dibuat untuk dompet yang berbeda. Buka dompet yang terhubung ke aplikasi ini dan coba lagi.",
   "wc_scam_warning_message": "Permintaan ini tampaknya berasal dari penipuan yang diketahui. Silakan lanjutkan dengan hati-hati.",
   "wc_scam_warning_title": "PERINGATAN!",
   "wc_scan_qr": "Pindai QR",

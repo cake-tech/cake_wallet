@@ -195,6 +195,10 @@ abstract class WalletKitServiceBase with Store {
     for (var session in engineSessions) {
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       for (var chain in chainKeys) {
+        if (!MethodsUtils.isSessionOwnedByWallet(session, chain.publicKey)) {
+          continue;
+        }
+
         for (var chainID in chain.chains) {
           try {
             final events = NamespaceUtils.getNamespacesEventsForChain(
@@ -228,7 +232,7 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  FutureOr<void> onDispose() {
+  Future<void> onDispose() async {
     log('walletKit dispose');
     _walletKit.core.removeLogListener(_logListener);
 
@@ -245,6 +249,12 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+
+    try {
+      await _walletKit.core.relayClient.disconnect().timeout(const Duration(seconds: 3));
+    } catch (e) {
+      printV("walletKit relay disconnect: $e");
+    }
 
     sessions.clear();
     auth.clear();

@@ -1421,6 +1421,7 @@
   "wc_permission_sign_messages": "संदेशों पर हस्ताक्षर करें और डेटा टाइप करें",
   "wc_permission_switch_chains": "स्विच करें और ईवीएम चेन जोड़ें",
   "wc_permission_view_balance": "अपना वॉलेट बैलेंस और गतिविधि देखें",
+  "wc_request_for_different_wallet": "यह अनुरोध एक अलग वॉलेट के लिए किया गया था. इस ऐप से जुड़ा वॉलेट खोलें और पुनः प्रयास करें।",
   "wc_scam_warning_message": "ऐसा प्रतीत होता है कि यह अनुरोध किसी ज्ञात घोटाले से आया है। कृपया सावधानी से आगे बढ़ें.",
   "wc_scam_warning_title": "चेतावनी!",
   "wc_scan_qr": "QR स्कैन करें",

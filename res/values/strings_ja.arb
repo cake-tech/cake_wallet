@@ -1420,6 +1420,7 @@
   "wc_permission_sign_messages": "メッセージと入力されたデータに署名する",
   "wc_permission_switch_chains": "EVMチェーンの切り替えと追加",
   "wc_permission_view_balance": "ウォレットの残高とアクティビティを表示する",
+  "wc_request_for_different_wallet": "このリクエストは別のウォレットに対して行われました。このアプリに接続されているウォレットを開いて、もう一度お試しください。",
   "wc_scam_warning_message": "このリクエストは既知の詐欺によるものと思われます。慎重に進めてください。",
   "wc_scam_warning_title": "警告！",
   "wc_scan_qr": "QRをスキャン",

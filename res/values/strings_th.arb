@@ -1419,6 +1419,7 @@
   "wc_permission_sign_messages": "เซ็นข้อความและพิมพ์ข้อมูล",
   "wc_permission_switch_chains": "สลับและเพิ่มเชน EVM",
   "wc_permission_view_balance": "ดูยอดคงเหลือในกระเป๋าสตางค์และกิจกรรมของคุณ",
+  "wc_request_for_different_wallet": "คำขอนี้สร้างขึ้นสำหรับกระเป๋าเงินอื่น เปิดกระเป๋าเงินที่เชื่อมต่อกับแอพนี้แล้วลองอีกครั้ง",
   "wc_scam_warning_message": "ดูเหมือนว่าคำขอนี้มาจากกลโกงที่ทราบ โปรดดำเนินการด้วยความระมัดระวัง",
   "wc_scam_warning_title": "คำเตือน!",
   "wc_scan_qr": "สแกนคิวอาร์",
