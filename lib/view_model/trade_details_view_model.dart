@@ -117,6 +117,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://solscan.io/tx/${trade.txId}';
       case ExchangeProviderDescription.nearIntents:
         return 'https://explorer.near-intents.org/transactions/${trade.id}';
+      case ExchangeProviderDescription.flashnet:
+        return "https://orchestra.flashnet.xyz/explorer/${trade.id}";
     }
     return null;
   }
