@@ -207,6 +207,9 @@ class FlashnetExchangeProvider extends ExchangeProvider
       _ => FlashnetSubmitRequest(quoteId: trade.id, txHash: txHash),
     };
 
+    // HACK: fixes race condition if the tx doesn't propagate in time for this request.
+    await Future.delayed(const Duration(seconds: 2));
+
     final resp = await proxyWrapper.post(
       headers: {
         ...headers,
