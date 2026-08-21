@@ -538,15 +538,18 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: name, type: type);
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    final currentWalletPath = '$currentWalletDirPath/$name';
     final currentCacheFile = File(currentWalletPath);
     final currentKeysFile = File('$currentWalletPath.keys');
     final currentAddressListFile = File('$currentWalletPath.address.txt');
-    final currentSecretsFile = File(p.join(p.dirname(currentWalletPath), 'zano-secrets.json.bin'));
+    final currentPendingKiFile = File('$currentWalletPath.outkey2ki');
+    final currentSecretsFile = File(p.join(currentWalletDirPath, 'zano-secrets.json.bin'));
     final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
     final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
 
-    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+    final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+    final newWalletPath = '$newWalletDirPath/$newWalletName';
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentCacheFile.existsSync()) {
@@ -558,8 +561,11 @@ abstract class ZanoWalletBase
     if (currentAddressListFile.existsSync()) {
       await currentAddressListFile.copy('$newWalletPath.address.txt');
     }
+    if (currentPendingKiFile.existsSync()) {
+      await currentPendingKiFile.copy('$newWalletPath.outkey2ki');
+    }
     if (currentSecretsFile.existsSync()) {
-      await currentSecretsFile.copy(p.join(p.dirname(newWalletPath), 'zano-secrets.json.bin'));
+      await currentSecretsFile.copy(p.join(newWalletDirPath, 'zano-secrets.json.bin'));
     }
     if (currentCakeKeysFile.existsSync()) {
       await currentCakeKeysFile.copy('$newWalletPath$_cakeKeysFileSuffix');
@@ -568,8 +574,9 @@ abstract class ZanoWalletBase
       await currentCakeKeysBackupFile.copy('$newWalletPath$_cakeKeysFileSuffix.backup');
     }
 
-    // Delete old name's dir and files
-    await Directory(currentWalletPath).delete(recursive: true);
+    // Delete the old wallet *directory*. pathForWallet() is the wallet file
+    // (.../<name>/<name>); Directory(filePath).delete leaves seed sidecars.
+    await Directory(currentWalletDirPath).delete(recursive: true);
   }
 
   @override
