@@ -722,9 +722,9 @@ class FlashnetEstimateResponse {
   final List<String> route;
 
   @JsonKey(name: "source")
-  final FlashnetAssetDetails source;
+  final FlashnetAssetDetails? source;
   @JsonKey(name: "destination")
-  final FlashnetAssetDetails destination;
+  final FlashnetAssetDetails? destination;
 
   /// only echoed back on an exact_out estimate, along with the four fields below
   @JsonKey(name: "amountMode", unknownEnumValue: FlashnetAmountMode.unknown)
