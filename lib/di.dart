@@ -1278,11 +1278,6 @@ Future<void> setup({
         appStore: getIt.get<AppStore>(),
       ));
 
-  getIt.registerFactory(() => WalletSwitchService(
-        walletLoadingService: getIt.get<WalletLoadingService>(),
-        appStore: getIt.get<AppStore>(),
-      ));
-
   getIt.registerFactory(() => AnyPayService(
         appStore: getIt.get<AppStore>(),
         walletSwitchService: getIt.get<WalletSwitchService>(),
