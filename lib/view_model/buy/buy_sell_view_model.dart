@@ -175,11 +175,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       (double.parse(fiatAmount) / quote.rate).toStringAsFixed(cryptoCurrency.decimals),
       cryptoCurrency);
 
-  Money fiatAmountForQuote(Quote quote) => Money.safeParse(
+  @computed
+  Money? fiatAmountForQuote(Quote quote) {
+    if(fiatConversionStore.prices[cryptoCurrency] == null) {
+      return null;
+    }
+
+    return Money.safeParse(
         (fiatConversionStore.prices[cryptoCurrency]! *
                 double.parse(amountForQuote(quote).toString()))
             .toStringAsFixed(2),
         fiatCurrency);
+  }
 
   // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
   static final Map<FiatCurrency, List<String>> _defaultAmountsMap = {

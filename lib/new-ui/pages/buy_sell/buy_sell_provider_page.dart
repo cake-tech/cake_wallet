@@ -135,7 +135,9 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
       " " +
       (widget.buySellViewModel.cryptoCurrency.fullName ?? "");
 
-  ListItem quoteListItem(Quote quote) => ListItemRegularRow(
+  ListItem quoteListItem(Quote quote) {
+    final fiatAmount = widget.buySellViewModel.fiatAmountForQuote(quote);
+    return ListItemRegularRow(
       keyValue: quote.provider.title,
       label: quote.rampName ?? quote.provider.title,
       secondaryLabel: quote.rampName != null ? quote.provider.title : null,
@@ -155,11 +157,13 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           Text(widget.buySellViewModel
               .amountForQuote(quote)
               .toStringWithSymbol(fractionalDigits: 8)),
+          if(fiatAmount != null)
           Text(
-              "= ${widget.buySellViewModel.fiatAmountForQuote(quote).toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
+              "= ${fiatAmount.toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))
         ],
       ));
+  }
 
   void navigateToConfirmation(BuildContext context) {
     final page = BuySellConfirmationPage(buySellViewModel: widget.buySellViewModel);
