@@ -86,6 +86,7 @@ class BuySellConfirmationPage extends StatelessWidget {
                                   SizedBox.shrink()
                                 ],
                               )),
+                          if(buySellViewModel.selectedQuote!.paymentType.title?.isNotEmpty ?? false)
                           ListItemRegularRow(
                               showArrow: false,
                               keyValue: "payment method",
