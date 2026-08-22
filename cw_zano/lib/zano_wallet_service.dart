@@ -137,13 +137,21 @@ class ZanoWalletService extends WalletService<
         ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
             encryptionFileUtilsFor(isDirect));
 
+    final oldPath = await pathForWallet(name: currentName, type: getType());
+    final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
+    if (cached != null) {
+      currentWallet.hWallet = cached.walletId;
+      await currentWallet.closeWallet(cached.walletId, force: true);
+    }
+
     await currentWallet.renameWalletFiles(newName);
 
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
+    final newDirPath = await pathForWalletDir(name: newName, type: getType());
+    currentWalletInfo.id = WalletBase.idFor(newName, getType());
+    currentWalletInfo.name = newName;
+    currentWalletInfo.dirPath = newDirPath;
+    currentWalletInfo.path = '$newDirPath/$newName';
+    await currentWalletInfo.save();
   }
 
   @override

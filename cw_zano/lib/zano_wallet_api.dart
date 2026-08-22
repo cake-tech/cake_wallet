@@ -46,12 +46,13 @@ mixin ZanoWalletApi {
 
   void setPassword(String password) => zano.PlainWallet_resetWalletPassword(hWallet, password);
 
-  void closeWallet(int? walletToClose, {bool force = false}) async {
+  Future<void> closeWallet(int? walletToClose, {bool force = false}) async {
     printV('close_wallet ${walletToClose ?? hWallet}: $force');
     if (Platform.isWindows || force) {
-      final result = await _closeWallet(walletToClose ?? hWallet);
+      final id = walletToClose ?? hWallet;
+      final result = await _closeWallet(id);
       printV('close_wallet result $result');
-      openWalletCache.removeWhere((_, cwr) => cwr.walletId == (walletToClose ?? hWallet));
+      openWalletCache.removeWhere((_, cwr) => cwr.walletId == id);
     }
   }
 
