@@ -1,30 +1,33 @@
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/address_formatter.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import "dart:async";
+
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/standard_slide_button_widget.dart";
+import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/show_bar.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
 
 class SwapDetailsBottomSheet extends StatefulWidget {
-  SwapDetailsBottomSheet({
-    Key? key,
-    required this.exchangeTradeViewModel,
-  }) : super(key: key);
+  const SwapDetailsBottomSheet({
+ required this.bloc, super.key,
+  });
 
-  final ExchangeTradeViewModel exchangeTradeViewModel;
+  final SwapBloc bloc;
 
   @override
   State<SwapDetailsBottomSheet> createState() => _SwapDetailsBottomSheetState();
@@ -40,228 +43,100 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _setEffects();
+      if (mounted) {
+        _setEffects();
+      }
     });
   }
 
   @override
   void dispose() {
-    widget.exchangeTradeViewModel.timer?.cancel();
     _exchangeStateReaction?.reaction.dispose();
     super.dispose();
   }
 
   void _setEffects() {
     if (_effectsInstalled) {
-      printV('Swap details bottom sheet effects already installed');
+      printV("Swap details bottom sheet effects already installed");
       return;
     }
 
-    final initialState = widget.exchangeTradeViewModel.sendViewModel.state;
+    final initialState = widget.bloc.state;
 
-    if (initialState is FailureState && !_showingFailureDialog) {
+    if (initialState is SwapFailureState && !_showingFailureDialog) {
       _showingFailureDialog = true;
-      printV('Initial failure state: $initialState');
+      printV("Initial failure state: $initialState");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && context.mounted) {
           showPopUp<void>(
             context: context,
-            builder: (BuildContext popupContext) {
-              return AlertWithOneAction(
-                key: ValueKey('swap_details_send_failure_dialog_key'),
-                buttonKey: ValueKey('swap_details_send_failure_dialog_button_key'),
+            builder: (popupContext) => AlertWithOneAction(
+                key: const ValueKey("swap_details_send_failure_dialog_key"),
+                buttonKey: const ValueKey("swap_details_send_failure_dialog_button_key"),
                 alertTitle: S.of(popupContext).error,
-                alertContent: initialState.error,
+                alertContent: (initialState as SwapFailureState).error.toString(),
                 buttonText: S.of(popupContext).ok,
                 buttonAction: () {
                   _showingFailureDialog = false;
                   Navigator.of(popupContext).pop();
                 },
-              );
-            },
+              ),
           );
         } else {
           _showingFailureDialog = false;
         }
       });
     }
-
-    _exchangeStateReaction = reaction(
-      (_) => widget.exchangeTradeViewModel.sendViewModel.state,
-      (ExecutionState state) async {
-        if (state is! IsExecutingState &&
-            state is! TransactionCommitting &&
-            _loadingBottomSheetContext != null &&
-            _loadingBottomSheetContext!.mounted) {
-          Navigator.of(_loadingBottomSheetContext!).pop();
-        }
-
-        if (state is FailureState && !_showingFailureDialog) {
-          _showingFailureDialog = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && context.mounted) {
-              showPopUp<void>(
-                context: context,
-                builder: (BuildContext popupContext) {
-                  return AlertWithOneAction(
-                    key: ValueKey('swap_details_send_failure_dialog_key'),
-                    buttonKey: ValueKey('swap_details_send_failure_dialog_button_key'),
-                    alertTitle: S.of(popupContext).error,
-                    alertContent: state.error,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () {
-                      _showingFailureDialog = false;
-                      Navigator.of(popupContext).pop();
-                      if (mounted) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                    },
-                  );
-                },
-              );
-            } else {
-              _showingFailureDialog = false;
-            }
-          });
-        }
-
-        if (state is IsExecutingState) {
-          // Wait a bit to avoid showing the loading dialog if transaction is failed
-          await Future.delayed(const Duration(milliseconds: 300));
-          final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
-          if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
-            return;
-          }
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              showModalBottomSheet<void>(
-                context: context,
-                isDismissible: false,
-                builder: (BuildContext context) {
-                  _loadingBottomSheetContext = context;
-                  return LoadingBottomSheet(
-                    titleText: S.of(context).generating_transaction,
-                  );
-                },
-              );
-            }
-          });
-        }
-
-        if (state is ExecutedSuccessfullyState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (context.mounted) {
-              await widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
-            }
-          });
-        }
-
-        if (state is TransactionCommitted) {
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) async {
-              if (!mounted) return;
-
-              await showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                builder: (BuildContext bottomSheetContext) {
-                  return InfoBottomSheet(
-                    footerType: FooterType.singleActionButton,
-                    titleText: S.of(bottomSheetContext).transaction_sent,
-                    contentImage: 'assets/images/birthday_cake.png',
-                    singleActionButtonText: S.of(bottomSheetContext).close,
-                    singleActionButtonKey: ValueKey('swap_details_sent_dialog_ok_button_key'),
-                    onSingleActionButtonPressed: () {
-                      Navigator.of(bottomSheetContext).pop();
-                      if (mounted) {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      }
-                      ;
-                    },
-                  );
-                },
-              );
-            },
-          );
-        }
-      },
-    );
+    
 
     _effectsInstalled = true;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return _SwapDetailsBottomSheetContent(
-      titleText: 'Confirm Swap',
+  Widget build(BuildContext context) => _SwapDetailsBottomSheetContent(
+      titleText: "Confirm Swap",
       footerType: FooterType.none,
+      bloc: widget.bloc,
       maxHeight: 900,
-      exchangeTradeViewModel: widget.exchangeTradeViewModel,
       onExecuteSwap: _executeSwap,
     );
-  }
 
-  void _executeSwap() async {
-    if (!widget.exchangeTradeViewModel.isSendable) return;
+  Future<void> _executeSwap() async {
 
-    try {
-      await widget.exchangeTradeViewModel.confirmSending();
-    } catch (e) {
-      printV('Error executing swap: $e');
-      if (mounted) {
-        showPopUp<void>(
-          context: context,
-          builder: (BuildContext popupContext) {
-            return AlertWithOneAction(
-              key: ValueKey('swap_details_execution_error_dialog_key'),
-              buttonKey: ValueKey('swap_details_execution_error_dialog_button_key'),
-              alertTitle: S.of(popupContext).error,
-              alertContent: e.toString(),
-              buttonText: S.of(popupContext).ok,
-              buttonAction: () => Navigator.of(popupContext).pop(),
-            );
-          },
-        );
-      }
-    }
+      widget.bloc.add(SendConfirmed());
+
   }
 }
 
 class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
-  _SwapDetailsBottomSheetContent({
-    required String titleText,
-    required FooterType footerType,
-    required double maxHeight,
-    required this.exchangeTradeViewModel,
+  const _SwapDetailsBottomSheetContent({
+    required this.bloc, required super.titleText,
+    required super.footerType,
+    required super.maxHeight,
     required this.onExecuteSwap,
-  }) : super(
-          titleText: titleText,
-          footerType: footerType,
-          maxHeight: maxHeight,
-        );
+  });
 
-  final ExchangeTradeViewModel exchangeTradeViewModel;
+  final SwapBloc bloc;
   final VoidCallback onExecuteSwap;
 
   @override
-  Widget contentWidget(BuildContext context) {
+  Widget contentWidget(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+  builder: (context, state) {
+    if(state is! SwapStateWithTrade) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
       children: [
         _SwapDetailsContent(
-          trade: exchangeTradeViewModel.trade,
-          exchangeTradeViewModel: exchangeTradeViewModel,
+          trade: state.trade,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           child: Observer(
             builder: (_) {
-              final sendingState = exchangeTradeViewModel.sendViewModel.state;
-              final isDisabled = !exchangeTradeViewModel.isSendable ||
-                  exchangeTradeViewModel.trade.inputAddress == null ||
-                  exchangeTradeViewModel.trade.inputAddress!.isEmpty;
 
-              if (isDisabled || sendingState is IsExecutingState) {
+              if (state is SwapAwaitingSend || state is SwapSending) {
                 return Container(
                   width: double.infinity,
                   height: 48,
@@ -270,16 +145,16 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
                     color: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                   child: Center(
-                    child: sendingState is IsExecutingState
-                        ? CircularProgressIndicator()
+                    child: state is SwapSending
+                        ? const CircularProgressIndicator()
                         : Text(
-                            'Swipe to swap',
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                          ),
+                      "Swipe to swap",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 );
               }
@@ -287,9 +162,9 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
               return StandardSlideButton(
                 tileBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 knobColor: Theme.of(context).colorScheme.primary,
-                buttonText: 'Swipe to swap',
+                buttonText: "Swipe to swap",
                 onSlideComplete: onExecuteSwap,
-                accessibleNavigationModeButtonText: 'Complete swap',
+                accessibleNavigationModeButtonText: "Complete swap",
               );
             },
           ),
@@ -297,36 +172,32 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
         const SizedBox(height: 32),
       ],
     );
-  }
+  },
+);
 }
 
 class _SwapDetailsContent extends StatelessWidget {
-  const _SwapDetailsContent({required this.trade, required this.exchangeTradeViewModel});
+  const _SwapDetailsContent({required this.trade, });
 
   final Trade trade;
-  final ExchangeTradeViewModel exchangeTradeViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
       child: Observer(
-        builder: (_) {
-          return Column(
+        builder: (_) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _SwapDetailsTile(
-                label: 'You Send',
-                value: '${trade.amount} ${trade.from?.title ?? ''}',
-                valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
-              ),
+              // _SwapDetailsTile(
+              //   label: 'You Send',
+              //   value: '${trade.depositAmount.toStringWithSymbol()}',
+              //   valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
+              // ),
               const SizedBox(height: 8),
               _SwapDetailsTile(
-                label: 'You Get',
-                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
-                valueFiatFormatted: exchangeTradeViewModel
-                    .getReceiveAmountFiatFormatted(trade.receiveAmount ?? '0.0'),
+                label: "You Get",
+                value: trade.payoutAmount.toStringWithSymbol(),
               ),
               const SizedBox(height: 8),
               Container(
@@ -340,7 +211,7 @@ class _SwapDetailsContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'To this Address',
+                      "To this Address",
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
@@ -348,9 +219,9 @@ class _SwapDetailsContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     AddressFormatter.buildSegmentedAddress(
-                      address: trade.payoutAddress ?? '',
+                      address: trade.payoutAddress,
                       walletType:
-                          trade.to != null ? cryptoCurrencyOrTokenToWalletType(trade.to!) : null,
+                      cryptoCurrencyOrTokenToWalletType(trade.payoutAmount.currency as CryptoCurrency),
                       evenTextStyle: Theme.of(context)
                           .textTheme
                           .bodyMedium!
@@ -381,9 +252,9 @@ class _SwapDetailsContent extends StatelessWidget {
                         Text(
                           trade.provider.title,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                              ),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(width: 8),
                       ],
@@ -398,14 +269,14 @@ class _SwapDetailsContent extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              'ID: ',
+                              "ID: ",
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
                             ),
                             Flexible(
                               child: Text(
                                 trade.id,
                                 style:
-                                    Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
+                                Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
                               ),
                             ),
                           ],
@@ -416,26 +287,21 @@ class _SwapDetailsContent extends StatelessWidget {
                 ),
               ),
             ],
-          );
-        },
+          ),
       ),
     );
-  }
 }
 
 class _SwapDetailsTile extends StatelessWidget {
   const _SwapDetailsTile({
     required this.label,
     required this.value,
-    required this.valueFiatFormatted,
   });
 
   final String label;
   final String value;
-  final String valueFiatFormatted;
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -457,23 +323,22 @@ class _SwapDetailsTile extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                    ),
-              ),
-              if (valueFiatFormatted.isNotEmpty)
-                Text(
-                  valueFiatFormatted,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
                 ),
+              ),
+              // if (valueFiatFormatted.isNotEmpty)
+              //   Text(
+              //     valueFiatFormatted,
+              //     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              //       fontSize: 10,
+              //       fontWeight: FontWeight.w600,
+              //       color: Theme.of(context).colorScheme.onSurfaceVariant,
+              //     ),
+              //   ),
             ],
           ),
         ],
       ),
     );
-  }
 }

@@ -1,4 +1,5 @@
 import 'dart:async' show Timer;
+import 'dart:async' show Timer;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
@@ -47,7 +48,7 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -63,7 +64,17 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import "package:cake_wallet/new-ui/services/transaction_service.dart";
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
@@ -102,11 +113,6 @@ import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
@@ -179,8 +185,6 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
@@ -233,8 +237,6 @@ import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -547,18 +549,45 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<UnspentCoinsListViewModel>(),
-      getIt.get<FeesViewModel>(),
-      getIt.get<FiatConversionStore>(),
-    ),
-  );
+  getIt.registerLazySingleton<ExchangeProviderRegistry>(() =>
+      ExchangeProviderRegistry(sharedPreferences: getIt.get<SharedPreferences>(), settingsStore: getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<RateCubit>(() =>
+      RateCubit(registry: getIt.get<ExchangeProviderRegistry>()));
+
+  getIt.registerLazySingleton<SwapAmountFactory>(() =>
+      SwapAmountFactory(
+          fcs: getIt.get<FiatConversionStore>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerFactory<SwapCurrencyStore>(SwapCurrencyStore.new);
+
+  getIt.registerSingleton<WalletSwitchService>(WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerSingleton<TransactionService>(TransactionService(appStore: getIt.get<AppStore>()));
+
+  getIt.registerSingleton<SwapAddressResolver>(SwapAddressResolver(
+      walletSwitchService: getIt.get<WalletSwitchService>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerSingleton<TradeCreator>(TradeCreator(tradesStore: getIt.get<TradesStore>(),
+      appStore: getIt.get<AppStore>(),
+      registry: getIt.get<ExchangeProviderRegistry>()));
+
+  getIt.registerSingleton<FeesHelper>(FeesHelper(appStore: getIt.get<AppStore>()));
+
+  getIt.registerFactory<SwapBloc>(() =>
+      SwapBloc(
+        feesHelper: getIt.get<FeesHelper>(),
+        addressResolver: getIt.get<SwapAddressResolver>(),
+        creator: getIt.get<TradeCreator>(),
+        addressResolverService: getIt.get<AddressResolverService>(),
+        transactionService: getIt.get<TransactionService>(),
+        currencyStore: getIt.get<SwapCurrencyStore>(),
+        rateCubit: getIt.get<RateCubit>(),
+        amountFactory: getIt.get<SwapAmountFactory>(),
+        registry: getIt.get<ExchangeProviderRegistry>(),
+        appStore: getIt
+            .get<AppStore>(),
+      ));
 
   getIt.registerSingleton(
     TradeMonitor(
@@ -1231,66 +1260,21 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory(
-    () => ExchangeTradeViewModel(
-      wallet: getIt.get<AppStore>().wallet!,
-      tradesStore: getIt.get<TradesStore>(),
-      sendViewModel: getIt.get<SendViewModel>(),
-      feesViewModel: getIt.get<FeesViewModel>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>(),
-    ),
-  );
-
-  getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
-      (PaymentRequest? paymentRequest, __) {
-    return ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<AuthService>(),
-        getIt.get<AddressResolverService>(), paymentRequest);
-  });
 
   getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
       (PaymentRequest? paymentRequest, CryptoCurrency? initialCurrency) {
     return NewSwapPage(
-      getIt.get<ExchangeViewModel>(),
+      getIt.get<SwapBloc>(),
       getIt.get<AuthService>(),
       getIt.get<AddressResolverService>(),
       paymentRequest,
-      walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
       initialCurrency: initialCurrency,
     );
   });
 
-  getIt.registerFactory(() => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
-
-  getIt.registerFactory(
-      () => ExchangeTradePage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
-
-  getIt.registerFactory(() =>
-      ExchangeTradeExternalSendPage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
-
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
-
-  getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
-    (paymentFlowResult, _) => SwapConfirmationBottomSheet(
-      paymentFlowResult: paymentFlowResult,
-      exchangeViewModel: getIt.get<ExchangeViewModel>(),
-      authService: getIt.get<AuthService>(),
-    ),
-  );
-
-  getIt.registerFactory<SwapDetailsBottomSheet>(
-    () => SwapDetailsBottomSheet(
-      exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
-    ),
-  );
-
   getIt.registerFactory(() => PaymentViewModel(
-        appStore: getIt.get<AppStore>(),
-      ));
-
-  getIt.registerFactory(() => WalletSwitchService(
-        walletLoadingService: getIt.get<WalletLoadingService>(),
         appStore: getIt.get<AppStore>(),
       ));
 

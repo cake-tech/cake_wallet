@@ -18,9 +18,9 @@ analyzer:
     strict-casts: true
     strict-raw-types: true
 
-plugins:
-  cw_custom_lints:
-    path: cw_custom_lints
+#plugins:
+#  cw_custom_lints:
+#    path: cw_custom_lints
 
 linter:
   rules:

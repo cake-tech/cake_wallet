@@ -94,6 +94,7 @@ dependencies:
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
+  bloc_presentation: ^1.1.2+3
   equatable: ^2.0.0
   sensitive_clipboard:
     git:
@@ -162,6 +163,7 @@ dependencies:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
   fl_chart: ^0.70.2
+  json_annotation: 4.12.0
 
 dev_dependencies:
   flutter_test:
@@ -169,6 +171,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
+  json_serializable: 6.14.0
   build_runner: ^2.15.0
   logging: ^1.2.0
   mobx_codegen: ^2.7.7

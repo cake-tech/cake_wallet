@@ -44,7 +44,7 @@ class PickerRecentsLoader {
           .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)));
 
     return _collect(
-      ordered.expand((t) => [t.from, t.to]),
+      ordered.expand((t) => [t.depositAmount.currency as CryptoCurrency, t.payoutAmount.currency as CryptoCurrency]),
       visibleItems,
       limit,
     );

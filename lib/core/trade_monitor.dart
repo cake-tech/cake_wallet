@@ -1,24 +1,21 @@
 import 'dart:async';
-import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,16 +39,12 @@ class TradeMonitor {
     switch (description) {
       case ExchangeProviderDescription.changeNow:
         return ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
-      case ExchangeProviderDescription.sideShift:
-        return SideShiftExchangeProvider();
       case ExchangeProviderDescription.simpleSwap:
-        return SimpleSwapExchangeProvider();
+        throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         return TrocadorExchangeProvider();
       case ExchangeProviderDescription.exolix:
         return ExolixExchangeProvider();
-      case ExchangeProviderDescription.thorChain:
-        return ThorChainExchangeProvider();
       case ExchangeProviderDescription.swapTrade:
         return SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
@@ -62,8 +55,6 @@ class TradeMonitor {
         return ChainflipExchangeProvider();
       case ExchangeProviderDescription.xoSwap:
         return XOSwapExchangeProvider();
-      case ExchangeProviderDescription.swapsXyz:
-        return SwapsXyzExchangeProvider();
       case ExchangeProviderDescription.jupiter:
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
@@ -183,10 +174,9 @@ class TradeMonitor {
     }
 
     try {
-      final updated = await provider.findTradeById(id: trade.id);
-      trade.mergeFindTradeByIdResult(updated);
+      final updated = await provider.updateTrade(trade);
       printV('Trade ${trade.id} updated: ${trade.state}');
-      await trade.save();
+      await updated.save();
 
       await preferences.setString('trade_${trade.id}_updated_at', DateTime.now().toIso8601String());
       printV('Trade ${trade.id} updated at: ${DateTime.now().toIso8601String()}');

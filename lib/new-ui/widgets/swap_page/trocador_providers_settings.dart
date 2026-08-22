@@ -13,8 +13,7 @@ class TrocadorProvidersSettings extends StatelessWidget {
   final TrocadorProvidersViewModel trocadorProvidersViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
@@ -110,5 +109,4 @@ class TrocadorProvidersSettings extends StatelessWidget {
         ],
       ),
     );
-  }
 }

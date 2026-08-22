@@ -1,74 +1,64 @@
-import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/exchange/limits_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/address_formatter.dart';
-import 'package:cake_wallet/utils/debounce.dart';
-import 'package:cw_core/amount/amount_sanitizer.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/debounce.dart";
+import "package:cake_wallet/view_model/payment/payment_view_model.dart";
+import "package:cw_core/amount/amount_sanitizer.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
 
 class SwapConfirmationBottomSheet extends BaseBottomSheet {
   SwapConfirmationBottomSheet({
-    Key? key,
-    required this.paymentFlowResult,
-    required this.exchangeViewModel,
+    required this.bloc, required this.paymentFlowResult,
     required this.authService,
     this.sessionId,
   }) : super(
-          titleText: S.current.swap,
-          footerType: FooterType.none,
-          maxHeight: 900,
-        );
+    titleText: S.current.swap,
+    footerType: FooterType.none,
+    maxHeight: 900,
+  );
 
   final PaymentFlowResult paymentFlowResult;
-  final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final SwapBloc bloc;
   final String? sessionId;
   @override
-  Widget contentWidget(BuildContext context) {
-    return SingleChildScrollView(
+  Widget contentWidget(BuildContext context) => SingleChildScrollView(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SwapConfirmationContent(
         paymentFlowResult: paymentFlowResult,
-        exchangeViewModel: exchangeViewModel,
-        authService: authService,
+        authService: authService, bloc: bloc,
       ),
     );
-  }
 }
 
 class SwapConfirmationContent extends StatefulWidget {
   const SwapConfirmationContent({
-    Key? key,
-    required this.paymentFlowResult,
-    required this.exchangeViewModel,
-    required this.authService,
-  }) : super(key: key);
+    required this.bloc, required this.paymentFlowResult, required this.authService, super.key,
+  });
 
+  final SwapBloc bloc;
   final PaymentFlowResult paymentFlowResult;
-  final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
 
   @override
@@ -80,8 +70,8 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   late TextEditingController _amountFiatController;
   late TextEditingController _addressController;
 
-  final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
-  final _receiveAmountFiatDebounce = Debounce(Duration(milliseconds: 500));
+  final _receiveAmountDebounce = Debounce(const Duration(milliseconds: 500));
+  final _receiveAmountFiatDebounce = Debounce(const Duration(milliseconds: 500));
   final FocusNode _amountFocus = FocusNode();
   final FocusNode _amountFiatFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
@@ -101,18 +91,17 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   void initState() {
     super.initState();
     _addressController =
-        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.address ?? '');
+        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.address ?? "");
     _amountController = TextEditingController(
         text: widget.paymentFlowResult.addressDetectionResult?.amount?.isNotEmpty ?? false
             ? widget.paymentFlowResult.addressDetectionResult?.amount
-            : '0.00');
+            : "0.00");
     _amountFiatController =
-        TextEditingController(text: widget.exchangeViewModel.receiveAmountFiatFormatted);
+        TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _setUpReactions(
+          (_) => _setUpReactions(
         context,
-        widget.exchangeViewModel,
         widget.paymentFlowResult,
       ),
     );
@@ -133,13 +122,42 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _receiveAmountFiatReaction?.call();
     _showingFailureDialog = false;
     _showingSwapDetailsDialog = false;
-    widget.exchangeViewModel.bestRateSync.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final detectedCurrency = widget.paymentFlowResult.detectedCurrency!;
+
+    return BlocBuilder<SwapBloc, SwapState>(
+  builder: (context, state) {
+
+    final Money depositAmount;
+    final Money payoutAmount;
+    final ExchangeProviderDescription provider;
+    final String sourceString;
+    final bool isExternal;
+    final String tradeId;
+    final String payoutAddress;
+    if(state is SwapStateWithInputs) {
+      depositAmount = state.depositAmount.cryptoAmount;
+      payoutAmount = state.payoutAmount.cryptoAmount;
+      provider = state.usableProviders.first;
+      sourceString = state.source.displayName;
+      isExternal = state.source is ExternalSwapSource;
+      tradeId = "";
+      payoutAddress = state.payoutAddress?.address ?? "";
+    } else if(state is SwapStateWithTrade) {
+      depositAmount = state.trade.depositAmount;
+      payoutAmount = state.trade.payoutAmount;
+      provider =state.trade.provider;
+      sourceString = state.source.displayName;
+      isExternal = state.source is ExternalSwapSource;
+      tradeId = state.trade.id;
+      payoutAddress = state.trade.payoutAddress;
+    } else {
+      throw StateError("should not be openable at this point");
+    }
 
     return Form(
       key: _formKey,
@@ -153,18 +171,18 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CakeImageWidget(
-                  imageUrl: widget.exchangeViewModel.depositCurrency.iconPath!,
+                  imageUrl: depositAmount.currency.iconPath!,
                   width: 32,
                   height: 32,
                 ),
                 const SizedBox(width: 12),
-                Icon(Icons.arrow_forward, size: 24),
+                const Icon(Icons.arrow_forward, size: 24),
                 const SizedBox(width: 12),
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
                     CakeImageWidget(
-                      imageUrl: detectedCurrency.iconPath ?? '',
+                      imageUrl: detectedCurrency.iconPath ?? "",
                       width: 32,
                       height: 32,
                     ),
@@ -188,18 +206,18 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             ),
             const SizedBox(height: 16),
             SwapConfirmationTextfield(
-              key: ValueKey('swap_confirmation_bottomsheet_amount_textfield_key'),
-              hintText: 'Amount (${detectedCurrency})',
+              key: const ValueKey("swap_confirmation_bottomsheet_amount_textfield_key"),
+              hintText: "Amount (${detectedCurrency})",
               focusNode: _amountFocus,
               controller: _amountController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
               inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
+                FilteringTextInputFormatter.deny(RegExp(r"[\-| ]")),
               ],
               onChanged: (value) {
                 final sanitized = value
                     .sanitized()
-                    .withMaxDecimals(widget.exchangeViewModel.receiveCurrency.decimals);
+                    .withMaxDecimals(payoutAmount.currency.decimals);
                 if (sanitized != _amountController.text) {
                   // Update text while preserving a sane cursor position to avoid auto-selection
                   _amountController.value = _amountController.value.copyWith(
@@ -209,252 +227,119 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                   );
                 }
               },
-              validator: (value) {
-                return AmountValidator(
-                  isAutovalidate: true,
-                  currency: widget.exchangeViewModel.receiveCurrency,
-                  amountParsingProxy: widget.exchangeViewModel.amountParsingProxy,
-                  minValue: widget.exchangeViewModel.limits.min.toString(),
-                  maxValue: widget.exchangeViewModel.limits.max.toString(),
-                ).call(value);
-              },
             ),
             Observer(
               builder: (_) {
-                String? min = '0.0';
-                String? max = '0.0';
+                String? min = "0.0";
+                String? max = "0.0";
 
-                final limitsState = widget.exchangeViewModel.limitsState;
-                if (limitsState is LimitsLoadedSuccessfully) {
-                  min = limitsState.limits.min?.toString();
-                  max = limitsState.limits.max?.toString();
+                final limitsState = widget.bloc.rateCubit.state;
+                if (limitsState is RatesLoaded) {
+                  min = limitsState.minLimit?.toString();
+                  max = limitsState.maxLimit?.toString();
                 }
 
-                if (limitsState is LimitsLoadedFailure) {
-                  min = '0.0';
-                  max = '0.0';
-                }
-
-                if (limitsState is LimitsIsLoading) {
-                  min = '...';
-                  max = '...';
+                if (limitsState is RatesLoading) {
+                  min = "...";
+                  max = "...";
                 }
                 if (min != null || max != null) {
-                  return Container(
+                  return SizedBox(
                     height: 15,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         min != null
                             ? Text(
-                                key: ValueKey('min_limit_text_key'),
-                                S.of(context).min_value(min, detectedCurrency.toString()),
-                                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                      fontSize: 10,
-                                      height: 1.2,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                              )
-                            : Offstage(),
-                        min != null ? SizedBox(width: 10) : Offstage(),
+                          key: const ValueKey("min_limit_text_key"),
+                          S.of(context).min_value(min, detectedCurrency.toString()),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 10,
+                            height: 1.2,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                            : const Offstage(),
+                        min != null ? const SizedBox(width: 10) : const Offstage(),
                         max != null
                             ? Text(
-                                key: ValueKey('max_limit_text_key'),
-                                S.of(context).max_value(max, detectedCurrency.toString()),
-                                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                      fontSize: 10,
-                                      height: 1.2,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                              )
-                            : Offstage(),
+                          key: const ValueKey("max_limit_text_key"),
+                          S.of(context).max_value(max, detectedCurrency.toString()),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 10,
+                            height: 1.2,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        )
+                            : const Offstage(),
                       ],
                     ),
                   );
                 }
 
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               },
             ),
             const SizedBox(height: 8),
             SwapConfirmationTextfield(
-              key: ValueKey('swap_confirmation_bottomsheet_amount_fiat_textfield_key'),
-              hintText: 'Amount (${widget.exchangeViewModel.fiat.title})',
+              key: const ValueKey("swap_confirmation_bottomsheet_amount_fiat_textfield_key"),
+              hintText: "Amount (${widget.bloc.fiat.title})",
               focusNode: _amountFiatFocus,
               controller: _amountFiatController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 8),
             SwapConfirmationTextfield(
-              key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
+              key: const ValueKey("swap_confirmation_bottomsheet_address_textfield_key"),
               isAddress: true,
               walletType:
-                  cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.receiveCurrency),
-              hintText: 'Destination Address',
+              cryptoCurrencyOrTokenToWalletType(depositAmount.currency as CryptoCurrency),
+              hintText: "Destination Address",
               focusNode: _addressFocus,
               controller: _addressController,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Center(
               child: Text(
-                'Tap field to edit values',
+                "Tap field to edit values",
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 10,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             SwapConfirmationFooter(
-              exchangeViewModel: widget.exchangeViewModel,
               formKey: _formKey,
+              bloc: widget.bloc,
               authService: widget.authService,
             ),
           ],
         ),
       ),
     );
+  },
+);
   }
 
-  void _setUpReactions(
-    BuildContext context,
-    ExchangeViewModel exchangeViewModel,
-    PaymentFlowResult paymentFlowResult,
-  ) async {
-    _receiveAmountReaction = reaction((_) => exchangeViewModel.receiveAmount, (String amount) {
-      if (_amountController.text != amount) {
-        _amountController.text = amount;
-      }
-    });
+  Future<void> _setUpReactions(
+      BuildContext context,
+      PaymentFlowResult paymentFlowResult,
+      ) async {
 
-    _receiveAmountFiatReaction =
-        reaction((_) => exchangeViewModel.receiveAmountFiatFormatted, (String amount) {
-      if (!_isUserTypingFiat && _amountFiatController.text != amount) {
-        _amountFiatController.text = amount;
-      }
-    });
 
-    _receiveAddressReaction = reaction((_) => exchangeViewModel.receiveAddress, (String address) {
-      if (_addressController.text != address) {
-        _addressController.text = address;
-      }
-    });
+  widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(_addressController.text)));
 
-    _tradeStateReaction = reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
-      if (state is TradeIsCreatedFailure && !_showingFailureDialog) {
-        _showingFailureDialog = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                  key: const ValueKey('swap_confirmation_trade_creation_failure_dialog_key'),
-                  buttonKey:
-                      const ValueKey('swap_confirmation_trade_creation_failure_dialog_button_key'),
-                  alertTitle: S.of(context).provider_error(state.title),
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () {
-                    _showingFailureDialog = false;
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                );
-              },
-            );
-          }
-        });
-      }
-
-      if (state is TradeIsCreatedSuccessfully) {
-        exchangeViewModel.reset();
-        if (Navigator.of(context).canPop() && !_showingSwapDetailsDialog) {
-          _showingSwapDetailsDialog = true;
-          Navigator.of(context).pop();
-          showModalBottomSheet<void>(
-            context: context,
-            isDismissible: true,
-            isScrollControlled: true,
-            builder: (BuildContext context) {
-              _showingSwapDetailsDialog = false;
-              return getIt.get<SwapDetailsBottomSheet>();
-            },
-          );
-        }
-      }
-    });
-
-    _bestRateReaction = reaction((_) => exchangeViewModel.bestRate, (double rate) {
-      if (exchangeViewModel.isFixedRateMode) {
-        exchangeViewModel.changeReceiveAmount(amount: _amountController.text);
-      }
-    });
-
-    _addressController
-        .addListener(() => exchangeViewModel.receiveAddress = _addressController.text);
-
-    _amountController.addListener(() {
-      if (_amountController.text != exchangeViewModel.receiveAmount) {
-        _receiveAmountDebounce.run(() {
-          exchangeViewModel.loadLimits();
-          exchangeViewModel.changeReceiveAmount(amount: _amountController.text);
-          exchangeViewModel.isReceiveAmountEntered = true;
-        });
-      }
-    });
-
-    _amountFiatController.addListener(() {
-      if (_amountFiatController.text != exchangeViewModel.receiveAmountFiatFormatted) {
-        _isUserTypingFiat = true;
-        _receiveAmountFiatDebounce.run(() {
-          exchangeViewModel.loadLimits();
-          exchangeViewModel.setReceiveAmountFromFiat(fiatAmount: _amountFiatController.text);
-          // Reset the flag after the debounced operation completes
-          Future.delayed(Duration(milliseconds: 100), () {
-            _isUserTypingFiat = false;
-          });
-        });
-      }
-    });
-
-    _amountFocus.addListener(() {
-      if (_amountFocus.hasFocus) {
-        exchangeViewModel.enableFixedRateMode();
-      }
-    });
-
-    _amountFiatFocus.addListener(() {
-      if (_amountFiatFocus.hasFocus) {
-        _isUserTypingFiat = true;
-      } else {
-        // Reset the flag when user stops focusing on the field
-        Future.delayed(Duration(milliseconds: 200), () {
-          _isUserTypingFiat = false;
-        });
-      }
-    });
-
-    exchangeViewModel.receiveCurrency = paymentFlowResult.detectedCurrency!;
-
-    await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
-
-    exchangeViewModel.receiveAddress = _addressController.text;
-    exchangeViewModel.depositAddress = exchangeViewModel.wallet.walletAddresses.addressForExchange;
-    exchangeViewModel.setCanonicalReceiveAmount(_amountController.text);
-    _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
-    exchangeViewModel.isReceiveAmountEntered = true;
-    exchangeViewModel.isFixedRateMode = true;
+  widget.bloc.add(PayoutAmountChanged(Money.parse(_amountController.text, paymentFlowResult.detectedCurrency!)));
+    // _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
+    // exchangeViewModel.isReceiveAmountEntered = true;
+    // exchangeViewModel.isFixedRateMode = true;
   }
 }
 
 class SwapConfirmationTextfield extends StatelessWidget {
   const SwapConfirmationTextfield({
-    super.key,
-    required this.focusNode,
-    required this.controller,
-    required this.hintText,
+    required this.focusNode, required this.controller, required this.hintText, super.key,
     this.walletType,
     this.isAddress = false,
     this.maxLines = 1,
@@ -475,8 +360,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
   final void Function(String)? onChanged;
   final List<TextInputFormatter>? inputFormatters;
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: ShapeDecoration(
@@ -494,111 +378,94 @@ class SwapConfirmationTextfield extends StatelessWidget {
           Text(
             hintText,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 10,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              fontSize: 10,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-          if (isAddress) SizedBox(height: 8),
+          if (isAddress) const SizedBox(height: 8),
           isAddress
               ? AddressFormatter.buildSegmentedAddress(
-                  address: controller.text,
-                  walletType: walletType,
-                  evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                      ),
-                )
+            address: controller.text,
+            walletType: walletType,
+            evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w400,
+              fontSize: 12,
+            ),
+          )
               : BaseTextFormField(
-                  isDense: true,
-                  hintText: hintText,
-                  focusNode: focusNode,
-                  hasUnderlineBorder: true,
-                  borderWidth: 0.0,
-                  controller: controller,
-                  maxLines: maxLines,
-                  validator: validator,
-                  keyboardType: keyboardType,
-                  onChanged: onChanged,
-                  inputFormatters: inputFormatters,
-                ),
+            isDense: true,
+            hintText: hintText,
+            focusNode: focusNode,
+            hasUnderlineBorder: true,
+            borderWidth: 0,
+            controller: controller,
+            maxLines: maxLines,
+            validator: validator,
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            inputFormatters: inputFormatters,
+          ),
         ],
       ),
     );
-  }
 }
 
 class SwapConfirmationFooter extends StatelessWidget {
   const SwapConfirmationFooter({
-    super.key,
-    required this.exchangeViewModel,
-    required this.formKey,
-    required this.authService,
+ required this.bloc, required this.formKey, required this.authService, super.key,
   });
 
-  final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final SwapBloc bloc;
   final GlobalKey<FormState> formKey;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: 150,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Observer(
-        builder: (_) {
-          final isLoading = exchangeViewModel.tradeState is TradeIsCreating ||
-              exchangeViewModel.limitsState is LimitsIsLoading;
-          final isDisabled = exchangeViewModel.selectedProviders.isEmpty ||
-              exchangeViewModel.receiveAmount.isEmpty ||
-              exchangeViewModel.receiveAddress.isEmpty;
+      child: BlocBuilder<SwapBloc, SwapState>(
+        bloc: bloc,
+        builder: (context, state) {
 
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               PrimaryButton(
                 text: S.current.cancel,
-                onPressed: isLoading
-                    ? null
-                    : () {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop(null);
-                        }
-                      },
+                onPressed:  () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop(null);
+                  }
+                },
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 textColor: Theme.of(context).colorScheme.onSecondaryContainer,
               ),
               const SizedBox(height: 12),
               LoadingPrimaryButton(
                 text: S.current.continue_text,
-                onPressed: exchangeViewModel.isAvailableInSelected
-                    ? () {
-                        FocusScope.of(context).unfocus();
+                onPressed:  () {
+                  FocusScope.of(context).unfocus();
 
-                        if (formKey.currentState != null && formKey.currentState!.validate()) {
-                          final check = exchangeViewModel.shouldDisplayTOTP();
-                          authService.authenticateAction(
-                            context,
-                            conditionToDetermineIfToUse2FA: check,
-                            onAuthSuccess: (value) {
-                              if (value) {
-                                exchangeViewModel.createTrade();
-                              }
-                            },
-                          );
+                  if (formKey.currentState != null && formKey.currentState!.validate()) {
+                    authService.authenticateAction(
+                      context,
+                      conditionToDetermineIfToUse2FA: false,
+                      onAuthSuccess: (value) {
+                        if (value) {
+                          bloc.add(SwapInitiated());
                         }
-                      }
-                    : () => PresentProviderPicker(exchangeViewModel: exchangeViewModel)
-                        .presentProviderPicker(context),
+                      },
+                    );
+                  }
+                }
+                   ,
                 color: Theme.of(context).colorScheme.primary,
                 textColor: Theme.of(context).colorScheme.onPrimary,
-                isDisabled: isDisabled,
-                isLoading: isLoading,
               ),
             ],
           );
         },
       ),
     );
-  }
 }
