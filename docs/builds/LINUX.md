@@ -76,3 +76,7 @@ To install the newly built Flatpak, run:
 ```bash
 flatpak --user install build/linux/current/cake_wallet.flatpak
 ```
+
+## SailfishOS
+
+After sucessfully building for linux you can also compile a SailfishOS release, this in

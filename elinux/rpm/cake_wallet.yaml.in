@@ -1,0 +1,42 @@
+Name: cake_wallet
+Summary: Cake Wallet - self custodial crypto wallet
+Version: @VERSION@
+Release: @RELEASE@
+Group: Applications/System
+License: MIT
+Sources:
+- '%{name}-%{version}.tar.bz2'
+Description: |
+    Cake Wallet - self custodial crypto wallet
+Configure: none
+Builder: none
+Requires:
+- flutter-sfos-@FLUTTER_VERSION@
+PkgBR:
+- clang
+- cmake
+- make
+ExtraInstall: |
+  test -f bundle/lib/libapp.so
+  rpm -Uvh --force flutter-sfos-@FLUTTER_VERSION@-*.aarch64.rpm
+  cmake -S . -B build-native \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="$PWD/bundle" \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DFLUTTER_SFOS_VERSION=@FLUTTER_VERSION@ \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++
+  cmake --build build-native -j$(getconf _NPROCESSORS_ONLN)
+  cmake --install build-native
+  rm -f bundle/lib/libflutter_engine.so bundle/lib/libflutter_elinux_*.so
+  mkdir -p %{buildroot}%{_datadir}/flutter-hello
+  mkdir -p %{buildroot}%{_bindir}
+  mkdir -p %{buildroot}%{_datadir}/applications
+  cp -a bundle/. %{buildroot}%{_datadir}/flutter-hello/
+  install -m 755 flutter-hello.sh %{buildroot}%{_bindir}/flutter-hello
+  install -m 644 flutter-hello.desktop %{buildroot}%{_datadir}/applications/flutter-hello.desktop
+Files:
+- '%{_bindir}/flutter-hello'
+- '%{_datadir}/applications/flutter-hello.desktop'
+- '%dir %{_datadir}/flutter-hello'
+- '%{_datadir}/flutter-hello/'

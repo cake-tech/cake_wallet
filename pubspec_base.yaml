@@ -373,6 +373,7 @@ msix_config:
   trim_logo: false
   capabilities: internetClient
 
+# keep in sync with cw_core pubspec.yaml
 hooks:
   user_defines:
     sqlite3:

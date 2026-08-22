@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Cake Wallet
+Comment=Cake Wallet - self custodial crypto wallet
+Icon=icon-m-developer-mode
+Exec=my-flutter-app
+X-Nemo-Application-Type=generic
+
+[X-Sailjail]
+Sandboxing=Disabled

@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+BUNDLE=/usr/share/NAME
+CLIENT=/usr/libexec/flutter-sfos/@FLUTTER_VERSION@/flutter-client
+
+if [ ! -x "$CLIENT" ]; then
+	echo "flutter-sfos-@FLUTTER_VERSION@ is not installed ($CLIENT)" >&2
+	exit 1
+fi
+
+export LD_LIBRARY_PATH="$BUNDLE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+SCALE_ARGS=
+if [ -n "${FLUTTER_SCALE:-}" ]; then
+	SCALE_ARGS="--force-scale-factor=$FLUTTER_SCALE"
+fi
+
+exec "$CLIENT" \
+	--bundle="$BUNDLE" \
+	--fullscreen \
+	$SCALE_ARGS \
+	--app-id="${FLUTTER_APP_ID:-NAME}" \
+	--onscreen-keyboard \
+	--title="TITLE"

@@ -2884,56 +2884,56 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqflite
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.4.3"
+    version: "2.4.2+1"
   sqflite_android:
     dependency: "direct overridden"
     description:
       path: sqflite_android
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.4.3"
+    version: "2.4.2+3"
   sqflite_common:
     dependency: "direct overridden"
     description:
       path: sqflite_common
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.5.11"
+    version: "2.5.8"
   sqflite_common_ffi:
     dependency: "direct overridden"
     description:
       path: sqflite_common_ffi
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.4.2+1"
+    version: "2.4.0+3"
   sqflite_darwin:
     dependency: "direct overridden"
     description:
       path: sqflite_darwin
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.4.3+1"
+    version: "2.4.2"
   sqflite_platform_interface:
     dependency: "direct overridden"
     description:
       path: sqflite_platform_interface
-      ref: "263864b51650c9d64b569de5bf48d45f73245aec"
-      resolved-ref: "263864b51650c9d64b569de5bf48d45f73245aec"
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
       url: "https://github.com/tekartik/sqflite"
     source: git
-    version: "2.4.1"
+    version: "2.4.0"
   sqlite3:
     dependency: "direct overridden"
     description:
