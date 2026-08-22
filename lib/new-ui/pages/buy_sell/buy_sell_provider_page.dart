@@ -13,6 +13,7 @@ import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class BuySellProviderPage extends StatefulWidget {
   const BuySellProviderPage({super.key, required this.buySellViewModel});
@@ -88,40 +89,43 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                 );
               }
 
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
-                child: NewListSections(showHeader: true, sections: {
-                  "": [
-                    ListItemRegularRow(
-                        keyValue: "payment method",
-                        label: S.of(context).payment_method,
-                        showArrow: true,
-                        onTap: () {
-                          final page =
-                              BuySellPaymentMethodPage(buySellViewModel: widget.buySellViewModel);
-                          Navigator.of(context).push(CupertinoPageRoute(
-                              builder: (context) => Material(
-                                    color: Colors.transparent,
-                                    child: page,
-                                  )));
-                        },
-                        trailingText: widget.buySellViewModel.selectedPaymentMethod?.title)
-                  ],
-                  S.of(context).available_providers: [
-                    ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
-                    if (widget.buySellViewModel.sortedQuotes.isNotEmpty)
-                      ListItemDropdown(
-                          keyValue: "more options",
-                          label: S.of(context).more_options,
+              return SingleChildScrollView(
+                controller: ModalScrollController.of(context),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18),
+                  child: NewListSections(showHeader: true, sections: {
+                    "": [
+                      ListItemRegularRow(
+                          keyValue: "payment method",
+                          label: S.of(context).payment_method,
+                          showArrow: true,
                           onTap: () {
-                            setState(() {
-                              _allProvidersExpanded = !_allProvidersExpanded;
-                            });
-                          }),
-                    if (_allProvidersExpanded)
-                      ...widget.buySellViewModel.sortedQuotes.map(quoteListItem)
-                  ]
-                }),
+                            final page =
+                                BuySellPaymentMethodPage(buySellViewModel: widget.buySellViewModel);
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (context) => Material(
+                                      color: Colors.transparent,
+                                      child: page,
+                                    )));
+                          },
+                          trailingText: widget.buySellViewModel.selectedPaymentMethod?.title)
+                    ],
+                    S.of(context).available_providers: [
+                      ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
+                      if (widget.buySellViewModel.sortedQuotes.isNotEmpty)
+                        ListItemDropdown(
+                            keyValue: "more options",
+                            label: S.of(context).more_options,
+                            onTap: () {
+                              setState(() {
+                                _allProvidersExpanded = !_allProvidersExpanded;
+                              });
+                            }),
+                      if (_allProvidersExpanded)
+                        ...widget.buySellViewModel.sortedQuotes.map(quoteListItem)
+                    ]
+                  }),
+                ),
               );
             },
           ))
@@ -156,11 +160,12 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 4,
         children: [
-          Text(widget.buySellViewModel
-              .amountForQuote(quote)
-              .toStringWithSymbol(fractionalDigits: 8)),
-          if(fiatAmount != null)
-          Text(
+            Text(widget.buySellViewModel
+                    .amountForQuote(quote)
+                    ?.toStringWithSymbol(fractionalDigits: 8) ??
+                ""),
+            if (fiatAmount != null)
+              Text(
               "= ${fiatAmount.toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))
         ],

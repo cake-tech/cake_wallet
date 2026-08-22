@@ -45,6 +45,14 @@ class Money implements Comparable<Money> {
     return amount != null ? Money(amount, currency) : null;
   }
 
+  static Money? trySafeParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.tryParse(source.toString())
+        : tryParseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
+
+    return amount != null ? Money(amount, currency) : null;
+  }
+
   final BigInt amount;
   final Currency currency;
 

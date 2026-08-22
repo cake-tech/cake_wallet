@@ -171,7 +171,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     return maxAmount.toStringAsFixed(2);
   }
 
-  Money amountForQuote(Quote quote) => Money.safeParse(
+  Money? amountForQuote(Quote quote) => Money.trySafeParse(
       (double.parse(fiatAmount) / quote.rate).toStringAsFixed(min(20, cryptoCurrency.decimals)),
       cryptoCurrency);
 

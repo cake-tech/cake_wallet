@@ -52,7 +52,7 @@ class BuySellConfirmationPage extends StatelessWidget {
                           style: TextStyle(fontSize: 32),
                         ),
                         Text(
-                          "≈ ${buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!).toStringWithSymbol(fractionalDigits: 8)}",
+                          "≈ ${buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w500),
