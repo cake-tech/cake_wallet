@@ -294,7 +294,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeFiatAmount({required String amount}) async {
-    fiatAmount = amount;
+    fiatAmount = amount.replaceAll(",", ".");
 
     if (amount.isEmpty) {
       fiatAmount = '';
