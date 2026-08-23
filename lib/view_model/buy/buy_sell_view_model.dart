@@ -172,7 +172,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   Money? amountForQuote(Quote quote) => Money.trySafeParse(
-      (double.tryParse(fiatAmount) ?? 0 / quote.rate).toStringAsFixed(min(20, cryptoCurrency.decimals)),
+      ((double.tryParse(fiatAmount) ?? 0) / quote.rate).toStringAsFixed(min(20, cryptoCurrency.decimals)),
       cryptoCurrency);
 
   Money? fiatAmountForQuote(Quote quote) {
