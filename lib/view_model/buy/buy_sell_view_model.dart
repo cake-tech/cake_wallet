@@ -180,9 +180,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return null;
     }
 
-    return Money.safeParse(
+    return Money.trySafeParse(
         (fiatConversionStore.prices[cryptoCurrency]! *
-                double.parse(amountForQuote(quote).toString()))
+                (double.tryParse(amountForQuote(quote).toString())??0))
             .toStringAsFixed(2),
         fiatCurrency);
   }
