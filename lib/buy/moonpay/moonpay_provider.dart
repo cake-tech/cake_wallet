@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import "package:cake_wallet/buy/moonpay/moonpay_payment_methods.dart";
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
@@ -54,6 +55,7 @@ class MoonPayProvider extends BuyProvider {
   static const _currenciesPath = '/v3/currencies';
   static const _buyQuote = '/buy_quote';
   static const _sellQuote = '/sell_quote';
+  static const _paymentMethodsPath = '/api/moonpay/payment-methods';
 
   static const _transactionsSuffix = '/v1/transactions';
 
@@ -108,54 +110,75 @@ class MoonPayProvider extends BuyProvider {
     );
 
     if (response.statusCode == 200) {
-      printV((jsonDecode(response.body) as Map<String, dynamic>));
-      return (jsonDecode(response.body) as Map<String, dynamic>)['query'] as String;
+      printV(jsonDecode(response.body) as Map<String, dynamic>);
+      return (jsonDecode(response.body) as Map<String, dynamic>)["query"] as String;
     } else {
       throw Exception(
-          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+          "Provider currently unavailable. Status: ${response.statusCode} ${response.body}",);
     }
   }
 
-  Future<Map<String, dynamic>> fetchFiatCredentials(
-      String fiatCurrency, String cryptocurrency, String? paymentMethod) async {
-    final params = {'baseCurrencyCode': fiatCurrency.toLowerCase(), 'apiKey': _apiKey};
+  Future<List<MoonPayPaymentMethod>> fetchMoonPayPaymentMethods({
+    required String currencyCode,
+    String transactionType = "buy",
+  }) async {
+    final String? countryCode = FiatCurrency.tryDeserialize(raw: currencyCode)?.apiCountryCode;
 
-    if (paymentMethod != null) params['paymentMethod'] = paymentMethod;
-
-    final path = '$_currenciesPath/${cryptocurrency.toLowerCase()}/limits';
-    final url = Uri.https(_baseUrl, path, params);
-
-    try {
-      final response = await ProxyWrapper().get(
-        clearnetUri: url,
-        headers: {'accept': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      } else {
-        printV('MoonPay does not support fiat: $fiatCurrency');
-        return {};
-      }
-    } catch (e) {
-      printV('MoonPay Error fetching fiat currencies: $e');
-      return {};
+    if (countryCode == null) {
+      throw Exception("MoonPay: failed to determine country code for currency: $currencyCode");
     }
+
+    final params = <String, String>{
+      "currencyCode": currencyCode,
+      "countryCode": countryCode,
+      "transactionType": transactionType,
+    };
+
+    final uri = Uri.https(_cIdBaseUrl, _paymentMethodsPath, params);
+
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
+      headers: {
+        "Accept": "application/json",
+        "x-api-key": _exchangeHelperApiKey,
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+          "MoonPay: failed to fetch payment methods. Status: ${response.statusCode} ${response.body}");
+    }
+
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final list = decoded['payment-methods'] as List? ?? [];
+
+    return list.map((e) => MoonPayPaymentMethod.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  @override
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
-    if (isBuyAction) {
-      final fiatBuyCredentials =
-          await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
-      if (fiatBuyCredentials.isNotEmpty) {
-        final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
+    try {
+      final moonPayMethods = await fetchMoonPayPaymentMethods(
+        currencyCode: fiatCurrency,
+        transactionType: isBuyAction ? 'buy' : 'sell',
+      );
+
+      for (final method in moonPayMethods) {
+        if (!method.active) continue;
+
         paymentMethods.add(PaymentMethod.fromMoonPayJson(
-            fiatBuyCredentials, _getPaymentTypeByString(paymentMethod)));
-        return paymentMethods;
+          {
+            'paymentMethod': method.type,
+            'baseCurrency': {'code': method.limitCurrencyCode, 'maxBuyAmount': method.limitAmount},
+          },
+          _getPaymentTypeByString(method.type),
+        ));
       }
+    } catch (e) {
+      printV('MoonPay: Error fetching payment methods: $e');
     }
 
     return paymentMethods;
