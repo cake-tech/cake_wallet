@@ -1,3 +1,4 @@
+import "dart:async";
 import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
@@ -109,6 +110,10 @@ class _NewDashboardState extends State<NewDashboard> {
                 dashboardViewModel: widget.dashboardViewModel,
                 selectedIndex: _selectedPage,
                 onItemTap: (index) {
+                  final page = widget.dashboardPageWidgets[index];
+                  if (page is ContactListPage) {
+                    unawaited(page.contactListViewModel.loadWalletContacts());
+                  }
                   setState(() {
                     _selectedPage = index;
                   });

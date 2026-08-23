@@ -33,6 +33,20 @@ abstract class ContactListViewModelBase with Store {
   }
 
   Future<void> _init() async {
+    await loadWalletContacts();
+
+    _subscription = contactSource.bindToListWithTransform(
+      contacts,
+      (contact) => ContactRecord(contactSource, contact),
+      initialFire: true,
+    );
+
+    setOrderType(settingsStore.contactListOrder);
+  }
+
+  @action
+  Future<void> loadWalletContacts() async {
+    final loadedContacts = <WalletContact>[];
     final walletInfos = await WalletInfo.getAll();
     for (final info in walletInfos) {
       final addressInfos = await info.getAddressInfos();
@@ -44,7 +58,7 @@ abstract class ContactListViewModelBase with Store {
           final address = value?.first;
           if (address != null) {
             final name = _createName(info.name, address.label, key: key);
-            walletContacts.add(WalletContact(
+            loadedContacts.add(WalletContact(
               address.address,
               name,
               getCryptoCurrencyForWalletListItem(
@@ -59,7 +73,7 @@ abstract class ContactListViewModelBase with Store {
             .contains(info.type)) {
           final address = info.address;
           final name = _createName(info.name, "", key: 0);
-          walletContacts.add(WalletContact(
+          loadedContacts.add(WalletContact(
             address,
             name,
             getCryptoCurrencyForWalletListItem(
@@ -73,7 +87,7 @@ abstract class ContactListViewModelBase with Store {
               return;
             }
             final name = _createName(info.name, label, key: null);
-            walletContacts.add(WalletContact(
+            loadedContacts.add(WalletContact(
               address,
               name,
               getCryptoCurrencyForWalletListItem(
@@ -86,7 +100,7 @@ abstract class ContactListViewModelBase with Store {
           });
         }
       } else {
-        walletContacts.add(WalletContact(
+        loadedContacts.add(WalletContact(
           info.address,
           _createName(info.name, "",
               key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
@@ -100,12 +114,7 @@ abstract class ContactListViewModelBase with Store {
       }
     }
 
-    _subscription = contactSource.bindToListWithTransform(
-        contacts, (Contact contact) => ContactRecord(contactSource, contact),
-        initialFire: true);
-
-    setOrderType(settingsStore.contactListOrder);
-    walletContacts = walletContacts.toList(); // rebuild
+    walletContacts = loadedContacts;
   }
 
   String _createName(String walletName, String label, {int? key = null}) {
