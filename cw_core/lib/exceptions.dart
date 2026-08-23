@@ -77,3 +77,12 @@ class WalletDeprecationException implements Exception {
 
   WalletDeprecationException({required this.seed, required this.curr});
 }
+
+class WalletSwitchException implements Exception {
+  WalletSwitchException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
