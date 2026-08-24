@@ -1850,19 +1850,10 @@ class SolanaWalletClient {
         final mint = tokenData['mint'] as String? ?? '';
         if (mint.isEmpty) continue;
 
-        final amountRaw = tokenData['amountRaw'] as String? ?? '0';
-
-        final decimals = tokenData['decimals'] as int? ?? 0;
-
-        final associatedTokenAddress = tokenData['associatedTokenAddress'] as String? ?? '';
-
         tokens.add(
           MoralisSolanaTokenBalance(
             mint: mint,
             amount: amount,
-            amountRaw: amountRaw,
-            decimals: decimals,
-            associatedTokenAddress: associatedTokenAddress,
           ),
         );
       }
@@ -1920,15 +1911,9 @@ class SolanaWalletClient {
 class MoralisSolanaTokenBalance {
   final String mint;
   final double amount;
-  final String amountRaw;
-  final int decimals;
-  final String associatedTokenAddress;
 
   const MoralisSolanaTokenBalance({
     required this.mint,
     required this.amount,
-    required this.amountRaw,
-    required this.decimals,
-    required this.associatedTokenAddress,
   });
 }

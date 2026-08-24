@@ -778,7 +778,7 @@ abstract class SolanaWalletBase
           name: tokenInfo.name,
           symbol: tokenInfo.symbol,
           mintAddress: mint,
-          decimal: moralisToken.decimals,
+          decimal: tokenInfo.decimal,
           mint: tokenInfo.mint,
           iconPath: tokenInfo.iconPath,
           tag: 'SOL',
