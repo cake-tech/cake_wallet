@@ -12,7 +12,7 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.direction,
     required this.date,
     required this.isPending,
-    required this.amount,
+    required super.amount,
     required this.fee,
     required this.confirmations,
     required this.tokenSymbol,
@@ -33,12 +33,13 @@ class ZanoTransactionInfo extends TransactionInfo {
         height = transfer.height,
         direction = isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
         date = DateTime.fromMillisecondsSinceEpoch(transfer.timestamp * 1000),
-        amount = amount,
+
         fee = Money.fromInt(transfer.fee, CryptoCurrency.zano),
         confirmations = confirmations,
         isPending = confirmations < 10,
         recipientAddress =
-            transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
+            transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '',
+        super(amount: amount) {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,
       'assetId': assetId,
@@ -53,11 +54,13 @@ class ZanoTransactionInfo extends TransactionInfo {
   final TransactionDirection direction;
   final DateTime date;
   final bool isPending;
-  final Money amount;
   final Money fee;
   final int confirmations;
   final int decimalPoint;
   late String recipientAddress;
   final String tokenSymbol;
   String? key;
+
+  @override
+  int get neededConfirmations => 10;
 }

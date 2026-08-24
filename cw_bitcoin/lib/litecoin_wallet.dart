@@ -846,6 +846,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     tx.height = status.mwebUtxosHeight;
     tx.confirmations = 1;
     tx.isPending = false;
+    // Mutated in place, so the history has to be told explicitly.
+    transactionHistory.markUpdated([tx.id]);
     await transactionHistory.save();
     return true;
   }

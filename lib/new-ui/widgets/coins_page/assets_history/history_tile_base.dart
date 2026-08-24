@@ -1,3 +1,5 @@
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -26,9 +28,9 @@ class HistoryTileBase extends StatelessWidget {
   final String? title;
   final Widget? titleWidget;
   final String date;
-  final String? amount;
+  final Money? amount;
   final Widget? amountWidget;
-  final String? amountFiat;
+  final Money? amountFiat;
   final Widget? amountFiatWidget;
   final Widget leadingIcon;
   final bool roundedTop;
@@ -37,46 +39,8 @@ class HistoryTileBase extends StatelessWidget {
   final Color? primaryTextColor;
   final CryptoCurrency? asset;
 
-  // String _getDirectionIcon() {
-  //   if (pending) {
-  //     return direction == TransactionDirection.incoming
-  //         ? 'assets/new-ui/history-receiving.svg'
-  //         : 'assets/new-ui/history-sending.svg';
-  //   } else {
-  //     return direction == TransactionDirection.incoming
-  //         ? 'assets/new-ui/history-received.svg'
-  //         : 'assets/new-ui/history-sent.svg';
-  //   }
-  // }
-  //
-  // Widget _getLeadingIcon(BuildContext context) {
-  //   if (asset == CryptoCurrency.btcln) {
-  //     return Stack(
-  //       children: [
-  //         Image.asset(
-  //           asset!.iconPath!,
-  //           width: 34,
-  //           height: 34,
-  //         ),
-  //         Positioned(
-  //           top: 20,
-  //           left: 20,
-  //           child: SvgPicture.asset(
-  //             'assets/new-ui/chain_badges/lightning.svg',
-  //             width: 16,
-  //             height: 16,
-  //           ),
-  //         )
-  //       ],
-  //     );
-  //   }
-  //
-  //   return SvgPicture.asset(_getDirectionIcon());
-  // }
-
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => Column(
       children: [
         Container(
           decoration: ShapeDecoration(
@@ -129,16 +93,16 @@ class HistoryTileBase extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (amount != null)
-                              Text(amount!,
+                              MoneyText(amount!,
                                   style: TextStyle(
                                       color: primaryTextColor ??
-                                          Theme.of(context).colorScheme.onSurface))
+                                          Theme.of(context).colorScheme.onSurface,),)
                             else if (amountWidget != null)
                               amountWidget!,
                             if (amountFiat != null)
-                              Text(amountFiat!,
+                              MoneyText(amountFiat!,
                                   style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant))
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,),)
                             else if (amountFiatWidget != null)
                               amountFiatWidget!
                           ],
@@ -162,5 +126,4 @@ class HistoryTileBase extends StatelessWidget {
           )
       ],
     );
-  }
 }

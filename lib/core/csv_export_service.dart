@@ -6,13 +6,13 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import "package:cw_core/action_list_item.dart";
+import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
-import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import "package:cake_wallet/order/order.dart";
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cw_core/transaction_info.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -58,16 +58,16 @@ class CsvExportService {
   }
 
   String? _buildRow(ActionListItem item) {
-    if (item is TransactionListItem) return _transactionRow(item);
-    if (item is TradeListItem) return _tradeRow(item);
-    if (item is OrderListItem) return _orderRow(item);
-    if (item is AnonpayTransactionListItem) return _anonpayRow(item);
+    if (item is TransactionInfo) return _transactionRow(item);
+    if (item is Trade) return _tradeRow(item);
+    if (item is Order) return _orderRow(item);
+    if (item is AnonpayInvoiceInfo) return _anonpayRow(item);
     if (item is PayjoinTransactionListItem) return _payjoinRow(item);
     return null;
   }
 
-  String _transactionRow(TransactionListItem item) {
-    final tx = item.transaction;
+  String _transactionRow(TransactionInfo item) {
+    final tx = item;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
 
@@ -99,8 +99,8 @@ class CsvExportService {
     ]);
   }
 
-  String _tradeRow(TradeListItem item) {
-    final trade = item.trade;
+  String _tradeRow(Trade item) {
+    final trade = item;
     return _row([
       'trade',
       _isoDate(trade.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
@@ -122,8 +122,8 @@ class CsvExportService {
     ]);
   }
 
-  String _orderRow(OrderListItem item) {
-    final order = item.order;
+  String _orderRow(Order item) {
+    final order = item;
     return _row([
       'order',
       _isoDate(order.createdAt),
@@ -145,8 +145,8 @@ class CsvExportService {
     ]);
   }
 
-  String _anonpayRow(AnonpayTransactionListItem item) {
-    final tx = item.transaction;
+  String _anonpayRow(AnonpayInvoiceInfo item) {
+    final tx = item;
     final amount = tx.fiatAmount?.toString() ?? tx.amountTo?.toString() ?? '';
     final currency = tx.fiatEquiv ?? tx.coinTo;
 

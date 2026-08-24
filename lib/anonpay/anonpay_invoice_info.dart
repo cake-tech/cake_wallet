@@ -1,3 +1,4 @@
+import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/keyable.dart';
@@ -6,7 +7,7 @@ import 'package:hive/hive.dart';
 part 'anonpay_invoice_info.part.dart';
 
 // @HiveType(typeId: AnonpayInvoiceInfo.typeId)
-class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoBase {
+class AnonpayInvoiceInfo extends HiveObject with Keyable, ActionListItem implements AnonpayInfoBase {
   // @HiveField(0)
   final String invoiceId;
   // @HiveField(1)
@@ -35,6 +36,12 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
   final String walletId;
   // @HiveField(13)
   final String provider;
+
+  @override
+  String get id => invoiceId;
+
+  @override
+  DateTime get date => createdAt;
 
   static const typeId = ANONPAY_INVOICE_INFO_TYPE_ID;
   static const boxName = 'AnonpayInvoiceInfo';

@@ -1128,14 +1128,10 @@ abstract class ZcashWalletBase
         final currentIds = transactionHistory.transactions.keys.toSet();
         final newIds = transactions.keys.toSet();
 
-        currentIds
-            .difference(newIds)
-            .forEach((final id) => transactionHistory.transactions.remove(id));
+        currentIds.difference(newIds).forEach(transactionHistory.remove);
 
-        transactions.forEach((final key, final tx) {
-          transactionHistory.transactions[key] = tx;
-        });
-        await transactionHistory.save();
+        transactionHistory.addMany(transactions);
+        transactionHistory.markLoaded();
       } while (_transactionUpdateQueued);
     } catch (e, stackTrace) {
       printV("Update transactions error: $e");

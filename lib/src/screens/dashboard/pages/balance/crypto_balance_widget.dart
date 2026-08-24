@@ -56,36 +56,18 @@ class CryptoBalanceWidget extends StatelessWidget {
         children: [
           Observer(
             builder: (_) {
-              if (dashboardViewModel.getMoneroError != null) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: DashBoardRoundedCardWidget(
-                    title: "Invalid monero bindings",
-                    subTitle: dashboardViewModel.getMoneroError.toString(),
-                  ),
-                );
-              }
               return Container();
             },
           ),
           Observer(
             builder: (_) {
-              if (dashboardViewModel.getWowneroError != null) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: DashBoardRoundedCardWidget(
-                    title: "Invalid wownero bindings",
-                    subTitle: dashboardViewModel.getWowneroError.toString(),
-                  ),
-                );
-              }
               return Container();
             },
           ),
           Observer(
               builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
                   ? HomeScreenAccountWidget(
-                      walletName: dashboardViewModel.name, accountName: dashboardViewModel.subname)
+                      walletName: dashboardViewModel.name, accountName: "")
                   : Column(
                       children: [
                         SizedBox(height: 16),
@@ -152,9 +134,6 @@ class CryptoBalanceWidget extends StatelessWidget {
             },
           ),
           Observer(builder: (_) {
-            if (!dashboardViewModel.showRepWarning) {
-              return const SizedBox();
-            }
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: DashBoardRoundedCardWidget(
@@ -230,168 +209,6 @@ class CryptoBalanceWidget extends StatelessWidget {
           Observer(builder: (context) {
             return Column(
               children: [
-                if (dashboardViewModel.isMoneroWalletBrokenReasons.isNotEmpty) ...[
-                  SizedBox(height: 10),
-                  Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: DashBoardRoundedCardWidget(
-                        customBorder: 30,
-                        title: "This wallet has encountered an issue",
-                        subTitle: "Here are the things that you should note:\n - " +
-                            dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
-                            "\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                      ))
-                ],
-                if (dashboardViewModel.showSilentPaymentsCard) ...[
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                    child: DashBoardRoundedCardWidget(
-                      shadowBlur: dashboardViewModel.getShadowBlur(),
-                      shadowSpread: dashboardViewModel.getShadowSpread(),
-                      marginV: 0,
-                      marginH: 0,
-                      customBorder: 30,
-                      title: S.of(context).silent_payments,
-                      subTitle: S.of(context).enable_silent_payments_scanning,
-                      hint: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () => launchUrl(
-                                  Uri.parse(
-                                      "https://docs.cakewallet.com/cryptos/bitcoin#silent-payments"),
-                                  mode: LaunchMode.externalApplication,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      S.of(context).what_is_silent_payments,
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            height: 1,
-                                          ),
-                                      softWrap: true,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: Icon(
-                                        Icons.help_outline,
-                                        size: 16,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Observer(
-                                builder: (_) => StandardSwitch(
-                                  value: dashboardViewModel.silentPaymentsScanningActive,
-                                  onTapped: () => _toggleSilentPaymentsScanning(context),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                      onTap: () => _toggleSilentPaymentsScanning(context),
-                      image: !context.currentTheme.isDark
-                          ? Image.asset(btcLockLight, height: 48)
-                          : Image.asset(btcLockDark, height: 48),
-                    ),
-                  ),
-                ],
-                if (dashboardViewModel.showMwebCard) ...[
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: InfoCard(
-                      title: S.of(context).litecoin_mweb,
-                      description: S.of(context).litecoin_mweb_description,
-                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
-                      rightButtonTitle: S.of(context).enable,
-                      image: 'assets/images/mweb_logo.png',
-                      leftButtonAction: () => _dismissMweb(context),
-                      rightButtonAction: () => _enableMweb(context),
-                      hintWidget: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => launchUrl(
-                          Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
-                          mode: LaunchMode.externalApplication,
-                        ),
-                        child: Text(
-                          S.of(context).learn_more,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                height: 1,
-                              ),
-                          softWrap: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                if (dashboardViewModel.showDecredInfoCard) ...[
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: InfoCard(
-                      title: S.of(context).synchronizing,
-                      description: S.of(context).decred_info_card_details,
-                      image: 'assets/new-ui/crypto_full_icons/decred.svg',
-                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
-                      rightButtonTitle: S.of(context).learn_more,
-                      leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(
-                          Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
-                    ),
-                  ),
-                ],
-                if (dashboardViewModel.showPayjoinCard) ...[
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: InfoCard(
-                      title: "Payjoin",
-                      description: S.of(context).payjoin_card_content,
-                      hintWidget: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => launchUrl(
-                          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
-                          mode: LaunchMode.externalApplication,
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              S.of(context).what_is_payjoin,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1,
-                                  ),
-                              softWrap: true,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: Icon(
-                                Icons.help_outline,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      image: 'assets/images/payjoin.png',
-                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
-                      rightButtonTitle: S.of(context).enable,
-                      leftButtonAction: () => dashboardViewModel.dismissPayjoin(),
-                      rightButtonAction: () => _enablePayjoin(context),
-                    ),
-                  ),
-                ],
               ],
             );
           }),
@@ -432,48 +249,6 @@ class CryptoBalanceWidget extends StatelessWidget {
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
 
-  void _enablePayjoin(BuildContext context) {
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => AlertWithOneAction(
-              alertTitle: S.of(context).payjoin_enabling_popup_title,
-              alertContent: S.of(context).payjoin_enabling_popup_content,
-              buttonText: S.of(context).ok,
-              buttonAction: () {
-                Navigator.of(context).pop();
-              },
-            ));
 
-    dashboardViewModel.enablePayjoin();
-  }
 
-  Future<void> _enableMweb(BuildContext context) async {
-    if (!dashboardViewModel.hasEnabledMwebBefore) {
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) => AlertWithOneAction(
-                alertTitle: S.of(context).alert_notice,
-                alertContent: S.of(context).litecoin_mweb_warning,
-                buttonText: S.of(context).understand,
-                buttonAction: () {
-                  Navigator.of(context).pop();
-                },
-              ));
-    }
-    dashboardViewModel.setMwebEnabled();
-  }
-
-  Future<void> _dismissMweb(BuildContext context) async {
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => AlertWithOneAction(
-              alertTitle: S.of(context).alert_notice,
-              alertContent: S.of(context).litecoin_mweb_enable_later,
-              buttonText: S.of(context).understand,
-              buttonAction: () {
-                Navigator.of(context).pop();
-              },
-            ));
-    dashboardViewModel.dismissMweb();
-  }
 }

@@ -1,18 +1,22 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
+import 'package:cw_core/action_list_item.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
 
-class PayjoinTransactionListItem extends ActionListItem {
-  PayjoinTransactionListItem({
-    required this.sessionId,
-    required this.session,
-    required super.key,
-  });
+/// The one history row that stays a wrapper: a payjoin needs its box key (the
+/// session doesn't hold its own id) and the transaction the merge stitches in.
+class PayjoinTransactionListItem with ActionListItem {
+  PayjoinTransactionListItem({required this.sessionId, required this.session});
 
   final String sessionId;
   final PayjoinSession session;
   TransactionInfo? transaction;
+
+  /// The txid once broadcast, so this row collides with — and by precedence
+  /// replaces — the plain transaction row for the same transaction. Before
+  /// broadcast it stands on its own.
+  @override
+  String get id => session.txId ?? sessionId;
 
   @override
   DateTime get date => session.inProgressSince!;

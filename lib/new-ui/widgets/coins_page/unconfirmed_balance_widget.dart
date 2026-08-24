@@ -79,7 +79,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                         backgroundColor:
                                             Theme.of(context).colorScheme.primary.withAlpha(50),
                                         color: Theme.of(context).colorScheme.primary,
-                                        value: dashboardViewModel.confirmationProgress,
+                                        value: 1,
                                       ),
                                     ),
                                     Row(

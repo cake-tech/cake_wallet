@@ -197,21 +197,25 @@ abstract class DecredWalletBase
   }
 
   Future<void> updateTransactionHistory() async {
-    // from is the number of transactions skipped from most recent, not block
-    // height.
-    var from = 0;
-    while (true) {
-      // Transactions are returned from newest to oldest. Loop fetching 5 txn
-      // at a time until we find a batch with txn that no longer need to be
-      // updated.
-      final txs = await this.fetchFiveTransactions(from);
-      if (txs.length == 0) {
-        return;
+    try {
+      // from is the number of transactions skipped from most recent, not block
+      // height.
+      var from = 0;
+      while (true) {
+        // Transactions are returned from newest to oldest. Loop fetching 5 txn
+        // at a time until we find a batch with txn that no longer need to be
+        // updated.
+        final txs = await this.fetchFiveTransactions(from);
+        if (txs.length == 0) {
+          return;
+        }
+        if (this.transactionHistory.update(txs)) {
+          return;
+        }
+        from += 5;
       }
-      if (this.transactionHistory.update(txs)) {
-        return;
-      }
-      from += 5;
+    } finally {
+      this.transactionHistory.markLoaded();
     }
   }
 

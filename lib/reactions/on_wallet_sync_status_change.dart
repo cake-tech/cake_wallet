@@ -15,7 +15,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
-    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+    WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet,
     SettingsStore settingsStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {

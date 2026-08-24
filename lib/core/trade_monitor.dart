@@ -84,7 +84,7 @@ class TradeMonitor {
     final tradesToCancel = <String>[];
 
     for (final item in trades) {
-      final trade = item.trade;
+      final trade = item;
 
       final provider = _getProviderByDescription(trade.provider);
 

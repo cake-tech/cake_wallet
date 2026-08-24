@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:flutter/material.dart';
 
 class PayjoinHistoryTile extends StatelessWidget {
@@ -15,7 +16,7 @@ class PayjoinHistoryTile extends StatelessWidget {
       required this.bottomSeparator});
 
   final String createdAt;
-  final String amount;
+  final Money amount;
   final String currency;
   final String state;
   final bool isSending;
@@ -24,11 +25,10 @@ class PayjoinHistoryTile extends StatelessWidget {
   final bool bottomSeparator;
 
   @override
-  Widget build(BuildContext context) {
-    return HistoryTileBase(
-        title: "${isSending ? S.of(context).outgoing : S.of(context).incoming} Payjoin",
+  Widget build(BuildContext context) => HistoryTileBase(
+        title: "${isSending ? S.of(context).outgoing : S.of(context).incoming} Payjoin - ${state}",
         date: createdAt,
-        amount: amount + " " + currency,
+        amount: amount ,
         leadingIcon: ClipRRect(
           borderRadius: BorderRadius.circular(50),
           child: Image.asset(
@@ -37,9 +37,7 @@ class PayjoinHistoryTile extends StatelessWidget {
             height: 36,
           ),
         ),
-        amountFiat: state,
         roundedTop: roundedTop,
         roundedBottom: roundedBottom,
         bottomSeparator: bottomSeparator);
-  }
 }

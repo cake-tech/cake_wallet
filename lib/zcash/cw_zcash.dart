@@ -100,14 +100,14 @@ class CWZcash extends Zcash {
 
   @override
   String getAddress(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet) {
     final zcashWallet = wallet as ZcashWallet;
     return zcashWallet.walletAddresses.address;
   }
 
   @override
   String getPrivateKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final seed = zcashWallet.seed;
     return seed ?? '';
@@ -115,7 +115,7 @@ class CWZcash extends Zcash {
 
   @override
   String getPublicKey(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet) {
     return getAddress(wallet);
   }
 

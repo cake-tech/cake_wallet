@@ -4,8 +4,8 @@ import 'package:cw_core/transaction_info.dart';
 
 class DecredTransactionInfo extends TransactionInfo {
   DecredTransactionInfo({
+    required super.amount,
     required String id,
-    required Money amount,
     required Money fee,
     required TransactionDirection direction,
     required bool isPending,
@@ -15,7 +15,6 @@ class DecredTransactionInfo extends TransactionInfo {
     required String to,
   }) {
     this.id = id;
-    this.amount = amount;
     this.fee = fee;
     this.height = height;
     this.direction = direction;

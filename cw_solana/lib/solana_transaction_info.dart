@@ -1,16 +1,16 @@
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 
-class SolanaTransactionInfo extends TransactionInfo {
+class SolanaTransactionInfo extends JsonTransactionInfo {
   SolanaTransactionInfo({
     required this.id,
     required this.date,
     required this.to,
     required this.from,
     required this.direction,
-    required this.amount,
+    required super.amount,
     required this.isPending,
     required this.fee,
   });
@@ -25,8 +25,6 @@ class SolanaTransactionInfo extends TransactionInfo {
   @override
   String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
 
-  @override
-  final Money amount;
   @override
   final bool isPending;
   @override
@@ -54,6 +52,7 @@ class SolanaTransactionInfo extends TransactionInfo {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'solAmount': amount.toString(),

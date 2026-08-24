@@ -2,9 +2,9 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 
-class NanoTransactionInfo extends TransactionInfo {
+class NanoTransactionInfo extends JsonTransactionInfo {
   NanoTransactionInfo({
     required this.id,
     required this.height,
@@ -16,11 +16,10 @@ class NanoTransactionInfo extends TransactionInfo {
     required this.confirmations,
     required this.to,
     required this.from,
-  }) : this.amount = amountRaw;
+  }) : super(amount: amountRaw);
 
   final String id;
   final int height;
-  final Money amount;
   final TransactionDirection direction;
   final DateTime date;
   final bool confirmed;
@@ -53,6 +52,7 @@ class NanoTransactionInfo extends TransactionInfo {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,

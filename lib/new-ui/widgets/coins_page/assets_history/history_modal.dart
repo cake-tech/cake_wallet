@@ -7,6 +7,8 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class HistoryModal extends StatelessWidget {
@@ -42,11 +44,9 @@ class HistoryModal extends StatelessWidget {
                   child: CustomScrollView(physics: ClampingScrollPhysics(),
                       controller: ModalScrollController.of(context),
                       slivers: [
-                HistorySection(
-                    detailsAsPage: true,
-                    dashboardViewModel: dashboardViewModel,
-                    short: false,
-                    roundedTopSection: true)
+                getIt.get<HistorySection>(
+                    param1: const HistorySectionArguments(
+                        detailsAsPage: true, short: false, roundedTopSection: true))
               ])),
               Positioned(
                 bottom: 0,
@@ -83,10 +83,16 @@ class HistoryModal extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        Navigator.of(context).push(CupertinoPageRoute(
+                      onTap: () async {
+                        // Awaiting the route covers every way out of the page —
+                        // back button, swipe-back, or a programmatic pop.
+                        await Navigator.of(context).push(CupertinoPageRoute(
                             builder: (context) =>
                                 HistoryFiltersPage(dashboardViewModel: dashboardViewModel)));
+
+                        getIt
+                            .get<TransactionHistoryBloc>()
+                            .add(const TransactionHistoryRefreshed());
                       },
                       child: Material(
                         color: Colors.transparent,

@@ -39,7 +39,7 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>? wallet;
 
   @observable
   String? currentRouteName;
@@ -58,7 +58,7 @@ abstract class AppStoreBase with Store {
 
   @action
   Future<void> changeCurrentWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet) async {
     final changingToSameWalletType = this.wallet?.type == wallet.type;
 
     await this.wallet?.close(shouldCleanup: !changingToSameWalletType);

@@ -20,57 +20,12 @@ class DesktopDashboardActions extends StatelessWidget {
         return Column(
           children: [
             const SizedBox(height: 16),
-            DesktopActionButton(
-              title: MainActions.showWalletsAction.name(context),
-              image: MainActions.showWalletsAction.image,
-              canShow: MainActions.showWalletsAction.canShow?.call(dashboardViewModel),
-              isEnabled: MainActions.showWalletsAction.isEnabled?.call(dashboardViewModel),
-              onTap: () async =>
-                  await MainActions.showWalletsAction.onTap(context, dashboardViewModel),
-            ),
-            DesktopActionButton(
-              title: MainActions.swapAction.name(context),
-              image: MainActions.swapAction.image,
-              canShow: MainActions.swapAction.canShow?.call(dashboardViewModel),
-              isEnabled: MainActions.swapAction.isEnabled?.call(dashboardViewModel),
-              onTap: () async => await MainActions.swapAction.onTap(context, dashboardViewModel),
-            ),
             Row(
               children: [
-                Expanded(
-                  child: DesktopActionButton(
-                    title: MainActions.receiveAction.name(context),
-                    image: MainActions.receiveAction.image,
-                    canShow: MainActions.receiveAction.canShow?.call(dashboardViewModel),
-                    isEnabled: MainActions.receiveAction.isEnabled?.call(dashboardViewModel),
-                    onTap: () async =>
-                        await MainActions.receiveAction.onTap(context, dashboardViewModel),
-                  ),
-                ),
-                Expanded(
-                  child: DesktopActionButton(
-                    title: MainActions.sendAction.name(context),
-                    image: MainActions.sendAction.image,
-                    canShow: MainActions.sendAction.canShow?.call(dashboardViewModel),
-                    isEnabled: MainActions.sendAction.isEnabled?.call(dashboardViewModel),
-                    onTap: () async =>
-                        await MainActions.sendAction.onTap(context, dashboardViewModel),
-                  ),
-                ),
               ],
             ),
             Row(
               children: [
-                Expanded(
-                  child: DesktopActionButton(
-                    title: MainActions.tradeAction.name(context),
-                    image: MainActions.tradeAction.image,
-                    canShow: MainActions.tradeAction.canShow?.call(dashboardViewModel),
-                    isEnabled: MainActions.tradeAction.isEnabled?.call(dashboardViewModel),
-                    onTap: () async =>
-                        await MainActions.tradeAction.onTap(context, dashboardViewModel),
-                  ),
-                ),
               ],
             ),
             Expanded(

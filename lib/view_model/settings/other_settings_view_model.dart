@@ -39,7 +39,7 @@ abstract class OtherSettingsViewModelBase with Store {
 
   final WalletType walletType;
   final int? chainId;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> _wallet;
 
   @observable
   String currentVersion;

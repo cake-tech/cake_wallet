@@ -610,6 +610,8 @@ abstract class ElectrumWalletBase
               existingTxInfo.direction = tx.direction;
               existingTxInfo.isPending = tx.isPending;
               existingTxInfo.unspents = tx.unspents;
+              // Mutated in place, so the history has to be told explicitly.
+              transactionHistory.markUpdated([txid]);
 
               final newUnspents = tx.unspents!
                   .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
@@ -2700,7 +2702,7 @@ abstract class ElectrumWalletBase
 
         if (this is BitcoinWallet) {
           //removes transactions no longer returned by the api, presumed replaced/invalid.
-          transactionHistory.transactions.removeWhere(
+          transactionHistory.removeWhere(
             (hash, tx) =>
                 tx.outputAddresses != null &&
                 tx.outputAddresses!.contains(addressRecord.address) &&
@@ -2721,6 +2723,8 @@ abstract class ElectrumWalletBase
                 storedTx.confirmations = currentHeight! - height + 1;
               }
               storedTx.isPending = storedTx.confirmations == 0;
+              // Mutated in place, so the history has to be told explicitly.
+              transactionHistory.markUpdated([txid]);
             }
 
             historiesWithDetails[txid] = storedTx;
@@ -2921,7 +2925,7 @@ abstract class ElectrumWalletBase
         //removes transactions no longer returned by the api, presumed replaced/invalid.
         if (this is BitcoinWallet) {
           final beforeLen = transactionHistory.transactions.length;
-          transactionHistory.transactions.removeWhere((hash, tx) {
+          transactionHistory.removeWhere((hash, tx) {
             return tx.outputAddresses != null &&
                 tx.outputAddresses!.contains(addressRecord.address) &&
                 !history.any((h) => h['tx_hash'] == hash);

@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -68,11 +69,12 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             }): null),
       AssetsHistorySectionTab(
           S.current.history,
-          HistorySection(
-            detailsAsPage: false,
-            roundedTopSection: hasAssetsTab || hasNftTab,
-            dashboardViewModel: widget.dashboardViewModel,
-            short: true,
+          getIt.get<HistorySection>(
+            param1: HistorySectionArguments(
+              detailsAsPage: false,
+              roundedTopSection: hasAssetsTab || hasNftTab,
+              short: true,
+            ),
           ),
           AssetsHistorySectionActionButton(
               S.current.all_pascal_case, "assets/new-ui/arrow_right.svg", () {

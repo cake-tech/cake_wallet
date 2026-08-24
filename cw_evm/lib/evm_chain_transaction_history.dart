@@ -1,128 +1,54 @@
-import 'dart:convert';
 import 'dart:core';
-import 'dart:developer';
+
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/json_transaction_history.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/transaction_history.dart';
 
-part 'evm_chain_transaction_history.g.dart';
-
-class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
-
-abstract class EVMChainTransactionHistoryBase
-    extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
-  EVMChainTransactionHistoryBase({
-    required this.walletInfo,
+class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransactionInfo> {
+  EVMChainTransactionHistory({
+    required WalletInfo walletInfo,
     required String password,
-    required this.encryptionFileUtils,
+    required EncryptionFileUtils encryptionFileUtils,
     required this.getCurrentChainId,
-  }) : _password = password {
-    transactions = ObservableMap<String, EVMChainTransactionInfo>();
-  }
+  }) : super(
+          walletInfo: walletInfo,
+          password: password,
+          encryptionFileUtils: encryptionFileUtils,
+        );
 
-  String _password;
-
-  final WalletInfo walletInfo;
-  final EncryptionFileUtils encryptionFileUtils;
-
-  /// Function to get the current chain ID (allows transaction history to use correct file)
+  /// Lets the history resolve the file — and the chain filter — for whichever
+  /// chain the wallet is currently on.
   final int Function() getCurrentChainId;
 
-  /// Get transaction history file name based on current chain ID
-  String getTransactionHistoryFileName() {
-    return EVMChainUtils.getTransactionHistoryFileName(getCurrentChainId());
-  }
-
-  EVMChainTransactionInfo getTransactionInfo(Map<String, dynamic> val) {
-    return EVMChainTransactionInfo.fromJson(val, getCurrentChainId());
-  }
-
-  Future<void> init() async {
-    clear();
-    await _load();
-  }
+  @override
+  String get fileName => EVMChainUtils.getTransactionHistoryFileName(getCurrentChainId());
 
   @override
-  Future<void> save() async {
-    final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
-    try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-      String path = '$dirPath/$transactionsHistoryFileNameForWallet';
+  EVMChainTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
+      EVMChainTransactionInfo.fromJson(json, getCurrentChainId());
 
-      // Filter transactions by current chainId before saving
-      // This ensures we only save transactions for the current chain, preventing
-      // transactions from other chains from being saved to the wrong file
-      final currentChainId = getCurrentChainId();
-      final filteredTransactions = <String, EVMChainTransactionInfo>{};
-      for (final entry in transactions.entries) {
-        if (entry.value.chainId == currentChainId) {
-          filteredTransactions[entry.key] = entry.value;
-        }
-      }
-
-      final data = json.encode({'transactions': filteredTransactions});
-      await encryptionFileUtils.write(path: path, password: _password, data: data);
-    } catch (e, s) {
-      log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
-      log(s.toString());
-    }
-  }
+  /// Keeps one chain's file from ever picking up another chain's transactions.
+  @override
+  bool shouldPersist(EVMChainTransactionInfo transaction) =>
+      transaction.chainId == getCurrentChainId();
 
   @override
   void addOne(EVMChainTransactionInfo transaction) {
-    if (transaction.chainId == getCurrentChainId()) {
-      transactions[transaction.id] = transaction;
-    }
+    if (transaction.chainId == getCurrentChainId()) put(transaction.id, transaction);
   }
 
   @override
-  void addMany(Map<String, EVMChainTransactionInfo> transactionsToAdd) {
+  void addMany(Map<String, EVMChainTransactionInfo> transactions) {
     final currentChainId = getCurrentChainId();
 
-    // First, remove any transactions that don't match the current chainId
-    // This prevents transactions from other chains from persisting in the map
-    transactions.removeWhere((key, value) => value.chainId != currentChainId);
+    // Drop anything left over from another chain before taking the new batch on,
+    // so switching chains can't leave foreign transactions in the map.
+    removeWhere((_, transaction) => transaction.chainId != currentChainId);
 
-    // Then add/update transactions for the current chain
-    for (final entry in transactionsToAdd.entries) {
-      if (entry.value.chainId == currentChainId) {
-        transactions[entry.key] = entry.value;
-      }
+    for (final entry in transactions.entries) {
+      if (entry.value.chainId == currentChainId) put(entry.key, entry.value);
     }
   }
-
-  Future<Map<String, dynamic>> _read() async {
-    final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-    final content = await encryptionFileUtils.read(path: path, password: _password);
-    if (content.isEmpty) {
-      return {};
-    }
-    return json.decode(content) as Map<String, dynamic>;
-  }
-
-  Future<void> _load() async {
-    try {
-      final content = await _read();
-      final txs = content['transactions'] as Map<String, dynamic>? ?? {};
-
-      for (var entry in txs.entries) {
-        final val = entry.value;
-
-        if (val is Map<String, dynamic>) {
-          final tx = getTransactionInfo(val);
-          _update(tx);
-        }
-      }
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  void _update(EVMChainTransactionInfo transaction) => transactions[transaction.id] = transaction;
 }

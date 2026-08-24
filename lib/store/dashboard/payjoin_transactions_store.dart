@@ -33,11 +33,9 @@ abstract class PayjoinTransactionsStoreBase with Store {
             PayjoinSessionStatus.unrecoverable.name
           ].contains(session.status) &&
           session.inProgressSince != null) {
-        updatedTransactions.add(PayjoinTransactionListItem(
-          sessionId: key as String,
-          session: session,
-          key: ValueKey('payjoin_transaction_list_item_${key}_key'),
-        ));
+        updatedTransactions.add(
+          PayjoinTransactionListItem(sessionId: key as String, session: session),
+        );
       }
     });
 

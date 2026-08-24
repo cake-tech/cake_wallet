@@ -9,8 +9,9 @@ import 'package:cw_wownero/api/transaction_history.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
   WowneroTransactionInfo(this.txHash, this.height, this.direction, this.date, this.isPending,
-      this.amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
-      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
+      Money amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
+      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}",
+        super(amount: amount);
 
   WowneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
@@ -22,12 +23,12 @@ class WowneroTransactionInfo extends TransactionInfo {
         date = DateTime.fromMillisecondsSinceEpoch(
             (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
-        amount = Money.fromInt(map['amount'] as int, CryptoCurrency.wow),
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = Money.fromInt(map['fee'] as int? ?? 0, CryptoCurrency.wow) {
+        fee = Money.fromInt(map['fee'] as int? ?? 0, CryptoCurrency.wow),
+        super(amount: Money.fromInt(map['amount'] as int, CryptoCurrency.wow)) {
     additionalInfo = <String, dynamic>{
       'key': key,
       'accountIndex': accountIndex,
@@ -42,7 +43,6 @@ class WowneroTransactionInfo extends TransactionInfo {
   final DateTime date;
   final int accountIndex;
   final bool isPending;
-  final Money amount;
   final Money fee;
   final int addressIndex;
   final int confirmations;

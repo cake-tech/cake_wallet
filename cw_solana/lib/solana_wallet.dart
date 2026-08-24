@@ -151,6 +151,9 @@ abstract class SolanaWalletBase
 
   String get _scamCheckDoneKey => 'solana_scam_check_v2_done_${walletInfo.name}';
 
+  @override
+  bool get hasTokens => true;
+
   Future<void> _checkForExistingScamTokens() async {
     final prefs = await _sharedPrefs.future;
     if (prefs.getBool(_scamCheckDoneKey) == true) return;
@@ -402,9 +405,12 @@ abstract class SolanaWalletBase
     TransactionSyncResult result,
   ) async {
     if (result.transactions.isNotEmpty) {
-      final isSaved = await transactionHistory.saveAndConfirm();
-
-      if (!isSaved) return;
+      try {
+        await transactionHistory.save();
+      } catch(e) {
+        printV("solana history failed to save: $e");
+        return;
+      }
     }
 
     await _saveLastSyncedSignature(source, result.newestSignature);

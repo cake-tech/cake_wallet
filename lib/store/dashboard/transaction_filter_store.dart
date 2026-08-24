@@ -1,11 +1,11 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import "package:cw_core/action_list_item.dart";
+import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import "package:cw_core/transaction_info.dart";
 
 part 'transaction_filter_store.g.dart';
 
@@ -71,46 +71,39 @@ abstract class TransactionFilterStoreBase with Store {
   @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  List<ActionListItem> filtered({required List<ActionListItem> transactions}) {
-    var _transactions = <ActionListItem>[];
-    final needToFilter = !displayAll || (startDate != null && endDate != null);
-
-    if (needToFilter) {
-      _transactions = transactions.where((item) {
-        var allowed = true;
-
-        if (allowed && startDate != null && endDate != null) {
-          if (item is TransactionListItem) {
-            allowed = (startDate?.isBefore(item.transaction.date) ?? false) &&
-                (endDate?.isAfter(item.transaction.date) ?? false);
-          } else if (item is AnonpayTransactionListItem) {
-            allowed = (startDate?.isBefore(item.transaction.createdAt) ?? false) &&
-                (endDate?.isAfter(item.transaction.createdAt) ?? false);
-          }
-        }
-
-        if (allowed && (!displayAll)) {
-          if (item is TransactionListItem) {
-            final canShowSilentPayment = _appStore.wallet?.type == WalletType.bitcoin &&
-                (bitcoin?.txIsReceivedSilentPayment(item.transaction) ?? false);
-
-            allowed =
-                (displayOutgoing && item.transaction.direction == TransactionDirection.outgoing) ||
-                    (displayIncoming &&
-                        item.transaction.direction == TransactionDirection.incoming &&
-                        !canShowSilentPayment) ||
-                    (displaySilentPayments && canShowSilentPayment);
-          } else if (item is AnonpayTransactionListItem) {
-            allowed = displayIncoming;
-          }
-        }
-
-        return allowed;
-      }).toList();
-    } else {
-      _transactions = transactions;
+  /// Whether one item passes the user's filters.
+  ///
+  /// Per item rather than per list, so an incremental update can decide a single
+  /// row without re-walking the whole history.
+  bool relevant(ActionListItem item) {
+    if (startDate != null && endDate != null) {
+      if (!(startDate!.isBefore(item.date) && endDate!.isAfter(item.date))) {
+        return false;
+      }
     }
 
-    return _transactions;
+    if (displayAll) {
+      return true;
+    }
+
+    if (item is TransactionInfo) {
+      final canShowSilentPayment = _appStore.wallet?.type == WalletType.bitcoin &&
+          (bitcoin?.txIsReceivedSilentPayment(item) ?? false);
+
+      return (displayOutgoing && item.direction == TransactionDirection.outgoing) ||
+          (displayIncoming &&
+              item.direction == TransactionDirection.incoming &&
+              !canShowSilentPayment) ||
+          (displaySilentPayments && canShowSilentPayment);
+    }
+
+    if (item is AnonpayInvoiceInfo) {
+      return displayIncoming;
+    }
+
+    return true;
   }
+
+  List<ActionListItem> filtered({required List<ActionListItem> transactions}) =>
+      transactions.where(relevant).toList();
 }

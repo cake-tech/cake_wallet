@@ -14,7 +14,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/pathForWallet.dart';
 
-abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
+abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistory,
     TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo, this.derivationInfo);
 
@@ -126,6 +126,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool isTestnet = false;
 
   bool canSend() => true;
+
+  bool get hasTokens => false;
 
   /// Check if the wallet's socket connection is healthy.
   /// Returns true if the connection is alive, false otherwise.

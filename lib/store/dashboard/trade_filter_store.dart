@@ -1,5 +1,6 @@
+import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
+import "package:cake_wallet/exchange/trade.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 
@@ -188,49 +189,41 @@ abstract class TradeFilterStoreBase with Store {
     }
   }
 
-  List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
-    final _trades = trades.where((item) {
-      final isSameChain = item.trade.chainId != null
-          ? item.trade.chainId == wallet.chainId
-          : true; // returning default as true here so it falls back to the default checks if there's no chainId
-      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
-    }).toList();
-    final needToFilter = !displayAllTrades;
+  /// Whether one trade passes the wallet, account and provider filters.
+  bool relevant(ActionListItem item, WalletBase wallet) {
+    if (item is! Trade) {
+      return false;
+    }
 
-    return needToFilter
-        ? _trades
-            .where((item) =>
-                (displayXMRTO && item.trade.provider == ExchangeProviderDescription.xmrto) ||
-                (displaySideShift &&
-                    item.trade.provider == ExchangeProviderDescription.sideShift) ||
-                (displayChangeNow &&
-                    item.trade.provider == ExchangeProviderDescription.changeNow) ||
-                (displayMorphToken &&
-                    item.trade.provider == ExchangeProviderDescription.morphToken) ||
-                (displaySimpleSwap &&
-                    item.trade.provider == ExchangeProviderDescription.simpleSwap) ||
-                (displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador) ||
-                (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
-                (displayChainflip &&
-                    item.trade.provider == ExchangeProviderDescription.chainflip) ||
-                (displayThorChain &&
-                    item.trade.provider == ExchangeProviderDescription.thorChain) ||
-                (displayLetsExchange &&
-                    item.trade.provider == ExchangeProviderDescription.letsExchange) ||
-                (displayStealthEx &&
-                    item.trade.provider == ExchangeProviderDescription.stealthEx) ||
-                (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
-                (displaySwapTrade &&
-                    item.trade.provider == ExchangeProviderDescription.swapTrade) ||
-                (displaySwapXyz && item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
-                (displayNearIntents &&
-                    item.trade.provider == ExchangeProviderDescription.nearIntents))
-            .toList()
-        : _trades;
+    final isSameChain = item.chainId != null ? item.chainId == wallet.chainId : true;
+
+    if (item.walletId != wallet.id || !isTradeInAccount(item, wallet) || !isSameChain) {
+      return false;
+    }
+
+    if (displayAllTrades) {
+      return true;
+    }
+
+    return _displaysProvider(item.provider);
   }
 
-  bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
-      item.trade.fromWalletAddress == null
+  bool _displaysProvider(ExchangeProviderDescription provider) =>
+      (displayXMRTO && provider == ExchangeProviderDescription.xmrto) ||
+      (displaySideShift && provider == ExchangeProviderDescription.sideShift) ||
+      (displayChangeNow && provider == ExchangeProviderDescription.changeNow) ||
+      (displayMorphToken && provider == ExchangeProviderDescription.morphToken) ||
+      (displaySimpleSwap && provider == ExchangeProviderDescription.simpleSwap) ||
+      (displayTrocador && provider == ExchangeProviderDescription.trocador) ||
+      (displayExolix && provider == ExchangeProviderDescription.exolix) ||
+      (displayChainflip && provider == ExchangeProviderDescription.chainflip) ||
+      (displayThorChain && provider == ExchangeProviderDescription.thorChain);
+
+  List<Trade> filtered({required List<Trade> trades, required WalletBase wallet}) =>
+      trades.where((trade) => relevant(trade, wallet)).toList();
+
+  bool isTradeInAccount(Trade item, WalletBase wallet) =>
+      item.fromWalletAddress == null
           ? true
-          : wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!);
+          : wallet.walletAddresses.containsAddress(item.fromWalletAddress!);
 }

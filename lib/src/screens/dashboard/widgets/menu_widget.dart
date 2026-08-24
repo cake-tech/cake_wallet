@@ -114,9 +114,6 @@ class MenuWidgetState extends State<MenuWidget> {
       items.removeWhere(
           (element) => element.name(context) == S.of(context).silent_payments_settings);
     }
-    if (!widget.dashboardViewModel.isMoneroViewOnly) {
-      items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
-    }
     if (!widget.dashboardViewModel.hasMweb) {
       items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
     }
@@ -174,9 +171,7 @@ class MenuWidgetState extends State<MenuWidget> {
                             child: Container(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: widget.dashboardViewModel.subname.isNotEmpty
-                                    ? MainAxisAlignment.spaceBetween
-                                    : MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Text(
                                     widget.dashboardViewModel.name,
@@ -184,16 +179,6 @@ class MenuWidgetState extends State<MenuWidget> {
                                           fontWeight: FontWeight.w700,
                                         ),
                                   ),
-                                  if (widget.dashboardViewModel.subname.isNotEmpty)
-                                    Observer(
-                                      builder: (_) => Text(
-                                        widget.dashboardViewModel.subname,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                      ),
-                                    ),
                                 ],
                               ),
                             ),

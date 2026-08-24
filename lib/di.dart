@@ -220,6 +220,11 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/transaction_source.dart';
+import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
@@ -583,6 +588,55 @@ Future<void> setup({
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
+
+  // One per wallet: the sources bind to the current wallet's history and to
+  // wallet-scoped filters, so a shared instance would follow the wrong wallet.
+  getIt.registerLazySingleton<TransactionHistoryBloc>(() {
+    final appStore = getIt.get<AppStore>();
+    final transactionFilterStore = getIt.get<TransactionFilterStore>();
+
+    return TransactionHistoryBloc(
+      appStore: appStore,
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+      sources: [
+        transactionHistorySource(appStore: appStore, filterStore: transactionFilterStore),
+        HistorySource(
+          emitter: TradeChangeEmitter(),
+          filters: TradeFilters(
+            appStore: appStore,
+            filterStore: getIt.get<TradeFilterStore>(),
+          ),
+        ),
+        HistorySource(
+          emitter: BoxChangeEmitter<Order>(_ordersSource),
+          filters: OrderFilters(
+            appStore: appStore,
+            filterStore: getIt.get<OrderFilterStore>(),
+          ),
+        ),
+        HistorySource(
+          emitter: BoxChangeEmitter<AnonpayInvoiceInfo>(_anonpayInvoiceInfoSource),
+          filters: AnonpayFilters(appStore: appStore, filterStore: transactionFilterStore),
+        ),
+        // Above the transaction source, so a payjoin row replaces the plain
+        // transaction row for the same txid.
+        HistorySource(
+          emitter: PayjoinChangeEmitter(_payjoinSessionSource),
+          filters: PayjoinFilters(appStore: appStore),
+          precedence: 1,
+        ),
+      ],
+    );
+  }, dispose: (bloc) => bloc.close());
+
+  getIt.registerFactoryParam<HistorySection, HistorySectionArguments, void>(
+    (args, _) => HistorySection(
+      bloc: getIt.get<TransactionHistoryBloc>(),
+      short: args.short,
+      roundedTopSection: args.roundedTopSection,
+      detailsAsPage: args.detailsAsPage,
+    ),
+  );
 
   getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
       (lightningMode, displayMode) {

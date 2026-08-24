@@ -1,13 +1,13 @@
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 import 'package:on_chain/tron/tron.dart';
 
-class TronTransactionInfo extends TransactionInfo {
+class TronTransactionInfo extends JsonTransactionInfo {
   TronTransactionInfo({
     required this.id,
-    required this.amount,
+    required super.amount,
     required this.fee,
     required this.direction,
     required this.blockTime,
@@ -25,8 +25,6 @@ class TronTransactionInfo extends TransactionInfo {
   @override
   final String? from;
 
-  @override
-  final Money amount;
 
   @override
   final Money? fee;
@@ -56,6 +54,7 @@ class TronTransactionInfo extends TransactionInfo {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'tronAmount': amount.amount.toString(),

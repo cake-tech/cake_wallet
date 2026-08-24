@@ -8,7 +8,6 @@ import 'package:cw_zcash/src/zkooltx.dart';
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
     required final String id,
-    required final Money amount,
     required final Money fee,
     required final TransactionDirection direction,
     required final bool isPending,
@@ -16,14 +15,13 @@ class ZcashTransactionInfo extends TransactionInfo {
     required final int height,
     required final int confirmations,
     required final String to,
-    final String? memo,
+    required super.amount, final String? memo,
     final TxType? txType,
     final bool isRotationReceive = false,
     final bool isShieldAction = false,
     final bool isIronwoodMigration = false,
   }) {
     this.id = id;
-    this.amount = amount;
     this.fee = fee;
     this.height = height;
     this.direction = direction;
@@ -56,6 +54,26 @@ class ZcashTransactionInfo extends TransactionInfo {
 
   @override
   void changeFiatAmount(final String amount) => _fiatAmount = formatAmount(amount);
+
+  bool get _isMigration => additionalInfo['isIronwoodMigration'] == true;
+
+  bool get _isAutoShield => additionalInfo['isAutoShield'] == true;
+
+  @override
+  String get title {
+    if (_isMigration) {
+      return "transaction_migration";
+    }
+
+    if (_isAutoShield) {
+      return "shielding";
+    }
+
+    return super.title;
+  }
+
+  @override
+  bool get hasStatus => _isMigration ? false : super.hasStatus;
 
   String? get memo => additionalInfo['memo'] as String?;
 }

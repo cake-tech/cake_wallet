@@ -323,20 +323,13 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
-    if (isEVMCompatibleChain(wallet.type)) {
-      return evm!.assetOfTransaction(wallet, transactionInfo);
-    }
-
     if (isLightning(transactionInfo)) {
       return CryptoCurrency.btcln;
     }
 
-    return switch (wallet.type) {
-      WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
-      WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
-      WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ?? CryptoCurrency.zano,
-      _ => walletTypeToCryptoCurrency(wallet.type)
-    };
+    // The amount carries its own currency, so the chain no longer has to be
+    // asked what a transaction is denominated in.
+    return transactionInfo.assetOfTransaction ?? walletTypeToCryptoCurrency(wallet.type);
   }
 
   @computed

@@ -140,7 +140,7 @@ class CWWownero extends Wownero {
   WowneroSubaddressList getSubaddressList(Object wallet) => CWWowneroSubaddressList(wallet);
 
   @override
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
+  TransactionHistory getTransactionHistory(Object wallet) {
     final wowneroWallet = wallet as WowneroWallet;
     return wowneroWallet.transactionHistory;
   }

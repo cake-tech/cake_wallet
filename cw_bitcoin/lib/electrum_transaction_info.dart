@@ -1,3 +1,4 @@
+// ignore_for_file: overridden_fields, annotate_overrides
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -9,7 +10,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
@@ -23,7 +24,7 @@ class ElectrumTransactionBundle {
   final int confirmations;
 }
 
-class ElectrumTransactionInfo extends TransactionInfo {
+class ElectrumTransactionInfo extends JsonTransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
@@ -46,10 +47,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
     Map<String, dynamic>? additionalInfo,
-  }) {
+  }) : super(amount: amount) {
+    this.amount = amount;
     this.id = id;
     this.height = height;
-    this.amount = amount;
     this.inputAddresses = inputAddresses;
     this.outputAddresses = outputAddresses;
     this.fee = fee;
@@ -247,6 +248,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   final WalletType type;
 
+  /// Mutable, unlike the base class: the silent-payment rescan accumulates
+  /// newly-discovered unspents into an existing transaction's amount, and the
+  /// isolate scan builds a transaction up as it walks outputs.
+  @override
+  late Money amount;
+
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,
         id: id,
@@ -263,6 +270,42 @@ class ElectrumTransactionInfo extends TransactionInfo {
         additionalInfo: additionalInfo);
   }
 
+  bool get _hasMissingInputTx =>
+      type == WalletType.bitcoin && additionalInfo['hasMissingInputTx'] == true;
+
+  bool get _isPegIn => additionalInfo["isPegIn"] as bool? ?? false;
+
+  bool get _isPegOut => additionalInfo["isPegOut"] as bool? ?? false;
+
+  bool get _fromPegOut => additionalInfo["fromPegOut"] as bool? ?? false;
+
+  @override
+  int get neededConfirmations =>
+      type == WalletType.litecoin && (_isPegOut || _fromPegOut) ? 6 : 0;
+
+  @override
+  String get title {
+    if(_isPegIn) {
+      return "mask";
+    } else if(_isPegOut) {
+      return "unmask";
+    } else if(_hasMissingInputTx) {
+      return "transaction_missing_data";
+    } else {
+      return super.title;
+    }
+  }
+
+  @override
+  String? get status {
+    if(isReplaced ?? false) {
+      return "(replaced)";
+    }
+
+    return super.status;
+  }
+
+  @override
   Map<String, dynamic> toJson() {
     final m = <String, dynamic>{};
     m['id'] = id;
