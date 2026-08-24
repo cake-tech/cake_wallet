@@ -411,6 +411,9 @@ class SolanaWalletClient {
     final preTokenBalances = meta.preTokenBalances;
     final postTokenBalances = meta.postTokenBalances;
 
+    final walletPaidFee = accountKeys.isNotEmpty && accountKeys.first.address == walletAddress;
+    final feeAdjustment = walletPaidFee ? BigInt.from(fee) : BigInt.zero;
+
     String? decreasedMintForWallet;
     String? increasedMintForWallet;
 
@@ -465,7 +468,7 @@ class SolanaWalletClient {
           final preBalance = preBalances[i];
           final postBalance = postBalances[i];
 
-          final balanceChange = preBalance - postBalance - BigInt.from(fee);
+          final balanceChange = preBalance - postBalance - feeAdjustment;
 
           if (balanceChange > BigInt.zero) {
             // The wallet sent SOL
@@ -553,7 +556,7 @@ class SolanaWalletClient {
         if (accountAddress == walletAddress) {
           final preBalance = preBalances[i];
           final postBalance = postBalances[i];
-          final balanceChange = postBalance - preBalance;
+          final balanceChange = postBalance - preBalance + feeAdjustment;
 
           if (balanceChange > BigInt.zero) {
             // The wallet received SOL
@@ -1729,6 +1732,8 @@ class SolanaWalletClient {
 
     final fee = await _getFeeFromCompiledMessage(message, commitment);
 
+    // The sender account exists by this point, so its space is set, and the recipient
+    // account is the same size because it holds the same mint under the same program.
     final accountCreationCost = shouldCreateRecipientAccount
         ? await _getRentExemptionAmount(senderAccountSpace!)
         : Money.zero(CryptoCurrency.sol);

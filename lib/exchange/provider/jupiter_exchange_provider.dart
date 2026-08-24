@@ -138,6 +138,10 @@ class JupiterExchangeProvider extends ExchangeProvider {
       if (!_isSolanaCurrency(from) || !_isSolanaCurrency(to)) {
         return 0.0;
       }
+
+      if (amount <= 0) {
+        return 0.0;
+      }
       final inputMint = _getTokenMint(from);
       final outputMint = _getTokenMint(to);
 
@@ -179,9 +183,6 @@ class JupiterExchangeProvider extends ExchangeProvider {
       final outAmount = BigInt.parse(orderData['outAmount'] as String);
 
       final outputAmount = AmountConverter.fromBaseUnits(outAmount.toString(), to.decimals);
-      if (amount <= 0) {
-        return 0.0;
-      }
 
       final rate = double.parse(outputAmount) / amount;
 
