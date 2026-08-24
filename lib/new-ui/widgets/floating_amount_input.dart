@@ -1,3 +1,4 @@
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,8 +81,8 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            widget.currency.symbol,
+          CurrencySymbolText(
+            widget.currency,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.displayMedium?.copyWith(

@@ -10,6 +10,8 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/token_chain_display.dart";
@@ -374,8 +376,8 @@ class BuySellAmountPill extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (amount != null)
-                          Text(
-                            amount!.toStringWithPrecision(fractionalDigits: 0),
+                          MoneyText(
+                            amount!,
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                           ),
                         Text(
@@ -444,8 +446,8 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
                         Text(
                           curr.fullName ?? curr.symbol,
                         ),
-                        Text(
-                          curr.symbol,
+                        CurrencySymbolText(
+                          curr,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,

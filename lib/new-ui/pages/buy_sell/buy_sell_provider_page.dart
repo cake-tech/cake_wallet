@@ -7,6 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_confirmation_page.dart';
 import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_payment_method_page.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
@@ -160,10 +161,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 4,
         children: [
-            Text(widget.buySellViewModel
-                    .amountForQuote(quote)
-                    ?.toStringWithSymbol(fractionalDigits: 8) ??
-                ""),
+            MoneyText.optional(widget.buySellViewModel.amountForQuote(quote)),
             if (fiatAmount != null)
               Text(
               "= ${fiatAmount.toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
