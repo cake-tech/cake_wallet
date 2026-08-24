@@ -109,7 +109,7 @@ class PriceApiClient {
     return PriceData(
       time: DateTime.now(),
       base: request.from,
-      quote: Money.parse((result as num).toStringAsFixed(2), request.to),
+      quote: Money.parse((result as num).toString(), request.to, strictParsing: false),
     );
   }
 }
