@@ -21,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class HistorySection extends StatelessWidget {
   const HistorySection(
@@ -105,8 +106,8 @@ class HistorySection extends StatelessWidget {
                                   Navigator.of(context).push(CupertinoPageRoute(
                                       builder: (context) => Material(child: page)));
                                 } else {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
+                                  showMaterialModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
                                       context: context,
                                       builder: (context) =>
                                           FractionallySizedBox(heightFactor: 0.9, child: page));
