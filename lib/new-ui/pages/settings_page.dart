@@ -105,6 +105,8 @@ class SettingsSectionData {
         "assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/info.svg", S.current.about, Routes.aboutPage),
+    SettingsListItem(
+        "assets/new-ui/settings_row_icons/reset.svg", S.current.reset, Routes.resetPage),
   ]);
 
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];

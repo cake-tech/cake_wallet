@@ -59,6 +59,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/reset_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
@@ -1157,6 +1158,8 @@ Future<void> setup({
   getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
 
   getIt.registerFactory(() => AboutPage(appVersion: getIt.get<SettingsStore>().appVersion));
+
+  getIt.registerFactory(() => ResetPage());
 
   getIt.registerFactory(() => NanoChangeRepPage(
         settingsStore: getIt.get<AppStore>().settingsStore,
