@@ -69,7 +69,7 @@ class PriceApiClient {
         PriceData(
           time: DateTimeX.fromSecondsSinceEpoch(int.parse(time)),
           base: request.from,
-          quote: Money.parse((results[time] as num).toStringAsFixed(2), request.to),
+          quote: Money.parse((results[time] as num).toString(), request.to, strictParsing: false),
         ),
       );
     }

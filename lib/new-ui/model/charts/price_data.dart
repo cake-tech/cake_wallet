@@ -31,7 +31,8 @@ class PriceData implements Comparable<PriceData> {
         time: DateTimeX.fromSecondsSinceEpoch(json["timestamp"] as int),
         base: currencyFromApiString(json["fromCurrency"] as String),
         quote: Money.parse(
-            json["price"] as String, currencyFromApiString(json["toCurrency"] as String),),
+            json["price"] as String, currencyFromApiString(json["toCurrency"] as String),
+            strictParsing: false),
       );
   final DateTime time;
   final Currency base;
