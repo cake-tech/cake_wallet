@@ -178,7 +178,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const thb = FiatCurrency(
     symbol: "THB",
     countryCode: "tha",
-    fullName: "New Thaiwan Dollar",
+    fullName: "Thai Baht",
     emoji: "🇹🇭",
   );
   static const twd =
