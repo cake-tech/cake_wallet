@@ -45,13 +45,17 @@ class Money implements Comparable<Money> {
     bool isBaseUnit = false,
     bool strictParsing = true,
   }) {
-    if (!isBaseUnit) {
-      source = trimTrailingFractionZeros(source);
-    }
-    final decimals = strictParsing ? currency.decimals : _getActualDecimals(source, currency);
-    final amount = isBaseUnit ? BigInt.tryParse(source) : tryParseFixed(source, decimals);
+    try {
+      if (!isBaseUnit) {
+        source = trimTrailingFractionZeros(source);
+      }
+      final decimals = strictParsing ? currency.decimals : _getActualDecimals(source, currency);
+      final amount = isBaseUnit ? BigInt.tryParse(source) : tryParseFixed(source, decimals);
 
-    return amount != null ? Money(amount, currency,  decimals) : null;
+      return amount != null ? Money(amount, currency, decimals) : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   final BigInt amount;
