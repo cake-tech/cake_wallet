@@ -248,7 +248,9 @@ class TransactionListItem extends ActionListItem with Keyable {
     }
 
     try {
-      final amount = exchangeRate?.convert(transaction.amount) ?? Money.zero(fiatCurrency);
+      final amount =
+          exchangeRate?.convert(transaction.amount.copyWith(currency: assetOfTransaction)) ??
+              Money.zero(fiatCurrency);
       transaction.changeFiatAmount(amount.toString());
       return amount;
     } catch (_) {
