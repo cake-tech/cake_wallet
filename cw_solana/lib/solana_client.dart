@@ -381,7 +381,7 @@ class SolanaWalletClient {
     return walletSent && walletReceived;
   }
 
-  CryptoCurrency _currencyForRawAmount(SPLToken? token, int mintDecimals) {
+  static CryptoCurrency currencyForRawAmount(SPLToken? token, int mintDecimals) {
     if (token != null && token.decimals == mintDecimals) {
       return token;
     }
@@ -515,7 +515,7 @@ class SolanaWalletClient {
                 // The wallet sent tokens
                 final token = await getTokenInfo(mint);
                 outgoingMoney =
-                    Money(diff, _currencyForRawAmount(token, preTokenBal.uiTokenAmount.decimals));
+                    Money(diff, currencyForRawAmount(token, preTokenBal.uiTokenAmount.decimals));
                 outgoingMintAddress = mint;
                 outgoingFrom = walletAddress;
                 // We find the intermediate account
@@ -653,7 +653,7 @@ class SolanaWalletClient {
             if (diff > BigInt.zero && mintDecimals != null) {
               // The wallet received tokens
               final token = await getTokenInfo(mint);
-              incomingMoney = Money(diff, _currencyForRawAmount(token, mintDecimals));
+              incomingMoney = Money(diff, currencyForRawAmount(token, mintDecimals));
               incomingMintAddress = mint;
               incomingTo = walletAddress;
               // We find the intermediate account
@@ -900,7 +900,7 @@ class SolanaWalletClient {
       from: sender,
       to: receiver,
       id: signature,
-      amount: Money(diff.abs(), _currencyForRawAmount(splToken, mintDecimals)),
+      amount: Money(diff.abs(), currencyForRawAmount(splToken, mintDecimals)),
       programId: SPLTokenProgramConst.tokenProgramId.address,
       blockTimeInInt: blockTime?.toInt() ?? 0,
       fee: Money.fromInt(fee, CryptoCurrency.sol),

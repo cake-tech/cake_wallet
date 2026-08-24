@@ -412,9 +412,10 @@ class SendTransactionDetails extends StatelessWidget {
                         child: Text(
                           additionalCostNotice,
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ],

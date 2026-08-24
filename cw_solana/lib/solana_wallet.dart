@@ -251,7 +251,7 @@ abstract class SolanaWalletBase
 
     await updateTokenBalance();
 
-    final transactionCurrency = _resolveTransactionCurrency(credentials.currency);
+    final transactionCurrency = resolveTransactionCurrency(credentials.currency, balance.keys);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 
@@ -296,13 +296,16 @@ abstract class SolanaWalletBase
     );
   }
 
-  CryptoCurrency _resolveTransactionCurrency(CryptoCurrency requestedCurrency) {
+  static CryptoCurrency resolveTransactionCurrency(
+    CryptoCurrency requestedCurrency,
+    Iterable<CryptoCurrency> availableCurrencies,
+  ) {
     final matches = requestedCurrency is SPLToken
-        ? balance.keys
+        ? availableCurrencies
             .where((currency) =>
                 currency is SPLToken && currency.mintAddress == requestedCurrency.mintAddress)
             .toList(growable: false)
-        : balance.keys
+        : availableCurrencies
             .where((currency) =>
                 currency.title == requestedCurrency.title && currency.tag == requestedCurrency.tag)
             .toList(growable: false);
