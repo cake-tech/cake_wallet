@@ -207,7 +207,7 @@ void main() {
       });
 
       test('round trip loses less than one quote base unit', () {
-        final original = Money.parse("0.12345678", CryptoCurrency.btc);
+        final original = Money<Currency>.parse("0.12345678", CryptoCurrency.btc);
         final back = rate.convert(rate.convert(original));
         final oneQuoteUnitInBaseUnits =
             BigInt.from(10).pow(CryptoCurrency.btc.decimals) ~/ rate.quote.amount;
