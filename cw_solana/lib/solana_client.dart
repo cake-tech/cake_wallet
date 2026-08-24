@@ -642,8 +642,7 @@ class SolanaWalletClient {
               incomingAmount = diff.toDouble();
               incomingMintAddress = mint;
               final token = await getTokenInfo(mint);
-              incomingToken =
-                  token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
+              incomingToken = token ?? const CryptoCurrency(name: "TOKEN", title: "TOKEN", decimals: 6);
               incomingTo = walletAddress;
               // We find the intermediate account
               if (instructions.isNotEmpty && instructions[0].accounts.isNotEmpty) {
