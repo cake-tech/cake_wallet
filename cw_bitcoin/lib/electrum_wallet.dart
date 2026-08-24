@@ -290,6 +290,8 @@ abstract class ElectrumWalletBase
         frozen: Money.zero(currency),
       );
 
+  final Map<String, Set<String>> _appliedCoinKeysByAddress = {};
+
   @observable
   bool? alwaysScan;
 
@@ -2124,6 +2126,7 @@ abstract class ElectrumWalletBase
     for (final addr in targetAddresses) {
       if (addr is! BitcoinSilentPaymentAddressRecord) {
         addr.balance = 0;
+        _appliedCoinKeysByAddress[addr.address]?.clear();
       }
     }
 
@@ -2287,8 +2290,15 @@ abstract class ElectrumWalletBase
         coin.isSending = coinInfo.isSending;
         coin.note = coinInfo.note;
 
-        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
+        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord) {
+          final addr = coin.bitcoinAddressRecord.address;
+          final coinKey = '${coin.hash}:${coin.vout}';
+          final appliedKeys = _appliedCoinKeysByAddress.putIfAbsent(addr, () => <String>{});
+
+          if (appliedKeys.add(coinKey)) {
+            coin.bitcoinAddressRecord.balance += coinInfo.value;
+          }
+        }
       } else {
         addCoinInfo(coin);
       }
