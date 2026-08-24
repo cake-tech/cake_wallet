@@ -160,8 +160,8 @@ abstract class ThemeStoreBase with Store {
 
   /// Handles theme loading for non-mobile platforms
   Future<void> _handleNonMobileTheme() async {
-    await setTheme(ThemeList.darkTheme);
-    await setThemeMode(ThemeMode.dark);
+    await setTheme(ThemeList.lightTheme);
+    await setThemeMode(ThemeMode.light);
   }
 
   /// Handles theme loading for mobile platforms
