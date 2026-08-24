@@ -25,11 +25,6 @@ MoneySettingsState _moneySettingsState({
 
 Future<void> _pumpEmission(WidgetTester tester) => tester.pump(Duration.zero);
 
-/// Leaf that depends on [BaseUnitConfig] for one or more currencies and appends the
-/// values it observed to [log] on every build.
-///
-/// One entry per build, so `log.length` is a build count and `log.last` holds
-/// the most recently observed values.
 class _Probe extends StatelessWidget {
   const _Probe({required this.currencies, required this.log});
 
@@ -48,30 +43,14 @@ class _Probe extends StatelessWidget {
   }
 }
 
-/// Wires [child] under a real [BlocBuilder] so state changes flow through the
-/// same path as production code.
-///
-/// [child] is captured by the builder closure rather than constructed inside
-/// it. That is load-bearing: an identical widget instance makes
-/// `Element.updateChild` short-circuit, so the only thing that can rebuild the
-/// probe is [InheritedModel] aspect notification.
-///
-/// [builderLog] records every [BlocBuilder] invocation. Assert on it in any
-/// test that expects a probe *not* to rebuild — otherwise a test that stops
-/// receiving emissions at all will pass for the wrong reason.
 Widget _host(FakeMoneySettingsCubit cubit, Widget child) => MaterialApp(
       home: BlocProvider<MoneySettingsCubit>.value(
         value: cubit,
-        child: BaseUnitScope(
-          child: child,
-        ),
+        child: BaseUnitScope(child: child)
       ),
     );
 
 void main() {
-  // ---------------------------------------------------------------------------
-  // Reading through the model.
-  // ---------------------------------------------------------------------------
   group("BaseUnitConfig.useBaseUnitOf", () {
     testWidgets("reads the value from the nearest ancestor", (tester) async {
       final cubit = FakeMoneySettingsCubit(
@@ -83,12 +62,7 @@ void main() {
         _host(cubit, _Probe.single(CryptoCurrency.btc, log: log)),
       );
 
-      expect(
-        log,
-        [
-          [true]
-        ],
-      );
+      expect(log, [[true]]);
     });
 
     testWidgets("nearest ancestor wins when models are nested", (tester) async {
@@ -108,20 +82,12 @@ void main() {
     });
 
     testWidgets("throws when no BaseUnitConfig ancestor exists", (tester) async {
-      await tester.pumpWidget(
-        _Probe.single(CryptoCurrency.btc, log: <List<bool>>[]),
-      );
+      await tester.pumpWidget(_Probe.single(CryptoCurrency.btc, log: <List<bool>>[]));
 
-      // `inheritFrom` returns null and the `!` in useBaseUnitOf blows up. This
-      // pins current behaviour; swapping the `!` for an assert with a readable
-      // message would make this a much friendlier failure.
       expect(tester.takeException(), isA<TypeError>());
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // Aspect notification. This is the whole reason for the InheritedModel.
-  // ---------------------------------------------------------------------------
   group("BaseUnitConfig aspect notification", () {
     testWidgets("rebuilds a dependent whose currency flipped", (tester) async {
       final cubit = FakeMoneySettingsCubit(
@@ -129,12 +95,7 @@ void main() {
       );
       final log = <List<bool>>[];
 
-      await tester.pumpWidget(
-        _host(
-          cubit,
-          _Probe.single(CryptoCurrency.btc, log: log),
-        ),
-      );
+      await tester.pumpWidget(_host(cubit, _Probe.single(CryptoCurrency.btc, log: log)));
       expect(log.length, 1);
 
       cubit.setState(_moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshi));
@@ -156,11 +117,7 @@ void main() {
           cubit,
           Row(
             children: [
-              _Probe.single(
-                CryptoCurrency.btc,
-                log: btcLog,
-                key: const ValueKey("btc"),
-              ),
+              _Probe.single(CryptoCurrency.btc, log: btcLog, key: const ValueKey("btc")),
               _Probe.single(CryptoCurrency.btcln, log: btclnLog, key: const ValueKey("btcln")),
             ],
           ),
@@ -169,9 +126,7 @@ void main() {
       expect(btcLog.single, [true]);
       expect(btclnLog.single, [true]);
 
-      cubit.setState(
-        _moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshiForLightning),
-      );
+      cubit.setState(_moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshiForLightning));
       await _pumpEmission(tester);
 
       // btc: true -> false, so it must rebuild.
@@ -188,12 +143,7 @@ void main() {
       );
       final log = <List<bool>>[];
 
-      await tester.pumpWidget(
-        _host(
-          cubit,
-          _Probe.single(CryptoCurrency.xmr, log: log),
-        ),
-      );
+      await tester.pumpWidget(_host(cubit, _Probe.single(CryptoCurrency.xmr, log: log)));
 
       for (final mode in BitcoinAmountDisplayMode.all) {
         cubit.setState(_moneySettingsState(bitcoin: mode));
@@ -212,18 +162,12 @@ void main() {
       await tester.pumpWidget(
         _host(
           cubit,
-          _Probe(
-            currencies: <Currency>[CryptoCurrency.xmr, CryptoCurrency.btc],
-            log: log,
-          ),
+          _Probe(currencies: <Currency>[CryptoCurrency.xmr, CryptoCurrency.btc], log: log),
         ),
       );
       expect(log.single, [false, true]);
 
-      // Only btc changes, but the element depends on both aspects.
-      cubit.setState(
-        _moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshiForLightning),
-      );
+      cubit.setState(_moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshiForLightning));
       await _pumpEmission(tester);
 
       expect(log.length, 2);
@@ -235,17 +179,9 @@ void main() {
       final cubit = FakeMoneySettingsCubit(initial);
       final log = <List<bool>>[];
 
-      await tester.pumpWidget(
-        _host(
-          cubit,
-          _Probe.single(CryptoCurrency.btc, log: log),
-        ),
-      );
+      await tester.pumpWidget(_host(cubit, _Probe.single(CryptoCurrency.btc, log: log)));
       expect(log.length, 1);
 
-      // MoneySettingsState has no `==`, so this emits and updateShouldNotify
-      // returns true on identity. updateShouldNotifyDependent is the only thing
-      // stopping a spurious dependent rebuild here.
       cubit.setState(initial.copyWith());
       await _pumpEmission(tester);
 
@@ -262,10 +198,7 @@ void main() {
       final log = <List<bool>>[];
 
       await tester.pumpWidget(
-        _host(
-          cubit,
-          _Probe.single(CryptoCurrency.btc, log: log),
-        ),
+        _host(cubit, _Probe.single(CryptoCurrency.btc, log: log)),
       );
 
       cubit.setState(
