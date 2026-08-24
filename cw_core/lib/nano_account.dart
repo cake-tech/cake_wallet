@@ -23,5 +23,5 @@ class NanoAccount extends HiveObject {
   // @HiveField(3)
   String? balance;
 
-  Money? get balanceMoney => balance != null ? Money.tryParse(balance, CryptoCurrency.nano) : null;
+  Money? get balanceMoney => balance != null ? Money.tryParse(balance!, CryptoCurrency.nano) : null;
 }
