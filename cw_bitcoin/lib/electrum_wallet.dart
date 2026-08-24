@@ -3960,6 +3960,7 @@ abstract class ElectrumWalletBase
           await updateBalance();
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
+          await resolveQueuedTransactionDetails();
         } catch (e, s) {
           printV("sub error: $e");
           _onError?.call(FlutterErrorDetails(
