@@ -303,5 +303,5 @@ class Money implements Comparable<Money> {
   }
 
   /// new [Money] with absolute value of this instance
-  Money abs() => _withAmount(amount.abs());
+  Money abs() => copyWith(amount: amount.abs());
 }
