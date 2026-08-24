@@ -64,6 +64,7 @@
   "already_have_account": "Mayroon ka nang account?",
   "already_your_username": "Ito na ang username mo!",
   "always": "Palagi",
+  "ambiguous_token_symbol_exception": "Higit sa isang token sa wallet na ito ang gumagamit ng simbolo na ${symbol}. I-disable ang duplicate na token para matukoy ang tama bago ipadala.",
   "amount": "Halaga: ",
   "amount_hidden": "Nakatago ang halaga",
   "amount_is_below_minimum_limit": "Ang iyong balanse pagkatapos ng mga bayarin ay magiging mas mababa kaysa sa minimum na halagang kailangan para sa palitan (${min})",
@@ -1533,5 +1534,6 @@
   "zcash_network_upgrade": "Pag-upgrade ng Zcash Network",
   "zcash_network_upgrade_desc_1": "Sumailalim ang Zcash sa isang network upgrade na tinatawag na Ironwood na nangangailangan ng paglipat ng mga pondo bago sila magastos. Ang paglipat na ito ay awtomatiko, pinapanatili ang privacy, at magsisimula sa sandaling mabuksan mo ang iyong Zcash wallet.",
   "zcash_network_upgrade_desc_2": "Kapag natapos na ang paglipat, babalik sa normal ang iyong Available na Balanse, at maaari kang magpatuloy sa pagpapadala at pagtanggap ng Zcash gaya ng dati.",
-  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay hayaang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse."
+  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay hayaang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse.",
+  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito."
 }

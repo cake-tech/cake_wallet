@@ -64,6 +64,7 @@
   "already_have_account": "Masz już konto?",
   "already_your_username": "To już jest Twoja nazwa użytkownika!",
   "always": "Zawsze",
+  "ambiguous_token_symbol_exception": "Więcej niż jeden token w tym portfelu używa symbolu ${symbol}. Wyłącz duplikat tokena, aby przed wysłaniem można było zidentyfikować właściwy.",
   "amount": "Kwota: ",
   "amount_hidden": "Kwota ukryta",
   "amount_is_below_minimum_limit": "Twoje saldo po opłatach byłoby niższe niż minimalna kwota wymagana do wymiany (${min})",
@@ -1533,5 +1534,6 @@
   "zcash_network_upgrade": "Aktualizacja sieci Zcash",
   "zcash_network_upgrade_desc_1": "Zcash przeszedł modernizację sieci o nazwie Ironwood, która wymaga migracji środków, zanim będzie można je wydać. Ta migracja jest automatyczna, chroni prywatność i rozpoczyna się natychmiast po otwarciu portfela Zcash.",
   "zcash_network_upgrade_desc_2": "Po zakończeniu migracji Twoje dostępne saldo powróci do normy i będziesz mógł nadal wysyłać i odbierać Zcash jak zwykle.",
-  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda."
+  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda.",
+  "recipient_account_creation_fee": "Do założenia konta tokenowego dla odbiorcy potrzebna jest dodatkowa ${amount}, ponieważ jeszcze takiego nie posiada."
 }

@@ -64,6 +64,7 @@
   "already_have_account": "すでにアカウントをお持ちですか？",
   "already_your_username": "これはすでにあなたのユーザー名です！",
   "always": "常に",
+  "ambiguous_token_symbol_exception": "このウォレット内の複数のトークンは、シンボル ${symbol} を使用しています。送信前に正しいトークンを識別できるように、重複したトークンを無効にします。",
   "amount": "金額: ",
   "amount_hidden": "隠蔽金額",
   "amount_is_below_minimum_limit": "手数料差し引き後の残高が、交換に必要な最低金額（${min}）を下回ります",
@@ -1534,5 +1535,6 @@
   "zcash_network_upgrade": "Zcash ネットワークのアップグレード",
   "zcash_network_upgrade_desc_1": "Zcash は、Ironwood と呼ばれるネットワーク アップグレードを受けており、資金を使用する前に資金の移行が必要です。この移行は自動的に行われ、プライバシーが保護され、Zcash ウォレットを開くとすぐに開始されます。",
   "zcash_network_upgrade_desc_2": "移行が完了すると、利用可能残高は通常の状態に戻り、引き続き通常どおり Zcash を送受信できます。",
-  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。"
+  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。",
+  "recipient_account_creation_fee": "受信者はまだトークン アカウントを持っていないため、追加の ${amount} が必要です。"
 }

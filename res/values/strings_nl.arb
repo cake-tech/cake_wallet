@@ -64,6 +64,7 @@
   "already_have_account": "Heb je al een account?",
   "already_your_username": "Dit is al je gebruikersnaam!",
   "always": "Altijd",
+  "ambiguous_token_symbol_exception": "Meer dan één token in deze portemonnee gebruikt het symbool ${symbol}. Schakel het dubbele token uit, zodat het juiste token kan worden geïdentificeerd voordat het wordt verzonden.",
   "amount": "Bedrag: ",
   "amount_hidden": "Bedrag verborgen",
   "amount_is_below_minimum_limit": "Je saldo na kosten zou lager zijn dan het minimale bedrag dat nodig is voor de exchange (${min})",
@@ -1534,5 +1535,6 @@
   "zcash_network_upgrade": "Zcash-netwerkupgrade",
   "zcash_network_upgrade_desc_1": "Zcash heeft een netwerkupgrade ondergaan genaamd Ironwood, die migratie van fondsen vereist voordat ze kunnen worden uitgegeven. Deze migratie is automatisch, behoud van de privacy en begint zodra u uw Zcash-portemonnee opent.",
   "zcash_network_upgrade_desc_2": "Wanneer de migratie is voltooid, wordt uw beschikbare saldo weer normaal en kunt u zoals gewoonlijk Zcash blijven verzenden en ontvangen.",
-  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo."
+  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo.",
+  "recipient_account_creation_fee": "Er is een extra ${amount} nodig om een ​​tokenaccount voor de ontvanger aan te maken, omdat deze er nog geen heeft."
 }

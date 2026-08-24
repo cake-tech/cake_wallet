@@ -64,6 +64,7 @@
   "already_have_account": "已经有账户了？",
   "already_your_username": "这已经是您的用户名！",
   "always": "始终",
+  "ambiguous_token_symbol_exception": "该钱包中有多个代币使用符号 ${symbol}。禁用重复的令牌，以便在发送之前可以识别正确的令牌。",
   "amount": "数量：",
   "amount_hidden": "隐藏金额",
   "amount_is_below_minimum_limit": "扣除手续费后，您的余额将低于兑换所需的最低金额（${min}）",
@@ -1533,5 +1534,6 @@
   "zcash_network_upgrade": "Zcash 网络升级",
   "zcash_network_upgrade_desc_1": "Zcash 进行了名为 Ironwood 的网络升级，需要先迁移资金才能使用。此迁移是自动的、保护隐私的，并且在您打开 Zcash 钱包时立即开始。",
   "zcash_network_upgrade_desc_2": "迁移完成后，您的可用余额将恢复正常，您可以继续照常发送和接收 Zcash。",
-  "zcash_network_upgrade_desc_3": "请让您的 Zcash 钱包完成同步，然后让应用程序保持打开状态，直到迁移完成，这可能需要几分钟的时间，具体取决于余额。"
+  "zcash_network_upgrade_desc_3": "请让您的 Zcash 钱包完成同步，然后让应用程序保持打开状态，直到迁移完成，这可能需要几分钟的时间，具体取决于余额。",
+  "recipient_account_creation_fee": "需要额外的 ${amount} 来为收件人创建一个令牌帐户，因为他们还没有令牌帐户。"
 }

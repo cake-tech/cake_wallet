@@ -64,6 +64,7 @@
   "already_have_account": "Ṣé o ti ní àkántì tẹ́lẹ̀?",
   "already_your_username": "Eyi ti jẹ orúkọ olumulo rẹ tẹlẹ!",
   "always": "Nígbà gbogbo",
+  "ambiguous_token_symbol_exception": "Die e sii ju ami-ami kan ninu apamọwọ yii nlo aami ${symbol}. Pa àmi àdáwòkọ rẹ́ kí ó lè mọ èyí tí ó tọ́ kí ó tó fi ránṣẹ́.",
   "amount": "Iye: ",
   "amount_hidden": "Iye pamọ",
   "amount_is_below_minimum_limit": "Iwontunwonsi rẹ lẹ́yìn àwọn owó ìdúná yóò kéré ju iye kéréjù tí a nílò fún paṣipaarọ (${min})",
@@ -1534,5 +1535,6 @@
   "zcash_network_upgrade": "Zcash Network Igbesoke",
   "zcash_network_upgrade_desc_1": "Zcash ti ṣe igbesoke nẹtiwọọki kan ti a pe ni Ironwood ti o nilo iṣilọ ti awọn owo ṣaaju ki wọn to lo. Iṣilọ yii jẹ aifọwọyi, ipamọ-ipamọ, o si bẹrẹ ni kete ti o ṣii apamọwọ Zcash rẹ.",
   "zcash_network_upgrade_desc_2": "Nigbati ijira ba pari, Iwontunws.funfun Wa rẹ yoo pada si deede, ati pe o le tẹsiwaju lati firanṣẹ ati gba Zcash bi igbagbogbo.",
-  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi."
+  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi.",
+  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ."
 }

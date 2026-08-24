@@ -64,6 +64,7 @@
   "already_have_account": "Bạn đã có tài khoản chưa?",
   "already_your_username": "Đây đã là tên người dùng của bạn!",
   "always": "Luôn",
+  "ambiguous_token_symbol_exception": "Nhiều mã thông báo trong ví này sử dụng ký hiệu ${symbol}. Vô hiệu hóa mã thông báo trùng lặp để có thể xác định mã thông báo chính xác trước khi gửi.",
   "amount": "Số lượng: ",
   "amount_hidden": "Số tiền ẩn",
   "amount_is_below_minimum_limit": "Số dư của bạn sau khi trừ phí sẽ thấp hơn số tiền tối thiểu cần thiết để trao đổi (${min})",
@@ -1534,5 +1535,6 @@
   "zcash_network_upgrade": "Nâng cấp mạng Zcash",
   "zcash_network_upgrade_desc_1": "Zcash đã trải qua quá trình nâng cấp mạng có tên là Ironwood, yêu cầu di chuyển tiền trước khi chúng có thể được chi tiêu. Quá trình di chuyển này diễn ra tự động, bảo vệ quyền riêng tư và bắt đầu ngay khi bạn mở ví Zcash của mình.",
   "zcash_network_upgrade_desc_2": "Khi quá trình di chuyển kết thúc, Số dư khả dụng của bạn sẽ trở lại bình thường và bạn có thể tiếp tục gửi và nhận Zcash như bình thường.",
-  "zcash_network_upgrade_desc_3": "Vui lòng cho phép ví Zcash của bạn hoàn tất đồng bộ hóa, sau đó để ứng dụng mở cho đến khi quá trình di chuyển hoàn tất, quá trình này có thể mất vài phút tùy thuộc vào số dư."
+  "zcash_network_upgrade_desc_3": "Vui lòng cho phép ví Zcash của bạn hoàn tất đồng bộ hóa, sau đó để ứng dụng mở cho đến khi quá trình di chuyển hoàn tất, quá trình này có thể mất vài phút tùy thuộc vào số dư.",
+  "recipient_account_creation_fee": "Cần thêm ${amount} để tạo tài khoản mã thông báo cho người nhận vì họ chưa có tài khoản."
 }

@@ -676,7 +676,7 @@ abstract class DashboardViewModelBase with Store {
 
     if (settingsStore.mwebAdDismissed) return false;
 
-    return Platform.isAndroid || Platform.isIOS;
+    return (Platform.isAndroid || Platform.isIOS) && !wallet.isHardwareWallet;
   }
 
   @action
