@@ -61,6 +61,7 @@
   "already_have_account": "Bạn đã có tài khoản chưa?",
   "already_your_username": "Đây đã là tên người dùng của bạn!",
   "always": "Luôn",
+  "ambiguous_token_symbol_exception": "Nhiều mã thông báo trong ví này sử dụng ký hiệu ${symbol}. Vô hiệu hóa mã thông báo trùng lặp để có thể xác định mã thông báo chính xác trước khi gửi.",
   "amount": "Số lượng: ",
   "amount_is_below_minimum_limit": "Số dư của bạn sau khi trừ phí sẽ thấp hơn số tiền tối thiểu cần thiết để trao đổi (${min})",
   "amount_is_estimate": "Số tiền nhận được chỉ là ước tính",
@@ -1474,5 +1475,6 @@
   "zcash_card_enable_later": "Bạn luôn có thể bật thẻ này sau trong phần cài đặt",
   "zcash_card_missing_funds": "Thiếu tiền?",
   "zcash_card_scan": "Quét",
-  "zcash_card_warning": "Không đóng ứng dụng cho đến khi quy trình hoàn tất; nếu bạn làm vậy, quy trình này sẽ phải bắt đầu lại từ đầu."
+  "zcash_card_warning": "Không đóng ứng dụng cho đến khi quy trình hoàn tất; nếu bạn làm vậy, quy trình này sẽ phải bắt đầu lại từ đầu.",
+  "recipient_account_creation_fee": "Cần thêm ${amount} để tạo tài khoản mã thông báo cho người nhận vì họ chưa có tài khoản."
 }

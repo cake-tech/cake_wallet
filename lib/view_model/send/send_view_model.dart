@@ -336,6 +336,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   PendingTransaction? pendingTransaction;
 
+  String? get pendingTransactionAdditionalCostNotice {
+    final additionalCost = pendingTransaction?.additionalCost;
+
+    if (additionalCost == null) {
+      return null;
+    }
+
+    return S.current.recipient_account_creation_fee(
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(additionalCost),
+    );
+  }
+
   @computed
   String get balance {
     if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
@@ -1179,11 +1191,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
           DateTime.now().add(Duration(minutes: 1)).toIso8601String());
     } catch (e) {
-      if (e is JupiterSwapFailedException) {
-        await _updateSolanaTrade(signature: e.signature, isSuccess: false);
-      }
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      await _updateSolanaTrade(signature: '', isSuccess: false);
+
+      final failedSignature = e is JupiterSwapFailedException ? e.signature : "";
+
+      await _updateSolanaTrade(signature: failedSignature, isSuccess: false);
     }
   }
 
@@ -1507,6 +1519,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (error is NoAssociatedTokenAccountException) {
         return S.current.solana_no_associated_token_account_exception;
+      }
+
+      if (error is AmbiguousTokenSymbolException) {
+        return S.current.ambiguous_token_symbol_exception(error.symbol);
       }
 
       if (errorMessage.contains('found no record of a prior credit')) {
