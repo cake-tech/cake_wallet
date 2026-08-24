@@ -199,250 +199,199 @@ class SendTransactionDetails extends StatelessWidget {
   }
 
   Widget _buildMainContent(BuildContext context) => Observer(builder: (context) {
-      final transaction = sendViewModel.pendingTransaction;
-      final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
+        final transaction = sendViewModel.pendingTransaction;
+        final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
 
-      final currencySymbol =
-          sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
+        final currencySymbol =
+            sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
 
-      final amount = (transaction == null)
-          ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
-              final zero = Money.zero(sendViewModel.selectedCryptoCurrency);
-              if (o.sendAll) {
-                return sendViewModel.amountParsingProxy.tryParseCryptoString(
-                        sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
-                    zero;
-              }
+        final amount = (transaction == null)
+            ? sendViewModel.amountParsingProxy
+                .asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
+                final zero = Money.zero(sendViewModel.selectedCryptoCurrency);
+                if (o.sendAll) {
+                  return sendViewModel.amountParsingProxy.tryParseCryptoString(
+                          sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
+                      zero;
+                }
 
-              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
-            }, sendViewModel.selectedCryptoCurrency))
-          : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
+                return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
+              }, sendViewModel.selectedCryptoCurrency))
+            : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
 
-      final fee = (transaction == null)
-          ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
-              sendViewModel.outputs,
-              (o) => o.estimatedFee,
-              sendViewModel.currency,
-            ))
-          : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
+        final fee = (transaction == null)
+            ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(
+                sendViewModel.outputs,
+                (o) => o.estimatedFee,
+                sendViewModel.currency,
+              ))
+            : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
 
-      final fiatAmount = (transaction == null)
-          ? sumWithUnit(
-              sendViewModel.outputs,
-              (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
-          : sendViewModel.pendingTransactionFiatAmountFormatted;
+        final fiatAmount = (transaction == null)
+            ? sumWithUnit(
+                sendViewModel.outputs,
+                (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
+                sendViewModel.fiatCurrency.title,
+                decimals: 2)
+            : sendViewModel.pendingTransactionFiatAmountFormatted;
 
-      final fiatFee = (transaction == null)
-          ? sumWithUnit(
-              sendViewModel.outputs,
-              (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
-          : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
+        final fiatFee = (transaction == null)
+            ? sumWithUnit(
+                sendViewModel.outputs,
+                (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
+                sendViewModel.fiatCurrency.title,
+                decimals: 2)
+            : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
-      final showAddress = !sendViewModel.outputs.any((e) =>
-          RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
-          RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
-          (e.isParsedAddress &&
-              e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] !=
-                  null &&
-              e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
-                  .isNotEmpty &&
-              RegExp(AddressValidator.lnurlMatcher).hasMatch(e
-                  .parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
-                  .toLowerCase())));
+        final showAddress = !sendViewModel.outputs.any((e) =>
+            RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
+            RegExp(AddressValidator.lnurlMatcher).hasMatch(e.address.toLowerCase()) ||
+            (e.isParsedAddress &&
+                e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency] !=
+                    null &&
+                e.parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
+                    .isNotEmpty &&
+                RegExp(AddressValidator.lnurlMatcher).hasMatch(e
+                    .parsedAddress.parsedAddressByCurrencyMap[sendViewModel.selectedCryptoCurrency]!
+                    .toLowerCase())));
 
-      final outputs = sendViewModel.outputs;
+        final outputs = sendViewModel.outputs;
 
-      return SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 24,
-            children: [
-              // The amount being sent is the value under review: announce it as one group.
-              MergeSemantics(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 4,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            amount,
-                            style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurface),
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: 24,
+              children: [
+                // The amount being sent is the value under review: announce it as one group.
+                MergeSemantics(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 4,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              amount,
+                              style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurface),
+                            ),
                           ),
-                        ),
-                        Text(currencySymbol,
-                            style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant))
-                      ],
-                    ),
-                    Text(
-                      fiatAmount,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-              if (outputs.length >= 1 &&
-                  (outputs.first.extractedAddress.isNotEmpty || outputs.first.address.isNotEmpty) &&
-                  showAddress)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
-                  children: [
-                    Text(
-                      S.of(context).send_to,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    ),
-                    if (outputs.length == 1)
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: AddressFormatter.buildSegmentedAddress(
-                              address: outputs.first.isParsedAddress
-                                  ? outputs.first.extractedAddress
-                                  : outputs.first.address,
-                              evenTextStyle:
-                                  TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                        ),
-                      )
-                    else
-                      AnimatedDropdown(
-                          content: Column(
-                            children: outputs
-                                .map(
-                                  (item) => Column(
-                                    children: [
-                                      MultiSendAddressPreview(
-                                        index: outputs.indexOf(item) + 1,
-                                        address: item.isParsedAddress
-                                            ? item.extractedAddress
-                                            : item.address,
-                                        amount:
-                                            "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
-                                        fiatAmount:
-                                            "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
-                                      ),
-                                      if (item != outputs.last)
-                                        Container(
-                                            width: double.infinity,
-                                            height: 1,
-                                            color:
-                                                Theme.of(context).colorScheme.surfaceContainerHigh)
-                                    ],
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                          dropdownText: "${outputs.length} ${S.of(context).addresses}"),
-                  ],
-                ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: MergeSemantics(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(S.of(context).fee,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurface)),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                ),
-                                Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant))
-                              ],
-                            )
-                          ],
-                        ),
+                          Text(currencySymbol,
+                              style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))
+                        ],
                       ),
-                    ),
-                    if (additionalCostNotice != null) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Container(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          additionalCostNotice,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
+                      Text(
+                        fiatAmount,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
-                    if (sendViewModel.isElectrumWallet) ...[
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: Container(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                        ),
+                  ),
+                ),
+                if (outputs.length >= 1 &&
+                    (outputs.first.extractedAddress.isNotEmpty ||
+                        outputs.first.address.isNotEmpty) &&
+                    showAddress)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      Text(
+                        S.of(context).send_to,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
+                      if (outputs.length == 1)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: AddressFormatter.buildSegmentedAddress(
+                                address: outputs.first.isParsedAddress
+                                    ? outputs.first.extractedAddress
+                                    : outputs.first.address,
+                                evenTextStyle:
+                                    TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                          ),
+                        )
+                      else
+                        AnimatedDropdown(
+                            content: Column(
+                              children: outputs
+                                  .map(
+                                    (item) => Column(
+                                      children: [
+                                        MultiSendAddressPreview(
+                                          index: outputs.indexOf(item) + 1,
+                                          address: item.isParsedAddress
+                                              ? item.extractedAddress
+                                              : item.address,
+                                          amount:
+                                              "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
+                                          fiatAmount:
+                                              "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
+                                        ),
+                                        if (item != outputs.last)
+                                          Container(
+                                              width: double.infinity,
+                                              height: 1,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .surfaceContainerHigh)
+                                      ],
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                            dropdownText: "${outputs.length} ${S.of(context).addresses}"),
+                    ],
+                  ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
                       Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: MergeSemantics(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(S.of(context).network,
+                              Text(S.of(context).fee,
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
                                       color: Theme.of(context).colorScheme.onSurface)),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                      sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
-                                          ? "Lightning"
-                                          : bitcoin!.getNetworkName(sendViewModel.wallet),
+                                    "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  ),
+                                  Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,
@@ -452,19 +401,73 @@ class SendTransactionDetails extends StatelessWidget {
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      if (additionalCostNotice != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Container(
+                            height: 1,
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            additionalCostNotice,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
+                      if (sendViewModel.isElectrumWallet) ...[
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Container(
+                            height: 1,
+                            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: MergeSemantics(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(S.of(context).network,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurface)),
+                                Column(
+                                  children: [
+                                    Text(
+                                        sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
+                                            ? "Lightning"
+                                            : bitcoin!.getNetworkName(sendViewModel.wallet),
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant))
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              SendConfirmBottomWidget(sendViewModel: sendViewModel),
-              if (Platform.isAndroid) // spacing between bottom widget and system navbar
-                SizedBox(),
-            ],
+                SendConfirmBottomWidget(sendViewModel: sendViewModel),
+                if (Platform.isAndroid) // spacing between bottom widget and system navbar
+                  SizedBox(),
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      });
 
   String formatAmount(String amount) {
     try {

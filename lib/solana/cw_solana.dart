@@ -134,9 +134,7 @@ class CWSolana extends Solana {
       return token;
     }
 
-    final recordedCurrency = transaction.amount.currency;
-
-    return recordedCurrency is CryptoCurrency ? recordedCurrency : CryptoCurrency.sol;
+    return transaction.amount.currency as CryptoCurrency;
   }
 
   @override

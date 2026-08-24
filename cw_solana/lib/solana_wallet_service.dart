@@ -104,8 +104,8 @@ class SolanaWalletService extends WalletService<
     }
 
     final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys().where(
-            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+    for (final key
+        in prefs.getKeys().where((k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
       await prefs.remove(key);
     }
   }

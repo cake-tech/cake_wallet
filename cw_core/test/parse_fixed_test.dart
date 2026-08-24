@@ -45,6 +45,19 @@ void main() {
       test('should fail to parse `.`, missing value',
           () => expect(() => parseFixed(".", 6), throwsFormatException));
     });
+
+    group("parseFixed, zero decimal currency", () {
+      test("should parse 5 as 5", () => expect(parseFixed("5", 0), BigInt.from(5)));
+
+      test("should parse 0 as 0", () => expect(parseFixed("0", 0), BigInt.from(0)));
+
+      test("should parse 1. as 1", () => expect(parseFixed("1.", 0), BigInt.from(1)));
+
+      test("should parse -3 as -3", () => expect(parseFixed("-3", 0), BigInt.from(-3)));
+
+      test("should fail to parse 5.5, fractional component exceeds decimals",
+          () => expect(() => parseFixed("5.5", 0), throwsFormatException));
+    });
   });
 
   group('tryParseFixed', () {
