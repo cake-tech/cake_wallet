@@ -100,67 +100,65 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: "BOOLEAN DEFAULT FALSE",
         );
 
-        await _addColumnIfNotExists(
-          db,
-          table: "BalanceCardStyleSettings",
-          column: "cardOrder",
-          definition: "INTEGER DEFAULT 0",
-        );
-      }
-      if (oldVersion <= 3) {
-        await _addColumnIfNotExists(
-          db,
-          table: "WalletInfo",
-          column: "showCombinedBalance",
-          definition: "BOOLEAN DEFAULT TRUE",
-        );
-        // null - primary token (eth, sol etc)
-        // not null - address of fav token
-        // if address doesn't correspond to a valid token, fallback to primary token
-        await _addColumnIfNotExists(
-          db,
-          table: "WalletInfo",
-          column: "favoriteTokenAddress",
-          definition: "TEXT DEFAULT NULL",
-        );
-      }
-      if (oldVersion <= 4) {
-        await _createBridgeTransferTable(db);
-      }
-      if (oldVersion <= 5) {
-        await _createTradeTable(db);
-      }
-      if (oldVersion <= 6) {
-        await _addColumnIfNotExists(
-          db,
-          table: "Trade",
-          column: "toAddressExtraId",
-          definition: "TEXT",
-        );
-      }
-      if (oldVersion <= 7) {
-        await _createNodeTable(db);
-      }
-      if (oldVersion <= 8) {
-        await _addColumnIfNotExists(
-          db,
-          table: "BalanceCardStyleSettings",
-          column: "iconStyleIndex",
-          definition: "INTEGER DEFAULT 0",
-        );
-        await _addColumnIfNotExists(
-          db,
-          table: "BalanceCardStyleSettings",
-          column: "isGradientOnly",
-          definition: "BOOLEAN DEFAULT FALSE",
-        );
-      }
-      if (oldVersion <= 9) {
-        await _createChartsTables(db);
-      }
-    },
-    onCreate: (db, version) async {
-      await db.execute('''
+      await _addColumnIfNotExists(
+        db,
+        table: 'BalanceCardStyleSettings',
+        column: 'cardOrder',
+        definition: 'INTEGER DEFAULT 0',
+      );
+    }
+    if (oldVersion <= 3) {
+      await _addColumnIfNotExists(db,
+          table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+      // null - primary token (eth, sol etc)
+      // not null - address of fav token
+      // if address doesn't correspond to a valid token, fallback to primary token
+      await _addColumnIfNotExists(db,
+          table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+    }
+
+    if (oldVersion <= 4) {
+      await _createBridgeTransferTable(db);
+    }
+
+    if (oldVersion <= 5) {
+      await _createTradeTable(db);
+    }
+    if (oldVersion <= 6) {
+      await _addColumnIfNotExists(
+        db,
+        table: 'Trade',
+        column: 'toAddressExtraId',
+        definition: 'TEXT',
+      );
+    }
+    if (oldVersion <= 7) {
+      await _createNodeTable(db);
+    }
+    if (oldVersion <= 8) {
+      await _addColumnIfNotExists(
+        db,
+        table: 'BalanceCardStyleSettings',
+        column: 'iconStyleIndex',
+        definition: 'INTEGER DEFAULT 0',
+      );
+      await _addColumnIfNotExists(
+        db,
+        table: 'BalanceCardStyleSettings',
+        column: 'isGradientOnly',
+        definition: 'BOOLEAN DEFAULT FALSE',
+      );
+    }
+    if (oldVersion <= 9) {
+      await _createErc20TokenTable(db);
+      await _createSplTokenTable(db);
+      await _createTronTokenTable(db);
+    }
+    if(oldVersion <= 10) {
+      await _createChartsTables(db);
+    }
+  }, onCreate: (Database db, int version) async {
+    await db.execute('''
 CREATE TABLE WalletInfo (
 	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	id TEXT NOT NULL,
@@ -255,6 +253,9 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createNodeTable(db);
       await _createTradeTable(db);
       await _createChartsTables(db);
+      await _createErc20TokenTable(db);
+      await _createSplTokenTable(db);
+      await _createTronTokenTable(db);
     },
   );
 }
@@ -399,6 +400,71 @@ CREATE TABLE IF NOT EXISTS BridgeTransfer (
   await db.execute("""
 CREATE INDEX IF NOT EXISTS idx_bridgetransfer_wallet_id
 ON BridgeTransfer(wallet_id);
+""");
+}
+
+Future<void> _createErc20TokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS Erc20Token (
+  Erc20TokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  chainId INTEGER NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  contractAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_erc20token_wallet_chain_contract
+ON Erc20Token (walletName, chainId, contractAddress);
+""");
+}
+
+Future<void> _createSplTokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS SPLToken (
+  SPLTokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  mintAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  mint TEXT NOT NULL DEFAULT '',
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_spltoken_wallet_mint
+ON SPLToken (walletName, mintAddress);
+""");
+}
+
+Future<void> _createTronTokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS TronToken (
+  TronTokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  contractAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trontoken_wallet_contract
+ON TronToken (walletName, contractAddress);
 """);
 }
 
