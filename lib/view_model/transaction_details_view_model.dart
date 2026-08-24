@@ -513,9 +513,10 @@ abstract class TransactionDetailsViewModelBase with Store {
   @computed
   String get transactionFiatAmount {
     final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
-    final fiatValue =
-        calculateFiatAmountRaw(cryptoAmount: transactionInfo.amount.toDouble(), price: price)
-            .withLocalSeperator(_appStore.settingsStore.languageCode);
+    final fiatValue = calculateFiatAmountRaw(
+      cryptoAmount: double.parse(transactionInfo.amount.toString()),
+      price: price,
+    ).withLocalSeperator(_appStore.settingsStore.languageCode);
     return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
   }
 
@@ -530,8 +531,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       return "";
     }
     final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
-    final fiatValue = calculateFiatAmountRaw(cryptoAmount: fee.toDouble(), price: price)
-        .withLocalSeperator(_appStore.settingsStore.languageCode);
+    final fiatValue =
+        calculateFiatAmountRaw(cryptoAmount: double.parse(fee.toString()), price: price)
+            .withLocalSeperator(_appStore.settingsStore.languageCode);
     return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
   }
 
@@ -586,6 +588,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   @computed
+  bool get feeFetchFailed => !isFetchingFee && isAmountPending;
+
+  @computed
   String get totalSentAmount {
     final fee = transactionInfo.fee;
     if (fee == null) {
@@ -602,7 +607,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (fee == null) {
       return "";
     }
-    final total = transactionInfo.amount.toDouble() + fee.toDouble();
+    final total = double.parse(transactionInfo.amount.toString()) + double.parse(fee.toString());
     final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
     final fiatValue = calculateFiatAmountRaw(cryptoAmount: total, price: price)
         .withLocalSeperator(_appStore.settingsStore.languageCode);
@@ -631,7 +636,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
     final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
     final fiatValue = calculateFiatAmountRaw(
-      cryptoAmount: Money.fromInt(rawAmount, transactionAsset).toDouble(),
+      cryptoAmount: double.parse(Money.fromInt(rawAmount, transactionAsset).toString()),
       price: price,
     ).withLocalSeperator(_appStore.settingsStore.languageCode);
     return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
