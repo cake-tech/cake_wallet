@@ -3,6 +3,7 @@ import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
+import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/wallet_type.dart";
 
 class ResetViewModel {
@@ -17,6 +18,17 @@ class ResetViewModel {
         wallet.hasRescan &&
         wallet.type != WalletType.bitcoin &&
         wallet.type != WalletType.litecoin;
+  }
+
+  Future<void> resetBalanceCards() async {
+    final wallet = _appStore.wallet;
+    if (wallet == null) {
+      return;
+    }
+
+    await BalanceCardStyleSettings.deleteByWalletInfoId(
+      wallet.walletInfo.internalId,
+    );
   }
 
   Future<void> resetSettingsToDefault() async {

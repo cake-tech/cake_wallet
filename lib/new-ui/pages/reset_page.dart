@@ -60,7 +60,7 @@ class ResetPage extends BasePage {
               label: strings.reset_balance_cards,
               foregroundColor: primaryColor,
               showArrow: false,
-              onTap: _resetBalanceCards,
+              onTap: () => _resetBalanceCards(context),
             ),
             ListItemRegularRow(
               keyValue: "reset_settings_to_default",
@@ -77,14 +77,32 @@ class ResetPage extends BasePage {
 
   void _restoreThisWallet() {}
 
-  void _resetBalanceCards() {}
+  Future<void> _resetBalanceCards(BuildContext context) async {
+    final shouldReset = await showPopUp<bool>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(dialogContext).alert_notice,
+        alertContent: S.of(dialogContext).reset_balance_cards_notice,
+        rightButtonText: S.of(dialogContext).continue_text,
+        leftButtonText: S.of(dialogContext).cancel,
+        leftAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
+        rightAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
+        actionRightButton: () => Navigator.of(dialogContext).pop(true),
+        actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+      ),
+    );
+
+    if (shouldReset == true) {
+      await _resetViewModel.resetBalanceCards();
+    }
+  }
 
   Future<void> _resetSettingsToDefault(BuildContext context) async {
     final shouldReset = await showPopUp<bool>(
       context: context,
       builder: (dialogContext) => AlertWithTwoActions(
         alertTitle: S.of(dialogContext).alert_notice,
-        alertContent: S.of(dialogContext).reset_wallet_settings,
+        alertContent: S.of(dialogContext).reset_wallet_settings_notice,
         rightButtonText: S.of(dialogContext).continue_text,
         leftButtonText: S.of(dialogContext).cancel,
         leftAlertButtonStyle: AlertButtonStyle.primary(dialogContext),

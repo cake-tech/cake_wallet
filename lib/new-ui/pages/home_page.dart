@@ -53,9 +53,9 @@ class _NewHomePageState extends State<NewHomePage> {
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
-        if(!context.mounted) {
+        if (!context.mounted) {
           return;
         }
         widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
@@ -119,17 +119,21 @@ class _NewHomePageState extends State<NewHomePage> {
                             _lightningMode = !_lightningMode;
                           });
                         },
-                        onSettingsButtonPress: () {
-                          CupertinoScaffold.showCupertinoModalBottomSheet(
+                        onSettingsButtonPress: () async {
+                          await CupertinoScaffold.showCupertinoModalBottomSheet(
                             context: context,
                             barrierColor: Colors.black.withAlpha(85),
                             builder: (context) => FractionallySizedBox(
-                                child: Material(
-                                    child: NewSettingsPage(
-                              dashboardViewModel: widget.dashboardViewModel,
-                              authService: getIt.get<AuthService>(),
-                            ))),
+                              child: Material(
+                                child: NewSettingsPage(
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  authService: getIt.get<AuthService>(),
+                                ),
+                              ),
+                            ),
                           );
+
+                          await widget.dashboardViewModel.loadCardDesigns();
                         },
                       ),
                       Observer(
