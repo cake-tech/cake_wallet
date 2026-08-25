@@ -43,6 +43,10 @@ const List<BitcoinAddressType> DOGECOIN_ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
 ];
 
+const List<BitcoinAddressType> PIVX_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+];
+
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -365,6 +369,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     } else if (walletInfo.type == WalletType.dogecoin) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    } else if (walletInfo.type == WalletType.pivx) {
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses(isLegacyDerivation: true);
       await _generateInitialAddresses();
@@ -385,9 +391,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     updateAddressesByMatch();
+    // reconcile branch/derivation before building the receive/change lists
+    // (they partition on isHidden), so a corrected isHidden lands in the right
+    // list.
+    await _validateAddresses();
     updateReceiveAddresses();
     updateChangeAddresses();
-    _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -622,6 +631,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addP2PKHAddressTypes();
           break;
         case WalletType.dogecoin:
+          addP2PKHAddressTypes();
+          break;
+        case WalletType.pivx:
           addP2PKHAddressTypes();
           break;
         default:
@@ -869,10 +881,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateAddresses() {
-    _addresses.forEach((element) async {
+  Future<void> _validateAddresses() async {
+    await Future.wait(_addresses.map((element) async {
       if (element.type == SegwitAddresType.mweb) {
         // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+        return;
+      }
+
+      // pivx re-derives against branch and derivation combos; other coins keep
+      // the base flip so their behavior is unchanged.
+      if (walletInfo.type == WalletType.pivx) {
+        await _reconcileAddressMetadata(element);
         return;
       }
 
@@ -889,7 +908,36 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
               await getAddressAsync(index: element.index, hd: sideHd, addressType: element.type)) {
         element.isHidden = false;
       }
-    });
+    }));
+  }
+
+  /// Set a record's branch (isHidden) and derivation (isLegacyDerivation) to a
+  /// combo that re-derives its stored address. The base flip changed isHidden on
+  /// any mismatch without checking the target re-derives, leaving a still-wrong
+  /// record whose key can't sign its UTXO. Try the stored combo first, then
+  /// alternatives, apply only one that verifies. index is final, so a record
+  /// matching none is left for the signer to reject.
+  Future<void> _reconcileAddressMetadata(BitcoinAddressRecord element) async {
+    for (final isLegacyDerivation in <bool>[
+      element.isLegacyDerivation,
+      !element.isLegacyDerivation,
+    ]) {
+      for (final isHidden in <bool>[element.isHidden, !element.isHidden]) {
+        final hd = _hdFor(
+            isHidden: isHidden,
+            type: element.type,
+            isLegacyDerivation: isLegacyDerivation);
+        final derived = await getAddressAsync(
+            index: element.index, hd: hd, addressType: element.type);
+        if (element.address == derived) {
+          if (element.isHidden != isHidden) element.isHidden = isHidden;
+          if (element.isLegacyDerivation != isLegacyDerivation) {
+            element.isLegacyDerivation = isLegacyDerivation;
+          }
+          return;
+        }
+      }
+    }
   }
 
   @override
