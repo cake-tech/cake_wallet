@@ -61,6 +61,7 @@
   "already_have_account": "Já tem uma conta?",
   "already_your_username": "Este já é o seu nome de utilizador!",
   "always": "Sempre",
+  "ambiguous_token_symbol_exception": "Mais de um token nesta carteira usa o símbolo ${symbol}. Desative o token duplicado para que o correto possa ser identificado antes do envio.",
   "amount": "Quantidade: ",
   "amount_is_below_minimum_limit": "Seu saldo após as taxas seria menor do que o valor mínimo necessário para a troca (${min})",
   "amount_is_estimate": "O valor a receber é uma estimativa",
@@ -93,6 +94,7 @@
   "available": "Disponível",
   "available_balance": "Saldo disponível",
   "available_balance_description": "O “Saldo Disponível” ou “Saldo Confirmado” são fundos que podem ser gastos imediatamente. Se os fundos aparecerem no saldo inferior, mas não no saldo superior, você deve aguardar alguns minutos para que os fundos recebidos obtenham mais confirmações na rede. Depois que tiverem mais confirmações, eles poderão ser gastos.",
+  "available_balance_short": "Avl: ${amount}",
   "avg_savings": "Poupança média",
   "avl": "Avl",
   "awaitDAppProcessing": "Por favor, aguarde o dApp concluir o processamento.",
@@ -1151,6 +1153,8 @@
   "swap_id": "ID da troca",
   "swap_provider_initial_desc": "Selecione o tipo de provedor de swap que você prefere usar ao fazer swaps em",
   "swap_providers": "Provedores de swap",
+  "swap_unavailable_needs_network_wallet": "Este tipo de endereço não pode receber fundos de um swap. Você precisa de uma carteira ${network} para enviar para este endereço.",
+  "swap_unavailable_switch_to_network": "Este tipo de endereço não pode receber fundos de um swap. Mude para sua carteira ${network} para continuar.",
   "sweeping_wallet": "Carteira de varredura",
   "sweeping_wallet_alert": "Isso não deve demorar muito. NÃO SAIA DESTA TELA OU OS FUNDOS VARRIDOS PODEM SER PERDIDOS.",
   "swipe_to_bridge": "Deslize para fazer bridge",
@@ -1473,5 +1477,6 @@
   "zcash_card_enable_later": "Você sempre pode ativar este cartão mais tarde nas configurações",
   "zcash_card_missing_funds": "Fundos em falta?",
   "zcash_card_scan": "Escanear",
-  "zcash_card_warning": "Não feche o aplicativo até que o procedimento seja concluído; se você fizer isso, esse processo precisará ser reiniciado do zero."
+  "zcash_card_warning": "Não feche o aplicativo até que o procedimento seja concluído; se você fizer isso, esse processo precisará ser reiniciado do zero.",
+  "recipient_account_creation_fee": "É necessário um ${amount} extra para criar uma conta token para o destinatário, porque ele ainda não tem uma."
 }

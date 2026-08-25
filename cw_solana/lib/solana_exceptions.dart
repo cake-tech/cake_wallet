@@ -36,3 +36,7 @@ class SolanaNoAssociatedTokenAccountException extends NoAssociatedTokenAccountEx
   final String account;
   final String mint;
 }
+
+class SolanaAmbiguousTokenSymbolException extends AmbiguousTokenSymbolException {
+  SolanaAmbiguousTokenSymbolException(super.symbol);
+}

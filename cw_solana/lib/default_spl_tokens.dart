@@ -87,7 +87,7 @@ class DefaultSPLTokens {
       symbol: 'GMT',
       mintAddress: '7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx',
       decimal: 9,
-      mint: 'ray',
+      mint: 'gmt',
       iconPath: 'assets/images/gmt_icon.png',
       enabled: false,
     ),

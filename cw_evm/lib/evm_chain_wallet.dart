@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -38,7 +37,6 @@ import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
 import 'package:hex/hex.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
@@ -109,10 +107,6 @@ abstract class EVMChainWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = setUpTransactionHistory(walletInfo, password, encryptionFileUtils);
 
-    if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
-      CakeHive.registerAdapter(Erc20TokenAdapter());
-    }
-
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
@@ -121,9 +115,7 @@ abstract class EVMChainWalletBase
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
-  late final Box<Erc20Token> erc20TokensBox;
-
-  late Box<Erc20Token> evmChainErc20TokensBox;
+  List<Erc20Token> _erc20Tokens = [];
 
   late final Credentials _evmChainPrivateKey;
 
@@ -217,8 +209,8 @@ abstract class EVMChainWalletBase
     // Automatically connect to node for the selected chain
     await connectToNode(node: node);
 
-    // Reload ERC20 tokens box for the new chain
-    await initErc20TokensBox();
+    // Reload ERC20 tokens for the new chain
+    await initErc20Tokens();
 
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
@@ -228,178 +220,51 @@ abstract class EVMChainWalletBase
     await startSync();
   }
 
-  void addInitialTokens() {
+  Future<void> addInitialTokens() async {
     final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokensByChainId(selectedChainId);
 
     for (final token in initialErc20Tokens) {
-      if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
-        evmChainErc20TokensBox.put(token.contractAddress, token);
-      } else {
-        // update existing token
-        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
-        evmChainErc20TokensBox.put(
-          token.contractAddress,
-          Erc20Token.copyWith(token, enabled: existingToken!.enabled),
-        );
-      }
+      final existingToken = _findCachedToken(token.contractAddress);
+
+      final newToken = Erc20Token.copyWith(
+        token,
+        enabled: existingToken?.enabled ?? token.enabled,
+        walletName: walletInfo.name,
+        chainId: selectedChainId,
+      );
+
+      await newToken.save();
+      _upsertCachedToken(newToken);
     }
   }
 
   List<String> get getDefaultTokenContractAddresses =>
       EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);
 
-  Future<void> initErc20TokensBox() async {
-    // Migration for old WalletType.ethereum wallets:
-    // Old wallets used a global erc20TokensBox (shared across all wallets).
-    // New system uses wallet-specific, chain-specific boxes.
-    // This checks if migration is needed and runs it once.
-    if (walletInfo.type == WalletType.ethereum) {
-      try {
-        // Try to access erc20TokensBox - if it exists, migration already ran
-        final _ = erc20TokensBox;
-        // Migration done, proceed with normal chain-specific logic below
-      } catch (_) {
-        // erc20TokensBox doesn't exist yet, run migration from global box
-        await _initEthereumErc20TokensBox();
-        await _normalizeEvmChainErc20TokensBoxKeys();
-        return;
-      }
-    }
+  Future<void> initErc20Tokens() async {
+    _erc20Tokens = await Erc20Token.getAllForWallet(walletInfo.name, selectedChainId);
 
-    final chainId = selectedChainId;
-
-    final boxName = EVMChainUtils.getErc20TokensBoxName(walletInfo.name, chainId);
-
-    // Close existing box if it's already open (for chain switching)
-    try {
-      if (evmChainErc20TokensBox.isOpen) {
-        await evmChainErc20TokensBox.close();
-      }
-    } catch (_) {
-      // Box might not be initialized yet, ignore
-    }
-
-    // Check if box is already open, if so use it, otherwise open it
-    if (CakeHive.isBoxOpen(boxName)) {
-      evmChainErc20TokensBox = CakeHive.box<Erc20Token>(boxName);
-    } else {
-      evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(boxName);
-    }
-
-    await _normalizeEvmChainErc20TokensBoxKeys();
-
-    addInitialTokens();
+    await addInitialTokens();
   }
 
-  /// Ethereum-specific initialization with backward compatibility
-  Future<void> _initEthereumErc20TokensBox() async {
-    // Opens a box specific to this wallet
-    evmChainErc20TokensBox = await CakeHive.openBox<Erc20Token>(
-      "${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}",
-    );
+  Erc20Token? _findCachedToken(String contractAddress) {
+    final lowerAddress = contractAddress.toLowerCase();
 
-    erc20TokensBox = await CakeHive.openBox<Erc20Token>(Erc20Token.boxName);
-
-    if (erc20TokensBox.isEmpty) {
-      if (evmChainErc20TokensBox.isEmpty) addInitialTokens();
-      return;
+    for (final token in _erc20Tokens) {
+      if (token.contractAddress.toLowerCase() == lowerAddress) return token;
     }
+    return null;
+  }
 
-    final allValues = erc20TokensBox.values.toList();
+  void _upsertCachedToken(Erc20Token token) {
+    final lowerAddress = token.contractAddress.toLowerCase();
 
-    // Clear and delete the old token box
-    await erc20TokensBox.clear();
-    await erc20TokensBox.deleteFromDisk();
-
-    // Add all the previous tokens with configs to the new box
-    await evmChainErc20TokensBox.addAll(allValues);
+    _erc20Tokens.removeWhere((t) => t.contractAddress.toLowerCase() == lowerAddress);
+    _erc20Tokens.add(token);
   }
 
   String getTransactionHistoryFileName() =>
       EVMChainUtils.getTransactionHistoryFileName(selectedChainId);
-
-  /// Ensures all ERC20 token entries use lowercase contract addresses as
-  /// their Hive keys to avoid duplicates caused by case differences.
-  Future<void> _normalizeEvmChainErc20TokensBoxKeys() async {
-    if (!evmChainErc20TokensBox.isOpen) return;
-
-    final prefs = await sharedPrefs.future;
-    final migrationKey = 'erc20_box_normalized_${walletInfo.name}_$selectedChainId';
-
-    if (prefs.getBool(migrationKey) ?? false) return;
-
-    final box = evmChainErc20TokensBox;
-    final keys = box.keys.toList();
-
-    if (keys.isEmpty) {
-      await prefs.setBool(migrationKey, true);
-      return;
-    }
-
-    final Map<String, Erc20Token> normalizedTokens = {};
-    var needsRewrite = false;
-
-    for (final key in keys) {
-      final token = box.get(key);
-
-      if (token == null) {
-        needsRewrite = true;
-        continue;
-      }
-
-      final lowerKey = key is String ? key.toLowerCase() : token.contractAddress.toLowerCase();
-      if (key is int) needsRewrite = true;
-
-      final Erc20Token normalizedToken =
-          token.contractAddress == token.contractAddress.toLowerCase()
-              ? token
-              : Erc20Token(
-                  name: token.name,
-                  symbol: token.symbol,
-                  contractAddress: token.contractAddress.toLowerCase(),
-                  decimal: token.decimal,
-                  enabled: token.enabled,
-                  iconPath: token.iconPath,
-                  tag: token.tag,
-                  isPotentialScam: token.isPotentialScam,
-                );
-
-      if (!needsRewrite && (lowerKey != key || identical(normalizedToken, token) == false)) {
-        needsRewrite = true;
-      }
-
-      final existing = normalizedTokens[lowerKey];
-
-      if (existing == null) {
-        normalizedTokens[lowerKey] = normalizedToken;
-        continue;
-      }
-
-      final merged = Erc20Token(
-        name: normalizedToken.name,
-        symbol: normalizedToken.symbol,
-        contractAddress: lowerKey,
-        decimal: normalizedToken.decimal,
-        enabled: normalizedToken.enabled || existing.enabled,
-        iconPath: (normalizedToken.iconPath?.isNotEmpty ?? false)
-            ? normalizedToken.iconPath
-            : existing.iconPath,
-        tag: normalizedToken.tag ?? existing.tag,
-        isPotentialScam: normalizedToken.isPotentialScam || existing.isPotentialScam,
-      );
-
-      normalizedTokens[lowerKey] = merged;
-    }
-
-    if (needsRewrite) {
-      await box.clear();
-      for (final entry in normalizedTokens.entries) {
-        await box.put(entry.key, entry.value);
-      }
-    }
-
-    await prefs.setBool(migrationKey, true);
-  }
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
@@ -451,6 +316,8 @@ abstract class EVMChainWalletBase
       tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(selectedChainId),
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
+      walletName: walletInfo.name,
+      chainId: selectedChainId,
     );
   }
 
@@ -499,7 +366,7 @@ abstract class EVMChainWalletBase
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
 
   Future<void> init() async {
-    await initErc20TokensBox();
+    await initErc20Tokens();
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -669,8 +536,6 @@ abstract class EVMChainWalletBase
 
   Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {
     try {
-      if (!evmChainErc20TokensBox.isOpen) return MoralisDiscoveryResult.empty;
-
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
@@ -680,8 +545,7 @@ abstract class EVMChainWalletBase
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
 
       final existingTokenAddresses = {
-        for (final token in evmChainErc20TokensBox.values)
-          token.contractAddress.toLowerCase(): token,
+        for (final token in _erc20Tokens) token.contractAddress.toLowerCase(): token,
       };
 
       final whitelistedTokenAddresses =
@@ -1419,32 +1283,21 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> _fetchErc20Balances() async {
-    // Check if box is open before accessing it
-    if (!evmChainErc20TokensBox.isOpen) {
-      return;
-    }
-
     // First, clean up any tokens in balance map that don't belong to current chain
     // This handles tokens from previous chains that might still be in the balance map
     final tokensInBalance = balance.keys.whereType<Erc20Token>().toList();
-    final tokensInBox = evmChainErc20TokensBox.values.toList();
-    final boxTokenAddresses = tokensInBox.map((t) => t.contractAddress.toLowerCase()).toSet();
+    final tokens = _erc20Tokens.toList();
+    final cachedTokenAddresses = tokens.map((t) => t.contractAddress.toLowerCase()).toSet();
 
     for (var token in tokensInBalance) {
-      // Remove token if it's not in the current box or doesn't match current chain
-      if (!boxTokenAddresses.contains(token.contractAddress.toLowerCase()) ||
+      // Remove token if it's not in the current token list or doesn't match current chain
+      if (!cachedTokenAddresses.contains(token.contractAddress.toLowerCase()) ||
           !_isTokenMatchingChain(token)) {
         balance.remove(token);
       }
     }
 
-    // Get a snapshot of tokens from current box to avoid issues if box is closed during iteration
-    final tokens = tokensInBox;
-
     for (var token in tokens) {
-      // Check if box is still open before operating on tokens
-      if (!evmChainErc20TokensBox.isOpen) break;
-
       if (!_isTokenMatchingChain(token)) {
         printV('NOTEE!!!: Token ${token.title} is not matching the currency ${currency.title}');
         try {
@@ -1532,15 +1385,7 @@ abstract class EVMChainWalletBase
   @override
   Future<void> updateTransactionsHistory() async => await _updateTransactions();
 
-  List<Erc20Token> get erc20Currencies {
-    try {
-      if (!evmChainErc20TokensBox.isOpen) return [];
-
-      return evmChainErc20TokensBox.values.toList();
-    } catch (_) {
-      return [];
-    }
-  }
+  List<Erc20Token> get erc20Currencies => _erc20Tokens.toList();
 
   Future<void> addErc20Token(Erc20Token token) async {
     final isSuspicious = isTokenPropertiesSuspicious(token);
@@ -1561,32 +1406,26 @@ abstract class EVMChainWalletBase
     final newToken = createNewErc20TokenObject(token, iconPath);
 
     if (newToken.enabled) {
-      try {
-        balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
 
-        await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
-      } on Exception catch (_) {
-        rethrow;
-      }
+      await newToken.save();
     } else {
-      await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
+      await newToken.save();
       balance.remove(newToken);
     }
+
+    _upsertCachedToken(newToken);
   }
 
   Future<void> deleteErc20Token(Erc20Token token, {bool shouldUpdateBalance = true}) async {
-    // Check if box is open before trying to delete
-    if (!evmChainErc20TokensBox.isOpen) {
-      balance.remove(token);
-      return;
+    try {
+      await Erc20Token.deleteForWallet(walletInfo.name, selectedChainId, token.contractAddress);
+    } catch (e) {
+      printV('Error deleting token: $e');
     }
 
-    try {
-      await token.delete();
-    } catch (e) {
-      // Token might be from a closed box, just remove from balance
-      printV('Error deleting token from box: $e');
-    }
+    _erc20Tokens
+        .removeWhere((t) => t.contractAddress.toLowerCase() == token.contractAddress.toLowerCase());
 
     balance.remove(token);
     await removeTokenTransactionsInHistory(token);

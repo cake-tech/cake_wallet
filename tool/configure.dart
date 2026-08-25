@@ -922,6 +922,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 """;
   const solanaCWHeaders = """

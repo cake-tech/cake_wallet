@@ -27,7 +27,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/erc20_token.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
@@ -96,8 +95,12 @@ Future<void> defaultSettingsMigration(
         case 1:
           await sharedPreferences.setString(
               PreferencesKey.currentFiatCurrencyKey, FiatCurrency.usd.toString());
-          await sharedPreferences.setInt(PreferencesKey.currentTransactionPriorityKeyLegacy,
-              monero!.getDefaultTransactionPriority().raw);
+
+          if (monero != null) {
+            await sharedPreferences.setInt(
+                PreferencesKey.currentTransactionPriorityKeyLegacy,
+                monero!.getDefaultTransactionPriority().raw);
+          }
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey, BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
@@ -792,6 +795,10 @@ Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
+  if (monero == null) {
+    return;
+  }
+
   final currentPriority =
       await sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) ??
           monero!.getDefaultTransactionPriority().serialize();
@@ -1072,11 +1079,15 @@ Future<void> generateBackupPassword(SecureStorage secureStorage) async {
 
 Future<void> changeTransactionPriorityAndFeeRateKeys(SharedPreferences sharedPreferences) async {
   final legacyTransactionPriority =
-      sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy)!;
-  await sharedPreferences.setInt(
-      PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
-  await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
-      bitcoin!.getMediumTransactionPriority().serialize());
+      sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy);
+  if (legacyTransactionPriority != null) {
+    await sharedPreferences.setInt(
+        PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
+  }
+  if (bitcoin != null) {
+    await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
+        bitcoin!.getMediumTransactionPriority().serialize());
+  }
 }
 
 Future<void> fixBtcDerivationPaths() async {
@@ -1270,22 +1281,22 @@ Future<void> _addXautTokenToExistingEthereumWallets() async {
 
     final ethereumWallets =
         allWallets.where((wallet) => wallet.type == WalletType.ethereum).toList();
+    const ethereumChainId = 1;
 
     for (final walletInfo in ethereumWallets) {
-      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
-      final boxName = '${sanitizedName}_${Erc20Token.ethereumBoxName}';
+      final existingToken = await Erc20Token.getByContract(
+        walletInfo.name,
+        ethereumChainId,
+        xautToken.contractAddress,
+      );
 
-      Box<Erc20Token> tokenBox;
-      if (CakeHive.isBoxOpen(boxName)) {
-        tokenBox = CakeHive.box<Erc20Token>(boxName);
-      } else {
-        tokenBox = await CakeHive.openBox<Erc20Token>(boxName);
-      }
+      if (existingToken != null) continue;
 
-      final xautAddress = xautToken.contractAddress;
-      if (!tokenBox.containsKey(xautAddress)) {
-        await tokenBox.put(xautAddress, xautToken);
-      }
+      await Erc20Token.copyWith(
+        xautToken,
+        walletName: walletInfo.name,
+        chainId: ethereumChainId,
+      ).save();
     }
   } catch (e) {
     printV('Error in XAUT migration: $e');
@@ -1309,20 +1320,11 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
     final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
 
     for (final walletInfo in solanaWallets) {
-      final sanitizedName = walletInfo.name.replaceAll(' ', '_');
-      final boxName = '${sanitizedName}_${SPLToken.boxName}';
+      final existingToken = await SPLToken.getByMint(walletInfo.name, xaut0Token.mintAddress);
 
-      Box<SPLToken> tokenBox;
-      if (CakeHive.isBoxOpen(boxName)) {
-        tokenBox = CakeHive.box<SPLToken>(boxName);
-      } else {
-        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
-      }
+      if (existingToken != null) continue;
 
-      final xaut0Address = xaut0Token.mintAddress;
-      if (!tokenBox.containsKey(xaut0Address)) {
-        await tokenBox.put(xaut0Address, xaut0Token);
-      }
+      await SPLToken.copyWith(xaut0Token, walletName: walletInfo.name).save();
     }
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
@@ -1346,20 +1348,13 @@ Future<void> _addTbbTokenToExistingSolanaWallets() async {
     final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
 
     for (final walletInfo in solanaWallets) {
-      final sanitizedName = walletInfo.name.replaceAll(" ", "_");
-      final boxName = "${sanitizedName}_${SPLToken.boxName}";
+     final existingToken = await SPLToken.getByMint(walletInfo.name, tbbToken.mintAddress);
 
-      Box<SPLToken> tokenBox;
-      if (CakeHive.isBoxOpen(boxName)) {
-        tokenBox = CakeHive.box<SPLToken>(boxName);
-      } else {
-        tokenBox = await CakeHive.openBox<SPLToken>(boxName);
+      if (existingToken != null) {
+        continue;
       }
 
-      final tbbAddress = tbbToken.mintAddress;
-      if (!tokenBox.containsKey(tbbAddress)) {
-        await tokenBox.put(tbbAddress, tbbToken);
-      }
+      await SPLToken.copyWith(tbbToken, walletName: walletInfo.name).save();
     }
   } catch (e) {
     printV("Error in TBB migration: $e");

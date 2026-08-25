@@ -20,7 +20,9 @@ class NewSimpleCheckbox extends StatelessWidget {
         decoration: BoxDecoration(
           color: value
               ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
+              : Theme.of(context).brightness == Brightness.light
+                  ? Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(80)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
         height: 24,
