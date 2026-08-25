@@ -61,6 +61,7 @@
   "already_have_account": "이미 계정이 있으신가요?",
   "already_your_username": "이미 사용 중인 사용자 이름입니다!",
   "always": "항상",
+  "ambiguous_token_symbol_exception": "이 지갑에 있는 두 개 이상의 토큰이 ${symbol} 기호를 사용합니다. 전송하기 전에 올바른 토큰을 식별할 수 있도록 중복 토큰을 비활성화합니다.",
   "amount": "수량: ",
   "amount_is_below_minimum_limit": "수수료 차감 후 잔액이 교환에 필요한 최소 금액(${min})보다 적을 것입니다",
   "amount_is_estimate": "수신 금액은 예상치입니다",
@@ -1474,5 +1475,6 @@
   "zcash_card_enable_later": "설정에서 언제든지 나중에 이 카드를 활성화할 수 있습니다.",
   "zcash_card_missing_funds": "자금이 사라졌나요?",
   "zcash_card_scan": "스캔",
-  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다."
+  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다.",
+  "recipient_account_creation_fee": "아직 토큰 계정이 없기 때문에 수신자를 위한 토큰 계정을 생성하려면 추가 ${amount}가 필요합니다."
 }
