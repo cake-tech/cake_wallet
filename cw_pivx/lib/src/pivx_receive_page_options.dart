@@ -49,7 +49,7 @@ class PivxReceivePageOption implements ReceivePageOption {
       case PivxAddressType.transparent:
         return "Transparent";
       case PivxAddressType.shieldedSapling:
-        return "Shielded";
+        return "Shielded (Sapling)";
     }
   }
 

@@ -912,15 +912,17 @@ class SaplingNoteStorage {
       _notes.removeWhere((note) => note.height > height);
       for (final note in _notes) {
         if (note.spendingHeight != null && note.spendingHeight! > height) {
-          // reorged-out spend: revert to PENDING (not plain unspent), keeping
-          // the txid so the disappeared-tx reconcile can check whether the send
-          // is still valid before the notes are treated as spendable again.
+          // A real local send that reorged out reverts to PENDING, keeping the
+          // txid so the disappeared-tx reconcile can re-check it before the note
+          // is spendable again. A quarantined phantom server spend has no real
+          // send behind it, so a reorg past the claimed height frees it fully.
           final revertedTxid = note.spendingTxid;
+          final wasQuarantined = note.isProvisionallySpent;
           note.isSpent = false;
           note.isProvisionallySpent = false;
           note.spendingTxid = null;
           note.spendingHeight = null;
-          if (revertedTxid != null) {
+          if (revertedTxid != null && !wasQuarantined) {
             note.isPendingSpend = true;
             note.pendingSpendingTxid = revertedTxid;
             note.pendingSpendAt = DateTime.now();

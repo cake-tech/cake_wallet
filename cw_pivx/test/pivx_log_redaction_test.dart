@@ -35,7 +35,7 @@ void main() {
       r"printV( '[PIVX Sapling] Witness path has non-canonical node at index $invalidIndex; canonical_original=$originalCanonical/${path.length}, canonical_reversed=$reversedCanonical/${reversedPath.length}');",
       r"printV('[PIVX Sapling] Witness accepted via $source');",
       r"printV( '[PIVX Sapling] Witness attempt $label $retry/$retries failed: $reason');",
-      r"printV( '[PIVX Sapling] Witness source summary: $witnessSourceSummary');",
+      r"printV('[PIVX Sapling] Witness source summary: $witnessSourceSummary');",
       r"printV( '[PIVX Sapling] Witness path shape: count=${witness.path.length}, first_chars=$firstPathLength, total_chars=${witnessHex.length}, hex=$isHexPath');",
     };
 

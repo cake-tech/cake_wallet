@@ -113,7 +113,7 @@ void main() {
   tearDownAll(() async {
     await unspentCoinsInfo.close();
     if (dbInitialized) {
-      await db.close();
+      await db?.close();
     }
     if (await hiveDir.exists()) {
       await hiveDir.delete(recursive: true);
