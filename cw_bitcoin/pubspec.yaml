@@ -87,8 +87,8 @@ dependency_overrides:
   protobuf: ^3.1.0
   bitcoin_base:
     git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
+      url: https://github.com/Liquid369/bitcoin_base
+      ref: 4553c90a23dbfe606811cce33ea89ff883e92923
   pointycastle: 3.7.4
   ffi: 2.1.0
   intl: any
