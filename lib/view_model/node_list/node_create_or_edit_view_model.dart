@@ -139,6 +139,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
       case WalletType.dogecoin:
+      case WalletType.pivx:
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.zcash:
@@ -290,6 +291,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     try {
       connectionState = IsExecutingState();
       final isAlive = await node.requestNode();
+      // PIVX Sapling node-capability probing on add is deferred; the wallet
+      // still probes and validates the v1 contract at sync time.
       connectionState = ExecutedSuccessfullyState(payload: isAlive);
     } catch (e) {
       connectionState = FailureState(e.toString());

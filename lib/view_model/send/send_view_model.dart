@@ -78,6 +78,16 @@ part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
+enum PivxSendRouteStatus {
+  incomplete,
+  transparentToTransparent,
+  shieldedToShielded,
+  shieldedToTransparent,
+  transparentToShielded,
+  mixedOutputsUnsupported,
+  ambiguousShieldedSource,
+}
+
 abstract class SendViewModelBase extends WalletChangeListenerViewModel with Store {
   @override
   void onWalletChange(wallet) {
@@ -124,6 +134,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
         fiatCurrencies = FiatCurrency.all,
         super(appStore: _appStore) {
+    if (wallet.type == WalletType.pivx &&
+        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+      coinTypeToSpendFrom = UnspentCoinType.transparent;
+    }
+
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel.initialSetup();
@@ -145,6 +160,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       updateSendingBalance();
     });
+
+    if (wallet.type == WalletType.pivx) {
+      // match source pool to destination until the user toggles: ps1 -> shielded,
+      // D -> transparent. toggling enables the cross paths (T->S, S->T).
+      reaction<String>(
+        (_) => outputs.isNotEmpty ? outputs.first.address : '',
+        (address) {
+          if (_pivxSourceUserSelected) return;
+          coinTypeToSpendFrom = _isPivxShieldedDestination(address)
+              ? UnspentCoinType.sapling
+              : UnspentCoinType.transparent;
+        },
+      );
+    }
   }
 
   // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
@@ -158,6 +187,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   UnspentCoinType coinTypeToSpendFrom;
+
+  // pivx: true once the user hits the shielded/transparent toggle. until then
+  // the source follows the destination type (ps1 -> shielded, D -> transparent).
+  bool _pivxSourceUserSelected = false;
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
@@ -220,6 +253,95 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (wallet.type == WalletType.litecoin) {
       coinTypeToSpendFrom = allow ? UnspentCoinType.any : UnspentCoinType.nonMweb;
     }
+  }
+
+  @action
+  void setPivxCoinType(UnspentCoinType type) {
+    if (wallet.type == WalletType.pivx) {
+      coinTypeToSpendFrom = type;
+      _pivxSourceUserSelected = true;
+    }
+  }
+
+  static bool _isPivxShieldedDestination(String address) {
+    final normalized = address.trim().toLowerCase();
+    return normalized.startsWith('ps1') ||
+        normalized.startsWith('ptestsapling1');
+  }
+
+  /// Whether we are using shielded (Sapling) coins for PIVX
+  bool get isPivxShieldedMode =>
+      wallet.type == WalletType.pivx &&
+      coinTypeToSpendFrom == UnspentCoinType.sapling;
+
+  String? get pivxUnsupportedRouteMessage {
+    if (wallet.type != WalletType.pivx) return null;
+
+    final destinationAddresses = outputs
+        .map((output) =>
+            output.isParsedAddress ? output.extractedAddress : output.address)
+        .toList(growable: false);
+    final routeStatus = pivxSendRouteStatusFor(
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+      destinationAddresses: destinationAddresses,
+    );
+
+    switch (routeStatus) {
+      case PivxSendRouteStatus.mixedOutputsUnsupported:
+        return 'PIVX cannot send to transparent and shielded recipients in one transaction yet.';
+      case PivxSendRouteStatus.ambiguousShieldedSource:
+        return 'Select a PIVX transparent or shielded source before sending to a shielded address.';
+      case PivxSendRouteStatus.incomplete:
+      case PivxSendRouteStatus.transparentToTransparent:
+      case PivxSendRouteStatus.shieldedToShielded:
+      case PivxSendRouteStatus.shieldedToTransparent:
+      case PivxSendRouteStatus.transparentToShielded:
+        return null;
+    }
+  }
+
+  static PivxSendRouteStatus pivxSendRouteStatusFor({
+    required UnspentCoinType coinTypeToSpendFrom,
+    required Iterable<String> destinationAddresses,
+  }) {
+    final addresses = destinationAddresses
+        .map((address) => address.trim())
+        .where((address) => address.isNotEmpty)
+        .toList(growable: false);
+    if (addresses.isEmpty) {
+      return PivxSendRouteStatus.incomplete;
+    }
+
+    final hasShieldedOutput = addresses.any(_isPivxShieldedAddress);
+    final hasTransparentOutput =
+        addresses.any((address) => !_isPivxShieldedAddress(address));
+    if (hasShieldedOutput && hasTransparentOutput) {
+      return PivxSendRouteStatus.mixedOutputsUnsupported;
+    }
+
+    if (coinTypeToSpendFrom == UnspentCoinType.sapling) {
+      // z-to-t (deshield) is supported: shielded notes pay a transparent
+      // output with shielded change.
+      return hasTransparentOutput
+          ? PivxSendRouteStatus.shieldedToTransparent
+          : PivxSendRouteStatus.shieldedToShielded;
+    }
+
+    if (hasShieldedOutput) {
+      // t-to-z (shield) is supported: transparent UTXOs fund the Sapling
+      // output with transparent change.
+      return coinTypeToSpendFrom == UnspentCoinType.any
+          ? PivxSendRouteStatus.ambiguousShieldedSource
+          : PivxSendRouteStatus.transparentToShielded;
+    }
+
+    return PivxSendRouteStatus.transparentToTransparent;
+  }
+
+  static bool _isPivxShieldedAddress(String address) {
+    final normalized = address.toLowerCase().trim();
+    return normalized.startsWith('ps1') ||
+        normalized.startsWith('ptestsapling1');
   }
 
   @computed
@@ -355,6 +477,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } else if (walletType == WalletType.litecoin &&
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
+    } else if (walletType == WalletType.pivx) {
+      final pivxBalance = balanceViewModel.balances[CryptoCurrency.pivx];
+
+      return pivxDisplayedBalanceForSourcePool(
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
+        pivxBalance: pivxBalance,
+      );
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
@@ -364,6 +493,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     return _appStore.amountParsingProxy
         .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
+  }
+
+  @visibleForTesting
+  static String pivxDisplayedBalanceForSourcePool({
+    required UnspentCoinType coinTypeToSpendFrom,
+    required BalanceRecord? pivxBalance,
+  }) {
+    if (coinTypeToSpendFrom == UnspentCoinType.sapling) {
+      return pivxBalance?.secondAvailableBalance ?? '0';
+    }
+
+    return pivxBalance?.availableBalance ?? '0';
   }
 
   @action
@@ -379,6 +520,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       coinTypeToSpendFrom = UnspentCoinType.any;
     } else if (currentType == UnspentCoinType.mweb) {
       coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    } else if (currentType == UnspentCoinType.transparent) {
+      coinTypeToSpendFrom = UnspentCoinType.sapling;
+    } else if (currentType == UnspentCoinType.sapling) {
+      coinTypeToSpendFrom = UnspentCoinType.transparent;
     }
 
     // set it back to the original value:
@@ -403,6 +548,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
         return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+      case WalletType.pivx:
+        // Shielded (sapling) reads the second/shielded balance; transparent uses UTXOs.
+        if (coinTypeToSpendFrom == UnspentCoinType.sapling) {
+          final shielded =
+              wallet.balance[CryptoCurrency.pivx]?.secondAvailable?.amount.toInt() ?? 0;
+          return walletTypeToCryptoCurrency(walletType)
+              .formatAmount(BigInt.from(shielded));
+        }
+        final transparent = await unspentCoinsListViewModel
+            .getSendingBalance(UnspentCoinType.transparent);
+        return walletTypeToCryptoCurrency(walletType)
+            .formatAmount(BigInt.from(transparent));
       default:
         return balance;
     }
@@ -449,7 +606,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.wownero,
         WalletType.decred,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.pivx
       ].contains(wallet.type) &&
       coinTypeToSpendFrom != UnspentCoinType.lightning;
 
@@ -461,7 +619,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.pivx
       ].contains(wallet.type);
 
   @observable
@@ -665,7 +824,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         state = FailureState(translateErrorMessage(e, walletType, currency));
       }
     } catch (e) {
-      printV(e);
+      if (walletType == WalletType.pivx) {
+        printV('PIVX OpenCryptoPay transaction creation failed');
+      } else {
+        printV(e);
+      }
       state = FailureState(translateErrorMessage(e, walletType, currency));
     }
     return null;
@@ -1107,7 +1270,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                       tokenMints: tokenMints,
                     );
                   } catch (e) {
-                    printV('Error retrying balance update: $e');
+                    printV('Error retrying balance update');
                   }
                 });
               }
@@ -1273,6 +1436,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
@@ -1356,10 +1520,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  bool get hasMemos => [WalletType.zcash].contains(wallet.type);
+  bool get hasMemos => [WalletType.zcash, WalletType.pivx].contains(wallet.type);
 
   final Map<WalletType, int> _maxMemoLengths = {
     WalletType.zcash: 512,
+    WalletType.pivx: 512,
   };
 
   @computed

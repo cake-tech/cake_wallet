@@ -87,6 +87,8 @@ abstract class WalletKeysViewModelBase with Store {
 
   // this is incomplete, needs legacy seed toggle for XMR
   bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
+
+  bool get isPivx => _wallet.type == WalletType.pivx;
   final ObservableList<StandartListItem> items;
   final ObservableList<StandartListItem> silentPaymentItems;
 
@@ -235,6 +237,10 @@ abstract class WalletKeysViewModelBase with Store {
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;
+      case WalletType.pivx:
+        // PIVX recovery is intentionally seed-only until WIF/viewing-key
+        // import/export policy is complete and manually verified.
+        break;
       case WalletType.none:
       case WalletType.haven:
         break;
@@ -338,6 +344,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
+      case WalletType.pivx:
+        return 'pivx-wallet';
       case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }

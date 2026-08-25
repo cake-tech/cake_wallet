@@ -60,6 +60,18 @@ class TransactionListItem extends ActionListItem with Keyable {
       return 'Transaction has missing data';
     }
 
+    if (balanceViewModel.wallet.type == WalletType.pivx &&
+        transaction.additionalInfo['isPivxShielded'] == true) {
+      if (transaction.direction == TransactionDirection.outgoing) {
+        // t->z spends TRANSPARENT into a shielded output; label it a shield so
+        // it doesn't read as a shielded-source send like z->z / z->t.
+        if (transaction.additionalInfo['pivxRoute'] == 't-to-z') {
+          return 'Shielded';
+        }
+        return '${S.current.sent} shielded';
+      }
+      return '${S.current.received} shielded';
+    }
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
     }
@@ -138,6 +150,13 @@ class TransactionListItem extends ActionListItem with Keyable {
           str += " (Unmask)";
         }
         return str;
+      case WalletType.pivx:
+        if (transaction.additionalInfo['isPivxShielded'] == true &&
+            transaction.confirmations >= 0 &&
+            transaction.confirmations < 6) {
+          return ' (${transaction.confirmations}/6)';
+        }
+        break;
       default:
         return '';
     }
@@ -151,6 +170,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.haven,
       WalletType.wownero,
       WalletType.litecoin,
+      WalletType.pivx,
       WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
@@ -202,6 +222,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.nano:
       case WalletType.decred:
       case WalletType.zcash:
+      case WalletType.pivx:
         amount = calculateFiatAmountRaw(
           cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
