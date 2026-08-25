@@ -10,6 +10,15 @@ class ResetViewModel {
 
   final AppStore _appStore;
 
+  bool get hasRescan {
+    final wallet = _appStore.wallet;
+
+    return wallet != null &&
+        wallet.hasRescan &&
+        wallet.type != WalletType.bitcoin &&
+        wallet.type != WalletType.litecoin;
+  }
+
   Future<void> resetSettingsToDefault() async {
     final wallet = _appStore.wallet;
     if (wallet == null) {

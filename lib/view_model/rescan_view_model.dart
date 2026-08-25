@@ -1,7 +1,10 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import "package:cake_wallet/monero/monero.dart";
+import "package:cake_wallet/wownero/wownero.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
+import "package:polyseed/polyseed.dart";
 
 part 'rescan_view_model.g.dart';
 
@@ -34,6 +37,26 @@ abstract class RescanViewModelBase with Store {
 
   Future<bool> get isBitcoinMempoolAPIEnabled async =>
       wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);
+
+  int? get initialRestoreHeight {
+    final supportsPolyseed = wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
+
+    if (!supportsPolyseed || !wallet.isSoftwareWallet) {
+      return null;
+    }
+
+    final seed = wallet.seed;
+
+    if (seed == null || !Polyseed.isValidSeed(seed)) {
+      return null;
+    }
+
+    final restoreHeight = wallet.type == WalletType.monero
+        ? monero!.getRestoreHeight(wallet)
+        : wownero!.getRestoreHeight(wallet);
+
+    return restoreHeight != null && restoreHeight > 0 ? restoreHeight : null;
+  }
 
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {

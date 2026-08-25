@@ -3,6 +3,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modal_header.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
@@ -38,13 +39,14 @@ class ResetPage extends BasePage {
       ),
       content: NewListSections(
         sections: {
-          "rescan": [
-            ListItemRegularRow(
-              keyValue: "rescan_current_wallet",
-              label: strings.rescan_current_wallet,
-              onTap: _rescanCurrentWallet,
-            ),
-          ],
+          if (_resetViewModel.hasRescan)
+            "rescan": [
+              ListItemRegularRow(
+                keyValue: "rescan_current_wallet",
+                label: strings.rescan_current_wallet,
+                onTap: () => Navigator.of(context).pushNamed(Routes.rescan),
+              ),
+            ],
           "reset_actions": [
             ListItemRegularRow(
               keyValue: "restore_this_wallet",
@@ -72,8 +74,6 @@ class ResetPage extends BasePage {
       ),
     );
   }
-
-  void _rescanCurrentWallet() {}
 
   void _restoreThisWallet() {}
 
