@@ -52,6 +52,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.pivx:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -107,6 +108,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.zano,
         WalletType.dogecoin,
         WalletType.zcash,
+        WalletType.pivx,
       ].contains(type);
 
   @computed

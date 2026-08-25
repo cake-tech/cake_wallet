@@ -120,5 +120,40 @@ void main() {
         expect(paymentRequest.resolveTokenAmount(usdt), null);
       });
     });
+
+    group('PIVX URIs', () {
+      test('extract address and amount while leaving message as a local note',
+          () {
+        final uri =
+            Uri.parse('pivx:ps1receiveaddress?amount=1.23&message=invoice');
+        final paymentRequest = PaymentRequest.fromUri(uri);
+
+        expect(paymentRequest.scheme, 'pivx');
+        expect(paymentRequest.address, 'ps1receiveaddress');
+        expect(paymentRequest.amount, '1.23');
+        expect(paymentRequest.note, 'invoice');
+        expect(paymentRequest.hasUnsupportedParameters, false);
+      });
+
+      test('marks memo fields unsupported instead of treating them as notes',
+          () {
+        final uri = Uri.parse(
+            'pivx:ps1receiveaddress?amount=1.23&memo=secret&req-memo=secret');
+        final paymentRequest = PaymentRequest.fromUri(uri);
+
+        expect(paymentRequest.note, '');
+        expect(paymentRequest.hasUnsupportedParameters, true);
+        expect(paymentRequest.unsupportedParameters,
+            containsAll(<String>['memo', 'req-memo']));
+      });
+
+      test('marks unknown required PIVX URI fields unsupported', () {
+        final uri = Uri.parse('pivx:ps1receiveaddress?req-pool=sapling');
+        final paymentRequest = PaymentRequest.fromUri(uri);
+
+        expect(paymentRequest.hasUnsupportedParameters, true);
+        expect(paymentRequest.unsupportedParameters, contains('req-pool'));
+      });
+    });
   });
 }
