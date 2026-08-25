@@ -16,6 +16,8 @@ import 'package:monero/src/monero.dart';
 import 'package:monero/src/wallet2.dart';
 import 'package:monero/monero.dart' as monero;
 
+const int kMoneroNetworkType = 1; // 0=mainnet, 1=testnet, 2=stagenet
+
 class MoneroCException implements Exception {
   final String message;
 
@@ -74,7 +76,7 @@ Wallet2WalletManager wmPtr = (() {
 })();
 
 Wallet2Wallet createWalletPointer() {
-  final newWptr = wmPtr.createWallet(path: "", password: "", language: "", networkType: 0);
+  final newWptr = wmPtr.createWallet(path: "", password: "", language: "", networkType: kMoneroNetworkType);
   return newWptr;
 }
 
@@ -83,11 +85,11 @@ void createWallet(
     required String password,
     required String language,
     required String passphrase,
-    int nettype = 0}) {
+    int nettype = kMoneroNetworkType}) {
   txhistory = null;
   language = getSeedLanguage(language)!;
   final newW =
-      wmPtr.createWallet(path: path, password: password, language: language, networkType: 0);
+      wmPtr.createWallet(path: path, password: password, language: language, networkType: nettype);
 
   int status = newW.status();
   if (status != 0) {
@@ -113,7 +115,7 @@ void restoreWalletFromSeedSync(
     required String password,
     required String passphrase,
     required String seed,
-    int nettype = 0,
+    int nettype = kMoneroNetworkType,
     int restoreHeight = 0}) {
   txhistory = null;
   final newW = wmPtr.recoveryWallet(
@@ -122,7 +124,7 @@ void restoreWalletFromSeedSync(
     mnemonic: seed,
     restoreHeight: restoreHeight,
     seedOffset: passphrase,
-    networkType: 0,
+    networkType: nettype,
   );
 
   final status = newW.status();
@@ -162,7 +164,7 @@ void restoreWalletFromKeys(
     required String address,
     required String viewKey,
     required String spendKey,
-    int nettype = 0,
+    int nettype = kMoneroNetworkType,
     int restoreHeight = 0}) {
   txhistory = null;
   var newW = (spendKey != "")
@@ -171,6 +173,7 @@ void restoreWalletFromKeys(
           password: password,
           language: language,
           spendKeyString: spendKey,
+          networkType: nettype,
           newWallet: true,
           // TODO(mrcyjanek): safe to remove
           restoreHeight: restoreHeight)
@@ -181,7 +184,7 @@ void restoreWalletFromKeys(
           addressString: address,
           viewKeyString: viewKey,
           spendKeyString: spendKey,
-          nettype: 0,
+          nettype: nettype,
         );
 
   int status = newW.status();
@@ -205,7 +208,7 @@ void restoreWalletFromKeys(
         addressString: address,
         viewKeyString: viewKey,
         spendKeyString: spendKey,
-        nettype: 0,
+        nettype: nettype,
       );
       int status = newW.status();
       if (status != 0) {
@@ -230,7 +233,7 @@ void restoreWalletFromPolyseedWithOffset(
     required String seed,
     required String seedOffset,
     required String language,
-    int nettype = 0}) {
+    int nettype = kMoneroNetworkType}) {
   txhistory = null;
   final newW = wmPtr.createWalletFromPolyseed(
     path: path,
@@ -269,7 +272,7 @@ void restoreWalletFromSpendKeySync(
     required String seed,
     required String language,
     required String spendKey,
-    int nettype = 0,
+    int nettype = kMoneroNetworkType,
     int restoreHeight = 0}) {
   // txhistory = null;
   // wptr = monero.WalletManager_createWalletFromKeys(
@@ -289,6 +292,7 @@ void restoreWalletFromSpendKeySync(
     password: password,
     language: language,
     spendKeyString: spendKey,
+    networkType: nettype,
     newWallet: true, // TODO(mrcyjanek): safe to remove
     restoreHeight: restoreHeight,
   );
@@ -319,13 +323,17 @@ Future<void> restoreWalletFromHardwareWallet(
     {required String path,
     required String password,
     required String deviceName,
-    int nettype = 0,
+    int nettype = kMoneroNetworkType,
     int restoreHeight = 0}) async {
   txhistory = null;
   final wmPtr = MoneroWalletManagerFactory().getWalletManager().ffiAddress();
   final newWptrAddr = await Isolate.run(() {
     return monero.WalletManager_createWalletFromDevice(Pointer.fromAddress(wmPtr),
-            path: path, password: password, restoreHeight: restoreHeight, deviceName: deviceName)
+            path: path,
+            password: password,
+            restoreHeight: restoreHeight,
+            deviceName: deviceName,
+            networkType: nettype)
         .address;
   });
   final newW = MoneroWallet(Pointer.fromAddress(newWptrAddr));
@@ -345,7 +353,7 @@ Future<void> restoreWalletFromHardwareWallet(
 
 Map<String, Wallet2Wallet> openedWalletsByPath = {};
 
-Future<void> loadWallet({required String path, required String password, int nettype = 0}) async {
+Future<void> loadWallet({required String path, required String password, int nettype = kMoneroNetworkType}) async {
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     currentWallet = openedWalletsByPath[path]!;
@@ -397,7 +405,7 @@ Future<void> loadWallet({required String path, required String password, int net
     final addr = wmPtr.ffiAddress();
     final newWptrAddr = await Isolate.run(() {
       return monero.WalletManager_openWallet(Pointer.fromAddress(addr),
-              path: path, password: password)
+              path: path, password: password, networkType: 1)
           .address;
     });
 
@@ -431,7 +439,7 @@ void setupBackgroundSync(String password, Wallet2Wallet wallet) {
   }
 }
 
-Future<void> openWallet({required String path, required String password, int nettype = 0}) async =>
+Future<void> openWallet({required String path, required String password, int nettype = kMoneroNetworkType}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 bool isViewOnlyBySpendKey(Wallet2Wallet? wallet) =>

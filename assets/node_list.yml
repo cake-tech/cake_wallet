@@ -1,6 +1,6 @@
 -
   label: "Cake Wallet"
-  uri: xmr-node.cakewallet.com:18081
+  uri: 139.162.154.149:28081
   isDefault: true
   isOfficial: true
   trusted: true

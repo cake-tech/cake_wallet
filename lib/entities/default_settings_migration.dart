@@ -29,7 +29,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/erc20_token.dart';
 
-const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
+const newCakeWalletMoneroUri = '139.162.154.149:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletSilentPaymentsElectrsUri = 'electrs.cakewallet.com:50001';
 const publicBitcoinTestnetElectrumAddress = 'electrs.cakewallet.com';
