@@ -14,10 +14,12 @@ import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cw_pivx/src/pending_pivx_shielded_transaction.dart';
 import 'package:cw_pivx/src/pivx_network.dart';
@@ -32,6 +34,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/path_provider'),
+    (call) async => Directory.systemTemp.path,
+  );
 
   late Directory dbDir;
   late Directory hiveDir;
@@ -57,7 +65,7 @@ void main() {
   tearDownAll(() async {
     await unspentCoinsInfo.close();
     if (dbInitialized) {
-      await db.close();
+      await db?.close();
     }
     if (await hiveDir.exists()) {
       await hiveDir.delete(recursive: true);
@@ -175,7 +183,7 @@ void main() {
         false,
         (address) async {
           queriedIndexes.add(address.index);
-          return {25, 44}.contains(address.index) ? address.address : null;
+          return {41, 61}.contains(address.index) ? address.address : null;
         },
         type: P2pkhAddressType.p2pkh,
         isLegacyDerivation: false,
@@ -187,7 +195,7 @@ void main() {
           .toList();
       expect(receiveAddresses.length, 82);
       expect(receiveAddresses.map((address) => address.index),
-          containsAll([25, 44, 81]));
+          containsAll([41, 61, 81]));
       expect(queriedIndexes.first, 22);
       expect(queriedIndexes.last, 81);
     });
@@ -205,7 +213,7 @@ void main() {
         true,
         (address) async {
           queriedIndexes.add(address.index);
-          return {18, 37}.contains(address.index) ? address.address : null;
+          return {36, 56}.contains(address.index) ? address.address : null;
         },
         type: P2pkhAddressType.p2pkh,
         isLegacyDerivation: false,
@@ -217,7 +225,7 @@ void main() {
           .toList();
       expect(changeAddresses.length, 77);
       expect(changeAddresses.map((address) => address.index),
-          containsAll([18, 37, 76]));
+          containsAll([36, 56, 76]));
       expect(queriedIndexes.first, 17);
       expect(queriedIndexes.last, 76);
     });
@@ -270,11 +278,11 @@ void main() {
 
       final balance = await wallet.fetchBalances();
 
-      expect(balance.confirmed, 7000);
-      expect(balance.unconfirmed, 300);
-      expect(balance.frozen, 9);
-      expect(balance.secondConfirmed, 4444);
-      expect(balance.secondUnconfirmed, 55);
+      expect(balance.confirmed.amount.toInt(), 7000);
+      expect(balance.unconfirmed.amount.toInt(), 300);
+      expect(balance.frozen.amount.toInt(), 9);
+      expect(balance.secondConfirmed!.amount.toInt(), 4444);
+      expect(balance.secondUnconfirmed!.amount.toInt(), 55);
       expect(wallet.syncStatus, isA<LostConnectionSyncStatus>());
     });
 
@@ -292,11 +300,11 @@ void main() {
 
       final balance = await wallet.fetchBalances();
 
-      expect(balance.confirmed, 7000);
-      expect(balance.unconfirmed, 300);
-      expect(balance.frozen, 9);
-      expect(balance.secondConfirmed, 2222);
-      expect(balance.secondUnconfirmed, 33);
+      expect(balance.confirmed.amount.toInt(), 7000);
+      expect(balance.unconfirmed.amount.toInt(), 300);
+      expect(balance.frozen.amount.toInt(), 9);
+      expect(balance.secondConfirmed!.amount.toInt(), 2222);
+      expect(balance.secondUnconfirmed!.amount.toInt(), 33);
       expect(wallet.syncStatus, isA<LostConnectionSyncStatus>());
     });
   });

@@ -790,7 +790,7 @@ abstract class PivxWalletBase extends ElectrumWallet with Store {
       byTxid.putIfAbsent(note.txid, () => <StoredSaplingNote>[]).add(note);
     }
     printV(
-        '[PIVX] Shielded history refresh: ${storage.notes.length} notes -> ${byTxid.length} txid group(s)');
+        '[PIVX] Shielded history refresh: ${storage.notes.length} notes -> ${byTxid.length} tx group(s)');
 
     // don't reconcile (add/update/prune) history against an empty note set. a
     // transient-empty storage (mid-rescan, failed sync, interrupted load) would
@@ -2032,7 +2032,7 @@ abstract class PivxWalletBase extends ElectrumWallet with Store {
     } catch (e) {
       // whole batch failed: treat as all-missed so the wipeout guard keeps the
       // last-known balance instead of zeroing.
-      printV('[PIVX] batch balance fetch failed: $e');
+      printV('[PIVX] batch get_balance failed: $e');
       balanceBySh = {};
     }
 
@@ -2346,7 +2346,7 @@ abstract class PivxWalletBase extends ElectrumWallet with Store {
           } catch (e) {
             // one unparseable tx (e.g. an OP_RETURN note output) must not drop
             // the whole address's history. skip it, keep the rest, log for diag.
-            printV('PIVX: skipped tx $txHash in address history: $e');
+            printV('PIVX: skipped tx $txHash in history: $e');
           }
 
           return Future.value(null);
