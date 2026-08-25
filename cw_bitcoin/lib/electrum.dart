@@ -106,12 +106,17 @@ class ElectrumClient {
       (Uint8List event) {
         try {
           final msg = utf8.decode(event.toList());
-          final messagesList = msg.split("\n");
-          for (var message in messagesList) {
-            if (message.isEmpty) {
-              continue;
+          // Accumulate across reads; large responses span multiple TCP packets.
+          unterminatedString += msg;
+
+          while (unterminatedString.contains('\n')) {
+            final newlineIndex = unterminatedString.indexOf('\n');
+            final completeLine = unterminatedString.substring(0, newlineIndex);
+            unterminatedString = unterminatedString.substring(newlineIndex + 1);
+
+            if (completeLine.isNotEmpty) {
+              _parseResponse(completeLine);
             }
-            _parseResponse(message);
           }
         } catch (e) {
           printV("socket.listen: $e");
@@ -637,6 +642,15 @@ class ElectrumClient {
         id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
   }
 
+  // PIVX Sapling 0-conf mempool push feed: initial snapshot then the same
+  // envelope on every change.
+  BehaviorSubject<Object>? saplingMempoolSubscribe() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.sapling.mempool.subscribe',
+        method: 'blockchain.sapling.mempool.subscribe');
+  }
+
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object>(
@@ -718,10 +732,33 @@ class ElectrumClient {
   }
 
   void _resetInternalStateCompletely() {
+    // unblock awaiting callers before clearing _tasks. an explicit close or
+    // reconnect that clears without onDone firing first would orphan an in-flight
+    // completer (e.g. node switching mid shield sync).
+    failPendingRequests();
     _id = 0;
     _tasks.clear();
     _errors.clear();
     unterminatedString = '';
+  }
+
+  // fail in-flight request completers on disconnect so callers awaiting call()
+  // unblock instead of hanging. call() has no timeout, so a dropped/half-open
+  // socket leaves the completer dangling forever (this wedged pivx shield sync
+  // until restart). subscriptions are left alone so they resume on reconnect.
+  @visibleForTesting
+  void failPendingRequests() {
+    final pending = _tasks.entries
+        .where((task) => !task.value.isSubscription && task.value.completer != null)
+        .toList();
+    for (final task in pending) {
+      final completer = task.value.completer!;
+      if (!completer.isCompleted) {
+        completer.completeError(
+            RequestFailedTimeoutException('connection_closed', 0));
+      }
+      _tasks.remove(task.key);
+    }
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -769,6 +806,10 @@ class ElectrumClient {
         final params = request['params'] as List<dynamic>;
         _tasks[_tasks.keys.first]?.subject?.add(params.last);
         break;
+      case 'blockchain.sapling.mempool.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks['blockchain.sapling.mempool.subscribe']?.subject?.add(params.last);
+        break;
       default:
         break;
     }
@@ -782,6 +823,7 @@ class ElectrumClient {
         socket?.destroy();
       } catch (_) {}
       socket = null;
+      failPendingRequests();
     }
   }
 

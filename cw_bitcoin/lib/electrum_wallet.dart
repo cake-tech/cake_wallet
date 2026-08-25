@@ -245,6 +245,8 @@ abstract class ElectrumWalletBase
           return bitcoinCashHDWallet(seedBytes);
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
+        case CryptoCurrency.pivx:
+          return pivxHDWallet(seedBytes);
         default:
           throw Exception("Unsupported currency");
       }
@@ -259,6 +261,9 @@ abstract class ElectrumWalletBase
 
   static Bip32Slip10Secp256k1 dogecoinHDWallet(Uint8List seedBytes) =>
       Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/3'/0'") as Bip32Slip10Secp256k1;
+
+  static Bip32Slip10Secp256k1 pivxHDWallet(Uint8List seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/119'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -945,6 +950,12 @@ abstract class ElectrumWalletBase
           return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.sapling:
+          // PIVX shielded notes, not tracked as UTXOs
+          return false;
+        case UnspentCoinType.transparent:
+          // PIVX transparent, all regular UTXOs
+          return true;
         case UnspentCoinType.any:
         case UnspentCoinType.lightning:
           return true;
@@ -1906,9 +1917,7 @@ abstract class ElectrumWalletBase
       }
     }
 
-    final results = shouldUseBatchFetching
-        ? await _fetchUnspentsBatch(targetAddresses)
-        : await _fetchUnspentsRegular(targetAddresses);
+    final results = await fetchUnspentsForAddresses(targetAddresses);
 
     final failedCount = results.where((result) => result == null).length;
 
@@ -1939,6 +1948,18 @@ abstract class ElectrumWalletBase
 
     await updateCoins(unspentCoins);
     await _refreshUnspentCoinsInfo();
+  }
+
+  /// Fetch each address's unspents as a per-address list (null entry = fetch
+  /// failed for that address). Overridable so a coin with a custom scripthash or
+  /// confirmation source can batch its own way; the default picks batch vs
+  /// regular fetching.
+  Future<List<List<BitcoinUnspent>?>> fetchUnspentsForAddresses(
+    List<BitcoinAddressRecord> addresses,
+  ) async {
+    return shouldUseBatchFetching
+        ? await _fetchUnspentsBatch(addresses)
+        : await _fetchUnspentsRegular(addresses);
   }
 
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
@@ -2603,6 +2624,9 @@ abstract class ElectrumWalletBase
         await Future.wait(DOGECOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
             ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
+      } else if (type == WalletType.pivx) {
+        await Future.wait(PIVX_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
