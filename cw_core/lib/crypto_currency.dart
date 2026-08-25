@@ -534,7 +534,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       iconPath: 'assets/new-ui/crypto_full_icons/paxg.svg',
       decimals: 18);
   static const pivx = CryptoCurrency(
-      title: 'PIVX', raw: 56, name: 'pivx', iconPath: 'assets/images/pivx_icon.png', decimals: 8);
+      title: 'PIVX',
+      raw: 56,
+      name: 'pivx',
+      iconPath: 'assets/images/pivx_icon.png',
+      flatIconPath: 'assets/images/pivx_icon.png',
+      decimals: 8);
   static const rune = CryptoCurrency(
       title: 'RUNE',
       fullName: 'Thorchain',
