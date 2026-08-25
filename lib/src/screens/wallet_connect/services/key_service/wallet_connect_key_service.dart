@@ -63,8 +63,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
       return [
         ChainKeyModel(
           chains: [
-            'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
-            'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
+            'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // main-net
+            'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // legacy main-net id older dapps still use
           ],
           privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),

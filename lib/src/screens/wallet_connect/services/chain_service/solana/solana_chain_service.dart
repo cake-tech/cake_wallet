@@ -51,7 +51,10 @@ class SolanaChainService {
   Future<void> solanaSignMessage(String topic, dynamic parameters) async {
     debugPrint('solanaSignMessage request: $parameters');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignMessage.name);
+    if (pRequest == null) {
+      return;
+    }
 
     if (!_isRequestAuthorized(topic)) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
@@ -75,6 +78,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -105,7 +109,10 @@ class SolanaChainService {
   Future<void> solanaSignTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
 
     if (!_isRequestAuthorized(topic)) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
@@ -146,6 +153,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -176,7 +184,10 @@ class SolanaChainService {
   Future<void> solanaSignAllTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignAllTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignAllTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
 
     if (!_isRequestAuthorized(topic)) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
@@ -196,6 +207,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -244,6 +256,14 @@ class SolanaChainService {
     final keys = wcKeyService.getKeysForChain(appStore.wallet!);
 
     return SolanaPrivateKey.fromSeedHex(keys[0].privateKey);
+  }
+
+  SessionRequest? _pendingRequest(String topic, String method) {
+    final matches = walletKit.pendingRequests
+        .getAll()
+        .where((request) => request.topic == topic && request.method == method);
+
+    return matches.isEmpty ? null : matches.last;
   }
 
   bool _isRequestAuthorized(String topic) {

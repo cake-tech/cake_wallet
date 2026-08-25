@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -95,33 +94,23 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionProposal.subscribe(_onSessionProposal);
     _walletKit.onSessionProposalError.subscribe(_onSessionProposalError);
     _walletKit.onSessionConnect.subscribe(_onSessionConnect);
-    _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
+
+    if (isEVMCompatibleChain(appStore.wallet!.type)) {
+      _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
+    }
 
     _walletKit.pairings.onSync.subscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
 
     // Setup our accounts
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
+    final chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        if (isEVMCompatibleChain(appStore.wallet!.type)) {
-          // Register account for all EVM chains (chainId is already in eip155:format)
-          _walletKit.registerAccount(
-            chainId: chainId,
-            accountAddress: chainKey.publicKey,
-          );
-        } else {
-          final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
-            appStore.wallet!.type,
-          );
-          if (chainNameSpace == chainId) {
-            _walletKit.registerAccount(
-              chainId: chainId,
-              accountAddress: chainKey.publicKey,
-            );
-          }
-        }
+        _walletKit.registerAccount(
+          chainId: chainId,
+          accountAddress: chainKey.publicKey,
+        );
       }
     }
   }
@@ -158,29 +147,24 @@ abstract class WalletKitServiceBase with Store {
     auth.addAll(newAuthRequests);
 
     isLoadingConnections = false;
-
-    if (isEVMCompatibleChain(appStore.wallet!.type)) {
-      for (final cId in EVMChainId.values) {
-        EvmChainServiceImpl(
-          reference: cId,
-          appStore: appStore,
-          wcKeyService: walletKeyService,
-          bottomSheetService: _bottomSheetHandler,
-          walletKit: _walletKit,
-        );
-      }
+    for (final cId in EVMChainId.values) {
+      EvmChainServiceImpl(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
     }
 
-    if (appStore.wallet!.type == WalletType.solana) {
-      for (final cId in SolanaChainId.values) {
-        SolanaChainService(
-          reference: cId,
-          appStore: appStore,
-          wcKeyService: walletKeyService,
-          bottomSheetService: _bottomSheetHandler,
-          walletKit: _walletKit,
-        );
-      }
+    for (final cId in SolanaChainId.values) {
+      SolanaChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
     }
 
     unawaited(() async {

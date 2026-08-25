@@ -46,13 +46,19 @@ class MethodsUtils {
     String? method,
     String? chainId,
     String? address,
+    String? topic,
     required String transportType,
     List<WCConnectionModel> extraModels = const [],
     VerifyContext? verifyContext,
   }) async {
     final appStore = getIt.get<AppStore>();
-    final pending = walletKit.pendingRequests.getAll();
-    final session = pending.isNotEmpty ? walletKit.sessions.get(pending.last.topic) : null;
+    SessionData? session;
+    if (topic != null) {
+      session = walletKit.sessions.get(topic);
+    } else {
+      final pending = walletKit.pendingRequests.getAll();
+      session = pending.isNotEmpty ? walletKit.sessions.get(pending.last.topic) : null;
+    }
     final dAppMetadata = session?.peer.metadata;
 
     final isTransaction = method != null && _transactionMethods.contains(method);
