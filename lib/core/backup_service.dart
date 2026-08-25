@@ -50,8 +50,13 @@ class $BackupService {
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
+    outer:
     for (var file in zip.files) {
       final filename = file.name;
+      if (shouldIgnoreBackupPath(filename)) {
+        printV("ignoring backup file: $filename");
+        continue outer;
+      }
 
       if (file.isFile) {
         final content = file.content as List<int>;
@@ -78,6 +83,22 @@ class $BackupService {
     ".lock",
   ];
 
+  static bool shouldIgnoreBackupPath(String filename) {
+    final normalized = filename.replaceAll('\\', '/');
+
+    for (var ignore in ignoreFiles) {
+      if (normalized.endsWith(ignore) && !normalized.contains("wallets/")) {
+        return true;
+      }
+    }
+
+    final basename = normalized.split('/').last;
+    return basename == 'pivx_sapling_params' ||
+        normalized.contains('/pivx_sapling_params/') ||
+        (basename.startsWith('sapling-') && basename.endsWith('.params.download')) ||
+        (basename.startsWith('pivx_sapling_') && basename.endsWith('.json'));
+  }
+
   Future<void> importBackupV2(Uint8List data, String password) async {
     final appDir = await getAppDir();
     final decryptedData = await decryptV2(data, password);
@@ -86,11 +107,9 @@ class $BackupService {
     outer:
     for (var file in zip.files) {
       final filename = file.name;
-      for (var ignore in ignoreFiles) {
-        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          printV("ignoring backup file: $filename");
-          continue outer;
-        }
+      if (shouldIgnoreBackupPath(filename)) {
+        printV("ignoring backup file: $filename");
+        continue outer;
       }
       printV("restoring: $filename");
       if (file.isFile) {
@@ -283,7 +302,6 @@ class $BackupService {
 
   Future<Uint8List> exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
-    final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
       try {
         return {

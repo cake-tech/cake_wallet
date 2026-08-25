@@ -588,12 +588,29 @@ class _NewSendPageState extends State<NewSendPage> {
                                           onChanged: (value) =>
                                               widget.sendViewModel.setAllowMwebCoins(value),
                                         ),
+                                      if (widget.sendViewModel.currency == CryptoCurrency.pivx)
+                                        StandardCheckbox(
+                                          caption: 'Send from shielded balance',
+                                          captionColor: Theme.of(context).colorScheme.onSurface,
+                                          borderColor: Theme.of(context).colorScheme.primary,
+                                          iconColor: Theme.of(context).colorScheme.primary,
+                                          value: widget.sendViewModel.coinTypeToSpendFrom ==
+                                              UnspentCoinType.sapling,
+                                          onChanged: (value) =>
+                                              widget.sendViewModel.setPivxCoinType(value
+                                                  ? UnspentCoinType.sapling
+                                                  : UnspentCoinType.transparent),
+                                        ),
                                       if (widget.sendViewModel.hasMemos)
                                         Observer(
                                           builder: (_) => NewSendMemoInput(
                                             memoController: _memoControllers[_selectedOutput],
                                             maxMemoLength: widget.sendViewModel.maxMemoLength,
                                             memoLength: output.memo.length,
+                                            disclaimerText: widget.sendViewModel.walletType ==
+                                                    WalletType.pivx
+                                                ? S.of(context).pivx_memo_disclaimer
+                                                : null,
                                           ),
                                         ),
                                       if (widget.sendViewModel.hasCoinControl ||
