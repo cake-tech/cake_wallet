@@ -575,6 +575,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
+      if(_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
+        await _creator.persistTrade(trade);
+      }
+
       if (s.source case final ExternalSwapSource source) {
         emit(SwapAwaitingExternalSend(trade: trade, source: source));
       } else if (s.source case final InternalSwapSource source) {
@@ -619,11 +623,18 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       emit(SwapSending(trade: s.trade, transaction: s.transaction, source: s.source));
       try {
         await _transactionService.commitTransaction(s.transaction);
+        Trade trade = s.trade;
+        if (_registry.getProvider(s.trade.provider)
+        case final TransactionRegistrationExchangeProvider p) {
+          final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
+          trade = await p.registerTransaction(s.trade, txHash);
+          await _creator.persistTrade(trade);
+        }
         emit(
-          SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source),
-        );
+            SwapTransactionCommitted(trade: trade, transaction: s.transaction, source: s.source));
       } catch (e) {
         emit(s.toError(e));
+        return;
       }
     }
   }

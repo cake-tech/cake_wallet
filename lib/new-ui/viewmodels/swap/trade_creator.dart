@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/monero/monero.dart";
@@ -28,11 +29,10 @@ class TradeCreator {
       final provider = _registry.getProvider(rate.provider);
 
       try {
-        trade = await provider.createTrade(request: req);
-        await trade
-            .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
-            .save();
-        _tradesStore.setTrade(trade);
+        trade = (await provider.createTrade(request: req)).copyWith(
+          walletId: _appStore.wallet!.id,
+          accountIndex: _currentAccountIndex(),
+        );
         ExchangeProviderLogger.logSuccess(
           provider: provider.description,
           function: "createTrade",
@@ -52,6 +52,11 @@ class TradeCreator {
     }
 
     return trade;
+  }
+
+  Future<void> persistTrade(Trade trade) async {
+    await trade.save();
+    _tradesStore.setTrade(trade);
   }
 
   int _currentAccountIndex() {

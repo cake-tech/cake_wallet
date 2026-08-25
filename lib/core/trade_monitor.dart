@@ -1,4 +1,5 @@
 import 'dart:async';
+import "package:cake_wallet/exchange/provider/flashnet/flashnet_exchange_provider.dart";
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
@@ -59,6 +60,8 @@ class TradeMonitor {
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
         return NearIntentsExchangeProvider();
+      case ExchangeProviderDescription.flashnet:
+        return FlashnetExchangeProvider();
     }
     return null;
   }
