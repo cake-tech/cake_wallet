@@ -7,6 +7,7 @@ import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -63,6 +64,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoinCash:
       case WalletType.zano:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         availableModes = [WalletRestoreMode.seed];
         break;
       case WalletType.none:
@@ -89,6 +91,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.wownero,
     WalletType.zcash,
     WalletType.zano,
+    WalletType.pivx,
   ].contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
@@ -165,6 +168,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
+          );
+        case WalletType.pivx:
+          return pivx!.createPivxRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+            height: height,
           );
         case WalletType.nano:
         case WalletType.banano:

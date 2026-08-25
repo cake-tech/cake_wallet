@@ -54,6 +54,22 @@ bool isLightning(TransactionInfo tx) => (tx.additionalInfo["isLightning"] as boo
 
 bool hasLightningPreimage(TransactionInfo tx) => (tx.additionalInfo["preimage"] as String?) != null;
 
+/// Human pool route for a pivx shielded tx, disambiguating labels like the bare
+/// "Shielded" (t->z). Null for receives, where the source pool is unknown to us
+/// and "Received shielded" already reads clearly.
+String? pivxRouteLabel(String? route) {
+  switch (route) {
+    case "t-to-z":
+      return "${S.current.transparent} → ${S.current.shielded}";
+    case "z-to-t":
+      return "${S.current.shielded} → ${S.current.transparent}";
+    case "z-to-z":
+      return "${S.current.shielded} → ${S.current.shielded}";
+    default:
+      return null;
+  }
+}
+
 class TxDetailRowDefinition {
   TxDetailRowDefinition({
     required this.keyString,
@@ -205,7 +221,18 @@ class TxDetailRowDefinition {
       title: S.current.memo,
       valueGetter: (vm) => vm.transactionInfo.additionalInfo["memo"] as String,
       applicable: (vm) =>
-          vm.wallet.type == WalletType.zcash && vm.transactionInfo.additionalInfo["memo"] != null,
+          (vm.wallet.type == WalletType.zcash || vm.wallet.type == WalletType.pivx) &&
+          vm.transactionInfo.additionalInfo["memo"] != null,
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_pivx_route_key",
+      title: S.current.type,
+      valueGetter: (vm) =>
+          pivxRouteLabel(vm.transactionInfo.additionalInfo["pivxRoute"] as String?) ?? "",
+      applicable: (vm) =>
+          vm.wallet.type == WalletType.pivx &&
+          vm.transactionInfo.additionalInfo["isPivxShielded"] == true &&
+          pivxRouteLabel(vm.transactionInfo.additionalInfo["pivxRoute"] as String?) != null,
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_asset_id_key",
@@ -494,6 +521,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.dogecoin:
         return "https://blockchair.com/dogecoin/transaction/${txId}";
+      case WalletType.pivx:
+        return "https://explorer.pivx.org/#/tx/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
       case WalletType.none:
@@ -579,7 +608,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       );
     }
 
-    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
+    if (transactionInfo.outputAddresses != null &&
+        transactionInfo.outputAddresses!.isNotEmpty) {
       final outputAddresses = transactionInfo.outputAddresses!.map((element) {
         if (element.contains("OP_RETURN:") && element.length > 40) {
           return "${element.substring(0, 40)}...";

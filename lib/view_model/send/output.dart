@@ -151,6 +151,7 @@ abstract class OutputBase with Store {
         case WalletType.dogecoin:
         case WalletType.decred:
         case WalletType.zano:
+        case WalletType.pivx:
           estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
           break;
         case WalletType.bitcoin:
