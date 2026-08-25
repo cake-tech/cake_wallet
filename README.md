@@ -116,9 +116,13 @@ We have excellent user guides, which are also open-source and open for contribut
 
 # Build Instructions
 
-More instructions to follow
+Platform-specific build instructions are available in `docs/builds/`:
 
-For instructions on how to build for Android: please view file `howto-build-android.md`
+- [Android](docs/builds/ANDROID.md)
+- [iOS](docs/builds/IOS.md)
+- [Linux](docs/builds/LINUX.md)
+- [macOS](docs/builds/MACOS.md)
+- [Windows](docs/builds/WINDOWS.md)
 
 # Contributing
 
