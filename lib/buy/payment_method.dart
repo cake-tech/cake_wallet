@@ -1,4 +1,6 @@
+import "package:cake_wallet/buy/moonpay/moonpay_payment_methods.dart";
 import 'package:cake_wallet/core/selectable_option.dart';
+import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 
 enum PaymentType {
   all,
@@ -33,6 +35,8 @@ enum PaymentType {
   fiatBalance,
   bancontact,
   pixPay,
+  moonpayCashApp,
+  moonpayBalance,
   unknown,
 }
 
@@ -165,6 +169,8 @@ class PaymentMethod extends SelectableOption {
     required this.customIconPath,
     this.customDescription,
     this.customPaymentMethodType,
+    this.customBadges = const [],
+    this.customBottomLeftSubTitle,
   }) : super(title: paymentMethodType.title ?? customTitle);
 
   final PaymentType paymentMethodType;
@@ -172,7 +178,15 @@ class PaymentMethod extends SelectableOption {
   final String customIconPath;
   final String? customDescription;
   final String? customPaymentMethodType;
+  final List<String> customBadges;
+  final String? customBottomLeftSubTitle;
   bool isSelected = false;
+
+  @override
+  List<String> get badges => customBadges;
+
+  @override
+  String? get bottomLeftSubTitle => customBottomLeftSubTitle;
 
   @override
   String? get description => paymentMethodType.description ?? customDescription;
@@ -210,11 +224,25 @@ class PaymentMethod extends SelectableOption {
         customIconPath: 'assets/images/card.png');
   }
 
-  factory PaymentMethod.fromMoonPayJson(Map<String, dynamic> json, PaymentType paymentType) {
+  factory PaymentMethod.fromMoonPayJson(MoonPayPaymentMethod method, PaymentType paymentType) {
+    final List<String> badges = [];
+    String? limitSubtitle;
+    if (paymentType == PaymentType.moonpayCashApp) {
+      badges.add('New');
+    }
+    if (method.limitAmount != null && method.limitCurrencyCode != null) {
+      limitSubtitle =
+          'max: ${formatWithCommas(method.limitAmount.toString())} ${method.limitCurrencyCode!.toUpperCase()}';
+    }
+
     return PaymentMethod(
-        paymentMethodType: paymentType,
-        customTitle: json['paymentMethod'] as String,
-        customIconPath: 'assets/images/card.png');
+      paymentMethodType: paymentType,
+      customTitle: method.displayName,
+      customIconPath: method.iconUrl.isNotEmpty ? method.iconUrl : 'assets/images/card.png',
+      customPaymentMethodType: method.type,
+      customBadges: badges,
+      customBottomLeftSubTitle: limitSubtitle,
+    );
   }
 
   factory PaymentMethod.fromMeldJson(Map<String, dynamic> json) {
