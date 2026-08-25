@@ -235,6 +235,8 @@ abstract class BalanceViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.litecoin:
         return S.current.mweb_confirmed;
+      case WalletType.pivx:
+        return S.current.shielded;
       default:
         return S.current.confirmed;
     }
@@ -245,6 +247,8 @@ abstract class BalanceViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.litecoin:
         return S.current.mweb_unconfirmed;
+      case WalletType.pivx:
+        return S.current.shielded_unconfirmed;
       default:
         return S.current.unconfirmed;
     }
@@ -351,6 +355,8 @@ abstract class BalanceViewModelBase with Store {
       return (wallet.balance[CryptoCurrency.ltc]?.secondUnavailable ?? 0) != 0;
     } else if (wallet.type == WalletType.bitcoin) {
       return (wallet.balance[CryptoCurrency.btc]?.secondUnavailable ?? 0) != 0;
+    } else if (wallet.type == WalletType.pivx) {
+      return (wallet.balance[CryptoCurrency.pivx]?.secondAvailable ?? 0) != 0;
     }
     return false;
   }
@@ -362,6 +368,8 @@ abstract class BalanceViewModelBase with Store {
         return true;
       case WalletType.litecoin:
         return mwebEnabled;
+      case WalletType.pivx:
+        return true;
       default:
         return false;
     }

@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -499,6 +500,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     if (sendViewModel.usePayjoin) {
       sendViewModel.payjoinUri = paymentRequest.pjUri;
     }
+    if (sendViewModel.walletType == WalletType.pivx &&
+        paymentRequest.hasUnsupportedParameters) {
+      showBar<void>(
+          context, S.of(context).pivx_payment_uri_unsupported_parameters);
+    }
     addressController.text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {
       cryptoAmountController.text = paymentRequest.amount;
@@ -910,6 +916,99 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                     ),
                   ),
+                ),
+              // PIVX Shielded/Transparent toggle
+              if (sendViewModel.currency == CryptoCurrency.pivx)
+                Observer(
+                  builder: (_) => Padding(
+                    padding: EdgeInsets.only(top: 14),
+                    child: GestureDetector(
+                      key: ValueKey('send_page_pivx_shielded_toggle_key'),
+                      onTap: () {
+                        final isShielded =
+                            widget.sendViewModel.coinTypeToSpendFrom ==
+                                UnspentCoinType.sapling;
+                        sendViewModel.setPivxCoinType(isShielded
+                            ? UnspentCoinType.transparent
+                            : UnspentCoinType.sapling);
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            StandardCheckbox(
+                              caption: 'Send from shielded balance',
+                              captionColor: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              borderColor:
+                                  Theme.of(context).colorScheme.primary,
+                              iconColor: Theme.of(context).colorScheme.primary,
+                              value: widget.sendViewModel.coinTypeToSpendFrom ==
+                                  UnspentCoinType.sapling,
+                              onChanged: (bool? value) {
+                                sendViewModel.setPivxCoinType((value ?? false)
+                                    ? UnspentCoinType.sapling
+                                    : UnspentCoinType.transparent);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (sendViewModel.currency == CryptoCurrency.pivx)
+                Observer(
+                  builder: (_) {
+                    final routeMessage =
+                        widget.sendViewModel.pivxUnsupportedRouteMessage;
+                    if (routeMessage == null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                routeMessage,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
             ],
           ),

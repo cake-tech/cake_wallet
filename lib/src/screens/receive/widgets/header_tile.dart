@@ -7,6 +7,8 @@ class HeaderTile extends StatefulWidget {
   HeaderTile({
     required this.title,
     required this.walletAddressListViewModel,
+    this.subtitle,
+    this.balance,
     this.showSearchButton = false,
     this.showTrailingButton = false,
     this.trailingButtonTap,
@@ -16,6 +18,13 @@ class HeaderTile extends StatefulWidget {
 
   final String title;
   final WalletAddressListViewModel walletAddressListViewModel;
+
+  /// Optional subtitle shown below the title.
+  final String? subtitle;
+
+  /// Optional balance to display on the right side of the header.
+  final String? balance;
+
   final bool showSearchButton;
   final bool showTrailingButton;
   final VoidCallback? trailingButtonTap;
@@ -58,12 +67,44 @@ class _HeaderTileState extends State<HeaderTile> {
                     autofocus: true,
                   ),
                 )
-              : Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+              : Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          if (widget.balance != null)
+                            Text(
+                              widget.balance!,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
+                        ],
                       ),
+                      if (widget.subtitle != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            widget.subtitle!,
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
           Row(
             children: [

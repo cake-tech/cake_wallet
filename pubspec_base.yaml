@@ -278,6 +278,7 @@ flutter:
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
     - assets/dogecoin_electrum_server_list.yml
+    - assets/pivx_electrum_server_list.yml
     - assets/base_node_list.yml
     - assets/arbitrum_node_list.yml
     - assets/zcash_node_list.yml

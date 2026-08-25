@@ -1,0 +1,66 @@
+name: cw_pivx
+description: "PIVX wallet for Cake Wallet, with Sapling shielded support"
+version: 0.0.1
+publish_to: none
+homepage: https://cakewallet.com
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+  flutter: ">=1.20.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  bip39: ^1.0.6
+  bip32: ^2.0.0
+  path_provider: ^2.0.11
+  mobx: ^2.0.7+4
+  flutter_mobx: ^2.0.6+1
+  ffi: ^2.1.0
+  crypto: ^3.0.2
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
+  synchronized: ^3.1.0
+  cw_core:
+    path: ../cw_core
+  cw_bitcoin:
+    path: ../cw_bitcoin
+
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.15.0
+  mobx_codegen: ^2.0.7
+#  hive_generator: ^2.0.1
+
+dependency_overrides:
+  watcher: ^1.1.0
+  bitcoin_base:
+    git:
+      url: https://github.com/Liquid369/bitcoin_base
+      ref: 4553c90a23dbfe606811cce33ea89ff883e92923
+  pointycastle: 3.7.4
+  ffi: 2.1.0
+  intl: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/params/
+  plugin:
+    platforms:
+      ios:
+        pluginClass: CwPivxPlugin
+      macos:
+        pluginClass: CwPivxPlugin
+      android:
+        package: com.cakewallet.cw_pivx
+        pluginClass: CwPivxPlugin
+      linux:
+        pluginClass: CwPivxPlugin

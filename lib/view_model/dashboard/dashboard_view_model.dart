@@ -20,6 +20,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -626,6 +627,91 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   SyncStatus get status => wallet.syncStatus;
+
+  String? get pivxSyncIndicatorText {
+    if (wallet.type != WalletType.pivx ||
+        !(pivx?.isSaplingEnabled(wallet) ?? false)) {
+      return null;
+    }
+
+    final error = pivx?.getLastShieldSyncError(wallet);
+    if (error != null && error.isNotEmpty) {
+      return 'Shielded sync failed';
+    }
+
+    final lastShieldHeight = pivx?.getLastShieldSyncedBlock(wallet) ?? 0;
+    if (pivx?.isShieldSyncing(wallet) ?? false) {
+      return lastShieldHeight > 0
+          ? 'Shielded syncing $lastShieldHeight'
+          : 'Shielded syncing';
+    }
+
+    if (lastShieldHeight > 0 && status is SyncedSyncStatus) {
+      return 'Shielded synced $lastShieldHeight';
+    }
+
+    return null;
+  }
+
+  bool get isSyncIndicatorSynced {
+    if (wallet.type == WalletType.pivx) {
+      final error = pivx?.getLastShieldSyncError(wallet);
+      if (error != null && error.isNotEmpty) {
+        return false;
+      }
+      if (pivx?.isShieldSyncing(wallet) ?? false) {
+        return false;
+      }
+    }
+
+    return status is SyncedSyncStatus;
+  }
+
+  String? get pivxShieldedStatusValue {
+    if (wallet.type != WalletType.pivx ||
+        !(pivx?.isSaplingEnabled(wallet) ?? false)) {
+      return null;
+    }
+
+    final error = pivx?.getLastShieldSyncError(wallet);
+    if (error != null && error.isNotEmpty) {
+      return error;
+    }
+
+    final lastShieldHeight = pivx?.getLastShieldSyncedBlock(wallet) ?? 0;
+    if (pivx?.isShieldSyncing(wallet) ?? false) {
+      return lastShieldHeight > 0
+          ? 'Scanning shielded block $lastShieldHeight'
+          : 'Scanning shielded blocks';
+    }
+
+    if (pivx?.isSaplingRpcAvailable(wallet) ?? false) {
+      return lastShieldHeight > 0
+          ? 'Sapling RPC ready, scanned to $lastShieldHeight'
+          : 'Sapling RPC ready';
+    }
+
+    return 'Sapling RPC not verified';
+  }
+
+  String? get pivxShieldedStatusIndicator {
+    if (wallet.type != WalletType.pivx ||
+        !(pivx?.isSaplingEnabled(wallet) ?? false)) {
+      return null;
+    }
+
+    final error = pivx?.getLastShieldSyncError(wallet);
+    if (error != null && error.isNotEmpty) {
+      return 'failed';
+    }
+    if (pivx?.isShieldSyncing(wallet) ?? false) {
+      return 'fetching';
+    }
+    if (pivx?.isSaplingRpcAvailable(wallet) ?? false) {
+      return 'success';
+    }
+    return 'waiting';
+  }
 
   @computed
   bool get shouldShowMwebAd {
@@ -1238,6 +1324,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.decred:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         return true;
       case WalletType.zano:
       case WalletType.haven:
