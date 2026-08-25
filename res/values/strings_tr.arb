@@ -61,6 +61,7 @@
   "already_have_account": "Zaten bir hesabınız var mı?",
   "already_your_username": "Bu zaten kullanıcı adınız!",
   "always": "Her zaman",
+  "ambiguous_token_symbol_exception": "Bu cüzdanda birden fazla token ${symbol} sembolünü kullanıyor. Göndermeden önce doğru jetonun belirlenebilmesi için yinelenen jetonu devre dışı bırakın.",
   "amount": "Miktar: ",
   "amount_is_below_minimum_limit": "Ücretlerden sonra bakiyeniz, takas için gereken minimum miktardan daha az olur (${min})",
   "amount_is_estimate": "Alınacak tutar tahminidir",
@@ -93,6 +94,7 @@
   "available": "Kullanılabilir",
   "available_balance": "Kullanılabilir Bakiye",
   "available_balance_description": "“Kullanılabilir Bakiye” veya “Onaylanmış Bakiye”, hemen harcanabilen fonlardır. Fonlar alt bakiyede görünüp üst bakiyede görünmüyorsa, gelen fonların ağda daha fazla onay alması için birkaç dakika beklemeniz gerekir. Daha fazla onay aldıktan sonra harcanabilir olacaktır.",
+  "available_balance_short": "Ortalama: ${amount}",
   "avg_savings": "Ort. Tasarruf",
   "avl": "Avl",
   "awaitDAppProcessing": "Lütfen dApp'in işlemi tamamlamasını bekleyin.",
@@ -1149,6 +1151,8 @@
   "swap_id": "Swap Kimliği",
   "swap_provider_initial_desc": "Swap yaparken kullanmayı tercih ettiğiniz swap sağlayıcı türünü seçin",
   "swap_providers": "Takas sağlayıcıları",
+  "swap_unavailable_needs_network_wallet": "Bu adres türü takastan para alamaz. Bu adrese göndermek için bir ${network} cüzdanına ihtiyacınız var.",
+  "swap_unavailable_switch_to_network": "Bu adres türü takastan para alamaz. Devam etmek için ${network} cüzdanınıza geçin.",
   "sweeping_wallet": "Cüzdan süpürme",
   "sweeping_wallet_alert": "Bu uzun sürmemeli. BU EKRANDAN AYRILMAYIN, AKSİ TAKDİRDE SÜPÜRÜLEN FONLAR KAYBOLABİLİR.",
   "swipe_to_bridge": "Köprülemek için kaydırın",
@@ -1470,5 +1474,6 @@
   "zcash_card_enable_later": "Bu kartı daha sonra ayarlardan her zaman etkinleştirebilirsiniz",
   "zcash_card_missing_funds": "Bakiye eksik mi?",
   "zcash_card_scan": "Tara",
-  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir."
+  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir.",
+  "recipient_account_creation_fee": "Alıcının henüz bir token hesabı olmadığı için, alıcı için bir token hesabı oluşturmak için fazladan ${amount} gerekiyor."
 }

@@ -61,6 +61,7 @@
   "already_have_account": "Masz już konto?",
   "already_your_username": "To już jest Twoja nazwa użytkownika!",
   "always": "Zawsze",
+  "ambiguous_token_symbol_exception": "Więcej niż jeden token w tym portfelu używa symbolu ${symbol}. Wyłącz duplikat tokena, aby przed wysłaniem można było zidentyfikować właściwy.",
   "amount": "Kwota: ",
   "amount_is_below_minimum_limit": "Twoje saldo po opłatach byłoby niższe niż minimalna kwota wymagana do wymiany (${min})",
   "amount_is_estimate": "Otrzymywana kwota jest szacunkowa",
@@ -93,6 +94,7 @@
   "available": "Dostępne",
   "available_balance": "Dostępne saldo",
   "available_balance_description": "„Dostępne saldo” lub „Potwierdzone saldo” to środki, które można wydać od razu. Jeśli środki pojawiają się w dolnym saldzie, ale nie w górnym, musisz poczekać kilka minut, aż przychodzące środki uzyskają więcej potwierdzeń sieci. Gdy uzyskają więcej potwierdzeń, będzie można je wydać.",
+  "available_balance_short": "Średnia: ${amount}",
   "avg_savings": "Śr. oszczędności",
   "avl": "Avl",
   "awaitDAppProcessing": "Proszę poczekać, aż dApp zakończy przetwarzanie.",
@@ -1149,6 +1151,8 @@
   "swap_id": "ID wymiany",
   "swap_provider_initial_desc": "Wybierz typ dostawcy swapów, którego wolisz używać podczas swapowania w",
   "swap_providers": "Dostawcy wymiany",
+  "swap_unavailable_needs_network_wallet": "Ten typ adresu nie może otrzymywać środków z wymiany. Aby wysłać przesyłkę na ten adres, potrzebujesz portfela ${network}.",
+  "swap_unavailable_switch_to_network": "Ten typ adresu nie może otrzymywać środków z wymiany. Aby kontynuować, przejdź do portfela ${network}.",
   "sweeping_wallet": "Opróżnianie portfela",
   "sweeping_wallet_alert": "To nie powinno zająć dużo czasu. NIE OPUSZCZAJ TEGO EKRANU, W PRZECIWNYM RAZIE ZAMIATANE ŚRODKI MOGĄ ZOSTAĆ UTRACONE.",
   "swipe_to_bridge": "Przesuń, aby zmostkować",
@@ -1470,5 +1474,6 @@
   "zcash_card_enable_later": "Zawsze możesz włączyć tę kartę później w ustawieniach",
   "zcash_card_missing_funds": "Brakuje środków?",
   "zcash_card_scan": "Skanuj",
-  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa."
+  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa.",
+  "recipient_account_creation_fee": "Do założenia konta tokenowego dla odbiorcy potrzebna jest dodatkowa ${amount}, ponieważ jeszcze takiego nie posiada."
 }
