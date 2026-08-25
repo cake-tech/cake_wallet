@@ -66,6 +66,11 @@ class BalanceRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLitecoinMwebBalance = shouldShowLitecoinMwebControls(
+      walletType: dashboardViewModel.type,
+      currency: currency,
+    );
+
     return Column(
       children: [
         Container(
@@ -347,7 +352,7 @@ class BalanceRowWidget extends StatelessWidget {
                     margin: const EdgeInsets.only(top: 10, left: 12, right: 8, bottom: 10),
                     child: Stack(
                       children: [
-                        if (currency == CryptoCurrency.ltc)
+                        if (isLitecoinMwebBalance)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -504,7 +509,7 @@ class BalanceRowWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IntrinsicHeight(
+                  if (isLitecoinMwebBalance) IntrinsicHeight(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
@@ -689,5 +694,51 @@ class BalanceRowWidget extends StatelessWidget {
         backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
       );
     } catch (_) {}
+  }
+
+  @visibleForTesting
+  static bool shouldShowLitecoinMwebControls({
+    required WalletType walletType,
+    required CryptoCurrency currency,
+  }) {
+    return walletType == WalletType.litecoin && currency == CryptoCurrency.ltc;
+  }
+
+  Widget _buildSecondBalanceLabel(BuildContext context) {
+    final labelText = Text(
+      '$secondAvailableBalanceLabel',
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            height: 1,
+          ),
+    );
+
+    // Only Litecoin MWEB has a help link, show plain label for other wallet types
+    if (dashboardViewModel.type == WalletType.litecoin) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => launchUrl(
+          Uri.parse("https://docs.cakewallet.com/cryptos/litecoin#mweb"),
+          mode: LaunchMode.externalApplication,
+        ),
+        child: Row(
+          children: [
+            labelText,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Icon(
+                Icons.help_outline,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            )
+          ],
+        ),
+      );
+    }
+
+    // For PIVX and other wallet types, just show the label without help icon
+    return labelText;
   }
 }

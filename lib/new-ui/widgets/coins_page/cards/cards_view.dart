@@ -143,7 +143,10 @@ class _CardsViewState extends State<CardsView> {
 
               late final String walletBalance;
               late final String walletFiatBalance;
-              if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+              if ((widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) ||
+                  widget.dashboardViewModel.wallet.type == WalletType.pivx) {
+                // pivx (like MWEB) holds a shielded balance; show the combined
+                // transparent + shielded total.
                 if (widget.dashboardViewModel.balanceViewModel.displayMode ==
                     BalanceDisplayMode.hiddenBalance) {
                   walletBalance = '●●●●●●';
@@ -209,6 +212,23 @@ class _CardsViewState extends State<CardsView> {
                         ]
                       : [];
 
+              // pivx: shielded/transparent breakdown under the combined total.
+              String balanceSubline = "";
+              if (widget.dashboardViewModel.wallet.type == WalletType.pivx &&
+                  widget.dashboardViewModel.balanceViewModel.displayMode !=
+                      BalanceDisplayMode.hiddenBalance) {
+                final shielded = walletBalanceRecord?.secondAvailableBalance ?? "0";
+                final transparent = walletBalanceRecord?.availableBalance ?? "0";
+                balanceSubline =
+                    "${S.of(context).shielded} $shielded · ${S.of(context).transparent} $transparent";
+                // shielded receives under receiveConfirmations sit in secondUnavailable.
+                // surface them so the confirmed-vs-total gap isn't silent.
+                final pending = walletBalanceRecord?.secondAdditionalBalance ?? "0";
+                if (walletBalanceRecord?.raw.secondUnavailable?.isZero == false) {
+                  balanceSubline += " · $pending${S.of(context).pending}";
+                }
+              }
+
               return BalanceCard(
                 width: effectiveCardWidth,
                 accountName: accountName,
@@ -217,6 +237,7 @@ class _CardsViewState extends State<CardsView> {
                 assetName: assetName,
                 capitalizeAssetName: _shouldCapitalizeAssetName(),
                 balance: walletBalance,
+                subline: balanceSubline,
                 fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,

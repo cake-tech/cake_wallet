@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_pivx/src/sapling/pivx_sapling_electrumx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -117,7 +119,7 @@ class NodeSwitchingService {
   ) async {
     for (final node in nodes) {
       if (!_usedNodeKeys[walletType]!.contains(node.id)) {
-        final isActive = await node.requestNode();
+        final isActive = await _isNodeUsableForWallet(node, walletType);
         if (isActive) {
           return node;
         } else {
@@ -127,6 +129,40 @@ class NodeSwitchingService {
       }
     }
     return null;
+  }
+
+  Future<bool> _isNodeUsableForWallet(Node node, WalletType walletType) async {
+    final isActive = await node.requestNode();
+    if (!isActive) {
+      return false;
+    }
+
+    if (walletType != WalletType.pivx) {
+      return true;
+    }
+
+    return _pivxNodeSupportsSapling(node);
+  }
+
+  Future<bool> _pivxNodeSupportsSapling(Node node) async {
+    final client = ElectrumClient();
+    try {
+      await client.connectToUri(node.uri, useSSL: node.useSSL);
+      if (!client.isConnected) {
+        return false;
+      }
+
+      final saplingClient = PIVXSaplingElectrumX(
+        electrumClient: client,
+        isTestnet: appStore.wallet?.isTestnet ?? false,
+      );
+      final capabilities = await saplingClient.probeCapabilities();
+      return capabilities.supportsV1ReleaseContract;
+    } catch (_) {
+      return false;
+    } finally {
+      await client.close();
+    }
   }
 
   /// Switch to the next available trusted node

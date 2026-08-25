@@ -216,6 +216,17 @@ class CWBitcoin extends Bitcoin {
         return estimatedTx.amount;
       }
 
+      if (wallet.type == WalletType.pivx) {
+        final pivxAddr =
+        sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: pivxAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinTransactionPriority),
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+        return estimatedTx.amount;
+      }
+
       final p2shAddr = sk.getPublic().toP2pkhAddress();
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
@@ -262,6 +273,13 @@ class CWBitcoin extends Bitcoin {
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.sapling:
+          // PIVX shielded notes are tracked separately, not as UTXOs
+          // Return empty list - shielded balance is handled differently
+          return false;
+        case UnspentCoinType.transparent:
+          // For PIVX, transparent means all non-shielded UTXOs
+          return true;
         case UnspentCoinType.lightning:
         case UnspentCoinType.any:
           return true;

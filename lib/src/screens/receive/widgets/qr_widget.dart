@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -223,8 +224,8 @@ class QRWidget extends StatelessWidget {
               child: Builder(
                 builder: (context) => Observer(
                   builder: (context) => GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: addressUri.address));
+                    onTap: () async {
+                      await _copyReceiveData(addressUri.address);
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     child: Row(
@@ -255,12 +256,34 @@ class QRWidget extends StatelessWidget {
             ),
             Observer(
               builder: (_) => Offstage(
+                offstage: !addressListViewModel.isPivxShieldedReceiveAddress,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: PrimaryImageButton(
+                    onPressed: () async {
+                      await _copyReceiveData(addressUri.toString());
+                      showBar<void>(context, S.of(context).copied_to_clipboard);
+                    },
+                    image: Image.asset(
+                      'assets/images/copy_address.png',
+                      width: 25,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    text: S.of(context).copy_payment_uri,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+            Observer(
+              builder: (_) => Offstage(
                 offstage: !addressListViewModel.isPayjoinAvailable,
                 child: Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: addressUri.toString()));
+                    onPressed: () async {
+                      await _copyReceiveData(addressUri.toString());
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     image: Image.asset(
@@ -286,6 +309,17 @@ class QRWidget extends StatelessWidget {
       return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();
+  }
+
+  Future<void> _copyReceiveData(String text) async {
+    final clipboardData = ClipboardData(text: text);
+
+    if (addressListViewModel.isPivxShieldedReceiveAddress) {
+      await ClipboardUtil.setSensitiveDataToClipboard(clipboardData);
+      return;
+    }
+
+    await Clipboard.setData(clipboardData);
   }
 
   void _presentPicker(BuildContext context) async {

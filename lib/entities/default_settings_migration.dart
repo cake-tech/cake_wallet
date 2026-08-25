@@ -51,6 +51,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
+const pivxDefaultNodeUri = 'electrum02.chainster.org:50002';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
@@ -640,6 +641,14 @@ Future<void> defaultSettingsMigration(
           break;
         case 70:
           await _addTbbTokenToExistingSolanaWallets();
+          break;
+        case 71:
+          await addWalletNodeList(type: WalletType.pivx);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.pivx,
+            currentNodePreferenceKey: PreferencesKey.currentPivxNodeIdKey,
+          );
           break;
         default:
           break;

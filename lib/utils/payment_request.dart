@@ -19,6 +19,7 @@ class PaymentRequest {
     this.contractAddress,
     this.chainId,
     this.rawTokenAmount,
+    this.unsupportedParameters = const [],
   });
 
   factory PaymentRequest.fromString(String input) {
@@ -50,6 +51,7 @@ class PaymentRequest {
     String? contractAddress;
     int? chainId;
     String? rawTokenAmount;
+    final unsupportedParameters = <String>[];
 
     if (uri != null) {
       if (uri.queryParameters["pj"] != null) {
@@ -93,6 +95,14 @@ class PaymentRequest {
           contractAddress = splToken;
         }
       }
+
+      if (scheme == "pivx") {
+        for (final key in uri.queryParameters.keys) {
+          if (key == 'memo' || key == 'req-memo' || key.startsWith('req-')) {
+            unsupportedParameters.add(key);
+          }
+        }
+      }
     }
 
     if (scheme == "nano-gpt") {
@@ -103,9 +113,11 @@ class PaymentRequest {
       if (amount.isNotEmpty) {
         if (!_isAlreadyUsableAmount(amount)) {
           if (address.contains("nano")) {
-            amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
+            amount =
+                nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
           } else if (address.contains("ban")) {
-            amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+            amount =
+                nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
           }
         }
       }
@@ -122,6 +134,7 @@ class PaymentRequest {
       contractAddress: contractAddress,
       chainId: chainId,
       rawTokenAmount: rawTokenAmount,
+      unsupportedParameters: unsupportedParameters,
     );
   }
 
@@ -148,6 +161,7 @@ class PaymentRequest {
         contractAddress: contractAddress ?? this.contractAddress,
         chainId: chainId ?? this.chainId,
         rawTokenAmount: rawTokenAmount ?? this.rawTokenAmount,
+        unsupportedParameters: unsupportedParameters,
       );
 
   final String address;
@@ -160,6 +174,9 @@ class PaymentRequest {
   final String? contractAddress;
   final int? chainId;
   final String? rawTokenAmount;
+  final List<String> unsupportedParameters;
+
+  bool get hasUnsupportedParameters => unsupportedParameters.isNotEmpty;
 
   String? resolveTokenAmount(CryptoCurrency token) {
     if (amount.isNotEmpty) {
