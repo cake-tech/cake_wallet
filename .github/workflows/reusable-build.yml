@@ -119,6 +119,13 @@ jobs:
             ./app_config.sh
           popd
 
+      - name: Build PIVX Sapling Lib
+        run: |
+          set -x -e
+          pushd scripts/android
+            ./build_pivx.sh
+          popd
+
       - name: Install Flutter dependencies
         run: |
           flutter pub get
