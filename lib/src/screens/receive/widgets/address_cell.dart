@@ -159,14 +159,15 @@ class AddressCell extends StatelessWidget {
                                     color: textColor,
                                   ),
                             ),
-                            Text(
-                              '${S.of(context).transactions.toLowerCase()}: $txCount',
-                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: textColor,
-                                  ),
-                            ),
+                            if (txCount != null)
+                              Text(
+                                '${S.of(context).transactions.toLowerCase()}: $txCount',
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                              ),
                           ],
                         ),
                       ),

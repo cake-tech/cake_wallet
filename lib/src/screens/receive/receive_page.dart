@@ -51,7 +51,8 @@ class ReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
@@ -110,7 +111,9 @@ class ReceivePage extends BasePage {
                 child: Text(
                   addressListViewModel.isSilentPayments
                       ? S.of(context).silent_payments_disclaimer
-                      : S.of(context).electrum_address_disclaimer,
+                      : addressListViewModel.isPivxShieldedReceiveAddress
+                          ? S.of(context).pivx_shielded_receive_disclaimer
+                          : S.of(context).electrum_address_disclaimer,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 15,

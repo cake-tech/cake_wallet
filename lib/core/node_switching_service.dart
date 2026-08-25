@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -39,6 +40,12 @@ class NodeSwitchingService {
   final SettingsStore settingsStore;
 
   final Map<WalletType, List<dynamic>> _usedNodeKeys = {};
+
+  // A node either runs the v1 Sapling contract or it doesn't; that never changes
+  // mid-session. Cache per node so repeated switches don't reconnect and reprobe
+  // (a second socket + Sapling RPCs) every time. Only determinate probe results
+  // are cached; a transient failure is not, so a flaky node can be retried.
+  final Map<String, bool> _pivxSaplingSupport = {};
 
   void startHealthCheckTimer() {
     _healthCheckTimer?.cancel();
@@ -117,7 +124,7 @@ class NodeSwitchingService {
   ) async {
     for (final node in nodes) {
       if (!_usedNodeKeys[walletType]!.contains(node.id)) {
-        final isActive = await node.requestNode();
+        final isActive = await _isNodeUsableForWallet(node, walletType);
         if (isActive) {
           return node;
         } else {
@@ -127,6 +134,43 @@ class NodeSwitchingService {
       }
     }
     return null;
+  }
+
+  Future<bool> _isNodeUsableForWallet(Node node, WalletType walletType) async {
+    final isActive = await node.requestNode();
+    if (!isActive) {
+      return false;
+    }
+
+    if (walletType != WalletType.pivx) {
+      return true;
+    }
+
+    return _pivxNodeSupportsSapling(node);
+  }
+
+  Future<bool> _pivxNodeSupportsSapling(Node node) async {
+    final cacheKey = node.uri.toString();
+    final cached = _pivxSaplingSupport[cacheKey];
+    if (cached != null) return cached;
+
+    final proxy = pivx;
+    if (proxy == null) return false;
+
+    try {
+      // The probe throws on a transient connection failure and returns a
+      // determinate bool when the node answers, so only determinate results are
+      // cached; a flaky node can be retried.
+      final supported = await proxy.checkNodeSupportsSapling(
+        uri: node.uri,
+        useSSL: node.useSSL,
+        isTestnet: appStore.wallet?.isTestnet ?? false,
+      );
+      _pivxSaplingSupport[cacheKey] = supported;
+      return supported;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Switch to the next available trusted node

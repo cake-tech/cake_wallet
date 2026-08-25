@@ -566,7 +566,8 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
       onHeightOrDateEntered: (value) {
         // set button state
         if (_isValidSeed()) {
-          widget.walletRestoreViewModel.isButtonEnabled = value;
+          widget.walletRestoreViewModel.isButtonEnabled =
+              widget.walletRestoreViewModel.type == WalletType.pivx || value;
         }
       },
       onSeedChange: (String seed) {
@@ -586,7 +587,9 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   }
 
   void _validateOnChange({bool isPolyseed = false}) {
-    if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightSelector) {
+    if (!isPolyseed &&
+        walletRestoreViewModel.hasBlockchainHeightSelector &&
+        walletRestoreViewModel.type != WalletType.pivx) {
       final hasHeight = walletRestoreFromSeedFormKey
           .currentState?.blockchainHeightKey.currentState?.restoreHeightController.text.isNotEmpty;
 

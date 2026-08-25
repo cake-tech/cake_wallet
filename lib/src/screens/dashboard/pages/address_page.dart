@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
@@ -273,6 +274,11 @@ class AddressPage extends BasePage {
       }
       if (dashboardViewModel.type == WalletType.zcash) {
         addressListViewModel.setAddressType(zcash!.getOptionToType(option));
+        return;
+      }
+      if (dashboardViewModel.type == WalletType.pivx &&
+          pivx!.isPivxReceivePageOption(option)) {
+        addressListViewModel.setAddressType(pivx!.getOptionToType(option));
         return;
       }
 
