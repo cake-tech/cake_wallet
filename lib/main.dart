@@ -69,6 +69,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 
@@ -215,7 +216,7 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
 Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
-  final leftoverBackupTmp = Directory('${appDir.path}/~_BACKUP_TMP');
+  final leftoverBackupTmp = Directory(p.join(appDir.path, '~_BACKUP_TMP'));
   if (leftoverBackupTmp.existsSync()) {
     try {
       leftoverBackupTmp.deleteSync(recursive: true);
