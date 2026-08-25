@@ -276,6 +276,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/address_edit_or_create_arguments.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -318,6 +319,7 @@ import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
+import 'pivx/pivx.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
 final getIt = GetIt.instance;
@@ -860,14 +862,30 @@ Future<void> setup({
           lightningMode: param1 ?? false,
           initialCurrency: param2));
 
-  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
-      (WalletAddressListItem? item, _) =>
-          WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
+  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, bool?>(
+      (WalletAddressListItem? item, bool? isShielded) =>
+          WalletAddressEditOrCreateViewModel(
+            wallet: getIt.get<AppStore>().wallet!,
+            item: item,
+            isShielded: isShielded ?? false,
+          ));
 
-  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
-      AddressEditOrCreatePage(
-          addressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic args, _) {
+    // Parse arguments - can be WalletAddressListItem (for edit), AddressEditOrCreateArguments, or null
+    WalletAddressListItem? item;
+    bool isShielded = false;
+
+    if (args is AddressEditOrCreateArguments) {
+      item = args.item;
+      isShielded = args.isShielded;
+    } else if (args is WalletAddressListItem) {
+      item = args;
+    }
+
+    return AddressEditOrCreatePage(
+        addressEditOrCreateViewModel:
+            getIt.get<WalletAddressEditOrCreateViewModel>(param1: item, param2: isShielded));
+  });
 
   getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
       AddressLabelInputPopup(
@@ -1330,6 +1348,9 @@ Future<void> setup({
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
         return dogecoin!.createDogeCoinWalletService(
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.pivx:
+        return pivx!.createPivxWalletService(
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
