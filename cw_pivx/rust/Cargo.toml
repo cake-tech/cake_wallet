@@ -1,0 +1,89 @@
+[package]
+name = "cw_pivx_sapling"
+version = "0.1.0"
+edition = "2021"
+authors = ["Cake Wallet Team"]
+description = "PIVX Sapling native library for Cake Wallet"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+name = "cw_pivx_sapling"
+
+[features]
+default = []
+# Enable for iOS/macOS static linking
+static = []
+
+[dependencies]
+# Core Sapling cryptography from PIVX's fork of librustzcash
+# These provide the actual Sapling protocol implementation
+zcash_primitives = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", package = "zcash_primitives", default-features = false, features = ["transparent-inputs", "std"] }
+zcash_proofs = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", package = "zcash_proofs", default-features = false, features = ["local-prover"] }
+zcash_client_backend = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", package = "zcash_client_backend" }
+zcash_keys = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", package = "zcash_keys", features = ["unstable"] }
+zcash_protocol = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", package = "zcash_protocol", default-features = false }
+zcash_note_encryption = { version = "0.4", features = ["pre-zip-212"] }
+sapling = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase" }
+bellman = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase", features = ["groth16"] }
+bls12_381 = "0.8"
+group = "0.13"
+incrementalmerkletree = "0.7"
+
+# Cryptographic primitives
+rand_core = "0.6"
+getrandom = { version = "0.2", features = ["js"] }
+sha2 = "0.10"
+ripemd = "0.1"
+secp256k1 = "0.29"
+blake2b_simd = "1.0"
+zeroize = { version = "1.7", features = ["zeroize_derive"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+
+# FFI support
+libc = "0.2"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Lazy static for global state
+lazy_static = "1.4"
+
+# Bech32 encoding
+bech32 = "0.9"
+
+# Additional dependencies
+rand = "0.8"
+jubjub = "0.10"
+
+# Logging (for debugging)
+log = "0.4"
+env_logger = "0.10"
+
+[build-dependencies]
+cbindgen = "0.26"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+# Dependencies (jubjub, sapling, ff/group, chacha20poly1305, ...) carry the
+# Sapling trial-decryption hot path, so build them for speed, not size. opt-level
+# "z" here made shielded sync markedly slower on mobile ARM; the few extra MB in
+# the .so are negligible in the app bundle.
+[profile.release.package."*"]
+opt-level = 3
+
+# Patches required to match librustpivx dependencies
+[patch.crates-io]
+orchard = { git = "https://github.com/zcash/orchard.git", rev = "c684e9185a0449efb00428f807d3bf286b5dae03" }
+redjubjub = { git = "https://github.com/ZcashFoundation/redjubjub", rev = "eae848c5c14d9c795d000dd9f4c4762d1aee7ee1" }
+# Force bellman to use PIVX fork - the sapling crate incorrectly pulls from crates.io
+bellman = { git = "https://github.com/Duddino/librustpivx", branch = "librustzcash-rebase" }
