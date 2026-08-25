@@ -253,6 +253,7 @@ import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
+import 'package:cake_wallet/view_model/reset_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -1159,7 +1160,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => AboutPage(appVersion: getIt.get<SettingsStore>().appVersion));
 
-  getIt.registerFactory(() => ResetPage());
+  getIt.registerFactory(() => ResetViewModel(getIt.get<AppStore>()));
+
+  getIt.registerFactory(() => ResetPage(getIt.get<ResetViewModel>()));
 
   getIt.registerFactory(() => NanoChangeRepPage(
         settingsStore: getIt.get<AppStore>().settingsStore,

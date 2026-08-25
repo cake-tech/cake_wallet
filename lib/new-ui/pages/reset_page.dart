@@ -4,10 +4,18 @@ import "package:cake_wallet/new-ui/widgets/modal_header.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/reset_view_model.dart";
 import "package:flutter/material.dart";
 
 class ResetPage extends BasePage {
+  ResetPage(this._resetViewModel);
+
+  final ResetViewModel _resetViewModel;
+
   @override
   bool get hideAppBar => true;
 
@@ -57,7 +65,7 @@ class ResetPage extends BasePage {
               label: strings.reset_settings_to_default,
               foregroundColor: primaryColor,
               showArrow: false,
-              onTap: _resetSettingsToDefault,
+              onTap: () => _resetSettingsToDefault(context),
             ),
           ],
         },
@@ -71,5 +79,23 @@ class ResetPage extends BasePage {
 
   void _resetBalanceCards() {}
 
-  void _resetSettingsToDefault() {}
+  Future<void> _resetSettingsToDefault(BuildContext context) async {
+    final shouldReset = await showPopUp<bool>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(dialogContext).alert_notice,
+        alertContent: S.of(dialogContext).reset_wallet_settings,
+        rightButtonText: S.of(dialogContext).continue_text,
+        leftButtonText: S.of(dialogContext).cancel,
+        leftAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
+        rightAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
+        actionRightButton: () => Navigator.of(dialogContext).pop(true),
+        actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+      ),
+    );
+
+    if (shouldReset == true) {
+      await _resetViewModel.resetSettingsToDefault();
+    }
+  }
 }
