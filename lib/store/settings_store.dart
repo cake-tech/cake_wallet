@@ -2492,7 +2492,12 @@ abstract class SettingsStoreBase with Store {
       case WalletType.base:
       case WalletType.bsc:
         return evm?.getDefaultTransactionPriority();
-      default:
+      case WalletType.none:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.solana:
+      case WalletType.tron:
+      case WalletType.arbitrum:
         return null;
     }
   }

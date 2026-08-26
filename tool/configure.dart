@@ -1767,6 +1767,7 @@ abstract class Zcash {
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   ReceivePageOption getSelectedAddressType(Object wallet);
+  ReceivePageOption getDefaultReceivePageOption();
   dynamic getZcashAddressType(ReceivePageOption option);
   bool hasSelectedTransparentAddress(Object wallet);
   bool isRotatingAddressOption(ReceivePageOption option);

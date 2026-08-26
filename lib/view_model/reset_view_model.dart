@@ -1,9 +1,17 @@
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/entities/default_settings_migration.dart"
+    show nanoDefaultPowNodeUri, publicBitcoinTestnetElectrumUri;
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
+import "package:cake_wallet/zcash/zcash.dart";
+import "package:cake_wallet/zcash/zcash_network_type.dart";
+import "package:collection/collection.dart";
 import "package:cw_core/balance_card_style_settings.dart";
+import "package:cw_core/node.dart";
+import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
 
 class ResetViewModel {
@@ -51,10 +59,34 @@ class ResetViewModel {
     }
 
     settingsStore.resetCurrencySettingsToDefault(wallet.type);
+    await _resetCurrentNodesToDefault(wallet);
+
+    wallet.walletInfo
+      ..showCombinedBalance = true
+      ..favoriteTokenAddress = null;
+    await wallet.walletInfo.save();
 
     switch (wallet.type) {
       case WalletType.bitcoin:
+        await bitcoin!.setAddressType(
+          wallet,
+          bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()),
+        );
+        if (bitcoin!.getScanningActive(wallet)) {
+          await bitcoin!.setScanningActive(wallet, false);
+        }
+        bitcoin!.updateUseLightning(
+          wallet,
+          !wallet.isHardwareWallet && (wallet.seed?.isNotEmpty ?? false),
+        );
+        await bitcoin!.setIsAlwaysScanningSP(wallet, false);
         bitcoin!.updatePayjoinState(wallet, settingsStore.usePayjoin);
+        break;
+      case WalletType.litecoin:
+        await bitcoin!.setAddressType(
+          wallet,
+          bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()),
+        );
         break;
       case WalletType.ethereum:
         evm!.updateScanProviderUsageState(wallet, settingsStore.useEtherscan);
@@ -74,9 +106,14 @@ class ResetViewModel {
       case WalletType.tron:
         tron!.updateTronGridUsageState(wallet, settingsStore.useTronGrid);
         break;
+      case WalletType.zcash:
+        await zcash!.setAddressType(
+          wallet,
+          zcash!.getOptionToType(zcash!.getDefaultReceivePageOption()),
+        );
+        break;
       case WalletType.monero:
       case WalletType.none:
-      case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
@@ -86,8 +123,46 @@ class ResetViewModel {
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.dogecoin:
-      case WalletType.zcash:
         break;
+    }
+  }
+
+  Future<void> _resetCurrentNodesToDefault(WalletBase wallet) async {
+    final walletType = wallet.type;
+
+    if (walletType == WalletType.zcash &&
+        ZcashNetworkType.isDevNetwork(wallet.walletInfo.network)) {
+      return;
+    }
+
+    final node = walletType == WalletType.bitcoin && wallet.isTestnet
+        ? (await Node.getAllForWalletType(walletType)).firstWhereOrNull(
+            (node) => node.uriRaw == publicBitcoinTestnetElectrumUri,
+          )
+        : await Node.getDefaultForWalletType(walletType);
+
+    if (node != null) {
+      if (isEVMCompatibleChain(walletType)) {
+        final defaultChainId = evm!.getChainIdByWalletType(walletType);
+
+        // Switch first, as node updates reconnect the active wallet.
+        if (evm!.getSelectedChainId(wallet) != defaultChainId) {
+          await evm!.selectChain(wallet, defaultChainId, node: node);
+        }
+      }
+
+      _appStore.settingsStore.nodes[walletType] = node;
+    }
+
+    if (walletType == WalletType.nano) {
+      final powNode = await Node.getDefaultPowForWalletType(walletType) ??
+          (await Node.getAllForWalletTypePow(walletType)).firstWhereOrNull(
+            (node) => node.uriRaw == nanoDefaultPowNodeUri,
+          );
+
+      if (powNode != null) {
+        _appStore.settingsStore.powNodes[walletType] = powNode;
+      }
     }
   }
 }

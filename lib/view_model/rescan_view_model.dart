@@ -51,11 +51,22 @@ abstract class RescanViewModelBase with Store {
       return null;
     }
 
-    final restoreHeight = wallet.type == WalletType.monero
-        ? monero!.getRestoreHeight(wallet)
-        : wownero!.getRestoreHeight(wallet);
+    try {
+      final language = PolyseedLang.getByPhrase(seed);
+      final coin = wallet.type == WalletType.monero
+          ? PolyseedCoin.POLYSEED_MONERO
+          : PolyseedCoin.POLYSEED_WOWNERO;
+      final birthday = DateTime.fromMillisecondsSinceEpoch(
+        Polyseed.decode(seed, language, coin).birthday * 1000,
+      );
+      final restoreHeight = wallet.type == WalletType.monero
+          ? monero!.getHeightByDate(date: birthday)
+          : wownero!.getHeightByDate(date: birthday);
 
-    return restoreHeight != null && restoreHeight > 0 ? restoreHeight : null;
+      return restoreHeight > 0 ? restoreHeight : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   @action
