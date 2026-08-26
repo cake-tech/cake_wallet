@@ -130,11 +130,11 @@ class CWSolana extends Solana {
 
     final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
 
-    if (token == null) {
-      throw StateError('No SPL token for symbol ${transaction.amount.currency.symbol}');
+    if (token != null) {
+      return token;
     }
 
-    return token;
+    return transaction.amount.currency as CryptoCurrency;
   }
 
   @override
@@ -276,6 +276,8 @@ class CWSolana extends Solana {
               'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
             );
         }
+      } on JupiterSwapFailedException {
+        rethrow;
       } catch (e) {
         throw Exception('Failed to execute Jupiter swap: $e');
       }
@@ -420,7 +422,9 @@ class CWSolana extends Solana {
       if (discoveredMints.isNotEmpty) {
         await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
       }
-    } catch (_) {}
+    } catch (e) {
+      printV("Error discovering wallet tokens: ${e.toString()}");
+    }
   }
 
   @override

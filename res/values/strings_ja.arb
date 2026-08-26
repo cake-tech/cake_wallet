@@ -61,6 +61,7 @@
   "already_have_account": "すでにアカウントをお持ちですか？",
   "already_your_username": "これはすでにあなたのユーザー名です！",
   "always": "常に",
+  "ambiguous_token_symbol_exception": "このウォレット内の複数のトークンは、シンボル ${symbol} を使用しています。送信前に正しいトークンを識別できるように、重複したトークンを無効にします。",
   "amount": "金額: ",
   "amount_is_below_minimum_limit": "手数料差し引き後の残高が、交換に必要な最低金額（${min}）を下回ります",
   "amount_is_estimate": "受け取り金額は概算です",
@@ -1420,6 +1421,7 @@
   "wc_permission_sign_messages": "メッセージと入力されたデータに署名する",
   "wc_permission_switch_chains": "EVMチェーンの切り替えと追加",
   "wc_permission_view_balance": "ウォレットの残高とアクティビティを表示する",
+  "wc_request_for_different_wallet": "このリクエストは別のウォレットに対して行われました。このアプリに接続されているウォレットを開いて、もう一度お試しください。",
   "wc_scam_warning_message": "このリクエストは既知の詐欺によるものと思われます。慎重に進めてください。",
   "wc_scam_warning_title": "警告！",
   "wc_scan_qr": "QRをスキャン",
@@ -1474,5 +1476,6 @@
   "zcash_card_enable_later": "このカードは後から設定でいつでも有効にできます",
   "zcash_card_missing_funds": "資金が見当たりませんか？",
   "zcash_card_scan": "スキャン",
-  "zcash_card_warning": "手順が完了するまでアプリを閉じないでください。閉じると、このプロセスを最初からやり直す必要があります。"
+  "zcash_card_warning": "手順が完了するまでアプリを閉じないでください。閉じると、このプロセスを最初からやり直す必要があります。",
+  "recipient_account_creation_fee": "受信者はまだトークン アカウントを持っていないため、追加の ${amount} が必要です。"
 }
