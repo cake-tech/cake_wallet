@@ -1460,6 +1460,7 @@
   "wc_permission_sign_messages": "Nachrichten und strukturierte Daten signieren",
   "wc_permission_switch_chains": "EVM-Ketten wechseln und hinzufügen",
   "wc_permission_view_balance": "Kontostand und Aktivität Ihrer Wallet anzeigen",
+  "wc_request_for_different_wallet": "Diese Anfrage wurde für eine andere Wallet gestellt. Öffnen Sie die mit dieser App verbundene Wallet und versuchen Sie es erneut.",
   "wc_scam_warning_message": "Diese Anfrage scheint von einem bekannten Betrug zu stammen. Bitte gehen Sie vorsichtig vor.",
   "wc_scam_warning_title": "WARNUNG!",
   "wc_scan_qr": "QR scannen",

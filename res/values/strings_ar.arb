@@ -1421,6 +1421,7 @@
   "wc_permission_sign_messages": "توقيع الرسائل والبيانات المكتوبة",
   "wc_permission_switch_chains": "قم بالتبديل وإضافة سلاسل EVM",
   "wc_permission_view_balance": "عرض رصيد محفظتك ونشاطك",
+  "wc_request_for_different_wallet": "تم تقديم هذا الطلب لمحفظة مختلفة. افتح المحفظة المتصلة بهذا التطبيق وحاول مرة أخرى.",
   "wc_scam_warning_message": "يبدو أن هذا الطلب مرسل من عملية احتيال معروفة. يرجى المضي قدما بحذر.",
   "wc_scam_warning_title": "تحذير!",
   "wc_scan_qr": "مسح QR",
