@@ -27,6 +27,8 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/electrum_transaction_isolate.dart';
+import 'package:cw_bitcoin/electrum_transaction_resolver.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -115,6 +117,7 @@ abstract class ElectrumWalletBase
       password: password,
       encryptionFileUtils: encryptionFileUtils,
     );
+    _transactionResolver = ElectrumTransactionResolver(this);
 
     reaction((_) => syncStatus, _syncStatusReaction);
 
@@ -350,6 +353,8 @@ abstract class ElectrumWalletBase
   Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
+
+  late final ElectrumTransactionResolver _transactionResolver;
 
   @override
   final String? passphrase;
@@ -983,8 +988,7 @@ abstract class ElectrumWalletBase
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
         target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
         inputCosts: [
-          for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+          for (final u in availableInputs) estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
         ],
         window: networkDustAmount.toInt(),
       );
@@ -1868,6 +1872,7 @@ abstract class ElectrumWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    _transactionResolver.stop();
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -2172,7 +2177,7 @@ abstract class ElectrumWalletBase
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
-      final bundle = await getTransactionExpanded(hash: tx.txHash);
+      final bundle = await getTransactionExpanded(hash: tx.txHash, forceResolveInputs: false);
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2182,7 +2187,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
-    final bundle = await getTransactionExpanded(hash: txId);
+    final bundle = await getTransactionExpanded(hash: txId, forceResolveInputs: true);
     final outputs = bundle.originalTransaction.outputs;
 
     final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
@@ -2222,7 +2227,7 @@ abstract class ElectrumWalletBase
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
-      final bundle = await getTransactionExpanded(hash: hash);
+      final bundle = await getTransactionExpanded(hash: hash, forceResolveInputs: true);
 
       final utxos = <UtxoWithAddress>[];
       final outputs = <BitcoinOutput>[];
@@ -2466,8 +2471,11 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<ElectrumTransactionBundle> getTransactionExpanded(
-      {required String hash, int? height}) async {
+  Future<ElectrumTransactionBundle> getTransactionExpanded({
+    required String hash,
+    int? height,
+    bool forceResolveInputs = false,
+  }) async {
     String transactionHex;
     int? time;
     int? confirmations;
@@ -2511,6 +2519,10 @@ abstract class ElectrumWalletBase
       confirmations = verboseTransaction['confirmations'] as int?;
     }
 
+    if (transactionHex.isNotEmpty) {
+      _transactionResolver.cacheRawTxHex(hash, transactionHex);
+    }
+
     if (height != null) {
       if (time == null && height > 0) {
         time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
@@ -2528,21 +2540,41 @@ abstract class ElectrumWalletBase
     final original = BtcTransaction.fromRaw(transactionHex);
     final ins = <BtcTransaction?>[];
 
-    for (final vin in original.inputs) {
-      try {
-        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
-
-        final String inputTransactionHex;
-
-        if (verboseTransaction.isEmpty) {
-          inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
-        } else {
-          inputTransactionHex = verboseTransaction['hex'] as String;
+    // Pass 1 (normal sync, forceResolveInputs == false) never resolves
+    // parent txs, regardless of whether ownership can be confirmed from
+    // this tx's own scriptSig/witness data - fee/ownership resolution is
+    // deferred to the background resolution pass (forceResolveInputs ==
+    // true), which resolves every input unconditionally.
+    if (!forceResolveInputs) {
+      ins.addAll(List<BtcTransaction?>.filled(original.inputs.length, null));
+    } else {
+      for (final vin in original.inputs) {
+        final cachedHex = _transactionResolver.cachedRawTxHex(vin.txId);
+        if (cachedHex != null) {
+          ins.add(BtcTransaction.fromRaw(cachedHex));
+          continue;
         }
 
-        ins.add(inputTransactionHex.isEmpty ? null : BtcTransaction.fromRaw(inputTransactionHex));
-      } catch (_) {
-        ins.add(null);
+        try {
+          final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+
+          final String inputTransactionHex;
+
+          if (verboseTransaction.isEmpty) {
+            inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
+          } else {
+            inputTransactionHex = verboseTransaction['hex'] as String;
+          }
+
+          if (inputTransactionHex.isEmpty) {
+            ins.add(null);
+          } else {
+            _transactionResolver.cacheRawTxHex(vin.txId, inputTransactionHex);
+            ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+          }
+        } catch (_) {
+          ins.add(null);
+        }
       }
     }
 
@@ -2554,24 +2586,47 @@ abstract class ElectrumWalletBase
     );
   }
 
-  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
-      {required String hash, int? height, bool? retryOnFailure}) async {
+  Future<ElectrumTransactionInfo?> fetchTransactionInfo({
+    required String hash,
+    int? height,
+    bool? retryOnFailure,
+    bool forceResolveInputs = false,
+  }) async {
     try {
-      return ElectrumTransactionInfo.fromElectrumBundle(
-        await getTransactionExpanded(hash: hash, height: height),
-        walletInfo.type,
-        network,
-        addresses: addressesSet,
+      final bundle = await getTransactionExpanded(
+        hash: hash,
         height: height,
+        forceResolveInputs: forceResolveInputs,
       );
+      // Captured as locals so the closure below doesn't reference `this` -
+      // the wallet isn't Isolate-transferable (sockets, timers).
+      final type = walletInfo.type;
+      final net = network;
+      final addresses = addressesSet;
+      final infosByHash = await buildElectrumTransactionInfosInIsolate(
+        ({hash: bundle}, type, net, addresses, {hash: height}),
+      );
+      return infosByHash[hash];
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
-        return fetchTransactionInfo(hash: hash, height: height);
+        return fetchTransactionInfo(
+          hash: hash,
+          height: height,
+          forceResolveInputs: forceResolveInputs,
+        );
       }
       return null;
     }
   }
+
+  /// Watches a single transaction's resolution for the transaction details
+  /// page - see [ElectrumTransactionResolver.watchTransactionResolution].
+  Future<ElectrumTransactionInfo?> watchTransactionResolution(
+    String txId, {
+    void Function(int resolved, int total)? onProgress,
+  }) =>
+      _transactionResolver.watchTransactionResolution(txId, onProgress: onProgress);
 
   bool isMine(Script script) {
     final derivedAddress = addressFromOutputScript(script, network);
@@ -2582,7 +2637,6 @@ abstract class ElectrumWalletBase
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-      ;
 
       printV('[BATCH_TEST] Fetching transactions with batch: $shouldUseBatchFetching');
 
@@ -2869,11 +2923,16 @@ abstract class ElectrumWalletBase
     }
   }
 
-  List<BitcoinAddressRecord> getAddressBranchByType(
-          {required bool hidden, required bool legacy, required BitcoinAddressType type}) =>
+  List<BitcoinAddressRecord> getAddressBranchByType({
+    required bool hidden,
+    required bool legacy,
+    required BitcoinAddressType type,
+  }) =>
       walletAddresses.allAddresses
-          .where((addr) =>
-              addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
+          .where(
+            (addr) =>
+                addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy,
+          )
           .toList()
         ..sort((a, b) => a.index.compareTo(b.index));
 
@@ -2916,6 +2975,7 @@ abstract class ElectrumWalletBase
         final history = entry.value;
         if (history.isEmpty) continue;
 
+        addressRecord.txCount = history.length;
         addressRecord.setAsUsed();
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
 
@@ -3032,19 +3092,23 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(List<String> hashes) {
-    return electrumClient.getBatchTransactionVerbose(
-      hashes,
-      timeout: transactionBatchTimeoutMs,
-    );
-  }
+  Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(
+    List<String> hashes, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) =>
+      electrumClient.getBatchTransactionVerbose(
+        hashes,
+        timeout: timeoutMs,
+      );
 
-  Future<Map<String, String?>> _getTransactionHexBatch(List<String> hashes) {
-    return electrumClient.getBatchTransactionHex(
-      hashes,
-      timeout: transactionBatchTimeoutMs,
-    );
-  }
+  Future<Map<String, String?>> _getTransactionHexBatch(
+    List<String> hashes, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) =>
+      electrumClient.getBatchTransactionHex(
+        hashes,
+        timeout: timeoutMs,
+      );
 
   Future<Map<String, List<Map<String, dynamic>>>> _getHistoryBatch(List<String> scriptHashes) {
     return electrumClient.getBatchHistory(
@@ -3072,6 +3136,7 @@ abstract class ElectrumWalletBase
     Map<String, int?>? heightsByHash,
     bool retryOnFailure = false,
     Duration retryDelay = const Duration(seconds: 2),
+    bool forceResolveInputs = false,
   }) async {
     final result = <String, ElectrumTransactionInfo?>{};
     final uniqueHashes = hashes.map((h) => h.trim()).where((h) => h.isNotEmpty).toSet().toList();
@@ -3082,6 +3147,7 @@ abstract class ElectrumWalletBase
       txIds: uniqueHashes,
       result: result,
       heightsByHash: heightsByHash,
+      forceResolveInputs: forceResolveInputs,
     );
 
     if (retryOnFailure) {
@@ -3094,6 +3160,7 @@ abstract class ElectrumWalletBase
           txIds: failedHashes,
           result: result,
           heightsByHash: heightsByHash,
+          forceResolveInputs: forceResolveInputs,
         );
       }
     }
@@ -3105,6 +3172,7 @@ abstract class ElectrumWalletBase
     required List<String> txIds,
     required Map<String, ElectrumTransactionInfo?> result,
     required Map<String, int?>? heightsByHash,
+    bool forceResolveInputs = false,
   }) async {
     for (var i = 0; i < txIds.length; i += transactionChunkSize) {
       final end =
@@ -3114,55 +3182,82 @@ abstract class ElectrumWalletBase
       final bundlesByHash = await getTransactionExpandedBatch(
         hashes: chunk,
         heightsByHash: heightsByHash,
+        forceResolveInputs: forceResolveInputs,
+      );
+
+      // Captured as locals so the closure below doesn't reference `this` -
+      // the wallet isn't Isolate-transferable.
+      final walletType = walletInfo.type;
+      final walletNetwork = network;
+      final ownAddresses = addressesSet;
+      final infosByHash = await buildElectrumTransactionInfosInIsolate(
+        (bundlesByHash, walletType, walletNetwork, ownAddresses, heightsByHash),
       );
 
       for (final txId in chunk) {
-        try {
-          final bundle = bundlesByHash[txId];
-          if (bundle == null) {
-            result[txId] = null;
-            continue;
-          }
-
-          final info = ElectrumTransactionInfo.fromElectrumBundle(
-            bundle,
-            walletInfo.type,
-            network,
-            addresses: addressesSet,
-            height: heightsByHash?[txId],
-          );
-          info.id = txId;
-          result[txId] = info;
-        } catch (_) {
-          result[txId] = null;
+        final info = infosByHash[txId];
+        if (info == null) {
+          printV('_processTransactionInfoBatch: no info produced for txid=$txId');
         }
+        result[txId] = info;
       }
     }
   }
 
-  Future<Map<String, ElectrumTransactionBundle>> getTransactionExpandedBatch(
-      {required List<String> hashes, Map<String, int?>? heightsByHash}) async {
+  /// Input-resolution chunk size for [getTransactionExpandedBatch] - smaller
+  /// than [transactionChunkSize] so one slow/failing txid only costs its own
+  /// chunk, not the whole group.
+  static const int _inputResolutionChunkSize = 25;
+
+  Future<Map<String, ElectrumTransactionBundle>> getTransactionExpandedBatch({
+    required List<String> hashes,
+    Map<String, int?>? heightsByHash,
+    bool forceResolveInputs = false,
+  }) async {
     final bundles = <String, ElectrumTransactionBundle>{};
     if (hashes.isEmpty) return bundles;
 
-    final verboseByHash = await _fetchTransactionVerboseBatch(hashes);
+    final verboseByHash = await fetchTransactionVerboseBatch(hashes);
+    _transactionResolver.cacheVerboseHexes(verboseByHash);
 
-    final originalByHash = _parseTransactions(verboseByHash);
+    final originalByHash = await parseTransactions(verboseByHash);
 
-    final inputTxIdsByHash = _collectInputTxIdsByHash(originalByHash);
+    final inputTxIdsByHash =
+        _collectInputTxIdsByHash(originalByHash, forceResolveInputs: forceResolveInputs);
 
     final allInputTxids = <String>{};
     for (final txids in inputTxIdsByHash.values) {
       allInputTxids.addAll(txids);
     }
 
-    final inputTxIds = allInputTxids.toList(growable: false);
+    // Skip parents already cached; parseTransactions still runs in a
+    // background Isolate since parsing many cached inputs can pin the UI
+    // isolate just as easily as the uncached case below.
+    final cachedHexByTxid = <String, Map<String, dynamic>>{};
+    final uncachedInputTxids = <String>[];
+    for (final txid in allInputTxids) {
+      final cachedHex = _transactionResolver.cachedRawTxHex(txid);
+      if (cachedHex != null) {
+        cachedHexByTxid[txid] = {'hex': cachedHex};
+      } else {
+        uncachedInputTxids.add(txid);
+      }
+    }
+    final parsedInputTxById = await parseTransactions(cachedHexByTxid);
 
-    final inputVerboseByTxId = inputTxIds.isEmpty
-        ? <String, Map<String, dynamic>>{}
-        : await _fetchTransactionVerboseBatch(inputTxIds);
+    // Fetched in groups so cacheVerboseHexes checkpoints progress per
+    // group - if a later group times out, earlier groups' fetches are
+    // still cached and don't need re-fetching next time.
+    for (var i = 0; i < uncachedInputTxids.length; i += _inputResolutionChunkSize) {
+      final end = (i + _inputResolutionChunkSize < uncachedInputTxids.length)
+          ? i + _inputResolutionChunkSize
+          : uncachedInputTxids.length;
+      final chunk = uncachedInputTxids.sublist(i, end);
 
-    final parsedInputTxById = _parseTransactions(inputVerboseByTxId);
+      final inputVerboseByTxId = await fetchTransactionVerboseBatch(chunk);
+      _transactionResolver.cacheVerboseHexes(inputVerboseByTxId);
+      parsedInputTxById.addAll(await parseTransactions(inputVerboseByTxId));
+    }
 
     return _buildTransactionBundlesBatch(
       unique: hashes,
@@ -3175,13 +3270,15 @@ abstract class ElectrumWalletBase
     );
   }
 
-  Future<Map<String, Map<String, dynamic>>> _fetchTransactionVerboseBatch(
-      List<String> txIds) async {
+  Future<Map<String, Map<String, dynamic>>> fetchTransactionVerboseBatch(
+    List<String> txIds, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) async {
     final verboseTransactionByHash =
         await _processChunksToMap<String, String, Map<String, dynamic>>(
       items: txIds,
       chunkSize: transactionChunkSize,
-      processChunk: _getTransactionVerboseBatch,
+      processChunk: (chunk) => _getTransactionVerboseBatch(chunk, timeoutMs: timeoutMs),
     );
 
     final emptyHex = <String>[];
@@ -3195,7 +3292,7 @@ abstract class ElectrumWalletBase
     final hexByHash = await _processChunksToMap<String, String, String?>(
       items: emptyHex,
       chunkSize: transactionChunkSize,
-      processChunk: _getTransactionHexBatch,
+      processChunk: (chunk) => _getTransactionHexBatch(chunk, timeoutMs: timeoutMs),
     );
 
     for (final txId in txIds) {
@@ -3214,31 +3311,22 @@ abstract class ElectrumWalletBase
     return verboseTransactionByHash;
   }
 
-  Map<String, BtcTransaction> _parseTransactions(
-    Map<String, Map<String, dynamic>> verboseByHash,
-  ) {
-    final result = <String, BtcTransaction>{};
-
-    for (final entry in verboseByHash.entries) {
-      final hex = entry.value['hex'] as String?;
-      if (hex == null || hex.isEmpty) continue;
-
-      try {
-        result[entry.key] = BtcTransaction.fromRaw(hex);
-      } catch (_) {}
-    }
-
-    return result;
-  }
-
   Map<String, List<String>> _collectInputTxIdsByHash(
-    Map<String, BtcTransaction> originalByHash,
-  ) {
+    Map<String, BtcTransaction> originalByHash, {
+    bool forceResolveInputs = false,
+  }) {
     final inputTxIdsByHash = <String, List<String>>{};
 
     for (final entry in originalByHash.entries) {
       final txId = entry.key;
       final original = entry.value;
+
+      // Pass 1 never resolves parent txs - deferred to the background
+      // resolution pass.
+      if (!forceResolveInputs) {
+        inputTxIdsByHash[txId] = const <String>[];
+        continue;
+      }
 
       final inputTxIds = <String>[];
       for (final vin in original.inputs) {
@@ -3422,6 +3510,19 @@ abstract class ElectrumWalletBase
       await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
+
+      // Both are background finalization passes that must never block sync -
+      // dispatched independently so a slow/stuck recheck can't delay the
+      // resolution pass (which actually resolves the fee) from starting.
+      unawaited(
+        _transactionResolver.recheckStaleTransactions().catchError((e, stacktrace) {
+          printV(stacktrace);
+          printV(e);
+        }),
+      );
+      // Synchronous: just ensures the resolution loop is running - its own
+      // work handles errors per-candidate and never throws here.
+      _transactionResolver.resolvePending();
     } catch (e, stacktrace) {
       printV(stacktrace);
       printV(e);
