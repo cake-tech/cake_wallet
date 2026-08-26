@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.da
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -158,7 +159,7 @@ class WCCDetailsWidget extends BasePage {
           Navigator.pop(context);
         }
       } catch (e) {
-        debugPrint(e.toString());
+        printV(e.toString());
       }
     }
   }

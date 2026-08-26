@@ -14,6 +14,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -460,7 +462,17 @@ abstract class WalletKitServiceBase with Store {
               dappName: requesterMetadata.name,
               dappIconUrl: requesterIcon,
               dappSubtitle: requesterMetadata.url,
-              message: combinedMessageBody,
+              decoded: WCDecodedRequest(
+                actionTitle: S.current.wc_action_sign_message,
+                rows: [
+                  WCDecodedRow(
+                    label: S.current.wc_message_label,
+                    value: combinedMessageBody,
+                  ),
+                ],
+                hideTo: true,
+                hideValue: true,
+              ),
               walletName: appStore.wallet?.name ?? '',
               address: addressForAuth,
               verifyContext: args.verifyContext,
@@ -592,10 +604,15 @@ abstract class WalletKitServiceBase with Store {
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(message: e.message),
       );
-    } catch (e) {
+    } catch (e, s) {
+      // A truncated or malformed link surfaces as a raw parse error from the
+      // SDK, which means nothing to the user. Keep the detail in the log.
+      printV('pairWithUri failed: $e\n$s');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(message: e.toString()),
+        widget: BottomSheetMessageDisplayWidget(
+          message: S.current.wc_connection_link_failed,
+        ),
       );
     }
   }
