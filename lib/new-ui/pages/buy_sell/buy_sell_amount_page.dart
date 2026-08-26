@@ -379,6 +379,7 @@ class BuySellAmountPill extends StatelessWidget {
                           MoneyText(
                             amount!,
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                            showSymbol: false,
                           ),
                         Text(
                           amount?.currency.symbol ?? S.of(context).custom,
