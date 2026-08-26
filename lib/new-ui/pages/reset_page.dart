@@ -49,13 +49,6 @@ class ResetPage extends BasePage {
             ],
           "reset_actions": [
             ListItemRegularRow(
-              keyValue: "restore_this_wallet",
-              label: strings.restore_this_wallet,
-              foregroundColor: primaryColor,
-              showArrow: false,
-              onTap: _restoreThisWallet,
-            ),
-            ListItemRegularRow(
               keyValue: "reset_balance_cards",
               label: strings.reset_balance_cards,
               foregroundColor: primaryColor,
@@ -74,8 +67,6 @@ class ResetPage extends BasePage {
       ),
     );
   }
-
-  void _restoreThisWallet() {}
 
   Future<void> _resetBalanceCards(BuildContext context) async {
     final shouldReset = await showPopUp<bool>(
