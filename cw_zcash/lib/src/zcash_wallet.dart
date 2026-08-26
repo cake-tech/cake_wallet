@@ -1784,6 +1784,7 @@ abstract class ZcashWalletBase
     required final int accountId,
     required final FutureOr<T> Function(zkool_coin.Coin c) func,
   }) async {
+    await runWithCoinMutex.acquire();
     var newC = zkool_coin.Coin();
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
@@ -1792,7 +1793,6 @@ abstract class ZcashWalletBase
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");
-    await runWithCoinMutex.acquire();
     try {
       newC = await newC.setAccount(account: accountId);
       return await func(newC);
