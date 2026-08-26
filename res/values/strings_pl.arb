@@ -1420,6 +1420,7 @@
   "wc_permission_sign_messages": "Podpisuj wiadomości i wpisywane dane",
   "wc_permission_switch_chains": "Przełącz i dodaj łańcuchy EVM",
   "wc_permission_view_balance": "Sprawdź saldo i aktywność swojego portfela",
+  "wc_request_for_different_wallet": "To żądanie dotyczyło innego portfela. Otwórz portfel połączony z tą aplikacją i spróbuj ponownie.",
   "wc_scam_warning_message": "Wygląda na to, że to żądanie pochodzi ze znanego oszustwa. Proszę postępować ostrożnie.",
   "wc_scam_warning_title": "OSTRZEŻENIE!",
   "wc_scan_qr": "Zeskanuj kod QR",

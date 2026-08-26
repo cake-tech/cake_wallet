@@ -1423,6 +1423,7 @@
   "wc_permission_sign_messages": "Firmar mensajes y datos escritos",
   "wc_permission_switch_chains": "Cambie y agregue cadenas EVM",
   "wc_permission_view_balance": "Ver el saldo y la actividad de su billetera",
+  "wc_request_for_different_wallet": "Esta solicitud se realizó para una billetera diferente. Abra la billetera conectada a esta aplicación e inténtelo nuevamente.",
   "wc_scam_warning_message": "Esta solicitud parece provenir de una estafa conocida. Proceda con precaución.",
   "wc_scam_warning_title": "¡ADVERTENCIA!",
   "wc_scan_qr": "Escanear QR",

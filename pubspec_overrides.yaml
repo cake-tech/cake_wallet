@@ -120,7 +120,7 @@ dependency_overrides:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
+      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
   bs58:
     git:
       url: https://github.com/litaoh/base58

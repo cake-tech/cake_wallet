@@ -1421,6 +1421,7 @@
   "wc_permission_sign_messages": "Podepisujte zprávy a zadaná data",
   "wc_permission_switch_chains": "Přepněte a přidejte řetězy EVM",
   "wc_permission_view_balance": "Prohlédněte si zůstatek a aktivitu v peněžence",
+  "wc_request_for_different_wallet": "Tento požadavek byl podán pro jinou peněženku. Otevřete peněženku připojenou k této aplikaci a zkuste to znovu.",
   "wc_scam_warning_message": "Zdá se, že tento požadavek pochází od známého podvodu. Postupujte prosím opatrně.",
   "wc_scam_warning_title": "VAROVÁNÍ!",
   "wc_scan_qr": "Naskenujte QR",

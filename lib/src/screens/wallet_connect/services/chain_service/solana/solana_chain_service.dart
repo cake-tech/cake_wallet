@@ -1,16 +1,20 @@
+import "dart:async";
 import 'dart:convert';
 
 import 'package:blockchain_utils/base58/base58.dart';
 import 'package:blockchain_utils/blockchain_utils.dart' as blockchain_utils;
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:flutter/material.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
+import "package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart";
 import 'package:cake_wallet/store/app_store.dart';
 
 class SolanaChainService {
@@ -47,7 +51,16 @@ class SolanaChainService {
   Future<void> solanaSignMessage(String topic, dynamic parameters) async {
     debugPrint('solanaSignMessage request: $parameters');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignMessage.name);
+    if (pRequest == null) {
+      return;
+    }
+
+    if (!_isRequestAuthorized(topic)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     try {
@@ -65,6 +78,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -95,7 +109,16 @@ class SolanaChainService {
   Future<void> solanaSignTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
+
+    if (!_isRequestAuthorized(topic)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     try {
@@ -130,6 +153,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -160,7 +184,16 @@ class SolanaChainService {
   Future<void> solanaSignAllTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignAllTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignAllTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
+
+    if (!_isRequestAuthorized(topic)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     try {
@@ -174,6 +207,7 @@ class SolanaChainService {
         method: pRequest.method,
         chainId: pRequest.chainId,
         address: privateKey.publicKey().toAddress().address,
+        topic: topic,
         transportType: pRequest.transportType.name,
       );
 
@@ -222,6 +256,55 @@ class SolanaChainService {
     final keys = wcKeyService.getKeysForChain(appStore.wallet!);
 
     return SolanaPrivateKey.fromSeedHex(keys[0].privateKey);
+  }
+
+  SessionRequest? _pendingRequest(String topic, String method) {
+    final matches = walletKit.pendingRequests
+        .getAll()
+        .where((request) => request.topic == topic && request.method == method);
+
+    return matches.isEmpty ? null : matches.last;
+  }
+
+  bool _isRequestAuthorized(String topic) {
+    final wallet = appStore.wallet;
+    if (wallet == null) {
+      return false;
+    }
+
+    final keys = wcKeyService.getKeysForChain(wallet);
+    if (keys.isEmpty) {
+      return false;
+    }
+
+    return MethodsUtils.isSessionOwnedByWallet(walletKit.sessions.get(topic), keys.first.publicKey);
+  }
+
+  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+    unawaited(
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          message: S.current.wc_request_for_different_wallet,
+        ),
+      ),
+    );
+
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: const JsonRpcError(
+            code: 4100,
+            message: "The requested account has not been authorized by the user.",
+          ),
+        ),
+      );
+    } catch (e) {
+      printV("rejectUnauthorizedRequest: $e");
+    }
   }
 
   void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {

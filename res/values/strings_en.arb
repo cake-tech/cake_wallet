@@ -1462,6 +1462,7 @@
   "wc_permission_sign_messages": "Sign messages and typed data",
   "wc_permission_switch_chains": "Switch and add EVM chains",
   "wc_permission_view_balance": "View your wallet balance and activity",
+  "wc_request_for_different_wallet": "This request was made for a different wallet. Open the wallet connected to this app and try again.",
   "wc_scam_warning_message": "This request appears to be from a known scam. Please proceed with caution.",
   "wc_scam_warning_title": "WARNING!",
   "wc_scan_qr": "Scan QR",

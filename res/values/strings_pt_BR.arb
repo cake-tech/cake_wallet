@@ -1361,6 +1361,7 @@
   "wc_permission_sign_messages": "Assinar mensagens e dados digitados",
   "wc_permission_switch_chains": "Alternar e adicionar cadeias EVM",
   "wc_permission_view_balance": "Veja o saldo e a atividade da sua carteira",
+  "wc_request_for_different_wallet": "Esta solicitação foi feita para uma carteira diferente. Abra a carteira conectada a este aplicativo e tente novamente.",
   "wc_scam_warning_message": "Esta solicitação parece ser de um golpe conhecido. Por favor, proceda com cautela.",
   "wc_scam_warning_title": "AVISO!",
   "wc_scan_qr": "Digitalize QR",

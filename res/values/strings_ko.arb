@@ -1420,6 +1420,7 @@
   "wc_permission_sign_messages": "메시지 및 입력된 데이터에 서명",
   "wc_permission_switch_chains": "EVM 체인 전환 및 추가",
   "wc_permission_view_balance": "지갑 잔액 및 활동 보기",
+  "wc_request_for_different_wallet": "이 요청은 다른 지갑에 대해 이루어졌습니다. 이 앱에 연결된 지갑을 열고 다시 시도해 보세요.",
   "wc_scam_warning_message": "이 요청은 알려진 사기에서 나온 것 같습니다. 주의해서 진행하시기 바랍니다.",
   "wc_scam_warning_title": "경고!",
   "wc_scan_qr": "QR 스캔",
