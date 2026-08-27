@@ -226,7 +226,7 @@ class CWZcash extends Zcash {
   }
 
   @override
-  Future<bool> hasOrchardMigratableBalance(WalletBase wallet) {
+  bool hasOrchardMigratableBalance(WalletBase wallet) {
     return (wallet as ZcashWallet).hasOrchardMigratableBalance();
   }
 }
