@@ -1,3 +1,4 @@
+import "package:cw_core/transaction_info.dart";
 import "dart:async";
 
 import "package:cake_wallet/exchange/trade.dart";
@@ -55,17 +56,52 @@ class PayjoinHistoryEmitter extends SnapshotHistoryEmitter {
   static const _visibleStatuses = {"inProgress", "success", "unrecoverable"};
 
   final Box<PayjoinSession> _box;
+  final Map<String, String> _sessionIdsByTxId = {};
+
   late final StreamSubscription<BoxEvent> _subscription;
 
-  void _reproject() => refresh([
-        for (final entry in _box.toMap().entries)
-          if (_visibleStatuses.contains(entry.value.status) &&
-              entry.value.inProgressSince != null)
-            PayjoinTransactionListItem(
-              sessionId: entry.key as String,
-              session: entry.value,
-            ),
-      ]);
+  PayjoinTransactionListItem? forTransaction(TransactionInfo transaction) {
+    final sessionId = _sessionIdsByTxId[transaction.id];
+    if (sessionId == null) {
+      return null;
+    }
+
+    final session = _box.get(sessionId);
+    if (session == null) {
+      return null;
+    }
+
+    return PayjoinTransactionListItem(
+      sessionId: sessionId,
+      session: session,
+      transaction: transaction,
+    );
+  }
+
+  void _reproject() {
+    _sessionIdsByTxId.clear();
+
+    final inFlight = <PayjoinTransactionListItem>[];
+
+    for (final entry in _box.toMap().entries) {
+      final session = entry.value;
+
+      if (!_visibleStatuses.contains(session.status) || session.inProgressSince == null) {
+        continue;
+      }
+
+      final sessionId = entry.key as String;
+      final txId = session.txId;
+
+      if (txId == null) {
+        inFlight.add(PayjoinTransactionListItem(sessionId: sessionId, session: session));
+      } else {
+        _sessionIdsByTxId[txId] = sessionId;
+      }
+    }
+
+    refresh(inFlight);
+  }
 
   @override
   Future<void> dispose() async {

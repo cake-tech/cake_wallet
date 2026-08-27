@@ -16,4 +16,8 @@ extension InsertionPoint on List<HistoryListItem> {
 
     return low;
   }
+
+  void insertAtPoint(HistoryListItem item) {
+    insert(insertionPoint(item.date), item);
+  }
 }

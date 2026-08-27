@@ -3,17 +3,26 @@ import 'package:cw_core/action_list_item.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
 
-/// The one history row that stays a wrapper: a payjoin needs its box key (the
-/// session doesn't hold its own id) and the transaction the merge stitches in.
+/// A payjoin row: the session, its box key (the session doesn't carry one), and
+/// the transaction once there is one.
+///
+/// Rows for sessions still in flight come from the payjoin source. Rows for
+/// completed sessions are built where they are rendered, from the transaction
+/// they belong to — so [transaction] is a constructor argument rather than
+/// something a merge has to remember to fill in.
 class PayjoinTransactionListItem with HistoryListItem {
-  PayjoinTransactionListItem({required this.sessionId, required this.session});
+  PayjoinTransactionListItem({
+    required this.sessionId,
+    required this.session,
+    this.transaction,
+  });
 
   final String sessionId;
   final PayjoinSession session;
-  TransactionInfo? transaction;
+  final TransactionInfo? transaction;
 
   @override
-  String get id => session.txId ?? sessionId;
+  String get id => sessionId;
 
   @override
   DateTime get date => session.inProgressSince!;

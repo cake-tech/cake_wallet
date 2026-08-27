@@ -80,16 +80,12 @@ class HistorySource<EmitterType extends HistoryEmitter, FiltersType extends Hist
   const HistorySource({
     required this.emitter,
     required this.filters,
-    this.precedence = 0,
     this.disposesEmitter = true,
   });
 
   final EmitterType emitter;
   final FiltersType filters;
 
-  /// Higher wins when two sources produce items with the same id — which is how
-  /// a payjoin row replaces the plain transaction row for the same txid.
-  final int precedence;
 
   /// Whether disposing this source should dispose its emitter. False where the
   /// emitter is owned elsewhere: a wallet's own transaction history outlives

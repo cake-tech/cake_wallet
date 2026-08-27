@@ -9,6 +9,8 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -119,10 +121,11 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             selectedTab: _selectedTab,
           ),
         if (tabs.length == 1)
-          Observer(
-            builder: (_) => HistoryTopBar(
+          BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
+            bloc: getIt.get<TransactionHistoryBloc>(),
+            builder: (context, state) => HistoryTopBar(
               onTap: () => openHistoryModal(context),
-              roundedBottom: widget.dashboardViewModel.itemsShort.isEmpty,
+              roundedBottom: state is! TransactionHistoryLoaded || state.isEmpty,
             ),
           ),
         tabs[_selectedTab].content

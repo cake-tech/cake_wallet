@@ -1,3 +1,5 @@
+import "package:cw_core/action_list_item.dart";
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/sources/history_sources.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart";
@@ -40,11 +42,13 @@ class HistorySection extends StatelessWidget {
   const HistorySection(
       {
       required this.bloc,
+      required this.payjoinEmitter,
       required this.short,
       required this.roundedTopSection,
       required this.detailsAsPage, super.key});
 
   final TransactionHistoryBloc bloc;
+  final PayjoinHistoryEmitter payjoinEmitter;
   final bool short;
   final bool roundedTopSection;
   final bool detailsAsPage;
@@ -106,7 +110,7 @@ class HistorySection extends StatelessWidget {
                         (context, index) => Observer(builder: (_) {
                           final prevItem = index == 0 ? null : items[index - 1];
                           final topPadding = index == 0 ? 0.0 : 18.0;
-                          final item = items[index];
+                          final item = _asPayjoin(items[index]) ?? items[index];
                           final nextItem = index == items.length - 1 ? null : items[index + 1];
 
                           final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
@@ -234,6 +238,9 @@ class HistorySection extends StatelessWidget {
         ));
 
   static const shortHistoryLength = 3;
+
+  PayjoinTransactionListItem? _asPayjoin(HistoryListItem item) =>
+      item is TransactionInfo ? payjoinEmitter.forTransaction(item) : null;
 
   String _getChainIconPath() {
     final currency = bloc.appStore.wallet!.currency;

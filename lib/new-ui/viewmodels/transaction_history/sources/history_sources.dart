@@ -8,6 +8,8 @@ import "package:cw_core/history_source.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
 
+export "package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart";
+
 typedef TransactionHistorySource
     = HistorySource<TransactionHistory<TransactionInfo>, TransactionFilterStore>;
 

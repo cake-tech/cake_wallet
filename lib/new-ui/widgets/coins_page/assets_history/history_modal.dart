@@ -34,8 +34,14 @@ class HistoryModal extends StatelessWidget {
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
             ),
             trailingSemanticLabel: S.of(context).export_csv,
-            onTrailingPressed: () =>
-                CsvExportService().exportToCsv(dashboardViewModel.items, context),
+            onTrailingPressed: () {
+              final state = getIt.get<TransactionHistoryBloc>().state;
+
+              CsvExportService().exportToCsv(
+                state is TransactionHistoryLoaded ? state.items : const [],
+                context,
+              );
+            },
           ),
           Expanded(
               child: Stack(

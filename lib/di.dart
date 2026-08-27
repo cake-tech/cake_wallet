@@ -566,8 +566,8 @@ Future<void> setup({
 
   getIt.registerSingleton(
     TradeMonitor(
-      tradesStore: getIt.get<TradesStore>(),
       appStore: getIt.get<AppStore>(),
+      tradesStore: getIt.get<TradesStore>(),
       preferences: getIt.get<SharedPreferences>(),
     ),
   );
@@ -576,15 +576,11 @@ Future<void> setup({
       tradeMonitor: getIt.get<TradeMonitor>(),
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       orderFilterStore: getIt.get<OrderFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
@@ -624,13 +620,15 @@ Future<void> setup({
     ),
   );
 
-  // Above the transaction source, so a payjoin row replaces the plain
-  // transaction row for the same txid.
+  getIt.registerLazySingleton<PayjoinHistoryEmitter>(
+    () => PayjoinHistoryEmitter(_payjoinSessionSource),
+  );
+
   getIt.registerFactory<PayjoinHistorySource>(
     () => PayjoinHistorySource(
-      emitter: PayjoinHistoryEmitter(_payjoinSessionSource),
+      emitter: getIt.get<PayjoinHistoryEmitter>(),
+      disposesEmitter: false,
       filters: getIt.get<PayjoinFilterStore>(),
-      precedence: 1,
     ),
   );
 
@@ -654,6 +652,7 @@ Future<void> setup({
   getIt.registerFactoryParam<HistorySection, HistorySectionArguments, void>(
     (args, _) => HistorySection(
       bloc: getIt.get<TransactionHistoryBloc>(),
+      payjoinEmitter: getIt.get<PayjoinHistoryEmitter>(),
       short: args.short,
       roundedTopSection: args.roundedTopSection,
       detailsAsPage: args.detailsAsPage,

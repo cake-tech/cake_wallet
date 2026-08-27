@@ -41,7 +41,6 @@ import "package:cw_core/action_list_item.dart";
 import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
-import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import "package:cake_wallet/order/order.dart";
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import "package:cake_wallet/exchange/trade.dart";
@@ -80,15 +79,11 @@ abstract class DashboardViewModelBase with Store {
       {required this.balanceViewModel,
       required this.tradeMonitor,
       required this.appStore,
-      required this.tradesStore,
       required this.tradeFilterStore,
       required this.orderFilterStore,
       required this.transactionFilterStore,
       required this.settingsStore,
       required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.payjoinTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -111,7 +106,6 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBackgroundSyncEnabled());
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
-    final _wallet = wallet;
 
     loadFilterItems();
 
@@ -139,7 +133,6 @@ abstract class DashboardViewModelBase with Store {
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
 
-    reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
@@ -423,67 +416,13 @@ abstract class DashboardViewModelBase with Store {
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<Trade> get trades => tradesStore.trades.where((trade) {
-        final isSameChain = trade.chainId != null
-            ? trade.chainId == wallet.chainId
-            : true; // returning default as true here so it falls back to the default checks if there's no chainId
-        return trade.walletId == wallet.id && isSameChain;
-      }).toList();
-
-  @computed
   bool get shouldShowBalanceHiddenMessage =>
       balanceDisplayMode == BalanceDisplayMode.hiddenBalance &&
       appStore.settingsStore.balanceHideCounter < 10;
 
   @computed
-  List<Order> get orders =>
-      ordersStore.orders.where((item) => item.walletId == wallet.id).toList();
-
-  @computed
-  List<AnonpayInvoiceInfo> get anonpayTransactions => anonpayTransactionsStore.transactions
-      .where((item) => item.walletId == wallet.id)
-      .toList();
-
-  @computed
-  List<PayjoinTransactionListItem> get payjoinTransactions => payjoinTransactionsStore.transactions
-      .where((item) => item.session.walletId == wallet.id)
-      .toList();
-
-
-  @computed
   bool get isAutoGenerateSubaddressesEnabled =>
       settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
-
-  @computed
-  List<HistoryListItem> get items {
-    final _items = <HistoryListItem>[];
-
-    _items.addAll(
-        transactionFilterStore.filtered(transactions: [ ...anonpayTransactions]));
-    _items.addAll(tradeFilterStore.filtered(trades: trades));
-    _items.addAll(orderFilterStore.filtered(orders: orders));
-
-    if (payjoinTransactions.isNotEmpty) {
-      final _payjoinTransactions = payjoinTransactions;
-      _items.forEach((e) {
-        if (e is TransactionInfo &&
-            _payjoinTransactions.any((t) => t.session.txId == e.id)) {
-          _payjoinTransactions.firstWhere((t) => t.session.txId == e.id).transaction = e;
-        }
-      });
-      _items.addAll(_payjoinTransactions);
-      _items.removeWhere((e) => e is TransactionInfo &&
-          _payjoinTransactions.any((t) => t.session.txId == e.id));
-    }
-
-    return formattedItemsList(_items);
-  }
-
-  static const shortHistoryLength = 3;
-
-  @computed
-  List<HistoryListItem> get itemsShort =>
-      items.where((item) => item is! DateSectionItem).take(shortHistoryLength).toList();
 
   @observable
   WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet;
@@ -502,14 +441,6 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasRescan => wallet.hasRescan;
 
-
-
-  @computed
-  bool get showZcashMissingFundsCard {
-    if (wallet.type != WalletType.zcash) return false;
-    if (!settingsStore.showZcashMissingFundsCard) return false;
-    return zcash!.showMissingFundsCard(wallet);
-  }
 
   @computed
   bool get hasSilentPayments =>
@@ -562,18 +493,9 @@ abstract class DashboardViewModelBase with Store {
       (Platform.isIOS || Platform.isAndroid) &&
       !wallet.isHardwareWallet;
 
-  @computed
-  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
-
   @observable
   bool mwebEnabled = false;
 
-  @computed
-  bool get showPayjoinCard =>
-      wallet.type == WalletType.bitcoin &&
-      settingsStore.showPayjoinCard &&
-      !settingsStore.usePayjoin &&
-      DeviceInfo.instance.isMobile;
 
   @observable
   bool backgroundSyncEnabled = false;
@@ -787,21 +709,11 @@ abstract class DashboardViewModelBase with Store {
 
   YatStore yatStore;
 
-  TradesStore tradesStore;
-
-  OrdersStore ordersStore;
-
   TradeFilterStore tradeFilterStore;
 
   OrderFilterStore orderFilterStore;
 
-  AnonpayTransactionsStore anonpayTransactionsStore;
-
   TransactionFilterStore transactionFilterStore;
-
-  PayjoinTransactionsStore payjoinTransactionsStore;
-
-  // Map<String, List<FilterItem>> filterItems;
 
   List<FilterItem> filterItems;
 
