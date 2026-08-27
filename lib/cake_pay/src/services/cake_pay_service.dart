@@ -130,13 +130,13 @@ class CakePayService {
 
   /// Wrapper for requests with user token
   Future<T> _withUserToken<T>(Future<T> Function(String token) request) async {
-    final token = await secureStorage.read(key: cakePayUserTokenKey) ?? '';
-
-    if (token.isEmpty) {
-      throw const CakePayUnauthorizedException();
-    }
-
     try {
+      final token = await secureStorage.read(key: cakePayUserTokenKey) ?? '';
+
+      if (token.isEmpty) {
+        throw const CakePayUnauthorizedException();
+      }
+
       return await request(token);
     } on CakePayUnauthorizedException {
       await logout();

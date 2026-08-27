@@ -498,21 +498,37 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
-    bool isLogged = await cakePayBuyCardViewModel.isUserLogged;
-    if (!isLogged) {
-      cakePayBuyCardViewModel.isSimulatingFlow = false;
-      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
-    } else {
-      try {
-        await cakePayBuyCardViewModel.createOrder();
-      } on CakePayUnauthorizedException {
+    try {
+      final isLogged = await cakePayBuyCardViewModel.isUserLogged;
+
+      if (!isLogged) {
         cakePayBuyCardViewModel.isSimulatingFlow = false;
+
         if (context.mounted) {
           Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
         }
+        return;
       }
+
+      await cakePayBuyCardViewModel.createOrder();
+    } on CakePayUnauthorizedException {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
+
+      if (context.mounted) {
+        Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+      }
+    } catch (error) {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
+      _sendViewModel.state = FailureState(
+        _sendViewModel.translateErrorMessage(
+          error,
+          cakePayBuyCardViewModel.walletType,
+          _sendViewModel.wallet.currency,
+        ),
+      );
+    } finally {
+      cakePayBuyCardViewModel.isPurchasing = false;
     }
-    cakePayBuyCardViewModel.isPurchasing = false;
   }
 
   BuildContext? dialogContext;
