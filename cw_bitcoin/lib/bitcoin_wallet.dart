@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import "package:cw_bitcoin/bitcoin_receive_page_option.dart";
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -33,6 +34,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -417,6 +419,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   late final PayjoinManager payjoinManager;
 
+  @override
+  bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
+
+  @override
+  bool get hasLightningSupport => lightningWallet?.sdk != null;
+
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
       .isNotEmpty;
@@ -672,5 +680,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return super.signMessage(message, address: address);
+  }
+
+  @override
+  bool receiveOptionAvailable(ReceivePageOption option) {
+    if(option == BitcoinReceivePageOption.lightning) {
+      return hasLightningSupport;
+    }
+
+    if(option == BitcoinReceivePageOption.silent_payments) {
+      return hasSilentPaymentsScanning;
+    }
+
+    return true;
   }
 }

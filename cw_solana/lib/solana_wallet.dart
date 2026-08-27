@@ -254,12 +254,7 @@ abstract class SolanaWalletBase
 
     await updateTokenBalance();
 
-    final transactionCurrency = balance.keys.firstWhere(
-        (currency) =>
-            currency.title == credentials.currency.title &&
-            currency.tag == credentials.currency.tag,
-        orElse: () => throw Exception(
-            'Currency ${credentials.currency.title} ${credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+    final transactionCurrency = resolveTransactionCurrency(credentials.currency, balance.keys);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.available;
 
@@ -288,9 +283,8 @@ abstract class SolanaWalletBase
     }
 
     String? tokenMint;
-    // Token Mint is only needed for transactions that are not native tokens(non-SOL transactions)
-    if (transactionCurrency.title != CryptoCurrency.sol.title) {
-      tokenMint = (transactionCurrency as SPLToken).mintAddress;
+    if (transactionCurrency is SPLToken) {
+      tokenMint = transactionCurrency.mintAddress;
     }
 
     return _client.signSolanaTransaction(
@@ -303,6 +297,33 @@ abstract class SolanaWalletBase
       isSendAll: isSendAll,
       solBalance: solBalance,
     );
+  }
+
+  static CryptoCurrency resolveTransactionCurrency(
+    CryptoCurrency requestedCurrency,
+    Iterable<CryptoCurrency> availableCurrencies,
+  ) {
+    final matches = requestedCurrency is SPLToken
+        ? availableCurrencies
+            .where((currency) =>
+                currency is SPLToken && currency.mintAddress == requestedCurrency.mintAddress)
+            .toList(growable: false)
+        : availableCurrencies
+            .where((currency) =>
+                currency.title == requestedCurrency.title && currency.tag == requestedCurrency.tag)
+            .toList(growable: false);
+
+    if (matches.isEmpty) {
+      throw Exception(
+        "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+      );
+    }
+
+    if (matches.length > 1) {
+      throw SolanaAmbiguousTokenSymbolException(requestedCurrency.title);
+    }
+
+    return matches.first;
   }
 
   @override
@@ -454,6 +475,8 @@ abstract class SolanaWalletBase
     }
   }
 
+  static final _swapIdSuffixPattern = RegExp(r"_(outgoing|incoming)$");
+
   void _addTransactions(List<SolanaTransactionModel> transactions) {
     final Map<String, SolanaTransactionInfo> result = {};
 
@@ -470,6 +493,11 @@ abstract class SolanaWalletBase
         isPending: false,
         fee: transactionModel.fee,
       );
+
+      final baseSignature = transactionModel.id.replaceFirst(_swapIdSuffixPattern, "");
+      if (baseSignature != transactionModel.id) {
+        transactionHistory.transactions.remove(baseSignature);
+      }
     }
 
     transactionHistory.addMany(result);
@@ -594,7 +622,9 @@ abstract class SolanaWalletBase
     // Fetch SOL and SPL token balances in parallel for better performance
     await Future.wait([
       _fetchSOLBalance().then((solBalance) {
-        balance[CryptoCurrency.sol] = solBalance;
+        if (solBalance != null) {
+          balance[CryptoCurrency.sol] = solBalance;
+        }
       }),
       _updateSplTokenBalancesInternal(tokenMints: tokenMints),
     ]);
@@ -602,10 +632,15 @@ abstract class SolanaWalletBase
     await save();
   }
 
-  Future<SolanaBalance> _fetchSOLBalance() async {
-    final balance = await _client.getBalance(solanaAddress);
-
-    return SolanaBalance(balance);
+  Future<SolanaBalance?> _fetchSOLBalance() async {
+    try {
+      return SolanaBalance(
+        await _client.getBalance(solanaAddress, throwOnError: true),
+      );
+    } catch (e) {
+      printV("Error fetching SOL balance: ${e.toString()}");
+      return null;
+    }
   }
 
   /// Internal helper to update SPL token balances.
@@ -749,7 +784,7 @@ abstract class SolanaWalletBase
           name: tokenInfo.name,
           symbol: tokenInfo.symbol,
           mintAddress: mint,
-          decimal: moralisToken.decimals,
+          decimal: tokenInfo.decimal,
           mint: tokenInfo.mint,
           iconPath: tokenInfo.iconPath,
           tag: 'SOL',
@@ -892,7 +927,7 @@ abstract class SolanaWalletBase
       await _clearLastSyncedSignature(source);
     }
 
-    updateTokenBalance();
+    await updateTokenBalance();
   }
 
   Future<void> _removeTokenTransactionsInHistory(SPLToken token) async {
@@ -938,47 +973,25 @@ abstract class SolanaWalletBase
     return Base58Encoder.encode(signature);
   }
 
-  List<List<int>> bytesFromSigString(String signatureString) {
-    final regex = RegExp(r'Signature\(\[(.+)\], publicKey: (.+)\)');
-    final match = regex.firstMatch(signatureString);
-
-    if (match != null) {
-      final bytesString = match.group(1)!;
-      final base58EncodedPublicKeyString = match.group(2)!;
-      final sigBytes = bytesString.split(', ').map(int.parse).toList();
-
-      List<int> pubKeyBytes = SolAddrDecoder().decodeAddr(base58EncodedPublicKeyString);
-
-      return [sigBytes, pubKeyBytes];
-    } else {
-      throw const FormatException('Invalid Signature string format');
-    }
-  }
-
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    String signatureString = utf8.decode(HEX.decode(signature));
-
-    List<List<int>> bytes = bytesFromSigString(signatureString);
-
-    final messageBytes = utf8.encode(message);
-    final sigBytes = bytes[0];
-    final pubKeyBytes = bytes[1];
-
-    if (address == null) {
+    if (address == null || address.isEmpty) {
       return false;
     }
 
-    // make sure the address derived from the public key provided matches the one we expect
-    final pub = SolanaPublicKey.fromBytes(pubKeyBytes);
-    if (address != pub.toAddress().address) {
+    try {
+      final signatureBytes = Base58Decoder.decode(signature);
+
+      final publicKey = SolanaPublicKey.fromBytes(SolAddrDecoder().decodeAddr(address));
+
+      return publicKey.verify(
+        message: utf8.encode(message),
+        signature: signatureBytes,
+      );
+    } catch (e) {
+      printV("Error verifying solana message: ${e.toString()}");
       return false;
     }
-
-    return pub.verify(
-      message: messageBytes,
-      signature: sigBytes,
-    );
   }
 
   SolanaRPC? get solanaProvider => _client.getSolanaProvider;

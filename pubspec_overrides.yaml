@@ -120,7 +120,7 @@ dependency_overrides:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
+      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
   bs58:
     git:
       url: https://github.com/litaoh/base58
@@ -1224,8 +1224,8 @@ dependency_overrides:
       ref: 2dbfe918a3d38340f378ab2734b1c97ebcb4ab26
   rive_common:
     git:
-      url: https://github.com/MrCyjaneK/rive_common
-      ref: 9457422fce3f1524437f6a1429200f048931a2fe
+      url: https://github.com/malik1004x/rive_common
+      ref: 34ef174e87dc4a29e728babfaad8dd9464b704ae
   riverpod:
     git:
       url: https://github.com/rrousselGit/riverpod

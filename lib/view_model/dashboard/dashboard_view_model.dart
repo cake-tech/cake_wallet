@@ -96,7 +96,6 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        isMigratingToIronwood = false,
         filterItems = [],
         exchangeFilterItems = [],
         name = appStore.wallet!.name,
@@ -141,8 +140,6 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
 
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
-
-    addZcashMigrationReaction();
 
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
@@ -246,21 +243,9 @@ abstract class DashboardViewModelBase with Store {
     ];
   }
 
-  @observable
-  ReactionDisposer? zcashMigrationReactionDisposer;
-
-  @action
-  void addZcashMigrationReaction()  {
-    zcashMigrationReactionDisposer?.reaction.dispose();
-    zcashMigrationReactionDisposer = null;
-
-    if (wallet.type == WalletType.zcash) {
-      zcashMigrationReactionDisposer = reaction((_) => wallet.balance.values.first, (_) async {
-        isMigratingToIronwood =
-            wallet.type == WalletType.zcash && await zcash!.hasOrchardMigratableBalance(wallet);
-      });
-    }
-  }
+  @computed
+  bool get isMigratingToIronwood =>
+      wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
   bool get isSyncHeavy {
@@ -416,7 +401,7 @@ abstract class DashboardViewModelBase with Store {
 
     if (settingsStore.mwebAdDismissed) return false;
 
-    return Platform.isAndroid || Platform.isIOS;
+    return (Platform.isAndroid || Platform.isIOS) && !wallet.isHardwareWallet;
   }
 
   @action
@@ -874,9 +859,6 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     name = wallet.name;
     loadFilterItems();
-
-    addZcashMigrationReaction();
-
   }
 
 
@@ -980,8 +962,16 @@ abstract class DashboardViewModelBase with Store {
   }
 
 
-  @observable
-  bool isMigratingToIronwood;
+  String getTransactionType(TransactionInfo tx) {
+    if (wallet.type == WalletType.bitcoin) {
+      if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
+      return ' (${tx.evmSignatureName})';
+
+    return '';
+  }
 
   Future<void> refreshDashboard() async {
     reconnect();

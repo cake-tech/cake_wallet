@@ -262,6 +262,8 @@ class CWSolana extends Solana {
               'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
             );
         }
+      } on JupiterSwapFailedException {
+        rethrow;
       } catch (e) {
         throw Exception('Failed to execute Jupiter swap: $e');
       }
@@ -406,7 +408,9 @@ class CWSolana extends Solana {
       if (discoveredMints.isNotEmpty) {
         await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
       }
-    } catch (_) {}
+    } catch (e) {
+      printV("Error discovering wallet tokens: ${e.toString()}");
+    }
   }
 
   @override
