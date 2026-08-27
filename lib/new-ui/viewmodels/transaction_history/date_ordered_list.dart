@@ -1,6 +1,6 @@
 import "package:cw_core/action_list_item.dart";
 
-extension InsertionPoint on List<ActionListItem> {
+extension InsertionPoint on List<HistoryListItem> {
   int insertionPoint(DateTime date) {
     var low = 0;
     var high = length;

@@ -5,7 +5,7 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/keyable.dart';
 
-abstract class TransactionInfo extends Object with Keyable, ActionListItem {
+abstract class TransactionInfo extends Object with Keyable, HistoryListItem {
   TransactionInfo({required this.amount});
 
   late String id;

@@ -611,7 +611,6 @@ abstract class ElectrumWalletBase
               existingTxInfo.direction = tx.direction;
               existingTxInfo.isPending = tx.isPending;
               existingTxInfo.unspents = tx.unspents;
-              // Mutated in place, so the history has to be told explicitly.
               transactionHistory.markUpdated([txid]);
 
               final newUnspents = tx.unspents!

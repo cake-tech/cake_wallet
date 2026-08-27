@@ -4,8 +4,8 @@ import "package:flutter/foundation.dart";
 
 enum _DateBucket { recent, last7Days, last30Days, byMonth }
 
-List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
-  final formattedList = <ActionListItem>[];
+List<HistoryListItem> formattedItemsList(List<HistoryListItem> items) {
+  final formattedList = <HistoryListItem>[];
   items.sort((a, b) => b.date.compareTo(a.date));
 
   final now = DateTime.now();

@@ -1,3 +1,5 @@
+import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import "package:cw_core/action_list_item.dart";
@@ -11,7 +13,7 @@ part 'transaction_filter_store.g.dart';
 
 class TransactionFilterStore = TransactionFilterStoreBase with _$TransactionFilterStore;
 
-abstract class TransactionFilterStoreBase with Store {
+abstract class TransactionFilterStoreBase with Store implements HistoryFilters {
   TransactionFilterStoreBase(this._appStore)
       : displayIncoming = true,
         displayOutgoing = true,
@@ -71,11 +73,17 @@ abstract class TransactionFilterStoreBase with Store {
   @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  /// Whether one item passes the user's filters.
+  /// Whether one item passes the wallet, account and user filters.
   ///
-  /// Per item rather than per list, so an incremental update can decide a single
-  /// row without re-walking the whole history.
-  bool relevant(ActionListItem item) {
+  /// Serves both the transaction and anonpay sources: the date range and
+  /// direction toggles have always applied to both, and now the wallet and
+  /// account scoping does too.
+  @override
+  bool relevant(HistoryListItem item) {
+    if (!_inScope(item)) {
+      return false;
+    }
+
     if (startDate != null && endDate != null) {
       if (!(startDate!.isBefore(item.date) && endDate!.isAfter(item.date))) {
         return false;
@@ -97,13 +105,30 @@ abstract class TransactionFilterStoreBase with Store {
           (displaySilentPayments && canShowSilentPayment);
     }
 
-    if (item is AnonpayInvoiceInfo) {
-      return displayIncoming;
-    }
-
-    return true;
+    return displayIncoming;
   }
 
-  List<ActionListItem> filtered({required List<ActionListItem> transactions}) =>
+  /// Monero keeps every account's transactions in one history, so the account
+  /// has to be filtered rather than the history split. Anonpay invoices carry
+  /// their own wallet id.
+  bool _inScope(HistoryListItem item) {
+    final wallet = _appStore.wallet;
+
+    if (item is TransactionInfo) {
+      if (wallet == null || wallet.type != WalletType.monero) {
+        return true;
+      }
+      return monero!.getTransactionInfoAccountId(item) == monero!.getCurrentAccount(wallet).id;
+    }
+
+    if (item is AnonpayInvoiceInfo) {
+      return item.walletId == wallet?.id;
+    }
+
+    return false;
+  }
+
+
+  List<HistoryListItem> filtered({required List<HistoryListItem> transactions}) =>
       transactions.where(relevant).toList();
 }

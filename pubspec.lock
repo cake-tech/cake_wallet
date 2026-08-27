@@ -280,11 +280,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
-      resolved-ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
+      ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
+      resolved-ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
-    version: "0.14.0"
+    version: "0.23.0"
   bs58:
     dependency: "direct overridden"
     description:
@@ -2600,9 +2600,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      resolved-ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      url: "https://github.com/MrCyjaneK/rive_common"
+      ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      resolved-ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      url: "https://github.com/malik1004x/rive_common"
     source: git
     version: "0.4.15"
   riverpod:

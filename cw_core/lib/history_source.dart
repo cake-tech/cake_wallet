@@ -6,29 +6,20 @@ import "package:cw_core/history_change.dart";
 export "package:cw_core/action_list_item.dart";
 export "package:cw_core/history_change.dart";
 
-/// Where history rows come from and how they change.
-///
-/// Ids on [changes] are always [ActionListItem.id] values, never a backing
-/// store's own key — translating is the emitter's job, so the consumer works in
-/// a single keyspace and can resolve a removal it no longer holds.
-abstract class ChangeEmitter {
+abstract class HistoryEmitter {
   Stream<HistoryChange> get changes;
 
-  /// Whether the initial load has finished. Distinct from having no items.
   bool get hasLoaded;
 
-  ActionListItem? byId(String id);
+  HistoryListItem? byId(String id);
 
-  Iterable<ActionListItem> get items;
+  Iterable<HistoryListItem> get items;
 
   Future<void> dispose();
 }
 
-/// A [ChangeEmitter] for sources that can only say "something changed" — a Hive
-/// box event, or a payload-less signal. It keeps the last projection and
-/// announces the difference, which is what makes removals resolvable.
-abstract class SnapshotChangeEmitter extends ChangeEmitter {
-  final Map<String, ActionListItem> _items = {};
+abstract class SnapshotHistoryEmitter extends HistoryEmitter {
+  final Map<String, HistoryListItem> _items = {};
   final StreamController<HistoryChange> _changes = StreamController<HistoryChange>.broadcast();
 
   bool _hasLoaded = false;
@@ -40,16 +31,12 @@ abstract class SnapshotChangeEmitter extends ChangeEmitter {
   bool get hasLoaded => _hasLoaded;
 
   @override
-  ActionListItem? byId(String id) => _items[id];
+  HistoryListItem? byId(String id) => _items[id];
 
   @override
-  Iterable<ActionListItem> get items => _items.values;
+  Iterable<HistoryListItem> get items => _items.values;
 
-  /// Replaces the projection with [next] and emits one change per difference.
-  ///
-  /// Cheap at these sizes — a few hundred items at most — and it means a source
-  /// that can only signal "something changed" still produces a usable journal.
-  void refresh(Iterable<ActionListItem> next) {
+  void refresh(Iterable<HistoryListItem> next) {
     final incoming = {for (final item in next) item.id: item};
 
     for (final id in _items.keys.toList()) {
@@ -72,35 +59,48 @@ abstract class SnapshotChangeEmitter extends ChangeEmitter {
   }
 
   void _emit(HistoryChange change) {
-    if (!_changes.isClosed) _changes.add(change);
+    if (!_changes.isClosed) {
+      _changes.add(change);
+    }
   }
 
   @override
   Future<void> dispose() => _changes.close();
 }
 
-/// Whether an item belongs in the list right now.
-///
-/// Called per item, so implementations must be cheap and free of side effects.
-/// Everything that narrows the list lives here — current wallet, selected
-/// account, user-chosen filters.
 abstract class HistoryFilters {
-  bool relevant(ActionListItem item);
+  bool relevant(HistoryListItem item);
 }
 
-class HistorySource {
+/// One source of history rows: where they come from, and which of them belong.
+///
+/// Generic in both halves so a source's concrete emitter and filters stay
+/// visible to whoever holds it — see the typedefs below for the ones in use.
+class HistorySource<EmitterType extends HistoryEmitter, FiltersType extends HistoryFilters> {
   const HistorySource({
     required this.emitter,
     required this.filters,
     this.precedence = 0,
+    this.disposesEmitter = true,
   });
 
-  final ChangeEmitter emitter;
-  final HistoryFilters filters;
+  final EmitterType emitter;
+  final FiltersType filters;
 
   /// Higher wins when two sources produce items with the same id — which is how
   /// a payjoin row replaces the plain transaction row for the same txid.
   final int precedence;
 
-  Iterable<ActionListItem> get relevantItems => emitter.items.where(filters.relevant);
+  /// Whether disposing this source should dispose its emitter. False where the
+  /// emitter is owned elsewhere: a wallet's own transaction history outlives
+  /// any list showing it.
+  final bool disposesEmitter;
+
+  Iterable<HistoryListItem> get relevantItems => emitter.items.where(filters.relevant);
+
+  Future<void> dispose() async {
+    if (disposesEmitter) {
+      await emitter.dispose();
+    }
+  }
 }

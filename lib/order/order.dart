@@ -11,7 +11,7 @@ import 'order_source_description.dart';
 part 'order.part.dart';
 
 // @HiveType(typeId: Order.typeId)
-class Order extends HiveObject with ActionListItem {
+class Order extends HiveObject with HistoryListItem {
   Order({
     required this.id,
     required this.transferId,

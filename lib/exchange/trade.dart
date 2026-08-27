@@ -10,7 +10,7 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:sqflite/sqflite.dart';
 
-class Trade with ActionListItem {
+class Trade with HistoryListItem {
   Trade({
     this.internalId = 0,
     required this.id,
@@ -114,6 +114,7 @@ class Trade with ActionListItem {
   int? chainId;
   double? fee;
 
+  //FIXME the fallback is shit, but it won't be a problem after swap refactor since the date is nullable
   @override
   DateTime get date => createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 

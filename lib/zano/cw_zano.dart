@@ -23,7 +23,7 @@ class CWZano extends Zano {
   }
 
   // @override
-  // TransactionHistory getTransactionHistory(Object wallet) {
+  // TransactionHistoryBase getTransactionHistory(Object wallet) {
   //   final zanoWallet = wallet as ZanoWallet;
   //   return zanoWallet.transactionHistory;
   // }

@@ -1,21 +1,14 @@
 import "dart:async";
 
-import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import "package:cake_wallet/exchange/trade.dart";
-import "package:cake_wallet/order/order.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/store/dashboard/order_filter_store.dart";
-import "package:cake_wallet/store/dashboard/trade_filter_store.dart";
-import "package:cake_wallet/store/dashboard/transaction_filter_store.dart";
 import "package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart";
 import "package:cw_core/history_source.dart";
 import "package:cw_core/payjoin_session.dart";
 import "package:hive/hive.dart";
 
-/// Trades come from sqlite behind a payload-less signal, so the emitter has to
-/// diff to work out what actually changed.
-class TradeChangeEmitter extends SnapshotChangeEmitter {
-  TradeChangeEmitter() {
+class TradeHistoryEmitter extends SnapshotHistoryEmitter {
+  TradeHistoryEmitter() {
     _subscription = Trade.onChanged.stream.listen((_) => _reload());
     _reload();
   }
@@ -26,7 +19,6 @@ class TradeChangeEmitter extends SnapshotChangeEmitter {
     try {
       refresh(await Trade.getAll());
     } catch (_) {
-      // A failed reload still counts as a finished load, so the UI stops waiting.
       refresh(items.toList());
     }
   }
@@ -38,10 +30,8 @@ class TradeChangeEmitter extends SnapshotChangeEmitter {
   }
 }
 
-/// Hive gives us a box event per change, but its keys are auto-increment
-/// integers rather than domain ids, so we reproject and diff by id.
-class BoxChangeEmitter<T extends ActionListItem> extends SnapshotChangeEmitter {
-  BoxChangeEmitter(this._box) {
+class BoxHistoryEmitter<T extends HistoryListItem> extends SnapshotHistoryEmitter {
+  BoxHistoryEmitter(this._box) {
     _subscription = _box.watch().listen((_) => refresh(_box.values));
     refresh(_box.values);
   }
@@ -56,10 +46,8 @@ class BoxChangeEmitter<T extends ActionListItem> extends SnapshotChangeEmitter {
   }
 }
 
-/// Payjoin needs its box key (the session doesn't carry one) and only shows
-/// sessions that have actually started.
-class PayjoinChangeEmitter extends SnapshotChangeEmitter {
-  PayjoinChangeEmitter(this._box) {
+class PayjoinHistoryEmitter extends SnapshotHistoryEmitter {
+  PayjoinHistoryEmitter(this._box) {
     _subscription = _box.watch().listen((_) => _reproject());
     _reproject();
   }
@@ -86,53 +74,12 @@ class PayjoinChangeEmitter extends SnapshotChangeEmitter {
   }
 }
 
-class TradeFilters extends HistoryFilters {
-  TradeFilters({required this.appStore, required this.filterStore});
-
-  final AppStore appStore;
-  final TradeFilterStore filterStore;
-
-  @override
-  bool relevant(ActionListItem item) {
-    final wallet = appStore.wallet;
-    return wallet != null && filterStore.relevant(item, wallet);
-  }
-}
-
-class OrderFilters extends HistoryFilters {
-  OrderFilters({required this.appStore, required this.filterStore});
-
-  final AppStore appStore;
-  final OrderFilterStore filterStore;
-
-  @override
-  bool relevant(ActionListItem item) {
-    final wallet = appStore.wallet;
-    return wallet != null && filterStore.relevant(item, wallet);
-  }
-}
-
-/// Anonpay rows answer to the wallet and to the same date and direction filters
-/// as transactions, which is why the transaction filter store handles both.
-class AnonpayFilters extends HistoryFilters {
-  AnonpayFilters({required this.appStore, required this.filterStore});
-
-  final AppStore appStore;
-  final TransactionFilterStore filterStore;
-
-  @override
-  bool relevant(ActionListItem item) =>
-      item is AnonpayInvoiceInfo &&
-      item.walletId == appStore.wallet?.id &&
-      filterStore.relevant(item);
-}
-
-class PayjoinFilters extends HistoryFilters {
-  PayjoinFilters({required this.appStore});
+class PayjoinFilterStore extends HistoryFilters {
+  PayjoinFilterStore({required this.appStore});
 
   final AppStore appStore;
 
   @override
-  bool relevant(ActionListItem item) =>
+  bool relevant(HistoryListItem item) =>
       item is PayjoinTransactionListItem && item.session.walletId == appStore.wallet?.id;
 }

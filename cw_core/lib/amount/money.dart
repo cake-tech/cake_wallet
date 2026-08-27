@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:cw_core/amount/utils.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/format_fixed.dart";

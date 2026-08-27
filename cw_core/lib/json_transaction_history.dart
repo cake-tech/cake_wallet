@@ -43,7 +43,6 @@ abstract class JsonTransactionHistory<TransactionType extends JsonTransactionInf
     await save();
   }
 
-  @override
   Future<void> save() async {
     final write = _saveQueue.then((_) async {
         await _write();

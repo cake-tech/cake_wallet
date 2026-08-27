@@ -220,7 +220,7 @@ class HistorySection extends StatelessWidget {
                                     provider: item.provider,
                                     createdAt: _formatTransactionDate(
                                         item.createdAt, localeName),
-                                    amount: Money.tryParse(item.amountTo, CryptoCurrency.xmr) ?? Money.zero(CryptoCurrency.xmr),
+                                    amount: Money.tryParse(item.amountTo.toString(), CryptoCurrency.xmr) ?? Money.zero(CryptoCurrency.xmr),
                                     roundedTop: roundedTop,
                                     roundedBottom: roundedBottom,
                                     bottomSeparator: !roundedBottom));

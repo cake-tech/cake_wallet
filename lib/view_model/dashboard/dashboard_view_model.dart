@@ -455,13 +455,13 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
 
   @computed
-  List<ActionListItem> get items {
-    final _items = <ActionListItem>[];
+  List<HistoryListItem> get items {
+    final _items = <HistoryListItem>[];
 
     _items.addAll(
         transactionFilterStore.filtered(transactions: [ ...anonpayTransactions]));
-    _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
-    _items.addAll(orderFilterStore.filtered(orders: orders, wallet: wallet));
+    _items.addAll(tradeFilterStore.filtered(trades: trades));
+    _items.addAll(orderFilterStore.filtered(orders: orders));
 
     if (payjoinTransactions.isNotEmpty) {
       final _payjoinTransactions = payjoinTransactions;
@@ -482,7 +482,7 @@ abstract class DashboardViewModelBase with Store {
   static const shortHistoryLength = 3;
 
   @computed
-  List<ActionListItem> get itemsShort =>
+  List<HistoryListItem> get itemsShort =>
       items.where((item) => item is! DateSectionItem).take(shortHistoryLength).toList();
 
   @observable

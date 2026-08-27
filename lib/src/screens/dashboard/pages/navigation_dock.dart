@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';

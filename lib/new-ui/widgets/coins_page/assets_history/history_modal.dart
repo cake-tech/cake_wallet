@@ -84,8 +84,6 @@ class HistoryModal extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
                       onTap: () async {
-                        // Awaiting the route covers every way out of the page —
-                        // back button, swipe-back, or a programmatic pop.
                         await Navigator.of(context).push(CupertinoPageRoute(
                             builder: (context) =>
                                 HistoryFiltersPage(dashboardViewModel: dashboardViewModel)));

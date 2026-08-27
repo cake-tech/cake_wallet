@@ -2,12 +2,14 @@ import "dart:async";
 import "dart:collection";
 
 import "package:cw_core/history_change.dart";
+import "package:cw_core/history_source.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:meta/meta.dart";
 
 export "package:cw_core/history_change.dart";
 
-abstract class TransactionHistory<TransactionType extends TransactionInfo> {
+abstract class TransactionHistory<TransactionType extends TransactionInfo>
+    implements HistoryEmitter {
   TransactionHistory();
 
   final Map<String, TransactionType> _transactions = {};
@@ -78,6 +80,13 @@ abstract class TransactionHistory<TransactionType extends TransactionInfo> {
     }
   }
 
+  @override
+  HistoryListItem? byId(String id) => _transactions[id];
+
+  @override
+  Iterable<HistoryListItem> get items => _transactions.values;
+
+  @override
   Future<void> dispose() => _changes.close();
 }
 

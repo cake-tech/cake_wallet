@@ -1,3 +1,5 @@
+import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import "package:cake_wallet/exchange/trade.dart";
@@ -8,8 +10,8 @@ part 'trade_filter_store.g.dart';
 
 class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
 
-abstract class TradeFilterStoreBase with Store {
-  TradeFilterStoreBase()
+abstract class TradeFilterStoreBase with Store implements HistoryFilters {
+  TradeFilterStoreBase(this._appStore)
       : displayXMRTO = true,
         displayChangeNow = true,
         displaySideShift = true,
@@ -25,6 +27,8 @@ abstract class TradeFilterStoreBase with Store {
         displaySwapTrade = true,
         displaySwapXyz = true,
         displayNearIntents = true;
+
+  final AppStore _appStore;
 
   @observable
   bool displayXMRTO;
@@ -190,8 +194,11 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   /// Whether one trade passes the wallet, account and provider filters.
-  bool relevant(ActionListItem item, WalletBase wallet) {
-    if (item is! Trade) {
+  @override
+  bool relevant(HistoryListItem item) {
+    final wallet = _appStore.wallet;
+
+    if (item is! Trade || wallet == null) {
       return false;
     }
 
@@ -201,12 +208,9 @@ abstract class TradeFilterStoreBase with Store {
       return false;
     }
 
-    if (displayAllTrades) {
-      return true;
-    }
-
-    return _displaysProvider(item.provider);
+    return displayAllTrades || _displaysProvider(item.provider);
   }
+
 
   bool _displaysProvider(ExchangeProviderDescription provider) =>
       (displayXMRTO && provider == ExchangeProviderDescription.xmrto) ||
@@ -219,8 +223,7 @@ abstract class TradeFilterStoreBase with Store {
       (displayChainflip && provider == ExchangeProviderDescription.chainflip) ||
       (displayThorChain && provider == ExchangeProviderDescription.thorChain);
 
-  List<Trade> filtered({required List<Trade> trades, required WalletBase wallet}) =>
-      trades.where((trade) => relevant(trade, wallet)).toList();
+  List<Trade> filtered({required List<Trade> trades}) => trades.where(relevant).toList();
 
   bool isTradeInAccount(Trade item, WalletBase wallet) =>
       item.fromWalletAddress == null

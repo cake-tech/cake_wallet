@@ -1,3 +1,5 @@
+import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -9,8 +11,10 @@ part 'order_filter_store.g.dart';
 
 class OrderFilterStore = OrderFilterStoreBase with _$OrderFilterStore;
 
-abstract class OrderFilterStoreBase with Store {
-  OrderFilterStoreBase() : displayCakePay = true;
+abstract class OrderFilterStoreBase with Store implements HistoryFilters {
+  OrderFilterStoreBase(this._appStore) : displayCakePay = true;
+
+  final AppStore _appStore;
 
   @observable
   bool displayCakePay;
@@ -28,8 +32,9 @@ abstract class OrderFilterStoreBase with Store {
   }
 
   /// Whether one order passes the wallet and provider filters.
-  bool relevant(ActionListItem item, WalletBase wallet) {
-    if (item is! Order || item.walletId != wallet.id) {
+  @override
+  bool relevant(HistoryListItem item) {
+    if (item is! Order || item.walletId != _appStore.wallet?.id) {
       return false;
     }
 
@@ -39,9 +44,6 @@ abstract class OrderFilterStoreBase with Store {
     return displayCakePay && isOrderSource && isCakePay;
   }
 
-  List<Order> filtered({
-    required List<Order> orders,
-    required WalletBase wallet,
-  }) =>
-      orders.where((order) => relevant(order, wallet)).toList();
+
+  List<Order> filtered({required List<Order> orders}) => orders.where(relevant).toList();
 }

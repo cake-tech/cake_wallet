@@ -111,7 +111,8 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
       await subscription.cancel();
     }
     for (final source in sources) {
-      await source.emitter.dispose();
+      // Through the source, so an emitter it does not own is left alone.
+      await source.dispose();
     }
     return super.close();
   }

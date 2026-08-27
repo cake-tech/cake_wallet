@@ -1,7 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/action_list_item.dart';
 
-class DateSectionItem with ActionListItem {
+class DateSectionItem with HistoryListItem {
   DateSectionItem(this.date);
 
   @override

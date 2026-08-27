@@ -7,7 +7,7 @@ import 'package:hive/hive.dart';
 part 'anonpay_invoice_info.part.dart';
 
 // @HiveType(typeId: AnonpayInvoiceInfo.typeId)
-class AnonpayInvoiceInfo extends HiveObject with Keyable, ActionListItem implements AnonpayInfoBase {
+class AnonpayInvoiceInfo extends HiveObject with Keyable, HistoryListItem implements AnonpayInfoBase {
   // @HiveField(0)
   final String invoiceId;
   // @HiveField(1)

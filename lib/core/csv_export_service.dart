@@ -42,7 +42,7 @@ class CsvExportService {
 
   static const _utf8Bom = '﻿';
 
-  String buildCsvContent(List<ActionListItem> items) {
+  String buildCsvContent(List<HistoryListItem> items) {
     final buf = StringBuffer();
     buf.write(_utf8Bom);
     buf.writeln(_columns.join(','));
@@ -57,7 +57,7 @@ class CsvExportService {
     return buf.toString();
   }
 
-  String? _buildRow(ActionListItem item) {
+  String? _buildRow(HistoryListItem item) {
     if (item is TransactionInfo) return _transactionRow(item);
     if (item is Trade) return _tradeRow(item);
     if (item is Order) return _orderRow(item);
@@ -208,9 +208,9 @@ class CsvExportService {
 
   String _isoDate(DateTime dt) => dt.toUtc().toIso8601String();
 
-  Future<void> exportToCsv(List<ActionListItem> items, BuildContext context) async {
+  Future<void> exportToCsv(List<HistoryListItem> items, BuildContext context) async {
     final dataItems =
-        items.whereType<ActionListItem>().where((e) => e is! DateSectionItem).toList();
+        items.whereType<HistoryListItem>().where((e) => e is! DateSectionItem).toList();
 
     if (dataItems.isEmpty) {
       await showBar<void>(context, S.current.csv_nothing_to_export);

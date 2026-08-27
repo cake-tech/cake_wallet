@@ -1,7 +1,5 @@
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import "package:cake_wallet/exchange/trade.dart";
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'trades_store.g.dart';

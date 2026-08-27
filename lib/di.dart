@@ -220,9 +220,8 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
-import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart';
-import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/transaction_source.dart';
 import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/history_sources.dart';
 import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -397,8 +396,8 @@ Future<void> setup({
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
   getIt
       .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
-  getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
-  getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
+  getIt.registerSingleton<TradeFilterStore>(TradeFilterStore(getIt.get<AppStore>()));
+  getIt.registerSingleton<OrderFilterStore>(OrderFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(SendTemplateStore(templateSource: _templates));
@@ -589,45 +588,68 @@ Future<void> setup({
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
+  getIt.registerSingleton<PayjoinFilterStore>(
+    PayjoinFilterStore(appStore: getIt.get<AppStore>()),
+  );
+
+  // Factories, not singletons: each source owns live subscriptions that the
+  // bloc disposes when it closes, so a reset has to hand out fresh ones.
+  getIt.registerFactory<TransactionHistorySource>(
+    () => TransactionHistorySource(
+      emitter: getIt.get<AppStore>().wallet!.transactionHistory,
+      filters: getIt.get<TransactionFilterStore>(),
+      // The wallet owns its history and outlives any list showing it.
+      disposesEmitter: false,
+    ),
+  );
+
+  getIt.registerFactory<TradeHistorySource>(
+    () => TradeHistorySource(
+      emitter: TradeHistoryEmitter(),
+      filters: getIt.get<TradeFilterStore>(),
+    ),
+  );
+
+  getIt.registerFactory<OrderHistorySource>(
+    () => OrderHistorySource(
+      emitter: BoxHistoryEmitter<Order>(_ordersSource),
+      filters: getIt.get<OrderFilterStore>(),
+    ),
+  );
+
+  getIt.registerFactory<AnonpayHistorySource>(
+    () => AnonpayHistorySource(
+      emitter: BoxHistoryEmitter<AnonpayInvoiceInfo>(_anonpayInvoiceInfoSource),
+      filters: getIt.get<TransactionFilterStore>(),
+    ),
+  );
+
+  // Above the transaction source, so a payjoin row replaces the plain
+  // transaction row for the same txid.
+  getIt.registerFactory<PayjoinHistorySource>(
+    () => PayjoinHistorySource(
+      emitter: PayjoinHistoryEmitter(_payjoinSessionSource),
+      filters: getIt.get<PayjoinFilterStore>(),
+      precedence: 1,
+    ),
+  );
+
   // One per wallet: the sources bind to the current wallet's history and to
   // wallet-scoped filters, so a shared instance would follow the wrong wallet.
-  getIt.registerLazySingleton<TransactionHistoryBloc>(() {
-    final appStore = getIt.get<AppStore>();
-    final transactionFilterStore = getIt.get<TransactionFilterStore>();
-
-    return TransactionHistoryBloc(
-      appStore: appStore,
+  getIt.registerLazySingleton<TransactionHistoryBloc>(
+    () => TransactionHistoryBloc(
+      appStore: getIt.get<AppStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>(),
       sources: [
-        transactionHistorySource(appStore: appStore, filterStore: transactionFilterStore),
-        HistorySource(
-          emitter: TradeChangeEmitter(),
-          filters: TradeFilters(
-            appStore: appStore,
-            filterStore: getIt.get<TradeFilterStore>(),
-          ),
-        ),
-        HistorySource(
-          emitter: BoxChangeEmitter<Order>(_ordersSource),
-          filters: OrderFilters(
-            appStore: appStore,
-            filterStore: getIt.get<OrderFilterStore>(),
-          ),
-        ),
-        HistorySource(
-          emitter: BoxChangeEmitter<AnonpayInvoiceInfo>(_anonpayInvoiceInfoSource),
-          filters: AnonpayFilters(appStore: appStore, filterStore: transactionFilterStore),
-        ),
-        // Above the transaction source, so a payjoin row replaces the plain
-        // transaction row for the same txid.
-        HistorySource(
-          emitter: PayjoinChangeEmitter(_payjoinSessionSource),
-          filters: PayjoinFilters(appStore: appStore),
-          precedence: 1,
-        ),
+        getIt.get<TransactionHistorySource>(),
+        getIt.get<TradeHistorySource>(),
+        getIt.get<OrderHistorySource>(),
+        getIt.get<AnonpayHistorySource>(),
+        getIt.get<PayjoinHistorySource>(),
       ],
-    );
-  }, dispose: (bloc) => bloc.close());
+    ),
+    dispose: (bloc) => bloc.close(),
+  );
 
   getIt.registerFactoryParam<HistorySection, HistorySectionArguments, void>(
     (args, _) => HistorySection(
