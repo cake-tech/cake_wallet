@@ -237,7 +237,6 @@ class DexRouterDecoder {
     final tokenOut = path.last;
     final outDesc = await _formatAmount(tokenOut, amountOut, nativeSymbol, asNative: false);
 
-    // The max spend is the transaction value, the router refunds the surplus.
     final inDesc = "${tokenResolver.formatNativeAmount(valueWei)} $nativeSymbol";
 
     return WCDecodedRequest(
@@ -307,8 +306,6 @@ class DexRouterDecoder {
     );
   }
 
-  // Nothing here carries an amount, so say the amounts could not be read
-  // rather than describing absent numbers as estimates.
   WCDecodedRequest _decodeOpaqueSwap(String routerName, String? routerAddress) => WCDecodedRequest(
         actionTitle: S.current.wc_action_swap,
         actionSubtitle: S.current.wc_via(routerName),

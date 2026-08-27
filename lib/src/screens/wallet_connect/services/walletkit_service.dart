@@ -605,8 +605,6 @@ abstract class WalletKitServiceBase with Store {
         widget: BottomSheetMessageDisplayWidget(message: e.message),
       );
     } catch (e, s) {
-      // A truncated or malformed link surfaces as a raw parse error from the
-      // SDK, which means nothing to the user. Keep the detail in the log.
       printV('pairWithUri failed: $e\n$s');
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,

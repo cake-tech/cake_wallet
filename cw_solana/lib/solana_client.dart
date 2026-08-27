@@ -141,9 +141,6 @@ class SolanaWalletClient {
     }
   }
 
-  /// Raw account data for [addresses], in the order asked, with a null entry
-  /// for an account that does not exist. Used by WalletConnect request
-  /// decoding to resolve lookup tables and token-account mints.
   Future<List<List<int>?>?> getAccountsData(List<String> addresses) async {
     if (addresses.isEmpty) {
       return const [];
