@@ -25,6 +25,8 @@ import 'package:mobx/mobx.dart';
 
 part 'buy_sell_view_model.g.dart';
 
+enum BuySellPageMode { buy, sell }
+
 class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
@@ -89,8 +91,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     return mode == BuySellPageMode.buy
         ? formattedFiatAmount ?? 200.0
-        : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
+        : formattedCryptoAmount ?? (cryptoCurrency == CryptoCurrency.btc ? 0.01 : 1);
   }
+
+  // sets based on the absolute amout (from the fiat/charts api)
+  // works even if you have no rates
+  Future<void> setCryptoAmountFromFiat(String fiatAmount) async => changeCryptoAmount(
+        amount: (double.parse(fiatAmount) / (fiatConversionStore.prices[cryptoCurrency] ?? 0))
+            .toString(),
+      );
 
   final AppStore _appStore;
 
@@ -190,18 +199,22 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
   static final Map<FiatCurrency, List<String>> _defaultAmountsMap = {
     FiatCurrency.amd: ["20000", "40000", "200000", "400000", "1000000"],
+    FiatCurrency.ars: ["50000", "100000", "500000", "1000000", "2500000"],
     FiatCurrency.aud: ["100", "200", "1000", "2000", "5000"],
+    FiatCurrency.bdt: ["5000", "10000", "50000", "100000", "250000"],
     FiatCurrency.bgn: ["100", "200", "1000", "2000", "5000"],
     FiatCurrency.brl: ["250", "500", "2500", "5000", "12500"],
     FiatCurrency.cad: ["50", "100", "500", "1000", "2500"],
     FiatCurrency.chf: ["50", "100", "500", "1000", "2500"],
     FiatCurrency.clp: ["50000", "100000", "500000", "1000000", "2500000"],
+    FiatCurrency.cny: ["500", "1000", "5000", "10000", "25000"],
     FiatCurrency.cop: ["200000", "400000", "2000000", "4000000", "10000000"],
     FiatCurrency.czk: ["1000", "2000", "10000", "20000", "50000"],
     FiatCurrency.dkk: ["400", "800", "4000", "8000", "20000"],
     FiatCurrency.egp: ["2500", "5000", "25000", "50000", "125000"],
     FiatCurrency.eur: ["50", "100", "500", "1000", "2500"],
     FiatCurrency.gbp: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.ghs: ["500", "1000", "5000", "10000", "25000"],
     FiatCurrency.gtq: ["400", "800", "4000", "8000", "20000"],
     FiatCurrency.hkd: ["400", "800", "4000", "8000", "20000"],
     FiatCurrency.hrk: ["400", "800", "4000", "8000", "20000"],
@@ -209,8 +222,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     FiatCurrency.idr: ["800000", "1600000", "8000000", "16000000", "40000000"],
     FiatCurrency.ils: ["200", "400", "2000", "4000", "10000"],
     FiatCurrency.inr: ["5000", "10000", "50000", "100000", "250000"],
+    FiatCurrency.irr: ["2000000", "4000000", "20000000", "40000000", "100000000"],
     FiatCurrency.isk: ["7000", "14000", "70000", "140000", "350000"],
     FiatCurrency.jpy: ["10000", "20000", "100000", "200000", "500000"],
+    FiatCurrency.kes: ["5000", "10000", "50000", "100000", "250000"],
     FiatCurrency.krw: ["50000", "100000", "500000", "1000000", "2500000"],
     FiatCurrency.mad: ["500", "1000", "5000", "10000", "25000"],
     FiatCurrency.mxn: ["1000", "2000", "10000", "20000", "50000"],
@@ -222,16 +237,20 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     FiatCurrency.pkr: ["15000", "30000", "150000", "300000", "750000"],
     FiatCurrency.pln: ["200", "400", "2000", "4000", "10000"],
     FiatCurrency.ron: ["250", "500", "2500", "5000", "12500"],
+    FiatCurrency.rub: ["5000", "10000", "50000", "100000", "250000"],
+    FiatCurrency.sar: ["200", "400", "2000", "4000", "10000"],
     FiatCurrency.sek: ["500", "1000", "5000", "10000", "25000"],
     FiatCurrency.sgd: ["50", "100", "500", "1000", "2500"],
     FiatCurrency.thb: ["2000", "4000", "20000", "40000", "100000"],
     FiatCurrency.tur: ["1500", "3000", "15000", "30000", "75000"],
     FiatCurrency.twd: ["1500", "3000", "15000", "30000", "75000"],
+    FiatCurrency.uah: ["2000", "4000", "20000", "40000", "100000"],
     FiatCurrency.usd: ["50", "100", "500", "1000", "2500"],
+    FiatCurrency.vef: ["2000", "4000", "20000", "40000", "100000"],
     FiatCurrency.vnd: ["1000000", "2000000", "10000000", "20000000", "50000000"],
     FiatCurrency.zar: ["1000", "2000", "10000", "20000", "50000"],
-    FiatCurrency.kes: ["5000", "10000", "50000", "100000", "250000"],
   };
+
 
   // the fallback is just the usd values.
   // not great but this fallback shouldn't be triggered anyway
@@ -445,50 +464,45 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     await calculateBestRate();
   }
 
-  String _getInitialCryptoCurrencyAddress() {
-    if (cryptoCurrency == wallet.currency) {
-      if ([CryptoCurrency.zec, CryptoCurrency.btc].contains(cryptoCurrency)) {
-        return wallet.walletAddresses.addressForBuy;
-      }
-
-      return wallet.walletAddresses.address;
-    }
-    return '';
-  }
+  String _getInitialCryptoCurrencyAddress() => wallet.walletAddresses.addressForBuy;
 
   @action
   Future<void> _getAvailablePaymentTypes() async {
-    paymentMethodState = PaymentMethodLoading();
-    selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) => element
-        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, mode == BuySellPageMode.buy)
-        .timeout(
-          Duration(seconds: 10),
-          onTimeout: () => [],
-        )));
+    try{
+      paymentMethodState = PaymentMethodLoading();
+      selectedPaymentMethod = null;
+      final result = await Future.wait(providerList.map((element) => element
+          .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, mode == BuySellPageMode.buy)
+          .timeout(
+        Duration(seconds: 10),
+        onTimeout: () => [],
+      )));
 
-    final List<PaymentMethod> tempPaymentMethods = [];
+      final List<PaymentMethod> tempPaymentMethods = [];
 
-    for (var methods in result) {
-      for (var method in methods) {
-        final alreadyExists = tempPaymentMethods.any((m) {
-          return m.paymentMethodType == method.paymentMethodType;
-        });
+      for (var methods in result) {
+        for (var method in methods) {
+          final alreadyExists = tempPaymentMethods.any((m) {
+            return m.paymentMethodType == method.paymentMethodType;
+          });
 
-        if (!alreadyExists) {
-          tempPaymentMethods.add(method);
+          if (!alreadyExists) {
+            tempPaymentMethods.add(method);
+          }
         }
       }
-    }
 
-    paymentMethods = ObservableList<PaymentMethod>.of(tempPaymentMethods);
+      paymentMethods = ObservableList<PaymentMethod>.of(tempPaymentMethods);
 
-    if (paymentMethods.isNotEmpty) {
-      paymentMethods.insert(0, PaymentMethod.all());
-      selectedPaymentMethod = paymentMethods.first;
-      selectedPaymentMethod!.isSelected = true;
-      paymentMethodState = PaymentMethodLoaded();
-    } else {
+      if (paymentMethods.isNotEmpty) {
+        paymentMethods.insert(0, PaymentMethod.all());
+        selectedPaymentMethod = paymentMethods.first;
+        selectedPaymentMethod!.isSelected = true;
+        paymentMethodState = PaymentMethodLoaded();
+      } else {
+        paymentMethodState = PaymentMethodFailed();
+      }
+    } catch(e) {
       paymentMethodState = PaymentMethodFailed();
     }
   }
@@ -502,12 +516,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         return provider.supportedCryptoList.any((pair) =>
             pair.from.symbol == cryptoCurrency.symbol &&
             pair.from.tag == cryptoCurrency.tag &&
-            pair.to.symbol == fiatCurrency.symbol &&
-            pair.to.tag == fiatCurrency.tag);
+            pair.to.symbol == fiatCurrency.symbol);
       } else {
         return provider.supportedFiatList.any((pair) =>
             pair.from.symbol == fiatCurrency.symbol &&
-            pair.from.tag == fiatCurrency.tag &&
             pair.to.symbol == cryptoCurrency.symbol &&
             pair.to.tag == cryptoCurrency.tag);
       }
@@ -515,7 +527,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (validProviders.isEmpty) {
       buySellQuotState = BuySellQuotFailed(
-          errorMessage: "Couldn't find a provider that supports ${cryptoCurrency.fullName}.");
+          errorMessage: S.current.no_buy_providers(cryptoCurrency.fullName??cryptoCurrency.title));
       return;
     }
 
@@ -544,7 +556,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (validQuotes.isEmpty) {
       buySellQuotState = BuySellQuotFailed(
-          errorMessage: "No provider could create a quote for ${cryptoCurrency.fullName}");
+          errorMessage: S.current.no_buy_providers(cryptoCurrency.fullName??cryptoCurrency.title));
       return;
     }
 

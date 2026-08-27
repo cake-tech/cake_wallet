@@ -1,13 +1,13 @@
-import 'package:cake_wallet/buy/sell_buy_states.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/buy/sell_buy_states.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class BuySellRedirectingPage extends StatefulWidget {
-  const BuySellRedirectingPage({super.key, required this.buySellViewModel});
+  const BuySellRedirectingPage({required this.buySellViewModel, super.key});
 
   final BuySellViewModel buySellViewModel;
 
@@ -21,7 +21,7 @@ class _BuySellRedirectingPageState extends State<BuySellRedirectingPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2)).then((_) async {
+    Future.delayed(const Duration(seconds: 2)).then((_) {
       WidgetsBinding.instance
           .addPostFrameCallback((_) => widget.buySellViewModel.launchTrade(context));
       setState(() {
@@ -31,97 +31,99 @@ class _BuySellRedirectingPageState extends State<BuySellRedirectingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surfaceDim,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => PopScope(
+        canPop: false,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.surface,
+                Theme.of(context).colorScheme.surfaceDim,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: Observer(
-          builder: (_) {
-            final showExitButton =
-                _hasRedirected || widget.buySellViewModel.buySellQuotState is BuySellQuotFailed;
+          child: Observer(
+            builder: (_) {
+              final showExitButton =
+                  _hasRedirected || widget.buySellViewModel.buySellQuotState is BuySellQuotFailed;
 
-            return SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox.shrink(),
-                  Observer(
-                    builder: (_) {
-                      if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+              return SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox.shrink(),
+                    Observer(
+                      builder: (_) {
+                        if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: 24,
+                            children: [
+                              const Icon(Icons.warning_amber_outlined, size: 48),
+                              Column(
+                                spacing: 10,
+                                children: [
+                                  Text(
+                                    S.of(context).could_not_proceed_with_trade,
+                                    style:
+                                        const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    (widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
+                                            .errorMessage ??
+                                        S.of(context).please_try_again_later,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        }
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           spacing: 24,
                           children: [
-                            Icon(Icons.warning_amber_outlined, size: 48),
+                            CakeImageWidget(
+                              imageUrl: Theme.of(context).brightness == Brightness.light
+                                  ? widget.buySellViewModel.selectedQuote!.lightIconPath
+                                  : widget.buySellViewModel.selectedQuote!.darkIconPath,
+                              width: 64,
+                              height: 64,
+                            ),
                             Column(
                               spacing: 10,
                               children: [
                                 Text(
-                                  S.of(context).could_not_proceed_with_trade,
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                  "${S.of(context).connecting_you_to} ${widget.buySellViewModel.selectedQuote!.provider.title}...",
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
-                                Text((widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
-                                        .errorMessage ??
-                                    S.of(context).please_try_again_later)
+                                Text(
+                                  "${widget.buySellViewModel.fiatAmount} ${widget.buySellViewModel.fiatCurrency} → ${widget.buySellViewModel.amountForQuote(widget.buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         );
-                      }
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 24,
-                        children: [
-                          CakeImageWidget(
-                            imageUrl: Theme.of(context).brightness == Brightness.light
-                                ? widget.buySellViewModel.selectedQuote!.lightIconPath
-                                : widget.buySellViewModel.selectedQuote!.darkIconPath,
-                            width: 64,
-                            height: 64,
-                          ),
-                          Column(
-                            spacing: 10,
-                            children: [
-                              Text(
-                                "${S.of(context).connecting_you_to} ${widget.buySellViewModel.selectedQuote!.provider.title}...",
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                  "${widget.buySellViewModel.fiatAmount} ${widget.buySellViewModel.fiatCurrency} → ${widget.buySellViewModel.amountForQuote(widget.buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}")
-                            ],
+                      },
+                    ),
+                    showExitButton
+                        ? Padding(
+                            padding: const EdgeInsets.all(18),
+                            child: NewPrimaryButton(
+                              onPressed: Navigator.of(context).pop,
+                              text: S.of(context).close,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           )
-                        ],
-                      );
-                    },
-                  ),
-                  showExitButton
-                      ? Padding(
-                          padding: EdgeInsets.all(18),
-                          child: NewPrimaryButton(
-                            onPressed: Navigator.of(context).pop,
-                            text: S.of(context).close,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        )
-                      : SizedBox.shrink()
-                ],
-              ),
-            );
-          },
+                        : const SizedBox.shrink(),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
