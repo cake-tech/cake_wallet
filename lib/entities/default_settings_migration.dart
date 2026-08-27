@@ -95,8 +95,12 @@ Future<void> defaultSettingsMigration(
         case 1:
           await sharedPreferences.setString(
               PreferencesKey.currentFiatCurrencyKey, FiatCurrency.usd.toString());
-          await sharedPreferences.setInt(PreferencesKey.currentTransactionPriorityKeyLegacy,
-              monero!.getDefaultTransactionPriority().raw);
+
+          if (monero != null) {
+            await sharedPreferences.setInt(
+                PreferencesKey.currentTransactionPriorityKeyLegacy,
+                monero!.getDefaultTransactionPriority().raw);
+          }
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey, BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
@@ -791,6 +795,10 @@ Future<void> _backupWowneroSeeds(Box<HavenSeedStore> havenSeedStore) async {
 }
 
 Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
+  if (monero == null) {
+    return;
+  }
+
   final currentPriority =
       await sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) ??
           monero!.getDefaultTransactionPriority().serialize();
@@ -1071,11 +1079,15 @@ Future<void> generateBackupPassword(SecureStorage secureStorage) async {
 
 Future<void> changeTransactionPriorityAndFeeRateKeys(SharedPreferences sharedPreferences) async {
   final legacyTransactionPriority =
-      sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy)!;
-  await sharedPreferences.setInt(
-      PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
-  await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
-      bitcoin!.getMediumTransactionPriority().serialize());
+      sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy);
+  if (legacyTransactionPriority != null) {
+    await sharedPreferences.setInt(
+        PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
+  }
+  if (bitcoin != null) {
+    await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
+        bitcoin!.getMediumTransactionPriority().serialize());
+  }
 }
 
 Future<void> fixBtcDerivationPaths() async {

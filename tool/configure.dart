@@ -922,6 +922,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 """;
   const solanaCWHeaders = """
@@ -1258,12 +1259,12 @@ import 'package:cw_decred/mnemonic.dart';
 
 abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, String? password, String? passphrase, String? mnemonic, WalletInfo? walletInfo});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDecredTransactionPriorityMedium();
@@ -1776,7 +1777,7 @@ abstract class Zcash {
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
-  Future<bool> hasOrchardMigratableBalance(WalletBase wallet);
+  bool hasOrchardMigratableBalance(WalletBase wallet);
 }
   """;
 

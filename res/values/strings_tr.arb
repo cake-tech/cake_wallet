@@ -61,6 +61,7 @@
   "already_have_account": "Zaten bir hesabınız var mı?",
   "already_your_username": "Bu zaten kullanıcı adınız!",
   "always": "Her zaman",
+  "ambiguous_token_symbol_exception": "Bu cüzdanda birden fazla token ${symbol} sembolünü kullanıyor. Göndermeden önce doğru jetonun belirlenebilmesi için yinelenen jetonu devre dışı bırakın.",
   "amount": "Miktar: ",
   "amount_is_below_minimum_limit": "Ücretlerden sonra bakiyeniz, takas için gereken minimum miktardan daha az olur (${min})",
   "amount_is_estimate": "Alınacak tutar tahminidir",
@@ -1419,6 +1420,7 @@
   "wc_permission_sign_messages": "Mesajları ve yazılan verileri imzalayın",
   "wc_permission_switch_chains": "EVM zincirlerini değiştirin ve ekleyin",
   "wc_permission_view_balance": "Cüzdan bakiyenizi ve etkinliğinizi görüntüleyin",
+  "wc_request_for_different_wallet": "Bu istek farklı bir cüzdan için yapıldı. Bu uygulamaya bağlı cüzdanı açın ve tekrar deneyin.",
   "wc_scam_warning_message": "Bu isteğin bilinen bir dolandırıcılıktan geldiği anlaşılıyor. Lütfen dikkatli bir şekilde ilerleyin.",
   "wc_scam_warning_title": "UYARI!",
   "wc_scan_qr": "QR'yi tara",
@@ -1473,5 +1475,6 @@
   "zcash_card_enable_later": "Bu kartı daha sonra ayarlardan her zaman etkinleştirebilirsiniz",
   "zcash_card_missing_funds": "Bakiye eksik mi?",
   "zcash_card_scan": "Tara",
-  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir."
+  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir.",
+  "recipient_account_creation_fee": "Alıcının henüz bir token hesabı olmadığı için, alıcı için bir token hesabı oluşturmak için fazladan ${amount} gerekiyor."
 }
