@@ -251,8 +251,6 @@ class HistorySection extends StatelessWidget {
     }
   }
 
-  /// Was TransactionListItem.formattedTitle. The transaction names its title by
-  /// key; the widget is where translations live.
   String _formattedTitle(BuildContext context, TransactionInfo transaction) {
     final localizations = S.of(context);
     final title = localizations.getByKey(transaction.title);

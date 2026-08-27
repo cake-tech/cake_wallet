@@ -72,10 +72,6 @@ abstract class HistoryFilters {
   bool relevant(HistoryListItem item);
 }
 
-/// One source of history rows: where they come from, and which of them belong.
-///
-/// Generic in both halves so a source's concrete emitter and filters stay
-/// visible to whoever holds it — see the typedefs below for the ones in use.
 class HistorySource<EmitterType extends HistoryEmitter, FiltersType extends HistoryFilters> {
   const HistorySource({
     required this.emitter,
@@ -86,10 +82,6 @@ class HistorySource<EmitterType extends HistoryEmitter, FiltersType extends Hist
   final EmitterType emitter;
   final FiltersType filters;
 
-
-  /// Whether disposing this source should dispose its emitter. False where the
-  /// emitter is owned elsewhere: a wallet's own transaction history outlives
-  /// any list showing it.
   final bool disposesEmitter;
 
   Iterable<HistoryListItem> get relevantItems => emitter.items.where(filters.relevant);

@@ -13,12 +13,6 @@ import "package:rxdart/rxdart.dart";
 part "transaction_history_event.dart";
 part "transaction_history_state.dart";
 
-/// Merges every history source into one list the UI can render.
-///
-/// Sources announce item-level changes; this turns bursts of them into a list,
-/// applying them incrementally where that beats rebuilding. It holds no
-/// source-specific logic — what a row is, and whether it belongs, are both the
-/// source's business.
 class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHistoryState> {
   TransactionHistoryBloc({
     required this.sources,
@@ -35,9 +29,6 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     for (final source in sources) {
       final changes = source.emitter.changes;
 
-      // A source emits one event per mutation, so a full load arrives as
-      // thousands. Buffer until the burst settles — unlike a periodic window
-      // this arms a timer only when something changed, so idling costs nothing.
       _subscriptions.add(
         changes
             .buffer(changes.debounceTime(Duration.zero))
@@ -47,15 +38,9 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     }
   }
 
-  /// Above this many insertions a full rebuild is cheaper than applying them
-  /// one at a time: an id we have never seen cannot be located by binary
-  /// search, so each insertion costs a scan. The two are even around log2(n).
   static const _rebuildInsteadOfApplyingAbove = 16;
 
   final List<HistorySource> sources;
-
-  /// Exposed so a widget rendering the list needs only this bloc: rows read the
-  /// wallet, and fiat conversion, from here.
   final AppStore appStore;
   final FiatConversionStore fiatConversionStore;
 
@@ -74,8 +59,6 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
 
     for (final change in event.journal) {
       switch (change) {
-        // The source was emptied, or it just finished loading. Either way its
-        // own state is authoritative and enumerating deltas is wasted work.
         case HistoryReset():
           rebuild = true;
         case ItemAdded():
@@ -111,7 +94,6 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
       await subscription.cancel();
     }
     for (final source in sources) {
-      // Through the source, so an emitter it does not own is left alone.
       await source.dispose();
     }
     return super.close();
