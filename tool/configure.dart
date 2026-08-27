@@ -1777,7 +1777,7 @@ abstract class Zcash {
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
-  Future<bool> hasOrchardMigratableBalance(WalletBase wallet);
+  bool hasOrchardMigratableBalance(WalletBase wallet);
 }
   """;
 
