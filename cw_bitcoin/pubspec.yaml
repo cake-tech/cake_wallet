@@ -72,7 +72,7 @@ dependencies:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: v0.14.0
+      ref: v0.23.0
 
 dev_dependencies:
   flutter_test:
@@ -88,7 +88,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v11
+      ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
   pointycastle: 3.7.4
   ffi: 2.1.0
   intl: any

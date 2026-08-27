@@ -12,6 +12,10 @@ defaults:
 
 jobs:
   PR_test_build:
+    # Fork PRs don't have access to repository secrets, so the generated
+    # lib/.secrets.g.dart would be empty and the build fails to compile.
+    # Skip for forks, mirroring the Android workflow's internal-build guard.
+    if: github.event.pull_request.head.repo.fork == false
     runs-on: [Linux, amd64, forlinux]
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly

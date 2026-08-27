@@ -217,8 +217,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
-      resolved-ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
+      ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
+      resolved-ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -1871,8 +1871,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
-      resolved-ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+      ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
+      resolved-ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
       url: "https://github.com/cake-tech/ledger-usb-plus"
     source: git
     version: "1.0.8"
@@ -3161,8 +3161,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-      resolved-ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"

@@ -1,4 +1,4 @@
-enum SolanaChainId { mainnet, devnet, testnet }
+enum SolanaChainId { mainnet, mainnetLegacy, devnet, testnet }
 
 extension SolanaChainIdX on SolanaChainId {
   String chain() {
@@ -6,8 +6,10 @@ extension SolanaChainIdX on SolanaChainId {
 
     switch (this) {
       case SolanaChainId.mainnet:
+        name = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+        break;
+      case SolanaChainId.mainnetLegacy:
         name = '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ';
-        // '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
         break;
       case SolanaChainId.devnet:
         name = 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1';
