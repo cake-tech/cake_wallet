@@ -28,6 +28,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
+    bloc:bloc,
   builder: (context, state) => Observer(builder: (_) {
         final currency = bloc.appStore.wallet!.currency;
         final show = hasAdditionalBalance;
