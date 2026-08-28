@@ -10,12 +10,12 @@ import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichai
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
 import "package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/image_widgets/icon_claster_widget.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/src/widgets/image_widgets/icon_claster_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/wallet_types.g.dart";
@@ -187,15 +187,15 @@ class _WalletCreationTypeSelectionPageBodyState extends State<WalletCreationType
                     alignment: Alignment.topCenter,
                     child: _isCustomizing
                         ? Padding(
-                            padding: const EdgeInsets.only(top: 24),
-                            child: OmniChainNetworksList(
-                              types: widget.availableWalletTypes,
-                              isSelected: state.isSelected,
-                              onTypeToggled: _onTypeToggled,
-                              onSelectAll: _onSelectAll,
-                              onUnselectAll: _onUnselectAll,
-                            ),
-                          )
+                      padding: const EdgeInsets.only(top: 24),
+                      child: OmniChainNetworksList(
+                        types: widget.availableWalletTypes,
+                        isSelected: state.isSelected,
+                        onTypeToggled: _onTypeToggled,
+                        onSelectAll: _onSelectAll,
+                        onUnselectAll: _onUnselectAll,
+                      ),
+                    )
                         : const SizedBox(width: double.infinity),
                   ),
                 ],
@@ -361,12 +361,12 @@ class OmniChainNetworksList extends StatelessWidget {
           sections: {
             "": [
               ...types.map(
-                (type) => ListItemCheckbox(
+                    (type) => ListItemCheckbox(
                   keyValue: "new_wallet_${type.name}_button_key",
                   iconPath: getCryptoCurrencyIconForWalletListItem(type),
                   label: walletTypeToString(type),
                   subtitle:
-                      walletTypeToDescription(type).isEmpty ? null : walletTypeToDescription(type),
+                  walletTypeToDescription(type).isEmpty ? null : walletTypeToDescription(type),
                   value: isSelected(type),
                   onChanged: (value) => onTypeToggled(type, value),
                 ),
@@ -383,12 +383,12 @@ class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
   const OmniChainHowToChangeNetworksSheet({super.key});
 
   static Future<void> show(BuildContext context) => showCupertinoModalBottomSheet<void>(
-        context: context,
-        barrierColor: Colors.black.withAlpha(85),
-        builder: (_) => const Material(
-          child: OmniChainHowToChangeNetworksSheet(),
-        ),
-      );
+    context: context,
+    barrierColor: Colors.black.withAlpha(85),
+    builder: (_) => const Material(
+      child: OmniChainHowToChangeNetworksSheet(),
+    ),
+  );
 
   static const _paragraphs = [
     "You can find the Network Selector on the top left corner of your wallet's homescreen.",
@@ -418,7 +418,7 @@ class OmniChainHowToChangeNetworksSheet extends StatelessWidget {
               const FrameIconWidget(iconSize: 96),
               const SizedBox(height: 36),
               ..._paragraphs.map(
-                (paragraph) => Padding(
+                    (paragraph) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     paragraph,

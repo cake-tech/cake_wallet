@@ -6,6 +6,8 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cake_wallet/entities/wallet_manager.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -93,6 +95,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
       required this.sharedPreferences,
+      required this.walletManager,
       required this.keyService})
       : hasTradeAction = true,
         hasSwapAction = true,
@@ -122,6 +125,7 @@ abstract class DashboardViewModelBase with Store {
     unawaited(_loadConstraints());
     accountListViewModel = accountListViewModelFactory();
     final _wallet = wallet;
+    unawaited(walletManager.updateWalletGroups());
 
     loadFilterItems();
 
@@ -353,6 +357,11 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
+
+  WalletIcon? get walletIcon {
+    walletManager.groupsRevision.value;
+    return walletManager.getGroupIcon(wallet.walletInfo);
+  }
 
   @action
   void _reloadTransactions() {
@@ -1198,6 +1207,8 @@ abstract class DashboardViewModelBase with Store {
 
   List<FilterItem> exchangeFilterItems;
 
+  final WalletManager walletManager;
+
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
@@ -1315,6 +1326,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    unawaited(walletManager.updateWalletGroups());
 
     _onBitcoinAccountChangeReaction?.reaction.dispose();
     _onBitcoinAccountChangeReaction = null;

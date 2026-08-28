@@ -486,7 +486,7 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerFactory<WalletManager>(
+  getIt.registerLazySingleton<WalletManager>(
     () => WalletManager(
       getIt.get<SharedPreferences>(),
     ),
@@ -611,7 +611,9 @@ Future<void> setup({
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      keyService: getIt.get<KeyService>(),
+      walletManager: getIt.get<WalletManager>()
+  ));
 
   getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
       (lightningMode, displayMode) {

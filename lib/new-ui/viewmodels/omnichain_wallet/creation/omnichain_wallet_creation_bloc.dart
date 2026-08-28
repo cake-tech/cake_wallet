@@ -50,9 +50,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onWalletTypesDeselected(
-    OmniChainWalletTypesDeselected event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletTypesDeselected event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationChainSelection) {
       return;
@@ -70,9 +70,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onChainSelectionConfirmed(
-    OmniChainWalletChainSelectionConfirmed event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletChainSelectionConfirmed event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationChainSelection || !current.hasAnySelected) return;
 
@@ -84,9 +84,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   /// Restores the chain-selection step (e.g. when the user navigates back
   /// events are only handled while the bloc is in [WalletCreationChainSelection].
   void _onChainSelectionReopened(
-    OmniChainWalletChainSelectionReopened event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletChainSelectionReopened event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
 
     final Set<WalletType> selectedTypes;
@@ -114,9 +114,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   // ---- Step 2: customization ----
 
   void _onGroupNameChanged(
-    OmniChainWalletGroupNameChanged event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletGroupNameChanged event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
@@ -129,9 +129,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   Future<void> _onGroupNameGenerated(
-    OmniChainWalletGroupNameGenerated event,
-    Emitter<WalletCreationState> emit,
-  ) async {
+      OmniChainWalletGroupNameGenerated event,
+      Emitter<WalletCreationState> emit,
+      ) async {
     if (state is! WalletCreationCustomization) return;
 
     final groupName = await generateName();
@@ -146,15 +146,16 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onCredentialsSubmitted(
-    OmniChainWalletCredentialsSubmitted event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletCredentialsSubmitted event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationCustomization || !current.canContinue) return;
 
     emit(WalletCreationSummary(
       selectedTypes: current.selectedTypes,
       groupName: current.groupName.trim(),
+      walletIcon: current.walletIcon,
       providedPassphrase: current.providedPassphrase,
       useTestnet: current.useTestnet,
       zcashNetwork: current.zcashNetwork,
@@ -162,9 +163,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onTestnetToggled(
-    OmniChainWalletTestnetToggled event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletTestnetToggled event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
@@ -172,9 +173,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onZcashNetworkChanged(
-    OmniChainWalletZcashNetworkChanged event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletZcashNetworkChanged event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
@@ -182,9 +183,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   void _onPassphraseChanged(
-    OmniChainWalletPassphraseChanged event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletPassphraseChanged event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
@@ -194,9 +195,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   // ---- Step 3: summary ----
 
   void _onSummaryConfirmed(
-    OmniChainWalletSummaryConfirmed event,
-    Emitter<WalletCreationState> emit,
-  ) {
+      OmniChainWalletSummaryConfirmed event,
+      Emitter<WalletCreationState> emit,
+      ) {
     final current = state;
     if (current is! WalletCreationSummary) return;
 
@@ -205,6 +206,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     emit(WalletCreationOpeningNetwork(
       selectedTypes: current.selectedTypes,
       groupName: current.groupName,
+      walletIcon: current.walletIcon,
       primaryType: singleType,
       providedPassphrase: current.providedPassphrase,
       useTestnet: current.useTestnet,
@@ -228,9 +230,9 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   }
 
   Future<void> _onGroupCreateRequested(
-    OmniChainWalletGroupCreateRequested event,
-    Emitter<WalletCreationState> emit,
-  ) async {
+      OmniChainWalletGroupCreateRequested event,
+      Emitter<WalletCreationState> emit,
+      ) async {
     final current = state;
     if (current is! WalletCreationOpeningNetwork || !current.canCreate) return;
 
@@ -243,6 +245,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
           primaryType: current.primaryType!,
           groupName: current.groupName,
           passphrase: current.providedPassphrase,
+          walletIcon: current.walletIcon,
           useTestnet: current.useTestnet,
           zcashNetwork: current.zcashNetwork,
         ),
@@ -252,6 +255,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
         groupName: current.groupName,
         selectedTypes: current.selectedTypes,
         primaryType: current.primaryType!,
+        walletIcon: current.walletIcon,
       ));
     } catch (e) {
       emit(current.copyWith(creationError: e.toString()));
@@ -261,10 +265,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
   void _onIconChanged(OmniChainWalletIconChanged event, Emitter<WalletCreationState> emit) {
     final current = state;
     if (current is! WalletCreationCustomization) return;
-    emit(current.copyWith(
-      walletIcon: event.emoji,
-      walletIconColorIndex: event.colorIndex,
-    ));
+    emit(current.copyWith(walletIcon: event.icon));
   }
 
   // ---- Helpers ----

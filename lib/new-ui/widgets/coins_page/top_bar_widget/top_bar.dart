@@ -112,6 +112,7 @@ class _TopBarState extends State<TopBar> {
 
         final walletInfoBar = WalletInfoBar(
           hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
+          walletIcon: dashboardViewModel.walletIcon,
           name: walletNameToDisplay(dashboardViewModel.wallet.name),
         );
 

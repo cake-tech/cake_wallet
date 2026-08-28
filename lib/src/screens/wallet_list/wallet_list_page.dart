@@ -141,8 +141,7 @@ class WalletListBodyState extends State<WalletListBody> {
   bool _loadingWallet = false;
 
   @override
-  Widget build(BuildContext context) {
-    return GradientBackground(
+  Widget build(BuildContext context) => GradientBackground(
       scaffold: Container(
         height: double.infinity,
         padding: EdgeInsets.only(top: 16),
@@ -200,6 +199,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   width: 28,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
+                                walletIcon: group.icon,
                                 trailingWidget: EditWalletButtonWidget(
                                   width: 88,
                                   isGroup: true,
@@ -462,7 +462,6 @@ class WalletListBodyState extends State<WalletListBody> {
         ),
       ),
     );
-  }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
     if (_loadingWallet) {

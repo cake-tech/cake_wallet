@@ -122,6 +122,10 @@ class OmniChainWalletCreationService {
 
       await walletManager.updateWalletGroups();
       walletManager.setGroupName(groupKey, groupName);
+      final selectedIcon = request.walletIcon;
+      if (selectedIcon != null) {
+        walletManager.setGroupIcon(groupKey, selectedIcon);
+      }
       await walletManager.updateWalletGroups();
     } catch (e) {
       throw Exception('Failed to create wallet group: ${e.toString()}');

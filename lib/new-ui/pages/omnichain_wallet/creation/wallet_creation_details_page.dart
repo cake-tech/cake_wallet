@@ -1,10 +1,11 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_advanced_settings_sheet.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_select_icon_sheet.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -40,8 +41,8 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
 
     _walletNameController.addListener(() {
       context.read<OmniChainWalletBloc>().add(
-            OmniChainWalletGroupNameChanged(_walletNameController.text),
-          );
+        OmniChainWalletGroupNameChanged(_walletNameController.text),
+      );
     });
   }
 
@@ -84,77 +85,60 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
               Center(
                 child: state.selectedTypes.length == 1
                     ? Center(
-                        child: CakeImageWidget(
-                          imageUrl:
-                              getCryptoCurrencyIconForWalletListItem(state.selectedTypes.first),
-                          width: 100,
-                          height: 100,
-                        ),
-                      )
+                  child: CakeImageWidget(
+                    imageUrl:
+                    getCryptoCurrencyIconForWalletListItem(state.selectedTypes.first),
+                    width: 100,
+                    height: 100,
+                  ),
+                )
                     : Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: OmniChainWalletEmojiPickerSheet.backgroundColors(
-                                  context)[state.walletIconColorIndex],
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              state.walletIcon ?? "",
-                              style: const TextStyle(fontSize: 48),
+                  clipBehavior: Clip.none,
+                  children: [
+                    WalletIconAvatar(icon: state.walletIcon),
+                    Positioned(
+                      right: -2,
+                      bottom: 4,
+                      child: Material(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+
+                          onTap: () async {
+                            final WalletIcon? selection = await OmniChainWalletIconPickerSheet.show(
+                              context,
+                              initial: state.walletIcon, cryptoTypes: [],
+                            );
+
+                            if (selection != null && context.mounted) {
+                              context.read<OmniChainWalletBloc>().add(
+                                OmniChainWalletIconChanged(selection),
+                              );
+                            }
+                          },
+                          child: SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Icon(
+                              Icons.add,
+                              size: 22,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
-                          Positioned(
-                            right: -2,
-                            bottom: 4,
-                            child: Material(
-                              color: Theme.of(context).colorScheme.surfaceContainer,
-                              shape: const CircleBorder(),
-                              child: InkWell(
-                                customBorder: const CircleBorder(),
-
-                                onTap: () async {
-                                  final OmniChainEmojiPicker? selection = await OmniChainWalletIconPickerSheet.show(
-                                    context,
-                                    initialEmoji: state.walletIcon,
-                                    initialColorIndex: state.walletIconColorIndex,
-                                  );
-
-                                  if (selection != null && context.mounted) {
-                                    context.read<OmniChainWalletBloc>().add(
-                                      OmniChainWalletIconChanged(
-                                        selection.emoji,
-                                        selection.colorIndex,
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: SizedBox(
-                                  width: 36,
-                                  height: 36,
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 22,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 28),
               Text(
                 "Choose the name and icon for your wallet",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 32),
               ListItemTextFieldWidget(
@@ -179,8 +163,8 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       context.read<OmniChainWalletBloc>().add(
-                            OmniChainWalletGroupNameGenerated(),
-                          );
+                        OmniChainWalletGroupNameGenerated(),
+                      );
                     },
                     child: const SizedBox(
                       width: 36,
@@ -203,8 +187,8 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                   child: Text(
                     state.groupNameError!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
               ],
@@ -237,8 +221,8 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                       child: Text(
                         S.of(context).advanced_settings,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
                   ),

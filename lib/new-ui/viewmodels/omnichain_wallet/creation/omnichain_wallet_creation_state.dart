@@ -1,5 +1,6 @@
-import 'package:cake_wallet/zcash/zcash_network_type.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/zcash/zcash_network_type.dart";
+import "package:cw_core/wallet_type.dart";
 
 const Object _noChange = Object();
 
@@ -39,7 +40,6 @@ class WalletCreationCustomization extends WalletCreationState {
     required this.selectedTypes,
     this.groupName = "",
     this.walletIcon,
-    this.walletIconColorIndex = 0,
     this.groupNameError,
     this.providedPassphrase,
     this.useTestnet = false,
@@ -48,8 +48,7 @@ class WalletCreationCustomization extends WalletCreationState {
 
   final Set<WalletType> selectedTypes;
   final String groupName;
-  final String? walletIcon;
-  final int walletIconColorIndex;
+  final WalletIcon? walletIcon;
   final String? groupNameError;
   final String? providedPassphrase;
   final bool useTestnet;
@@ -60,7 +59,6 @@ class WalletCreationCustomization extends WalletCreationState {
   WalletCreationCustomization copyWith({
     String? groupName,
     Object? walletIcon = _noChange,
-    int? walletIconColorIndex,
     Object? groupNameError = _noChange,
     Object? providedPassphrase = _noChange,
     bool? useTestnet,
@@ -68,8 +66,7 @@ class WalletCreationCustomization extends WalletCreationState {
   }) => WalletCreationCustomization(
     selectedTypes: selectedTypes,
     groupName: groupName ?? this.groupName,
-    walletIcon: walletIcon == _noChange ? this.walletIcon : walletIcon as String?,
-    walletIconColorIndex: walletIconColorIndex ?? this.walletIconColorIndex,
+    walletIcon: walletIcon == _noChange ? this.walletIcon : walletIcon as WalletIcon?,
     groupNameError:
     groupNameError == _noChange ? this.groupNameError : groupNameError as String?,
     providedPassphrase:
@@ -84,6 +81,7 @@ class WalletCreationSummary extends WalletCreationState {
   const WalletCreationSummary({
     required this.selectedTypes,
     required this.groupName,
+    this.walletIcon,
     this.providedPassphrase,
     this.useTestnet = false,
     this.zcashNetwork = ZcashNetworkType.mainnet,
@@ -91,6 +89,7 @@ class WalletCreationSummary extends WalletCreationState {
 
   final Set<WalletType> selectedTypes;
   final String groupName;
+  final WalletIcon? walletIcon;
   final String? providedPassphrase;
   final bool useTestnet;
   final int zcashNetwork;
@@ -101,6 +100,7 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
   const WalletCreationOpeningNetwork({
     required this.selectedTypes,
     required this.groupName,
+    this.walletIcon,
     this.primaryType,
     this.creationError,
     this.providedPassphrase,
@@ -110,6 +110,7 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
 
   final Set<WalletType> selectedTypes;
   final String groupName;
+  final WalletIcon? walletIcon;
   final WalletType? primaryType;
   final String? creationError;
   final String? providedPassphrase;
@@ -122,14 +123,15 @@ class WalletCreationOpeningNetwork extends WalletCreationState {
     Object? primaryType = _noChange,
     Object? creationError = _noChange,
   }) => WalletCreationOpeningNetwork(
-      selectedTypes: selectedTypes,
-      groupName: groupName,
-      primaryType: primaryType == _noChange ? this.primaryType : primaryType as WalletType?,
-      creationError: creationError == _noChange ? this.creationError : creationError as String?,
-      providedPassphrase: providedPassphrase,
-      useTestnet: useTestnet,
-      zcashNetwork: zcashNetwork,
-    );
+    selectedTypes: selectedTypes,
+    groupName: groupName,
+    walletIcon: walletIcon,
+    primaryType: primaryType == _noChange ? this.primaryType : primaryType as WalletType?,
+    creationError: creationError == _noChange ? this.creationError : creationError as String?,
+    providedPassphrase: providedPassphrase,
+    useTestnet: useTestnet,
+    zcashNetwork: zcashNetwork,
+  );
 }
 
 /// Step 5 — the group is being created; the UI shows a loading indicator.
@@ -147,11 +149,13 @@ class WalletCreationSeedBackup extends WalletCreationState {
     required this.groupName,
     required this.selectedTypes,
     required this.primaryType,
+    this.walletIcon,
   });
 
   final String groupName;
   final Set<WalletType> selectedTypes;
   final WalletType primaryType;
+  final WalletIcon? walletIcon;
 }
 
 /// Terminal step — the group exists; the app navigates to the dashboard.

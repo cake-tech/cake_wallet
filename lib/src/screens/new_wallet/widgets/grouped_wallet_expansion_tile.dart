@@ -1,4 +1,6 @@
 import "package:cake_wallet/core/wallet_name_validator.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     this.onChildItemTapped = _defaultVoidCallback,
     this.onExpansionChanged,
     this.leadingWidget,
+    this.walletIcon,
     this.trailingWidget,
     this.childTrailingWidget,
     this.decoration,
@@ -37,6 +40,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
 
   final String title;
   final Widget? leadingWidget;
+  final WalletIcon? walletIcon;
+
   final Widget? trailingWidget;
   final Widget Function(WalletListItem)? childTrailingWidget;
 
@@ -66,6 +71,10 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
             : Theme.of(context).colorScheme.onSurfaceVariant);
+
+    final effectiveLeadingWidget =
+        walletIcon != null ? WalletIconAvatar(icon: walletIcon, size: 28, contentSize: 28) : leadingWidget;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
@@ -82,13 +91,13 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
         iconColor: effectiveArrowColor,
         collapsedIconColor: effectiveArrowColor,
-        leading: (childWallets.isEmpty && onTitleTapped != null && leadingWidget != null)
+        leading: (childWallets.isEmpty && onTitleTapped != null && effectiveLeadingWidget != null)
             ? GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onTitleTapped,
-                child: leadingWidget,
+                child: effectiveLeadingWidget,
               )
-            : leadingWidget,
+            : effectiveLeadingWidget,
         trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
         title: GestureDetector(
           onTap: onTitleTapped,
@@ -102,15 +111,17 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             textAlign: TextAlign.left,
           ),
         ),
-        children: childWallets.map(
-          (item) {
+        children: childWallets.asMap().entries.map(
+          (entry) {
+            final index = entry.key;
+            final item = entry.value;
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
 
             return ListTile(
               contentPadding: EdgeInsets.zero,
-              key: ValueKey(item.name),
+              key: ValueKey('${index}_${item.name}'),
               trailing: childTrailingWidget?.call(item),
               onTap: () => onChildItemTapped(item),
               leading: SizedBox(

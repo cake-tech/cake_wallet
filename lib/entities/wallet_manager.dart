@@ -1,10 +1,13 @@
-import 'dart:math';
+import "dart:async";
+import "dart:math";
 
-import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
-import 'package:cake_wallet/entities/wallet_group.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cake_wallet/entities/hash_wallet_identifier.dart";
+import "package:cake_wallet/entities/wallet_group.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:mobx/mobx.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class WalletManager {
   WalletManager(this._sharedPreferences);
@@ -12,18 +15,51 @@ class WalletManager {
   final SharedPreferences _sharedPreferences;
 
   final List<WalletGroup> walletGroups = [];
+  final Observable<int> groupsRevision = Observable(0);
+
+  void _markGroupsChanged() => runInAction(() => groupsRevision.value++);
+
+  /// This is used to ensure that concurrent calls to `updateWalletGroups` do not
+  Future<void> _lastUpdate = Future.value();
 
   Future<void> updateWalletGroups() async {
-    walletGroups.clear();
+    final waitFor = _lastUpdate;
+    final done = Completer<void>();
+    _lastUpdate = done.future;
 
-    for (final walletInfo in await WalletInfo.getAll()) {
-      final groupKey = resolveGroupKey(walletInfo);
-      final group = _getOrCreateGroup(groupKey);
-      group.wallets.add(walletInfo);
+    await waitFor;
+
+    try {
+      // Rebuild the wallet groups from scratch to ensure consistency
+      final rebuiltGroups = <WalletGroup>[];
+
+      WalletGroup getOrCreate(String groupKey) => rebuiltGroups.firstWhere(
+            (g) => g.groupKey == groupKey,
+            orElse: () {
+              final newGroup = WalletGroup(groupKey);
+              rebuiltGroups.add(newGroup);
+              return newGroup;
+            },
+          );
+
+      for (final walletInfo in await WalletInfo.getAll()) {
+        final groupKey = resolveGroupKey(walletInfo);
+        final group = getOrCreate(groupKey);
+        group.wallets.add(walletInfo);
+      }
+
+      rebuiltGroups.removeWhere((g) => g.wallets.isEmpty);
+
+      walletGroups
+        ..clear()
+        ..addAll(rebuiltGroups);
+
+      _loadCustomGroupNames();
+      _loadCustomGroupIcons();
+      _markGroupsChanged();
+    } finally {
+      done.complete();
     }
-
-    walletGroups.removeWhere((g) => g.wallets.isEmpty);
-    _loadCustomGroupNames();
   }
 
   String resolveGroupKey(WalletInfo walletInfo) {
@@ -40,8 +76,7 @@ class WalletManager {
     return address;
   }
 
-  WalletGroup _getOrCreateGroup(String groupKey) {
-    return walletGroups.firstWhere(
+  WalletGroup _getOrCreateGroup(String groupKey) => walletGroups.firstWhere(
       (g) => g.groupKey == groupKey,
       orElse: () {
         final newGroup = WalletGroup(groupKey);
@@ -49,12 +84,12 @@ class WalletManager {
         return newGroup;
       },
     );
-  }
 
   void addWallet(WalletInfo walletInfo) {
     final groupKey = resolveGroupKey(walletInfo);
     final group = _getOrCreateGroup(groupKey);
     group.wallets.add(walletInfo);
+    _markGroupsChanged();
   }
 
   void removeWallet(WalletInfo walletInfo) {
@@ -65,20 +100,20 @@ class WalletManager {
     if (group.wallets.isEmpty) {
       walletGroups.remove(group);
     }
+
+    _markGroupsChanged();
   }
 
-  List<WalletInfo> getWalletsInGroup(String groupKey) {
-    return walletGroups
+  List<WalletInfo> getWalletsInGroup(String groupKey) => walletGroups
         .firstWhere(
           (g) => g.groupKey == groupKey,
           orElse: () => WalletGroup(groupKey),
         )
         .wallets;
-  }
 
   void _loadCustomGroupNames() {
     for (var group in walletGroups) {
-      final key = 'wallet_group_name_${group.groupKey}';
+      final key = "wallet_group_name_${group.groupKey}";
       final groupName = _sharedPreferences.getString(key);
       if (groupName != null && group.wallets.length > 1) {
         group.groupName = groupName;
@@ -87,15 +122,64 @@ class WalletManager {
   }
 
   void _saveCustomGroupName(String groupKey, String name) {
-    _sharedPreferences.setString('wallet_group_name_$groupKey', name);
+    _sharedPreferences.setString("wallet_group_name_$groupKey", name);
   }
 
   void setGroupName(String groupKey, String name) {
     if (groupKey.isEmpty || name.isEmpty) return;
 
-    final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-    group.setCustomName(name);
+    for (final group in walletGroups.where((g) => g.groupKey == groupKey)) {
+      group.setCustomName(name);
+    }
     _saveCustomGroupName(groupKey, name);
+    _markGroupsChanged();
+  }
+
+  void _loadCustomGroupIcons() {
+    for (var group in walletGroups) {
+      if (group.wallets.length <= 1) continue;
+
+      final typeName = _sharedPreferences.getString('wallet_group_icon_type_${group.groupKey}');
+      final value = _sharedPreferences.getString('wallet_group_icon_value_${group.groupKey}');
+      if (typeName == null || value == null) continue;
+
+      final type = WalletIconType.values.asNameMap()[typeName];
+      if (type == null) continue; // unknown/future type this build doesn't know about
+
+      final colorIndex =
+          _sharedPreferences.getInt('wallet_group_icon_color_${group.groupKey}') ?? 0;
+      final backgroundEnabled =
+          _sharedPreferences.getBool('wallet_group_icon_bg_enabled_${group.groupKey}') ?? true;
+
+      group.icon = WalletIcon(
+        type: type,
+        value: value,
+        colorIndex: colorIndex,
+        backgroundEnabled: backgroundEnabled,
+      );
+    }
+  }
+
+  void _saveCustomGroupIcon(String groupKey, WalletIcon icon) {
+    _sharedPreferences.setString('wallet_group_icon_type_$groupKey', icon.type.name);
+    _sharedPreferences.setString('wallet_group_icon_value_$groupKey', icon.value);
+    _sharedPreferences.setInt('wallet_group_icon_color_$groupKey', icon.colorIndex);
+    _sharedPreferences.setBool('wallet_group_icon_bg_enabled_$groupKey', icon.backgroundEnabled);
+  }
+
+  void setGroupIcon(String groupKey, WalletIcon icon) {
+    if (groupKey.isEmpty || icon.value.isEmpty) return;
+
+    for (final group in walletGroups.where((g) => g.groupKey == groupKey)) {
+      group.setCustomIcon(icon);
+    }
+    _saveCustomGroupIcon(groupKey, icon);
+    _markGroupsChanged();
+  }
+
+  void setGroupIconForWallet(WalletInfo walletInfo, WalletIcon icon) {
+    final groupKey = resolveGroupKey(walletInfo);
+    setGroupIcon(groupKey, icon);
   }
 
   // ---------------------------------------------------------------------------
@@ -163,6 +247,7 @@ class WalletManager {
     }
   }
 
+
   String? getGroupName(WalletInfo walletInfo) {
     try {
       final groupKey = resolveGroupKey(walletInfo);
@@ -170,6 +255,38 @@ class WalletManager {
       return group.groupName;
     } catch (_) {
       return null;
+    }
+  }
+
+
+  WalletIcon? _readCustomIconByGroupKey(String groupKey) {
+    final typeName = _sharedPreferences.getString('wallet_group_icon_type_$groupKey');
+    final value = _sharedPreferences.getString('wallet_group_icon_value_$groupKey');
+    if (typeName == null || value == null) return null;
+
+    final type = WalletIconType.values.asNameMap()[typeName];
+    if (type == null) return null;
+
+    final colorIndex = _sharedPreferences.getInt('wallet_group_icon_color_$groupKey') ?? 0;
+    final backgroundEnabled = _sharedPreferences.getBool('wallet_group_icon_bg_enabled_$groupKey') ?? true;
+
+    return WalletIcon(
+      type: type,
+      value: value,
+      colorIndex: colorIndex,
+      backgroundEnabled: backgroundEnabled,
+    );
+  }
+
+
+  WalletIcon? getGroupIcon(WalletInfo walletInfo) {
+    try {
+      final groupKey = resolveGroupKey(walletInfo);
+      final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
+      return group.icon ?? _readCustomIconByGroupKey(groupKey);
+    } catch (_) {
+      final groupKey = resolveGroupKey(walletInfo);
+      return _readCustomIconByGroupKey(groupKey);
     }
   }
 }

@@ -1,87 +1,75 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/select_background_color_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/select_background_color_widget.dart";
+import "package:cw_core/card_design.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
   const OmniChainWalletEmojiPickerSheet({
     super.key,
-    this.initialEmoji,
-    this.initialColorIndex = 0,
+    this.initial,
   });
 
-  final String? initialEmoji;
-  final int initialColorIndex;
+  final WalletIcon? initial;
 
   static List<Gradient> backgroundColors(BuildContext context) {
     final surface = Theme.of(context).colorScheme.surfaceContainerLowest;
     return [
-      LinearGradient(colors: [surface, surface]),                            // default (theme)
-      const LinearGradient(colors: [Color(0xFFFF7A00), Color(0xFFFF7A00)]),  // orange
-      const LinearGradient(colors: [Color(0xFFFFC400), Color(0xFFFFC400)]),  // yellow
-      const LinearGradient(colors: [Color(0xFF34C759), Color(0xFF34C759)]),  // green
-      const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF3B82F6)]),  // blue
-      const LinearGradient(colors: [Color(0xFF9B5CF6), Color(0xFF9B5CF6)]),  // purple
-      const LinearGradient(colors: [Color(0xFFFF3E9D), Color(0xFFFF3E9D)]),  // pink
-      const LinearGradient(colors: [Color(0xFFFF3B30), Color(0xFFFF3B30)]),  // red
-      const LinearGradient(colors: [Color(0xFFC7A008), Color(0xFFC7A008)]),  // gold
+      LinearGradient(colors: [surface, surface]), // default (theme)
+      ...CardDesign.allGradients,
     ];
   }
 
-  static Future<OmniChainWalletEmojiPickerSheet?> show(
-      BuildContext context, {
-        String? initialEmoji,
-        int initialColorIndex = 0,
-      }) =>
-      showCupertinoModalBottomSheet<OmniChainWalletEmojiPickerSheet>(
+  static Future<WalletIcon?> show(
+    BuildContext context, {
+    WalletIcon? initial,
+  }) =>
+      showCupertinoModalBottomSheet<WalletIcon>(
         context: context,
         barrierColor: Colors.black.withAlpha(85),
         builder: (_) => Material(
-          child: OmniChainWalletEmojiPickerSheet(
-            initialEmoji: initialEmoji,
-            initialColorIndex: initialColorIndex,
-          ),
+          child: OmniChainWalletEmojiPickerSheet(initial: initial),
         ),
       );
 
   @override
-  State<OmniChainWalletEmojiPickerSheet> createState() =>
-      _OmniChainWalletEmojiPickerSheetState();
+  State<OmniChainWalletEmojiPickerSheet> createState() => _OmniChainWalletEmojiPickerSheetState();
 }
 
-class _OmniChainWalletEmojiPickerSheetState
-    extends State<OmniChainWalletEmojiPickerSheet> {
-  static const _icons = <String>[
-    "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣",
-    "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰",
-    "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜",
-    "🤪", "🤨", "🧐", "🤓", "😎", "🥸", "🤩", "🥳",
-    "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️",
-    "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤",
-    "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱",
-    "🤗", "🤔", "🫣", "🤭", "🤫", "🤥", "😶", "😐",
-    "😴", "🤤", "😪", "😵", "🤐", "🥴", "🤢", "🤮",
-    "🤠", "😈", "👿", "👻", "💀", "👽", "🤖", "🎃",
-    "🐶", "🐱", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁",
-    "🐸", "🐙", "🦄", "🐝", "🦋", "🌈", "⭐", "🌙",
-    "🔥", "💎", "🚀", "🎯", "🎮", "🎲", "💰", "🪙",
-  ];
+class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPickerSheet> {
+  static const _defaultIcon = "😀";
 
   late String _selectedIcon;
   late int _selectedColorIndex;
+  late bool _isBackgroundEnabled;
+  late final TextEditingController _emojiController;
+  final FocusNode _emojiFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    _selectedIcon =
-    widget.initialEmoji != null && _icons.contains(widget.initialEmoji)
-        ? widget.initialEmoji!
-        : _icons.first;
+    final initial = widget.initial;
+    _selectedIcon = (initial?.type == WalletIconType.emoji ? initial?.value : null) ?? _defaultIcon;
+    _selectedColorIndex = initial?.colorIndex ?? 0;
+    _isBackgroundEnabled = initial?.backgroundEnabled ?? true;
+    _emojiController = TextEditingController();
+  }
 
-    _selectedColorIndex = widget.initialColorIndex;
+  @override
+  void dispose() {
+    _emojiController.dispose();
+    _emojiFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onEmojiInput(String value) {
+    if (value.isEmpty) return;
+    final lastChar = value.characters.last;
+    setState(() => _selectedIcon = lastChar);
+    _emojiController.clear();
   }
 
   @override
@@ -89,69 +77,74 @@ class _OmniChainWalletEmojiPickerSheetState
     final theme = Theme.of(context);
     final colors = OmniChainWalletEmojiPickerSheet.backgroundColors(context);
     // guard against an out-of-range stored index
-    final colorIndex =
-    _selectedColorIndex.clamp(0, colors.length - 1);
+    final colorIndex = _selectedColorIndex.clamp(0, colors.length - 1);
 
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.85,
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
             title: "Select Icon",
             leadingIcon: const Icon(Icons.arrow_back_ios_new),
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context).pop(),
+            trailingIcon: const Icon(Icons.check),
+            trailingSemanticLabel: "Done",
+            onTrailingPressed: () => Navigator.of(context).pop(
+              WalletIcon(
+                type: WalletIconType.emoji,
+                value: _selectedIcon,
+                colorIndex: colorIndex,
+                backgroundEnabled: _isBackgroundEnabled,
+              ),
+            ),
           ),
-
           const SizedBox(height: 24),
-
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             width: 100,
             height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: colors[colorIndex],
+              gradient: _isBackgroundEnabled ? colors[colorIndex] : null,
+              color: _isBackgroundEnabled ? null : Colors.transparent,
             ),
             alignment: Alignment.center,
             child: Text(_selectedIcon, style: const TextStyle(fontSize: 48)),
           ),
-
           const SizedBox(height: 20),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: SelectBackgroundColorWidget(
               colors: colors,
               selectedIndex: colorIndex,
               onColorSelected: (index) => setState(() => _selectedColorIndex = index),
+              isToggleable: true,
+              isEnabled: _isBackgroundEnabled,
+              onToggleChanged: (value) => setState(() => _isBackgroundEnabled = value),
             ),
           ),
-
           const SizedBox(height: 20),
-
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextField(
+              controller: _emojiController,
+              focusNode: _emojiFocusNode,
+              autofocus: true,
+              showCursor: false,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20),
+              onChanged: _onEmojiInput,
+              decoration: InputDecoration(
+                hintText: "Tap to choose an emoji",
+                filled: true,
+                fillColor: theme.colorScheme.surfaceContainerHigh,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
               ),
-              itemCount: _icons.length,
-              itemBuilder: (context, index) {
-                final icon = _icons[index];
-                final selected = icon == _selectedIcon;
-                return Material(
-                  color: selected ? theme.colorScheme.primaryContainer : Colors.transparent,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => setState(() => _selectedIcon = icon),
-                    child: Center(child: Text(icon, style: const TextStyle(fontSize: 26))),
-                  ),
-                );
-              },
             ),
           ),
         ],

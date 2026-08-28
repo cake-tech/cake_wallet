@@ -1,3 +1,4 @@
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import 'package:cw_core/wallet_type.dart';
 
 sealed class OmniChainWalletEvent {}
@@ -64,8 +65,6 @@ class OmniChainWalletPrimaryTypeSelected extends OmniChainWalletEvent {
 class OmniChainWalletGroupCreateRequested extends OmniChainWalletEvent {}
 
 class OmniChainWalletIconChanged extends OmniChainWalletEvent {
-  OmniChainWalletIconChanged(this.emoji, this.colorIndex);
-
-  final String emoji;
-  final int colorIndex;
+  OmniChainWalletIconChanged(this.icon);
+  final WalletIcon icon;
 }

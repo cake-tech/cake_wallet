@@ -1,19 +1,17 @@
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart';
-import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart';
-import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
-import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
+import "package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart";
+import "package:cake_wallet/new-ui/widgets/new_search_bar.dart";
+import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
 class WalletCreationOpeningPage extends BasePage {
   WalletCreationOpeningPage();
@@ -69,115 +67,114 @@ class _WalletCreationOpeningPageBodyState extends State<WalletCreationOpeningPag
   @override
   Widget build(BuildContext context) => BlocBuilder<OmniChainWalletBloc, WalletCreationState>(
 
-      builder: (context, state) {
-        final isCreating = state is WalletCreationCreating;
+    builder: (context, state) {
+      final isCreating = state is WalletCreationCreating;
 
-        final groupName = switch (state) {
-          WalletCreationOpeningNetwork(:final groupName) => groupName,
-          WalletCreationCreating(:final request) => request.groupName,
-          _ => "",
-        };
+      final (groupName, walletIcon) = switch (state) {
+        WalletCreationOpeningNetwork(:final groupName, :final walletIcon) => (
+        groupName,
+        walletIcon,
+        ),
+        WalletCreationCreating(:final request) => (request.groupName, request.walletIcon),
+        _ => ("", null),
+      };
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '🛍️',
-                    style: Theme.of(context).textTheme.titleLarge,
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                WalletIconAvatar(icon: walletIcon, size: 24, contentSize: 24),
+                const SizedBox(width: 8),
+                Text(
+                  groupName,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    groupName.isEmpty ? 'Shopping Wallet' : groupName,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'Select a Network to Open',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            Text(
+              'Select a Network to Open',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 112),
-                      child: NewListSections(
-                        sections: {
-                          '': [
-                            ...filteredTypes.map(
-                                  (type) => ListItemRegularRow(
-                                keyValue: 'open_network_${type.name}_button_key',
-                                label: walletTypeToDisplayName(type),
-                                showArrow: false,
-                                iconPath: getCryptoCurrencyIconForWalletListItem(type),
-                                onTap: isCreating
-                                    ? null
-                                    : () {
-                                  final bloc = context.read<OmniChainWalletBloc>();
-                                  bloc.add(OmniChainWalletPrimaryTypeSelected(type));
-                                  bloc.add(OmniChainWalletGroupCreateRequested());
-                                },
-                              ),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 112),
+                    child: NewListSections(
+                      sections: {
+                        '': [
+                          ...filteredTypes.map(
+                                (type) => ListItemRegularRow(
+                              keyValue: 'open_network_${type.name}_button_key',
+                              label: walletTypeToDisplayName(type),
+                              showArrow: false,
+                              iconPath: getCryptoCurrencyIconForWalletListItem(type),
+                              onTap: isCreating
+                                  ? null
+                                  : () {
+                                final bloc = context.read<OmniChainWalletBloc>();
+                                bloc.add(OmniChainWalletPrimaryTypeSelected(type));
+                                bloc.add(OmniChainWalletGroupCreateRequested());
+                              },
                             ),
-                          ],
-                        },
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SafeArea(
-                        top: false,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
                           ),
-                          child: FloatingBlurWrapper(
-                            horizontalPadding: 0.0,
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  flex: 5,
-                                  fit: FlexFit.tight,
-                                  child: NewSearchBar(controller: _searchController),
-                                ),
-                                // const SizedBox(width: 12),
-                                // Flexible(
-                                //     flex: 2,
-                                //     fit: FlexFit.tight,
-                                //     child: NewElevatedButton(
-                                //       key: const ValueKey('new_wallet_manage_button_key'),
-                                //       onPressed: () {
-                                //         // TODO: manage networks action
-                                //       },
-                                //       buttonText: 'Manage',
-                                //     )),
-                              ],
-                            ),
+                        ],
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: FloatingBlurWrapper(
+                          horizontalPadding: 0.0,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                flex: 5,
+                                fit: FlexFit.tight,
+                                child: NewSearchBar(controller: _searchController),
+                              ),
+                              // const SizedBox(width: 12),
+                              // Flexible(
+                              //     flex: 2,
+                              //     fit: FlexFit.tight,
+                              //     child: NewElevatedButton(
+                              //       key: const ValueKey('new_wallet_manage_button_key'),
+                              //       onPressed: () {
+                              //         // TODO: manage networks action
+                              //       },
+                              //       buttonText: 'Manage',
+                              //     )),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
