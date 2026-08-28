@@ -8,27 +8,35 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
-  WowneroTransactionInfo(this.txHash, this.height, this.direction, this.date, this.isPending,
-      Money amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
-      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}",
-        super(amount: amount);
+  WowneroTransactionInfo(this.txHash, this.height, TransactionDirection direction, DateTime date,
+      this.isPending, Money amount, this.accountIndex, this.addressIndex, Money fee,
+      this.confirmations)
+      : super(
+          id: "${txHash}_${amount}_${accountIndex}_${addressIndex}",
+          amount: amount,
+          fee: fee,
+          direction: direction,
+          date: date,
+        );
 
   WowneroTransactionInfo.fromMap(Map<String, Object?> map)
-      : id = "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
-        txHash = map['hash'] as String,
+      : txHash = map['hash'] as String,
         height = (map['height'] ?? 0) as int,
-        direction = map['direction'] != null
-            ? parseTransactionDirectionFromNumber(map['direction'] as String)
-            : TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(
-            (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = Money.fromInt(map['fee'] as int? ?? 0, CryptoCurrency.wow),
-        super(amount: Money.fromInt(map['amount'] as int, CryptoCurrency.wow)) {
+        super(
+          id: "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
+          amount: Money.fromInt(map['amount'] as int, CryptoCurrency.wow),
+          fee: Money.fromInt(map['fee'] as int? ?? 0, CryptoCurrency.wow),
+          direction: map['direction'] != null
+              ? parseTransactionDirectionFromNumber(map['direction'] as String)
+              : TransactionDirection.incoming,
+          date: DateTime.fromMillisecondsSinceEpoch(
+              (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
+        ) {
     additionalInfo = <String, dynamic>{
       'key': key,
       'accountIndex': accountIndex,
@@ -36,14 +44,10 @@ class WowneroTransactionInfo extends TransactionInfo {
     };
   }
 
-  final String id;
   final String txHash;
   final int height;
-  final TransactionDirection direction;
-  final DateTime date;
   final int accountIndex;
   final bool isPending;
-  final Money fee;
   final int addressIndex;
   final int confirmations;
   String? recipientAddress;

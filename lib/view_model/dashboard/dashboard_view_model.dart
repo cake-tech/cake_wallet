@@ -655,19 +655,6 @@ abstract class DashboardViewModelBase with Store {
       return [];
     }
   }
-
-
-  String getTransactionType(TransactionInfo tx) {
-    if (wallet.type == WalletType.bitcoin) {
-      if (tx.isReplaced == true) return ' (replaced)';
-    }
-
-    if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
-      return ' (${tx.evmSignatureName})';
-
-    return '';
-  }
-
   Future<void> refreshDashboard() async {
     reconnect();
   }

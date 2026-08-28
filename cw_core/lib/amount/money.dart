@@ -44,7 +44,7 @@ class Money implements Comparable<Money> {
     return Money(amount, currency);
   }
 
-  /// Parse the [source] and turn it into [Money] if possible
+  /// Parse the [source] and turn it into [Money] if possible trimming trailing 0s
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]

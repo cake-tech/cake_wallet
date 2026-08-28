@@ -7,13 +7,13 @@ import 'package:cw_zano/zano_formatter.dart';
 
 class ZanoTransactionInfo extends TransactionInfo {
   ZanoTransactionInfo({
-    required this.id,
+    required super.id,
     required this.height,
-    required this.direction,
-    required this.date,
+    required super.direction,
+    required super.date,
     required this.isPending,
     required super.amount,
-    required this.fee,
+    required Money super.fee,
     required this.confirmations,
     required this.tokenSymbol,
     required this.decimalPoint,
@@ -26,20 +26,21 @@ class ZanoTransactionInfo extends TransactionInfo {
       {required int confirmations,
       required bool isIncome,
       required String assetId,
-      required Money amount,
+      required super.amount,
       this.tokenSymbol = 'ZANO',
       this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
-      : id = transfer.txHash,
-        height = transfer.height,
-        direction = isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
-        date = DateTime.fromMillisecondsSinceEpoch(transfer.timestamp * 1000),
+      : height = transfer.height,
 
-        fee = Money.fromInt(transfer.fee, CryptoCurrency.zano),
         confirmations = confirmations,
         isPending = confirmations < 10,
         recipientAddress =
             transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '',
-        super(amount: amount) {
+        super(
+          id: transfer.txHash,
+          fee: Money.fromInt(transfer.fee, CryptoCurrency.zano),
+          direction: isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
+          date: DateTime.fromMillisecondsSinceEpoch(transfer.timestamp * 1000),
+        ) {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,
       'assetId': assetId,
@@ -49,12 +50,8 @@ class ZanoTransactionInfo extends TransactionInfo {
   String get assetId => additionalInfo["assetId"] as String;
 
   set assetId(String newId) => additionalInfo["assetId"] = newId;
-  final String id;
   final int height;
-  final TransactionDirection direction;
-  final DateTime date;
   final bool isPending;
-  final Money fee;
   final int confirmations;
   final int decimalPoint;
   late String recipientAddress;

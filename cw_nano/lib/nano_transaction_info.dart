@@ -6,27 +6,22 @@ import 'package:cw_core/json_transaction_info.dart';
 
 class NanoTransactionInfo extends JsonTransactionInfo {
   NanoTransactionInfo({
-    required this.id,
+    required super.id,
     required this.height,
-    required Money amountRaw,
+    required super.amount,
     this.tokenSymbol = "XNO",
-    required this.direction,
+    required super.direction,
     required this.confirmed,
-    required this.date,
+    required super.date,
     required this.confirmations,
-    required this.to,
-    required this.from,
-  }) : super(amount: amountRaw);
+    required super.to,
+    required super.from,
+  });
 
-  final String id;
   final int height;
-  final TransactionDirection direction;
-  final DateTime date;
   final bool confirmed;
   final int confirmations;
   final String tokenSymbol;
-  final String? to;
-  final String? from;
   String? _fiatAmount;
 
   bool get isPending => !this.confirmed;
@@ -41,7 +36,7 @@ class NanoTransactionInfo extends JsonTransactionInfo {
     return NanoTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
-      amountRaw: Money(BigInt.parse(data['amountRaw'] as String), CryptoCurrency.nano),
+      amount: Money(BigInt.parse(data['amountRaw'] as String), CryptoCurrency.nano),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       confirmed: data['confirmed'] as bool,

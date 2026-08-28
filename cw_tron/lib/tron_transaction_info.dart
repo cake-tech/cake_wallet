@@ -8,36 +8,18 @@ import 'package:on_chain/tron/tron.dart';
 
 class TronTransactionInfo extends JsonTransactionInfo {
   TronTransactionInfo({
-    required this.id,
+    required super.id,
     required super.amount,
-    required this.fee,
-    required this.direction,
-    required this.blockTime,
-    required this.to,
-    required this.from,
+    required super.fee,
+    required super.direction,
+    required DateTime blockTime,
+    required super.to,
+    required super.from,
     required this.isPending,
-  });
-
-  @override
-  final String id;
-
-  @override
-  final String? to;
-
-  @override
-  final String? from;
-
-
-  @override
-  final Money? fee;
+  }) : super(date: blockTime);
 
   @override
   final bool isPending;
-
-  @override
-  final TransactionDirection direction;
-
-  final DateTime blockTime;
 
   static CryptoCurrency amountCurrencyFor({
     required Iterable<TronToken> tokens,
@@ -81,7 +63,7 @@ class TronTransactionInfo extends JsonTransactionInfo {
         'tronAmount': amount.amount.toString(),
         'txFee': fee?.amount.toString(),
         'direction': direction.index,
-        'blockTime': blockTime.millisecondsSinceEpoch,
+        'blockTime': date.millisecondsSinceEpoch,
         'to': to,
         'from': from,
         'isPending': isPending,
@@ -89,8 +71,6 @@ class TronTransactionInfo extends JsonTransactionInfo {
         'decimals': amount.currency.decimals
       };
 
-  @override
-  DateTime get date => blockTime;
 
   String _rawAmountAsString(BigInt amount) {
     String formattedAmount = TronHelper.fromSun(amount);

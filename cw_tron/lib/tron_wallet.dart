@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -567,6 +566,7 @@ abstract class TronWalletBase
   }
 
   List<TronToken> get tronTokenCurrencies => _tronTokens.toList();
+
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {

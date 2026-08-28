@@ -1,4 +1,3 @@
-// ignore_for_file: overridden_fields, annotate_overrides
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -31,35 +30,28 @@ class ElectrumTransactionInfo extends JsonTransactionInfo {
 
   ElectrumTransactionInfo(
     this.type, {
-    required String id,
+    required super.id,
     int? height,
-    required Money amount,
-    Money? fee,
+    required this.amount,
+    super.fee,
     List<String>? inputAddresses,
     List<String>? outputAddresses,
-    required TransactionDirection direction,
+    required super.direction,
     required bool isPending,
-    bool isReplaced = false,
-    required DateTime date,
+    this.isReplaced = false,
+    required super.date,
     required int confirmations,
-    String? to,
+    super.to,
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
     Map<String, dynamic>? additionalInfo,
   }) : super(amount: amount) {
-    this.amount = amount;
-    this.id = id;
     this.height = height;
     this.inputAddresses = inputAddresses;
     this.outputAddresses = outputAddresses;
-    this.fee = fee;
-    this.direction = direction;
-    this.date = date;
     this.isPending = isPending;
-    this.isReplaced = isReplaced;
     this.confirmations = confirmations;
-    this.to = to;
     this.additionalInfo = additionalInfo ?? {};
   }
 
@@ -117,7 +109,7 @@ class ElectrumTransactionInfo extends JsonTransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+      {required Set<String> addresses, int? height, String? id}) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -197,7 +189,7 @@ class ElectrumTransactionInfo extends JsonTransactionInfo {
     final walletCurrency = walletTypeToCryptoCurrency(type);
     final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
     return ElectrumTransactionInfo(type,
-        id: bundle.originalTransaction.txId(),
+        id: id ?? bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
         isReplaced: false,
@@ -248,11 +240,11 @@ class ElectrumTransactionInfo extends JsonTransactionInfo {
 
   final WalletType type;
 
-  /// Mutable, unlike the base class: the silent-payment rescan accumulates
-  /// newly-discovered unspents into an existing transaction's amount, and the
-  /// isolate scan builds a transaction up as it walks outputs.
+  // has to stay non-final because of sp.
   @override
-  late Money amount;
+  Money amount;
+
+  bool isReplaced;
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,

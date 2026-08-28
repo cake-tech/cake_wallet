@@ -6,21 +6,28 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable, HistoryListItem {
-  TransactionInfo({required this.amount});
+  TransactionInfo({
+    required this.id,
+    required this.amount,
+    required this.direction,
+    required this.date,
+    this.fee,
+    this.to,
+    this.from,
+  });
 
-  late String id;
-  late String txHash = id;
+  final String id;
   final Money amount;
-  Money? fee;
-  late TransactionDirection direction;
+  String get txHash => id;
+  final Money? fee;
+  final TransactionDirection direction;
   late bool isPending;
-  late DateTime date;
+  @override
+  final DateTime date;
   int? height;
   int confirmations = 0;
-  String? to;
-  String? from;
-  String? evmSignatureName;
-  bool? isReplaced;
+  final String? to;
+  final String? from;
   List<String>? inputAddresses;
   List<String>? outputAddresses;
 

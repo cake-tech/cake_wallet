@@ -7,35 +7,21 @@ import 'package:cw_core/json_transaction_info.dart';
 
 class SolanaTransactionInfo extends JsonTransactionInfo {
   SolanaTransactionInfo({
-    required this.id,
-    required this.date,
-    required this.to,
-    required this.from,
-    required this.direction,
+    required super.id,
+    required super.date,
+    required super.to,
+    required super.from,
+    required super.direction,
     required super.amount,
     required this.isPending,
-    required this.fee,
+    required Money super.fee,
   });
-
-  @override
-  final String id;
-  @override
-  final String? to;
-  @override
-  final String? from;
 
   @override
   String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
 
   @override
   final bool isPending;
-  @override
-  final Money fee;
-  @override
-  final TransactionDirection direction;
-  @override
-  final DateTime date;
-
 
   static CryptoCurrency amountCurrencyFor({
     required Iterable<SPLToken> tokens,

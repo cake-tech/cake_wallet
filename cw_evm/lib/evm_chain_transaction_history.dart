@@ -19,15 +19,13 @@ class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransact
           encryptionFileUtils: encryptionFileUtils,
         );
 
-  /// Lets the history resolve the file — and the chain filter — for whichever
-  /// chain the wallet is currently on.
+  /// Function to get the current chain ID (allows transaction history to use correct file)
   final int Function() getCurrentChainId;
 
 
   @override
   String get fileName => EVMChainUtils.getTransactionHistoryFileName(getCurrentChainId());
 
-  @override
   Iterable<Erc20Token> _tokens = const [];
 
   @override
@@ -52,8 +50,6 @@ class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransact
   void addMany(Map<String, EVMChainTransactionInfo> transactions) {
     final currentChainId = getCurrentChainId();
 
-    // Drop anything left over from another chain before taking the new batch on,
-    // so switching chains can't leave foreign transactions in the map.
     removeWhere((_, transaction) => transaction.chainId != currentChainId);
 
     for (final entry in transactions.entries) {

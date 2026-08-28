@@ -7,28 +7,23 @@ import 'package:cw_zcash/src/zkooltx.dart';
 
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
-    required final String id,
-    required final Money fee,
-    required final TransactionDirection direction,
+    required super.id,
+    required Money super.fee,
+    required super.direction,
     required final bool isPending,
-    required final DateTime date,
+    required super.date,
     required final int height,
     required final int confirmations,
-    required final String to,
+    required super.to,
     required super.amount, final String? memo,
     final TxType? txType,
     final bool isRotationReceive = false,
     final bool isShieldAction = false,
     final bool isIronwoodMigration = false,
   }) {
-    this.id = id;
-    this.fee = fee;
     this.height = height;
-    this.direction = direction;
-    this.date = date;
     this.isPending = isPending;
     this.confirmations = confirmations;
-    this.to = to;
     if (memo != null && memo.isNotEmpty) {
       additionalInfo['memo'] = memo;
     }

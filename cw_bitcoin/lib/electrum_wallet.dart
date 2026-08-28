@@ -603,18 +603,29 @@ abstract class ElectrumWalletBase
 
             // Updating tx after re-scanned
             if (txAlreadyExisted) {
-              existingTxInfo.amount = tx.amount;
-              existingTxInfo.confirmations = tx.confirmations;
-              existingTxInfo.height = tx.height;
-              existingTxInfo.date = tx.date;
-              existingTxInfo.isReceivedSilentPayment = tx.isReceivedSilentPayment;
-              existingTxInfo.direction = tx.direction;
-              existingTxInfo.isPending = tx.isPending;
-              existingTxInfo.unspents = tx.unspents;
-              transactionHistory.markUpdated([txid]);
+              final updatedTxInfo = ElectrumTransactionInfo(
+                existingTxInfo.type,
+                id: existingTxInfo.id,
+                amount: tx.amount,
+                confirmations: tx.confirmations,
+                height: tx.height,
+                date: tx.date,
+                isReceivedSilentPayment: tx.isReceivedSilentPayment,
+                direction: tx.direction,
+                isPending: tx.isPending,
+                unspents: tx.unspents,
+                fee: existingTxInfo.fee,
+                to: existingTxInfo.to,
+                inputAddresses: existingTxInfo.inputAddresses,
+                outputAddresses: existingTxInfo.outputAddresses,
+                isReplaced: existingTxInfo.isReplaced ?? false,
+                isHogEx: existingTxInfo.isHogEx,
+                additionalInfo: existingTxInfo.additionalInfo,
+              );
+              transactionHistory.addOne(updatedTxInfo);
 
               final newUnspents = tx.unspents!
-                  .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
+                  .where((unspent) => !(updatedTxInfo.unspents?.any((element) =>
                           element.hash.contains(unspent.hash) &&
                           element.vout == unspent.vout &&
                           element.value == unspent.value) ??
@@ -624,19 +635,19 @@ abstract class ElectrumWalletBase
               if (newUnspents.isNotEmpty) {
                 newUnspents.forEach(_updateSilentAddressRecord);
 
-                existingTxInfo.unspents ??= [];
-                existingTxInfo.unspents!.addAll(newUnspents);
+                updatedTxInfo.unspents ??= [];
+                updatedTxInfo.unspents!.addAll(newUnspents);
 
                 final newAmount = newUnspents.length > 1
                     ? newUnspents.map((e) => e.value).reduce((value, unspent) => value + unspent)
                     : newUnspents[0].value;
 
-                if (existingTxInfo.direction == TransactionDirection.incoming) {
-                  existingTxInfo.amount += Money.fromInt(newAmount, currency);
+                if (updatedTxInfo.direction == TransactionDirection.incoming) {
+                  updatedTxInfo.amount += Money.fromInt(newAmount, currency);
                 }
 
                 // Updates existing TX
-                transactionHistory.addOne(existingTxInfo);
+                transactionHistory.addOne(updatedTxInfo);
                 // Update balance record
                 balance[currency]!.confirmed += Money.fromInt(newAmount, currency);
               }
@@ -2723,7 +2734,6 @@ abstract class ElectrumWalletBase
                 storedTx.confirmations = currentHeight! - height + 1;
               }
               storedTx.isPending = storedTx.confirmations == 0;
-              // Mutated in place, so the history has to be told explicitly.
               transactionHistory.markUpdated([txid]);
             }
 
@@ -3133,8 +3143,8 @@ abstract class ElectrumWalletBase
             network,
             addresses: addressesSet,
             height: heightsByHash?[txId],
+            id: txId,
           );
-          info.id = txId;
           result[txId] = info;
         } catch (_) {
           result[txId] = null;

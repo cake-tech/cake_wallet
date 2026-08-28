@@ -142,7 +142,6 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
                   child: HistoryModal()),
               parentContext: context,
             ));
-    // Leaving the history resets the filters, so the next visit starts clean.
     getIt.get<TransactionHistoryBloc>().add(
           const TransactionHistoryAllFiltersToggled(value: true),
         );

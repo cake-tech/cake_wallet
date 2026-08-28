@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';

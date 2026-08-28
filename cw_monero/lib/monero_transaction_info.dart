@@ -3,19 +3,21 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
-  MoneroTransactionInfo(this.txHash, this.height, this.direction, this.date, this.isPending,
-      Money amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
-      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}",
-        super(amount: amount);
+  MoneroTransactionInfo(this.txHash, this.height, TransactionDirection direction, DateTime date,
+      this.isPending, Money amount, this.accountIndex, this.addressIndex, Money fee,
+      this.confirmations)
+      : super(
+          id: "${txHash}_${amount}_${accountIndex}_${addressIndex}",
+          amount: amount,
+          fee: fee,
+          direction: direction,
+          date: date,
+        );
 
-  final String id;
   final String txHash;
   final int height;
-  final TransactionDirection direction;
-  final DateTime date;
   final int accountIndex;
   final bool isPending;
-  final Money fee;
   final int addressIndex;
   final int confirmations;
   String? recipientAddress;

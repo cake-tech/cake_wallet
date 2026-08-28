@@ -11,35 +11,29 @@ import 'package:cw_evm/utils/evm_chain_utils.dart';
 
 class EVMChainTransactionInfo extends JsonTransactionInfo {
   EVMChainTransactionInfo({
-    required this.id,
+    required super.id,
     required this.height,
     required super.amount,
-    required this.fee,
+    required Money super.fee,
     required this.tokenSymbol,
     this.exponent = 18,
-    required this.direction,
+    required super.direction,
     required this.isPending,
-    required this.date,
+    required super.date,
     required this.confirmations,
-    required this.to,
-    required this.from,
+    required super.to,
+    required super.from,
     this.evmSignatureName,
     this.contractAddress,
     required this.chainId,
   });
 
-  final String id;
   final int height;
   final int exponent;
-  final TransactionDirection direction;
-  final DateTime date;
   final bool isPending;
-  final Money fee;
   final int confirmations;
   final String tokenSymbol;
   String? _fiatAmount;
-  final String? to;
-  final String? from;
   final String? evmSignatureName;
   final String? contractAddress;
   final int chainId;
@@ -72,8 +66,8 @@ class EVMChainTransactionInfo extends JsonTransactionInfo {
 
     return registered ??
         Erc20Token(
-          name: '',
-          contractAddress: contractAddress ?? '',
+          name: "",
+          contractAddress: contractAddress ?? "",
           decimal: decimals,
           symbol: tokenSymbol,
         );
@@ -131,7 +125,7 @@ class EVMChainTransactionInfo extends JsonTransactionInfo {
         'height': height,
         'amount': amount.amount.toString(),
         'exponent': exponent,
-        'fee': fee.amount.toString(),
+        'fee': fee!.amount.toString(),
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,
         'isPending': isPending,

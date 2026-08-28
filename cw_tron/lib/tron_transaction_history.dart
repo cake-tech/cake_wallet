@@ -1,6 +1,5 @@
 import 'package:cw_core/tron_token.dart';
 import 'dart:core';
-
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/json_transaction_history.dart';
 import 'package:cw_core/wallet_info.dart';
