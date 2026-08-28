@@ -221,6 +221,9 @@ abstract class ZanoWalletBase
     await wallet.parseCreateWalletResult(createWalletResult);
     if (!isBip39) {
       try {
+        if (passphrase.isNotEmpty) {
+          await wallet.setPassphrase(passphrase);
+        }
         final nativeSeed = await createWalletResult.seed(wallet);
         if (nativeSeed.isNotEmpty) {
           wallet.seed = nativeSeed;
