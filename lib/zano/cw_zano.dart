@@ -46,7 +46,7 @@ class CWZano extends Zano {
   @override
   List<String> getWordList(String language) {
     assert(language.toLowerCase() == LanguageList.english.toLowerCase());
-    return EnglishMnemonics.words;
+    return [...zano_bip39.bip39EnglishWords, ...EnglishMnemonics.words];
   }
 
   @override
@@ -61,9 +61,18 @@ class CWZano extends Zano {
   }
 
   @override
-  WalletCredentials createZanoNewWalletCredentials(
-      {required String name, required String? password, required String? passphrase}) {
-    return ZanoNewWalletCredentials(name: name, password: password, passphrase: passphrase);
+  WalletCredentials createZanoNewWalletCredentials({
+    required String name,
+    required String? password,
+    required String? passphrase,
+    String? mnemonic,
+  }) {
+    return ZanoNewWalletCredentials(
+      name: name,
+      password: password,
+      passphrase: passphrase,
+      mnemonic: mnemonic,
+    );
   }
 
   @override
@@ -122,8 +131,8 @@ class CWZano extends Zano {
   // }
 
   @override
-  WalletService createZanoWalletService() {
-    return ZanoWalletService();
+  WalletService createZanoWalletService(bool isDirect) {
+    return ZanoWalletService(isDirect);
   }
 
 
@@ -134,6 +143,12 @@ class CWZano extends Zano {
 
   @override
   bool validateAddress(String address) => ZanoUtils.validateAddress(address);
+
+  @override
+  bool isBip39Seed(String mnemonic) => zano_bip39.isBip39Seed(mnemonic);
+
+  @override
+  int getHeightByDate({required DateTime date}) => ZanoUtils.heightByDate(date);
 
   @override
   Map<String, List<int>> debugCallLength() {
