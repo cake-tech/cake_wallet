@@ -1,13 +1,13 @@
 import "dart:async";
 
 import "package:bloc/bloc.dart";
-import "package:collection/collection.dart";
-import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
-import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
-import "package:cake_wallet/new-ui/viewmodels/transaction_history/date_ordered_list.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/history_list_extension.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/view_model/dashboard/formatted_item_list.dart";
+import "package:collection/collection.dart";
 import "package:cw_core/history_source.dart";
 import "package:cw_core/json_transaction_history.dart";
 import "package:rxdart/rxdart.dart";

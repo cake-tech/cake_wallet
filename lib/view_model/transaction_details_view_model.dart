@@ -327,8 +327,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       return CryptoCurrency.btcln;
     }
 
-    // The amount carries its own currency, so the chain no longer has to be
-    // asked what a transaction is denominated in.
     return transactionInfo.assetOfTransaction ?? walletTypeToCryptoCurrency(wallet.type);
   }
 

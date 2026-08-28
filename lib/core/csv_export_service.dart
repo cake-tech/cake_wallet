@@ -1,85 +1,99 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/backup/backup_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/share_util.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import "package:cw_core/action_list_item.dart";
 import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
-import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
-import "package:cake_wallet/order/order.dart";
-import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/src/screens/backup/backup_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/utils/share_util.dart";
+import "package:cake_wallet/utils/show_bar.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/date_section_item.dart";
+import "package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart";
+import "package:cw_core/action_list_item.dart";
+import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/transaction_info.dart";
-import 'package:cw_core/transaction_direction.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+import "package:file_picker/file_picker.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:path_provider/path_provider.dart";
 
 class CsvExportService {
   static const _columns = [
-    'record_type',
-    'date_time',
-    'type',
-    'amount',
-    'currency',
-    'fee',
-    'tx_id',
-    'address',
-    'status',
-    'note',
-    'from_amount',
-    'from_currency',
-    'to_amount',
-    'to_currency',
-    'trade_id',
-    'provider',
-    'confirmations',
+    "record_type",
+    "date_time",
+    "type",
+    "amount",
+    "currency",
+    "fee",
+    "tx_id",
+    "address",
+    "status",
+    "note",
+    "from_amount",
+    "from_currency",
+    "to_amount",
+    "to_currency",
+    "trade_id",
+    "provider",
+    "confirmations",
   ];
 
-  static const _utf8Bom = '﻿';
+  static const _utf8Bom = "﻿";
 
   String buildCsvContent(List<HistoryListItem> items) {
     final buf = StringBuffer();
     buf.write(_utf8Bom);
-    buf.writeln(_columns.join(','));
+    buf.writeln(_columns.join(","));
 
     for (final item in items) {
-      if (item is DateSectionItem) continue;
+      if (item is DateSectionItem) {
+        continue;
+      }
 
       final row = _buildRow(item);
-      if (row != null) buf.writeln(row);
+      if (row != null) {
+        buf.writeln(row);
+      }
     }
 
     return buf.toString();
   }
 
   String? _buildRow(HistoryListItem item) {
-    if (item is TransactionInfo) return _transactionRow(item);
-    if (item is Trade) return _tradeRow(item);
-    if (item is Order) return _orderRow(item);
-    if (item is AnonpayInvoiceInfo) return _anonpayRow(item);
-    if (item is PayjoinTransactionListItem) return _payjoinRow(item);
+    if (item is TransactionInfo) {
+      return _transactionRow(item);
+    }
+    if (item is Trade) {
+      return _tradeRow(item);
+    }
+    if (item is Order) {
+      return _orderRow(item);
+    }
+    if (item is AnonpayInvoiceInfo) {
+      return _anonpayRow(item);
+    }
+    if (item is PayjoinTransactionListItem) {
+      return _payjoinRow(item);
+    }
     return null;
   }
 
   String _transactionRow(TransactionInfo item) {
     final tx = item;
-    final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
-    final status = tx.isPending ? 'pending' : 'confirmed';
+    final type = tx.direction == TransactionDirection.incoming ? "incoming" : "outgoing";
+    final status = tx.isPending ? "pending" : "confirmed";
 
     // Prefer tx.to/tx.from; fall back to address lists for chains that don't populate them.
     final address = tx.direction == TransactionDirection.incoming
-        ? (tx.from?.isNotEmpty == true ? tx.from! : (tx.inputAddresses?.firstOrNull ?? ''))
-        : (tx.to?.isNotEmpty == true ? tx.to! : (tx.outputAddresses?.firstOrNull ?? ''));
+        ? (tx.from?.isNotEmpty == true ? tx.from! : (tx.inputAddresses?.firstOrNull ?? ""))
+        : (tx.to?.isNotEmpty == true ? tx.to! : (tx.outputAddresses?.firstOrNull ?? ""));
 
-    final fee = tx.fee != null && !tx.fee!.isZero ? tx.fee.toString() : '';
+    final fee = tx.fee != null && !tx.fee!.isZero ? tx.fee.toString() : "";
 
     return _row([
-      'transaction',
+      "transaction",
       _isoDate(tx.date),
       type,
       tx.amount.toString(),
@@ -88,13 +102,13 @@ class CsvExportService {
       tx.id,
       address,
       status,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
       tx.confirmations.toString(),
     ]);
   }
@@ -102,105 +116,105 @@ class CsvExportService {
   String _tradeRow(Trade item) {
     final trade = item;
     return _row([
-      'trade',
+      "trade",
       _isoDate(trade.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
-      'swap',
-      '',
-      '',
-      trade.fee?.toString() ?? '',
-      trade.outputTransaction ?? '',
-      trade.payoutAddress ?? '',
+      "swap",
+      "",
+      "",
+      trade.fee?.toString() ?? "",
+      trade.outputTransaction ?? "",
+      trade.payoutAddress ?? "",
       trade.state.title,
-      trade.memo ?? '',
+      trade.memo ?? "",
       trade.amount,
-      trade.from?.name ?? '',
-      trade.receiveAmount ?? '',
-      trade.to?.name ?? '',
+      trade.from?.name ?? "",
+      trade.receiveAmount ?? "",
+      trade.to?.name ?? "",
       trade.id,
       trade.provider.title,
-      '',
+      "",
     ]);
   }
 
   String _orderRow(Order item) {
     final order = item;
     return _row([
-      'order',
+      "order",
       _isoDate(order.createdAt),
       order.source.title,
       order.amountFormatted(),
-      order.from ?? '',
-      '',
+      order.from ?? "",
+      "",
       order.transferId,
-      '',
+      "",
       order.state.title,
-      '',
+      "",
       order.amountFormatted(),
-      order.from ?? '',
-      order.receiveAmount ?? '',
-      order.to ?? '',
+      order.from ?? "",
+      order.receiveAmount ?? "",
+      order.to ?? "",
       order.id,
       order.providerTitle,
-      '',
+      "",
     ]);
   }
 
   String _anonpayRow(AnonpayInvoiceInfo item) {
     final tx = item;
-    final amount = tx.fiatAmount?.toString() ?? tx.amountTo?.toString() ?? '';
+    final amount = tx.fiatAmount?.toString() ?? tx.amountTo?.toString() ?? "";
     final currency = tx.fiatEquiv ?? tx.coinTo;
 
     return _row([
-      'anonpay',
+      "anonpay",
       _isoDate(tx.createdAt),
-      'anonymous_payment',
+      "anonymous_payment",
       amount,
       currency,
-      '',
+      "",
       tx.invoiceId,
       tx.address,
       tx.status,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
       tx.provider,
-      '',
+      "",
     ]);
   }
 
   String _payjoinRow(PayjoinTransactionListItem item) {
     final session = item.session;
-    final type = session.isSenderSession ? 'send' : 'receive';
-    final amount = session.rawAmount ?? '0';
+    final type = session.isSenderSession ? "send" : "receive";
+    final amount = session.rawAmount ?? "0";
 
     return _row([
-      'payjoin',
+      "payjoin",
       _isoDate(session.inProgressSince ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
       type,
       amount,
-      'BTC',
-      '',
-      session.txId ?? '',
-      '',
+      "BTC",
+      "",
+      session.txId ?? "",
+      "",
       item.status,
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
     ]);
   }
 
-  String _row(List<String> fields) => fields.map(escapeField).join(',');
+  String _row(List<String> fields) => fields.map(escapeField).join(",");
 
   String escapeField(String field) {
-    if (field.contains(',') || field.contains('"') || field.contains('\n')) {
+    if (field.contains(",") || field.contains('"') || field.contains("\n")) {
       return '"${field.replaceAll('"', '""')}"';
     }
     return field;
@@ -230,7 +244,9 @@ class CsvExportService {
     showPersistentActionOverlay(context, exportFuture, text: S.current.generating_csv);
     await exportFuture;
 
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
     if (Platform.isAndroid) {
       _showAndroidExportDialog(context, csvFile, fileName);
@@ -244,56 +260,66 @@ class CsvExportService {
   void _showAndroidExportDialog(BuildContext context, File csvFile, String fileName) {
     showPopUp<void>(
       context: context,
-      builder: (dialogContext) {
-        return AlertWithTwoActions(
+      builder: (dialogContext) => AlertWithTwoActions(
           alertTitle: S.current.export_csv,
           alertContent: S.current.select_destination,
           rightButtonText: S.current.save_to_downloads,
           leftButtonText: S.current.share,
           actionRightButton: () async {
             await _saveToDownloads(fileName, csvFile);
-            Navigator.of(dialogContext).pop();
-            await showBar<void>(context, S.current.file_saved);
+            if(dialogContext.mounted) {
+              Navigator.of(dialogContext).pop();
+              await showBar<void>(context, S.current.file_saved);
+            }
             await csvFile.delete();
           },
           actionLeftButton: () async {
             Navigator.of(dialogContext).pop();
             await _shareFile(csvFile, fileName, context);
           },
-        );
-      },
+        ),
     );
   }
 
   Future<void> _shareFile(File file, String fileName, BuildContext context) async {
     await ShareUtil.shareFile(filePath: file.path, fileName: fileName, context: context);
-    if (await file.exists()) await file.delete();
+    if (await file.exists()) {
+      await file.delete();
+    }
   }
 
   Future<void> _saveFileDesktop(File csvFile, String fileName) async {
     final outputPath = await FilePicker.platform.saveFile(
-      dialogTitle: 'Save CSV export',
+      dialogTitle: "Save CSV export",
       fileName: fileName,
       lockParentWindow: true,
     );
-    if (outputPath == null) return;
+    if (outputPath == null) {
+      return;
+    }
     await csvFile.copy(outputPath);
     await csvFile.delete();
   }
 
   Future<File> _writeTempFile(String fileName, String content) async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$fileName');
-    if (file.existsSync()) file.deleteSync();
+    final file = File("${dir.path}/$fileName");
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
     await file.writeAsString(content, flush: true);
     return file;
   }
 
   Future<void> _saveToDownloads(String fileName, File file) async {
-    if (!Platform.isAndroid) return;
-    const downloadsPath = '/storage/emulated/0/Download';
-    final dest = File('$downloadsPath/$fileName');
-    if (dest.existsSync()) dest.deleteSync();
+    if (!Platform.isAndroid) {
+      return;
+    }
+    const downloadsPath = "/storage/emulated/0/Download";
+    final dest = File("$downloadsPath/$fileName");
+    if (dest.existsSync()) {
+      dest.deleteSync();
+    }
     await file.copy(dest.path);
   }
 }

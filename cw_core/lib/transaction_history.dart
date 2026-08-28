@@ -1,7 +1,6 @@
 import "dart:async";
 import "dart:collection";
 
-import "package:cw_core/history_change.dart";
 import "package:cw_core/history_source.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:meta/meta.dart";
@@ -17,9 +16,12 @@ abstract class TransactionHistory<TransactionType extends TransactionInfo>
 
   Map<String, TransactionType> get transactions => UnmodifiableMapView(_transactions);
 
+  @override
   Stream<HistoryChange> get changes => _changes.stream;
 
+  @override
   bool get hasLoaded => _hasLoaded;
+
   bool _hasLoaded = false;
 
   void markLoaded() {

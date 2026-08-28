@@ -1,4 +1,3 @@
-import "package:cw_core/transaction_info.dart";
 import "dart:async";
 
 import "package:cake_wallet/exchange/trade.dart";
@@ -6,6 +5,7 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart";
 import "package:cw_core/history_source.dart";
 import "package:cw_core/payjoin_session.dart";
+import "package:cw_core/transaction_info.dart";
 import "package:hive/hive.dart";
 
 class TradeHistoryEmitter extends SnapshotHistoryEmitter {
@@ -90,6 +90,8 @@ class PayjoinHistoryEmitter extends SnapshotHistoryEmitter {
         continue;
       }
 
+      // we don't add the sessions with a txid to what we project - this is deliberate
+      // this would cause duplication with regular transaction rows, which previously was fixed by removing the duplicated rows based on an ugly if-statement
       final sessionId = entry.key as String;
       final txId = session.txId;
 

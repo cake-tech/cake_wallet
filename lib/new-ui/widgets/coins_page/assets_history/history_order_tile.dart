@@ -1,16 +1,16 @@
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart";
 import "package:cw_core/amount/money.dart";
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class HistoryOrderTile extends StatelessWidget {
   const HistoryOrderTile({
-    super.key,
     required this.date,
     required this.amount,
     required this.amountFiat,
     required this.roundedTop,
     required this.roundedBottom,
     required this.bottomSeparator,
+    super.key,
   });
 
   final String date;
@@ -21,16 +21,14 @@ class HistoryOrderTile extends StatelessWidget {
   final bool bottomSeparator;
 
   @override
-  Widget build(BuildContext context) {
-    return HistoryTileBase(
-      title: "Order",
-      date: date,
-      amount: amount,
-      amountFiat: amountFiat,
-      leadingIcon: Image.asset("assets/images/cakepay.png"),
-      roundedTop: roundedTop,
-      roundedBottom: roundedBottom,
-      bottomSeparator: bottomSeparator,
-    );
-  }
+  Widget build(BuildContext context) => HistoryTileBase(
+        title: "Order",
+        date: date,
+        amount: amount,
+        amountFiat: amountFiat,
+        leadingIcon: Image.asset("assets/images/cakepay.png"),
+        roundedTop: roundedTop,
+        roundedBottom: roundedBottom,
+        bottomSeparator: bottomSeparator,
+      );
 }

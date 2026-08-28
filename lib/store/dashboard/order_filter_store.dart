@@ -1,9 +1,8 @@
-import 'package:cw_core/history_source.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/action_list_item.dart';
-import 'package:cake_wallet/order/order_provider_description.dart';
-import 'package:cake_wallet/order/order_source_description.dart';
 import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/order/order_provider_description.dart";
+import "package:cake_wallet/order/order_source_description.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/history_source.dart";
 
 class OrderFilterStore extends HistoryFilters {
   OrderFilterStore(this._appStore) : displayCakePay = true;

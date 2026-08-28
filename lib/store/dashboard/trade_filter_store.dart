@@ -1,10 +1,9 @@
-import 'package:collection/collection.dart';
-import 'package:cw_core/history_source.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/action_list_item.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/trade.dart";
-import 'package:cw_core/wallet_base.dart';
+import "package:cake_wallet/store/app_store.dart";
+import "package:collection/collection.dart";
+import "package:cw_core/history_source.dart";
+import "package:cw_core/wallet_base.dart";
 
 class TradeFilterStore extends HistoryFilters {
   TradeFilterStore(this._appStore)
@@ -68,7 +67,7 @@ class TradeFilterStore extends HistoryFilters {
         displayXOSwap,
         displaySwapTrade,
         displaySwapXyz,
-        displayNearIntents
+        displayNearIntents,
       ].where((item) => item).length;
 
   bool get displayAllTrades =>

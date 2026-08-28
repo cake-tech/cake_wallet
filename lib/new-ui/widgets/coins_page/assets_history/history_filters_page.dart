@@ -1,5 +1,4 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
-import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_swap_providers_page.dart";
@@ -91,19 +90,21 @@ class HistoryFiltersPage extends StatelessWidget {
     );
 
   String? _subtitle(BuildContext context, HistoryFilter filter) {
-    if(!filter.hasChildren) return null;
+    if(!filter.hasChildren) {
+      return null;
+    }
 
     final enabled = filter.enabledChildren;
 
     if (enabled == filter.children.length) {
-      return (S.of(context).manage_providers);
+      return S.of(context).manage_providers;
     }
 
     if (enabled == 0) {
-      return (S.of(context).no_providers_selected);
+      return S.of(context).no_providers_selected;
     }
 
-    return ("$enabled ${S.of(context).providers}");
+    return "$enabled ${S.of(context).providers}";
   }
 
   Color _subtitleColor(BuildContext context, HistoryFilter filter) {
@@ -111,13 +112,13 @@ class HistoryFiltersPage extends StatelessWidget {
     final enabled = filter.enabledChildren;
 
     if (enabled == filter.children.length) {
-      return (Theme.of(context).colorScheme.onSurfaceVariant);
+      return Theme.of(context).colorScheme.onSurfaceVariant;
     }
 
     if (enabled == 0) {
-      return (const Color(0xFFFFB84E));
+      return const Color(0xFFFFB84E);
     }
 
-    return (Theme.of(context).colorScheme.primary);
+    return Theme.of(context).colorScheme.primary;
   }
 }

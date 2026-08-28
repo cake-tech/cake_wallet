@@ -1,15 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/action_list_item.dart';
-import 'package:cw_core/payjoin_session.dart';
-import 'package:cw_core/transaction_info.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cw_core/action_list_item.dart";
+import "package:cw_core/payjoin_session.dart";
+import "package:cw_core/transaction_info.dart";
 
-/// A payjoin row: the session, its box key (the session doesn't carry one), and
-/// the transaction once there is one.
-///
-/// Rows for sessions still in flight come from the payjoin source. Rows for
-/// completed sessions are built where they are rendered, from the transaction
-/// they belong to — so [transaction] is a constructor argument rather than
-/// something a merge has to remember to fill in.
 class PayjoinTransactionListItem with HistoryListItem {
   PayjoinTransactionListItem({
     required this.sessionId,
@@ -29,12 +22,14 @@ class PayjoinTransactionListItem with HistoryListItem {
 
   String get status {
     switch (session.status) {
-      case 'success':
-        if (transaction?.isPending == false) return S.current.successful;
+      case "success":
+        if (transaction?.isPending == false) {
+          return S.current.successful;
+        }
         return S.current.payjoin_request_awaiting_tx;
-      case 'inProgress':
+      case "inProgress":
         return S.current.payjoin_request_in_progress;
-      case 'unrecoverable':
+      case "unrecoverable":
         return S.current.error;
       default:
         return session.status;

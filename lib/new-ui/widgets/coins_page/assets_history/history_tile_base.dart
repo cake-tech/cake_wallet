@@ -1,29 +1,29 @@
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cw_core/amount/money.dart";
-import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/material.dart';
+import "package:cw_core/crypto_currency.dart";
+import "package:flutter/material.dart";
 
 class HistoryTileBase extends StatelessWidget {
   const HistoryTileBase({
-    super.key,
-    this.title,
-    this.titleWidget,
-    required this.date,
-    this.amount,
-    required this.leadingIcon,
-    this.amountFiat,
     required this.roundedTop,
     required this.roundedBottom,
     required this.bottomSeparator,
+    required this.leadingIcon,
+    required this.date,
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.amount,
+    this.amountFiat,
     this.primaryTextColor,
     this.asset,
     this.amountWidget,
     this.amountFiatWidget,
-  })  : assert((title != null || titleWidget != null) && (title == null || titleWidget == null)),
+  })  : assert((title != null || titleWidget != null) && (title == null || titleWidget == null), "please supply either title or titleWidget, but not both"),
         assert(
-            (amountWidget != null || amount != null) && (amountWidget == null || amount == null)),
+            (amountWidget != null || amount != null) && (amountWidget == null || amount == null), "please supply either amount or amountWidget, but not both",),
         assert((amountFiatWidget != null || amountFiat != null) &&
-            (amountFiatWidget == null || amountFiat == null));
+            (amountFiatWidget == null || amountFiat == null), "please supply either amountFiat or amountFiatWidget, but not both",);
 
   final String? title;
   final Widget? titleWidget;
@@ -50,7 +50,7 @@ class HistoryTileBase extends StatelessWidget {
               topRight: Radius.circular(roundedTop ? 22 : 0),
               bottomLeft: Radius.circular(roundedBottom ? 22 : 0),
               bottomRight: Radius.circular(roundedBottom ? 22 : 0),
-            )),
+            ),),
             color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           child: Padding(
@@ -72,7 +72,7 @@ class HistoryTileBase extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.only(right: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -81,12 +81,12 @@ class HistoryTileBase extends StatelessWidget {
                           children: [
                             if (title != null)
                               Text(title!,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),)
                             else if (titleWidget != null)
                               titleWidget!,
                             Text(date,
                                 style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,),),
                           ],
                         ),
                         Column(
@@ -104,7 +104,7 @@ class HistoryTileBase extends StatelessWidget {
                                   style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,),)
                             else if (amountFiatWidget != null)
-                              amountFiatWidget!
+                              amountFiatWidget!,
                           ],
                         ),
                       ],
@@ -116,14 +116,14 @@ class HistoryTileBase extends StatelessWidget {
           ),
         ),
         if (bottomSeparator)
-          Container(
+          ColoredBox(
             color: Theme.of(context).colorScheme.surfaceContainer,
             child: Padding(
-              padding: EdgeInsets.only(left: 56, right: 16),
+              padding: const EdgeInsets.only(left: 56, right: 16),
               child: Container(
-                  height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175)),
+                  height: 1, color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175),),
             ),
-          )
+          ),
       ],
     );
 }

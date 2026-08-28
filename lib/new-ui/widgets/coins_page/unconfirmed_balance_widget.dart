@@ -4,9 +4,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/zcash/zcash.dart";
-import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -16,8 +14,9 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class UnconfirmedBalanceWidget extends StatelessWidget {
   const UnconfirmedBalanceWidget({
-    super.key,
     required this.bloc,
+    super.key,
+
   });
 
   final TransactionHistoryBloc bloc;
@@ -52,7 +51,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Material(
                         color: Colors.transparent,
@@ -60,7 +59,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                           onTap: () {
                             final modal = isIronwoodMigration
                                 ? ZcashMigrationModal(
-                                    hasContinue: false, balance: "${balance} ${currency.symbol}")
+                                    hasContinue: false, balance: "${balance} ${currency.symbol}",)
                                 : UnconfirmedBalanceModal(
                                     balance: balance.toStringWithSymbol(),
                               currencyIconPath: currency.iconPath ?? "",
@@ -68,10 +67,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                             showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                builder: (context) => modal);
+                                builder: (context) => modal,);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -106,30 +105,30 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                         ),
                                         Text(isIronwoodMigration ? S.of(context).migrating_to_ironwood : S.of(context).confirming),
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ),
                                 Icon(
                                   Icons.chevron_right,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                )
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
                     );
-                  }),
+                  },),
                 ],
               )
             : const SizedBox(width: double.infinity),
       );
-    }),
+    },),
 );
 }
 
 class UnconfirmedBalanceModal extends StatelessWidget {
-  const UnconfirmedBalanceModal({super.key, required this.balance, required this.currencyIconPath});
+  const UnconfirmedBalanceModal({required this.balance, required this.currencyIconPath, super.key});
 
   final String balance;
   final String currencyIconPath;
@@ -138,7 +137,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
   Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),),
       child: SafeArea(
         top: false,
         child: Column(
@@ -147,11 +146,11 @@ class UnconfirmedBalanceModal extends StatelessWidget {
           children: [
             ModalTopBar(
                 title: S.of(context).balance_confirmation,
-                leadingIcon: Icon(Icons.close),
+                leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
-                onLeadingPressed: Navigator.of(context).pop),
+                onLeadingPressed: Navigator.of(context).pop,),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 spacing: 20,
                 children: [
@@ -166,8 +165,8 @@ class UnconfirmedBalanceModal extends StatelessWidget {
                             border:
                                 Border.all(color: Theme.of(context).colorScheme.surface, width: 3),
                             borderRadius: BorderRadius.circular(12),
-                            color: Colors.white),
-                        child: Icon(
+                            color: Colors.white,),
+                        child: const Icon(
                           Icons.lock_outlined,
                           size: 24,
                           color: Colors.black,
@@ -177,21 +176,20 @@ class UnconfirmedBalanceModal extends StatelessWidget {
                   ),
                   Text(
                     "${balance} ${S.of(context).balance_confirmation_desc_1}\n\n${S.of(context).balance_confirmation_desc_2}\n\n${S.of(context).balance_confirmation_desc_3}",
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
                   NewPrimaryButton(
                       onPressed: Navigator.of(context).pop,
                       text: S.of(context).close,
                       color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary),
-                  SizedBox(),
+                      textColor: Theme.of(context).colorScheme.onPrimary,),
+                  const SizedBox(),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
 }
-

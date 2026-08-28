@@ -1,16 +1,17 @@
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart";
 import "package:cw_core/amount/money.dart";
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class AnonpayHistoryTile extends StatelessWidget {
-  const AnonpayHistoryTile(
-      {super.key,
-      required this.provider,
-      required this.createdAt,
-      required this.amount,
-      required this.roundedTop,
-      required this.roundedBottom,
-      required this.bottomSeparator});
+  const AnonpayHistoryTile({
+    required this.provider,
+    required this.createdAt,
+    required this.amount,
+    required this.roundedTop,
+    required this.roundedBottom,
+    required this.bottomSeparator,
+    super.key,
+  });
 
   final String provider;
   final String createdAt;
@@ -20,17 +21,17 @@ class AnonpayHistoryTile extends StatelessWidget {
   final bool bottomSeparator;
 
   @override
-  Widget build(BuildContext context) {
-    return HistoryTileBase(
+  Widget build(BuildContext context) => HistoryTileBase(
         title: provider,
         date: createdAt,
         amount: amount,
         leadingIcon: ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: Image.asset('assets/images/trocador.png', width: 36, height: 36)),
+          borderRadius: BorderRadius.circular(50),
+          child: Image.asset("assets/images/trocador.png", width: 36, height: 36),
+        ),
         amountFiat: Money.zero(amount.currency),
         roundedTop: roundedTop,
         roundedBottom: roundedBottom,
-        bottomSeparator: bottomSeparator);
-  }
+        bottomSeparator: bottomSeparator,
+      );
 }

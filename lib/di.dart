@@ -580,13 +580,10 @@ Future<void> setup({
     PayjoinFilterStore(appStore: getIt.get<AppStore>()),
   );
 
-  // Factories, not singletons: each source owns live subscriptions that the
-  // bloc disposes when it closes, so a reset has to hand out fresh ones.
   getIt.registerFactory<TransactionHistorySource>(
     () => TransactionHistorySource(
       emitter: getIt.get<AppStore>().wallet!.transactionHistory,
       filters: getIt.get<TransactionFilterStore>(),
-      // The wallet owns its history and outlives any list showing it.
       disposesEmitter: false,
     ),
   );

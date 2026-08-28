@@ -1,9 +1,9 @@
-import 'package:cw_core/action_list_item.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/keyable.dart';
+import "package:cw_core/action_list_item.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/format_amount.dart";
+import "package:cw_core/keyable.dart";
+import "package:cw_core/transaction_direction.dart";
 
 abstract class TransactionInfo extends Object with Keyable, HistoryListItem {
   TransactionInfo({
@@ -16,6 +16,7 @@ abstract class TransactionInfo extends Object with Keyable, HistoryListItem {
     this.from,
   });
 
+  @override
   final String id;
   final Money amount;
   String get txHash => id;
@@ -64,6 +65,6 @@ abstract class TransactionInfo extends Object with Keyable, HistoryListItem {
   Map<String, dynamic> additionalInfo = {};
 
   String? _fiatAmount;
-  String fiatAmount() => _fiatAmount ?? '';
+  String fiatAmount() => _fiatAmount ?? "";
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

@@ -86,8 +86,6 @@ abstract class MoneroAccountListViewModelBase with Store {
       );
     }
 
-    // The history is shared across accounts, so switching one changes which
-    // rows belong in the list rather than the rows themselves.
     if (getIt.isRegistered<TransactionHistoryBloc>()) {
       getIt.get<TransactionHistoryBloc>().add(const TransactionHistoryRefreshed());
     }

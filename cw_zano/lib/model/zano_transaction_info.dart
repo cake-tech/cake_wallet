@@ -1,9 +1,9 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_zano/api/model/transfer.dart';
-import 'package:cw_zano/zano_formatter.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_zano/api/model/transfer.dart";
+import "package:cw_zano/zano_formatter.dart";
 
 class ZanoTransactionInfo extends TransactionInfo {
   ZanoTransactionInfo({
@@ -19,22 +19,21 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.decimalPoint,
     required String assetId,
   }) {
-    additionalInfo['assetId'] = assetId;
+    additionalInfo["assetId"] = assetId;
   }
 
-  ZanoTransactionInfo.fromTransfer(Transfer transfer,
-      {required int confirmations,
-      required bool isIncome,
-      required String assetId,
-      required super.amount,
-      this.tokenSymbol = 'ZANO',
-      this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
-      : height = transfer.height,
-
-        confirmations = confirmations,
+  ZanoTransactionInfo.fromTransfer(
+    Transfer transfer, {
+    required this.confirmations,
+    required bool isIncome,
+    required String assetId,
+    required super.amount,
+    this.tokenSymbol = "ZANO",
+    this.decimalPoint = ZanoFormatter.defaultDecimalPoint,
+  })  : height = transfer.height,
         isPending = confirmations < 10,
         recipientAddress =
-            transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '',
+            transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : "",
         super(
           id: transfer.txHash,
           fee: Money.fromInt(transfer.fee, CryptoCurrency.zano),
@@ -42,16 +41,19 @@ class ZanoTransactionInfo extends TransactionInfo {
           date: DateTime.fromMillisecondsSinceEpoch(transfer.timestamp * 1000),
         ) {
     additionalInfo = <String, dynamic>{
-      'comment': transfer.comment,
-      'assetId': assetId,
+      "comment": transfer.comment,
+      "assetId": assetId,
     };
   }
 
   String get assetId => additionalInfo["assetId"] as String;
 
   set assetId(String newId) => additionalInfo["assetId"] = newId;
+  @override
   final int height;
+  @override
   final bool isPending;
+  @override
   final int confirmations;
   final int decimalPoint;
   late String recipientAddress;

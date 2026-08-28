@@ -1,7 +1,8 @@
-import "package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart";
-import "package:cw_core/action_list_item.dart";
+import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart";
 import "package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart";
@@ -9,17 +10,17 @@ import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_til
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
-import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
-import "package:cake_wallet/view_model/dashboard/date_section_item.dart";
 import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/view_model/dashboard/date_section_item.dart";
 import "package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart";
-import "package:cake_wallet/exchange/trade.dart";
-import "package:cw_core/transaction_info.dart";
+import "package:cw_core/action_list_item.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/sync_status.dart";
+import "package:cw_core/transaction_info.dart";
 import "package:flutter/cupertino.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -45,7 +46,7 @@ class HistorySection extends StatelessWidget {
       required this.payjoinEmitter,
       required this.short,
       required this.roundedTopSection,
-      required this.detailsAsPage, super.key});
+      required this.detailsAsPage, super.key,});
 
   final TransactionHistoryBloc bloc;
   final PayjoinHistoryEmitter payjoinEmitter;
@@ -64,7 +65,7 @@ class HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SliverPadding(
-        padding: EdgeInsets.only(left: 16.0, right: 16, top: short && roundedTopSection ? 18 : 0),
+        padding: EdgeInsets.only(left: 16, right: 16, top: short && roundedTopSection ? 18 : 0),
         sliver: BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
           bloc: bloc,
           builder: (context, state) {
@@ -86,18 +87,18 @@ class HistorySection extends StatelessWidget {
 
             return (items.isEmpty)
                 ? SliverPadding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: const EdgeInsets.only(top: 24),
                     sliver: SliverToBoxAdapter(
                       child: Observer(
                         builder: (_) => (bloc.appStore.wallet!.syncStatus
                                 is SyncingSyncStatus)
-                            ? SizedBox.shrink()
+                            ? const SizedBox.shrink()
                             : Center(
                                 child: Text(S.of(context).transactions_will_appear_here,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,),),
                               ),
                       ),
                     ),
@@ -113,7 +114,7 @@ class HistorySection extends StatelessWidget {
                           final item = _asPayjoin(items[index]) ?? items[index];
                           final nextItem = index == items.length - 1 ? null : items[index + 1];
 
-                          final roundedBottom = (nextItem == null || nextItem is DateSectionItem);
+                          final roundedBottom = nextItem == null || nextItem is DateSectionItem;
                           final roundedTop = roundedTopSection &&
                               (prevItem == null || prevItem is DateSectionItem);
 
@@ -124,13 +125,13 @@ class HistorySection extends StatelessWidget {
                                 getIt.get<TransactionDetailsModal>(param1: item);
                                 if (detailsAsPage) {
                                   Navigator.of(context).push(CupertinoPageRoute(
-                                      builder: (context) => Material(child: page)));
+                                      builder: (context) => Material(child: page),),);
                                 } else {
                                   showMaterialModalBottomSheet(
                                       backgroundColor: Colors.transparent,
                                       context: context,
                                       builder: (context) =>
-                                          FractionallySizedBox(heightFactor: 0.9, child: page));
+                                          FractionallySizedBox(heightFactor: 0.9, child: page),);
                                 }
                               },
                               child: HistoryTile(
@@ -161,7 +162,7 @@ class HistorySection extends StatelessWidget {
                                 to: tradeTo,
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
-                                    item.createdAt ?? DateTime.now(), localeName),
+                                    item.createdAt ?? DateTime.now(), localeName,),
                                 amount: trade.amountFormatted(),
                                 receiveAmount: trade.receiveAmountFormatted(),
                                 roundedBottom: roundedBottom,
@@ -172,16 +173,16 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is SpecificDateSectionItem) {
                             return Padding(
-                                padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
+                                padding: EdgeInsets.only(left: 8, bottom: 8, top: topPadding),
                                 child: Text(item.text,
                                     style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)));
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,),),);
                           } else if (item is DateSectionItem) {
                             return Padding(
-                                padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
+                                padding: EdgeInsets.only(left: 8, bottom: 8, top: topPadding),
                                 child: Text(DateFormat("MMMM yyyy", localeName).format(item.date),
                                     style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)));
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,),),);
                           } else if (item is Order) {
                             return _historyRow(
                               onTap: () => Navigator.of(context)
@@ -212,30 +213,31 @@ class HistorySection extends StatelessWidget {
                                   isSending: session.isSenderSession,
                                   roundedTop: roundedTop,
                                   roundedBottom: roundedBottom,
-                                  bottomSeparator: !roundedBottom),
+                                  bottomSeparator: !roundedBottom,),
                             );
                           } else if (item is AnonpayInvoiceInfo) {
 
                             return _historyRow(
                                 onTap: () => Navigator.of(context).pushNamed(
                                     Routes.anonPayDetailsPage,
-                                    arguments: item),
+                                    arguments: item,),
                                 child: AnonpayHistoryTile(
                                     provider: item.provider,
                                     createdAt: _formatTransactionDate(
-                                        item.createdAt, localeName),
+                                        item.createdAt, localeName,),
                                     amount: Money.tryParse(item.amountTo.toString(), CryptoCurrency.xmr) ?? Money.zero(CryptoCurrency.xmr),
                                     roundedTop: roundedTop,
                                     roundedBottom: roundedBottom,
-                                    bottomSeparator: !roundedBottom));
-                          } else
-                            return Text(item.runtimeType.toString());
+                                    bottomSeparator: !roundedBottom,),);
+                          } else {
+                          return kDebugMode ? Text(item.runtimeType.toString()) : const SizedBox.shrink();
                         }
+                      }
                       ),
                     ),
                   );
           },
-        ));
+        ),);
 
   static const shortHistoryLength = 3;
 

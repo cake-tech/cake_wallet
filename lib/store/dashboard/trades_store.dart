@@ -1,8 +1,8 @@
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:mobx/mobx.dart";
 
-part 'trades_store.g.dart';
+part "trades_store.g.dart";
 
 class TradesStore = TradesStoreBase with _$TradesStore;
 
