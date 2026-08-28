@@ -275,35 +275,6 @@ abstract class EVMChainWalletBase
     return (await sharedPrefs.future).getBool(key) ?? true;
   }
 
-  /// The currency a transaction's amount is denominated in.
-  ///
-  /// Resolving the registered token here rather than stamping an asset later
-  /// means `amount.currency` is the asset — but it also means the fallback has
-  /// to keep the right decimals, so an unknown token stays a synthetic
-  /// Erc20Token rather than becoming the native currency.
-  CryptoCurrency _amountCurrency(
-    EVMChainTransactionModel transactionModel,
-    int decimals,
-    String tokenSymbol,
-  ) {
-    if (tokenSymbol == currency.title) {
-      return currency;
-    }
-
-    final registered = erc20Currencies.firstWhereOrNull(
-      (token) =>
-          transactionModel.contractAddress?.toLowerCase() == token.contractAddress.toLowerCase(),
-    );
-
-    return registered ??
-        Erc20Token(
-          name: '',
-          contractAddress: transactionModel.contractAddress,
-          decimal: decimals,
-          symbol: tokenSymbol,
-        );
-  }
-
   EVMChainTransactionInfo getTransactionInfo(
     EVMChainTransactionModel transactionModel,
     String address,
@@ -312,7 +283,13 @@ abstract class EVMChainWalletBase
     final tokenSymbol = transactionModel.tokenSymbol ??
         EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
 
-    final amountCurrency = _amountCurrency(transactionModel, decimals, tokenSymbol);
+    final amountCurrency = EVMChainTransactionInfo.amountCurrencyFor(
+      chainId: transactionModel.chainId,
+      tokens: erc20Currencies,
+      contractAddress: transactionModel.contractAddress,
+      decimals: decimals,
+      tokenSymbol: tokenSymbol,
+    );
     return EVMChainTransactionInfo(
       id: transactionModel.hash,
       height: transactionModel.blockNumber,

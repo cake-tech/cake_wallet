@@ -1,3 +1,5 @@
+import 'package:cw_core/spl_token.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -34,11 +36,31 @@ class SolanaTransactionInfo extends JsonTransactionInfo {
   @override
   final DateTime date;
 
-  factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
+
+  static CryptoCurrency amountCurrencyFor({
+    required Iterable<SPLToken> tokens,
+    required String tokenSymbol,
+    required int decimals,
+  }) {
+    if (tokenSymbol == CryptoCurrency.sol.symbol) {
+      return CryptoCurrency.sol;
+    }
+
+    return tokens.firstWhereOrNull(
+          (token) => token.symbol.toLowerCase() == tokenSymbol.toLowerCase(),
+        ) ??
+        CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+  }
+
+  factory SolanaTransactionInfo.fromJson(
+    Map<String, dynamic> data, {
+    Iterable<SPLToken> tokens = const [],
+  }) {
     final symbol = data['tokenSymbol'] as String? ?? "SOL";
     final decimals = data['tokenDecimals'] as int? ?? 6;
 
-    final currency = CryptoCurrency(name: symbol, title: symbol, decimals: decimals);
+    final currency =
+        amountCurrencyFor(tokens: tokens, tokenSymbol: symbol, decimals: decimals);
 
     return SolanaTransactionInfo(
       id: data['id'] as String,

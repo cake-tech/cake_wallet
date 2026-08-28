@@ -65,8 +65,13 @@ abstract class JsonTransactionHistory<TransactionType extends JsonTransactionInf
   }
 
   @protected
+  Future<void> prepareForLoad() async {}
+
+  @protected
   Future<void> load() async {
     try {
+      await prepareForLoad();
+
       final content = await _read();
       final txs = content["transactions"] as Map<String, dynamic>? ?? {};
 

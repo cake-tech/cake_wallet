@@ -60,7 +60,10 @@ abstract class TronWalletBase
         super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
-        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
   }
 
   final String? _mnemonic;
@@ -417,7 +420,11 @@ abstract class TronWalletBase
                 ?.toInt() ??
             txCurrency.decimals;
 
-        txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+        txCurrency = TronTransactionInfo.amountCurrencyFor(
+          tokens: tronTokenCurrencies,
+          tokenSymbol: tokenSymbol,
+          decimals: decimals,
+        );
       }
 
       result[transactionModel.hash] = TronTransactionInfo(
@@ -560,7 +567,6 @@ abstract class TronWalletBase
   }
 
   List<TronToken> get tronTokenCurrencies => _tronTokens.toList();
-  
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {

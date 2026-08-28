@@ -1,3 +1,4 @@
+import "package:cw_core/erc20_token.dart";
 import 'dart:core';
 
 import 'package:cw_core/encryption_file_utils.dart';
@@ -22,14 +23,22 @@ class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransact
   /// chain the wallet is currently on.
   final int Function() getCurrentChainId;
 
+
   @override
   String get fileName => EVMChainUtils.getTransactionHistoryFileName(getCurrentChainId());
 
   @override
-  EVMChainTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
-      EVMChainTransactionInfo.fromJson(json, getCurrentChainId());
+  Iterable<Erc20Token> _tokens = const [];
 
-  /// Keeps one chain's file from ever picking up another chain's transactions.
+  @override
+  Future<void> prepareForLoad() async {
+    _tokens = await Erc20Token.getAllForWallet(walletInfo.name, getCurrentChainId());
+  }
+
+  @override
+  EVMChainTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
+      EVMChainTransactionInfo.fromJson(json, getCurrentChainId(), tokens: _tokens);
+
   @override
   bool shouldPersist(EVMChainTransactionInfo transaction) =>
       transaction.chainId == getCurrentChainId();

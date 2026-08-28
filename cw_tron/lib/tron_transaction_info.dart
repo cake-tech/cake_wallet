@@ -1,3 +1,5 @@
+import 'package:cw_core/tron_token.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -37,10 +39,29 @@ class TronTransactionInfo extends JsonTransactionInfo {
 
   final DateTime blockTime;
 
-  factory TronTransactionInfo.fromJson(Map<String, dynamic> data) {
+  static CryptoCurrency amountCurrencyFor({
+    required Iterable<TronToken> tokens,
+    required String tokenSymbol,
+    required int decimals,
+  }) {
+    if (tokenSymbol == CryptoCurrency.trx.title) {
+      return CryptoCurrency.trx;
+    }
+
+    return tokens.firstWhereOrNull(
+          (token) => token.symbol.toLowerCase() == tokenSymbol.toLowerCase(),
+        ) ??
+        CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+  }
+
+  factory TronTransactionInfo.fromJson(
+    Map<String, dynamic> data, {
+    Iterable<TronToken> tokens = const [],
+  }) {
     final tokenSymbol = data['tokenSymbol'] as String;
     final decimals = data['decimals'] as int? ?? CryptoCurrency.trx.decimals;
-    final currency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+    final currency =
+        amountCurrencyFor(tokens: tokens, tokenSymbol: tokenSymbol, decimals: decimals);
 
     return TronTransactionInfo(
       id: data['id'] as String,

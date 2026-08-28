@@ -20,11 +20,7 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     required this.sources,
     required this.appStore,
     required this.fiatConversionStore,
-  }) : super(
-          sources.any((source) => source.emitter.hasLoaded)
-              ? TransactionHistoryLoaded.from(sources)
-              : const TransactionHistoryNotLoaded(),
-        ) {
+  }) : super(const TransactionHistoryNotLoaded(),) {
     on<TransactionHistoryChanged>(_onChanged, transformer: sequential());
     on<TransactionHistoryRefreshed>(_onRefreshed, transformer: sequential());
     on<TransactionHistoryFilterToggled>(_onFilterToggled, transformer: sequential());
@@ -41,6 +37,8 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
             .listen((journal) => add(TransactionHistoryChanged(source, journal))),
       );
     }
+
+    add(const TransactionHistoryRefreshed());
   }
 
   static const _rebuildInsteadOfApplyingAbove = 16;
@@ -129,6 +127,13 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     if (!sources.any((source) => source.emitter.hasLoaded)) {
       return;
     }
+
+    await Future.wait(
+      appStore.wallet!.balance.keys.map(
+            (currency) => fiatConversionStore.fetch(currency, fiat),
+      ),
+    );
+
 
     emit(TransactionHistoryLoaded.from(sources));
   }

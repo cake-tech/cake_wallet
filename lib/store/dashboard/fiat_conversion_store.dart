@@ -38,16 +38,15 @@ abstract class FiatConversionStoreBase with Store {
   // TODO refactor after charts is merged
   Future<Money> convert(Money amount, Currency target) async {
     if (amount.currency is FiatCurrency && target is CryptoCurrency) {
-      if(prices[target] == null) {
+      if (prices[target] == null) {
         prices[target] = await FiatConversionService.fetchPrice(
             crypto: target, fiat: amount.currency as FiatCurrency, torOnly: false);
       }
       final price = prices[target];
       final convertedValue = double.parse(amount.toString()) / price!;
       return Money.safeParse(convertedValue, target);
-    }
-    else if (amount.currency is CryptoCurrency && target is FiatCurrency) {
-      if(prices[amount.currency] == null) {
+    } else if (amount.currency is CryptoCurrency && target is FiatCurrency) {
+      if (prices[amount.currency] == null) {
         prices[amount.currency as CryptoCurrency] = await FiatConversionService.fetchPrice(
             crypto: amount.currency as CryptoCurrency, fiat: target, torOnly: false);
       }
@@ -57,5 +56,15 @@ abstract class FiatConversionStoreBase with Store {
       return Money.safeParse(convertedValue, target);
     }
     throw ArgumentError("for now, only fiat <-> crypto conversions are supported");
+  }
+
+  Future<void> fetch(CryptoCurrency target, FiatCurrency fiat) async {
+    if (prices[target] == null) {
+      prices[target] = await FiatConversionService.fetchPrice(
+        crypto: target,
+        fiat: fiat,
+        torOnly: false,
+      );
+    }
   }
 }

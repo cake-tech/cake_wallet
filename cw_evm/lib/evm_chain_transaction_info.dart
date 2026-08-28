@@ -1,4 +1,5 @@
 // ignore_for_file: overridden_fields, annotate_overrides
+import 'package:collection/collection.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -43,7 +44,6 @@ class EVMChainTransactionInfo extends JsonTransactionInfo {
   final String? contractAddress;
   final int chainId;
 
-  /// Get fee currency symbol based on wallet type
   String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
 
   @override
@@ -52,11 +52,47 @@ class EVMChainTransactionInfo extends JsonTransactionInfo {
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
-  factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
+  static CryptoCurrency amountCurrencyFor({
+    required int chainId,
+    required Iterable<Erc20Token> tokens,
+    required String? contractAddress,
+    required int decimals,
+    required String tokenSymbol,
+  }) {
+    final native =
+        EvmChainRegistry().getChainConfig(chainId)!.nativeCurrency;
+
+    if (tokenSymbol == native.title) {
+      return native;
+    }
+
+    final registered = tokens.firstWhereOrNull(
+      (token) => contractAddress?.toLowerCase() == token.contractAddress.toLowerCase(),
+    );
+
+    return registered ??
+        Erc20Token(
+          name: '',
+          contractAddress: contractAddress ?? '',
+          decimal: decimals,
+          symbol: tokenSymbol,
+        );
+  }
+
+  factory EVMChainTransactionInfo.fromJson(
+    Map<String, dynamic> data,
+    int chainId, {
+    Iterable<Erc20Token> tokens = const [],
+  }) {
     final decimals = data['exponent'] as int? ?? 18;
     final tokenSymbol = data['tokenSymbol'] as String;
-    final currency =
-        Erc20Token(name: '', symbol: tokenSymbol, contractAddress: '', decimal: decimals);
+    final currency = amountCurrencyFor(
+      chainId: chainId,
+      tokens: tokens,
+      contractAddress: data['contractAddress'] as String?,
+      decimals: decimals,
+      tokenSymbol: tokenSymbol,
+    );
 
     final feeCurrency =
         EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency ?? CryptoCurrency.eth;

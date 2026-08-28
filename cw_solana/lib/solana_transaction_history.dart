@@ -1,3 +1,5 @@
+import 'package:cw_core/spl_token.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'dart:core';
 
 import 'package:cw_core/encryption_file_utils.dart';
@@ -21,7 +23,14 @@ class SolanaTransactionHistory extends JsonTransactionHistory<SolanaTransactionI
   @override
   String get fileName => transactionsHistoryFileName;
 
+  Iterable<SPLToken> _tokens = const [];
+
+  @override
+  Future<void> prepareForLoad() async {
+    _tokens = await SPLToken.getAllForWallet(walletInfo.name);
+  }
+
   @override
   SolanaTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
-      SolanaTransactionInfo.fromJson(json);
+      SolanaTransactionInfo.fromJson(json, tokens: _tokens);
 }
