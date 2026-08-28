@@ -150,7 +150,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           network: zcashNetwork,
         );
       case WalletType.decred:
-        return decred!.createDecredNewWalletCredentials(name: name);
+        return decred!.createDecredNewWalletCredentials(
+            name: name,
+            password: walletPassword,
+            passphrase: passphrase,
+            mnemonic: newWalletArguments!.mnemonic);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

@@ -223,6 +223,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
           );
         case WalletType.zcash:
           return zcash!.createZcashRestoreWalletFromSeedCredentials(

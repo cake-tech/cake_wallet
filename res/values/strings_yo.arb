@@ -61,6 +61,7 @@
   "already_have_account": "Ṣé o ti ní àkántì tẹ́lẹ̀?",
   "already_your_username": "Eyi ti jẹ orúkọ olumulo rẹ tẹlẹ!",
   "always": "Nígbà gbogbo",
+  "ambiguous_token_symbol_exception": "Die e sii ju ami-ami kan ninu apamọwọ yii nlo aami ${symbol}. Pa àmi àdáwòkọ rẹ́ kí ó lè mọ èyí tí ó tọ́ kí ó tó fi ránṣẹ́.",
   "amount": "Iye: ",
   "amount_is_below_minimum_limit": "Iwontunwonsi rẹ lẹ́yìn àwọn owó ìdúná yóò kéré ju iye kéréjù tí a nílò fún paṣipaarọ (${min})",
   "amount_is_estimate": "Iye tí a máa gba jẹ́ àfojúsùn",
@@ -1420,6 +1421,7 @@
   "wc_permission_sign_messages": "Wole awọn ifiranṣẹ ati titẹ data",
   "wc_permission_switch_chains": "Yipada ki o si fi EVM dè",
   "wc_permission_view_balance": "Wo iwọntunwọnsi apamọwọ rẹ ati iṣẹ ṣiṣe",
+  "wc_request_for_different_wallet": "A ṣe ibeere yii fun apamọwọ ti o yatọ. Ṣii apamọwọ ti a ti sopọ si app yii ki o tun gbiyanju lẹẹkansi.",
   "wc_scam_warning_message": "Ibeere yii han lati wa lati itanjẹ ti a mọ. Jọwọ tẹsiwaju pẹlu iṣọra.",
   "wc_scam_warning_title": "IKILO!",
   "wc_scan_qr": "Ṣayẹwo QR",
@@ -1474,5 +1476,6 @@
   "zcash_card_enable_later": "O le ma a mu kaadi yii ṣiṣẹ nigbamii ninu awọn eto",
   "zcash_card_missing_funds": "Ṣe owó rẹ sọnù?",
   "zcash_card_scan": "Ṣàwárí",
-  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀."
+  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀.",
+  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ."
 }

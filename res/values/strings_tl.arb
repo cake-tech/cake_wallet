@@ -61,6 +61,7 @@
   "already_have_account": "Mayroon ka nang account?",
   "already_your_username": "Ito na ang username mo!",
   "always": "Palagi",
+  "ambiguous_token_symbol_exception": "Higit sa isang token sa wallet na ito ang gumagamit ng simbolo na ${symbol}. I-disable ang duplicate na token para matukoy ang tama bago ipadala.",
   "amount": "Halaga: ",
   "amount_is_below_minimum_limit": "Ang iyong balanse pagkatapos ng mga bayarin ay magiging mas mababa kaysa sa minimum na halagang kailangan para sa palitan (${min})",
   "amount_is_estimate": "Ang halagang matatanggap ay isang pagtatantya",
@@ -1419,6 +1420,7 @@
   "wc_permission_sign_messages": "Mag-sign ng mga mensahe at nai-type na data",
   "wc_permission_switch_chains": "Lumipat at magdagdag ng mga EVM chain",
   "wc_permission_view_balance": "Tingnan ang balanse at aktibidad ng iyong wallet",
+  "wc_request_for_different_wallet": "Ang kahilingang ito ay ginawa para sa ibang wallet. Buksan ang wallet na nakakonekta sa app na ito at subukang muli.",
   "wc_scam_warning_message": "Mukhang mula sa isang kilalang scam ang kahilingang ito. Mangyaring magpatuloy nang may pag-iingat.",
   "wc_scam_warning_title": "BABALA!",
   "wc_scan_qr": "I-scan ang QR",
@@ -1473,5 +1475,6 @@
   "zcash_card_enable_later": "Maaari mo itong paganahin anumang oras sa ibang pagkakataon sa mga setting",
   "zcash_card_missing_funds": "Nawawalang pondo?",
   "zcash_card_scan": "I-scan",
-  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula."
+  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula.",
+  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito."
 }
