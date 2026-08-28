@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:bloc/bloc.dart";
+import "package:collection/collection.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
@@ -8,6 +9,7 @@ import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:cake_wallet/new-ui/viewmodels/transaction_history/date_ordered_list.dart";
 import "package:cake_wallet/view_model/dashboard/formatted_item_list.dart";
 import "package:cw_core/history_source.dart";
+import "package:cw_core/json_transaction_history.dart";
 import "package:rxdart/rxdart.dart";
 
 part "transaction_history_event.dart";
@@ -25,6 +27,8 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
         ) {
     on<TransactionHistoryChanged>(_onChanged, transformer: sequential());
     on<TransactionHistoryRefreshed>(_onRefreshed, transformer: sequential());
+    on<TransactionHistoryFilterToggled>(_onFilterToggled, transformer: sequential());
+    on<TransactionHistoryAllFiltersToggled>(_onAllFiltersToggled, transformer: sequential());
 
     for (final source in sources) {
       final changes = source.emitter.changes;
@@ -75,6 +79,32 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     }
 
     emit((current as TransactionHistoryLoaded).applying(event.source, event.journal));
+  }
+
+  List<HistoryFilter> get filters =>
+      [for (final source in sources) ...source.filters.filters];
+
+  Future<void> _onFilterToggled(
+    TransactionHistoryFilterToggled event,
+    Emitter<TransactionHistoryState> emit,
+  ) async {
+    final owner = sources
+        .firstWhereOrNull((source) => source.filters.allFilters.contains(event.filter));
+
+    owner!.filters.toggleFilter(event.filter);
+
+    emit(TransactionHistoryLoaded.from(sources));
+  }
+
+  Future<void> _onAllFiltersToggled(
+    TransactionHistoryAllFiltersToggled event,
+    Emitter<TransactionHistoryState> emit,
+  ) async {
+    for (final source in sources) {
+      source.filters.setAllFilters(value: event.value);
+    }
+
+    emit(TransactionHistoryLoaded.from(sources));
   }
 
   Future<void> _onRefreshed(

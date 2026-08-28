@@ -1,17 +1,13 @@
+import 'package:collection/collection.dart';
 import 'package:cw_core/history_source.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import "package:cake_wallet/exchange/trade.dart";
 import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
 
-part 'trade_filter_store.g.dart';
-
-class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
-
-abstract class TradeFilterStoreBase with Store implements HistoryFilters {
-  TradeFilterStoreBase(this._appStore)
+class TradeFilterStore extends HistoryFilters {
+  TradeFilterStore(this._appStore)
       : displayXMRTO = true,
         displayChangeNow = true,
         displaySideShift = true,
@@ -30,51 +26,35 @@ abstract class TradeFilterStoreBase with Store implements HistoryFilters {
 
   final AppStore _appStore;
 
-  @observable
   bool displayXMRTO;
 
-  @observable
   bool displayChangeNow;
 
-  @observable
   bool displaySideShift;
 
-  @observable
   bool displayMorphToken;
 
-  @observable
   bool displaySimpleSwap;
 
-  @observable
   bool displayTrocador;
 
-  @observable
   bool displayExolix;
 
-  @observable
   bool displayChainflip;
 
-  @observable
   bool displayThorChain;
 
-  @observable
   bool displayLetsExchange;
 
-  @observable
   bool displayStealthEx;
 
-  @observable
   bool displayXOSwap;
 
-  @observable
   bool displaySwapTrade;
 
-  @observable
   bool displaySwapXyz;
-  @observable
   bool displayNearIntents;
 
-  @computed
   int get enabledProvidersCount => [
         displayChangeNow,
         displaySideShift,
@@ -91,7 +71,6 @@ abstract class TradeFilterStoreBase with Store implements HistoryFilters {
         displayNearIntents
       ].where((item) => item).length;
 
-  @computed
   bool get displayAllTrades =>
       displayChangeNow &&
       displaySideShift &&
@@ -107,7 +86,6 @@ abstract class TradeFilterStoreBase with Store implements HistoryFilters {
       displaySwapXyz &&
       displayNearIntents;
 
-  @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
     switch (provider) {
       case ExchangeProviderDescription.changeNow:
@@ -193,7 +171,63 @@ abstract class TradeFilterStoreBase with Store implements HistoryFilters {
     }
   }
 
-  /// Whether one trade passes the wallet, account and provider filters.
+  static const _swap = "Swap";
+
+  static const _providers = [
+    ExchangeProviderDescription.changeNow,
+    ExchangeProviderDescription.sideShift,
+    ExchangeProviderDescription.simpleSwap,
+    ExchangeProviderDescription.trocador,
+    ExchangeProviderDescription.exolix,
+    ExchangeProviderDescription.chainflip,
+    ExchangeProviderDescription.thorChain,
+    ExchangeProviderDescription.letsExchange,
+    ExchangeProviderDescription.stealthEx,
+    ExchangeProviderDescription.xoSwap,
+    ExchangeProviderDescription.swapTrade,
+    ExchangeProviderDescription.swapsXyz,
+    ExchangeProviderDescription.nearIntents,
+  ];
+
+  @override
+  List<HistoryFilter> get filters => [
+        HistoryFilter(
+          key: _swap,
+          caption: _swap,
+          value: enabledProvidersCount > 0,
+          children: [
+            for (final provider in _providers)
+              HistoryFilter(
+                key: provider.title,
+                caption: provider.title,
+                value: _displaysProvider(provider),
+                iconPath: provider.image,
+              ),
+          ],
+        ),
+      ];
+
+  @override
+  void toggleFilter(HistoryFilter filter) {
+    if (filter.key == _swap) {
+      toggleDisplayExchange(ExchangeProviderDescription.all);
+      return;
+    }
+
+    final provider = _providers.firstWhereOrNull((provider) => provider.title == filter.key);
+
+    if (provider != null) {
+      toggleDisplayExchange(provider);
+    }
+  }
+
+  @override
+  void setAllFilters({required bool value}) {
+    if (value != displayAllTrades) {
+      toggleDisplayExchange(ExchangeProviderDescription.all);
+    }
+  }
+
   @override
   bool relevant(HistoryListItem item) {
     final wallet = _appStore.wallet;
@@ -223,7 +257,6 @@ abstract class TradeFilterStoreBase with Store implements HistoryFilters {
       (displayChainflip && provider == ExchangeProviderDescription.chainflip) ||
       (displayThorChain && provider == ExchangeProviderDescription.thorChain);
 
-  List<Trade> filtered({required List<Trade> trades}) => trades.where(relevant).toList();
 
   bool isTradeInAccount(Trade item, WalletBase wallet) =>
       item.fromWalletAddress == null

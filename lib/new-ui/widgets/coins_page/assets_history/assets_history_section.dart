@@ -139,9 +139,12 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
         builder: (context) => ModalNavigator(
               rootPage: Material(
                   color: Colors.transparent,
-                  child: HistoryModal(dashboardViewModel: widget.dashboardViewModel)),
+                  child: HistoryModal()),
               parentContext: context,
             ));
-    widget.dashboardViewModel.changeAllFilterItems(true);
+    // Leaving the history resets the filters, so the next visit starts clean.
+    getIt.get<TransactionHistoryBloc>().add(
+          const TransactionHistoryAllFiltersToggled(value: true),
+        );
   }
 }

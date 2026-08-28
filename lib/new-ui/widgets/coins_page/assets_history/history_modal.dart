@@ -4,7 +4,6 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_fil
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/di.dart';
@@ -12,9 +11,7 @@ import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_hi
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class HistoryModal extends StatelessWidget {
-  const HistoryModal({super.key, required this.dashboardViewModel});
-
-  final DashboardViewModel dashboardViewModel;
+  const HistoryModal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +89,7 @@ class HistoryModal extends StatelessWidget {
                       onTap: () async {
                         await Navigator.of(context).push(CupertinoPageRoute(
                             builder: (context) =>
-                                HistoryFiltersPage(dashboardViewModel: dashboardViewModel)));
+                                HistoryFiltersPage(bloc: getIt.get<TransactionHistoryBloc>())));
 
                         getIt
                             .get<TransactionHistoryBloc>()

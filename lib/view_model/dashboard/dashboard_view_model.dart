@@ -1,51 +1,23 @@
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
-import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/service_status.dart';
-import 'package:cake_wallet/entities/sync_status_display_mode.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/order/order_provider_description.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/dashboard/orders_store.dart';
-import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
-import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import "package:cw_core/action_list_item.dart";
-import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
-import "package:cake_wallet/order/order.dart";
-import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
-import "package:cake_wallet/exchange/trade.dart";
 import "package:cw_core/transaction_info.dart";
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
@@ -53,7 +25,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -79,9 +50,6 @@ abstract class DashboardViewModelBase with Store {
       {required this.balanceViewModel,
       required this.tradeMonitor,
       required this.appStore,
-      required this.tradeFilterStore,
-      required this.orderFilterStore,
-      required this.transactionFilterStore,
       required this.settingsStore,
       required this.yatStore,
       required this.sharedPreferences,
@@ -91,8 +59,6 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        filterItems = [],
-        exchangeFilterItems = [],
         name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         cardDesigns = ObservableList<CardDesign>(),
@@ -107,7 +73,6 @@ abstract class DashboardViewModelBase with Store {
     unawaited(isBatteryOptimizationEnabled());
     unawaited(_loadConstraints());
 
-    loadFilterItems();
 
 
     _walletChangeDisposer?.reaction.dispose();
@@ -137,104 +102,6 @@ abstract class DashboardViewModelBase with Store {
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
-  void loadFilterItems() {
-    filterItems = [
-      // FilterItem(
-      //     value: () => transactionFilterStore.displayAll,
-      //     caption: S.current.all_transactions,
-      //     onChanged: transactionFilterStore.toggleAll),
-      FilterItem(
-          value: () => transactionFilterStore.displayOutgoing,
-          caption: S.current.send,
-          onChanged: transactionFilterStore.toggleOutgoing),
-      FilterItem(
-          value: () => transactionFilterStore.displayIncoming,
-          caption: S.current.receive,
-          onChanged: transactionFilterStore.toggleIncoming),
-      if (appStore.wallet!.type == WalletType.bitcoin)
-        FilterItem(
-          value: () => transactionFilterStore.displaySilentPayments,
-          caption: S.current.silent_payments,
-          onChanged: transactionFilterStore.toggleSilentPayments,
-        ),
-      SwapFilterItem(
-          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
-          allEnabled: () => tradeFilterStore.displayAllTrades,
-          value: () => tradeFilterStore.enabledProvidersCount > 0,
-          onChanged: () => tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
-      FilterItem(
-          value: () => orderFilterStore.displayCakePay,
-          caption: 'Cake Pay',
-          onChanged: () => orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
-    ];
-    exchangeFilterItems = [
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.changeNow,
-          value: () => tradeFilterStore.displayChangeNow,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.sideShift,
-          value: () => tradeFilterStore.displaySideShift,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.simpleSwap,
-          value: () => tradeFilterStore.displaySimpleSwap,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.trocador,
-          value: () => tradeFilterStore.displayTrocador,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.exolix,
-          value: () => tradeFilterStore.displayExolix,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.chainflip,
-          value: () => tradeFilterStore.displayChainflip,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.thorChain,
-          value: () => tradeFilterStore.displayThorChain,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.stealthEx,
-          value: () => tradeFilterStore.displayStealthEx,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.xoSwap,
-          value: () => tradeFilterStore.displayXOSwap,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.swapTrade,
-          value: () => tradeFilterStore.displaySwapTrade,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.swapsXyz,
-          value: () => tradeFilterStore.displaySwapXyz,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
-      SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.nearIntents,
-          value: () => tradeFilterStore.displayNearIntents,
-          onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
-    ];
-  }
 
   @computed
   bool get isMigratingToIronwood =>
@@ -271,19 +138,6 @@ abstract class DashboardViewModelBase with Store {
     return false;
   }
 
-  @action
-  void changeAllFilterItems(bool value) {
-    for (final item in filterItems) {
-      if (item.value() != value) {
-        item.onChanged();
-      }
-    }
-    for (final item in exchangeFilterItems) {
-      if (item.value() != value) {
-        item.onChanged();
-      }
-    }
-  }
 
   @action
   Future<void> loadCardDesigns() async {
@@ -420,10 +274,6 @@ abstract class DashboardViewModelBase with Store {
       balanceDisplayMode == BalanceDisplayMode.hiddenBalance &&
       appStore.settingsStore.balanceHideCounter < 10;
 
-  @computed
-  bool get isAutoGenerateSubaddressesEnabled =>
-      settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
-
   @observable
   WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet;
 
@@ -508,18 +358,6 @@ abstract class DashboardViewModelBase with Store {
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
     backgroundSyncEnabled = resp;
     return resp;
-  }
-
-  @action
-  void toggleSwitchStatusDisplayMode() {
-    if (status is SyncingSyncStatus &&
-        !((status as SyncingSyncStatus).shouldShowBlocksRemaining())) {
-      if (settingsStore.syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
-        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.blocksRemaining;
-      } else {
-        settingsStore.syncStatusDisplayMode = SyncStatusDisplayMode.eta;
-      }
-    }
   }
 
   @observable
@@ -709,17 +547,6 @@ abstract class DashboardViewModelBase with Store {
 
   YatStore yatStore;
 
-  TradeFilterStore tradeFilterStore;
-
-  OrderFilterStore orderFilterStore;
-
-  TransactionFilterStore transactionFilterStore;
-
-  List<FilterItem> filterItems;
-
-  List<FilterItem> exchangeFilterItems;
-
-
   @computed
   bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
@@ -770,7 +597,6 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    loadFilterItems();
   }
 
 
@@ -786,49 +612,6 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get builtinTor => settingsStore.currentBuiltinTor;
-
-  @action
-  void setBuiltinTor(bool value, BuildContext context) {
-    if (value) {
-      unawaited(
-        showPopUp<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-              alertTitle: S.of(context).tor_connection,
-              alertContent: S.of(context).tor_experimental,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop(true),
-            );
-          },
-        ),
-      );
-    }
-    settingsStore.currentBuiltinTor = value;
-    if (value) {
-      unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == false)
-          return; // return when tor got disabled in the meantime;
-        int? chainId;
-        if (isEVMWallet) {
-          chainId = evm!.getSelectedChainId(wallet);
-        }
-        await wallet.connectToNode(
-            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
-      }));
-    } else {
-      unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.currentBuiltinTor == true)
-          return; // return when tor got enabled in the meantime;
-        int? chainId;
-        if (isEVMWallet) {
-          chainId = evm!.getSelectedChainId(wallet);
-        }
-        await wallet.connectToNode(
-            node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
-      }));
-    }
-  }
 
 
   Future<List<String>> checkForHavenWallets() async {

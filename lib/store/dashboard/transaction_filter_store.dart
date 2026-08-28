@@ -5,41 +5,29 @@ import 'package:cake_wallet/store/app_store.dart';
 import "package:cw_core/action_list_item.dart";
 import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
 import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
 import "package:cw_core/transaction_info.dart";
 
-part 'transaction_filter_store.g.dart';
-
-class TransactionFilterStore = TransactionFilterStoreBase with _$TransactionFilterStore;
-
-abstract class TransactionFilterStoreBase with Store implements HistoryFilters {
-  TransactionFilterStoreBase(this._appStore)
+class TransactionFilterStore extends HistoryFilters {
+  TransactionFilterStore(this._appStore)
       : displayIncoming = true,
         displayOutgoing = true,
         displaySilentPayments = true;
 
   final AppStore _appStore;
 
-  @observable
   bool displayIncoming;
 
-  @observable
   bool displayOutgoing;
 
-  @observable
   bool displaySilentPayments;
 
-  @observable
   DateTime? startDate;
 
-  @observable
   DateTime? endDate;
 
-  @computed
   bool get displayAll => displayIncoming && displayOutgoing && displaySilentPayments;
 
-  @action
   void toggleAll() {
     if (displayAll) {
       displayOutgoing = false;
@@ -52,32 +40,57 @@ abstract class TransactionFilterStoreBase with Store implements HistoryFilters {
     }
   }
 
-  @action
   void toggleIncoming() {
     displayIncoming = !displayIncoming;
   }
 
-  @action
   void toggleOutgoing() {
     displayOutgoing = !displayOutgoing;
   }
 
-  @action
   void toggleSilentPayments() {
     displaySilentPayments = !displaySilentPayments;
   }
 
-  @action
   void changeStartDate(DateTime date) => startDate = date;
 
-  @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  /// Whether one item passes the wallet, account and user filters.
-  ///
-  /// Serves both the transaction and anonpay sources: the date range and
-  /// direction toggles have always applied to both, and now the wallet and
-  /// account scoping does too.
+  static const _outgoing = "send";
+  static const _incoming = "receive";
+  static const _silentPayments = "silent_payments";
+
+  @override
+  List<HistoryFilter> get filters => [
+        HistoryFilter(key: _outgoing, caption: _outgoing, value: displayOutgoing),
+        HistoryFilter(key: _incoming, caption: _incoming, value: displayIncoming),
+        if (_appStore.wallet?.type == WalletType.bitcoin)
+          HistoryFilter(
+            key: _silentPayments,
+            caption: _silentPayments,
+            value: displaySilentPayments,
+          ),
+      ];
+
+  @override
+  void toggleFilter(HistoryFilter filter) {
+    switch (filter.key) {
+      case _outgoing:
+        toggleOutgoing();
+      case _incoming:
+        toggleIncoming();
+      case _silentPayments:
+        toggleSilentPayments();
+    }
+  }
+
+  @override
+  void setAllFilters({required bool value}) {
+    displayOutgoing = value;
+    displayIncoming = value;
+    displaySilentPayments = value;
+  }
+
   @override
   bool relevant(HistoryListItem item) {
     if (!_inScope(item)) {
@@ -108,9 +121,6 @@ abstract class TransactionFilterStoreBase with Store implements HistoryFilters {
     return displayIncoming;
   }
 
-  /// Monero keeps every account's transactions in one history, so the account
-  /// has to be filtered rather than the history split. Anonpay invoices carry
-  /// their own wallet id.
   bool _inScope(HistoryListItem item) {
     final wallet = _appStore.wallet;
 
@@ -129,6 +139,4 @@ abstract class TransactionFilterStoreBase with Store implements HistoryFilters {
   }
 
 
-  List<HistoryListItem> filtered({required List<HistoryListItem> transactions}) =>
-      transactions.where(relevant).toList();
 }

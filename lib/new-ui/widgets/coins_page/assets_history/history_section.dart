@@ -75,7 +75,7 @@ class HistorySection extends StatelessWidget {
               return const SliverPadding(
                 padding: EdgeInsets.only(top: 24),
                 sliver: SliverToBoxAdapter(
-                  child: Center(child: CupertinoActivityIndicator(animating: true)),
+                  child: Center(child: CupertinoActivityIndicator()),
                 ),
               );
             }
@@ -108,7 +108,7 @@ class HistorySection extends StatelessWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         childCount: items.length,
-                        (context, index) => Observer(builder: (_) {
+                        (context, index)  {
                           final prevItem = index == 0 ? null : items[index - 1];
                           final topPadding = index == 0 ? 0.0 : 18.0;
                           final item = _asPayjoin(items[index]) ?? items[index];
@@ -122,7 +122,7 @@ class HistorySection extends StatelessWidget {
                             return _historyRow(
                               onTap: () {
                                 final page =
-                                    getIt.get<TransactionDetailsModal>(param1: item);
+                                getIt.get<TransactionDetailsModal>(param1: item);
                                 if (detailsAsPage) {
                                   Navigator.of(context).push(CupertinoPageRoute(
                                       builder: (context) => Material(child: page)));
@@ -206,7 +206,7 @@ class HistorySection extends StatelessWidget {
                               ),
                               child: PayjoinHistoryTile(
                                   createdAt:
-                                      _formatTransactionDate(session.inProgressSince!, localeName),
+                                  _formatTransactionDate(session.inProgressSince!, localeName),
                                   amount: Money(session.amount, CryptoCurrency.btc),
                                   currency: item.transaction?.from ?? "BTC",
                                   state: item.status,
@@ -231,7 +231,7 @@ class HistorySection extends StatelessWidget {
                                     bottomSeparator: !roundedBottom));
                           } else
                             return Text(item.runtimeType.toString());
-                        }),
+                        }
                       ),
                     ),
                   );

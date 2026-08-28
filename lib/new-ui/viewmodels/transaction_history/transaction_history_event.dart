@@ -15,3 +15,15 @@ final class TransactionHistoryChanged extends TransactionHistoryEvent {
 final class TransactionHistoryRefreshed extends TransactionHistoryEvent {
   const TransactionHistoryRefreshed();
 }
+
+final class TransactionHistoryFilterToggled extends TransactionHistoryEvent {
+  const TransactionHistoryFilterToggled(this.filter);
+
+  final HistoryFilter filter;
+}
+
+final class TransactionHistoryAllFiltersToggled extends TransactionHistoryEvent {
+  const TransactionHistoryAllFiltersToggled({required this.value});
+
+  final bool value;
+}

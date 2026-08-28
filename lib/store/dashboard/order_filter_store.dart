@@ -4,25 +4,16 @@ import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import "package:cake_wallet/order/order.dart";
-import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
 
-part 'order_filter_store.g.dart';
-
-class OrderFilterStore = OrderFilterStoreBase with _$OrderFilterStore;
-
-abstract class OrderFilterStoreBase with Store implements HistoryFilters {
-  OrderFilterStoreBase(this._appStore) : displayCakePay = true;
+class OrderFilterStore extends HistoryFilters {
+  OrderFilterStore(this._appStore) : displayCakePay = true;
 
   final AppStore _appStore;
 
-  @observable
   bool displayCakePay;
 
-  @computed
   bool get displayAllOrders => displayCakePay;
 
-  @action
   void toggleDisplayOrder(OrderProviderDescription provider) {
     switch (provider) {
       case OrderProviderDescription.cakePay:
@@ -31,7 +22,19 @@ abstract class OrderFilterStoreBase with Store implements HistoryFilters {
     }
   }
 
-  /// Whether one order passes the wallet and provider filters.
+  static const _cakePay = "Cake Pay";
+
+  @override
+  List<HistoryFilter> get filters =>
+      [HistoryFilter(key: _cakePay, caption: _cakePay, value: displayCakePay)];
+
+  @override
+  void toggleFilter(HistoryFilter filter) =>
+      toggleDisplayOrder(OrderProviderDescription.cakePay);
+
+  @override
+  void setAllFilters({required bool value}) => displayCakePay = value;
+
   @override
   bool relevant(HistoryListItem item) {
     if (item is! Order || item.walletId != _appStore.wallet?.id) {
@@ -45,5 +48,4 @@ abstract class OrderFilterStoreBase with Store implements HistoryFilters {
   }
 
 
-  List<Order> filtered({required List<Order> orders}) => orders.where(relevant).toList();
 }

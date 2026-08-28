@@ -37,14 +37,37 @@ final class TransactionHistoryLoaded extends TransactionHistoryState {
         case ItemRemoved(:final id):
           newItems.removeWhere((item) => item.id == id);
         case ItemAdded(:final id):
-          newItems.insertAtPoint(source.emitter.byId(id)!);
         case ItemUpdated(:final id):
           newItems.removeWhere((item) => item.id == id);
-          newItems.insertAtPoint(source.emitter.byId(id)!);
+          final item = source.emitter.byId(id);
+          if (item != null && source.filters.relevant(item)) {
+            newItems.insertAtPoint(item);
+          }
       }
     }
 
     return TransactionHistoryLoaded(items: newItems);
   }
 
+  double get confirmationProgress {
+    int received = 0;
+    int needed = 0;
+
+    for (final transaction in items.whereType<TransactionInfo>()) {
+      if (transaction.neededConfirmations == 0) {
+        continue;
+      }
+
+      if (transaction.confirmations >= transaction.neededConfirmations) {
+        continue;
+      }
+
+      received += transaction.confirmations;
+      needed += transaction.neededConfirmations;
+    }
+    if (needed == 0) {
+      return 1;
+    }
+    return received / needed;
+  }
 }

@@ -1,31 +1,40 @@
-import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class UnconfirmedBalanceWidget extends StatelessWidget {
   const UnconfirmedBalanceWidget({
     super.key,
-    required this.dashboardViewModel,
+    required this.bloc,
   });
 
-  final DashboardViewModel dashboardViewModel;
+  final TransactionHistoryBloc bloc;
+
+  bool get hasAdditionalBalance =>
+      !(bloc.appStore.wallet!.balance[bloc.appStore.wallet!.currency]?.unavailable.isZero ?? true);
+
 
   @override
-  Widget build(BuildContext context) {
-    final currency = dashboardViewModel.wallet.currency;
-    return Observer(builder: (_) {
-      final show = dashboardViewModel.balanceViewModel
-          .hasAdditionalBalance(dashboardViewModel.wallet.currency);
-      final isIronwoodMigration = dashboardViewModel.isMigratingToIronwood;
+  Widget build(BuildContext context) => BlocBuilder<TransactionHistoryBloc, TransactionHistoryState>(
+  builder: (context, state) => Observer(builder: (_) {
+        final currency = bloc.appStore.wallet!.currency;
+        final show = hasAdditionalBalance;
+        final isIronwoodMigration = bloc.appStore.wallet!.type == WalletType.zcash &&
+            zcash!.hasOrchardMigratableBalance(bloc.appStore.wallet!);
 
-      return AnimatedSize(
+        return AnimatedSize(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
         alignment: Alignment.topCenter,
@@ -34,9 +43,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                 children: [
                   const SizedBox(height: 12, width: double.infinity),
                   Observer(builder: (context) {
-                    final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
+                        final balance = bloc
+                            .appStore.wallet!.balance[bloc.appStore.wallet!.currency]!.unavailable;
 
-                    return Container(
+                        return Container(
                       width: MediaQuery.of(context).size.width * 0.87,
                       height: 48,
                       decoration: BoxDecoration(
@@ -79,8 +89,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                         backgroundColor:
                                             Theme.of(context).colorScheme.primary.withAlpha(50),
                                         color: Theme.of(context).colorScheme.primary,
-                                        value: 1,
-                                      ),
+                                                  value: state is TransactionHistoryLoaded
+                                                      ? state.confirmationProgress
+                                                      : 0,
+                                                ),
                                     ),
                                     Row(
                                       spacing: 4,
@@ -111,8 +123,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
               )
             : const SizedBox(width: double.infinity),
       );
-    });
-  }
+    }),
+);
 }
 
 class UnconfirmedBalanceModal extends StatelessWidget {
@@ -122,8 +134,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
   final String currencyIconPath;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
@@ -181,6 +192,5 @@ class UnconfirmedBalanceModal extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 

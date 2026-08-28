@@ -2,9 +2,11 @@ import "dart:async";
 
 import "package:cw_core/action_list_item.dart";
 import "package:cw_core/history_change.dart";
+import "package:cw_core/history_filter.dart";
 
 export "package:cw_core/action_list_item.dart";
 export "package:cw_core/history_change.dart";
+export "package:cw_core/history_filter.dart";
 
 abstract class HistoryEmitter {
   Stream<HistoryChange> get changes;
@@ -70,6 +72,15 @@ abstract class SnapshotHistoryEmitter extends HistoryEmitter {
 
 abstract class HistoryFilters {
   bool relevant(HistoryListItem item);
+
+  List<HistoryFilter> get filters => const [];
+
+  void toggleFilter(HistoryFilter filter) {}
+
+  void setAllFilters({required bool value}) {}
+
+   Iterable<HistoryFilter> get allFilters => filters.expand((filter) => filter.descendants);
+
 }
 
 class HistorySource<EmitterType extends HistoryEmitter, FiltersType extends HistoryFilters> {
