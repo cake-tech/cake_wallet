@@ -12,15 +12,10 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/transaction_direction.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,9 +48,9 @@ class _NewHomePageState extends State<NewHomePage> {
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
-        if(!context.mounted) {
+        if (!context.mounted) {
           return;
         }
         widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
@@ -80,6 +75,8 @@ class _NewHomePageState extends State<NewHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isEVMWallet = widget.dashboardViewModel.isEVMWallet;
+
     return Container(
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
@@ -109,9 +106,10 @@ class _NewHomePageState extends State<NewHomePage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: 24.0,
+                    spacing: isEVMWallet ? 36.0 : 24.0,
                     children: [
                       TopBar(
+                        key: ValueKey(widget.dashboardViewModel.wallet.id),
                         dashboardViewModel: widget.dashboardViewModel,
                         lightningMode: _lightningMode,
                         onLightningSwitchPress: () {
@@ -119,8 +117,8 @@ class _NewHomePageState extends State<NewHomePage> {
                             _lightningMode = !_lightningMode;
                           });
                         },
-                        onSettingsButtonPress: () {
-                          CupertinoScaffold.showCupertinoModalBottomSheet(
+                        onSettingsButtonPress: () async {
+                          await CupertinoScaffold.showCupertinoModalBottomSheet(
                             context: context,
                             barrierColor: Colors.black.withAlpha(85),
                             builder: (context) => FractionallySizedBox(
@@ -130,70 +128,77 @@ class _NewHomePageState extends State<NewHomePage> {
                               authService: getIt.get<AuthService>(),
                             ))),
                           );
+
+                          if (!mounted) {
+                            return;
+                          }
+                          _setAccountViewModel();
+                          await widget.dashboardViewModel.loadCardDesigns();
+                          if (mounted) {
+                            setState(() {});
+                          }
                         },
                       ),
-                      Observer(
-                        builder: (_) => WalletInfoBar(
-                            lightningMode: _lightningMode,
-                            hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
-                            name: widget.dashboardViewModel.wallet.name,
-                            hasCustomize: accountListViewModel != null,
-                            onCustomizeButtonTap: openAccountCustomizer),
-                      ),
                       Column(
+                        spacing: isEVMWallet ? 24 : 20,
                         children: [
-                          Observer(
-                            builder: (_) => CardsView(
-                              key: ValueKey(widget.dashboardViewModel.wallet.name),
-                              onCustomizeTapped: openCardCustomizer,
-                              dashboardViewModel: widget.dashboardViewModel,
-                              accountListViewModel: accountListViewModel,
-                              onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                              lightningMode: _lightningMode,
-                            ),
-                          ),
-                          Observer(builder: (_) {
-                            return AnimatedSize(
-                              duration: Duration(milliseconds: 150),
-                              curve: Curves.easeInOutCubic,
-                              child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
-                                  ? Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 12,
-                                          width: double.infinity,
-                                        ),
-                                        Text(
-                                          S.of(context).long_press_show_balance,
-                                          style: TextStyle(
-                                              color:
-                                                  Theme.of(context).colorScheme.onSurfaceVariant),
-                                        )
-                                      ],
-                                    )
-                                  : SizedBox(width: double.infinity),
-                            );
-                          }),
-                          UnconfirmedBalanceWidget(
-                            dashboardViewModel: widget.dashboardViewModel,
-                          ),
-                        ],
-                      ),
-                      Observer(
-                        builder: (_) {
-                          return Column(
+                          Column(
                             children: [
-                              CoinActionRow(
-                                lightningMode: _lightningMode,
-                                showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                                walletType: widget.dashboardViewModel.wallet.type,
+                              Observer(
+                                builder: (_) => CardsView(
+                                  key: ValueKey(widget.dashboardViewModel.wallet.name),
+                                  onCustomizeTapped: openCardCustomizer,
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  accountListViewModel: accountListViewModel,
+                                  onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                                  lightningMode: _lightningMode,
+                                ),
                               ),
-                              MwebAd(
+                              Observer(builder: (_) {
+                                return AnimatedSize(
+                                  duration: Duration(milliseconds: 150),
+                                  curve: Curves.easeInOutCubic,
+                                  child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
+                                      ? Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 12,
+                                              width: double.infinity,
+                                            ),
+                                            Text(
+                                              S.of(context).long_press_show_balance,
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant),
+                                            )
+                                          ],
+                                        )
+                                      : SizedBox(width: double.infinity),
+                                );
+                              }),
+                              UnconfirmedBalanceWidget(
                                 dashboardViewModel: widget.dashboardViewModel,
                               ),
                             ],
-                          );
-                        },
+                          ),
+                          Observer(
+                            builder: (_) {
+                              return Column(
+                                children: [
+                                  CoinActionRow(
+                                    lightningMode: _lightningMode,
+                                    showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                                    walletType: widget.dashboardViewModel.wallet.type,
+                                  ),
+                                  MwebAd(
+                                    dashboardViewModel: widget.dashboardViewModel,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -231,7 +236,12 @@ class _NewHomePageState extends State<NewHomePage> {
     );
   }
 
-  void openAccountCustomizer() async {
+  Future<void> openAccountCustomizer() async {
+    final accountList = accountListViewModel;
+    if (accountList == null) {
+      return;
+    }
+
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
@@ -240,15 +250,15 @@ class _NewHomePageState extends State<NewHomePage> {
           parentContext: context,
           heightMode: ModalHeightModes.fullScreen,
           rootPage: Material(
-              child: AccountCustomizer(
-            accountListViewModel: accountListViewModel!,
-            accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-            dashboardViewModel: widget.dashboardViewModel,
-          )),
+            child: AccountCustomizer(
+              accountListViewModel: accountList,
+              dashboardViewModel: widget.dashboardViewModel,
+            ),
+          ),
         );
       },
     );
-    widget.dashboardViewModel.loadCardDesigns();
+    await widget.dashboardViewModel.loadCardDesigns();
   }
 
   void openCardCustomizer() async {
