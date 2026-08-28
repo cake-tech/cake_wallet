@@ -126,4 +126,62 @@ void main() {
     );
     expect(decoded.warnings, contains(S.current.wc_warning_unlimited_approval));
   });
+
+  // Golden vectors: calldata copied verbatim from mainnet, so they hold even if
+  // the encoder above and our decoder were wrong in the same way.
+  test("golden vector: real SwapRouter exactInputSingle from mainnet", () async {
+    // tx 0x0c021ee6e05ea32575c8f0cbf2f5595a75ce233badfe83053b4791ae23699b38
+    // USDT -> WETH, 500 fee tier, 1128.058998 USDT in, 0.452194608349763456 WETH min out.
+    const data = "0x414bf389"
+        "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7"
+        "000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+        "00000000000000000000000000000000000000000000000000000000000001f4"
+        "000000000000000000000000f204f3acb05c405c0010f2a2ecfa9fe61783f1d1"
+        "000000000000000000000000000000000000000000000000000000006a914bf6"
+        "00000000000000000000000000000000000000000000000000000000433cd076"
+        "00000000000000000000000000000000000000000000000006468499b808d780"
+        "0000000000000000000000000000000000000000000000000000000000000000";
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      walletAddress: "0xf204f3acb05c405c0010f2a2ecfa9fe61783f1d1",
+      valueWei: BigInt.zero,
+    );
+
+    expect(decoded!.rows[0].value, startsWith("1128058998"));
+    expect(decoded.rows[1].value, startsWith("452194608349763456"));
+    expect(
+      decoded.rows.any(
+        (r) => r.value.toLowerCase() == "0xf204f3acb05c405c0010f2a2ecfa9fe61783f1d1",
+      ),
+      isTrue,
+      reason: "recipient word",
+    );
+  });
+
+  test("golden vector: real SwapRouter02 exactInputSingle from mainnet", () async {
+    // tx 0x228ab514c389a6aef2cf17f31ad2c08699f9b5db4eddac055673dd884f2eb75e
+    // Seven words, no deadline: 185.545099 USDT in, 164.725782 out.
+    const data = "0x04e45aaf"
+        "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7"
+        "000000000000000000000000100acd9fcd8e0ff80a6595b66fdabe93184aa100"
+        "0000000000000000000000000000000000000000000000000000000000000064"
+        "000000000000000000000000cd9b94d67f5a1688526585e72d0499e499ba2c06"
+        "000000000000000000000000000000000000000000000000000000000b0e318b"
+        "0000000000000000000000000000000000000000000000000000000009d59416"
+        "0000000000000000000000000000000000000000000000000000000000000000";
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+      walletAddress: "0xcd9b94d67f5a1688526585e72d0499e499ba2c06",
+      valueWei: BigInt.zero,
+    );
+
+    expect(decoded!.rows[0].value, startsWith("185545099"));
+    expect(decoded.rows[1].value, startsWith("164725782"));
+  });
 }
