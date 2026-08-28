@@ -38,6 +38,7 @@ class Routes {
   static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
+  static const showKeysDisclaimer = "/show_keys_disclaimer";
   static const exchangeConfirm = '/exchange_confirm';
   static const tradeHistory = '/trade_history';
   static const tradeDetails = '/trade_details';

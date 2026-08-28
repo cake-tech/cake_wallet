@@ -9,8 +9,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SeedVerificationPage extends BasePage {
   final WalletSeedViewModel walletSeedViewModel;
+  final bool isNewWalletCreated;
 
-  SeedVerificationPage(this.walletSeedViewModel);
+  SeedVerificationPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   @override
   bool get gradientBackground => true;
@@ -32,7 +33,8 @@ class SeedVerificationPage extends BasePage {
                   walletSeedViewModel.verificationIndices.isEmpty
               ? SeedVerificationSuccessView(
                   key: ValueKey('seed_verification_success_view_page'),
-                  walletType: walletSeedViewModel.walletType,
+                  walletSeedViewModel: walletSeedViewModel,
+                  isNewWalletCreated: isNewWalletCreated,
                   currentTheme: currentTheme,
                 )
               : SeedVerificationStepView(

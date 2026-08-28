@@ -63,6 +63,8 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
+import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -130,7 +132,6 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
@@ -1089,6 +1090,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
 
+  getIt.registerFactory(() => ShowKeysDisclaimerPage(
+      authService: getIt.get<AuthService>(), settingsStore: getIt.get<SettingsStore>()));
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>(
@@ -1448,7 +1452,7 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactory<PreSeedPage>(() => PreSeedPage());
+  getIt.registerFactory<PreSeedPage>(() => PreSeedPage(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
       (content, _) => TransactionSuccessPage(content: content));
@@ -1702,7 +1706,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
+  getIt.registerFactoryParam<SeedVerificationPage, bool, void>((bool isNewWalletCreated, _) =>
+      SeedVerificationPage(getIt.get<WalletSeedViewModel>(),
+          isNewWalletCreated: isNewWalletCreated));
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
 

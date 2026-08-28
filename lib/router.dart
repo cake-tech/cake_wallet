@@ -10,6 +10,8 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
+import 'package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart';
+import 'package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart';
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
@@ -92,7 +94,6 @@ import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
@@ -687,6 +688,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<WalletKeysPage>(),
       );
 
+    case Routes.showKeysDisclaimer:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<ShowKeysDisclaimerPage>(),
+      );
+
     case Routes.exchangeTrade:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTradePage>());
 
@@ -996,7 +1002,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletSeedVerificationPage:
       return MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => getIt.get<SeedVerificationPage>(),
+        builder: (_) => getIt.get<SeedVerificationPage>(param1: settings.arguments as bool),
       );
 
     case Routes.exchangeTradeExternalSendPage:
