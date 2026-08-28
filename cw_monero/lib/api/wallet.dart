@@ -171,19 +171,30 @@ Future<int>? _nodeHeightInFlight;
 Future<int> _refreshNodeHeight() {
   final inFlight = _nodeHeightInFlight;
   if (inFlight != null) return inFlight;
-  final wptrAddress = currentWallet!.ffiAddress();
-  isHeightRefreshing = true;
-  final f = Isolate.run(() async {
-    return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
-  }).then((h) {
-    cachedNodeHeight = h;
-    return h;
-  }).catchError((_) => cachedNodeHeight).whenComplete(() {
+
+  try {
+    final wallet = currentWallet;
+    if (wallet == null) return Future.value(cachedNodeHeight);
+
+    final wptrAddress = wallet.ffiAddress();
+    isHeightRefreshing = true;
+    final f = Isolate.run(() async {
+      return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+    }).then((h) {
+      cachedNodeHeight = h;
+      return h;
+    }).catchError((_) => cachedNodeHeight).whenComplete(() {
+      isHeightRefreshing = false;
+      _nodeHeightInFlight = null;
+    });
+    _nodeHeightInFlight = f;
+    return f;
+  } catch (e) {
+    printV("error refreshing node height: $e");
     isHeightRefreshing = false;
     _nodeHeightInFlight = null;
-  });
-  _nodeHeightInFlight = f;
-  return f;
+    return Future.value(cachedNodeHeight);
+  }
 }
 
 int getNodeHeightSync() {
