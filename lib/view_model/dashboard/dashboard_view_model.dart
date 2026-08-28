@@ -31,7 +31,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
@@ -54,9 +53,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.sharedPreferences,
       required this.keyService})
-      : hasTradeAction = true,
-        hasSwapAction = true,
-        isShowFirstYatIntroduction = false,
+      : isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
         name = appStore.wallet!.name,
@@ -530,13 +527,6 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.mwebAlwaysScan = true;
   }
 
-  @action
-  void enablePayjoin() {
-    settingsStore.usePayjoin = true;
-    settingsStore.showPayjoinCard = false;
-    bitcoin!.updatePayjoinState(wallet, true);
-  }
-
   BalanceViewModel balanceViewModel;
 
   TradeMonitor tradeMonitor;
@@ -550,19 +540,8 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
-
-  @observable
-  bool hasSwapAction;
-
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
-
-  @observable
-  bool hasTradeAction;
-
-  @computed
-  bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
-
 
   ReactionDisposer? _walletChangeDisposer;
 
@@ -612,15 +591,6 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get builtinTor => settingsStore.currentBuiltinTor;
-
-
-  Future<List<String>> checkForHavenWallets() async {
-    final walletInfos = await WalletInfo.getAll();
-    return walletInfos
-        .where((element) => element.type == WalletType.haven)
-        .map((e) => e.name)
-        .toList();
-  }
 
   Future<List<String>> checkAffectedWallets() async {
     try {
