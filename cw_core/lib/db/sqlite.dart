@@ -63,7 +63,7 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 10,
+  db = await openDatabase(dbFile.path, version: 11,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
@@ -152,6 +152,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
     }
+    if (oldVersion <= 10) {
+      await _addColumnIfNotExists(
+        db,
+        table: 'WalletInfo',
+        column: 'showSeedBackupReminder',
+        definition: 'BOOLEAN DEFAULT FALSE',
+      );
+    }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
 CREATE TABLE WalletInfo (
@@ -178,7 +186,8 @@ CREATE TABLE WalletInfo (
   sortOrder INTEGER DEFAULT (0) NOT NULL,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
-  favoriteTokenAddress TEXT DEFAULT NULL
+  favoriteTokenAddress TEXT DEFAULT NULL,
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
 

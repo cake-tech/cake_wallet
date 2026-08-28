@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -16,10 +18,13 @@ abstract class WalletSeedViewModelBase with Store {
       : name = wallet.name,
         seed = wallet.seed!,
         walletType = wallet.type,
+        _walletInfo = wallet.walletInfo,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
     setupSeedVerification();
   }
+
+  final WalletInfo _walletInfo;
 
   @observable
   String name;
@@ -133,6 +138,7 @@ abstract class WalletSeedViewModelBase with Store {
       } else {
         // All verification steps completed
         isVerificationComplete = true;
+        unawaited(markSeedVerified());
       }
 
       return true;
@@ -140,5 +146,13 @@ abstract class WalletSeedViewModelBase with Store {
       wrongEntries++;
       return false;
     }
+  }
+
+  Future<void> markSeedVerified() async {
+    if (!_walletInfo.showSeedBackupReminder) {
+      return;
+    }
+
+    await _walletInfo.updateShowSeedBackupReminder(false);
   }
 }

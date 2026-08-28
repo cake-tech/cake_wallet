@@ -107,6 +107,7 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
 
     name = wallet.name;
     type = wallet.type;
@@ -207,6 +208,7 @@ abstract class DashboardViewModelBase with Store {
       loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+      loadSeedBackupReminder();
 
       tradeMonitor.stopTradeMonitoring();
       tradeMonitor.monitorActiveTrades(wallet!.id);
@@ -892,6 +894,22 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @observable
+  late bool showSeedBackupReminder;
+
+  @computed
+  bool get hasBalance => wallet.balance.values.any(
+        (balance) =>
+            !balance.available.isZero ||
+            !balance.unavailable.isZero ||
+            !(balance.secondAvailable?.isZero ?? true) ||
+            !(balance.secondUnavailable?.isZero ?? true) ||
+            !(balance.frozen?.isZero ?? true),
+      );
+
+  @computed
+  bool get shouldShowSeedBackupReminder => showSeedBackupReminder && hasBalance;
+
   @computed
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
@@ -1119,6 +1137,17 @@ abstract class DashboardViewModelBase with Store {
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
+  @action
+  void loadSeedBackupReminder() {
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+  }
+
+  @action
+  Future<void> dismissSeedBackupReminder() async {
+    showSeedBackupReminder = false;
+    await wallet.walletInfo.updateShowSeedBackupReminder(false);
   }
 
   @action
