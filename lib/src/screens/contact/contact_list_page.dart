@@ -1,9 +1,12 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
@@ -26,7 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class ContactListPage extends BasePage {
+class ContactListPage extends BasePage implements PageOpenListener {
   ContactListPage(this.contactListViewModel, this.authService, {this.showAddButton = false});
 
   final ContactListViewModel contactListViewModel;
@@ -87,6 +90,11 @@ class ContactListPage extends BasePage {
         ),
       ),
     );
+  }
+
+  @override
+  void onPageOpen() {
+    unawaited(contactListViewModel.loadWalletContacts());
   }
 
   @override
