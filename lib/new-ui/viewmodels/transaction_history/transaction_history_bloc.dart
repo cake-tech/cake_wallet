@@ -28,6 +28,7 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
     on<TransactionHistoryChanged>(_onChanged, transformer: sequential());
     on<TransactionHistoryRefreshed>(_onRefreshed, transformer: sequential());
     on<TransactionHistoryFilterToggled>(_onFilterToggled, transformer: sequential());
+    on<TransactionHistoryFiltersSet>(_onFiltersSet, transformer: sequential());
     on<TransactionHistoryAllFiltersToggled>(_onAllFiltersToggled, transformer: sequential());
 
     for (final source in sources) {
@@ -92,6 +93,20 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
         .firstWhereOrNull((source) => source.filters.allFilters.contains(event.filter));
 
     owner!.filters.toggleFilter(event.filter);
+
+    emit(TransactionHistoryLoaded.from(sources));
+  }
+
+  Future<void> _onFiltersSet(
+    TransactionHistoryFiltersSet event,
+    Emitter<TransactionHistoryState> emit,
+  ) async {
+    for (final filter in event.filters.where((filter) => filter.value != event.value)) {
+      final owner = sources
+          .firstWhereOrNull((source) => source.filters.allFilters.contains(filter));
+
+      owner!.filters.toggleFilter(filter);
+    }
 
     emit(TransactionHistoryLoaded.from(sources));
   }

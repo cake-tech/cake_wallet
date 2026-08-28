@@ -247,15 +247,25 @@ class TradeFilterStore extends HistoryFilters {
 
 
   bool _displaysProvider(ExchangeProviderDescription provider) =>
-      (displayXMRTO && provider == ExchangeProviderDescription.xmrto) ||
-      (displaySideShift && provider == ExchangeProviderDescription.sideShift) ||
-      (displayChangeNow && provider == ExchangeProviderDescription.changeNow) ||
-      (displayMorphToken && provider == ExchangeProviderDescription.morphToken) ||
-      (displaySimpleSwap && provider == ExchangeProviderDescription.simpleSwap) ||
-      (displayTrocador && provider == ExchangeProviderDescription.trocador) ||
-      (displayExolix && provider == ExchangeProviderDescription.exolix) ||
-      (displayChainflip && provider == ExchangeProviderDescription.chainflip) ||
-      (displayThorChain && provider == ExchangeProviderDescription.thorChain);
+      _displayByProvider[provider] ?? true;
+
+  Map<ExchangeProviderDescription, bool> get _displayByProvider => {
+        ExchangeProviderDescription.xmrto: displayXMRTO,
+        ExchangeProviderDescription.morphToken: displayMorphToken,
+        ExchangeProviderDescription.changeNow: displayChangeNow,
+        ExchangeProviderDescription.sideShift: displaySideShift,
+        ExchangeProviderDescription.simpleSwap: displaySimpleSwap,
+        ExchangeProviderDescription.trocador: displayTrocador,
+        ExchangeProviderDescription.exolix: displayExolix,
+        ExchangeProviderDescription.chainflip: displayChainflip,
+        ExchangeProviderDescription.thorChain: displayThorChain,
+        ExchangeProviderDescription.letsExchange: displayLetsExchange,
+        ExchangeProviderDescription.stealthEx: displayStealthEx,
+        ExchangeProviderDescription.xoSwap: displayXOSwap,
+        ExchangeProviderDescription.swapTrade: displaySwapTrade,
+        ExchangeProviderDescription.swapsXyz: displaySwapXyz,
+        ExchangeProviderDescription.nearIntents: displayNearIntents,
+      };
 
 
   bool isTradeInAccount(Trade item, WalletBase wallet) =>

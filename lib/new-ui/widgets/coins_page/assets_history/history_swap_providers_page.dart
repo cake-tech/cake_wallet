@@ -44,8 +44,12 @@ class HistorySwapProvidersPage extends StatelessWidget {
                             color: Colors.transparent,
                             child: SelectDeselectAllBar(
                               title: S.of(context).swap_providers,
-                              onSelected: (value) => bloc
-                                  .add(TransactionHistoryFilterToggled(parent)),
+                              onSelected: (value) => bloc.add(
+                                TransactionHistoryFiltersSet(
+                                  parent.children,
+                                  value: value,
+                                ),
+                              ),
                             ),
                           ),
                         ),

@@ -22,6 +22,13 @@ final class TransactionHistoryFilterToggled extends TransactionHistoryEvent {
   final HistoryFilter filter;
 }
 
+final class TransactionHistoryFiltersSet extends TransactionHistoryEvent {
+  const TransactionHistoryFiltersSet(this.filters, {required this.value});
+
+  final List<HistoryFilter> filters;
+  final bool value;
+}
+
 final class TransactionHistoryAllFiltersToggled extends TransactionHistoryEvent {
   const TransactionHistoryAllFiltersToggled({required this.value});
 
