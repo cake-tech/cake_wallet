@@ -182,13 +182,11 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
-import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -395,8 +393,6 @@ Future<void> setup({
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
-  getIt
-      .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
@@ -406,8 +402,6 @@ Future<void> setup({
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(
       YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())..init());
-  getIt.registerSingleton<AnonpayTransactionsStore>(
-      AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
 
   getIt.registerFactoryParam<HardwareWalletViewModel, HardwareWalletType, void>((type, _) {
