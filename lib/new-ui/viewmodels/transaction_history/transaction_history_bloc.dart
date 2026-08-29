@@ -81,7 +81,7 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
   }
 
   List<HistoryFilter> get filters =>
-      [for (final source in sources) ...source.filters.filters];
+      [for (final source in sources) ...source.filters.filters].toSet().toList();
 
   Future<void> _onFilterToggled(
     TransactionHistoryFilterToggled event,
