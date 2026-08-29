@@ -189,7 +189,7 @@ class HistorySection extends StatelessWidget {
                                   .pushNamed(Routes.orderDetails, arguments: item),
                               child: HistoryOrderTile(
                                 date: _formatTransactionDate(item.createdAt, localeName),
-                                amount: Money.zero(bloc.fiat),
+                                amount: Money.safeParse(item.amount, bloc.appStore.wallet!.currency),
                                 amountFiat:  Money.zero(bloc.fiat),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
