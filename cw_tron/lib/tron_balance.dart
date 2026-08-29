@@ -5,7 +5,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/currency.dart';
 
 class TronBalance extends Balance {
-  TronBalance(this.balance) : super(balance, balance);
+  TronBalance(this.balance) : super(balance, Money.zero(balance.currency));
 
   final Money balance;
 
