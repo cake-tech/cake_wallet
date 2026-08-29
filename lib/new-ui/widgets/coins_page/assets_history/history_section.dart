@@ -184,13 +184,15 @@ class HistorySection extends StatelessWidget {
                                     style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,),),);
                           } else if (item is Order) {
+                            final amount = Money.safeParse(item.amount, bloc.appStore.wallet!.currency);
+                            final amountFiat = bloc.fiatConversionStore.convertSync(amount, bloc.fiat) ?? Money.zero(bloc.fiat);
                             return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item),
                               child: HistoryOrderTile(
                                 date: _formatTransactionDate(item.createdAt, localeName),
-                                amount: Money.safeParse(item.amount, bloc.appStore.wallet!.currency),
-                                amountFiat:  Money.zero(bloc.fiat),
+                                amount: amount,
+                                amountFiat:  amountFiat,
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
