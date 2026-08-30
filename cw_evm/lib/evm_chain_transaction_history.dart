@@ -50,7 +50,7 @@ abstract class EVMChainTransactionHistoryBase
   Future<void> save() async {
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
     try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = walletInfo.path;
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
 
       // Filter transactions by current chainId before saving
@@ -97,7 +97,7 @@ abstract class EVMChainTransactionHistoryBase
 
   Future<Map<String, dynamic>> _read() async {
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final dirPath = walletInfo.path;
     String path = '$dirPath/$transactionsHistoryFileNameForWallet';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

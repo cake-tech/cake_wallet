@@ -174,7 +174,7 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   Future<File?> getLightningLog() async {
-    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
+    final path = _wallet.walletInfo.dirPath;
     final logFile = File("$path/lightning.log");
 
     if (await logFile.exists()) return logFile;
@@ -182,7 +182,7 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   Future<File?> getPayjoinLog() async {
-    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
+    final path = _wallet.walletInfo.dirPath;
     final logFile = File("$path/payjoin.log");
 
     if (await logFile.exists()) return logFile;

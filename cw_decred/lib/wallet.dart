@@ -301,7 +301,7 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
+      final dirPath = walletInfo.path;
       final config = {
         "name": walletInfo.name,
         "datadir": dirPath,
@@ -592,35 +592,35 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-
-    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-
-    if (File(newDirPath).existsSync()) {
-      throw "wallet already exists at $newDirPath";
-    }
-
-    final sourceDir = Directory(currentDirPath);
-    final targetDir = Directory(newDirPath);
-
-    if (!targetDir.existsSync()) {
-      await targetDir.create(recursive: true);
-    }
-
-    await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length + 1);
-      final targetPath = p.join(targetDir.path, relativePath);
-
-      if (entity is File) {
-        await entity.rename(targetPath);
-      } else if (entity is Directory) {
-        await Directory(targetPath).create(recursive: true);
-      }
-    }
-
-    await sourceDir.delete(recursive: true);
-  }
+  // Future<void> renameWalletFiles(String newWalletName) async {
+  //   final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+  //
+  //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+  //
+  //   if (File(newDirPath).existsSync()) {
+  //     throw "wallet already exists at $newDirPath";
+  //   }
+  //
+  //   final sourceDir = Directory(currentDirPath);
+  //   final targetDir = Directory(newDirPath);
+  //
+  //   if (!targetDir.existsSync()) {
+  //     await targetDir.create(recursive: true);
+  //   }
+  //
+  //   await for (final entity in sourceDir.list(recursive: true)) {
+  //     final relativePath = entity.path.substring(sourceDir.path.length + 1);
+  //     final targetPath = p.join(targetDir.path, relativePath);
+  //
+  //     if (entity is File) {
+  //       await entity.rename(targetPath);
+  //     } else if (entity is Directory) {
+  //       await Directory(targetPath).create(recursive: true);
+  //     }
+  //   }
+  //
+  //   await sourceDir.delete(recursive: true);
+  // }
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {

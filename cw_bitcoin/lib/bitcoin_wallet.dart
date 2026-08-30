@@ -240,15 +240,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
         : BitcoinNetwork.mainnet;
 
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         network,
       );
@@ -266,8 +265,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       );
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );

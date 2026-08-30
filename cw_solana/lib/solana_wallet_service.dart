@@ -49,19 +49,10 @@ class SolanaWalletService extends WalletService<
   WalletType getType() => WalletType.solana;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<SolanaWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-
+  Future<SolanaWallet> openWallet(WalletInfo walletInfo, String password) async {
     try {
       final wallet = await SolanaWalletBase.open(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -70,13 +61,13 @@ class SolanaWalletService extends WalletService<
       await wallet.init();
       wallet.addInitialTokens();
       await wallet.save();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
 
       final wallet = await SolanaWalletBase.open(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -90,16 +81,16 @@ class SolanaWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
+  Future<void> remove(WalletInfo walletInfo) async {
     final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys().where(
-            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+    final keysToRemove = prefs
+        .getKeys()
+        .where((k) => k.startsWith("solana_last_synced_signature_${walletInfo.name}_"))
+        .toList();
+
+    await super.remove(walletInfo);
+
+    for (final key in keysToRemove) {
       await prefs.remove(key);
     }
   }

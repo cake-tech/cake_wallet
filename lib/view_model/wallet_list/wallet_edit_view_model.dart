@@ -39,21 +39,19 @@ abstract class WalletEditViewModelBase with Store {
 
   @action
   Future<void> changeName(
-    WalletListItem walletItem, {
-    String? password,
-    String? walletGroupKey,
-    bool isWalletGroup = false,
-  }) async {
+      WalletListItem walletItem, {
+        String? password,
+        String? walletGroupKey,
+        bool isWalletGroup = false,
+      }) async {
     state = WalletEditRenamePending();
 
     if (isWalletGroup) {
       await _walletManager.updateWalletGroups();
-
-      _walletManager.setGroupName(walletGroupKey!, newName);
+      await _walletManager.setGroupName(walletGroupKey!, newName);
     } else {
       await _walletLoadingService.renameWallet(
-        walletItem.type,
-        walletItem.name,
+        walletItem.walletInfo,
         newName,
         password: password,
       );
@@ -75,7 +73,7 @@ abstract class WalletEditViewModelBase with Store {
   Future<void> remove(WalletListItem wallet) async {
     state = WalletEditDeletePending();
     final walletService = getIt.get<WalletService>(param1: wallet.type);
-    await walletService.remove(wallet.name);
+    await walletService.remove(wallet.walletInfo);
     resetState();
     _walletListViewModel.updateList();
   }

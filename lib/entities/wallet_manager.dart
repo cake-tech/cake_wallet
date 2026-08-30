@@ -1,14 +1,19 @@
 import "dart:async";
-import "dart:math";
 
-import "package:cake_wallet/entities/hash_wallet_identifier.dart";
 import "package:cake_wallet/entities/wallet_group.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
-import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_group.dart" as db;
 import "package:cw_core/wallet_info.dart";
 import "package:mobx/mobx.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
+/// Manages the (persisted) grouping of wallets that share the same seed.
+///
+/// A group's identity ([WalletInfo.groupId]) is assigned once, either at
+/// creation time or via a one-time, opportunistic backfill from the legacy
+/// SharedPreferences-based scheme (below). It is never recomputed afterwards,
+/// so renaming a group is a plain `UPDATE name WHERE id = ?` and never
+/// touches wallet files or wallet ids.
 class WalletManager {
   WalletManager(this._sharedPreferences);
 
@@ -30,245 +35,56 @@ class WalletManager {
     await waitFor;
 
     try {
-      // Rebuild the wallet groups from scratch to ensure consistency
+      await _backfillLegacyGroups();
+
       final rebuiltGroups = <WalletGroup>[];
+      final allWallets = await WalletInfo.getAll();
+      final persistedGroups = {for (final g in await db.WalletGroup.getAll()) g.id: g};
 
-      WalletGroup getOrCreate(String groupKey) => rebuiltGroups.firstWhere(
-            (g) => g.groupKey == groupKey,
-            orElse: () {
-              final newGroup = WalletGroup(groupKey);
-              rebuiltGroups.add(newGroup);
-              return newGroup;
-            },
-          );
-
-      for (final walletInfo in await WalletInfo.getAll()) {
-        final groupKey = resolveGroupKey(walletInfo);
-        final group = getOrCreate(groupKey);
-        group.wallets.add(walletInfo);
+      final byGroupId = <String, List<WalletInfo>>{};
+      final ungrouped = <WalletInfo>[];
+      for (final walletInfo in allWallets) {
+        final groupId = walletInfo.groupId;
+        if (groupId != null && groupId.isNotEmpty && persistedGroups.containsKey(groupId)) {
+          byGroupId.putIfAbsent(groupId, () => []).add(walletInfo);
+        } else {
+          ungrouped.add(walletInfo);
+        }
       }
 
-      rebuiltGroups.removeWhere((g) => g.wallets.isEmpty);
+      for (final entry in byGroupId.entries) {
+        final persisted = persistedGroups[entry.key]!;
+        final group = WalletGroup(entry.key)
+          ..wallets.addAll(entry.value)
+          ..groupName = persisted.name
+          ..icon = _iconFromPersisted(persisted);
+        rebuiltGroups.add(group);
+      }
+
+      for (final walletInfo in ungrouped) {
+        rebuiltGroups.add(WalletGroup(resolveGroupKey(walletInfo))..wallets.add(walletInfo));
+      }
 
       walletGroups
         ..clear()
         ..addAll(rebuiltGroups);
 
-      _loadCustomGroupNames();
-      _loadCustomGroupIcons();
       _markGroupsChanged();
     } finally {
       done.complete();
     }
   }
 
-  String resolveGroupKey(WalletInfo walletInfo) {
-    if (walletInfo.hashedWalletIdentifier != null &&
-        walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      return walletInfo.hashedWalletIdentifier!;
-    }
-
-    // Fallback to old logic
-    final address = walletInfo.parentAddress ?? walletInfo.address;
-    if (address.isEmpty) {
-      return Random().nextInt(100000).toString();
-    }
-    return address;
-  }
-
-  WalletGroup _getOrCreateGroup(String groupKey) => walletGroups.firstWhere(
-      (g) => g.groupKey == groupKey,
-      orElse: () {
-        final newGroup = WalletGroup(groupKey);
-        walletGroups.add(newGroup);
-        return newGroup;
-      },
-    );
-
-  void addWallet(WalletInfo walletInfo) {
-    final groupKey = resolveGroupKey(walletInfo);
-    final group = _getOrCreateGroup(groupKey);
-    group.wallets.add(walletInfo);
-    _markGroupsChanged();
-  }
-
-  void removeWallet(WalletInfo walletInfo) {
-    final groupKey = resolveGroupKey(walletInfo);
-    final group = _getOrCreateGroup(groupKey);
-    group.wallets.remove(walletInfo);
-
-    if (group.wallets.isEmpty) {
-      walletGroups.remove(group);
-    }
-
-    _markGroupsChanged();
-  }
-
-  List<WalletInfo> getWalletsInGroup(String groupKey) => walletGroups
-        .firstWhere(
-          (g) => g.groupKey == groupKey,
-          orElse: () => WalletGroup(groupKey),
-        )
-        .wallets;
-
-  void _loadCustomGroupNames() {
-    for (var group in walletGroups) {
-      final key = "wallet_group_name_${group.groupKey}";
-      final groupName = _sharedPreferences.getString(key);
-      if (groupName != null && group.wallets.length > 1) {
-        group.groupName = groupName;
-      }
-    }
-  }
-
-  void _saveCustomGroupName(String groupKey, String name) {
-    _sharedPreferences.setString("wallet_group_name_$groupKey", name);
-  }
-
-  void setGroupName(String groupKey, String name) {
-    if (groupKey.isEmpty || name.isEmpty) return;
-
-    for (final group in walletGroups.where((g) => g.groupKey == groupKey)) {
-      group.setCustomName(name);
-    }
-    _saveCustomGroupName(groupKey, name);
-    _markGroupsChanged();
-  }
-
-  void _loadCustomGroupIcons() {
-    for (var group in walletGroups) {
-      if (group.wallets.length <= 1) continue;
-
-      final typeName = _sharedPreferences.getString('wallet_group_icon_type_${group.groupKey}');
-      final value = _sharedPreferences.getString('wallet_group_icon_value_${group.groupKey}');
-      if (typeName == null || value == null) continue;
-
-      final type = WalletIconType.values.asNameMap()[typeName];
-      if (type == null) continue; // unknown/future type this build doesn't know about
-
-      final colorIndex =
-          _sharedPreferences.getInt('wallet_group_icon_color_${group.groupKey}') ?? 0;
-      final backgroundEnabled =
-          _sharedPreferences.getBool('wallet_group_icon_bg_enabled_${group.groupKey}') ?? true;
-
-      group.icon = WalletIcon(
-        type: type,
-        value: value,
-        colorIndex: colorIndex,
-        backgroundEnabled: backgroundEnabled,
-      );
-    }
-  }
-
-  void _saveCustomGroupIcon(String groupKey, WalletIcon icon) {
-    _sharedPreferences.setString('wallet_group_icon_type_$groupKey', icon.type.name);
-    _sharedPreferences.setString('wallet_group_icon_value_$groupKey', icon.value);
-    _sharedPreferences.setInt('wallet_group_icon_color_$groupKey', icon.colorIndex);
-    _sharedPreferences.setBool('wallet_group_icon_bg_enabled_$groupKey', icon.backgroundEnabled);
-  }
-
-  void setGroupIcon(String groupKey, WalletIcon icon) {
-    if (groupKey.isEmpty || icon.value.isEmpty) return;
-
-    for (final group in walletGroups.where((g) => g.groupKey == groupKey)) {
-      group.setCustomIcon(icon);
-    }
-    _saveCustomGroupIcon(groupKey, icon);
-    _markGroupsChanged();
-  }
-
-  void setGroupIconForWallet(WalletInfo walletInfo, WalletIcon icon) {
-    final groupKey = resolveGroupKey(walletInfo);
-    setGroupIcon(groupKey, icon);
-  }
-
-  // ---------------------------------------------------------------------------
-  // This performs a Group-Based Lazy Migration:
-  // If the user opens a wallet in an old group,
-  // we migrate ALL wallets that share its old group key to a new hash.
-  // ---------------------------------------------------------------------------
-
-  /// When a user opens a wallet, check if it has a real hash.
-  /// If not, migrate the ENTIRE old group so they keep the same group name
-  /// and end up with the same new hash (preserving grouping).
-  Future<void> ensureGroupHasHashedIdentifier(WalletBase openedWallet) async {
-    WalletInfo walletInfo = openedWallet.walletInfo;
-
-    // If the openedWallet already has an hash, then there is nothing to do
-    if (walletInfo.hashedWalletIdentifier != null &&
-        walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      await updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
-      return;
-    }
-
-    // Identify the old group key for this wallet
-    final oldGroupKey = resolveGroupKey(walletInfo); // parentAddress fallback
-
-    // Find all wallets that share this old group key (i.e the old group)
-    final oldGroupWallets = (await WalletInfo.getAll()).where((w) {
-      final key = w.hashedWalletIdentifier != null && w.hashedWalletIdentifier!.isNotEmpty
-          ? w.hashedWalletIdentifier
-          : (w.parentAddress ?? w.address);
-      return key == oldGroupKey;
-    }).toList();
-
-    if (oldGroupWallets.isEmpty) {
-      // This shouldn't happen, but just in case it does, we return.
-      return;
-    }
-
-    // Next, we determine the new group hash for these wallets
-    // Since they share the same seed, we can assign that group hash
-    // to all the wallets to preserve grouping.
-    final newGroupHash = createHashedWalletIdentifier(openedWallet);
-
-    // Migrate the old group name from oldGroupKey(i.e parentAddress) to newGroupHash
-    await _migrateGroupName(oldGroupKey, newGroupHash);
-
-    // Then we assign this new hash to each wallet in that old group and save them
-    for (final wallet in oldGroupWallets) {
-      wallet.hashedWalletIdentifier = newGroupHash;
-      await wallet.save();
-    }
-
-    // Finally, we rebuild the groups so that these wallets are now in the new group
-    await updateWalletGroups();
-  }
-
-  /// Copy an old group name to the new group key, then remove the old key.
-  Future<void> _migrateGroupName(String oldGroupKey, String newGroupKey) async {
-    final oldNameKey = 'wallet_group_name_$oldGroupKey';
-    final newNameKey = 'wallet_group_name_$newGroupKey';
-
-    final oldGroupName = _sharedPreferences.getString(oldNameKey);
-    if (oldGroupName != null) {
-      await _sharedPreferences.setString(newNameKey, oldGroupName);
-      await _sharedPreferences.remove(oldNameKey);
-    }
-  }
-
-
-  String? getGroupName(WalletInfo walletInfo) {
-    try {
-      final groupKey = resolveGroupKey(walletInfo);
-      final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-      return group.groupName;
-    } catch (_) {
-      return null;
-    }
-  }
-
-
-  WalletIcon? _readCustomIconByGroupKey(String groupKey) {
-    final typeName = _sharedPreferences.getString('wallet_group_icon_type_$groupKey');
-    final value = _sharedPreferences.getString('wallet_group_icon_value_$groupKey');
+  WalletIcon? _iconFromPersisted(db.WalletGroup persisted) {
+    final typeName = persisted.iconType;
+    final value = persisted.iconValue;
     if (typeName == null || value == null) return null;
 
     final type = WalletIconType.values.asNameMap()[typeName];
-    if (type == null) return null;
+    if (type == null) return null; // unknown/future type this build doesn't know about
 
-    final colorIndex = _sharedPreferences.getInt('wallet_group_icon_color_$groupKey') ?? 0;
-    final backgroundEnabled = _sharedPreferences.getBool('wallet_group_icon_bg_enabled_$groupKey') ?? true;
+    final colorIndex = int.tryParse(persisted.iconColor ?? '') ?? 0;
+    final backgroundEnabled = persisted.iconBg != 'false';
 
     return WalletIcon(
       type: type,
@@ -278,15 +94,199 @@ class WalletManager {
     );
   }
 
+  /// One-time, opportunistic migration: for wallets that don't have a
+  /// [WalletInfo.groupId] yet, cluster them using the legacy identifier
+  /// (hashedWalletIdentifier, falling back to parentAddress/address), create
+  /// a real [db.WalletGroup] row per distinct cluster of 2+ wallets (carrying
+  /// over whatever custom name/icon was stored in SharedPreferences for that
+  /// cluster), and assign that group's id to each member. This never runs
+  /// again for wallets that already have a groupId.
+  Future<void> _backfillLegacyGroups() async {
+    final ungrouped =
+        (await WalletInfo.getAll()).where((w) => w.groupId == null || w.groupId!.isEmpty).toList();
+    if (ungrouped.isEmpty) return;
 
-  WalletIcon? getGroupIcon(WalletInfo walletInfo) {
-    try {
-      final groupKey = resolveGroupKey(walletInfo);
-      final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-      return group.icon ?? _readCustomIconByGroupKey(groupKey);
-    } catch (_) {
-      final groupKey = resolveGroupKey(walletInfo);
-      return _readCustomIconByGroupKey(groupKey);
+    final byLegacyKey = <String, List<WalletInfo>>{};
+    for (final w in ungrouped) {
+      final key = _legacyGroupKey(w);
+      if (key.isEmpty) continue;
+      byLegacyKey.putIfAbsent(key, () => []).add(w);
+    }
+
+    for (final entry in byLegacyKey.entries) {
+      if (entry.value.length < 2) continue;
+
+      final legacyName = _sharedPreferences.getString('wallet_group_name_${entry.key}');
+      final legacyIconType = _sharedPreferences.getString('wallet_group_icon_type_${entry.key}');
+      final legacyIconValue = _sharedPreferences.getString('wallet_group_icon_value_${entry.key}');
+      final legacyIconColor = _sharedPreferences.getInt('wallet_group_icon_color_${entry.key}');
+      final legacyIconBg =
+          _sharedPreferences.getBool('wallet_group_icon_bg_enabled_${entry.key}');
+
+      final newGroup = db.WalletGroup.external(
+        // Reuse the legacy key itself as the persisted group's immutable id
+        // (rather than a freshly generated uuid). This keeps resolveGroupKey()
+        // stable across the backfill: any caller that computed this same key
+        // *before* the group row existed (e.g. while tagging placeholder
+        // wallets during omnichain group creation) can keep using it
+        // immediately afterwards to look up / rename the now-real group.
+        id: entry.key,
+        name: legacyName,
+        iconType: legacyIconType,
+        iconValue: legacyIconValue,
+        iconColor: legacyIconColor?.toString(),
+        iconBg: legacyIconBg?.toString(),
+      );
+      await newGroup.save();
+
+      for (final w in entry.value) {
+        w.groupId = newGroup.id;
+        await w.save();
+      }
+
+      // Clean up the legacy SharedPreferences entries now that they live in the DB.
+      await _sharedPreferences.remove('wallet_group_name_${entry.key}');
+      await _sharedPreferences.remove('wallet_group_icon_type_${entry.key}');
+      await _sharedPreferences.remove('wallet_group_icon_value_${entry.key}');
+      await _sharedPreferences.remove('wallet_group_icon_color_${entry.key}');
+      await _sharedPreferences.remove('wallet_group_icon_bg_enabled_${entry.key}');
     }
   }
+
+  String _legacyGroupKey(WalletInfo walletInfo) {
+    if (walletInfo.hashedWalletIdentifier != null &&
+        walletInfo.hashedWalletIdentifier!.isNotEmpty) {
+      return walletInfo.hashedWalletIdentifier!;
+    }
+
+    final address = walletInfo.parentAddress ?? walletInfo.address;
+    if (address.isEmpty) {
+      return '';
+    }
+    return address;
+  }
+
+  /// Resolves the key this wallet is (or, once grouped, will be) filed
+  /// under in [walletGroups]:
+  /// - If the wallet already belongs to a real, persisted group, that
+  ///   group's immutable id is returned.
+  /// - Otherwise, the legacy identifier (hashedWalletIdentifier, falling
+  ///   back to parentAddress/address, falling back to the wallet's own id)
+  ///   is returned. This is exactly the key [_backfillLegacyGroups] will use
+  ///   as the group's id once/if this wallet ends up sharing it with
+  ///   another wallet, so callers can safely use the returned key right away
+  ///   (e.g. to tag sibling placeholder wallets before the real group row
+  ///   exists yet) and keep using it afterwards.
+  String resolveGroupKey(WalletInfo walletInfo) {
+    if (walletInfo.groupId != null && walletInfo.groupId!.isNotEmpty) {
+      return walletInfo.groupId!;
+    }
+
+    final legacy = _legacyGroupKey(walletInfo);
+    return legacy.isNotEmpty ? legacy : walletInfo.id;
+  }
+
+  /// Adds a wallet to the in-memory view of its (already-persisted) group.
+  /// This never creates a new persisted group: group membership ([WalletInfo.groupId])
+  /// must already be set on the wallet itself.
+  void addWallet(WalletInfo walletInfo) {
+    final groupKey = resolveGroupKey(walletInfo);
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupKey);
+    if (group != null) {
+      if (!group.wallets.contains(walletInfo)) group.wallets.add(walletInfo);
+    } else {
+      walletGroups.add(WalletGroup(groupKey)..wallets.add(walletInfo));
+    }
+    _markGroupsChanged();
+  }
+
+  void removeWallet(WalletInfo walletInfo) {
+    final groupKey = resolveGroupKey(walletInfo);
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupKey);
+    if (group == null) return;
+
+    group.wallets.remove(walletInfo);
+    if (group.wallets.isEmpty) {
+      walletGroups.remove(group);
+    }
+
+    _markGroupsChanged();
+  }
+
+  List<WalletInfo> getWalletsInGroup(String groupKey) => walletGroups
+      .firstWhere(
+        (g) => g.groupKey == groupKey,
+        orElse: () => WalletGroup(groupKey),
+      )
+      .wallets;
+
+  /// Renames a group. This is a single `UPDATE name = ? WHERE id = ?`: no
+  /// wallet file is touched, and no wallet's id/name is changed.
+  Future<void> setGroupName(String groupKey, String name) async {
+    if (groupKey.isEmpty || name.isEmpty) return;
+
+    final persisted = await db.WalletGroup.get(groupKey);
+    if (persisted == null) return;
+
+    persisted.name = name;
+    await persisted.save();
+
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupKey);
+    group?.groupName = name;
+    _markGroupsChanged();
+  }
+
+  /// Sets a group's custom icon. Same single-row-update guarantee as [setGroupName].
+  Future<void> setGroupIcon(String groupKey, WalletIcon icon) async {
+    if (groupKey.isEmpty || icon.value.isEmpty) return;
+
+    final persisted = await db.WalletGroup.get(groupKey);
+    if (persisted == null) return;
+
+    persisted.iconType = icon.type.name;
+    persisted.iconValue = icon.value;
+    persisted.iconColor = icon.colorIndex.toString();
+    persisted.iconBg = icon.backgroundEnabled.toString();
+    await persisted.save();
+
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupKey);
+    group?.icon = icon;
+    _markGroupsChanged();
+  }
+
+  Future<void> setGroupIconForWallet(WalletInfo walletInfo, WalletIcon icon) async {
+    final groupKey = walletInfo.groupId;
+    if (groupKey == null || groupKey.isEmpty) return;
+    await setGroupIcon(groupKey, icon);
+  }
+
+  String? getGroupName(WalletInfo walletInfo) {
+    final groupId = walletInfo.groupId;
+    if (groupId == null || groupId.isEmpty) return null;
+
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupId);
+    if (group == null) return null;
+    return group.wallets.length > 1 ? group.groupName : null;
+  }
+
+  WalletIcon? getGroupIcon(WalletInfo walletInfo) {
+    final groupId = walletInfo.groupId;
+    if (groupId == null || groupId.isEmpty) return null;
+
+    final group = walletGroups.firstWhereOrNull((g) => g.groupKey == groupId);
+    if (group == null || group.wallets.length <= 1) return null;
+    return group.icon;
+  }
 }
+
+extension _FirstWhereOrNull<T> on List<T> {
+  T? firstWhereOrNull(bool Function(T) test) {
+    for (final e in this) {
+      if (test(e)) return e;
+    }
+    return null;
+  }
+}
+
+
+

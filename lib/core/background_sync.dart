@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,8 +116,19 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name,
-          isBackground: true);
+      // TODO(wallet-id-refactor): WalletListItem only carries name/type, not a
+      // WalletInfo or id, so this falls back to a name+type lookup — which can
+      // silently pick the wrong wallet if two ever share a name (same class of
+      // ambiguous-match risk removed everywhere else in this refactor). Real
+      // fix is upstream: WalletListItem should carry WalletInfo (or its id)
+      // directly, presumably already available wherever it's built from
+      // WalletInfo.getAll() in WalletListViewModel.
+      final walletInfo = await WalletInfo.get(moneroWallets[i].name, moneroWallets[i].type);
+      if (walletInfo == null) {
+        printV("Wallet not found: ${moneroWallets[i].name}");
+        continue;
+      }
+      final wallet = await walletLoadingService.load(walletInfo, isBackground: true);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
 

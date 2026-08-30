@@ -1549,7 +1549,6 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkAffectedWallets() async {
     try {
-      // await load file
       final vulnerableSeedsString = await rootBundle
           .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
       final vulnerableSeeds = vulnerableSeedsString.split("\n");
@@ -1559,8 +1558,7 @@ abstract class DashboardViewModelBase with Store {
       for (var walletInfo in walletInfos) {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-          final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-          final jsonSource = await read(path: path, password: password);
+          final jsonSource = await read(path: walletInfo.path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 

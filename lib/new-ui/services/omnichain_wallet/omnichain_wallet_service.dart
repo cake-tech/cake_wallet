@@ -12,6 +12,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:uuid/uuid.dart";
 
 class OmniChainWalletCreationService {
   OmniChainWalletCreationService({
@@ -121,10 +122,10 @@ class OmniChainWalletCreationService {
       );
 
       await walletManager.updateWalletGroups();
-      walletManager.setGroupName(groupKey, groupName);
+      await walletManager.setGroupName(groupKey, groupName);
       final selectedIcon = request.walletIcon;
       if (selectedIcon != null) {
-        walletManager.setGroupIcon(groupKey, selectedIcon);
+        await walletManager.setGroupIcon(groupKey, selectedIcon);
       }
       await walletManager.updateWalletGroups();
     } catch (e) {
@@ -134,10 +135,7 @@ class OmniChainWalletCreationService {
 
   Future<void> activatePlaceholderWallet(WalletInfo walletInfo) async {
     if (walletInfo.isReady) {
-      final wallet = await walletLoadingService.load(
-        walletInfo.type,
-        walletInfo.name,
-      );
+      final wallet = await walletLoadingService.load(walletInfo);
 
       await appStore.changeCurrentWallet(wallet);
       await walletManager.updateWalletGroups();
@@ -145,24 +143,19 @@ class OmniChainWalletCreationService {
     }
 
     final currentWallet = appStore.wallet;
-
     if (currentWallet == null) {
       throw Exception('Current wallet is null');
     }
 
     final mnemonic = currentWallet.seed;
-
     if (mnemonic == null || mnemonic.isEmpty) {
       throw Exception('Failed to resolve shared mnemonic');
     }
 
     dynamic options;
-
     if (walletInfo.type == WalletType.monero) {
       options = defaultMoneroOptions;
     }
-
-    await WalletInfo.delete(walletInfo);
 
     await _createSingleWallet(
       type: walletInfo.type,
@@ -173,6 +166,7 @@ class OmniChainWalletCreationService {
       makeCurrent: true,
       isGroupCreationDeferred: true,
       passphrase: _lastGroupPassphrase ?? currentWallet.passphrase,
+      walletInfoIdOverride: walletInfo.internalId,
     );
 
     await walletManager.updateWalletGroups();
@@ -209,16 +203,21 @@ class OmniChainWalletCreationService {
     bool useTestnet = false,
     int zcashNetwork = ZcashNetworkType.mainnet,
     String? passphrase,
+    int? walletInfoIdOverride,
   }) async {
-    final newArgs =
-        NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
+    final newArgs = NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
 
     final walletNewVM = walletNewVMBuilder(newArgs);
     walletNewVM.name = finalName;
     walletNewVM.toggleUseTestnet(useTestnet);
     walletNewVM.setZcashNetwork(zcashNetwork);
     walletNewVM.seedSettingsViewModel.setPassphrase(passphrase);
-    await walletNewVM.create(options: options, makeCurrent: makeCurrent, isGroupCreationDeferred: isGroupCreationDeferred);
+    await walletNewVM.create(
+      options: options,
+      makeCurrent: makeCurrent,
+      isGroupCreationDeferred: isGroupCreationDeferred,
+      walletInfoIdOverride: walletInfoIdOverride,
+    );
   }
 
   Future<void> _createWalletPlaceholders(
@@ -227,13 +226,15 @@ class OmniChainWalletCreationService {
       required List<WalletType> restTypes}) async {
     for (final type in restTypes) {
       final finalName = await _uniqueNamePerGroup(type, groupName);
+      final id = const Uuid().v4();
 
-      // Reserve the future paths but DO NOT create files now
-      final dirPath = await pathForWalletDir(name: finalName, type: type);
-      final path = await pathForWallet(name: finalName, type: type);
+      // Reserve the id + directory now; activating this placeholder later
+      // reuses this exact id/path rather than generating a new one.
+      final dirPath = await pathForWalletDir(id: id, type: type);
+      final path = await pathForWallet(id: id, type: type);
 
       final info = WalletInfo.external(
-        id: WalletBase.idFor(finalName, type),
+        id: id,
         name: finalName,
         type: type,
         isRecovery: false,
@@ -241,7 +242,7 @@ class OmniChainWalletCreationService {
         date: DateTime.now(),
         path: path,
         dirPath: dirPath,
-        address: '',
+        address: "",
         showIntroCakePayCard: false,
         derivationInfoId: null,
         hardwareWalletType: null,

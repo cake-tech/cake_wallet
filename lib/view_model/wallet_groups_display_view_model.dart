@@ -57,22 +57,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    WalletListItem walletToUse;
+    final WalletInfo walletInfo;
 
-    bool isGroupSelected = selectedWalletGroup != null;
-
-    if (isGroupSelected) {
-      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
+    if (selectedWalletGroup != null) {
+      walletInfo = selectedWalletGroup!.wallets.first;
     } else {
-      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
+      walletInfo = selectedSingleWallet!;
     }
 
     try {
       isFetchingMnemonic = true;
-      final wallet = await _walletLoadingService.load(
-        walletToUse.type,
-        walletToUse.name,
-      );
+      final wallet = await _walletLoadingService.load(walletInfo);
 
       return wallet.seed;
     } catch (e) {
@@ -156,15 +151,14 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     }
   }
 
-  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
-    return WalletListItem(
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) => WalletListItem(
+      walletInfo: info,
       name: info.name,
       type: info.type,
       key: info.id,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.id == _appStore.wallet?.walletInfo.id,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,
     );
-  }
 }

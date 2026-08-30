@@ -1,8 +1,10 @@
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 
 class WalletListItem {
   const WalletListItem({
     required this.name,
+    required this.walletInfo,
     required this.type,
     required this.key,
     required this.isHardware,
@@ -13,6 +15,7 @@ class WalletListItem {
   });
 
   final String name;
+  final WalletInfo walletInfo;
   final WalletType type;
   final bool isCurrent;
   final dynamic key;

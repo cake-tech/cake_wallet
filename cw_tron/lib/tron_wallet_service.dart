@@ -52,11 +52,8 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<TronWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<TronWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
 
     try {
       final wallet = await TronWalletBase.open(
@@ -69,10 +66,10 @@ class TronWalletService extends WalletService<
       await wallet.init();
       wallet.addInitialTokens();
       await wallet.save();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
 
       final wallet = await TronWalletBase.open(
         name: name,
@@ -131,20 +128,6 @@ class TronWalletService extends WalletService<
     await wallet.save();
 
     return wallet;
-  }
-
-  @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
   }
 
   @override

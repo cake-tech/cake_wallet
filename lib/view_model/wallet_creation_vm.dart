@@ -20,6 +20,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
+import "package:uuid/uuid.dart";
 
 part 'wallet_creation_vm.g.dart';
 
@@ -117,6 +118,9 @@ abstract class WalletCreationVMBase with Store {
       WalletInfo? placeholder;
       int? keepSortOrder;
       String? resolvedGroupKey;
+      String? reservedId;
+      String? reservedDirPath;
+      String? reservedPath;
 
       if (walletInfoIdOverride != null) {
         final rows = await WalletInfo.selectList('walletInfoId = ?', [walletInfoIdOverride]);
@@ -132,23 +136,23 @@ abstract class WalletCreationVMBase with Store {
 
         keepSortOrder = placeholder.sortOrder;
         resolvedGroupKey = placeholder.hashedWalletIdentifier ?? '';
+        reservedId = placeholder.id;
+        reservedDirPath = placeholder.dirPath;
+        reservedPath = placeholder.path;
 
-        // Clean children then delete the placeholder row
         await WalletInfoAddressInfo.deleteByWalletInfoId(placeholder.internalId);
         await WalletInfoAddressMap.deleteByWalletInfoId(placeholder.internalId);
-        // remove all possible address rows (used/hidden/manual)
         for (final t in WalletInfoAddressType.values) {
           await WalletInfoAddress.deleteByType(placeholder.internalId, t);
         }
         await WalletInfo.delete(placeholder);
-
-        //  skip duplicate-name check, we’re recreating same name
       } else {
         walletCreationService.checkIfExists(name);
       }
 
-      final dirPath = await pathForWalletDir(name: name, type: type);
-      final path = await pathForWallet(name: name, type: type);
+      final id = reservedId ?? const Uuid().v4();
+      final dirPath = reservedDirPath ?? await pathForWalletDir(id: id, type: type);
+      final path = reservedPath ?? await pathForWallet(id: id, type: type);
 
       final credentials = getCredentials(options);
 
@@ -160,7 +164,7 @@ abstract class WalletCreationVMBase with Store {
       credentials.derivationInfo = di;
 
       credentials.walletInfo = WalletInfo.external(
-        id: WalletBase.idFor(name, type),
+        id: id,
         name: name,
         type: type,
         isRecovery: isRecovery,

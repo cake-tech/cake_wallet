@@ -155,7 +155,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         column: 'isReady',
         definition: 'INTEGER NOT NULL DEFAULT 1',
       );
+      await _addColumnIfNotExists(
+        db,
+        table: 'WalletInfo',
+        column: 'groupId',
+        definition: 'TEXT DEFAULT NULL',
+      );
       await _createWalletInfoAccountTable(db);
+      await _createWalletGroupTable(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -184,7 +191,8 @@ CREATE TABLE WalletInfo (
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
-  isReady INTEGER NOT NULL DEFAULT 1
+  isReady INTEGER NOT NULL DEFAULT 1,
+  groupId TEXT DEFAULT NULL
 );
 ''');
 
@@ -255,6 +263,7 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createNodeTable(db);
     await _createTradeTable(db);
     await _createWalletInfoAccountTable(db);
+    await _createWalletGroupTable(db);
   });
 }
 
@@ -400,6 +409,84 @@ CREATE TABLE IF NOT EXISTS BridgeTransfer (
 CREATE INDEX IF NOT EXISTS idx_bridgetransfer_wallet_id
 ON BridgeTransfer(wallet_id);
 ''');
+}
+
+Future<void> _createErc20TokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS Erc20Token (
+  Erc20TokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  chainId INTEGER NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  contractAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_erc20token_wallet_chain_contract
+ON Erc20Token (walletName, chainId, contractAddress);
+""");
+}
+
+Future<void> _createSplTokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS SPLToken (
+  SPLTokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  mintAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  mint TEXT NOT NULL DEFAULT '',
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_spltoken_wallet_mint
+ON SPLToken (walletName, mintAddress);
+""");
+}
+
+Future<void> _createTronTokenTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS TronToken (
+  TronTokenId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT '',
+  symbol TEXT NOT NULL DEFAULT '',
+  contractAddress TEXT NOT NULL,
+  decimal INTEGER NOT NULL DEFAULT 0,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  iconPath TEXT,
+  tag TEXT,
+  isPotentialScam INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trontoken_wallet_contract
+ON TronToken (walletName, contractAddress);
+""");
+}
+
+Future<void> _createWalletGroupTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS walletGroup (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT,
+  iconType TEXT,
+  iconValue TEXT,
+  iconColor TEXT,
+  iconBg TEXT
+);
+""");
 }
 
 Future<void> _createNodeTable(Database db) async {

@@ -3,6 +3,7 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/entities/wallet_manager.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
@@ -17,8 +18,14 @@ Future<void> loadCurrentWallet({String? password}) async {
   }
 
   final type = deserializeFromInt(typeRaw);
+  final walletInfo = await WalletInfo.get(name, type);
+
+  if (walletInfo == null) {
+    throw Exception("Wallet not found: $name");
+  }
+
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  final wallet = await walletLoadingService.load(type, name, password: password);
+  final wallet = await walletLoadingService.load(walletInfo, password: password);
   await appStore.changeCurrentWallet(wallet);
   await walletManager.updateWalletGroups();
 }

@@ -31,22 +31,18 @@ class WalletLoadingService {
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(WalletType type, String name, String newName,
-      {String? password}) async {
+  Future<void> renameWallet(WalletInfo walletInfo, String newName, {String? password}) async {
     try {
-      final walletService = walletServiceFactory.call(type);
+      final walletService = walletServiceFactory.call(walletInfo.type);
+      final name = walletInfo.name;
       final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
       // Save the current wallet's password to the new wallet name's key
       await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
-
-      await walletService.rename(name, walletPassword, newName);
-      // Delete previous wallet name from keyService to keep only new wallet's name
-      // otherwise keeps duplicate (old and new names)
+      await walletService.rename(walletInfo, walletPassword, newName);
       await keyService.deleteWalletPassword(walletName: name);
 
-      // set shared preferences flag based on previous wallet name
-      if (type == WalletType.monero) {
+      if (walletInfo.type == WalletType.monero) {
         final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
         final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
         final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
@@ -58,18 +54,17 @@ class WalletLoadingService {
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name,
-      {String? password, bool isBackground = false}) async {
+  Future<WalletBase> load(WalletInfo walletInfo, {String? password, bool isBackground = false}) async {
     try {
       if (!isBackground) {
         await sharedPreferences.setString(
-            PreferencesKey.backgroundSyncLastTrigger(name), DateTime.now().toIso8601String());
+            PreferencesKey.backgroundSyncLastTrigger(walletInfo.name), DateTime.now().toIso8601String());
       }
-      final walletService = walletServiceFactory.call(type);
-      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
-      final wallet = await walletService.openWallet(name, walletPassword);
+      final walletService = walletServiceFactory.call(walletInfo.type);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: walletInfo.name));
+      final wallet = await walletService.openWallet(walletInfo, walletPassword);
 
-      if (type == WalletType.monero) {
+      if (walletInfo.type == WalletType.monero) {
         await updateMoneroWalletPassword(wallet);
       }
 
@@ -82,63 +77,56 @@ class WalletLoadingService {
           showModalBottomSheet(
               context: navigatorKey.currentContext!,
               builder: (context) => WalletDeprecationPopup(
-                    type: type,
-                    seed: error.seed,
-                  ));
+                type: walletInfo.type,
+                seed: error.seed,
+              ));
         }
       } else {
         await ExceptionHandler.resetLastPopupDate();
         final isLedgerError = await ExceptionHandler.isLedgerError(error);
-        if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
+        if (isLedgerError || await requireHardwareWalletConnection(walletInfo)) rethrow;
         await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
       }
 
-      // try fetching the seeds of the corrupted wallet to show it to the user
       try {
-        corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
+        corruptedWalletsSeeds += await _getCorruptedWalletSeeds(walletInfo);
       } catch (e) {
-        corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
+        corruptedWalletsSeeds += "\nFailed to fetch ${walletInfo.name} seeds: $e";
       }
 
-      // try opening another wallet that is not corrupted to give user access to the app
       WalletBase? wallet;
-      for (var walletInfo in await WalletInfo.getAll()) {
+      for (var info in await WalletInfo.getAll()) {
         try {
-          final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
-          wallet = await walletService.openWallet(walletInfo.name, walletPassword);
+          final walletService = walletServiceFactory.call(info.type);
+          final walletPassword = await keyService.getWalletPassword(walletName: info.name);
+          wallet = await walletService.openWallet(info, walletPassword);
 
-          if (walletInfo.type == WalletType.monero) {
+          if (info.type == WalletType.monero) {
             await updateMoneroWalletPassword(wallet);
           }
 
           await sharedPreferences.setString(PreferencesKey.currentWalletName, wallet.name);
-          await sharedPreferences.setInt(
-              PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+          await sharedPreferences.setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
-          // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
           authenticatedErrorStreamController.add(corruptedWalletsSeeds);
         } catch (e) {
           printV(e);
-          // save seeds and show corrupted wallets' seeds to the user
           try {
-            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
+            final seeds = await _getCorruptedWalletSeeds(info);
             if (!corruptedWalletsSeeds.contains(seeds)) {
               corruptedWalletsSeeds += seeds;
             }
           } catch (e) {
-            corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
+            corruptedWalletsSeeds += "\nFailed to fetch ${info.name} seeds: $e";
           }
         }
       }
 
-      // if all user's wallets are corrupted throw exception
       final msg = error.toString() + "\n" + corruptedWalletsSeeds;
       if (navigatorKey.currentContext != null) {
         await showPopUp<void>(
             context: navigatorKey.currentContext!,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
+            builder: (BuildContext context) => AlertWithTwoActions(
                 alertTitle: "Corrupted seeds",
                 alertContent: S.of(context).corrupted_seed_notice,
                 leftButtonText: S.of(context).cancel,
@@ -149,8 +137,7 @@ class WalletLoadingService {
                   }
                 },
                 actionRightButton: () => showSeedsPopup(context, msg),
-              );
-            });
+              ));
       } else {
         throw msg;
       }
@@ -200,15 +187,15 @@ class WalletLoadingService {
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }
 
-  Future<String> _getCorruptedWalletSeeds(String name, WalletType type) async {
-    final walletService = walletServiceFactory.call(type);
-    final password = await keyService.getWalletPassword(walletName: name);
+  Future<String> _getCorruptedWalletSeeds(WalletInfo walletInfo) async {
+    final walletService = walletServiceFactory.call(walletInfo.type);
+    final password = await keyService.getWalletPassword(walletName: walletInfo.name);
 
-    return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
+    return "\n\n${walletInfo.type} (${walletInfo.name}): ${await walletService.getSeeds(walletInfo, password)}";
   }
 
-  Future<bool> requireHardwareWalletConnection(WalletType type, String name) async {
-    final walletService = walletServiceFactory.call(type);
-    return await walletService.requireHardwareWalletConnection(name);
+  Future<bool> requireHardwareWalletConnection(WalletInfo walletInfo) async {
+    final walletService = walletServiceFactory.call(walletInfo.type);
+    return await walletService.requireHardwareWalletConnection(walletInfo);
   }
 }

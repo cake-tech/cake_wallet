@@ -63,7 +63,7 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
-      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
+      await getIt.get<WalletManager>().updateWalletGroups();
 
       int? chainId;
       if (isEVMCompatibleChain(wallet.type)) {

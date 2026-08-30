@@ -463,6 +463,7 @@ class WalletInfo {
     this.receiveInfoboxDismissed,
     this.showCombinedBalance,
     this.favoriteTokenAddress,
+    this.groupId,
   )   : isReady = true,
         _yatLastUsedAddressController = StreamController<String>.broadcast();
 
@@ -488,6 +489,7 @@ class WalletInfo {
     bool? receiveInfoboxDismissed,
     bool? showCombinedBalance,
     String? favoriteTokenAddress,
+    String? groupId,
     bool? isReady,
   }) {
     final wi = WalletInfo(
@@ -514,6 +516,7 @@ class WalletInfo {
       receiveInfoboxDismissed ?? false,
       showCombinedBalance ?? true,
       favoriteTokenAddress,
+      groupId,
     );
     wi.isReady = isReady ?? true;
     return wi;
@@ -540,6 +543,7 @@ class WalletInfo {
   bool showCombinedBalance;
   String? favoriteTokenAddress;
   bool isReady;
+  String? groupId;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -796,6 +800,7 @@ class WalletInfo {
         "favoriteTokenAddress": favoriteTokenAddress,
         "network": network,
         "isReady": isReady ? 1 : 0,
+        "groupId": groupId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -824,7 +829,8 @@ class WalletInfo {
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
-        json["favoriteTokenAddress"] as String? ?? null);
+        json["favoriteTokenAddress"] as String? ?? null,
+        json['groupId'] as String?);
     info.network = json['network'] as String?;
     info.isReady = (json['isReady'] as int? ?? 1) == 1;
     return info;
@@ -863,6 +869,14 @@ class WalletInfo {
 
   static Future<WalletInfo?> get(String name, WalletType type) async {
     final list = await selectList('name = ? AND type = ?', [name, type.index]);
+    if (list.isEmpty) {
+      return null;
+    }
+    return list[0];
+  }
+
+  static Future<WalletInfo?> getById(String id) async {
+    final list = await selectList('id = ?', [id]);
     if (list.isEmpty) {
       return null;
     }

@@ -389,7 +389,7 @@ class CWWownero extends Wownero {
       final password = await keyService.getWalletPassword(walletName: w.name);
       String seed = "unknown";
       try {
-        final wallet = await walletService.openWallet(w.name, password);
+        final wallet = await walletService.openWallet(w, password);
         seed = wallet.seed;
         wallet.close();
       } catch (e) {

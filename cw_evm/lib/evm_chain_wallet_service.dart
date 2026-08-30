@@ -3,12 +3,9 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:path/path.dart' as p;
 import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_client_factory.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
@@ -31,20 +28,6 @@ class EVMChainWalletService extends WalletService<
   final bool isDirect;
   final EvmChainRegistry _registry = EvmChainRegistry();
 
-  List<WalletType> get _evmWalletTypes {
-    return _registry.getRegisteredWalletTypes();
-  }
-
-  Future<WalletInfo?> _findWalletByName(String name) async {
-    for (final type in _evmWalletTypes) {
-      final walletInfo = await WalletInfo.get(name, type);
-      if (walletInfo != null) {
-        return walletInfo;
-      }
-    }
-    return null;
-  }
-
   /// getType() is not meaningful for this unified service, it throws to prevent misuse
   @override
   WalletType getType() {
@@ -52,39 +35,6 @@ class EVMChainWalletService extends WalletService<
       'EVMChainWalletService is unified and does not have a single type. '
       'Use walletInfo.type instead.',
     );
-  }
-
-  /// Override saveBackup to look up walletType from wallet name
-  /// Optionally accepts walletInfo to avoid lookup (useful during rename)
-  @override
-  Future<void> saveBackup(String name, {WalletInfo? walletInfo}) async {
-    final info = walletInfo ?? await _findWalletByName(name);
-    if (info == null) {
-      throw Exception('Wallet not found: $name');
-    }
-
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: info.type);
-    final walletDirPath = await pathForWalletDir(name: name, type: info.type);
-
-    if (File(walletDirPath).existsSync()) {
-      await File(walletDirPath).copy(backupWalletDirPath);
-    }
-  }
-
-  /// Override restoreWalletFilesFromBackup to look up walletType from wallet name
-  @override
-  Future<void> restoreWalletFilesFromBackup(String name) async {
-    final walletInfo = await _findWalletByName(name);
-    if (walletInfo == null) {
-      throw Exception('Wallet not found: $name');
-    }
-
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
-    final walletDirPath = await pathForWalletDir(name: name, type: walletInfo.type);
-
-    if (File(backupWalletDirPath).existsSync()) {
-      await File(backupWalletDirPath).copy(walletDirPath);
-    }
   }
 
   @override
@@ -131,15 +81,10 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<EVMChainWallet> openWallet(String name, String password) async {
-    final walletInfo = await _findWalletByName(name);
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-
+  Future<EVMChainWallet> openWallet(WalletInfo walletInfo, String password) async {
     try {
       final wallet = await _openWalletInstance(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -148,13 +93,13 @@ class EVMChainWalletService extends WalletService<
       await wallet.init();
       wallet.addInitialTokens();
       await wallet.save();
-      await saveBackup(name);
+      await saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
 
       final wallet = await _openWalletInstance(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -164,34 +109,6 @@ class EVMChainWalletService extends WalletService<
       wallet.addInitialTokens();
       await wallet.save();
       return wallet;
-    }
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
-
-    final currentWalletInfo = await _findWalletByName(currentName);
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-
-    final type = currentWalletInfo.type;
-
-    await copyWalletFilesTo(fromName: currentName, toName: newName, type: type);
-    await saveBackup(newName, walletInfo: currentWalletInfo);
-
-    currentWalletInfo.id = WalletBase.idFor(newName, type);
-    currentWalletInfo.name = newName;
-    await currentWalletInfo.save();
-
-    final oldDir = Directory(p.join(await pathForWalletTypeDir(type: type), currentName));
-    if (oldDir.existsSync()) {
-      try {
-        await oldDir.delete(recursive: true);
-      } catch (e) {
-        printV('rename: failed to delete old wallet dir "$currentName": $e');
-      }
     }
   }
 
@@ -319,23 +236,11 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async {
-    for (final type in _evmWalletTypes) {
-      if (File(await pathForWallet(name: name, type: type)).existsSync()) {
-        return true;
-      }
+  Future<void> remove(WalletInfo walletInfo) async {
+    final dir = Directory(walletInfo.dirPath);
+    if (dir.existsSync()) {
+      await dir.delete(recursive: true);
     }
-    return false;
-  }
-
-  @override
-  Future<void> remove(String wallet) async {
-    final walletInfo = await _findWalletByName(wallet);
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-
-    File(await pathForWalletDir(name: wallet, type: walletInfo.type)).delete(recursive: true);
     await WalletInfo.delete(walletInfo);
   }
 

@@ -492,7 +492,7 @@ abstract class SolanaWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo))) {
       await saveKeysFile(_password, encryptionFileUtils);
       saveKeysFile(_password, encryptionFileUtils, true);
     }
@@ -548,8 +548,8 @@ abstract class SolanaWalletBase
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
+    final path = walletInfo.dirPath;
 
     Map<String, dynamic>? data;
     try {
@@ -573,8 +573,7 @@ abstract class SolanaWalletBase
       keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );

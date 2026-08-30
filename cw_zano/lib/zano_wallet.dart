@@ -132,7 +132,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = credentials.walletInfo!.path;
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
     await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
@@ -150,7 +150,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = credentials.walletInfo!.path;
     final createWalletResult = await wallet.restoreWalletFromSeed(
         path, credentials.password!, credentials.mnemonic, credentials.passphrase);
     await wallet.initWallet();
@@ -166,7 +166,7 @@ abstract class ZanoWalletBase
 
   static Future<ZanoWallet> open(
       {required String name, required String password, required WalletInfo walletInfo}) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final path = walletInfo.path;
     if (ZanoWalletApi.openWalletCache[path] != null) {
       final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
@@ -332,29 +332,29 @@ abstract class ZanoWalletBase
     });
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: name, type: type);
-    final currentCacheFile = File(currentWalletPath);
-    final currentKeysFile = File('$currentWalletPath.keys');
-    final currentAddressListFile = File('$currentWalletPath.address.txt');
-
-    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentCacheFile.existsSync()) {
-      await currentCacheFile.copy(newWalletPath);
-    }
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy('$newWalletPath.keys');
-    }
-    if (currentAddressListFile.existsSync()) {
-      await currentAddressListFile.copy('$newWalletPath.address.txt');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentWalletPath).delete(recursive: true);
-  }
+  // @override
+  // Future<void> renameWalletFiles(String newWalletName) async {
+  //   final currentWalletPath = await pathForWallet(name: name, type: type);
+  //   final currentCacheFile = File(currentWalletPath);
+  //   final currentKeysFile = File('$currentWalletPath.keys');
+  //   final currentAddressListFile = File('$currentWalletPath.address.txt');
+  //
+  //   final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+  //
+  //   // Copies current wallet files into new wallet name's dir and files
+  //   if (currentCacheFile.existsSync()) {
+  //     await currentCacheFile.copy(newWalletPath);
+  //   }
+  //   if (currentKeysFile.existsSync()) {
+  //     await currentKeysFile.copy('$newWalletPath.keys');
+  //   }
+  //   if (currentAddressListFile.existsSync()) {
+  //     await currentAddressListFile.copy('$newWalletPath.address.txt');
+  //   }
+  //
+  //   // Delete old name's dir and files
+  //   await Directory(currentWalletPath).delete(recursive: true);
+  // }
 
   @override
   Future<void> rescan({required int height}) => throw UnimplementedError();

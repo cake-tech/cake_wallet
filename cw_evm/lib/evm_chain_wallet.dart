@@ -1353,7 +1353,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo))) {
       await saveKeysFile(_password, encryptionFileUtils);
       saveKeysFile(_password, encryptionFileUtils, true);
     }
@@ -1621,8 +1621,8 @@ abstract class EVMChainWalletBase
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
+    final path = walletInfo.path;
 
     Map<String, dynamic>? data;
     try {
@@ -1633,7 +1633,6 @@ abstract class EVMChainWalletBase
     }
 
     final WalletKeysData keysData;
-    // Migrate wallet from the old scheme to the new .keys file scheme
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
@@ -1646,8 +1645,7 @@ abstract class EVMChainWalletBase
       );
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );

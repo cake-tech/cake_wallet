@@ -1,11 +1,12 @@
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cw_core/wallet_info.dart";
 
+/// Represents a group of wallets that share the same group key.
 class WalletGroup {
   WalletGroup(this.groupKey) : wallets = [];
 
-  /// Primary identifier for the group. Previously was `parentAddress`.
-  /// Now we store either the wallet's hash OR fallback to parentAddress/address.
+  /// The unique key that identifies this group of wallets.
+  /// Wallets with the same group key are considered part of the same group.
   final String groupKey;
 
   /// Child wallets that share the same group key
