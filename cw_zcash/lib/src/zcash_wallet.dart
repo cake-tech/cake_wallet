@@ -583,7 +583,8 @@ abstract class ZcashWalletBase
     final recipientAddresses = const <String>[];
 
     final info = ZcashTransactionInfo(
-      id: txHash,
+      id: _txResultKey(txHash),
+      txHash: txHash,
       amount: Money(displayAmount, currency),
       fee: Money.zero(currency),
       direction: direction,
@@ -603,6 +604,7 @@ abstract class ZcashWalletBase
   ZcashTransactionInfo _zcashInfoFromZkoolTx(
     final ZkoolTx tx,
     final int currentHeight, {
+    final String idSuffix = "",
     final String? extraMemo,
     final bool isRotationReceive = false,
     final bool isShieldAction = false,
@@ -623,7 +625,8 @@ abstract class ZcashWalletBase
         ? _outgoingRecipientAddresses(tx, ownedAddresses: ownedAddresses)
         : const <String>[];
     final info = ZcashTransactionInfo(
-      id: tx.txHash,
+      id: _txResultKey(tx.txHash, suffix: idSuffix),
+      txHash: tx.txHash,
       amount: Money(amount, currency),
       fee: Money(
         direction == TransactionDirection.outgoing ? tx.fee : BigInt.zero,
@@ -877,6 +880,7 @@ abstract class ZcashWalletBase
         splitEntries[_txResultKey(tx.txHash, suffix: '_shield')] = _zcashInfoFromZkoolTx(
           tx,
           currentHeight,
+          idSuffix: "_shield",
           isShieldAction: true,
           directionOverride: TransactionDirection.outgoing,
           amountOverride: tx.transparentOrSaplingSpent,
@@ -885,6 +889,7 @@ abstract class ZcashWalletBase
         splitEntries[_txResultKey(tx.txHash, suffix: '_recv')] = _zcashInfoFromZkoolTx(
           tx,
           currentHeight,
+          idSuffix: "_recv",
           directionOverride: TransactionDirection.incoming,
           amountOverride: tx.orchardReceived,
           ownedAddresses: ownedAddresses,

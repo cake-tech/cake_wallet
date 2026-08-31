@@ -496,7 +496,7 @@ abstract class SolanaWalletBase
 
       final baseSignature = transactionModel.id.replaceFirst(_swapIdSuffixPattern, "");
       if (baseSignature != transactionModel.id) {
-        transactionHistory.transactions.remove(baseSignature);
+        transactionHistory.remove(baseSignature);
       }
     }
 

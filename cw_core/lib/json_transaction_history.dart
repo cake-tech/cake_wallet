@@ -79,7 +79,7 @@ abstract class JsonTransactionHistory<TransactionType extends JsonTransactionInf
 
         final transaction = transactionFromJson(value as Map<String, dynamic>);
         if (transaction != null) {
-          put(transaction.id, transaction);
+          put(transaction);
         }
       }
     } catch (e) {

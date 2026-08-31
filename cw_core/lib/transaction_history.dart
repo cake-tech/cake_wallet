@@ -32,9 +32,10 @@ abstract class TransactionHistory<TransactionType extends TransactionInfo>
     _emit(const HistoryLoaded());
   }
 
-  void addOne(TransactionType transaction) => put(transaction.id, transaction);
+  void addOne(TransactionType transaction) => put(transaction);
 
-  void addMany(Map<String, TransactionType> transactions) => transactions.forEach(put);
+  void addMany(Map<String, TransactionType> transactions) =>
+      transactions.values.forEach(put);
 
   void remove(String id) => takeOut(id);
 
@@ -63,7 +64,8 @@ abstract class TransactionHistory<TransactionType extends TransactionInfo>
   }
 
   @protected
-  void put(String id, TransactionType transaction) {
+  void put(TransactionType transaction) {
+    final id = transaction.id;
     final existed = _transactions.containsKey(id);
     _transactions[id] = transaction;
     _emit(existed ? ItemUpdated(id) : ItemAdded(id));

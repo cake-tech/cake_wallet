@@ -7,6 +7,7 @@ import "package:cw_zcash/src/zkooltx.dart";
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
     required super.id,
+    required this.txHash,
     required Money super.fee,
     required super.direction,
     required final bool isPending,
@@ -41,6 +42,9 @@ class ZcashTransactionInfo extends TransactionInfo {
               .trim();
     }
   }
+
+  @override
+  final String txHash;
 
   String? _fiatAmount;
 

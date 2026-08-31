@@ -38,7 +38,7 @@ class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransact
   @override
   void addOne(EVMChainTransactionInfo transaction) {
     if (transaction.chainId == getCurrentChainId()) {
-      put(transaction.id, transaction);
+      put(transaction);
     }
   }
 
@@ -48,9 +48,9 @@ class EVMChainTransactionHistory extends JsonTransactionHistory<EVMChainTransact
 
     removeWhere((_, transaction) => transaction.chainId != currentChainId);
 
-    for (final entry in transactions.entries) {
-      if (entry.value.chainId == currentChainId) {
-        put(entry.key, entry.value);
+    for (final transaction in transactions.values) {
+      if (transaction.chainId == currentChainId) {
+        put(transaction);
       }
     }
   }

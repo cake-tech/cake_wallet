@@ -8,7 +8,7 @@ class DecredTransactionHistory extends TransactionHistory<TransactionInfo> {
     txs.forEach((_, tx) {
       final existing = transactions[tx.id];
       if (existing == null || existing.isPending) {
-        put(tx.id, tx);
+        put(tx);
       } else {
         foundOldTx = true;
       }

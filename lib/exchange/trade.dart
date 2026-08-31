@@ -114,7 +114,7 @@ class Trade with HistoryListItem {
   int? chainId;
   double? fee;
 
-  //FIXME the fallback is shit, but it won't be a problem after swap refactor since the date is nullable
+  //FIXME the fallback is not great, but it won't be a problem after swap refactor since the date is not nullable
   @override
   DateTime get date => createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
