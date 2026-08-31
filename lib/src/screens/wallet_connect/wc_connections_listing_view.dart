@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import "package:flutter/cupertino.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -145,6 +146,26 @@ class WalletConnectConnectionsView extends StatelessWidget {
                       const SizedBox(height: 24),
                       Observer(
                         builder: (_) {
+                          if (walletKitService.isLoadingConnections) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Column(
+                                  spacing: 12,
+                                  children: [
+                                    const CupertinoActivityIndicator(),
+                                    Text(
+                                      "${S.of(context).loading}...",
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: colors.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
                           if (walletKitService.pairings.isEmpty) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 32),

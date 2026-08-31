@@ -12,6 +12,7 @@ mixin PendingTransaction {
 
   CryptoMoney get amount;
   CryptoMoney get fee;
+  Money? get additionalCost => null;
 
   String get amountFormatted;
   String get feeFormatted => fee.toStringWithSymbol(fractionalDigits: 8);

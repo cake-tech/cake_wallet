@@ -328,6 +328,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: amountValue ?? Money.zero(sendVM.selectedCryptoCurrency),
+                    explanation: sendVM.pendingTransactionAdditionalCostNotice,
                     fiatAmountValue: fiatAmountValue,
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee

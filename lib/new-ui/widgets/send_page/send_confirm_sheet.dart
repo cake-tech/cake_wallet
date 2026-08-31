@@ -194,6 +194,7 @@ class SendTransactionDetails extends StatelessWidget {
   Widget _buildMainContent(BuildContext context) {
     return Observer(builder: (context) {
       final transaction = sendViewModel.pendingTransaction;
+      final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
 
       final amount = transaction == null
           ? sumByMoney(
@@ -401,6 +402,26 @@ class SendTransactionDetails extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (additionalCostNotice != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          height: 1,
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          additionalCostNotice,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (sendViewModel.isElectrumWallet) ...[
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 12),

@@ -1337,9 +1337,10 @@ Future<void> setup({
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_unspentCoinsInfoSource);
       case WalletType.zano:
-        return zano!.createZanoWalletService();
+        return zano!.createZanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.decred:
-        return decred!.createDecredWalletService(_unspentCoinsInfoSource);
+        return decred!.createDecredWalletService(
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:

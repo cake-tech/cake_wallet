@@ -120,7 +120,7 @@ dependency_overrides:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
+      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
   bs58:
     git:
       url: https://github.com/litaoh/base58
@@ -960,7 +960,7 @@ dependency_overrides:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c.git
-      ref: 3bfb3856a838f2bf6b729501837bb0295dedf25d
+      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
       path: ./impls/monero.dart
   msgpack_dart:
     git:

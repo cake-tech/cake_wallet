@@ -630,6 +630,7 @@ class CakePayBuyCardPage extends BasePage {
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue: _sendViewModel.pendingTransaction!.amount,
                   quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
+                  explanation: _sendViewModel.pendingTransactionAdditionalCostNotice,
                   fiatAmountValue: _sendViewModel.pendingTransactionFiatAmount,
                   fee: S.of(bottomSheetContext).send_fee,
                   feeValue: _sendViewModel.pendingTransaction!.fee,

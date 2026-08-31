@@ -99,9 +99,9 @@ class HistoryTile extends StatelessWidget {
         children: [
           Opacity(
             opacity: pending ? 0.5 : 1,
-            child: CakeImageWidget(
+            child: TokenImageWidget(
               imageUrl: asset?.iconPath ?? "",
-              width: 34,
+              size: 34,
             ),
           ),
           Align(
