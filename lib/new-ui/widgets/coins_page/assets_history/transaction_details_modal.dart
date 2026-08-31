@@ -99,7 +99,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                 child: copied
                                     ? Text(
                                         S.of(context).copied,
-                                        key: const ValueKey("transaction_details_amount"),
+                                        key: const ValueKey("transaction_details_amount_copied"),
                                         style: TextStyle(
                                           fontSize: 28,
                                           color: Theme.of(context).colorScheme.primary,

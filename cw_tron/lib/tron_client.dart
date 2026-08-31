@@ -5,7 +5,6 @@ import "dart:developer";
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency/currency.dart";
 import "package:cw_core/node.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
@@ -331,7 +330,7 @@ class TronClient {
     return PendingTronTransaction(
       signedTransaction: signature,
       amount: totalAmount,
-      fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
+      fee: CryptoMoney(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
       sendTransaction: sendTx,
       id: rawTransaction.txID,
     );
@@ -472,7 +471,7 @@ class TronClient {
         ),
       );
 
-      final outputResult = request.outputResult?.first ?? BigInt.zero;
+      final outputResult = request.outputResult?.first as BigInt? ?? BigInt.zero;
 
       return TronBalance(Money(outputResult, currency));
     } catch (_) {

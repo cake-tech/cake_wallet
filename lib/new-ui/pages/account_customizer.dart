@@ -19,6 +19,7 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_v
 import "package:cw_core/amount/money.dart";
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -294,7 +295,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+    final currency = walletTypeToCryptoCurrency(widget.dashboardViewModel.type);
+    final bloc = getIt<CardCustomizerBloc>(param1: currency);
 
     Navigator.of(context).push(CupertinoPageRoute(
       builder: (context) => BlocProvider(

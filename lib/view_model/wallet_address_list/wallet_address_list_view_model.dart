@@ -179,9 +179,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   Money? get selectedCurrencyFiatAmount {
     try {
-      if (_fiatRate == null || _amount == null) {
-        return null;
-      }
       return _fiatRate!.convert(_amount!);
     } catch (_) {
       return null;

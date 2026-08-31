@@ -93,11 +93,13 @@ class BalanceCard extends StatelessWidget {
                 ? ClipRSuperellipse(
                     borderRadius: BorderRadius.circular(borderRadius),
                     key: ValueKey(design.imagePath),
-                    child: CakeImageWidget(
-                      imageUrl: design.imagePath,
-                      width: width,
-                      height: height,
-                      fit: BoxFit.fill,
+                    child: ExcludeSemantics(
+                      child: CakeImageWidget(
+                        imageUrl: design.imagePath,
+                        width: width,
+                        height: height,
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   )
                 : const SizedBox.shrink(key: ValueKey("svgFullOff")),
@@ -301,27 +303,34 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(
+  Widget getBalanceCardActionButton(BalanceCardAction action) => Semantics(
+        button: true,
+        label: action.label,
         onTap: action.onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: design.colors.backgroundImageColor.withAlpha(75),
-            borderRadius: BorderRadius.circular(10000000),
-          ),
-          margin: const EdgeInsets.only(right: 10),
-          padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Text(
-                  action.label,
-                  style: TextStyle(color: design.colors.textColor, fontSize: 16),
-                ),
+        child: ExcludeSemantics(
+          child: GestureDetector(
+            onTap: action.onTap,
+            child: Container(
+              decoration: BoxDecoration(
+                color: design.colors.backgroundImageColor.withAlpha(75),
+                borderRadius: BorderRadius.circular(10000000),
               ),
-              Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
-            ],
+              margin: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Text(
+                      action.label,
+                      style: TextStyle(color: design.colors.textColor, fontSize: 16),
+                    ),
+                  ),
+                  Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
+                ],
+              ),
+            ),
           ),
         ),
       );
