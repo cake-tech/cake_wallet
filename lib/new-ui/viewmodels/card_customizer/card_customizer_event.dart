@@ -1,4 +1,4 @@
-part of 'card_customizer_bloc.dart';
+part of "card_customizer_bloc.dart";
 
 @immutable
 sealed class CardCustomizerEvent {}
@@ -6,27 +6,29 @@ sealed class CardCustomizerEvent {}
 class _Init extends CardCustomizerEvent {}
 
 class CardDesignSelected extends CardCustomizerEvent {
-  final int newDesignIndex;
 
   CardDesignSelected(this.newDesignIndex);
+  final int newDesignIndex;
 }
 
 class ColorSelected extends CardCustomizerEvent {
-  final int newColorIndex;
 
   ColorSelected(this.newColorIndex);
+  final int newColorIndex;
 }
 
 class AccountNameChanged extends CardCustomizerEvent {
-  final String newAccountName;
 
   AccountNameChanged(this.newAccountName);
+  final String newAccountName;
 }
 
 class DesignSaved extends CardCustomizerEvent {}
 
 class IconStyleSelected extends CardCustomizerEvent {
-  final int iconIndex;
 
   IconStyleSelected(this.iconIndex);
+  final int iconIndex;
 }
+
+class AccountHidden extends CardCustomizerEvent {}

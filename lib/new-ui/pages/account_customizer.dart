@@ -1,42 +1,52 @@
-import 'dart:ui';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
-import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cw_core/balance_card_style_settings.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "dart:async";
+import "dart:ui";
+import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/card_customizer.dart";
+import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
+import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/modal_grab_handle.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart";
+import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/balance_card_layout.dart";
+import "package:cw_core/balance_card_style_settings.dart";
+import "package:cw_core/card_design.dart";
+import "package:cw_core/generate_name.dart";
+import "package:cw_core/sync_status.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AccountCustomizerListItem {
-  final BalanceCard card;
-  final int order;
-  final AccountListItem accountListItem;
+  const AccountCustomizerListItem({
+    required this.card,
+    required this.accountListItem,
+    required this.settings,
+  });
 
-  AccountCustomizerListItem(
-      {required this.card, required this.order, required this.accountListItem});
+  final BalanceCard card;
+  final AccountListItem accountListItem;
+  final BalanceCardStyleSettings? settings;
 }
 
 class AccountCustomizer extends StatefulWidget {
-  const AccountCustomizer(
-      {super.key, required this.accountListViewModel, required this.dashboardViewModel});
+  const AccountCustomizer({
+    required this.accountListViewModel,
+    required this.dashboardViewModel,
+    super.key,
+  });
 
   final MoneroAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
@@ -54,21 +64,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadCards();
-      final activeId = widget.accountListViewModel.selected.id;
-      for (int i = 0; i < _items.length - 1; i++) {
-        if (_items[i].accountListItem.id == activeId) {
-          final lastIndex = _items.length - 1;
-          final temp = _items[i];
-          _items[i] = _items[lastIndex];
-          _items[lastIndex] = temp;
-          saveCardOrder();
-          widget.dashboardViewModel.loadCardDesigns();
-          break;
-        }
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_bringActiveAccountToFront()));
   }
 
   @override
@@ -77,59 +73,132 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.dispose();
   }
 
-  void loadCards() {
-    _items.clear();
+  int get _walletInfoId => widget.dashboardViewModel.wallet.walletInfo.internalId;
 
+  Future<void> _bringActiveAccountToFront() async {
+    await loadCards();
+
+    final activeAccount =
+        widget.accountListViewModel.accounts.firstWhereOrNull((account) => account.isSelected);
+    if (activeAccount == null || _items.isEmpty) {
+      return;
+    }
+
+    final index = _items.indexWhere((item) => item.accountListItem.id == activeAccount.id);
+    if (index == -1 || index == _items.length - 1 || !mounted) {
+      return;
+    }
+
+    reorder(index, _items.length);
+    await saveCardOrder();
+    await widget.dashboardViewModel.loadCardDesigns();
+  }
+
+  Future<void> loadCards() async {
     final accounts = widget.accountListViewModel.accounts;
-    for (int i = 0; i < accounts.length; i++) {
-      final index = widget.dashboardViewModel.cardOrder[i];
+    final styleSettings = await BalanceCardStyleSettings.getAll(_walletInfoId);
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accounts.map((account) => account.id).toList(),
+      settings: styleSettings,
+    );
 
-      if (index == null || index >= accounts.length) {
-        // db order broken.
-        reset();
-        break;
+    final List<AccountCustomizerListItem> newItems = [];
+    for (int position = 0; position < layout.visible.length; position++) {
+      final accountIndex = layout.visible[position];
+      final account = accounts.firstWhereOrNull((item) => item.id == accountIndex);
+
+      if (account == null) {
+        continue;
       }
 
-      _items.add(AccountCustomizerListItem(
+      final setting = layout.settingFor(accountIndex);
+      final isFrontCard = position == layout.visible.length - 1;
+
+      newItems.add(
+        AccountCustomizerListItem(
           card: BalanceCard(
-            accountName: accounts[index].label,
-            accountIndex: accounts[index].id,
-            balance: accounts[index].balance ?? "0.00",
-            accountBalance: accounts[index].balance ?? "0.00",
+            accountName: account.label,
+            accountIndex: account.id,
+            balance: account.balance ?? "0.00",
+            accountBalance: account.balance ?? "0.00",
             designSwitchDuration: Duration.zero,
             assetName: widget.accountListViewModel.currency.title,
-            onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
-            selected: i == accounts.length - 1,
+            onCustomizeTapped: isFrontCard ? _openCardCustomizer : null,
+            selected: isFrontCard,
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[index],
+            design:
+                CardDesign.fromStyleSettings(setting, widget.dashboardViewModel.wallet.currency),
           ),
-          order: index,
-          accountListItem: accounts[index]));
+          accountListItem: account,
+          settings: setting,
+        ),
+      );
     }
-    setState(() {});
+
+    _items.clear();
+    _items.addAll(newItems);
+    if (mounted) {
+      setState(() {});
+    }
+
+    if (layout.needsRepair) {
+      await BalanceCardStyleSettings.setVisibleOrder(_walletInfoId, layout.orders);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_items.isEmpty) return SizedBox.shrink();
+    if (_items.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       child: Column(
         children: [
           ModalTopBar(
             title: S.of(context).wallet_accounts,
-            leadingIcon: Icon(Icons.close),
+            leadingIcon: const Icon(Icons.close),
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: Navigator.of(context).maybePop,
-            trailingIcon: Icon(Icons.refresh),
-            trailingSemanticLabel: S.of(context).reset,
-            onTrailingPressed: showResetDialog,
+            // trailingIcon: Icon(Icons.refresh),
+            // onTrailingPressed: showResetDialog,
+            trailingWidget: Row(
+              spacing: 8,
+              children: [
+                ModernButton(
+                    semanticLabel: S.of(context).reset,
+                    icon: const Icon(Icons.refresh),
+                    onPressed: showResetDialog,
+                    size: 36),
+                ModernButton.svg(
+                  semanticLabel: S.of(context).hidden_accounts,
+                  svgPath: "assets/new-ui/archived.svg",
+                  size: 36,
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) => Material(
+                          child: HiddenAccountsPage(
+                            accountListViewModel: widget.accountListViewModel,
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ),
+                        ),
+                      ),
+                    );
+                    await widget.dashboardViewModel.loadCardDesigns();
+                    await loadCards();
+                  },
+                  iconSize: 18,
+                ),
+              ],
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
               S.of(context).account_customizer_desc,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -139,43 +208,37 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             child: Stack(
               children: [
                 ReorderableListView.builder(
-                  padding: EdgeInsets.only(bottom: 196),
+                  padding: const EdgeInsets.only(bottom: 196),
                   scrollController: ModalScrollController.of(context),
                   onReorder: reorder,
-                  proxyDecorator: (child, index, animation) {
-                    return AnimatedBuilder(
-                      animation: animation,
-                      builder: (context, _) {
-                        final animValue = Curves.easeOutCubic.transform(animation.value);
-                        final scale = lerpDouble(1, 1.05, animValue)!;
+                  proxyDecorator: (child, index, animation) => AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, _) {
+                      final animValue = Curves.easeOutCubic.transform(animation.value);
+                      final scale = lerpDouble(1, 1.05, animValue)!;
 
-                        return Opacity(
-                          opacity: 1 - animValue.clamp(0.0, 0.1),
-                          child: Center(
-                            child: SizedBox(
-                              width: cardWidth,
-                              child: Transform.scale(
-                                scale: scale,
-                                child: child,
-                              ),
+                      return Opacity(
+                        opacity: 1 - animValue.clamp(0.0, 0.1),
+                        child: Center(
+                          child: SizedBox(
+                            width: cardWidth,
+                            child: Transform.scale(
+                              scale: scale,
+                              child: child,
                             ),
                           ),
-                        );
-                      },
-                      child: _items[index].card,
-                    );
-                  },
+                        ),
+                      );
+                    },
+                    child: _items[index].card,
+                  ),
                   itemCount: _items.length,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemBuilder: (context, index) {
                     final card = _items[index].card;
-                    // The stack is ordered bottom to top, so the last item
-                    // is the account currently in front — the selected one.
                     final selectedItemIndex = _items.length - 1;
 
                     return Container(
                       key: ValueKey(index),
-                      // One labeled, selectable node per account; the card's own
-                      // texts stay reachable underneath it.
                       child: Semantics(
                         button: true,
                         selected: selectedItemIndex == index,
@@ -197,50 +260,55 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                   },
                 ),
                 SafeArea(
-                    child: Padding(
-                        padding: EdgeInsets.only(bottom: 50),
-                        child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: MergeSemantics(
-                                  child: Semantics(
-                                    button: true,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(999999),
-                                      onTap: _showAddAccountModal,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surfaceContainer,
-                                            borderRadius: BorderRadius.circular(999999)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            spacing: 8,
-                                            children: [
-                                              Icon(
-                                                Icons.add,
-                                                size: 28,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                              Text(
-                                                S.of(context).add_account,
-                                                style: TextStyle(
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                    fontWeight: FontWeight.w500),
-                                              )
-                                            ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 50),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: MergeSemantics(
+                            child: Semantics(
+                              button: true,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(999999),
+                                onTap: _showAddAccountModal,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                                    borderRadius: BorderRadius.circular(999999),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 18),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(
+                                          Icons.add,
+                                          size: 28,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                        Text(
+                                          S.of(context).add_account,
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            )))),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -252,12 +320,14 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   bool _checkReadyToManage() {
     if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
-          context: context,
-          builder: (context) => AlertWithOneAction(
-              alertTitle: S.of(context).wallet_is_syncing,
-              alertContent: S.of(context).cannot_manage_accounts_during_sync,
-              buttonText: S.of(context).ok,
-              buttonAction: Navigator.of(context).pop));
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).wallet_is_syncing,
+          alertContent: S.of(context).cannot_manage_accounts_during_sync,
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
       return false;
     }
     return true;
@@ -269,15 +339,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     }
 
     final res = await showCupertinoModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          final modal = getIt.get<AccountCreationModal>();
-          return Material(child: modal);
-        });
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final modal = getIt.get<AccountCreationModal>();
+        return Material(child: modal);
+      },
+    );
     if (res != null && res is bool && res == true) {
       await widget.dashboardViewModel.loadCardDesigns();
-      loadCards();
+      await loadCards();
       await saveCardOrder();
     }
   }
@@ -287,12 +358,21 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+    widget.accountListViewModel.select(_items[_items.length - 1].accountListItem);
 
-    Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) {
-        return BlocProvider(
-          create: (context) => bloc,
+    final bloc = getIt.get<CardCustomizerBloc>(
+      param1: CardCustomizerBlocParams(
+        lightningMode: false,
+        amountDisplayMode: null,
+        canHide: _items.length > 1,
+      ),
+    );
+
+    Navigator.of(context)
+        .push(
+      CupertinoPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: bloc,
           child: Material(
             child: CardCustomizer(
               cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
@@ -300,13 +380,19 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               cryptoName: widget.dashboardViewModel.wallet.currency.name,
             ),
           ),
-        );
-      },
-    )).then((_) async {
-      bloc.add(DesignSaved());
+        ),
+      ),
+    )
+        .then((result) async {
+      final hideRequested = result != null && result is bool && result;
+      bloc.add(hideRequested ? AccountHidden() : DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
       await widget.dashboardViewModel.loadCardDesigns();
-      loadCards();
+      await loadCards();
+
+      if (hideRequested && _items.isNotEmpty) {
+        widget.accountListViewModel.select(_items.last.accountListItem);
+      }
     });
   }
 
@@ -322,20 +408,21 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     // necessary to copy all this to keep constant constructor for BalanceCard
     for (int i = 0; i < _items.length; i++) {
       _items[i] = AccountCustomizerListItem(
-          card: BalanceCard(
-            accountName: _items[i].card.accountName,
-            balance: _items[i].card.balance,
-            accountIndex: _items[i].card.accountIndex,
-            accountBalance: _items[i].card.accountBalance,
-            assetName: _items[i].card.assetName,
-            designSwitchDuration: _items[i].card.designSwitchDuration,
-            onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
-            selected: i == _items.length - 1,
-            width: _items[i].card.width,
-            design: _items[i].card.design,
-          ),
-          order: i,
-          accountListItem: _items[i].accountListItem);
+        card: BalanceCard(
+          accountName: _items[i].card.accountName,
+          balance: _items[i].card.balance,
+          accountIndex: _items[i].card.accountIndex,
+          accountBalance: _items[i].card.accountBalance,
+          assetName: _items[i].card.assetName,
+          designSwitchDuration: _items[i].card.designSwitchDuration,
+          onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
+          selected: i == _items.length - 1,
+          width: _items[i].card.width,
+          design: _items[i].card.design,
+        ),
+        accountListItem: _items[i].accountListItem,
+        settings: _items[i].settings,
+      );
     }
 
     if (newIndex == _items.length - 1 || oldIndex == _items.length - 1) {
@@ -344,68 +431,76 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
   }
 
   Future<void> saveCardOrder() async {
-    for (int i = 0; i < _items.length; i++) {
-      final idx = _items.indexWhere((element) => element.accountListItem.id == i);
-      printV("$i: $idx");
+    for (int position = 0; position < _items.length; position++) {
+      final item = _items[position];
 
       await BalanceCardStyleSettings.fromCardDesign(
-              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
-              accountIndex: i,
-              cardOrder: idx,
-              design: _items[idx].card.design)
-          .insert();
+        walletInfoId: _walletInfoId,
+        accountIndex: item.accountListItem.id,
+        hidden: false,
+        cardOrder: position,
+        design: item.card.design,
+        iconStyleIndex: item.settings?.iconStyleIndex ?? 0,
+        gradientIndexOverride: item.settings?.gradientIndex,
+      ).insert();
     }
   }
 
   Future<void> showResetDialog() async {
     final res = await showPopUp(
-        context: context,
-        builder: (context) {
-          return AlertWithTwoActions(
-              alertTitle: S.of(context).reset,
-              alertContent: S.of(context).card_order_reset_desc,
-              leftButtonText: S.of(context).yes,
-              rightButtonText: S.of(context).no,
-              actionLeftButton: () {
-                Navigator.of(context).pop(true);
-              },
-              actionRightButton: Navigator.of(context).pop);
-        });
+      context: context,
+      builder: (context) => AlertWithTwoActions(
+        alertTitle: S.of(context).reset,
+        alertContent: S.of(context).card_order_reset_desc,
+        leftButtonText: S.of(context).yes,
+        rightButtonText: S.of(context).no,
+        actionLeftButton: () {
+          Navigator.of(context).pop(true);
+        },
+        actionRightButton: Navigator.of(context).pop,
+      ),
+    );
     if (res != null && res is bool && res) {
-      reset();
+      await reset(close: true);
     }
   }
 
-  Future<void> reset() async {
-    _items.clear();
-
+  Future<void> reset({bool close = false}) async {
     final accounts = widget.accountListViewModel.accounts;
-    for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      _items.add(AccountCustomizerListItem(
-          card: BalanceCard(
-            accountName: accounts[i].label,
-            accountIndex: accounts[i].id,
-            balance: accounts[i].balance ?? "0.00",
-            accountBalance: accounts[i].balance ?? "0.00",
-            assetName: widget.accountListViewModel.currency.title,
-            selected: true,
-            designSwitchDuration: Duration(milliseconds: 200),
-            width: cardWidth,
-            design: i >= widget.dashboardViewModel.cardDesigns.length
-                ? CardDesign.genericDefault
-                : widget.dashboardViewModel.cardDesigns[i],
-          ),
-          order: i,
-          accountListItem: accounts[i]));
+    final styleSettings = await BalanceCardStyleSettings.getAll(_walletInfoId);
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accounts.map((account) => account.id).toList(),
+      settings: styleSettings,
+    );
+
+    for (int position = 0; position < accounts.length; position++) {
+      final setting = layout.settingFor(accounts[position].id);
+
+      await BalanceCardStyleSettings.fromCardDesign(
+        walletInfoId: _walletInfoId,
+        accountIndex: accounts[position].id,
+        hidden: false,
+        cardOrder: position,
+        design: CardDesign.fromStyleSettings(
+          setting,
+          widget.dashboardViewModel.wallet.currency,
+        ),
+        iconStyleIndex: setting?.iconStyleIndex ?? 0,
+        gradientIndexOverride: setting?.gradientIndex,
+      ).insert();
     }
 
-    saveCardOrder();
-    setState(() {});
+    await widget.dashboardViewModel.loadCardDesigns();
+    await loadCards();
+
+    if (close && mounted) {
+      unawaited(Navigator.of(context).maybePop());
+    }
   }
 }
 
 class AccountCreationModal extends StatefulWidget {
-  const AccountCreationModal({super.key, required this.accountEditOrCreateViewModel});
+  const AccountCreationModal({required this.accountEditOrCreateViewModel, super.key});
 
   final MoneroAccountEditOrCreateViewModel accountEditOrCreateViewModel;
 
@@ -420,11 +515,11 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   Future<void> _generateAccountName() async => _controller.text = await generateName();
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        ),
         child: SafeArea(
           top: false,
           child: Padding(
@@ -432,18 +527,19 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ModalGrabHandle(),
+                const ModalGrabHandle(),
                 ModalTopBar(title: S.of(context).create_account),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     spacing: 50,
                     children: [
-                      SizedBox(),
+                      const SizedBox(),
                       Container(
                         decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(16)),
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Row(
                           children: [
                             Expanded(
@@ -453,7 +549,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(12.0),
+                              padding: const EdgeInsets.all(12),
                               child: Semantics(
                                 button: true,
                                 label: S.of(context).generate_name,
@@ -463,43 +559,50 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                                     onTap: _generateAccountName,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                          borderRadius: BorderRadius.circular(5)),
+                                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
                                       child: CakeImageWidget(
                                         imageUrl: "assets/new-ui/randomize.svg",
                                         colorFilter: ColorFilter.mode(
-                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                          Theme.of(context).colorScheme.primary,
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
                       NewPrimaryButton(
                         onPressed: () async {
-                          if (_loading) return;
+                          if (_loading) {
+                            return;
+                          }
                           setState(() {
                             _loading = true;
                           });
                           widget.accountEditOrCreateViewModel.label = _controller.text;
                           await widget.accountEditOrCreateViewModel.save();
-                          Navigator.of(context).pop(true);
+                          if (context.mounted) {
+                            Navigator.of(context).pop(true);
+                          }
                         },
                         text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                         isLoading: _loading,
                       ),
-                      SizedBox(),
+                      const SizedBox(),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
-        ));
-  }
+        ),
+      );
 }

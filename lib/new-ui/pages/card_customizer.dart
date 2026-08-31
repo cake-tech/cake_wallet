@@ -1,17 +1,17 @@
-import 'dart:async';
-import 'dart:math';
+import "dart:async";
+import "dart:math";
 
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/card_design.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
 class CardCustomizer extends StatefulWidget {
-  const CardCustomizer({super.key, required this.cryptoTitle, required this.cryptoName});
+  const CardCustomizer({required this.cryptoTitle, required this.cryptoName, super.key});
 
   final String cryptoTitle;
   final String cryptoName;
@@ -35,7 +35,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
       editEnabled = bloc.state.accountName.isNotEmpty;
       accountNameController.text = bloc.state.accountName;
     } else {
-      late final StreamSubscription sub;
+      late final StreamSubscription<CardCustomizerState> sub;
       sub = bloc.stream.listen((state) {
         if (state is! CardCustomizerNotLoaded) {
           setState(() {
@@ -63,8 +63,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<CardCustomizerBloc, CardCustomizerState>(
+  Widget build(BuildContext context) => BlocListener<CardCustomizerBloc, CardCustomizerState>(
       listenWhen: (previous, current) => previous.accountName != current.accountName,
       listener: (context, state) {
         if (accountNameController.text != state.accountName) {
@@ -73,45 +72,56 @@ class _CardCustomizerState extends State<CardCustomizer> {
       },
       child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
         builder: (context, state) {
-          if (state is CardCustomizerNotLoaded) return SizedBox.shrink();
+          if (state is CardCustomizerNotLoaded) {
+            return const SizedBox.shrink();
+          }
           return PopScope(
             child: SingleChildScrollView(
               child: SafeArea(
                 child: Column(
-                  spacing: 25.0,
+                  spacing: 25,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ModalTopBar(
                       title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
-                      leadingIcon: Icon(Icons.close),
+                      leadingIcon: const Icon(Icons.close),
+                      trailingIcon: bloc.canHide
+                          ? CakeImageWidget(imageUrl:
+                              "assets/new-ui/hide.svg",
+                              colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.primary, BlendMode.srcIn,),
+                            )
+                          : null,
                       leadingSemanticLabel: S.of(context).close,
+                      trailingSemanticLabel: S.of(context).hide,
                       // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                       onLeadingPressed: () => Navigator.of(context).maybePop(),
+                      onTrailingPressed: () => Navigator.of(context).maybePop(true),
                       // onTrailingPressed: () {},
                     ),
                     if (editEnabled)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
                         child: Column(
-                          spacing: 8.0,
+                          spacing: 8,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(S.of(context).account_name),
                             TextField(
                               maxLength: 32,
-                              decoration: InputDecoration(counterText: ""),
+                              decoration: const InputDecoration(counterText: ""),
                               onChanged: (value) {
                                 context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
                               },
                               controller: accountNameController,
-                            )
+                            ),
                           ],
                         ),
                       ),
                     BalanceCard(
                       width: min(MediaQuery.of(context).size.width * 0.87, 768),
                       selected: true,
-                      designSwitchDuration: Duration(milliseconds: 300),
+                      designSwitchDuration: const Duration(milliseconds: 300),
                       accountName: editEnabled ? state.accountName : "",
                       balance: "0.00",
                       assetName: state.displaySats ? "sats" : widget.cryptoName,
@@ -119,7 +129,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                       design: state.selectedDesign,
                     ),
                     Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surfaceContainer,
@@ -129,29 +139,26 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    spacing: 8.0,
+                                    spacing: 8,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(S.of(context).card_style),
-                                      Container(
+                                      SizedBox(
                                         height: 63,
                                         child: ListView.separated(
                                             scrollDirection: Axis.horizontal,
                                             itemCount: state.availableDesigns.length,
-                                            separatorBuilder: (context, index) {
-                                              return SizedBox(width: 8.0);
-                                            },
-                                            itemBuilder: (context, index) {
-                                              return GestureDetector(
+                                            separatorBuilder: (context, index) => const SizedBox(width: 8),
+                                            itemBuilder: (context, index) => GestureDetector(
                                                 onTap: () {
                                                   context
                                                       .read<CardCustomizerBloc>()
                                                       .add(CardDesignSelected(index));
                                                 },
                                                 child: AnimatedContainer(
-                                                  duration: Duration(milliseconds: 300),
+                                                  duration: const Duration(milliseconds: 300),
                                                   decoration: ShapeDecoration(
                                                     shape: RoundedSuperellipseBorder(
                                                       side: BorderSide(
@@ -161,13 +168,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                                       .colorScheme
                                                                       .onSurface
                                                                   : Colors.transparent),
-                                                          width: 1),
+                                                          width: 1,),
                                                       borderRadius:
                                                           BorderRadiusGeometry.circular(12),
                                                     ),
                                                   ),
                                                   child: AnimatedScale(
-                                                    duration: Duration(milliseconds: 200),
+                                                    duration: const Duration(milliseconds: 200),
                                                     scale: index == state.selectedDesignIndex
                                                         ? 0.94
                                                         : 1,
@@ -176,41 +183,38 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                       borderRadius: 10,
                                                       selected: false,
                                                       designSwitchDuration:
-                                                          Duration(milliseconds: 300),
+                                                          const Duration(milliseconds: 300),
                                                       design: _cardStylePreviewDesign(state, index),
                                                     ),
                                                   ),
                                                 ),
-                                              );
-                                            }),
+                                              ),),
                                       ),
                                     ],
-                                  )),
+                                  ),),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 350),
                                 switchInCurve: Curves.easeOut,
                                 switchOutCurve: Curves.easeIn,
-                                transitionBuilder: (Widget child, Animation<double> animation) {
-                                  return FadeTransition(
+                                transitionBuilder: (child, animation) => FadeTransition(
                                     opacity: animation,
                                     child: SizeTransition(
                                       sizeFactor: animation,
                                       axisAlignment: -1,
                                       child: child,
                                     ),
-                                  );
-                                },
+                                  ),
                                 child: _showIconStylePanel(state)
                                     ? Column(
-                                        key: const ValueKey('icon_style_panel'),
+                                        key: const ValueKey("icon_style_panel"),
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
                                             child: Column(
-                                              spacing: 8.0,
+                                              spacing: 8,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(S.of(context).icon_style),
@@ -220,7 +224,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                     scrollDirection: Axis.horizontal,
                                                     itemCount: state.availableIconPaths.length,
                                                     separatorBuilder: (context, _) =>
-                                                        const SizedBox(width: 8.0),
+                                                        const SizedBox(width: 8),
                                                     itemBuilder: (context, index) {
                                                       final icon = state.availableIconPaths[index];
                                                       final isSelected =
@@ -257,9 +261,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                             ),
                                                           ),
                                                           child: Padding(
-                                                            padding: const EdgeInsets.all(10.0),
+                                                            padding: const EdgeInsets.all(10),
                                                             child: CakeImageWidget(
-                                                                imageUrl: icon.path),
+                                                                imageUrl: icon.path,),
                                                           ),
                                                         ),
                                                       );
@@ -271,29 +275,28 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                           ),
                                         ],
                                       )
-                                    : const SizedBox.shrink(key: ValueKey('icon_style_hidden')),
+                                    : const SizedBox.shrink(key: ValueKey("icon_style_hidden")),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Container(
                                 decoration: BoxDecoration(
                                     color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(16)),
+                                    borderRadius: BorderRadius.circular(16),),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    spacing: 8.0,
+                                    spacing: 8,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(S.of(context).color),
-                                      Container(
+                                      SizedBox(
                                           width: double.infinity,
                                           child: Wrap(
                                             direction: Axis.horizontal,
-                                            spacing: 4, // space between items in a row
+                                            spacing: 4,
                                             runSpacing: 8,
                                             children: List.generate(state.availableColors.length,
-                                                (index) {
-                                              return Material(
+                                                (index) => Material(
                                                 borderRadius: BorderRadius.circular(999999999),
                                                 child: InkWell(
                                                   borderRadius: BorderRadius.circular(999999999),
@@ -305,7 +308,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                   child: Stack(
                                                     children: [
                                                       AnimatedOpacity(
-                                                        duration: Duration(milliseconds: 200),
+                                                        duration: const Duration(milliseconds: 200),
                                                         opacity: index == state.selectedColorIndex
                                                             ? 1
                                                             : 0,
@@ -318,10 +321,10 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                                 border: Border.all(
                                                                     color: Theme.of(context)
                                                                         .colorScheme
-                                                                        .onSurface))),
+                                                                        .onSurface,),),),
                                                       ),
                                                       AnimatedScale(
-                                                        duration: Duration(milliseconds: 200),
+                                                        duration: const Duration(milliseconds: 200),
                                                         scale: index == state.selectedColorIndex
                                                             ? 0.8
                                                             : 1,
@@ -332,22 +335,21 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                               borderRadius:
                                                                   BorderRadius.circular(99999999),
                                                               gradient:
-                                                                  state.availableColors[index]),
+                                                                  state.availableColors[index],),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                              );
-                                            }),
-                                          )),
+                                              ),),
+                                          ),),
                                     ],
                                   ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
-                        )),
+                        ),),
                   ],
                 ),
               ),
@@ -356,5 +358,4 @@ class _CardCustomizerState extends State<CardCustomizer> {
         },
       ),
     );
-  }
 }
