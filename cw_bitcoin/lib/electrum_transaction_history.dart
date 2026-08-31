@@ -43,7 +43,7 @@ abstract class ElectrumTransactionHistoryBase
   @override
   Future<void> save() async {
     try {
-      final dirPath = walletInfo.path;
+      final dirPath = walletInfo.dirPath;
       final path = '$dirPath/$transactionsHistoryFileName';
       final txjson = {};
       for (final tx in transactions.entries) {
@@ -62,7 +62,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = walletInfo.path;
+    final dirPath = walletInfo.dirPath;
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     return json.decode(content) as Map<String, dynamic>;

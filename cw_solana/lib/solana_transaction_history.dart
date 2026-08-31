@@ -56,7 +56,7 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
   }
 
   Future<void> _write() async {
-    final dirPath = walletInfo.path;
+    final dirPath = walletInfo.dirPath;
     final path = '$dirPath/$transactionsHistoryFileName';
     final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
     final data = json.encode({'transactions': transactionMaps});
@@ -71,7 +71,7 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
       this.transactions.addAll(transactions);
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = walletInfo.path;
+    final dirPath = walletInfo.dirPath;
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

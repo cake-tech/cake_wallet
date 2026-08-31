@@ -53,6 +53,7 @@ abstract class WalletCreationVMBase with Store {
 
   @observable
   String? repeatedWalletPassword;
+
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
@@ -75,7 +76,7 @@ abstract class WalletCreationVMBase with Store {
     dynamic options,
     bool makeCurrent = true,
     bool isGroupCreationDeferred = false,
-    String? groupKey,
+    String? groupId,
     int? walletInfoIdOverride,
   }) async {
     try {
@@ -88,7 +89,8 @@ abstract class WalletCreationVMBase with Store {
           options: options,
           makeCurrent: makeCurrent,
           isGroupCreationDeferred: isGroupCreationDeferred,
-          walletInfoIdOverride: walletInfoIdOverride);
+          walletInfoIdOverride: walletInfoIdOverride,
+          groupId: groupId);
     } finally {
       _isCreating = false;
     }
@@ -98,6 +100,7 @@ abstract class WalletCreationVMBase with Store {
     dynamic options,
     bool makeCurrent = true,
     bool isGroupCreationDeferred = false,
+    String? groupId,
     int? walletInfoIdOverride,
   }) async {
     final type = this.type;
@@ -117,7 +120,8 @@ abstract class WalletCreationVMBase with Store {
 
       WalletInfo? placeholder;
       int? keepSortOrder;
-      String? resolvedGroupKey;
+      String? placeholderGroupId;
+      String? placeholderRealGroupId;
       String? reservedId;
       String? reservedDirPath;
       String? reservedPath;
@@ -135,7 +139,8 @@ abstract class WalletCreationVMBase with Store {
         }
 
         keepSortOrder = placeholder.sortOrder;
-        resolvedGroupKey = placeholder.hashedWalletIdentifier ?? '';
+        placeholderGroupId = placeholder.hashedWalletIdentifier;
+        placeholderRealGroupId = placeholder.groupId;
         reservedId = placeholder.id;
         reservedDirPath = placeholder.dirPath;
         reservedPath = placeholder.path;
@@ -182,9 +187,22 @@ abstract class WalletCreationVMBase with Store {
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
+      final String groupIdentifier;
+      if (placeholderGroupId != null && placeholderGroupId.isNotEmpty) {
+        groupIdentifier = placeholderGroupId;
+      } else if (groupId != null && groupId.isNotEmpty) {
+        groupIdentifier = groupId;
+      } else {
+        groupIdentifier = createHashedWalletIdentifier(wallet);
+      }
+
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
+      credentials.walletInfo!.hashedWalletIdentifier = groupIdentifier;
+
+      if (placeholderRealGroupId != null && placeholderRealGroupId.isNotEmpty) {
+        credentials.walletInfo!.groupId = placeholderRealGroupId;
+      }
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();
       await wallet.save();

@@ -1,7 +1,7 @@
-import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
+import "package:cake_wallet/core/new_wallet_arguments.dart";
+import "package:cake_wallet/core/wallet_creation_service.dart";
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/entities/seed_type.dart';
+import "package:cake_wallet/entities/seed_type.dart";
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
@@ -9,9 +9,8 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:uuid/uuid.dart";
 
 class OmniChainWalletCreationService {
@@ -34,10 +33,10 @@ class OmniChainWalletCreationService {
   String? _lastGroupPassphrase;
 
   List<String> getAllCustomGroupNames() => walletManager.walletGroups
-        .map((g) => g.groupName)
-        .where((name) => name != null && name.isNotEmpty)
-        .cast<String>()
-        .toList();
+      .map((g) => g.groupName)
+      .where((name) => name != null && name.isNotEmpty)
+      .cast<String>()
+      .toList();
 
   Future<List<WalletInfo>> getCurrentWalletGroupWallets() async {
     final currentWalletInfo = appStore.wallet?.walletInfo;
@@ -59,13 +58,8 @@ class OmniChainWalletCreationService {
   bool groupNameExists(String name) {
     final groupName = name.toLowerCase();
     return getAllCustomGroupNames().any(
-      (name) => name.toLowerCase() == groupName,
+          (name) => name.toLowerCase() == groupName,
     );
-  }
-
-  Future<String> _uniqueNamePerGroup(WalletType type, String groupName) async {
-    final typeSuffix = walletTypeToString(type);
-    return '${groupName}_${typeSuffix}';
   }
 
   Future<void> createGroup({required OmniChainCreateGroupRequest request}) async {
@@ -83,10 +77,11 @@ class OmniChainWalletCreationService {
       // default options for monero
       if (primaryType == WalletType.monero) options = defaultMoneroOptions;
 
-      final primaryWalletName = await _uniqueNamePerGroup(primaryType, request.groupName);
+      final groupId = const Uuid().v4();
+
       await _createSingleWallet(
         type: primaryType,
-        finalName: primaryWalletName,
+        groupId: groupId,
         isChildWallet: false,
         mnemonic: mnemonic,
         options: options,
@@ -101,8 +96,6 @@ class OmniChainWalletCreationService {
 
       if (wallet == null) throw Exception('First wallet was not set as current.');
 
-      final groupKey = walletManager.resolveGroupKey(wallet.walletInfo);
-
       String? sharedMnemonic = mnemonic;
       sharedMnemonic ??= wallet.seed;
       if (sharedMnemonic == null || sharedMnemonic.isEmpty) {
@@ -116,16 +109,15 @@ class OmniChainWalletCreationService {
       final restTypesRaw = types.where((type) => type != primaryType).toList();
 
       await _createWalletPlaceholders(
-        groupKey: groupKey,
-        groupName: groupName,
+        groupId: groupId,
         restTypes: restTypesRaw,
       );
 
       await walletManager.updateWalletGroups();
-      await walletManager.setGroupName(groupKey, groupName);
+      await walletManager.setGroupName(groupId, groupName);
       final selectedIcon = request.walletIcon;
       if (selectedIcon != null) {
-        await walletManager.setGroupIcon(groupKey, selectedIcon);
+        await walletManager.setGroupIcon(groupId, selectedIcon);
       }
       await walletManager.updateWalletGroups();
     } catch (e) {
@@ -157,9 +149,12 @@ class OmniChainWalletCreationService {
       options = defaultMoneroOptions;
     }
 
+    // No groupId passed here on purpose — this placeholder already has its
+    // real group id baked in from _createWalletPlaceholders, and _create()'s
+    // placeholder-reuse branch (walletInfoIdOverride) must preserve that,
+    // not overwrite it with something new.
     await _createSingleWallet(
       type: walletInfo.type,
-      finalName: walletInfo.name,
       isChildWallet: true,
       mnemonic: mnemonic,
       options: options,
@@ -185,8 +180,7 @@ class OmniChainWalletCreationService {
     if (newTypes.isEmpty) return;
 
     await _createWalletPlaceholders(
-      groupKey: groupKey,
-      groupName: groupName,
+      groupId: groupKey,
       restTypes: newTypes,
     );
     await walletManager.updateWalletGroups();
@@ -194,7 +188,7 @@ class OmniChainWalletCreationService {
 
   Future<void> _createSingleWallet({
     required WalletType type,
-    required String finalName,
+    String? groupId,
     required bool isChildWallet,
     required String? mnemonic,
     required dynamic options,
@@ -208,7 +202,7 @@ class OmniChainWalletCreationService {
     final newArgs = NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
 
     final walletNewVM = walletNewVMBuilder(newArgs);
-    walletNewVM.name = finalName;
+    walletNewVM.name = walletTypeToDisplayName(type);
     walletNewVM.toggleUseTestnet(useTestnet);
     walletNewVM.setZcashNetwork(zcashNetwork);
     walletNewVM.seedSettingsViewModel.setPassphrase(passphrase);
@@ -217,15 +211,15 @@ class OmniChainWalletCreationService {
       makeCurrent: makeCurrent,
       isGroupCreationDeferred: isGroupCreationDeferred,
       walletInfoIdOverride: walletInfoIdOverride,
+      groupId: groupId,
     );
   }
 
-  Future<void> _createWalletPlaceholders(
-      {required String groupKey,
-      required String groupName,
-      required List<WalletType> restTypes}) async {
+  Future<void> _createWalletPlaceholders({
+    required String groupId,
+    required List<WalletType> restTypes,
+  }) async {
     for (final type in restTypes) {
-      final finalName = await _uniqueNamePerGroup(type, groupName);
       final id = const Uuid().v4();
 
       // Reserve the id + directory now; activating this placeholder later
@@ -235,7 +229,7 @@ class OmniChainWalletCreationService {
 
       final info = WalletInfo.external(
         id: id,
-        name: finalName,
+        name: walletTypeToDisplayName(type),
         type: type,
         isRecovery: false,
         restoreHeight: 0,
@@ -246,7 +240,7 @@ class OmniChainWalletCreationService {
         showIntroCakePayCard: false,
         derivationInfoId: null,
         hardwareWalletType: null,
-        hashedWalletIdentifier: groupKey,
+        hashedWalletIdentifier: groupId,
         isReady: false,
       );
 

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/utils/file.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
@@ -47,23 +46,24 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     await currentWalletInfo.save();
   }
 
-  Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
-    final backupDirPath =
-    await pathForWalletDir(id: "${walletInfo.id}.backup", type: walletInfo.type);
+  String _backupPathFor(WalletInfo walletInfo) => "${walletInfo.dirPath}/${walletInfo.id}.backup";
 
-    if (File(backupDirPath).existsSync()) {
-      await File(backupDirPath).copy(walletInfo.dirPath);
+  Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
+    final backupPath = _backupPathFor(walletInfo);
+
+    if (File(backupPath).existsSync()) {
+      await File(backupPath).copy(walletInfo.path);
     }
   }
 
   Future<void> saveBackup(WalletInfo walletInfo) async {
-    final backupDirPath =
-    await pathForWalletDir(id: "${walletInfo.id}.backup", type: walletInfo.type);
+    final backupPath = _backupPathFor(walletInfo);
 
-    if (File(walletInfo.dirPath).existsSync()) {
-      await File(walletInfo.dirPath).copy(backupDirPath);
+    if (File(walletInfo.path).existsSync()) {
+      await File(walletInfo.path).copy(backupPath);
     }
   }
+
 
   Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {

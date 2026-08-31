@@ -822,6 +822,16 @@ Future<void> _validateWalletInfoBoxData() async {
       List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
 
       for (final walletId in walletNames) {
+        if (walletId.endsWith(".backup")) {
+          try {
+            final legacyBackupDir = Directory('${walletsDir.path}$walletId');
+            if (legacyBackupDir.existsSync() && legacyBackupDir.listSync().isEmpty) {
+              legacyBackupDir.deleteSync();
+            }
+          } catch (_) {}
+          continue;
+        }
+
         final Directory dir;
         try {
           dir = Directory(await pathForWalletDir(id: walletId, type: type));
@@ -844,8 +854,8 @@ Future<void> _validateWalletInfoBoxData() async {
           }
         }
 
-        final id = prefix + '_' + walletId;
-        final exist = (await WalletInfo.getAll()).any((el) => el.id == id);
+        final id = walletId;
+        final exist = await WalletInfo.getById(id) != null;
 
         if (exist) {
           continue;
