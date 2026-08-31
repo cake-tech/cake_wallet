@@ -685,6 +685,9 @@
   "new_transactions_notifications": "نئے لین دین کے بارے میں اطلاعات بھیجیں",
   "new_wallet": "نیا والیٹ",
   "newConnection": "نیا کنکشن",
+  "nft_import_failed": "اس NFT کو درآمد نہیں کیا جا سکا۔ پتہ چیک کریں اور دوبارہ کوشش کریں۔",
+  "nft_not_held_by_wallet": "اس بٹوے کے پاس نہیں ہے۔",
+  "nft_send_not_an_nft": "یہ اثاثہ NFT نہیں ہے، اس لیے اسے یہاں سے نہیں بھیجا جا سکتا۔",
   "nfts": "NFTs",
   "no": "نہیں",
   "no_cards_found": "کوئی کارڈ نہیں ملا",
@@ -848,6 +851,7 @@
   "received": "موصول ہوا",
   "receiving": "وصولی",
   "recieving": "وصولی",
+  "recipient_account_creation_fee": "وصول کنندہ کے لیے ٹوکن اکاؤنٹ بنانے کے لیے ایک اضافی ${amount} کی ضرورت ہے، کیونکہ ان کے پاس ابھی تک کوئی اکاؤنٹ نہیں ہے۔",
   "recipient_address": "وصول کنندہ کا پتہ",
   "reconnect": "دوبارہ جڑیں",
   "reconnect_alert_text": "کیا آپ واقعی دوبارہ کنیکٹ کرنا چاہتے ہیں؟",
@@ -1406,6 +1410,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "والٹس",
   "warning": "انتباہ",
+  "watching": "دیکھ رہا ہے۔",
   "wc_action_approve": "منظور کریں",
   "wc_approve_request_title": "درخواست منظور کریں۔",
   "wc_connect_request_title": "رابطہ کی درخواست",
@@ -1477,6 +1482,5 @@
   "zcash_card_enable_later": "آپ اس کارڈ کو بعد میں بھی ترتیبات میں فعال کر سکتے ہیں",
   "zcash_card_missing_funds": "فنڈز غائب ہیں؟",
   "zcash_card_scan": "اسکین کریں",
-  "zcash_card_warning": "طریقہ کار مکمل ہونے تک ایپ بند نہ کریں۔ اگر آپ ایسا کریں گے تو یہ عمل شروع سے دوبارہ شروع کرنا پڑے گا۔",
-  "recipient_account_creation_fee": "وصول کنندہ کے لیے ٹوکن اکاؤنٹ بنانے کے لیے ایک اضافی ${amount} کی ضرورت ہے، کیونکہ ان کے پاس ابھی تک کوئی اکاؤنٹ نہیں ہے۔"
+  "zcash_card_warning": "طریقہ کار مکمل ہونے تک ایپ بند نہ کریں۔ اگر آپ ایسا کریں گے تو یہ عمل شروع سے دوبارہ شروع کرنا پڑے گا۔"
 }

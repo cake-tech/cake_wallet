@@ -686,6 +686,9 @@
   "new_transactions_notifications": "Firanṣẹ àwọn ìwífúnni nípa àwọn ìdúnàdúrà tuntun",
   "new_wallet": "Apamọwọ tuntun",
   "newConnection": "Asopọ Tuntun",
+  "nft_import_failed": "Ko le gbe NFT yi wọle. Ṣayẹwo adirẹsi naa ki o tun gbiyanju lẹẹkansi.",
+  "nft_not_held_by_wallet": "Ko waye nipasẹ yi apamọwọ",
+  "nft_send_not_an_nft": "Ohun-ini yii kii ṣe NFT, nitorinaa ko le firanṣẹ lati ibi.",
   "nfts": "NFTs",
   "no": "Rárá",
   "no_cards_found": "A kò rí kaadi kankan",
@@ -847,6 +850,7 @@
   "received": "Ti gbà",
   "receiving": "Gbigba",
   "recieving": "Gbigba",
+  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ.",
   "recipient_address": "Àdírẹ́sì olùgbà",
   "reconnect": "Tun so pọ̀",
   "reconnect_alert_text": "Ṣé ó dá ẹ lójú pé ẹ fẹ́ tún sopọ̀?",
@@ -1405,6 +1409,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Àwọn wálẹ́ẹ̀tì",
   "warning": "Ìkìlọ̀",
+  "watching": "Wiwo",
   "wc_action_approve": "Fọwọ́sí",
   "wc_approve_request_title": "fọwọsi ìbéèrè",
   "wc_connect_request_title": "Sopọ ìbéèrè",
@@ -1476,6 +1481,5 @@
   "zcash_card_enable_later": "O le ma a mu kaadi yii ṣiṣẹ nigbamii ninu awọn eto",
   "zcash_card_missing_funds": "Ṣe owó rẹ sọnù?",
   "zcash_card_scan": "Ṣàwárí",
-  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀.",
-  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ."
+  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀."
 }

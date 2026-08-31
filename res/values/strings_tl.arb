@@ -685,6 +685,9 @@
   "new_transactions_notifications": "Magpadala ng mga abiso tungkol sa mga bagong transaksyon",
   "new_wallet": "Bagong Wallet",
   "newConnection": "Bagong Koneksyon",
+  "nft_import_failed": "Hindi ma-import ang NFT na ito. Tingnan ang address at subukang muli.",
+  "nft_not_held_by_wallet": "Hindi hawak ng wallet na ito",
+  "nft_send_not_an_nft": "Ang asset na ito ay hindi isang NFT, kaya hindi ito maipadala mula rito.",
   "nfts": "Mga NFT",
   "no": "Hindi",
   "no_cards_found": "Walang nahanap na card",
@@ -846,6 +849,7 @@
   "received": "Natanggap",
   "receiving": "Pagtanggap",
   "recieving": "Tumatanggap",
+  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito.",
   "recipient_address": "Address ng tatanggap",
   "reconnect": "Muling kumonekta",
   "reconnect_alert_text": "Sigurado ka bang gusto mong kumonekta muli?",
@@ -1404,6 +1408,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Mga Wallet",
   "warning": "Babala",
+  "watching": "Nanonood",
   "wc_action_approve": "Aprubahan",
   "wc_approve_request_title": "Aprubahan ang kahilingan",
   "wc_connect_request_title": "Kahilingan sa pagkonekta",
@@ -1475,6 +1480,5 @@
   "zcash_card_enable_later": "Maaari mo itong paganahin anumang oras sa ibang pagkakataon sa mga setting",
   "zcash_card_missing_funds": "Nawawalang pondo?",
   "zcash_card_scan": "I-scan",
-  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula.",
-  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito."
+  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula."
 }

@@ -385,6 +385,27 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<PendingTransaction> sendNFT(
+    WalletBase wallet, {
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  }) =>
+      (wallet as SolanaWallet).sendNFT(
+        mintAddress: mintAddress,
+        destinationAddress: destinationAddress,
+        name: name,
+      );
+
+  @override
+  Future<Map<String, dynamic>?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress) =>
+      (wallet as SolanaWallet).client.getNFTOnChainMetadata(mintAddress);
+
+  @override
+  Future<Set<String>> getHeldTokenMints(WalletBase wallet) =>
+      (wallet as SolanaWallet).heldTokenMints();
+
+  @override
   Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
     if (wallet is! SolanaWallet) return;
 

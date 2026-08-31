@@ -686,6 +686,9 @@
   "new_transactions_notifications": "新しいトランザクションの通知を送信する",
   "new_wallet": "新しいウォレット",
   "newConnection": "新しい接続",
+  "nft_import_failed": "このNFTをインポートできませんでした。アドレスを確認して再試行してください。",
+  "nft_not_held_by_wallet": "このウォレットには保持されていません",
+  "nft_send_not_an_nft": "このアセットはNFTではないため、ここから送信することはできません。",
   "nfts": "NFTs",
   "no": "いいえ",
   "no_cards_found": "カードが見つかりません",
@@ -847,6 +850,7 @@
   "received": "受信",
   "receiving": "受信",
   "recieving": "受信中",
+  "recipient_account_creation_fee": "受信者はまだトークン アカウントを持っていないため、追加の ${amount} が必要です。",
   "recipient_address": "受取人アドレス",
   "reconnect": "再接続",
   "reconnect_alert_text": "再接続してもよろしいですか？",
@@ -1405,6 +1409,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "ウォレット",
   "warning": "警告",
+  "watching": "見てる",
   "wc_action_approve": "承認",
   "wc_approve_request_title": "リクエストの承認",
   "wc_connect_request_title": "接続リクエスト",
@@ -1476,6 +1481,5 @@
   "zcash_card_enable_later": "このカードは後から設定でいつでも有効にできます",
   "zcash_card_missing_funds": "資金が見当たりませんか？",
   "zcash_card_scan": "スキャン",
-  "zcash_card_warning": "手順が完了するまでアプリを閉じないでください。閉じると、このプロセスを最初からやり直す必要があります。",
-  "recipient_account_creation_fee": "受信者はまだトークン アカウントを持っていないため、追加の ${amount} が必要です。"
+  "zcash_card_warning": "手順が完了するまでアプリを閉じないでください。閉じると、このプロセスを最初からやり直す必要があります。"
 }

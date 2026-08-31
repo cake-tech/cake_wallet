@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/solana_nft_tile_widget
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:mobx/mobx.dart";
 
 class NFTListingPage extends StatefulWidget {
   final NFTViewModel nftViewModel;
@@ -18,11 +19,24 @@ class NFTListingPage extends StatefulWidget {
 }
 
 class _NFTListingPageState extends State<NFTListingPage> {
+  late final ReactionDisposer _walletDisposer;
+
   @override
   void initState() {
     super.initState();
 
+    _walletDisposer = reaction(
+      (_) => widget.nftViewModel.appStore.wallet,
+      (_) => widget.nftViewModel.onWalletChanged(),
+    );
+
     fetchNFTsForWallet();
+  }
+
+  @override
+  void dispose() {
+    _walletDisposer();
+    super.dispose();
   }
 
   Future<void> fetchNFTsForWallet() async {
@@ -103,7 +117,7 @@ class NFTListWidget extends StatelessWidget {
               itemCount: nftViewModel.solanaNftAssetModels.length,
               itemBuilder: (context, index) {
                 final nftAsset = nftViewModel.solanaNftAssetModels[index];
-                return SolanaNFTTileWidget(nftAsset: nftAsset);
+                return SolanaNFTTileWidget(nftAsset: nftAsset, nftViewModel: nftViewModel);
               },
             ),
           );
