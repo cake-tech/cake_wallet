@@ -41,7 +41,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
           _initBLE();
         }
       });
-      updateBleState();
 
       if (!Platform.isIOS) {
         trezorUSB = sdk.TrezorInterface.usb();

@@ -12,8 +12,10 @@ class PSBTTransactionBuild {
     required List<PSBTReadyUtxoWithAddress> inputs,
     required List<PSBTReadyBitcoinOutput> outputs,
     bool enableRBF = true,
+    int locktime = 0,
   }) {
     psbt.setGlobalTxVersion(2);
+    psbt.setGlobalFallbackLocktime(locktime);
     psbt.setGlobalInputCount(inputs.length);
     psbt.setGlobalOutputCount(outputs.length);
 

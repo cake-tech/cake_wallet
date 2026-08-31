@@ -1,0 +1,1684 @@
+dependency_overrides:
+  adaptive_number:
+    git:
+      url: https://github.com/lemoony/adaptive_number_dart
+      ref: c3f06de08064acca1b04975abcd4c3977c0b5256
+  animate_do:
+    git:
+      url: https://github.com/Klerith/animate_do_package
+      ref: 94ca5c43abd93901fcd97b47102b6e5d37ce67ca
+  animated_reorderable_list:
+    git:
+      url: https://github.com/canopas/animated_reorderable_list
+      ref: 4a6810d0a912018fb0b193337f46973a478fcc4b
+  another_flushbar:
+    git:
+      url: https://github.com/ideployed/another-flushbar
+      ref: a334e8e2dfbe3d5e531b63f72164093aa399047b
+  ansicolor:
+    git:
+      url: https://github.com/google/ansicolor-dart
+      ref: 35e67e6eb2da5e6d726fadfa90ccf437981c1e65
+  archive:
+    git:
+      url: https://github.com/brendan-duncan/archive
+      ref: f01d6a340ffe24e0ef46fa682d1b6bcc7b7aef13
+  args:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 61e677100b06d56a1b3731ab1178ebf9102ecb1f
+      path: ./pkgs/args
+  asn1lib:
+    git:
+      url: https://github.com/wstrange/asn1lib
+      ref: 1616ff662cd84301e029d1fa936acb8192a2b165
+  async:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 158d80dc6d17c7b967e655e27a859cbc1c6aa71d
+      path: ./pkgs/async
+  auto_size_text:
+    git:
+      url: https://github.com/leisim/auto_size_text
+      ref: 2178f0821132636bc4f0dea1bc4d40a889d8249b
+  awesome_dialog:
+    git:
+      url: https://github.com/marcos930807/awesomeDialogs
+      ref: c7923f15d1d22de5c9077fff0bab6f9cc6463540
+  base32:
+    git:
+      url: https://github.com/Daegalus/dart-base32
+      ref: 6ed989354aee7865ee74f3f1802268dd81bb234d
+  base58check:
+    git:
+      url: https://github.com/dartcoin/base58check
+      ref: 240913d11885ee80506ff6f51033ddf527106086
+  base_x:
+    git:
+      url: https://github.com/litaoh/base-x
+      ref: b434cc7890337af7c04004c681018a2f32689217
+  basic_utils:
+    git:
+      url: https://github.com/Ephenodrom/Dart-Basic-Utils
+      ref: 6a5034927857a08f3bdf5a177529e361179f6dab
+  bbqrdart:
+    git:
+      url: https://github.com/mrcyjanek/bbqrdart
+      ref: e867e3d0156d0b29858100f30adc2625b9dae586
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
+      ref: 05755063b593aa6cca0a4820a318e0ce17de6192
+  bip32:
+    git:
+      url: https://github.com/dart-bitcoin/bip32-dart
+      ref: b5c6a6e891b89f92529799b42af62b8a8af09eaf
+  bip340:
+    git:
+      url: https://github.com/fiatjaf/dart-bip340
+      ref: bbab1a01b6b6ab7c18f26294febb3bee38b24798
+  bip39:
+    git:
+      url: https://github.com/anicdh/bip39
+      ref: 3633daa2026b98c523ae9a091322be2903f7a8ab
+  bitbox:
+    git:
+      url: https://github.com/cake-tech/bitbox-flutter.git
+      ref: 57b78afb85bd2c30d3cdb9f7884f3878a62be442
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: 4e41f96f4838139895c65c3f49109d05af5d46aa
+  bloc:
+    git:
+      url: https://github.com/felangel/bloc
+      ref: 60892540c1faec3fd01cc8c8fea378a59cf42e3d
+      path: ./packages/bloc
+  bloc_concurrency:
+    git:
+      url: https://github.com/felangel/bloc
+      ref: 13dbe0ce078e7efaebb54b37489879daeb57459d
+      path: ./packages/bloc_concurrency
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
+  bluez:
+    git:
+      url: https://github.com/canonical/bluez.dart
+      ref: f02727e93b61585ea6c5a6a18ebf84b7374a71d3
+  boolean_selector:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: b1312b18df67b0be3101ca15c03dfd8d7c9383bb
+      path: ./pkgs/boolean_selector
+  borsh_annotation:
+    git:
+      url: https://github.com/espresso-cash/espresso-cash-public
+      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
+      path: ./packages/borsh_annotation
+  breez_sdk_spark_flutter:
+    git:
+      url: https://github.com/breez/breez-sdk-spark-flutter
+      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
+  bs58:
+    git:
+      url: https://github.com/litaoh/base58
+      ref: 637d7b4bef20ac4edb553ef20e40725c4a213736
+  bs58check:
+    git:
+      url: https://github.com/MrCyjaneK/bs58check
+      ref: 1216b214e26332ccc4a3de4c9eac87de7fd47b5a
+  bubble:
+    git:
+      url: https://github.com/vi-k/bubble
+      ref: 6a90afbbb8fee0dccfd7843248c74c1f8460e813
+  buffer:
+    git:
+      url: https://github.com/isoos/buffer
+      ref: 96be675b6f2bbca859a13da6c5f551ffd7eebc1c
+  build:
+    git:
+      url: https://github.com/dart-lang/build
+      ref: 565856b394c26a0d4c8cda88b69b6dcfaa2acd1f
+      path: ./build
+  build_cli_annotations:
+    git:
+      url: https://github.com/kevmoo/build_cli
+      ref: d01ba0ba11a73b4e541ff65508ae55842a8f887f
+      path: ./build_cli_annotations
+  build_config:
+    git:
+      url: https://github.com/dart-lang/build
+      ref: 7d6c879a01d80056b3eae52f7fab2237103a7fe7
+      path: ./build_config
+  build_daemon:
+    git:
+      url: https://github.com/dart-lang/build
+      ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
+      path: ./build_daemon
+  build_runner:
+    git:
+      url: https://github.com/dart-lang/build
+      ref: 565856b394c26a0d4c8cda88b69b6dcfaa2acd1f
+      path: ./build_runner
+  built_collection:
+    git:
+      url: https://github.com/google/built_collection.dart
+      ref: 8153cc41299a28e4426b22959f87dca0f7f8cd19
+  built_value:
+    git:
+      url: https://github.com/google/built_value.dart
+      ref: b66790e815350e8c569bfe723d5263925df5a46d
+      path: ./built_value
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: 3aba867dcab6737f6707782f5db15d71f303db38
+  characters:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: b59ecf4ceebe6153e1c0166b7c9a7fdd9458a89d
+      path: ./pkgs/characters
+  checked_yaml:
+    git:
+      url: https://github.com/google/json_serializable.dart
+      ref: d30c2fdb0598d548c25705931531842957623fdd
+      path: ./checked_yaml
+  cli_config:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 378790dd8cdaecd8cb48283de445f7cf80419cc0
+      path: ./pkgs/cli_config
+  cli_util:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: d7a7e2ebba2fdc25e78000a1af08508b60beb7fc
+      path: ./pkgs/cli_util
+  clock:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 04f7512ab6d7d554e33abd124a41e2aeec97dcbd
+      path: ./pkgs/clock
+  code_assets:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: fca756b953bc94f109039dd553f0bc18de620338
+      path: ./pkgs/code_assets
+  code_builder:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 125b9a9a5556fa88ecec26f649e1cddb1623aa2f
+      path: ./pkgs/code_builder
+  collection:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: dec28c1d477cd191e2af868579817b926b07d9f5
+      path: ./pkgs/collection
+  connectivity_plus:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 9f03424b7916b195ec6a4bebe4cc1a310ba40d4a
+      path: ./packages/connectivity_plus/connectivity_plus
+  connectivity_plus_platform_interface:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: c46ab89942b2be24aedf79555f247c566d99777f
+      path: ./packages/connectivity_plus/connectivity_plus_platform_interface
+  console:
+    git:
+      url: https://github.com/DirectMyFile/console.dart
+      ref: f391b6d289490e1735566c63fe539d1c3fc40818
+  convert:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 16f396fcf87da1db940187db3564b3a490015678
+      path: ./pkgs/convert
+  coverage:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 176ad7aea84d9fccc5c17795568ea2165a0414f9
+      path: ./pkgs/coverage
+  cross_file:
+    git:
+      url: https://github.com/flutter/packages
+      ref: b967797f07f1e4fc4fb264f5c8e5181b1385d9d9
+      path: ./packages/cross_file
+  crypto:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: e6c3810cdbbd6b483973f4685e950644114b495e
+      path: ./pkgs/crypto
+  cryptography:
+    git:
+      url: https://github.com/dint-dev/cryptography
+      ref: 87f42fad6f7f120feb8e47854164016ceac3dfd0
+      path: ./cryptography
+  csslib:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 91a840b6bc02e5e4b57fb55a047267923b894c89
+      path: ./pkgs/csslib
+  cupertino_icons:
+    git:
+      url: https://github.com/flutter/packages
+      ref: f330175dbf168a7bf94a127c492e025b4cc0bfba
+      path: ./third_party/packages/cupertino_icons
+  dart_style:
+    git:
+      url: https://github.com/dart-lang/dart_style
+      ref: a0f21e86a7a0ba52f11f46e3ed2ad1144616b512
+  dart_varuint_bitcoin:
+    git:
+      url: https://github.com/dart-bitcoin-lib/dart-varuint-bitcoin
+      ref: 51f9656d5937659c9f034cb0910dd0144459f137
+  data_table_2:
+    git:
+      url: https://github.com/maxim-saplin/data_table_2
+      ref: 4db30aa145e4e831e5527708cf77d9ed4d8e9700
+  dbus:
+    git:
+      url: https://github.com/canonical/dbus.dart
+      ref: 2db8509d7f7081025e7246511e823287fdd09abc
+  decimal:
+    git:
+      url: https://github.com/a14n/dart-decimal
+      ref: bc9771127e4c26f068fc9b016269f0ddabe9b475
+  device_display_brightness:
+    git:
+      url: https://github.com/MrCyjaneK/device_display_brightness.git
+      ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
+  device_info_plus:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 83f86a357da31c7e9c47ee668fe3142bafea9c91
+      path: ./packages/device_info_plus/device_info_plus
+  device_info_plus_platform_interface:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 1b37ba220c99b16693991042c3fcc69eae98864a
+      path: ./packages/device_info_plus/device_info_plus_platform_interface
+  devicelocale:
+    git:
+      url: https://github.com/magnatronus/flutter-devicelocale
+      ref: 3ed4bcc443a40da200af162f4b97d63d7b00d291
+  dio:
+    git:
+      url: https://github.com/cfug/dio
+      ref: ef9dbb860c085a8e81ecd36d5bcf29d5672947e1
+      path: ./dio
+  dio_web_adapter:
+    git:
+      url: https://github.com/cfug/dio
+      ref: f72e83c8e832e81169f621b13c9e39aeaf9286b8
+      path: ./plugins/web_adapter
+  dnssec_proof:
+    git:
+      url: https://github.com/MrCyjaneK/dnssec_proof.git
+      ref: b48a9defddce036048bae02e2069ebcbd6824afc
+  dotenv:
+    git:
+      url: https://github.com/mockturtl/dotenv
+      ref: 08216384e8a03b0aa55e0fcb81f4d03a52f7ea76
+  dotted_border:
+    git:
+      url: https://github.com/ajilo297/Flutter-Dotted-Border
+      ref: a0168f4a4d410087afb378a06deb058cb92a9fb1
+  easy_debounce:
+    git:
+      url: https://github.com/magnuswikhog/easy_debounce
+      ref: ed3f2aff0f080aa21cecd86e3a7c108340a9f17d
+  easy_stepper:
+    git:
+      url: https://github.com/ma7moud3osman/easy_stepper
+      ref: cec4390aef9e5ff9fe064a44ed06b4f2c6dae1d2
+  ed25519_edwards:
+    git:
+      url: https://github.com/Tougee/ed25519
+      ref: 944daea677c4d7f3abea608f55b34aec93bb79fb
+  ed25519_hd_key:
+    git:
+      url: https://github.com/alepop/dart-ed25519-hd-key
+      ref: be3939527511af23dbfd97b5abde56215a5ce60d
+  eip1559:
+    git:
+      url: https://github.com/xclud/dart_eip1559
+      ref: d1888bf05e99cca1638e7fcc10d7f82d21857f9a
+  eip55:
+    git:
+      url: https://github.com/xclud/dart_eip55
+      ref: 1dd7172b6d8f7e21f11378a4bf3489a8d1ff890f
+  encrypt:
+    git:
+      url: https://github.com/leocavalcante/encrypt
+      ref: 8581b81c060cde1c531e35a6eaa4b7324e9ab813
+  ens_dart:
+    git:
+      url: https://github.com/cake-tech/ens_dart.git
+      ref: 9fa09b9db69b8645d5d50a844652aa570451d101
+  equatable:
+    git:
+      url: https://github.com/felangel/equatable
+      ref: f98a58960545ba72b51d0eacf746af393a0c6b24
+  erc20:
+    git:
+      url: https://github.com/xclud/dart_erc20
+      ref: 759c4363d1dc9d6a3c2604ceb4261b5bcdfc68b1
+  eth_sig_util:
+    git:
+      url: https://github.com/wakumo/eth-sig-util
+      ref: 6acd66a126f470b5541f089fdd1c079d35a59c9a
+  event:
+    git:
+      url: https://github.com/aryehof/dart-event
+      ref: 93e1c474cf736481a0ef07c15a8c8bbdc5f21b60
+  fake_async:
+    git:
+      url: https://github.com/dart-lang/test
+      ref: 82417ab30b95ff471ded4bf6a3eea005ca97774f
+      path: ./pkgs/fake_async
+  fast_base58:
+    git:
+      url: https://github.com/maoxs2/dart_fast_base58
+      ref: 46955c19e499ce5c15755f6f573479d5f5218a45
+  fast_scanner:
+    git:
+      url: https://github.com/MrCyjaneK/fast_scanner
+      ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
+  ffi:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 6bd0935f29c7294ebb9aab21c06b47b513def933
+      path: ./pkgs/ffi
+  ffigen:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: c837526da8808501b53255caea0364eaa2c84afb
+      path: ./pkgs/ffigen
+  file:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 3f7a46606496f826c2f60586ab71c2b7a9bfbf15
+      path: ./pkgs/file
+  file_picker:
+    git:
+      url: https://github.com/cake-tech/flutter_file_picker.git
+      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+  file_selector_linux:
+    git:
+      url: https://github.com/flutter/packages
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
+      path: ./packages/file_selector/file_selector_linux
+  file_selector_macos:
+    git:
+      url: https://github.com/flutter/packages
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
+      path: ./packages/file_selector/file_selector_macos
+  file_selector_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 29211e8b56107f477d4521dd30e8ad713007860e
+      path: ./packages/file_selector/file_selector_platform_interface
+  file_selector_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
+      path: ./packages/file_selector/file_selector_windows
+  fixed:
+    git:
+      url: https://github.com/onepub-dev/fixed
+      ref: 1bdd715b95d8ed9c7fdffa6735bdcf2bf5ff8e65
+  fixnum:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 17d1b2cd13991f3cf844886db1c7ad18910a8908
+      path: ./pkgs/fixnum
+  fixnum_nanodart:
+    git:
+      url: https://github.com/MrCyjaneK/fixnum_nanodart
+      ref: 332e879371f175b52f688383d6ff795609aece85
+  fl_chart:
+    git:
+      url: https://github.com/imaNNeo/fl_chart
+      ref: be14b9722b7f18310c869c930562b7871b0165ed
+  flat_buffers:
+    git:
+      url: https://github.com/google/flatbuffers
+      ref: 187240970746d00bbd26b0f5873ed54d2477f9f3
+      path: ./dart
+  flex_color_scheme:
+    git:
+      url: https://github.com/rydmike/flex_color_scheme
+      ref: c0e810b1eba7cd2b2be1f5c6130b86672858db3d
+  flex_seed_scheme:
+    git:
+      url: https://github.com/rydmike/flex_seed_scheme
+      ref: aa7be701ad58dc8e61637373db2bef0f28d2606e
+  flutter_bloc:
+    git:
+      url: https://github.com/felangel/bloc
+      ref: 59098d33f3eed63001d3170295d2bfa76fa84351
+      path: ./packages/flutter_bloc
+  flutter_daemon:
+    git:
+      url: https://github.com/MrCyjaneK/flutter_daemon
+      ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
+  flutter_form_builder:
+    git:
+      url: https://github.com/flutter-form-builder-ecosystem/flutter_form_builder
+      ref: c55646b1d7f995752dbf5a9bd63da7592d342ffb
+  flutter_hooks:
+    git:
+      url: https://github.com/rrousselGit/flutter_hooks
+      ref: 9a2245f922bbd0ec397562fc7dc4b22b98c9199e
+      path: ./packages/flutter_hooks
+  flutter_inappwebview:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: f67ae1f34868c7660c16a2473f53a7a7bfb6f784
+      path: ./flutter_inappwebview
+  flutter_inappwebview_android:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      path: ./flutter_inappwebview_android
+  flutter_inappwebview_internal_annotations:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: 5be1ade739ab2a385e94a1bd5936c5a2000d52a9
+      path: ./dev_packages/flutter_inappwebview_internal_annotations
+  flutter_inappwebview_ios:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      path: ./flutter_inappwebview_ios
+  flutter_inappwebview_macos:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      path: ./flutter_inappwebview_macos
+  flutter_inappwebview_platform_interface:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: 60f1012e804f785421878ba1ee34403458e6baf2
+      path: ./flutter_inappwebview_platform_interface
+  flutter_inappwebview_web:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      path: ./flutter_inappwebview_web
+  flutter_inappwebview_windows:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      ref: 952aa783912c9b0fd98d01e3c2c707d97512cd63
+      path: ./flutter_inappwebview_windows
+  flutter_local_authentication:
+    git:
+      url: https://github.com/cake-tech/flutter_local_authentication
+      ref: 75c8681ebef62398a87c8ae0cccb7cfddffa9734
+  flutter_local_notifications:
+    git:
+      url: https://github.com/MaikuB/flutter_local_notifications
+      ref: 6c7378ddb1ed7f885e1e80caa3df3bcfb0fe8707
+      path: ./flutter_local_notifications
+  flutter_local_notifications_linux:
+    git:
+      url: https://github.com/MaikuB/flutter_local_notifications
+      ref: 314b432f98bcaef768468e5755317e10213a59bf
+      path: ./flutter_local_notifications_linux
+  flutter_local_notifications_platform_interface:
+    git:
+      url: https://github.com/MaikuB/flutter_local_notifications
+      ref: 816a1ddbf733bba3fb8d87ac3a9c2673ec15881b
+      path: ./flutter_local_notifications_platform_interface
+  flutter_local_notifications_windows:
+    git:
+      url: https://github.com/MaikuB/flutter_local_notifications
+      ref: ecd66b1515d17e327a62ca4ff8e94f925e97d688
+      path: ./flutter_local_notifications_windows
+  flutter_mailer:
+    git:
+      url: https://github.com/taljacobson/flutter_mailer
+      ref: 9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3
+  flutter_mobx:
+    git:
+      url: https://github.com/mobxjs/mobx.dart
+      ref: 0cadcd03551baaae57788b7288e1245e6408d5cf
+      path: ./flutter_mobx
+  flutter_native_splash:
+    git:
+      url: https://github.com/jonbhanson/flutter_native_splash
+      ref: 8c65117f0a4adc04f93deeb595a699a0d6dac559
+  flutter_plugin_android_lifecycle:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 4afc383a6db56cb969af5d8ad02a1a0220758b66
+      path: ./packages/flutter_plugin_android_lifecycle
+  flutter_riverpod:
+    git:
+      url: https://github.com/rrousselGit/riverpod
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      path: ./packages/flutter_riverpod
+  flutter_rust_bridge:
+    git:
+      url: https://github.com/fzyzcjy/flutter_rust_bridge
+      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      path: ./frb_dart
+  flutter_secure_storage:
+    git:
+      url: https://github.com/cake-tech/flutter_secure_storage.git
+      path: flutter_secure_storage
+      ref: ca897a08677edb443b366352dd7412735e098e7b
+  flutter_secure_storage_linux:
+    git:
+      url: https://github.com/mogol/flutter_secure_storage
+      ref: 1355e56cd48404fdbb0848979de72ee317b0c6c9
+      path: ./flutter_secure_storage_linux
+  flutter_secure_storage_macos:
+    git:
+      url: https://github.com/cake-tech/flutter_secure_storage.git
+      ref: ca897a08677edb443b366352dd7412735e098e7b
+      path: ./flutter_secure_storage_macos
+  flutter_secure_storage_platform_interface:
+    git:
+      url: https://github.com/mogol/flutter_secure_storage
+      ref: 3d5466cc3b93196bc9d8287f67f85a45ab6ebd3e
+      path: ./flutter_secure_storage_platform_interface
+  flutter_secure_storage_web:
+    git:
+      url: https://github.com/mogol/flutter_secure_storage
+      ref: 62cb9ec42b78fca2a1e64d729423367735134c11
+      path: ./flutter_secure_storage_web
+  flutter_secure_storage_windows:
+    git:
+      url: https://github.com/mogol/flutter_secure_storage
+      ref: 908d3f3f5fb1ba90927ceebde8b253f413f833d7
+      path: ./flutter_secure_storage_windows
+  flutter_shaders:
+    git:
+      url: https://github.com/jonahwilliams/flutter_shaders
+      ref: e331377d58755fe914a2ce54b0f70ba34898dfdd
+  flutter_slidable:
+    git:
+      url: https://github.com/letsar/flutter_slidable
+      ref: 7dbeb6667bf410d9a8401f0f8412e14669e7338f
+  flutter_spinkit:
+    git:
+      url: https://github.com/jogboms/flutter_spinkit
+      ref: bf8508db798f1e31dea152b9b762f223d90d3449
+  flutter_svg:
+    git:
+      url: https://github.com/flutter/packages
+      ref: ddc9430a0080bea73c5511732f396acde1f48fe0
+      path: ./third_party/packages/flutter_svg
+  flutter_web_bluetooth:
+    git:
+      url: https://github.com/jeroen1602/flutter_web_bluetooth
+      ref: 82d12cda1b65efc1d96b53b27b8b5451e34c96ef
+  fluttertoast:
+    git:
+      url: https://github.com/PonnamKarthik/FlutterToast
+      ref: e875d071da02fe6f3090794d1ac623093c3b7074
+  form_builder_validators:
+    git:
+      url: https://github.com/flutter-form-builder-ecosystem/form_builder_validators
+      ref: 7a561b8aff3739d80c54c394f9b0cc9c861a01b8
+  freezed_annotation:
+    git:
+      url: https://github.com/rrousselGit/freezed
+      ref: 4f7c141c6d2573622b5ea29fe305a8f08db1483b
+      path: ./packages/freezed_annotation
+  frontend_server_client:
+    git:
+      url: https://github.com/dart-lang/webdev
+      ref: 74e95837adf3d4ea64a003ccc4f8f09704c1d866
+      path: ./frontend_server_client
+  gap:
+    git:
+      url: https://github.com/letsar/gap
+      ref: b385a5888b1582badf22bbd93283ec22de8a75d7
+  get_it:
+    git:
+      url: https://github.com/fluttercommunity/get_it
+      ref: 974c0b367c58fd75e78f0d036147a6963392f975
+  glob:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 92114ab8a16eef77be1cd7bad3f5af28b5b1dc63
+      path: ./pkgs/glob
+  go_router:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 6d191c59e6f31c0133955c88bede437745659452
+      path: ./packages/go_router
+  google_identity_services_web:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 41211cf4c9a801f8d8ad527e54062d457a7cfbff
+      path: ./packages/google_identity_services_web
+  googleapis_auth:
+    git:
+      url: https://github.com/google/googleapis.dart
+      ref: 1631558038c7e30511295512527d8ade2bd64c40
+      path: ./googleapis_auth
+  graphs:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 55dbd6e09042bc1b935c019d8e70b3f41e6b90ea
+      path: ./pkgs/graphs
+  grpc:
+    git:
+      url: https://github.com/grpc/grpc-dart
+      ref: 4f6fe9b1114aa5bd9d97e5d3b5ae2cb354804a1f
+  hashlib:
+    git:
+      url: https://github.com/bitanon/hashlib
+      ref: 07848d0ebc5ff67dac0d2ecb638c3f4cd670d0cf
+  hashlib_codecs:
+    git:
+      url: https://github.com/bitanon/hashlib_codecs
+      ref: b15b231bbced2bb076890f8cfd384f024e9eba71
+  hex:
+    git:
+      url: https://github.com/stevenroose/dart-hex
+      ref: 262f0113430f7c5662f0578d86334fce0e008ea7
+  hive:
+    git:
+      url: https://github.com/hivedb/hive
+      ref: 470473ffc1ba39f6c90f31ababe0ee63b76b69fe
+      path: ./hive
+  hive_flutter:
+    git:
+      url: https://github.com/hivedb/hive
+      ref: db56a26d5324a19373a35e365c50d808c6e1ce0c
+      path: ./hive_flutter
+  hooks:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 5e2b3d1171cabe90bae969cd098c85182c1751b3
+      path: ./pkgs/hooks
+  hooks_riverpod:
+    git:
+      url: https://github.com/rrousselGit/riverpod
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      path: ./packages/hooks_riverpod
+  html:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 11f4cf7ee79632be370062dad67b7dd81bc28d55
+      path: ./pkgs/html
+  http:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: 907782f5a792e7a5b0ed92f118c0ad91f3ecde51
+      path: ./pkgs/http
+  http2:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: 5e2281edd25f9addbf26242a0658d8f2dfa1134b
+      path: ./pkgs/http2
+  http_multi_server:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: c27d6c780bae0207e938f09596c2cf8d9bb4a963
+      path: ./pkgs/http_multi_server
+  http_parser:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: 6ecd13a88b82c2fdc8a555f218bafb0ad0370f51
+      path: ./pkgs/http_parser
+  image:
+    git:
+      url: https://github.com/brendan-duncan/image
+      ref: a5cc03b65592616bb423254cdea8ce4b093b4a04
+  image_picker:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 2900bc94e9912486e3454223df2683a372f4e137
+      path: ./packages/image_picker/image_picker
+  image_picker_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 5f14a8010690b33f8f71d888dd6a3de665164e21
+      path: ./packages/image_picker/image_picker_android
+  image_picker_for_web:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 34746bb64150c7bbf319a9eee4164b4a5d733b2e
+      path: ./packages/image_picker/image_picker_for_web
+  image_picker_ios:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 44a58ab4aab0b78fab2b51e0d093561be0b4964c
+      path: ./packages/image_picker/image_picker_ios
+  image_picker_linux:
+    git:
+      url: https://github.com/flutter/packages
+      ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      path: ./packages/image_picker/image_picker_linux
+  image_picker_macos:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 7ebd635db5c71197877a48cc31a7edba9a3f067b
+      path: ./packages/image_picker/image_picker_macos
+  image_picker_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 501d8c9bd36577f1af17d799cb69fefd6c4b2f4b
+      path: ./packages/image_picker/image_picker_platform_interface
+  image_picker_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      path: ./packages/image_picker/image_picker_windows
+  in_app_review:
+    git:
+      url: https://github.com/britannio/in_app_review
+      ref: a08b2fcb98c74f2fa12b5f3c61b588b763430368
+      path: ./in_app_review
+  in_app_review_platform_interface:
+    git:
+      url: https://github.com/britannio/in_app_review
+      ref: 54fcef429fc6f9ed50660d23741ef7e38a684a1f
+      path: ./in_app_review_platform_interface
+  intl:
+    git:
+      url: https://github.com/dart-lang/i18n
+      ref: a1dd8e1ff32e5b53bdf38511cd5d7524694af95a
+      path: ./pkgs/intl
+  io:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: faf2b86b71e633e956ff1489eb60885b21fa100d
+      path: ./pkgs/io
+  jni:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 3b0c7beded15ef47a3dba4b5c0093cbe195e7aba
+      path: ./pkgs/jni
+  jni_flutter:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 6e3efdc1afa0462b1aff38c087cb50f0e6925cda
+      path: ./pkgs/jni_flutter
+  jni_util:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 7990d3a3806fa6c161e2340a95574d3a92d9bca2
+      path: ./pkgs/jni_util
+  js:
+    git:
+      url: https://github.com/dart-lang/sdk
+      ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      path: ./pkg/js
+  json_annotation:
+    git:
+      url: https://github.com/google/json_serializable.dart
+      ref: 61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc
+      path: ./json_annotation
+  json_bigint:
+    git:
+      url: https://github.com/ozaner/json_bigint
+      ref: 5528e714cb048860a3fd700fd3f2e406828e9cd8
+  json_rpc_2:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 88087ae253cab7ff9eccadb3c8cbf550ee071226
+      path: ./pkgs/json_rpc_2
+  kepler:
+    git:
+      url: https://github.com/tjcampanella/kepler
+      ref: e2c671389c18a5149147f598627c946c311e36b8
+  keyboard_actions:
+    git:
+      url: https://github.com/diegoveloper/flutter_keyboard_actions
+      ref: e197412c52cd75d8a7c7ac74558610c0f92635e4
+  leak_tracker:
+    git:
+      url: https://github.com/dart-lang/leak_tracker
+      ref: 64bae50ca89528f73d6a440c22b7e3e1713bb7f0
+      path: ./pkgs/leak_tracker
+  leak_tracker_flutter_testing:
+    git:
+      url: https://github.com/dart-lang/leak_tracker
+      ref: 84d523d8ea34ecf889a3f383e206bc231af31686
+      path: ./pkgs/leak_tracker_flutter_testing
+  leak_tracker_testing:
+    git:
+      url: https://github.com/dart-lang/leak_tracker
+      ref: 84d523d8ea34ecf889a3f383e206bc231af31686
+      path: ./pkgs/leak_tracker_testing
+  ledger_bitcoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      path: ./packages/ledger-bitcoin
+  ledger_ethereum:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+      path: ./packages/ledger-ethereum
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+  ledger_litecoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      path: ./packages/ledger-litecoin
+  ledger_usb_plus:
+    git:
+      url: https://github.com/cake-tech/ledger-usb-plus
+      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+  libcrypto:
+    git:
+      url: https://github.com/MrCyjaneK/libcrypto
+      ref: 98be84e0a2c7b423842d1fbbd2d920ff03180235
+  local_auth:
+    git:
+      url: https://github.com/flutter/packages
+      ref: db8bfed397145b7c5a1ade3c374a74053649ce12
+      path: ./packages/local_auth/local_auth
+  local_auth_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 1c0be204c45eea42927eb6005bb45f16a8fffb07
+      path: ./packages/local_auth/local_auth_android
+  local_auth_darwin:
+    git:
+      url: https://github.com/flutter/packages
+      ref: d3e0285a6bf353f4bed9ba01d2b37a68fa63d741
+      path: ./packages/local_auth/local_auth_darwin
+  local_auth_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 321a5846838d2bfa5f3dd463e3833b951da0db32
+      path: ./packages/local_auth/local_auth_platform_interface
+  local_auth_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: e978e06eb9207e4bd7a56b2139b2906d3150edb5
+      path: ./packages/local_auth/local_auth_windows
+  logger:
+    git:
+      url: https://github.com/SourceHorizon/logger
+      ref: 4c56353a5060f403650f0c728a6438d3db2de669
+  logging:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 8151b9f57fa3fee10421a19ce24470e143c0dee5
+      path: ./pkgs/logging
+  lottie:
+    git:
+      url: https://github.com/xvrh/lottie-flutter
+      ref: 1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1
+  matcher:
+    git:
+      url: https://github.com/dart-lang/test
+      ref: 45e4ef287d70dad449f13d4f284f9faea2d9188b
+      path: ./pkgs/matcher
+  material_color_utilities:
+    git:
+      url: https://github.com/material-foundation/material-color-utilities
+      ref: 5d4397afe1830b09ff99c1cb3cf901038951282a
+      path: ./dart
+  memoize:
+    git:
+      url: https://github.com/wrike/memoize_dart
+      ref: f541e50b3be0e7b9e83bbd3858d3a25356140570
+  mime:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 3440b74e430051304b56d4acd71b7ed30ab1855d
+      path: ./pkgs/mime
+  mobx:
+    git:
+      url: https://github.com/mobxjs/mobx.dart
+      ref: d677b8d361301b60577267703371013749b7b7de
+      path: ./mobx
+  mobx_codegen:
+    git:
+      url: https://github.com/mobxjs/mobx.dart
+      ref: 39a1f18c2e76a564b5e5358426d335569bc332ec
+      path: ./mobx_codegen
+  mockito:
+    git:
+      url: https://github.com/dart-lang/build
+      ref: f550d53994b429f48f2b86f9c70956bf50d4e0c2
+      path: ./builder_pkgs/mockito
+  mocktail:
+    git:
+      url: https://github.com/felangel/mocktail
+      ref: 12989138eb6beb3d1cad330ebfd88fef005a4e3e
+      path: ./packages/mocktail
+  modal_bottom_sheet:
+    git:
+      url: https://github.com/cake-tech/modal_bottom_sheet
+      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      path: ./modal_bottom_sheet
+  monero:
+    git:
+      url: https://github.com/mrcyjanek/monero_c.git
+      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
+      path: ./impls/monero.dart
+  msgpack_dart:
+    git:
+      url: https://github.com/knopp/msgpack_dart
+      ref: 2527c0a1e2eabf92a7f5db50983d3ee4ec71ccaa
+  msix:
+    git:
+      url: https://github.com/YehudaKremer/msix
+      ref: 1ab4df346a92ef4dc7bf02fd857d2975be04d47c
+  mutex:
+    git:
+      url: https://github.com/hoylen/dart-mutex
+      ref: 84ca903a3ac863735e3228c75a212133621f680f
+  nanodart:
+    git:
+      url: https://github.com/appditto/nanodart
+      ref: 5c1b352fc02d94a34129f3848bedcec441c2b8c7
+  nanoutil:
+    git:
+      url: https://github.com/perishllc/nanoutil.git
+      ref: c01a9c552917008d8fbc6b540db657031625b04f
+  native_toolchain_c:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 7dbb51d78534b3c037f3f063448cc45e5ca80a58
+      path: ./pkgs/native_toolchain_c
+  nested:
+    git:
+      url: https://github.com/rrousselGit/nested
+      ref: 23dbf54af127301839927831695800edd5cc3dc0
+  nm:
+    git:
+      url: https://github.com/canonical/nm.dart
+      ref: 6568c7666071f56177e45333c80dc1978ae14483
+  node_preamble:
+    git:
+      url: https://github.com/mbullington/node_preamble.dart
+      ref: ddd4f12ddddf94ad53ec17a742008c23ad666cef
+  nostr_tools:
+    git:
+      url: https://github.com/cake-tech/nostr_tools.git
+      ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
+  objective_c:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: 7990d3a3806fa6c161e2340a95574d3a92d9bca2
+      path: ./pkgs/objective_c
+  on_chain:
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: 096865a8c6b89c260beadfec04f7e184c40a3273
+  package_config:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 9c533582195b12ea006dc7188767b5a288b4c5c8
+      path: ./pkgs/package_config
+  package_info_plus:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 9f03424b7916b195ec6a4bebe4cc1a310ba40d4a
+      path: ./packages/package_info_plus/package_info_plus
+  package_info_plus_platform_interface:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 9f03424b7916b195ec6a4bebe4cc1a310ba40d4a
+      path: ./packages/package_info_plus/package_info_plus_platform_interface
+  path:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 010a343e71238b3ed7fcd55dad5869ecaa40991a
+      path: ./pkgs/path
+  path_drawing:
+    git:
+      url: https://github.com/dnfield/flutter_path_drawing
+      ref: 27ce967273429ce505962d4cf68c17a5b16b5aef
+  path_parsing:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 3c3181c2cfcd0557e12a95ace0e347141f63e384
+      path: ./third_party/packages/path_parsing
+  path_provider:
+    git:
+      url: https://github.com/flutter/packages
+      ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      path: ./packages/path_provider/path_provider
+  path_provider_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: f52df418da6ef2ba666112b4b9e87d9a1c43a0d0
+      path: ./packages/path_provider/path_provider_android
+  path_provider_foundation:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 2ada7838737b6ea374c3ef1fffba95bd097eed92
+      path: ./packages/path_provider/path_provider_foundation
+  path_provider_linux:
+    git:
+      url: https://github.com/flutter/packages
+      ref: af136ccab198bc7dfa25f5fa5ace23fdbcdaadc7
+      path: ./packages/path_provider/path_provider_linux
+  path_provider_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      path: ./packages/path_provider/path_provider_platform_interface
+  path_provider_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 47a92dbdea9bc433779c76b404af9c5ab6fa40cc
+      path: ./packages/path_provider/path_provider_windows
+  pausable_timer:
+    git:
+      url: https://github.com/llucax/pausable_timer
+      ref: 41e21b6444749a5d8cdb720128c9be66168b83cf
+  payjoin_flutter:
+    git:
+      url: https://github.com/konstantinullrich/payjoin-flutter
+      ref: b28c825b1d63381e8c2b25ef2ccabacbf833ce53
+  pedantic:
+    git:
+      url: https://github.com/google/pedantic
+      ref: bdcb962e3d2bda31a0e6dadb58b670aa633046e9
+  permission_handler:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: 441c53c4e02ac9b6417f758495a4b04618c6e600
+      path: ./permission_handler
+  permission_handler_android:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: 1dd6dc265a8f7b8b8dd0dd04f7202b8c17e4aa59
+      path: ./permission_handler_android
+  permission_handler_apple:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: 5c989b1be9abbbb325424ad96e5be4efdc0987c2
+      path: ./permission_handler_apple
+  permission_handler_html:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: f93a58bb2b993b831f48cf1ec0b3537905643e7e
+      path: ./permission_handler_html
+  permission_handler_platform_interface:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: b0bdda5faabb912dc6d0b3f330f9d801727db76e
+      path: ./permission_handler_platform_interface
+  permission_handler_windows:
+    git:
+      url: https://github.com/baseflow/flutter-permission-handler
+      ref: 41c2485eb698d055dcf59a373c07dee537b8aa01
+      path: ./permission_handler_windows
+  petitparser:
+    git:
+      url: https://github.com/petitparser/dart-petitparser
+      ref: 3d3c2155df8c427027660f8ca37ddc6e7b894748
+  pinenacl:
+    git:
+      url: https://github.com/ilap/pinenacl-dart
+      ref: 30c38f30a34137aa748217cf2d6fc978740d8da8
+  platform:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 07aff972869412010a73bbe33af0909bc0536e78
+      path: ./pkgs/platform
+  plugin_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: bb97da8ec627466fdb45cdd36e2c0e35dee40e9e
+      path: ./packages/plugin_platform_interface
+  pointycastle:
+    git:
+      url: https://github.com/bcgit/pc-dart
+      ref: c7009dbf7785f4ff865ddb4eefdaed8c18ef3baa
+  polyseed:
+    git:
+      url: https://github.com/cake-tech/polyseed_dart
+      ref: 1a8280ac2b6f01d202d8bff71527fe1ce498c4ed
+  pool:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 042b03e8284032088f851172ab7b2aed06da1d72
+      path: ./pkgs/pool
+  posix:
+    git:
+      url: https://github.com/onepub-dev/dart_posix
+      ref: 3c544340f3e4ffc64b20e6959ae8229c98638a0a
+  process:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 5e977d6f0698a220279a50538c89a440d56b0c44
+      path: ./pkgs/process
+  progressive_blur:
+    git:
+      url: https://github.com/kekland/progressive_blur
+      ref: 6ec8d0ccf46b1629a46ab68f31e26df489bac958
+  protobuf:
+    git:
+      url: https://github.com/google/protobuf.dart
+      ref: a852ba4e4b6f319c655fc938864dac8442b7c4ad
+      path: ./protobuf
+  provider:
+    git:
+      url: https://github.com/rrousselGit/provider
+      ref: 558bdcd26ddb2b922bec06e3fa0d91bc59479baf
+      path: ./packages/provider
+  pub_semver:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: d67cd0022095a138c66df94f100e5a129c15a65e
+      path: ./pkgs/pub_semver
+  pubspec_parse:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 070355ee7014c4d37bdc50fa2b4a597f2774f9ca
+      path: ./pkgs/pubspec_parse
+  qr:
+    git:
+      url: https://github.com/kevmoo/qr.dart
+      ref: 792288784e200301b323b1e36852ae60a3ac2431
+  qr_flutter:
+    git:
+      url: https://github.com/cake-tech/qr.flutter.git
+      ref: dced28909a82e1906e7c510ae8ca807a1658c898
+  quick_actions:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 8238e1c5ada8c6a99f7fb6087484b52face33721
+      path: ./packages/quick_actions/quick_actions
+  quick_actions_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: c05ab81dddf0f145c57b43df80903ce17ba84baf
+      path: ./packages/quick_actions/quick_actions_android
+  quick_actions_ios:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 7ae082a7f6cd1bc6a219c6ab0adf27a3d8ffdc23
+      path: ./packages/quick_actions/quick_actions_ios
+  quick_actions_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 761812665448c7e5a1bd5810aeabfac1ac027038
+      path: ./packages/quick_actions/quick_actions_platform_interface
+  quiver:
+    git:
+      url: https://github.com/google/quiver-dart
+      ref: 6ec3568dee63ae02e8676e28a6df0157f4d20e84
+  rational:
+    git:
+      url: https://github.com/a14n/dart-rational
+      ref: 09b5adc5be7a27c349a36b73d0d616b133ad8730
+  record_use:
+    git:
+      url: https://github.com/dart-lang/native
+      ref: abe17706806e8aa3cdafcbdab02cbbb5d1d2f884
+      path: ./pkgs/record_use
+  rive:
+    git:
+      url: https://github.com/MrCyjaneK/rive-flutter-no-lfs
+      ref: 2dbfe918a3d38340f378ab2734b1c97ebcb4ab26
+  rive_common:
+    git:
+      url: https://github.com/malik1004x/rive_common
+      ref: 34ef174e87dc4a29e728babfaad8dd9464b704ae
+  riverpod:
+    git:
+      url: https://github.com/rrousselGit/riverpod
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      path: ./packages/riverpod
+  riverpod_annotation:
+    git:
+      url: https://github.com/rrousselGit/riverpod
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      path: ./packages/riverpod_annotation
+  rlz:
+    git:
+      url: https://github.com/cake-tech/zkool2.git
+      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      path: ./rust_builder
+  rxdart:
+    git:
+      url: https://github.com/ReactiveX/rxdart
+      ref: 6852efa646198d8a75fcaee52a5227682f8016e7
+      path: ./packages/rxdart
+  searchable_listview:
+    git:
+      url: https://github.com/koukibadr/Searchable-Listview
+      ref: 87c203ac2737c3103929e2a2cd0f23becc4c3334
+  sec:
+    git:
+      url: https://github.com/xclud/dart_sec
+      ref: 1a53c7983d0e8b5e3842eff85cebc27fd474d8f0
+  sensitive_clipboard:
+    git:
+      url: https://github.com/cake-tech/sensitive_clipboard
+      ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
+  sha3:
+    git:
+      url: https://github.com/maoxs2/dart_sha3
+      ref: 6d879eb52dec2b5e110d11957f5512ceb0eaa664
+  share_plus:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: 8e5fab7bfb1685f5a56f53020a49b2ff5bece25d
+      path: ./packages/share_plus/share_plus
+  share_plus_platform_interface:
+    git:
+      url: https://github.com/fluttercommunity/plus_plugins
+      ref: b5d24a0e3927314e50be041c9f5b7da487d69313
+      path: ./packages/share_plus/share_plus_platform_interface
+  shared_preferences:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 064b0b26568728342a550dc876b0a0e0f2fbaa84
+      path: ./packages/shared_preferences/shared_preferences
+  shared_preferences_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 371106fe7d9864a157fc9366f57d0b0e64fab932
+      path: ./packages/shared_preferences/shared_preferences_android
+  shared_preferences_foundation:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
+      path: ./packages/shared_preferences/shared_preferences_foundation
+  shared_preferences_linux:
+    git:
+      url: https://github.com/flutter/packages
+      ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      path: ./packages/shared_preferences/shared_preferences_linux
+  shared_preferences_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 371106fe7d9864a157fc9366f57d0b0e64fab932
+      path: ./packages/shared_preferences/shared_preferences_platform_interface
+  shared_preferences_web:
+    git:
+      url: https://github.com/flutter/packages
+      ref: cb4fb13e19756cbbcb523bc33fbf7b7a5923e787
+      path: ./packages/shared_preferences/shared_preferences_web
+  shared_preferences_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      path: ./packages/shared_preferences/shared_preferences_windows
+  shelf:
+    git:
+      url: https://github.com/dart-lang/shelf
+      ref: 2536c15a562cb183dabbc628824a215663830325
+      path: ./pkgs/shelf
+  shelf_packages_handler:
+    git:
+      url: https://github.com/dart-lang/shelf
+      ref: 25861e55406c1f66cce066b6ed575f420b480e45
+      path: ./pkgs/shelf_packages_handler
+  shelf_static:
+    git:
+      url: https://github.com/dart-lang/shelf
+      ref: d53a8f9a98ccbe69078d397d45c2c6b3e7c243b6
+      path: ./pkgs/shelf_static
+  shelf_web_socket:
+    git:
+      url: https://github.com/dart-lang/shelf
+      ref: 2a7442f7d6d3e63fdc7b387128619b263dcb7e78
+      path: ./pkgs/shelf_web_socket
+  smooth_page_indicator:
+    git:
+      url: https://github.com/Milad-Akarie/smooth_page_indicator
+      ref: 519df3304d58c9d77e91725318076bc3aaa6e852
+  socks5_proxy:
+    git:
+      url: https://github.com/LacticWhale/socks_dart.git
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
+  socks_socket:
+    git:
+      url: https://github.com/sneurlax/socks_socket
+      ref: e6232c53c1595469931ababa878759a067c02e94
+  solana:
+    git:
+      url: https://github.com/espresso-cash/espresso-cash-public
+      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
+      path: ./packages/solana
+  source_gen:
+    git:
+      url: https://github.com/dart-lang/source_gen
+      ref: 98cbdb6b17cdccabb0fec6e37fd66e2790d05092
+      path: ./source_gen
+  source_map_stack_trace:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 56db6f3d085fa4e70b0286b30989654a5db90c94
+      path: ./pkgs/source_map_stack_trace
+  source_maps:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: db47a844e03cbd076ac7e5a0f4f46cadcba28da8
+      path: ./pkgs/source_maps
+  source_span:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: e501121027c0a9014161ff79cbf519c1813e3153
+      path: ./pkgs/source_span
+  sp_scanner:
+    git:
+      url: https://github.com/cake-tech/sp_scanner
+      ref: 40ed3ce8319744907bef3b25bc6e0af8428c8724
+  sqflite:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 094cc31b82df7f9ba04f330f13b50e345f777079
+      path: ./sqflite
+  sqflite_android:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 7e7159b59572e04024258417072428d1cffca1cc
+      path: ./sqflite_android
+  sqflite_common:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 018def1518b3ce9efcb25bbf57809153e9252da7
+      path: ./sqflite_common
+  sqflite_common_ffi:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 7482da6f456feb715eecdff8a6287bb30d01481f
+      path: ./sqflite_common_ffi
+  sqflite_darwin:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
+      path: ./sqflite_darwin
+  sqflite_platform_interface:
+    git:
+      url: https://github.com/tekartik/sqflite
+      ref: 03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0
+      path: ./sqflite_platform_interface
+  sqlite3:
+    git:
+      url: https://github.com/simolus3/sqlite3.dart
+      ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
+      path: ./sqlite3
+  sqlite3_flutter_libs:
+    git:
+      url: https://github.com/simolus3/sqlite3.dart
+      ref: 808a60becaa3f9fae41e0590b853c3283b5f6afb
+      path: ./sqlite3_flutter_libs
+  stack_trace:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 07648c8269244506d83c15dc8cc50aa53d24bf35
+      path: ./pkgs/stack_trace
+  state_notifier:
+    git:
+      url: https://github.com/rrousselGit/state_notifier
+      ref: 061abfc682881d5da4716b211cd4e7d41805a9ac
+      path: ./packages/state_notifier
+  stream_channel:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 5265a85f307ce7be94553378589205df97736a1b
+      path: ./pkgs/stream_channel
+  stream_transform:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 46cc745458f93bdbd39972a925d7530e57f84f5c
+      path: ./pkgs/stream_transform
+  string_scanner:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 3815ff3fd2aee5212586c3fc4d2bcf08584c98f3
+      path: ./pkgs/string_scanner
+  sync_http:
+    git:
+      url: https://github.com/google/sync_http.dart
+      ref: 39509d69fd5a9c3da46eab48fcafdf62e6ad4580
+  synchronized:
+    git:
+      url: https://github.com/tekartik/synchronized.dart
+      ref: b38010355b23e3baed85e263ca7f9e222d57b00a
+      path: ./synchronized
+  term_glyph:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: c90e95b1f2a130b2e951466719b28c3d13b8dab5
+      path: ./pkgs/term_glyph
+  test:
+    git:
+      url: https://github.com/dart-lang/test
+      ref: 45e4ef287d70dad449f13d4f284f9faea2d9188b
+      path: ./pkgs/test
+  test_api:
+    git:
+      url: https://github.com/dart-lang/test
+      ref: 45e4ef287d70dad449f13d4f284f9faea2d9188b
+      path: ./pkgs/test_api
+  test_core:
+    git:
+      url: https://github.com/dart-lang/test
+      ref: 45e4ef287d70dad449f13d4f284f9faea2d9188b
+      path: ./pkgs/test_core
+  timezone:
+    git:
+      url: https://github.com/srawlins/timezone
+      ref: 64db18e450c10247e23ee36546865007b01cf135
+  toastification:
+    git:
+      url: https://github.com/payam-zahedi/toastification
+      ref: 4f1068f5265a0d189aee6881d125e8a35adec74f
+  translator:
+    git:
+      url: https://github.com/cake-tech/google-translator.git
+      ref: b36571ec11efd838afda010adcc21a4e95302745
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: d1242cea90f84b00200e7bcab914a5af750e23fb
+  trezor_flutter:
+    git:
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: 7d27e19b7bcdcd6241df35953f9a6ec2df0c7a97
+      path: ./trezor-flutter
+  trezor_usb_transport:
+    git:
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: 7d27e19b7bcdcd6241df35953f9a6ec2df0c7a97
+      path: ./trezor_usb_transport
+  tuple:
+    git:
+      url: https://github.com/google/tuple.dart
+      ref: 91bcce6e0672c4b071d270aafde5cd86103668dd
+  typed_data:
+    git:
+      url: https://github.com/dart-lang/core
+      ref: 5ed932323581a4791672c25fe154c622b535c264
+      path: ./pkgs/typed_data
+  uni_links:
+    git:
+      url: https://github.com/cake-tech/uni_links
+      ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
+      path: ./uni_links
+  uni_links_platform_interface:
+    git:
+      url: https://github.com/avioli/uni_links
+      ref: cdd7a217d351a32c418afad18f8ea6893cfed05a
+      path: ./uni_links_platform_interface
+  uni_links_web:
+    git:
+      url: https://github.com/avioli/uni_links
+      ref: cf9d2b64dc3e890015d1dd6df7b6414123835663
+      path: ./uni_links_web
+  universal_ble:
+    git:
+      url: https://github.com/cake-tech/universal_ble.git
+      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+  universal_io:
+    git:
+      url: https://github.com/dart-io-packages/universal_io
+      ref: ed92942d149674621e7ae4ac46325e55ecee9368
+  universal_platform:
+    git:
+      url: https://github.com/gskinnerTeam/flutter-universal-platform
+      ref: f4fc405630cdd541d78457b0b4521b89456ea068
+  unorm_dart:
+    git:
+      url: https://github.com/yshrsmz/unorm-dart
+      ref: 3301bdc74e9644c69201db31e0daefb24fd10cd8
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
+  url_launcher:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 3fe6a0149acebc9cb8707cf508d13f59fc372986
+      path: ./packages/url_launcher/url_launcher
+  url_launcher_android:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 7287c7b7f1d51e8842f49df46dbd0af3bd1c1077
+      path: ./packages/url_launcher/url_launcher_android
+  url_launcher_ios:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 9cac0573363b7bbe6bf32aca44582fb75ee67521
+      path: ./packages/url_launcher/url_launcher_ios
+  url_launcher_linux:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 73d2f3eb966d36a44cbb943ea0e96dda3a2f8da2
+      path: ./packages/url_launcher/url_launcher_linux
+  url_launcher_macos:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
+      path: ./packages/url_launcher/url_launcher_macos
+  url_launcher_platform_interface:
+    git:
+      url: https://github.com/flutter/packages
+      ref: ef349bec8ee9d5fa3f69d73aa78ab9bb84ae0aa7
+      path: ./packages/url_launcher/url_launcher_platform_interface
+  url_launcher_web:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 67ec0d36293eb963590e0606c8bede379be4d142
+      path: ./packages/url_launcher/url_launcher_web
+  url_launcher_windows:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
+      path: ./packages/url_launcher/url_launcher_windows
+  uuid:
+    git:
+      url: https://github.com/Daegalus/dart-uuid
+      ref: d602950818e4b11d097d26f5408b461f38248130
+  vector_graphics:
+    git:
+      url: https://github.com/flutter/packages
+      ref: caddb39d831fc9e7f9a2cbe5c87d75629adc35ac
+      path: ./packages/vector_graphics
+  vector_graphics_codec:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 11a9fa8bf6e5a49d02aef0ba5c5a95037a2acbc3
+      path: ./packages/vector_graphics_codec
+  vector_graphics_compiler:
+    git:
+      url: https://github.com/flutter/packages
+      ref: 3d05e51b22d99c5362d2f1f7f5b80358dd4e9cb3
+      path: ./packages/vector_graphics_compiler
+  vector_math:
+    git:
+      url: https://github.com/google/vector_math.dart
+      ref: 13f185f7e97d559e003f5ac79201da12f9a01049
+  vm_service:
+    git:
+      url: https://github.com/dart-lang/sdk
+      ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      path: ./pkg/vm_service
+  wakelock_plus:
+    git:
+      url: https://github.com/fluttercommunity/wakelock_plus
+      ref: e7301f64397c946fac4ee66acdfb545b666f4a43
+      path: ./wakelock_plus
+  wakelock_plus_platform_interface:
+    git:
+      url: https://github.com/fluttercommunity/wakelock_plus
+      ref: 302991238a66dd1f6b1e50b38f58d97d177cd9ab
+      path: ./wakelock_plus_platform_interface
+  wallet:
+    git:
+      url: https://github.com/xclud/dart_wallet
+      ref: aa5ba16f7a8a3a7789ca78330ce3877913f29a83
+  watcher:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 67a0fea10d8402d427aca8aff95cdc3b16004fc2
+      path: ./pkgs/watcher
+  web:
+    git:
+      url: https://github.com/dart-lang/web
+      ref: 222164b5010cb0324d4132666f1d43750ffc6448
+      path: ./web
+  web3dart:
+    git:
+      url: https://github.com/cake-tech/web3dart.git
+      ref: aa3f932dbf54eda651b7bd01ad00204acf998bd0
+  web_socket:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: 31da3556357cd9ba9205e20c9299a1d48c149382
+      path: ./pkgs/web_socket
+  web_socket_channel:
+    git:
+      url: https://github.com/dart-lang/http
+      ref: 63c477b466f650e8f5505d6d78dc283c2c2f9845
+      path: ./pkgs/web_socket_channel
+  webdriver:
+    git:
+      url: https://github.com/google/webdriver.dart
+      ref: e84e9ccbee3e0c38a149b7d964eb7ab6ccc78384
+  webkit_inspection_protocol:
+    git:
+      url: https://github.com/google/webkit_inspection_protocol.dart
+      ref: 82f0c1c46dfdba5edf7c5fa84456233121dd69e1
+  win32:
+    git:
+      url: https://github.com/halildurmus/win32
+      ref: 64b0a07ab7e1e3e7db6fca60c6b121d6cfd73709
+      path: ./packages/win32
+  win32_registry:
+    git:
+      url: https://github.com/halildurmus/win32_registry
+      ref: fd20025f9b6f0ce6937b3e7e4b923e51ae11e40f
+  x25519:
+    git:
+      url: https://github.com/Tougee/curve25519
+      ref: 61b636d53e03cd12c9d9f728f8be6821fb6e2581
+  xdg_directories:
+    git:
+      url: https://github.com/flutter/packages
+      ref: b33972233ecb894f2fd3d61a74dd1c300fac10c2
+      path: ./packages/xdg_directories
+  xml:
+    git:
+      url: https://github.com/renggli/dart-xml
+      ref: 83796f3dd0923590561d9d169d6ee2db46580099
+  yaml:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 27f829e3752382beae9deb1e87029f9ed52ef32e
+      path: ./pkgs/yaml
+  yaml_edit:
+    git:
+      url: https://github.com/dart-lang/tools
+      ref: 119a499068a903222fbbefdea18ea59efdd417b9
+      path: ./pkgs/yaml_edit
+  zkool:
+    git:
+      url: https://github.com/cake-tech/zkool2.git
+      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
