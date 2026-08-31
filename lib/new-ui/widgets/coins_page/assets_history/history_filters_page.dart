@@ -63,7 +63,7 @@ class HistoryFiltersPage extends StatelessWidget {
                             onChanged: (_) => bloc.add(TransactionHistoryFilterToggled(filter)),
                             subtitle: _subtitle(context, filter),
                             subtitleColor: _subtitleColor(context, filter),
-                            showArrow: true,
+                            showArrow: filter.hasChildren,
                           ),).toList(),
                         },
                       ),
