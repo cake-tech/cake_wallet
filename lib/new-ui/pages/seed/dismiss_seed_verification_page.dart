@@ -11,47 +11,43 @@ class DismissSeedVerificationPage extends StatelessWidget {
   final VoidCallback onConfirm;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return SeedPageScaffold(
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 295),
-        child: SeedPageHeader(
-          image: const CakeImageWidget(
-            imageUrl: "assets/new-ui/warning_triangle.svg",
-            width: 125,
-            height: 111.72,
-          ),
-          imageSpacing: 48,
-          titleSpacing: 24,
-          title: S.of(context).dismiss_verification_title,
-          description: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: "${S.of(context).dismiss_verification_description}\n"),
-                TextSpan(
-                  text: S.of(context).seed_display_path,
-                  style: TextStyle(color: colors.onSurface),
-                ),
-              ],
+  Widget build(BuildContext context) => SeedPageScaffold(
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 295),
+          child: SeedPageHeader(
+            image: const CakeImageWidget(
+              imageUrl: "assets/new-ui/warning_triangle.svg",
+              width: 125,
+              height: 111.72,
             ),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: -0.07,
-                ),
+            imageSpacing: 48,
+            titleSpacing: 24,
+            title: S.of(context).dismiss_verification_title,
+            description: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: "${S.of(context).dismiss_verification_description}\n"),
+                  TextSpan(
+                    text: S.of(context).seed_display_path,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    letterSpacing: -0.07,
+                  ),
+            ),
           ),
         ),
-      ),
-      footer: StackedButtons(
-        primaryKey: const ValueKey("dismiss_seed_verification_page_confirm_button_key"),
-        primaryText: S.of(context).dismiss_verification_confirm,
-        onPrimary: onConfirm,
-        secondaryKey: const ValueKey("dismiss_seed_verification_page_back_button_key"),
-        secondaryText: S.of(context).seed_alert_back,
-        onSecondary: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
+        footer: StackedButtons(
+          primaryKey: const ValueKey("dismiss_seed_verification_page_confirm_button_key"),
+          primaryText: S.of(context).dismiss_verification_confirm,
+          onPrimary: onConfirm,
+          secondaryKey: const ValueKey("dismiss_seed_verification_page_back_button_key"),
+          secondaryText: S.of(context).seed_alert_back,
+          onSecondary: () => Navigator.of(context).pop(),
+        ),
+      );
 }

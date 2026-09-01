@@ -29,81 +29,76 @@ class _PreSeedPageState extends State<PreSeedPage> {
   bool get _hasCheckedAll => _understandsOnlyWayToRecover && _willWriteItDown && _willNeverShareIt;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return PopScope(
-      canPop: false,
-      child: SeedPageScaffold(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 24,
-          children: [
-            SeedPageHeader(
-              image: const SeedHeroImage(),
-              title: S.of(context).recovery_phrase_intro_title,
-              description: Text(
-                S.of(context).recovery_phrase_intro_description,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: -0.07,
+  Widget build(BuildContext context) => PopScope(
+        canPop: false,
+        child: SeedPageScaffold(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 24,
+            children: [
+              SeedPageHeader(
+                image: const SeedHeroImage(),
+                title: S.of(context).recovery_phrase_intro_title,
+                description: Text(
+                  S.of(context).recovery_phrase_intro_description,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        letterSpacing: -0.07,
+                      ),
                 ),
               ),
-            ),
-            Column(
-              spacing: 12,
-              children: [
-                SeedCheckboxRow(
-                  key: const ValueKey("pre_seed_page_only_way_checkbox_key"),
-                  iconPath: "assets/new-ui/key.svg",
-                  text: S.of(context).recovery_phrase_check_only_way,
-                  isChecked: _understandsOnlyWayToRecover,
-                  onChanged: (value) => setState(() => _understandsOnlyWayToRecover = value),
-                ),
-                SeedCheckboxRow(
-                  key: const ValueKey("pre_seed_page_write_down_checkbox_key"),
-                  iconPath: "assets/new-ui/set-amount.svg",
-                  text: S.of(context).recovery_phrase_check_write_down,
-                  isChecked: _willWriteItDown,
-                  onChanged: (value) => setState(() => _willWriteItDown = value),
-                ),
-                SeedCheckboxRow(
-                  key: const ValueKey("pre_seed_page_never_share_checkbox_key"),
-                  iconPath: "assets/new-ui/visibility.svg",
-                  text: S.of(context).recovery_phrase_check_never_share,
-                  isChecked: _willNeverShareIt,
-                  onChanged: (value) => setState(() => _willNeverShareIt = value),
-                ),
-              ],
-            ),
-            if (!_hasCheckedAll)
-              Text(
-                S.of(context).recovery_phrase_check_all_to_proceed,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: context.customColors.warningOutlineColor,
-                  letterSpacing: -0.07,
-                ),
+              Column(
+                spacing: 12,
+                children: [
+                  SeedCheckboxRow(
+                    key: const ValueKey("pre_seed_page_only_way_checkbox_key"),
+                    iconPath: "assets/new-ui/key.svg",
+                    text: S.of(context).recovery_phrase_check_only_way,
+                    isChecked: _understandsOnlyWayToRecover,
+                    onChanged: (value) => setState(() => _understandsOnlyWayToRecover = value),
+                  ),
+                  SeedCheckboxRow(
+                    key: const ValueKey("pre_seed_page_write_down_checkbox_key"),
+                    iconPath: "assets/new-ui/set-amount.svg",
+                    text: S.of(context).recovery_phrase_check_write_down,
+                    isChecked: _willWriteItDown,
+                    onChanged: (value) => setState(() => _willWriteItDown = value),
+                  ),
+                  SeedCheckboxRow(
+                    key: const ValueKey("pre_seed_page_never_share_checkbox_key"),
+                    iconPath: "assets/new-ui/visibility.svg",
+                    text: S.of(context).recovery_phrase_check_never_share,
+                    isChecked: _willNeverShareIt,
+                    onChanged: (value) => setState(() => _willNeverShareIt = value),
+                  ),
+                ],
               ),
-          ],
+              if (!_hasCheckedAll)
+                Text(
+                  S.of(context).recovery_phrase_check_all_to_proceed,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.customColors.warningOutlineColor,
+                        letterSpacing: -0.07,
+                      ),
+                ),
+            ],
+          ),
+          footer: _hasCheckedAll
+              ? StackedButtons(
+                  primaryKey: const ValueKey("pre_seed_page_button_key"),
+                  primaryText: S.of(context).show_recovery_phrase,
+                  onPrimary: () => Navigator.of(context).pushNamed(Routes.seed, arguments: true),
+                  secondaryKey: const ValueKey("pre_seed_page_skip_button_key"),
+                  secondaryText: S.of(context).skip_this_step,
+                  onSecondary: _confirmSkip,
+                  secondaryAsLink: true,
+                )
+              : null,
+          alignTop: true,
         ),
-        footer: _hasCheckedAll
-            ? StackedButtons(
-                primaryKey: const ValueKey("pre_seed_page_button_key"),
-                primaryText: S.of(context).show_recovery_phrase,
-                onPrimary: () => Navigator.of(context).pushNamed(Routes.seed, arguments: true),
-                secondaryKey: const ValueKey("pre_seed_page_skip_button_key"),
-                secondaryText: S.of(context).skip_this_step,
-                onSecondary: _confirmSkip,
-                secondaryAsLink: true,
-              )
-            : null,
-        alignTop: true,
-      ),
-    );
-  }
+      );
 
   void _confirmSkip() {
     Navigator.of(context).push(

@@ -16,57 +16,62 @@ class SeedCheckboxRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return MergeSemantics(
-      child: Semantics(
-        checked: isChecked,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => onChanged(!isChecked),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              spacing: 12,
-              children: [
-                ExcludeSemantics(
-                  child: CakeImageWidget(
-                    imageUrl: iconPath,
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    text,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.primary,
-                          letterSpacing: -0.06,
-                        ),
-                  ),
-                ),
-                ExcludeSemantics(
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isChecked ? colors.primary : colors.surfaceContainerHighest,
+  Widget build(BuildContext context) => MergeSemantics(
+        child: Semantics(
+          checked: isChecked,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => onChanged(!isChecked),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                spacing: 12,
+                children: [
+                  ExcludeSemantics(
+                    child: CakeImageWidget(
+                      imageUrl: iconPath,
+                      width: 24,
+                      height: 24,
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                     ),
-                    child: isChecked ? Icon(Icons.check, size: 16, color: colors.onPrimary) : null,
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            letterSpacing: -0.06,
+                          ),
+                    ),
+                  ),
+                  ExcludeSemantics(
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isChecked
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                      ),
+                      child: isChecked
+                          ? Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            )
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

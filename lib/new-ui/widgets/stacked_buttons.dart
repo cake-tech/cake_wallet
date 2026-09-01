@@ -22,44 +22,40 @@ class StackedButtons extends StatelessWidget {
   final Key? secondaryKey;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        NewPrimaryButton(
-          key: primaryKey,
-          onPressed: onPrimary,
-          text: primaryText,
-          color: colors.primary,
-          textColor: colors.onPrimary,
-        ),
-        if (secondaryAsLink) ...[
-          const SizedBox(height: 9),
-          TextButton(
-            key: secondaryKey,
-            onPressed: onSecondary,
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-            child: Text(
-              secondaryText,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: colors.primary,
-                    letterSpacing: -0.07,
-                  ),
-            ),
-          ),
-        ] else ...[
-          const SizedBox(height: 12),
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           NewPrimaryButton(
-            key: secondaryKey,
-            onPressed: onSecondary,
-            text: secondaryText,
-            color: colors.surfaceContainer,
-            textColor: colors.primary,
+            key: primaryKey,
+            onPressed: onPrimary,
+            text: primaryText,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
+          if (secondaryAsLink) ...[
+            const SizedBox(height: 9),
+            TextButton(
+              key: secondaryKey,
+              onPressed: onSecondary,
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              child: Text(
+                secondaryText,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      letterSpacing: -0.07,
+                    ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            NewPrimaryButton(
+              key: secondaryKey,
+              onPressed: onSecondary,
+              text: secondaryText,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              textColor: Theme.of(context).colorScheme.primary,
+            ),
+          ],
         ],
-      ],
-    );
-  }
+      );
 }

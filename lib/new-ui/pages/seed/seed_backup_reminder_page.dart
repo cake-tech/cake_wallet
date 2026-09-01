@@ -21,43 +21,39 @@ class SeedBackupReminderPage extends StatelessWidget {
   final AuthService authService;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return SeedPageScaffold(
-      content: SeedPageHeader(
-        image: const SeedHeroImage(),
-        title: S.of(context).recovery_phrase_intro_title,
-        description: Text(
-          S.of(context).recovery_phrase_intro_description,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-                letterSpacing: -0.07,
-              ),
-        ),
-      ),
-      footer: StackedButtons(
-        primaryKey: const ValueKey("seed_backup_reminder_page_button_key"),
-        primaryText: S.of(context).show_recovery_phrase,
-        onPrimary: () => authService.authenticateAction(
-          context,
-          route: Routes.seed,
-          arguments: false,
-          conditionToDetermineIfToUse2FA:
-              dashboardViewModel.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        ),
-        secondaryKey: const ValueKey("seed_backup_reminder_page_dismiss_button_key"),
-        secondaryText: S.of(context).dismiss_this_step,
-        onSecondary: () => Navigator.of(context).push(
-          CupertinoPageRoute<void>(
-            builder: (_) => DismissSeedVerificationPage(onConfirm: () => _dismiss(context)),
+  Widget build(BuildContext context) => SeedPageScaffold(
+        content: SeedPageHeader(
+          image: const SeedHeroImage(),
+          title: S.of(context).recovery_phrase_intro_title,
+          description: Text(
+            S.of(context).recovery_phrase_intro_description,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  letterSpacing: -0.07,
+                ),
           ),
         ),
-        secondaryAsLink: true,
-      ),
-    );
-  }
+        footer: StackedButtons(
+          primaryKey: const ValueKey("seed_backup_reminder_page_button_key"),
+          primaryText: S.of(context).show_recovery_phrase,
+          onPrimary: () => authService.authenticateAction(
+            context,
+            route: Routes.seed,
+            arguments: false,
+            conditionToDetermineIfToUse2FA: dashboardViewModel
+                .settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          ),
+          secondaryKey: const ValueKey("seed_backup_reminder_page_dismiss_button_key"),
+          secondaryText: S.of(context).dismiss_this_step,
+          onSecondary: () => Navigator.of(context).push(
+            CupertinoPageRoute<void>(
+              builder: (_) => DismissSeedVerificationPage(onConfirm: () => _dismiss(context)),
+            ),
+          ),
+          secondaryAsLink: true,
+        ),
+      );
 
   Future<void> _dismiss(BuildContext context) async {
     await dashboardViewModel.dismissSeedBackupReminder();
