@@ -523,16 +523,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.auth:
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
-              ? getIt.get<WalletUnlockPage>(
-                  param1: WalletUnlockArguments(
-                      callback: settings.arguments as OnAuthenticationFinished),
-                  instanceName: 'wallet_unlock_verifiable',
-                  param2: true)
-              : getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
+      final page = SettingsStoreBase.walletPasswordDirectInput
+          ? getIt.get<WalletUnlockPage>(
+              param1:
+                  WalletUnlockArguments(callback: settings.arguments as OnAuthenticationFinished),
+              instanceName: "wallet_unlock_verifiable",
+              param2: true)
+          : getIt.get<AuthPage>(
+              param1: settings.arguments as OnAuthenticationFinished, param2: true);
+      return MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => page);
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
@@ -544,28 +543,24 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.walletUnlockLoadable:
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<WalletUnlockPage>(
-              param1: settings.arguments as WalletUnlockArguments,
-              instanceName: 'wallet_unlock_loadable',
-              param2: true));
+      final page = getIt.get<WalletUnlockPage>(
+          param1: settings.arguments as WalletUnlockArguments,
+          instanceName: "wallet_unlock_loadable",
+          param2: true);
+      return MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => page);
 
     case Routes.unlock:
+      final page = SettingsStoreBase.walletPasswordDirectInput
+          ? getIt.get<WalletUnlockPage>(
+              param1:
+                  WalletUnlockArguments(callback: settings.arguments as OnAuthenticationFinished),
+              param2: false,
+              instanceName: "wallet_unlock_verifiable")
+          : getIt.get<AuthPage>(
+              param1: settings.arguments as OnAuthenticationFinished, param2: false);
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
-              ? WillPopScope(
-                  child: getIt.get<WalletUnlockPage>(
-                      param1: WalletUnlockArguments(
-                          callback: settings.arguments as OnAuthenticationFinished),
-                      param2: false,
-                      instanceName: 'wallet_unlock_verifiable'),
-                  onWillPop: () async => false)
-              : WillPopScope(
-                  child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
-                  onWillPop: () async => false));
+          builder: (_) => WillPopScope(child: page, onWillPop: () async => false));
 
     case Routes.silentPaymentsSettings:
       return handleRouteWithPlatformAwareness(
@@ -637,11 +632,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => page);
 
     case Routes.login:
+      final page = SettingsStoreBase.walletPasswordDirectInput
+          ? getIt.get<WalletUnlockPage>(instanceName: "wallet_password_login")
+          : getIt.get<AuthPage>(instanceName: "login");
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
-              child: SettingsStoreBase.walletPasswordDirectInput
-                  ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
-                  : getIt.get<AuthPage>(instanceName: 'login'),
+              child: page,
               onWillPop: () async =>
                   // FIX-ME: Additional check does it works correctly
                   (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
