@@ -161,7 +161,7 @@ dependencies:
   torch_dart:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
-  fl_chart: ^0.70.2
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -307,6 +307,7 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/charts_sort_criteria/
 
   fonts:
     - family: Lato

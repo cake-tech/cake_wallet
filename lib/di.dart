@@ -52,10 +52,14 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
+import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
@@ -63,6 +67,7 @@ import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
+import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -593,6 +598,15 @@ Future<void> setup({
             (displayMode == BitcoinAmountDisplayMode.satoshi ||
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
+
+  getIt.registerLazySingleton<PriceStore>(() => PriceStore());
+
+  getIt.registerFactory<ChartsBloc>(
+      () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
+
+  getIt.registerFactory<ChartsPage>(() => ChartsPage(
+        chartsBloc: getIt.get<ChartsBloc>(),
+      ));
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
       accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
@@ -1490,8 +1504,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
-  getIt.registerFactory(
-      () => BuySellPage(getIt.get<BuySellViewModel>(), getIt.get<AddressResolverService>()));
+  getIt.registerFactoryParam<BuySellPage, BuySellPageParams?, void>((params, _) => BuySellPage(
+        getIt.get<BuySellViewModel>(),
+        getIt.get<AddressResolverService>(),
+        params: params,
+      ));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;

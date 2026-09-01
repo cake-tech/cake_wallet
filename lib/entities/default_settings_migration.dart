@@ -13,8 +13,10 @@ import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cw_core/node_list.dart';
@@ -640,6 +642,9 @@ Future<void> defaultSettingsMigration(
           break;
         case 70:
           await _addTbbTokenToExistingSolanaWallets();
+          break;
+        case 71:
+          await createDefaultChartsData();
           break;
         default:
           break;
@@ -1329,6 +1334,12 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
   }
+}
+
+Future<void> createDefaultChartsData() async {
+  await ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true).insert();
+  await ChartsAsset(asset: CryptoCurrency.xmr, isFavorite: false).insert();
+  await ChartsAsset(asset: CryptoCurrency.eth, isFavorite: false).insert();
 }
 
 Future<void> _addTbbTokenToExistingSolanaWallets() async {

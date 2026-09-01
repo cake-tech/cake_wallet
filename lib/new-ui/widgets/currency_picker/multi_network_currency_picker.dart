@@ -166,6 +166,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
             natives: _natives,
             selected: widget.args.selected,
             symbolResolver: widget.args.symbolResolver,
+            showStablesHeader: widget.args.showStablesHeader,
             onSelect: _selectCurrency,
             onStablecoinTap: _onStablecoinPillTapped,
           ),
@@ -190,10 +191,12 @@ class _MultiNetworkPickerBody extends StatefulWidget {
     required this.symbolResolver,
     required this.onSelect,
     required this.onStablecoinTap,
+    required this.showStablesHeader,
   });
 
   final bool isSearching;
   final bool recentsLoaded;
+  final bool showStablesHeader;
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final List<CryptoCurrency> recents;
@@ -363,7 +366,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                 onTap: onSelect,
               ),
             ),
-          if (stablecoins.isNotEmpty)
+          if (stablecoins.isNotEmpty && widget.showStablesHeader)
             _PickerSection(
               title: S.of(context).picker_section_stablecoins,
               child: PillGrid(
