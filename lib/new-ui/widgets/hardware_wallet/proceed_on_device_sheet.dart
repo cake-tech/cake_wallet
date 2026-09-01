@@ -1,4 +1,6 @@
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/bordered_svg.dart";
 import "package:cake_wallet/new-ui/widgets/digit_input.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
@@ -7,6 +9,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cw_core/wallet_info.dart";
@@ -161,6 +164,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
   Widget get content => switch (_paringState) {
         InitialTrezorParingState() || EnterPinTrezorParingState() => PinEntryWidget(
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).proceed_on_device_description,
             pinOpenDuration: pinOpenDuration,
             pinLength: pinLength,
             isAwaitingPin: _isAwaitingPin,
@@ -176,8 +181,23 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             onRetryPressed: retry,
             key: const ValueKey(2),
           ),
+        AwaitingSettingsTrezorParingState() => WalletOptionsScreen(
+            trezorConnectVM: widget.trezorConnectVM,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(3),
+          ),
+        AwaitingPassphraseTrezorParingState() => PinEntryWidget(
+          title: S.of(context).proceed_on_device,
+          description: S.of(context).proceed_on_device_description,
+          pinOpenDuration: pinOpenDuration,
+          pinLength: pinLength,
+          isAwaitingPin: false,
+          controller: _controller,
+          iconPath: hardwareWalletIcon ?? "",
+          key: const ValueKey(4),
+        ),
         _ => const SizedBox.shrink(
-            key: ValueKey(3),
+            key: ValueKey(5),
           ),
       };
 
@@ -224,7 +244,6 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
         return "assets/images/hardware_wallet/device_qr.svg";
     }
   }
-
 }
 
 class ConnectionErrorWidget extends StatelessWidget {
@@ -235,49 +254,49 @@ class ConnectionErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    key: key,
-    width: MediaQuery.of(context).size.width,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 12,
-        children: [
-          const Spacer(),
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: Theme.of(context).colorScheme.error,
+        key: key,
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 12,
+            children: [
+              const Spacer(),
+              Icon(
+                Icons.error_outline,
+                size: 80,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              Text(
+                S.of(context).pairing_error,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                error,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              NewPrimaryButton(
+                onPressed: onRetryPressed,
+                text: S.of(context).try_again,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ],
           ),
-          Text(
-            S.of(context).pairing_error,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            error,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const Spacer(),
-          NewPrimaryButton(
-            onPressed: onRetryPressed,
-            text: S.of(context).try_again,
-            color: Theme.of(context).colorScheme.primary,
-            textColor: Theme.of(context).colorScheme.onPrimary,
-          ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 }
 
 class VerifyingProgressIndicator extends StatelessWidget {
@@ -285,104 +304,241 @@ class VerifyingProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    key: key,
-    width: MediaQuery.of(context).size.width,
-    child: Column(
-      spacing: 12,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const CupertinoActivityIndicator(radius: 36),
-        const SizedBox(),
-        Text(
-          "${S.of(context).verifying_code}...",
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+        key: key,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          spacing: 12,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CupertinoActivityIndicator(radius: 36),
+            const SizedBox(),
+            Text(
+              "${S.of(context).verifying_code}...",
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            ),
+            Text(
+              S.of(context).this_can_take_few_seconds,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
-        Text(
-          S.of(context).this_can_take_few_seconds,
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    ),
-  );
+      );
 }
 
-
 class PinEntryWidget extends StatelessWidget {
-  const PinEntryWidget({required this.pinOpenDuration, required this.pinLength, required this.controller, required this.iconPath, required this.isAwaitingPin, super.key});
-
+  const PinEntryWidget(
+      {required this.pinOpenDuration,
+      required this.pinLength,
+      required this.controller,
+        required this.title,
+        required this.description,
+      required this.iconPath,
+      required this.isAwaitingPin,
+      super.key,});
 
   final DigitInputController controller;
   final String iconPath;
   final bool isAwaitingPin;
   final int pinLength;
   final Duration pinOpenDuration;
-
-
+  final String title;
+  final String description;
 
   @override
   Widget build(BuildContext context) => Column(
-    key: key,
-    spacing: 12,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      AnimatedContainer(
-        duration: pinOpenDuration,
-        curve: Curves.easeOutCubic,
-        width: isAwaitingPin ? 40 : 100,
-        height: isAwaitingPin ? 40 : 100,
-        child: CakeImageWidget(
-          imageUrl: iconPath,
-          colorFilter: ColorFilter.mode(
-            Theme.of(context).colorScheme.onSurfaceVariant,
-            BlendMode.srcIn,
-          ),
-        ),
-      ),
-      AnimatedSwitcher(
-        duration: pinOpenDuration,
-        switchInCurve: Curves.easeInCubic,
-        switchOutCurve: Curves.easeOutCubic,
-        child: isAwaitingPin
-            ? Column(
-          spacing: 24,
-          key: const ValueKey(1),
-          children: [
-            Text(
-              textAlign: TextAlign.center,
-              "${S.of(context).pairing_code_desc_1}\n${S.of(context).pairing_code_desc_2}",
-            ),
-            DigitInput(
-              controller: controller,
-              desiredLength: pinLength,
-            ),
-          ],
-        )
-            : Column(
-          key: const ValueKey(0),
-          spacing: 12,
-          children: [
-            Text(
-              S.of(context).proceed_on_device,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                S.of(context).proceed_on_device_description,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+        key: key,
+        spacing: 12,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: pinOpenDuration,
+            curve: Curves.easeOutCubic,
+            width: isAwaitingPin ? 40 : 100,
+            height: isAwaitingPin ? 40 : 100,
+            child: CakeImageWidget(
+              imageUrl: iconPath,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.onSurfaceVariant,
+                BlendMode.srcIn,
               ),
             ),
+          ),
+          AnimatedSwitcher(
+            duration: pinOpenDuration,
+            switchInCurve: Curves.easeInCubic,
+            switchOutCurve: Curves.easeOutCubic,
+            child: isAwaitingPin
+                ? Column(
+                    spacing: 24,
+                    key: const ValueKey(1),
+                    children: [
+                      Text(
+                        textAlign: TextAlign.center,
+                        "${S.of(context).pairing_code_desc_1}\n${S.of(context).pairing_code_desc_2}",
+                      ),
+                      DigitInput(
+                        controller: controller,
+                        desiredLength: pinLength,
+                      ),
+                    ],
+                  )
+                : Column(
+                    key: const ValueKey(0),
+                    spacing: 12,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          description,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      );
+}
+
+class WalletOptionsScreen extends StatefulWidget {
+  const WalletOptionsScreen({required this.trezorConnectVM, required this.iconPath, super.key});
+
+  final String iconPath;
+  final TrezorConnectViewModelBase trezorConnectVM;
+
+  @override
+  State<WalletOptionsScreen> createState() => _WalletOptionsScreenState();
+}
+
+class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
+  bool _autoConnect = false;
+  bool _usePassphrase = false;
+  bool _setPassphraseOnDevice = false;
+
+  bool get anythingSelected => _autoConnect || _usePassphrase;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 18),
+    child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 32,
+                children: [
+                  Column(
+                    spacing: 12,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 116,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: CakeImageWidget(
+                                imageUrl: widget.iconPath,
+                                width: 100,
+                                height: 100,
+                                colorFilter: ColorFilter.mode(
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                            const Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: BorderedSvgIcon(
+                                iconPath: "assets/new-ui/cog.svg",
+                                iconSize: 36,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox.shrink(),
+                      Text(
+                        S.of(context).almost_ready,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        S.of(context).hww_options_desc,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  NewListSections(
+                    sections: {
+                      "auto": [
+                        ListItemToggle(
+                          value: _autoConnect,
+                          onChanged: (val) {
+                            setState(() {
+                              _autoConnect = val;
+                            });
+                          },
+                          keyValue: "autoconnect",
+                          label: S.of(context).auto_connect,
+                          subtitle: "description goes here",
+                        ),
+                      ],
+                      "pass": [
+                        ListItemToggle(
+                          value: _usePassphrase,
+                          onChanged: (val) {
+                            setState(() {
+                              _usePassphrase = val;
+                            });
+                          },
+                          keyValue: "passphrase",
+                          label: S.of(context).passphrase,
+                          subtitle: S.of(context).wallet_has_passphrase,
+                        ),
+                        if (_usePassphrase)
+                          ListItemToggle(
+                            value: _setPassphraseOnDevice,
+                            onChanged: (val) => setState(() => _setPassphraseOnDevice = val),
+                            keyValue: "passphrase on device",
+                            label: S.of(context).enter_passphrase_on_device,
+                          ),
+                      ],
+                    },
+                  ),
+                ],
+              ),
+            ),
+            NewPrimaryButton(
+                onPressed: () {
+                  widget.trezorConnectVM.setDeviceSettings(TrezorDeviceSettings(
+                    enableAutoParing: _autoConnect,
+                    passphraseOnDevice: _usePassphrase && _setPassphraseOnDevice,
+                  ));
+                },
+                text: anythingSelected ? S.of(context).continue_text : S.of(context).skip,
+                color: anythingSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.surfaceContainerHigh,
+                textColor: anythingSelected
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,),
           ],
         ),
-      ),
-    ],
   );
 }

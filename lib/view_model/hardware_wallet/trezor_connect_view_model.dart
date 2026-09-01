@@ -218,6 +218,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         }
       }
 
+      paringState = TrezorParingState.awaitingSettings;
+      _settingsCompleter = Completer<TrezorDeviceSettings>();
+      await _settingsCompleter!.future;
       paringState = TrezorParingState.success;
       return true;
     } catch (e) {

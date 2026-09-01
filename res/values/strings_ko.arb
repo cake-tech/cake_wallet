@@ -57,6 +57,7 @@
   "all_coins": "모든 코인",
   "all_trades": "모든 트레이드",
   "all_transactions": "모든 거래",
+  "almost_ready": "거의 준비됨",
   "alphabetical": "알파벳순",
   "already_have_account": "이미 계정이 있으신가요?",
   "already_your_username": "이미 사용 중인 사용자 이름입니다!",
@@ -88,6 +89,7 @@
   "auth_store_incorrect_password": "잘못된 PIN",
   "authenticated": "인증됨",
   "authentication": "인증",
+  "auto_connect": "자동 연결",
   "auto_generate_addresses": "주소 자동 생성",
   "auto_generate_subaddresses": "서브주소 자동 생성",
   "automatic": "자동",
@@ -406,6 +408,7 @@
   "enter_code": "코드 입력",
   "enter_greater_than": "다음보다 큰 금액을 입력해 주세요.",
   "enter_less_than": "다음보다 적은 금액을 입력해주세요.",
+  "enter_passphrase_on_device": "기기에 암호를 입력하세요",
   "enter_recipient_address": "수신자 주소를 입력해 주세요",
   "enter_seed_phrase": "시드 구문을 입력하세요",
   "enter_totp_code": "TOTP 코드를 입력해 주세요.",
@@ -545,6 +548,7 @@
   "how_to_use": "사용 방법",
   "how_to_use_card": "이 카드 사용 방법",
   "hww_exit_desc": "하드웨어 기기와 진행 중인 페어링 과정을 종료합니다",
+  "hww_options_desc": "장치에서 이러한 기능을 사용하려면 해당 기능을 켜십시오.",
   "i_understand": "이해했습니다",
   "icon_style": "아이콘 스타일",
   "id": "ID: ",
@@ -847,6 +851,7 @@
   "received": "수신됨",
   "receiving": "수신",
   "recieving": "수신 중",
+  "recipient_account_creation_fee": "아직 토큰 계정이 없기 때문에 수신자를 위한 토큰 계정을 생성하려면 추가 ${amount}가 필요합니다.",
   "recipient_address": "수신자 주소",
   "reconnect": "재연결",
   "reconnect_alert_text": "정말 다시 연결하시겠습니까?",
@@ -1476,6 +1481,5 @@
   "zcash_card_enable_later": "설정에서 언제든지 나중에 이 카드를 활성화할 수 있습니다.",
   "zcash_card_missing_funds": "자금이 사라졌나요?",
   "zcash_card_scan": "스캔",
-  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다.",
-  "recipient_account_creation_fee": "아직 토큰 계정이 없기 때문에 수신자를 위한 토큰 계정을 생성하려면 추가 ${amount}가 필요합니다."
+  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다."
 }
