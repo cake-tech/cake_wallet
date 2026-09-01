@@ -16,13 +16,11 @@ import 'package:mobx/mobx.dart';
 class TopBar extends StatefulWidget {
   const TopBar({
     super.key,
-    required this.lightningMode,
     required this.onLightningSwitchPress,
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
   });
 
-  final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
   final VoidCallback onSettingsButtonPress;
   final DashboardViewModel dashboardViewModel;
@@ -79,7 +77,7 @@ class _TopBarState extends State<TopBar> {
           children: [
             (widget.dashboardViewModel.hasLightning)
                 ? LightningSwitcher(
-                    lightningMode: widget.lightningMode,
+                    lightningMode: widget.dashboardViewModel.lightningMode,
                     onLightningSwitchPress: widget.onLightningSwitchPress,
                   )
                 : ChainIcon(

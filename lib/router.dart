@@ -51,6 +51,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/settings/wallet_accounts_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
@@ -67,7 +68,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_s
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
@@ -146,8 +146,8 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -654,11 +654,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(builder: (_) => page);
 
-    case Routes.accountCreation:
-      return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-              param1: settings.arguments as AccountListItem?));
-
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(
           builder: (_) =>
@@ -945,6 +940,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+
+    case Routes.walletAccountsPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletAccountsPage>());
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

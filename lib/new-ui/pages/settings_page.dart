@@ -29,6 +29,11 @@ bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
 
+bool _hasAccounts(DashboardViewModel vm) =>
+    hasAccountsWalletTypes.contains(vm.wallet.type) &&
+    !(vm.wallet.type == WalletType.bitcoin &&
+        vm.wallet.derivationInfo.derivationType == DerivationType.electrum);
+
 class SettingsListItem {
   const SettingsListItem(
     this.iconPath,
@@ -58,6 +63,9 @@ class SettingsSectionData {
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
+    SettingsListItem("assets/new-ui/settings_row_icons/accounts.svg", S.current.accounts,
+        Routes.walletAccountsPage,
+        condition: _hasAccounts),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(

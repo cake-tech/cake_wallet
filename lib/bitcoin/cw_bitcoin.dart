@@ -256,7 +256,10 @@ class CWBitcoin extends Bitcoin {
   List<BitcoinUnspent> getUnspents(Object wallet,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
+
+    final coins = bitcoinWallet.unspentCoinsForCurrentAccount;
+
+    return coins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
@@ -918,5 +921,50 @@ class CWBitcoin extends Bitcoin {
       return (exception as SdkError_Generic).field0.toString();
     }
     return null;
+  }
+
+  @override
+  ElectrumBalance balanceForAccount(Object wallet, int accountIndex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.balanceForAccount(accountIndex);
+  }
+
+  @override
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
+  }
+
+  @override
+  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.setCurrentAccount(accountIndex);
+  }
+
+  @override
+  bool isTransactionForCurrentAccount(Object wallet, Object transaction) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final tx = transaction as ElectrumTransactionInfo;
+
+    if (bitcoinWallet.type != WalletType.bitcoin) {
+      return true;
+    }
+
+    // Locally created transactions store the account index explicitly,
+    // so use it first instead of checking the addresses.
+    if (tx.accountIndex != null) {
+      return tx.accountIndex == bitcoinWallet.currentAccountIndex;
+    }
+
+    final accountAddresses = bitcoinWallet.walletAddresses.allAddresses
+        .where((address) => address.accountIndex == bitcoinWallet.currentAccountIndex)
+        .map((address) => address.address)
+        .toSet();
+
+    final inputAddresses = tx.inputAddresses ?? <String>[];
+    final outputAddresses = tx.outputAddresses ?? <String>[];
+
+    return inputAddresses.any(accountAddresses.contains) ||
+        outputAddresses.any(accountAddresses.contains);
   }
 }

@@ -63,8 +63,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<CardCustomizerBloc, CardCustomizerState>(
+  Widget build(BuildContext context) => BlocListener<CardCustomizerBloc, CardCustomizerState>(
       listenWhen: (previous, current) => previous.accountName != current.accountName,
       listener: (context, state) {
         if (accountNameController.text != state.accountName) {
@@ -292,8 +291,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                             spacing: 4, // space between items in a row
                                             runSpacing: 8,
                                             children: List.generate(state.availableColors.length,
-                                                (index) {
-                                              return Material(
+                                                (index) => Material(
                                                 borderRadius: BorderRadius.circular(999999999),
                                                 child: InkWell(
                                                   borderRadius: BorderRadius.circular(999999999),
@@ -338,8 +336,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                     ],
                                                   ),
                                                 ),
-                                              );
-                                            }),
+                                              )),
                                           )),
                                     ],
                                   ),
@@ -356,5 +353,4 @@ class _CardCustomizerState extends State<CardCustomizer> {
         },
       ),
     );
-  }
 }

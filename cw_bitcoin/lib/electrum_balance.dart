@@ -49,4 +49,26 @@ class ElectrumBalance extends Balance {
         'secondConfirmed': secondAvailable?.amount.toInt() ?? 0,
         'secondUnconfirmed': secondUnavailable?.amount.toInt() ?? 0,
       });
+
+  // Value equality so instances can be compared/deduped (e.g. by MobX reactions via MapEquality)
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ElectrumBalance &&
+          other.confirmed == confirmed &&
+          other.unconfirmed == unconfirmed &&
+          other.frozen == frozen &&
+          other.secondConfirmed == secondConfirmed &&
+          other.secondUnconfirmed == secondUnconfirmed);
+
+  @override
+  int get hashCode => Object.hash(
+        confirmed,
+        unconfirmed,
+        frozen,
+        secondConfirmed,
+        secondUnconfirmed,
+      );
 }
+
+

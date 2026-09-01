@@ -31,7 +31,6 @@ class Routes {
   static const newPowNode = '/new_pow_node_list';
   static const login = '/login';
   static const splash = '/splash';
-  static const accountCreation = '/account_new';
   static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
@@ -110,6 +109,7 @@ class Routes {
   static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
+  static const walletAccountsPage = '/wallet_accounts_page';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
