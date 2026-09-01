@@ -61,6 +61,7 @@
   "already_have_account": "Masz już konto?",
   "already_your_username": "To już jest Twoja nazwa użytkownika!",
   "always": "Zawsze",
+  "ambiguous_token_symbol_exception": "Więcej niż jeden token w tym portfelu używa symbolu ${symbol}. Wyłącz duplikat tokena, aby przed wysłaniem można było zidentyfikować właściwy.",
   "amount": "Kwota: ",
   "amount_is_below_minimum_limit": "Twoje saldo po opłatach byłoby niższe niż minimalna kwota wymagana do wymiany (${min})",
   "amount_is_estimate": "Otrzymywana kwota jest szacunkowa",
@@ -1419,6 +1420,7 @@
   "wc_permission_sign_messages": "Podpisuj wiadomości i wpisywane dane",
   "wc_permission_switch_chains": "Przełącz i dodaj łańcuchy EVM",
   "wc_permission_view_balance": "Sprawdź saldo i aktywność swojego portfela",
+  "wc_request_for_different_wallet": "To żądanie dotyczyło innego portfela. Otwórz portfel połączony z tą aplikacją i spróbuj ponownie.",
   "wc_scam_warning_message": "Wygląda na to, że to żądanie pochodzi ze znanego oszustwa. Proszę postępować ostrożnie.",
   "wc_scam_warning_title": "OSTRZEŻENIE!",
   "wc_scan_qr": "Zeskanuj kod QR",
@@ -1473,5 +1475,6 @@
   "zcash_card_enable_later": "Zawsze możesz włączyć tę kartę później w ustawieniach",
   "zcash_card_missing_funds": "Brakuje środków?",
   "zcash_card_scan": "Skanuj",
-  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa."
+  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa.",
+  "recipient_account_creation_fee": "Do założenia konta tokenowego dla odbiorcy potrzebna jest dodatkowa ${amount}, ponieważ jeszcze takiego nie posiada."
 }

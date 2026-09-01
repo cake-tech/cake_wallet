@@ -92,7 +92,7 @@ class SolanaWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    await File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
       throw Exception('Wallet not found');
@@ -104,8 +104,8 @@ class SolanaWalletService extends WalletService<
     }
 
     final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys().where(
-            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+    for (final key
+        in prefs.getKeys().where((k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
       await prefs.remove(key);
     }
   }
