@@ -163,6 +163,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       );
       await _createWalletInfoAccountTable(db);
       await _createWalletGroupTable(db);
+      await _createErc20TokenTable(db);
+      await _createSplTokenTable(db);
+      await _createTronTokenTable(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -264,6 +267,9 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createTradeTable(db);
     await _createWalletInfoAccountTable(db);
     await _createWalletGroupTable(db);
+    await _createErc20TokenTable(db);
+    await _createSplTokenTable(db);
+    await _createTronTokenTable(db);
   });
 }
 

@@ -253,6 +253,8 @@ abstract class WalletCreationVMBase with Store {
           );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      case WalletType.decred:
+        return DerivationInfo(derivationType: DerivationType.bip39);
       default:
         return DerivationInfo(derivationType: DerivationType.unknown);
     }

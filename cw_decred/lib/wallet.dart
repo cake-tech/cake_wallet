@@ -22,8 +22,10 @@ import 'package:cw_decred/wallet_service.dart';
 import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -36,9 +38,11 @@ part 'wallet.g.dart';
 class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
-    extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo> with Store {
+    extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo>
+    with Store, WalletKeysFile {
   DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password,
-      Box<UnspentCoinsInfo> unspentCoinsInfo, Libwallet libwallet, Function() closeLibwallet)
+      Box<UnspentCoinsInfo> unspentCoinsInfo, Libwallet libwallet, Function() closeLibwallet,
+      {this.passphrase, required this.encryptionFileUtils})
       : _password = password,
         _libwallet = libwallet,
         _closeLibwallet = closeLibwallet,
@@ -112,6 +116,17 @@ abstract class DecredWalletBase
     }
     return _seed;
   }
+
+  @override
+  final String? passphrase;
+
+  final EncryptionFileUtils encryptionFileUtils;
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: seed,
+        passphrase: passphrase,
+      );
 
   @override
   Object get keys => {};
@@ -402,11 +417,11 @@ abstract class DecredWalletBase
       "feerate": creds.feeRate ?? defaultFeeRate,
       "password": _password,
       "sendall": sendAll,
+      "sign": true,
     };
     final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
-    final signedHex = decoded["signedhex"];
-
+    final signedHex = decoded["hex"];
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
@@ -518,7 +533,12 @@ abstract class DecredWalletBase
   String uniqueTxID(String id, int vout) => "$id:$vout";
 
   @override
-  Future<void> save() async {}
+  Future<void> save() async {
+    if (watchingOnly) {
+      return;
+    }
+    await saveKeysFile(_password, encryptionFileUtils);
+  }
 
   @override
   bool get hasRescan => walletBirthdayBlockHeight() != -1;
@@ -592,35 +612,42 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
-  // Future<void> renameWalletFiles(String newWalletName) async {
-  //   final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-  //
-  //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-  //
-  //   if (File(newDirPath).existsSync()) {
-  //     throw "wallet already exists at $newDirPath";
-  //   }
-  //
-  //   final sourceDir = Directory(currentDirPath);
-  //   final targetDir = Directory(newDirPath);
-  //
-  //   if (!targetDir.existsSync()) {
-  //     await targetDir.create(recursive: true);
-  //   }
-  //
-  //   await for (final entity in sourceDir.list(recursive: true)) {
-  //     final relativePath = entity.path.substring(sourceDir.path.length + 1);
-  //     final targetPath = p.join(targetDir.path, relativePath);
-  //
-  //     if (entity is File) {
-  //       await entity.rename(targetPath);
-  //     } else if (entity is Directory) {
-  //       await Directory(targetPath).create(recursive: true);
-  //     }
-  //   }
-  //
-  //   await sourceDir.delete(recursive: true);
-  // }
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+
+    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+
+    if (File(newDirPath).existsSync()) {
+      throw "wallet already exists at $newDirPath";
+    }
+
+    final sourceDir = Directory(currentDirPath);
+    final targetDir = Directory(newDirPath);
+
+    if (!targetDir.existsSync()) {
+      await targetDir.create(recursive: true);
+    }
+
+    await for (final entity in sourceDir.list(recursive: true)) {
+      final relativePath = entity.path.substring(sourceDir.path.length + 1);
+      final targetPath = p.join(targetDir.path, relativePath);
+
+      if (entity is File) {
+        await entity.rename(targetPath);
+      } else if (entity is Directory) {
+        await Directory(targetPath).create(recursive: true);
+      }
+    }
+
+    await sourceDir.delete(recursive: true);
+
+    for (final suffix in const ['.keys', '.keys.backup']) {
+      final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
+      if (file.existsSync()) {
+        await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
+      }
+    }
+  }
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {

@@ -6,6 +6,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -45,7 +46,7 @@ class TronWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
@@ -64,7 +65,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       saveBackup(walletInfo);
       return wallet;
@@ -79,7 +80,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }
@@ -99,7 +100,7 @@ class TronWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
@@ -124,10 +125,25 @@ class TronWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
+  }
+
+  @override
+  Future<bool> isWalletExit(String name) async =>
+      File(await pathForWallet(name: name, type: getType())).existsSync();
+
+  @override
+  Future<void> remove(WalletInfo walletInfo) async {
+    final walletName = walletInfo.name;
+    await super.remove(walletInfo);
+
+    final nameStillUsed = await WalletInfo.get(walletName, getType()) != null;
+    if (!nameStillUsed) {
+      await TronToken.deleteAllForWallet(walletName);
+    }
   }
 
   @override

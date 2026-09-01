@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
@@ -29,7 +28,6 @@ import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_addresses.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
 
@@ -62,10 +60,6 @@ abstract class TronWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
-
-    if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
-      CakeHive.registerAdapter(TronTokenAdapter());
-    }
   }
 
   final String? _mnemonic;
@@ -73,7 +67,7 @@ abstract class TronWalletBase
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
-  late final Box<TronToken> tronTokensBox;
+  List<TronToken> _tronTokens = [];
 
   late final TronPrivateKey _tronPrivateKey;
 
@@ -107,7 +101,7 @@ abstract class TronWalletBase
   late ObservableMap<CryptoCurrency, TronBalance> balance;
 
   Future<void> init() async {
-    await initTronTokensBox();
+    await initTronTokens();
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -178,25 +172,38 @@ abstract class TronWalletBase
     );
   }
 
-  void addInitialTokens() {
+  Future<void> addInitialTokens() async {
     final initialTronTokens = DefaultTronTokens().initialTronTokens;
 
     for (var token in initialTronTokens) {
-      if (!tronTokensBox.containsKey(token.contractAddress)) {
-        tronTokensBox.put(token.contractAddress, token);
-      } else {
-        // update existing token
-        final existingToken = tronTokensBox.get(token.contractAddress);
-        tronTokensBox.put(
-            token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
-      }
+      final existingToken = _findCachedToken(token.contractAddress);
+
+      final newToken = TronToken.copyWith(
+        token,
+        enabled: existingToken?.enabled ?? token.enabled,
+        walletName: walletInfo.name,
+      );
+
+      await newToken.save();
+      _upsertCachedToken(newToken);
     }
   }
 
-  Future<void> initTronTokensBox() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}";
+  Future<void> initTronTokens() async {
+    _tronTokens = await TronToken.getAllForWallet(walletInfo.name);
+  }
 
-    tronTokensBox = await CakeHive.openBox<TronToken>(boxName);
+  TronToken? _findCachedToken(String contractAddress) {
+    for (final token in _tronTokens) {
+      if (token.contractAddress == contractAddress) return token;
+    }
+
+    return null;
+  }
+
+  void _upsertCachedToken(TronToken token) {
+    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
+    _tronTokens.add(token);
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
@@ -515,7 +522,7 @@ abstract class TronWalletBase
   }
 
   Future<void> _fetchTronTokenBalances() async {
-    for (var token in tronTokensBox.values) {
+    for (var token in _tronTokens.toList()) {
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchTronTokenBalances(
@@ -550,7 +557,7 @@ abstract class TronWalletBase
     }
   }
 
-  List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
+  List<TronToken> get tronTokenCurrencies => _tronTokens.toList();
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
@@ -573,9 +580,11 @@ abstract class TronWalletBase
       tag: token.tag ?? "TRX",
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
+      walletName: walletInfo.name,
     );
 
-    await tronTokensBox.put(newToken.contractAddress, newToken);
+    await newToken.save();
+    _upsertCachedToken(newToken);
 
     if (newToken.enabled) {
       balance[newToken] = await _client
@@ -586,9 +595,8 @@ abstract class TronWalletBase
   }
 
   Future<void> deleteTronToken(TronToken token) async {
-    if (tronTokensBox.isOpen) {
-      await tronTokensBox.delete(token.contractAddress);
-    }
+    await TronToken.deleteForWallet(walletInfo.name, token.contractAddress);
+    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);

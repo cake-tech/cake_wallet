@@ -1,3 +1,4 @@
+import "package:cw_core/receive_page_option.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -135,4 +136,14 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   /// Each wallet implementation should override this to make a single, efficient call
   /// Returns true if the node is healthy, false otherwise
   Future<bool> checkNodeHealth();
+
+  bool get hasPayjoinSupport => false;
+  bool get hasLightningSupport => false;
+  bool get hasSilentPaymentsScanning => false;
+
+  // hardware wallet - bitbox, ledger, trezor.
+  // we also have airgap wallets but those can't sign messages
+  bool get canSignMessages => walletInfo.hardwareWalletType == null || walletInfo.isHardwareWallet;
+
+  bool receiveOptionAvailable(ReceivePageOption option) => true;
 }

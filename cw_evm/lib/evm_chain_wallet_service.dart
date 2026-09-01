@@ -1,7 +1,8 @@
-import 'dart:io';
+import "dart:io";
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/erc20_token.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -32,8 +33,8 @@ class EVMChainWalletService extends WalletService<
   @override
   WalletType getType() {
     throw UnsupportedError(
-      'EVMChainWalletService is unified and does not have a single type. '
-      'Use walletInfo.type instead.',
+      "EVMChainWalletService is unified and does not have a single type. "
+      "Use walletInfo.type instead.",
     );
   }
 
@@ -47,7 +48,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
     }
     final initialChainId = chainConfig.chainId;
 
@@ -75,7 +76,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -91,7 +92,7 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       await saveBackup(walletInfo);
       return wallet;
@@ -106,9 +107,26 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       return wallet;
+    }
+  }
+
+  @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    if (currentName == newName) return;
+
+    await super.rename(currentName, password, newName);
+
+    final oldNameStillUsed = (await _findWalletByName(currentName)) != null;
+    if (oldNameStillUsed) {
+      for (final token in await Erc20Token.selectList("walletName = ?", [currentName])) {
+        final copiedToken = Erc20Token.copyWith(token, walletName: newName);
+        await copiedToken.save();
+      }
+    } else {
+      await Erc20Token.renameWallet(currentName, newName);
     }
   }
 
@@ -126,7 +144,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
     }
     final initialChainId = chainConfig.chainId;
 
@@ -152,7 +170,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -167,7 +185,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
     }
     final initialChainId = chainConfig.chainId;
 
@@ -192,7 +210,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -206,7 +224,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
     }
     final initialChainId = chainConfig.chainId;
 
@@ -230,7 +248,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -242,6 +260,10 @@ class EVMChainWalletService extends WalletService<
       await dir.delete(recursive: true);
     }
     await WalletInfo.delete(walletInfo);
+    final nameStillUsed = (await _findWalletByName(wallet)) != null;
+    if (!nameStillUsed) {
+      await Erc20Token.deleteAllForWallet(wallet);
+    }
   }
 
   EVMChainWallet _createWalletInstance({
@@ -259,7 +281,7 @@ class EVMChainWalletService extends WalletService<
     final chainConfig = _registry.getChainConfigByWalletType(walletType);
 
     if (chainConfig == null) {
-      throw Exception('Chain config not found for wallet type: $walletType');
+      throw Exception("Chain config not found for wallet type: $walletType");
     }
 
     return EVMChainWallet(

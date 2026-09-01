@@ -47,6 +47,8 @@ abstract class OtherSettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
   final SendViewModel sendViewModel;
 
+  bool get hasSignVerify => _wallet.canSignMessages;
+
   @computed
   TransactionPriority get transactionPriority {
     final priority = _settingsStore.getPriority(walletType, chainId: chainId);
@@ -172,6 +174,10 @@ abstract class OtherSettingsViewModelBase with Store {
     }
     return null;
   }
+
+  bool get hasPayjoin => _wallet.hasPayjoinSupport;
+
+  bool get hasLightning => _wallet.hasLightningSupport;
 
   Future<File?> getLightningLog() async {
     final path = _wallet.walletInfo.dirPath;

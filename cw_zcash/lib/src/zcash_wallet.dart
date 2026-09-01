@@ -81,6 +81,9 @@ abstract class ZcashWalletBase
     CryptoCurrency.zec: ZcashBalance.zero(),
   });
 
+  @observable
+  bool _orchardMigratable = false;
+
   static const int _autoShieldMinSweep = 30000;
 
   // zkool's migrate::MIN_SD.
@@ -1222,22 +1225,7 @@ abstract class ZcashWalletBase
     return migratable;
   }
 
-  Future<bool> hasOrchardMigratableBalance() async {
-
-    final (active, migratableOrchard) = await runWithCoin(
-      accountId: accountId,
-      func: (final coin) async => (
-      await zkool_network.isIronwoodActive(c: coin),
-      await _migratableOrchardTotal(coin),
-      ),
-    );
-
-    if(!active) {
-      return false;
-    }
-
-    return migratableOrchard > BigInt.zero;
-  }
+  bool hasOrchardMigratableBalance() => _orchardMigratable;
 
   Future<void> _$autoShield() async {
     if (syncStatus is! SyncedSyncStatus) {
@@ -1420,11 +1408,15 @@ abstract class ZcashWalletBase
         unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
       }
 
-      balance[currency] = ZcashBalance(
-        Money(availableAmount, currency),
-        Money(unavailableAmount, currency),
-        frozen: Money.zero(currency),
-      );
+      runInAction(() {
+        _orchardMigratable =
+            ironwoodActive == true && migratableOrchard > BigInt.zero;
+        balance[currency] = ZcashBalance(
+          Money(availableAmount, currency),
+          Money(unavailableAmount, currency),
+          frozen: Money.zero(currency),
+        );
+      });
     } catch (e, stackTrace) {
       printV("Balance update error: $e");
       printV("Stack trace: $stackTrace");
@@ -1755,6 +1747,7 @@ abstract class ZcashWalletBase
     required final int accountId,
     required final FutureOr<T> Function(zkool_coin.Coin c) func,
   }) async {
+    await runWithCoinMutex.acquire();
     var newC = zkool_coin.Coin();
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
@@ -1763,7 +1756,6 @@ abstract class ZcashWalletBase
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");
-    await runWithCoinMutex.acquire();
     try {
       newC = await newC.setAccount(account: accountId);
       return await func(newC);
