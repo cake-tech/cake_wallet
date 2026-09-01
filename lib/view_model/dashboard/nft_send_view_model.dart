@@ -127,6 +127,6 @@ abstract class NFTSendViewModelBase with Store {
 
     printV("NFT send failed: ${error.toString()}");
 
-    return S.current.error_dialog_content;
+    return error.toString();
   }
 }
