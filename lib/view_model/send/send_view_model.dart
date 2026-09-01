@@ -1246,12 +1246,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             recipientAddress: address,
             transactionNote: note,
             transactionKey: tx?.additionalInfo["key"] as String?,
+            transactionHex: _transactionHexToStore,
           ))
         : await transactionDescriptionBox.add(TransactionDescription(
             id: descriptionKey,
             transactionNote: note,
             transactionKey: tx?.additionalInfo["key"] as String?,
+            transactionHex: _transactionHexToStore,
           ));
+  }
+
+  /// Retains the signed transaction hex for hot (non-hardware) Monero wallets so the
+  /// transaction details screen can offer a rebroadcast action. Null for all other cases
+  /// (view-only / hardware sends relay via UR and hold no signed hex on the device).
+  String? get _transactionHexToStore {
+    if (walletType != WalletType.monero ||
+        wallet.isHardwareWallet ||
+        (pendingTransaction?.shouldCommitUR() ?? true)) {
+      return null;
+    }
+    final hex = pendingTransaction?.hex ?? '';
+    return hex.isEmpty ? null : hex;
   }
 
   Object _credentials([ExchangeProvider? provider]) {

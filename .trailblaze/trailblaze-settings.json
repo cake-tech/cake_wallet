@@ -1,0 +1,11 @@
+{
+    "selectedTrailblazeDriverTypes": {
+        "ANDROID": "ANDROID_ONDEVICE_ACCESSIBILITY",
+        "IOS": "IOS_HOST",
+        "WEB": "PLAYWRIGHT_NATIVE"
+    },
+    "logsDirectory": "/Users/seth/repos/work/cake_wallet/logs",
+    "trailsDirectory": "/Users/seth/repos/work/cake_wallet/trails",
+    "appDataDirectory": "/Users/seth/repos/work/cake_wallet/.trailblaze",
+    "cliDevicePlatform": "ANDROID"
+}

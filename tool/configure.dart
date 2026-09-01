@@ -441,6 +441,8 @@ abstract class Monero {
 
   Future<bool> commitTransactionUR(Object wallet, String ur);
 
+  Future<bool> submitTransactionHex(Object wallet, String hex);
+
   Map<String, String> exportOutputsUR(Object wallet);
 
   bool needExportOutputs(Object wallet, Money amount);

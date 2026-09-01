@@ -21,13 +21,14 @@ class TransactionDescriptionAdapter extends TypeAdapter<TransactionDescription> 
       recipientAddress: fields[1] as String?,
       transactionNote: fields[2] as String?,
       transactionKey: fields[3] as String?,
+      transactionHex: fields[4] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TransactionDescription obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class TransactionDescriptionAdapter extends TypeAdapter<TransactionDescription> 
       ..writeByte(2)
       ..write(obj.transactionNote)
       ..writeByte(3)
-      ..write(obj.transactionKey);
+      ..write(obj.transactionKey)
+      ..writeByte(4)
+      ..write(obj.transactionHex);
   }
 
   @override
