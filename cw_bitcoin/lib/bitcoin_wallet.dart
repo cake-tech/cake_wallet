@@ -497,11 +497,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return PSBTTransactionBuild(
       inputs: psbtReadyInputs,
-      outputs: outputs,
+      outputs: psbtReadyOutputs,
       enableRBF: enableRBF,
-      cwOutputs: cwOutputs,
-      locktime: locktime)
-        .psbt;
+      locktime: locktime,
+    ).psbt;
   }
 
   @override
