@@ -449,7 +449,7 @@ class SolanaWalletClient {
         decreasedMintForWallet != increasedMintForWallet;
 
     // Parse outgoing side (what was sent)
-    Money? outgoingMoney;
+    CryptoMoney? outgoingMoney;
     String? outgoingMintAddress;
     String? outgoingFrom;
     String? outgoingTo;
@@ -539,7 +539,7 @@ class SolanaWalletClient {
     }
 
     // Parse incoming side (what was received)
-    Money? incomingMoney;
+    CryptoMoney? incomingMoney;
     String? incomingMintAddress;
     String? incomingFrom;
     String? incomingTo;
@@ -1325,7 +1325,7 @@ class SolanaWalletClient {
     return getFeeForMessage(base64Message, commitment);
   }
 
-  Future<Money> _getRentExemptionAmount(int space) async {
+  Future<CryptoMoney> _getRentExemptionAmount(int space) async {
     final rent = await _provider!.request(
       SolanaRPCGetMinimumBalanceForRentExemption(size: space),
     );
@@ -1334,9 +1334,8 @@ class SolanaWalletClient {
   }
 
   Future<bool> hasSufficientFundsLeftForRent({
-    required CryptoMoney inputAmount,
+    required CryptoMoney totalOutflow,
     required CryptoMoney solBalance,
-    required CryptoMoney fee,
   }) async {
     final rentBuffer = await _provider!.request(
       SolanaRPCGetMinimumBalanceForRentExemption(size: SolanaTokenAccountUtils.accountSize),

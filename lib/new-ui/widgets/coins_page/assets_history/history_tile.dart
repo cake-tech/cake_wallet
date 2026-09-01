@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
