@@ -140,7 +140,6 @@ class PreferencesKey {
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
   static String backgroundSyncLastTrigger(String walletId) =>
       'background_sync_last_trigger_${walletId}';
-  static String importedSolanaNFTs(String walletAddress) => "imported_solana_nfts_${walletAddress}";
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
   static const syncStatusDisplayMode = 'sync_status_display_mode';

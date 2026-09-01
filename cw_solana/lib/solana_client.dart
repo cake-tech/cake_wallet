@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import "dart:typed_data";
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
@@ -109,6 +110,33 @@ class SolanaWalletClient {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<Set<String>> _mintsToWithholdFromTokenList(Set<String> mints) async {
+    const batchSize = 10;
+    final ordered = mints.toList();
+    final withheld = <String>{};
+
+    Future<bool> isUnconfirmedFungible(String mint) async {
+      try {
+        return await isSupplyOfOne(mint, throwOnError: true);
+      } catch (_) {
+        return true;
+      }
+    }
+
+    for (var i = 0; i < ordered.length; i += batchSize) {
+      final batch = ordered.skip(i).take(batchSize).toList();
+      final results = await Future.wait(batch.map(isUnconfirmedFungible));
+
+      for (var j = 0; j < batch.length; j++) {
+        if (results[j]) {
+          withheld.add(batch[j]);
+        }
+      }
+    }
+
+    return withheld;
   }
 
   Future<Set<String>> fetchHeldTokenMints(String walletAddress) async {
@@ -1217,7 +1245,7 @@ class SolanaWalletClient {
         SolanaRPCGetTokenSupply(account: SolAddress(mintAddress)),
       );
 
-      return supply.amount == "1";
+      return supply.amount == "1" && supply.decimals == 0;
     } catch (e) {
       printV("Could not read supply for mint $mintAddress: ${e.toString()}");
 
@@ -1319,7 +1347,50 @@ class SolanaWalletClient {
     }
   }
 
-  Future<Map<String, dynamic>?> getNFTOnChainMetadata(String mintAddress) async {
+  // This is the exact size for an spl token, anything larger is Token-2022
+  // carrying extensions
+  static const _baseTokenAccountSize = 165;
+
+  static const _maxOffChainMetadataBytes = 256 * 1024;
+
+  Future<String?> _readOffChainMetadata(Uri uri) async {
+    final httpClient = ProxyWrapper().getHttpClient();
+
+    try {
+      final request = await httpClient.getUrl(uri);
+      request.maxRedirects = 3;
+
+      final response = await request.close().timeout(const Duration(seconds: 30));
+
+      if (response.redirects.any((redirect) => redirect.location.scheme != "https")) {
+        return null;
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return null;
+      }
+
+      if (response.contentLength > _maxOffChainMetadataBytes) {
+        return null;
+      }
+
+      final bytes = BytesBuilder(copy: false);
+
+      await for (final chunk in response) {
+        bytes.add(chunk);
+
+        if (bytes.length > _maxOffChainMetadataBytes) {
+          return null;
+        }
+      }
+
+      return utf8.decode(bytes.takeBytes(), allowMalformed: true);
+    } finally {
+      httpClient.close(force: true);
+    }
+  }
+
+  Future<NFTOnChainMetadata?> getNFTOnChainMetadata(String mintAddress) async {
     try {
       final programAddress =
           MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
@@ -1340,33 +1411,31 @@ class SolanaWalletClient {
       String stripNulls(String value) => value.replaceAll("\u0000", "").trim();
       String? stringOrNull(Object? value) => value is String ? value : null;
 
-      final result = <String, dynamic>{
-        "mint": mintAddress,
-        "name": stripNulls(metadata.name),
-        "symbol": stripNulls(metadata.symbol),
-        "metadataUri": stripNulls(metadata.uri),
-      };
+      final metadataUri = stripNulls(metadata.uri);
+      final metadataUrl = tryNormalizeIpfsUrl(metadataUri);
+      final offChainUri = metadataUrl == null ? null : Uri.tryParse(metadataUrl);
 
-      final metadataUrl = tryNormalizeIpfsUrl(result["metadataUri"] as String);
+      String? imageUrl;
 
-      if (metadataUrl != null && metadataUrl.isNotEmpty) {
+      if (offChainUri != null && offChainUri.scheme == "https") {
         try {
-          final response =
-              await client.get(Uri.parse(metadataUrl)).timeout(const Duration(seconds: 30));
+          final body = await _readOffChainMetadata(offChainUri);
 
-          if (response.statusCode >= 200 && response.statusCode < 300) {
-            final json = jsonDecode(response.body) as Map<String, dynamic>;
-
-            result["image"] = stringOrNull(json["image"]);
-            result["description"] = stringOrNull(json["description"]);
-            result["externalUrl"] = stringOrNull(json["external_url"]);
+          if (body != null) {
+            imageUrl = stringOrNull((jsonDecode(body) as Map<String, dynamic>)["image"]);
           }
         } catch (e) {
           printV("Off-chain NFT metadata fetch failed: ${e.toString()}");
         }
       }
 
-      return result;
+      return NFTOnChainMetadata(
+        mint: mintAddress,
+        name: stripNulls(metadata.name),
+        symbol: stripNulls(metadata.symbol),
+        metadataUri: metadataUri,
+        imageUrl: imageUrl,
+      );
     } catch (e) {
       printV("Error fetching on-chain NFT metadata: $e");
       return null;
@@ -1840,7 +1909,9 @@ class SolanaWalletClient {
       transferInstructions,
     ];
 
-    if (closeSenderAccountWhenEmptied) {
+    final senderAccountHasExtensions = senderAccountSpace != _baseTokenAccountSize;
+
+    if (closeSenderAccountWhenEmptied && !senderAccountHasExtensions) {
       try {
         final senderBalance = await _provider!.request(
           SolanaRPCGetTokenAccountBalance(
@@ -1984,25 +2055,26 @@ class SolanaWalletClient {
       final decodedResponse = jsonDecode(response.body) as List;
 
       final List<MoralisSolanaTokenBalance> tokens = [];
+      final nftCandidates = <String>{};
 
       for (final item in decodedResponse) {
         try {
           final tokenData = item as Map<String, dynamic>;
 
-          final amountStr = tokenData['amount'] as String? ?? '0';
+          final amountStr = tokenData["amount"] as String? ?? "0";
           final amount = double.tryParse(amountStr) ?? 0.0;
 
           if (amount <= 0) continue;
 
-          final mint = tokenData['mint'] as String? ?? '';
+          final mint = tokenData["mint"] as String? ?? "";
           if (mint.isEmpty) continue;
 
           final amountRaw = tokenData["amountRaw"]?.toString() ?? "0";
 
           final decimals = _parseMoralisDecimals(tokenData["decimals"]);
 
-          if (decimals == 0 && amountRaw == "1" && await isSupplyOfOne(mint)) {
-            continue;
+          if (decimals == 0 && amountRaw == "1") {
+            nftCandidates.add(mint);
           }
 
           tokens.add(
@@ -2014,6 +2086,11 @@ class SolanaWalletClient {
         } catch (e) {
           printV("Skipping malformed Moralis token entry: ${e.toString()}");
         }
+      }
+
+      if (nftCandidates.isNotEmpty) {
+        final withheld = await _mintsToWithholdFromTokenList(nftCandidates);
+        tokens.removeWhere((token) => withheld.contains(token.mint));
       }
 
       return tokens;
@@ -2064,6 +2141,22 @@ class SolanaWalletClient {
       return null;
     }
   }
+}
+
+class NFTOnChainMetadata {
+  const NFTOnChainMetadata({
+    required this.mint,
+    required this.name,
+    required this.symbol,
+    required this.metadataUri,
+    this.imageUrl,
+  });
+
+  final String mint;
+  final String name;
+  final String symbol;
+  final String metadataUri;
+  final String? imageUrl;
 }
 
 class MoralisSolanaTokenBalance {

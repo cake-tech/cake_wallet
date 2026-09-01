@@ -255,7 +255,7 @@ class _NFTMoreInfoSectionState extends State<_NFTMoreInfoSection> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    S.current.show_details,
+                    isExpanded ? S.current.hide_details : S.current.show_details,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.primary,

@@ -91,6 +91,9 @@ abstract class NFTSendViewModelBase with Store {
   }
 
   @action
+  void markSendStarted() => state = IsExecutingState();
+
+  @action
   void reset() {
     pendingTransaction = null;
     state = InitialExecutionState();
@@ -122,6 +125,8 @@ abstract class NFTSendViewModelBase with Store {
           "${S.current.added_message_for_ata_error}";
     }
 
-    return error.toString();
+    printV("NFT send failed: ${error.toString()}");
+
+    return S.current.error_dialog_content;
   }
 }

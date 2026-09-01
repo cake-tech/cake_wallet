@@ -1,7 +1,7 @@
 import "dart:async";
 import 'dart:convert';
 
-import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/entities/saved_nfts.dart";
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -16,7 +16,6 @@ import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
-import "package:shared_preferences/shared_preferences.dart";
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
@@ -27,7 +26,7 @@ part 'nft_view_model.g.dart';
 class NFTViewModel = NFTViewModelBase with _$NFTViewModel;
 
 abstract class NFTViewModelBase with Store {
-  NFTViewModelBase(this.appStore, this.bottomSheetService, this.sharedPreferences)
+  NFTViewModelBase(this.appStore, this.bottomSheetService)
       : isLoading = false,
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList(),
@@ -45,12 +44,14 @@ abstract class NFTViewModelBase with Store {
   final AppStore appStore;
   bool _nftErrorPopupShown = false;
   final BottomSheetService bottomSheetService;
-  final SharedPreferences sharedPreferences;
   final Debounce _fetchDebounce = Debounce(const Duration(milliseconds: 500));
 
   Future<void> _lastFetch = Future.value();
   String? _loadedWalletAddress;
   Completer<void>? _queuedFetch;
+
+  final SavedNFTs _savedNFTs = SavedNFTs();
+  int _currentRefreshId = 0;
 
   static const _requestTimeout = Duration(seconds: 20);
   static const _runDeadline = Duration(minutes: 2);
@@ -66,18 +67,22 @@ abstract class NFTViewModelBase with Store {
   @observable
   bool isImportNFTLoading;
 
+  @observable
+  int unresolvedNFTCount = 0;
+
   ObservableList<NFTAssetModel> nftAssetByWalletModels;
 
   ObservableList<SolanaNFTAssetModel> solanaNftAssetModels;
 
-  bool get isSolanaWallet => appStore.wallet!.type == WalletType.solana;
+  bool get isSolanaWallet => appStore.wallet?.type == WalletType.solana;
 
-  String? get currentWalletAddress => appStore.wallet?.walletInfo.address;
+  String? get currentWalletName => appStore.wallet?.name;
 
   @action
   void onWalletChanged() {
     nftAssetByWalletModels.clear();
     solanaNftAssetModels.clear();
+    unresolvedNFTCount = 0;
     _nftErrorPopupShown = false;
     _fetchDebounce.run(getNFTAssetByWallet);
   }
@@ -119,10 +124,13 @@ abstract class NFTViewModelBase with Store {
       final chainName = getChainNameBasedOnWalletType(wallet.type, chainId: wallet.chainId);
       isLoading = true;
 
+      final refreshId = ++_currentRefreshId;
+
       if (isSolanaWallet) {
-        await _getSolanaNFTAssets(wallet, walletAddress, chainName).timeout(_runDeadline);
+        await _getSolanaNFTAssets(wallet, walletAddress, chainName, refreshId)
+            .timeout(_runDeadline);
       } else {
-        await _getEvmNFTAssets(walletAddress, chainName);
+        await _getEvmNFTAssets(wallet.name, walletAddress, chainName, refreshId);
       }
 
       _nftErrorPopupShown = false;
@@ -143,43 +151,66 @@ abstract class NFTViewModelBase with Store {
     }
   }
 
-  Future<void> _getEvmNFTAssets(String walletAddress, String chainName) async {
-    final response = await ProxyWrapper()
-        .get(
-          clearnetUri: Uri.https(
-            "deep-index.moralis.io",
-            "/api/v2.2/$walletAddress/nft",
-            {
-              "chain": chainName,
-              "format": "decimal",
-              "media_items": "false",
-              "exclude_spam": "true",
-              "normalizeMetadata": "true",
-            },
-          ),
-          headers: _moralisHeaders,
-        )
-        .timeout(_requestTimeout);
+  Future<void> _getEvmNFTAssets(
+    String walletName,
+    String walletAddress,
+    String chainName,
+    int refreshId,
+  ) async {
+    final saved = await _savedNFTs.evmNFTs(walletName, chainName);
 
-    final result = WalletNFTsResponseModel.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>,
-        ).result ??
-        [];
+    var result = const <NFTAssetModel>[];
+    Object? indexerError;
 
-    if (appStore.wallet?.walletInfo.address != walletAddress) {
+    try {
+      final response = await ProxyWrapper()
+          .get(
+            clearnetUri: Uri.https(
+              "deep-index.moralis.io",
+              "/api/v2.2/$walletAddress/nft",
+              {
+                "chain": chainName,
+                "format": "decimal",
+                "media_items": "false",
+                "exclude_spam": "true",
+                "normalizeMetadata": "true",
+              },
+            ),
+            headers: _moralisHeaders,
+          )
+          .timeout(_requestTimeout);
+
+      result = WalletNFTsResponseModel.fromJson(
+            jsonDecode(response.body) as Map<String, dynamic>,
+          ).result ??
+          [];
+    } catch (e) {
+      indexerError = e;
+    }
+
+    if (appStore.wallet?.walletInfo.address != walletAddress || refreshId != _currentRefreshId) {
       return;
     }
 
+    final listed = result.map(SavedNFTs.evmIdentifier).toSet();
+
     nftAssetByWalletModels.clear();
     nftAssetByWalletModels.addAll(result);
+    nftAssetByWalletModels
+        .addAll(saved.where((asset) => !listed.contains(SavedNFTs.evmIdentifier(asset))));
+
+    if (indexerError != null) {
+      throw indexerError;
+    }
   }
 
   Future<void> _getSolanaNFTAssets(
     WalletBase wallet,
     String walletAddress,
     String chainName,
+    int refreshId,
   ) async {
-    final importedAssets = _loadImportedSolanaNFTs(walletAddress);
+    final importedAssets = await _savedNFTs.solanaNFTs(wallet.name);
 
     var indexerMints = const <String>[];
     Object? indexerError;
@@ -202,7 +233,7 @@ abstract class NFTViewModelBase with Store {
       failedMints: failedMints,
     );
 
-    if (appStore.wallet?.walletInfo.address != walletAddress) {
+    if (appStore.wallet?.walletInfo.address != walletAddress || refreshId != _currentRefreshId) {
       return;
     }
 
@@ -213,19 +244,15 @@ abstract class NFTViewModelBase with Store {
     solanaNftAssetModels.addAll(assets);
     _loadedWalletAddress = walletAddress;
 
+    final shownMints = assets.map((asset) => asset.mint).toSet();
+    unresolvedNFTCount = failedMints.where((mint) => !shownMints.contains(mint)).length;
+
     if (heldMints != null) {
-      await _refreshImportedSolanaNFTs(walletAddress, importedAssets, assets);
+      await _savedNFTs.refreshSolana(wallet.name, assets);
     }
 
     if (indexerError != null) {
       throw indexerError;
-    }
-
-    final shownMints = assets.map((asset) => asset.mint).toSet();
-    final unresolved = failedMints.where((mint) => !shownMints.contains(mint)).length;
-
-    if (unresolved > 0) {
-      throw Exception("Could not load metadata for $unresolved NFTs");
     }
   }
 
@@ -322,23 +349,6 @@ abstract class NFTViewModelBase with Store {
     }).toList();
   }
 
-  Future<void> _refreshImportedSolanaNFTs(
-    String walletAddress,
-    Map<String, SolanaNFTAssetModel> imported,
-    List<SolanaNFTAssetModel> assets,
-  ) async {
-    final refreshed = {
-      for (final asset in assets)
-        if (asset.mint != null && imported.containsKey(asset.mint)) asset.mint!: asset,
-    };
-
-    if (refreshed.isEmpty) {
-      return;
-    }
-
-    await _persistImportedSolanaNFTs(walletAddress, {...imported, ...refreshed});
-  }
-
   Future<SolanaNFTAssetModel> getSolanaNFTDetails(
     WalletBase wallet,
     String address,
@@ -348,6 +358,8 @@ abstract class NFTViewModelBase with Store {
 
     try {
       asset = await _fetchMoralisNFT(address, chainName);
+      asset.address = address;
+      asset.mint = address;
     } catch (e) {
       printV("Moralis NFT metadata failed for $address: ${e.toString()}");
     }
@@ -361,7 +373,7 @@ abstract class NFTViewModelBase with Store {
 
     if (asset != null) {
       if (onChainData != null) {
-        asset.imageOriginalUrl = tryNormalizeIpfsUrl(onChainData["image"] as String?);
+        asset.imageOriginalUrl = tryNormalizeIpfsUrl(onChainData.imageUrl);
       }
 
       return asset;
@@ -375,10 +387,10 @@ abstract class NFTViewModelBase with Store {
       address: address,
       mint: address,
       standard: "metaplex",
-      name: onChainData["name"] as String?,
-      symbol: onChainData["symbol"] as String?,
-      imageOriginalUrl: onChainData["image"] as String?,
-      metadataOriginalUrl: onChainData["metadataUri"] as String?,
+      name: onChainData.name,
+      symbol: onChainData.symbol,
+      imageOriginalUrl: onChainData.imageUrl,
+      metadataOriginalUrl: onChainData.metadataUri,
     );
   }
 
@@ -400,56 +412,21 @@ abstract class NFTViewModelBase with Store {
     return SolanaNFTAssetModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  Map<String, SolanaNFTAssetModel> _loadImportedSolanaNFTs(String walletAddress) {
-    try {
-      final raw = sharedPreferences.getString(PreferencesKey.importedSolanaNFTs(walletAddress));
-      if (raw == null || raw.isEmpty) {
-        return {};
-      }
-
-      final decoded = jsonDecode(raw) as Map<String, dynamic>;
-      return decoded.map((mint, assetJson) =>
-          MapEntry(mint, SolanaNFTAssetModel.fromJson(assetJson as Map<String, dynamic>)));
-    } catch (e) {
-      printV("Discarding unreadable imported NFT cache: ${e.toString()}");
-      return {};
-    }
-  }
-
-  Future<void> _saveImportedSolanaNFT(String walletAddress, SolanaNFTAssetModel asset) async {
-    final mint = asset.mint;
-    if (mint == null || mint.isEmpty) {
-      return;
-    }
-
-    final imported = _loadImportedSolanaNFTs(walletAddress);
-    imported[mint] = asset;
-
-    await _persistImportedSolanaNFTs(walletAddress, imported);
-  }
-
-  Future<void> _persistImportedSolanaNFTs(
-    String walletAddress,
-    Map<String, SolanaNFTAssetModel> imported,
-  ) =>
-      sharedPreferences.setString(
-        PreferencesKey.importedSolanaNFTs(walletAddress),
-        jsonEncode(imported.map((mint, asset) => MapEntry(mint, asset.toJson()))),
-      );
-
   @action
-  Future<void> onNFTSent(String walletAddress, String mint) async {
-    final imported = _loadImportedSolanaNFTs(walletAddress);
-    if (imported.remove(mint) != null) {
-      await _persistImportedSolanaNFTs(walletAddress, imported);
-    }
+  Future<void> onNFTSent(String walletName, String mint) async {
+    await _savedNFTs.removeSolana(walletName, mint);
 
-    if (appStore.wallet?.walletInfo.address == walletAddress) {
+    if (appStore.wallet?.name == walletName) {
       solanaNftAssetModels.removeWhere((asset) => asset.mint == mint);
     }
   }
 
-  Future<void> _importEvmNFT(String tokenAddress, String? tokenId, String chainName) async {
+  Future<void> _importEvmNFT(
+    String walletName,
+    String tokenAddress,
+    String? tokenId,
+    String chainName,
+  ) async {
     final response = await ProxyWrapper()
         .get(
           clearnetUri: Uri.https(
@@ -466,14 +443,16 @@ abstract class NFTViewModelBase with Store {
         )
         .timeout(_requestTimeout);
 
-    nftAssetByWalletModels
-        .add(NFTAssetModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>));
+    final asset = NFTAssetModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+
+    nftAssetByWalletModels.add(asset);
+
+    await _savedNFTs.addEvm(walletName, chainName, asset);
   }
 
   @action
   Future<void> importNFT(String tokenAddress, String? tokenId) async {
     final wallet = appStore.wallet!;
-    final walletAddress = wallet.walletInfo.address;
     int? chainId;
     if (isEVMCompatibleChain(wallet.type)) {
       chainId = evm!.getSelectedChainId(wallet);
@@ -494,9 +473,9 @@ abstract class NFTViewModelBase with Store {
         solanaNftAssetModels.removeWhere((asset) => asset.mint == result.mint);
         solanaNftAssetModels.add(result);
 
-        await _saveImportedSolanaNFT(walletAddress, result);
+        await _savedNFTs.addSolana(wallet.name, result);
       } else {
-        await _importEvmNFT(tokenAddress, tokenId, chainName);
+        await _importEvmNFT(wallet.name, tokenAddress, tokenId, chainName);
       }
     } catch (e) {
       printV("Importing NFT $tokenAddress failed: ${e.toString()}");

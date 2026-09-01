@@ -398,8 +398,21 @@ class CWSolana extends Solana {
       );
 
   @override
-  Future<Map<String, dynamic>?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress) =>
-      (wallet as SolanaWallet).client.getNFTOnChainMetadata(mintAddress);
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress) async {
+    final metadata = await (wallet as SolanaWallet).client.getNFTOnChainMetadata(mintAddress);
+
+    if (metadata == null) {
+      return null;
+    }
+
+    return SolanaNFTMetadata(
+      mint: metadata.mint,
+      name: metadata.name,
+      symbol: metadata.symbol,
+      metadataUri: metadata.metadataUri,
+      imageUrl: metadata.imageUrl,
+    );
+  }
 
   @override
   Future<Set<String>> getHeldTokenMints(WalletBase wallet) =>

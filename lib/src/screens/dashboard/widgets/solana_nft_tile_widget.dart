@@ -19,7 +19,7 @@ class SolanaNFTTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => InkWell(
         onTap: () async {
-          final walletAddress = nftViewModel.currentWalletAddress;
+          final walletName = nftViewModel.currentWalletName;
 
           final sent = await Navigator.of(context).pushNamed(
             Routes.nftDetailsPage,
@@ -34,8 +34,8 @@ class SolanaNFTTileWidget extends StatelessWidget {
           }
 
           final mint = nftAsset.mint;
-          if (walletAddress != null && mint != null && mint.isNotEmpty) {
-            await nftViewModel.onNFTSent(walletAddress, mint);
+          if (walletName != null && mint != null && mint.isNotEmpty) {
+            await nftViewModel.onNFTSent(walletName, mint);
           }
         },
         child: Container(
@@ -75,7 +75,7 @@ class SolanaNFTTileWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Symbol: ${nftAsset.symbol ?? '---'}',
+                      "Symbol: ${nftAsset.symbol ?? "---"}",
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1,

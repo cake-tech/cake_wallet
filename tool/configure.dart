@@ -339,7 +339,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/account.dart' as monero_account;
@@ -1030,7 +1030,7 @@ abstract class Solana {
     required String destinationAddress,
     String? name,
   });
-  Future<Map<String, dynamic>?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress);
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress);
   Future<Set<String>> getHeldTokenMints(WalletBase wallet);
 
   TransactionInfo getTransactionInfo({
@@ -1043,6 +1043,22 @@ abstract class Solana {
     required bool isPending,
     required Money fee,
   });
+}
+
+class SolanaNFTMetadata {
+  const SolanaNFTMetadata({
+    required this.mint,
+    required this.name,
+    required this.symbol,
+    required this.metadataUri,
+    this.imageUrl,
+  });
+
+  final String mint;
+  final String name;
+  final String symbol;
+  final String metadataUri;
+  final String? imageUrl;
 }
 
 class JupiterSwapFailedException implements Exception {

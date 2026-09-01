@@ -44,11 +44,9 @@ class _NFTListingPageState extends State<NFTListingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Observer(
-        builder: (context) {
-          return Column(
+  Widget build(BuildContext context) => SliverToBoxAdapter(
+        child: Observer(
+          builder: (context) => Column(
             children: [
               const SizedBox(height: 16),
               Padding(
@@ -64,6 +62,17 @@ class _NFTListingPageState extends State<NFTListingPage> {
                   ),
                 ),
               ),
+              if (widget.nftViewModel.unresolvedNFTCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                  child: Text(
+                    S.current.nft_some_not_loaded,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
               if (widget.nftViewModel.isLoading)
                 Center(
                   child: CircularProgressIndicator(
@@ -76,11 +85,9 @@ class _NFTListingPageState extends State<NFTListingPage> {
               else
                 NFTListWidget(nftViewModel: widget.nftViewModel)
             ],
-          );
-        },
-      ),
-    );
-  }
+          ),
+        ),
+      );
 }
 
 class NFTListWidget extends StatelessWidget {

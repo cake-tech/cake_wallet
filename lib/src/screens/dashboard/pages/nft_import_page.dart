@@ -89,7 +89,7 @@ class _ImportNFTPage extends BasePage {
             },
             fillColor: Theme.of(context).colorScheme.surfaceContainer,
             iconColor: Theme.of(context).colorScheme.primary,
-            placeholder: nftViewModel.isSolanaWallet ? S.current.mint_address : '0x...',
+            placeholder: nftViewModel.isSolanaWallet ? S.current.mint_address : "0x...",
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),

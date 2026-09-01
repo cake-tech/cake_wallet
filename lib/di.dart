@@ -1699,8 +1699,7 @@ Future<void> setup({
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),
   );
 
-  getIt.registerFactory(() =>
-      NFTViewModel(appStore, getIt.get<BottomSheetService>(), getIt.get<SharedPreferences>()));
+  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
 
   getIt.registerFactory(() =>
       NFTSendViewModel(appStore, getIt.get<ContactListViewModel>(param1: CryptoCurrency.sol)));

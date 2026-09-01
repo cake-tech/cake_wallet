@@ -159,6 +159,8 @@ class _NFTSendPage extends BasePage {
       return;
     }
 
+    nftSendViewModel.markSendStarted();
+
     final destinationAddress = addressController.text.trim();
 
     await authService.authenticateAction(
@@ -166,6 +168,7 @@ class _NFTSendPage extends BasePage {
       conditionToDetermineIfToUse2FA: nftSendViewModel.shouldRequireTOTP2FAFor(destinationAddress),
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
         if (!isAuthenticatedSuccessfully || !context.mounted) {
+          nftSendViewModel.reset();
           return;
         }
 

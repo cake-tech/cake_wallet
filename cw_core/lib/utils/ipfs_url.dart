@@ -7,7 +7,7 @@ String? tryNormalizeIpfsUrl(String? url) {
   }
 
   if (!url.toLowerCase().startsWith(_ipfsScheme)) {
-    return url;
+    return url.toLowerCase().startsWith("https://") ? url : null;
   }
 
   var cid = url.substring(_ipfsScheme.length);
