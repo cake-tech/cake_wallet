@@ -75,8 +75,8 @@ Widget _host(FakeMoneySettingsCubit cubit, Widget child) => MaterialApp(
     );
 
 void main() {
-  group("BaseUnitConfig", () {
-    group("BaseUnitConfig.useBaseUnitOf", () {
+  group("BaseUnit", () {
+    group("BaseUnit.useBaseUnitOf", () {
       testWidgets("reads the value from the nearest ancestor", (tester) async {
         final cubit = FakeMoneySettingsCubit(
           _moneySettingsState(bitcoin: BitcoinAmountDisplayMode.satoshi),
@@ -106,14 +106,14 @@ void main() {
         expect(log.single, [false]);
       });
 
-      testWidgets("throws when no BaseUnitConfig ancestor exists", (tester) async {
+      testWidgets("throws when no BaseUnit ancestor exists", (tester) async {
         await tester.pumpWidget(_Probe.single(CryptoCurrency.btc, log: <List<bool>>[]));
 
         expect(tester.takeException(), isA<TypeError>());
       });
     });
 
-    group("BaseUnitConfig.getSymbolOf", () {
+    group("BaseUnit.getSymbolOf", () {
       testWidgets("returns the ticker under whole-coin mode", (tester) async {
         final cubit = FakeMoneySettingsCubit(
           _moneySettingsState(bitcoin: BitcoinAmountDisplayMode.bitcoin),
@@ -186,7 +186,7 @@ void main() {
       });
     });
 
-    group("BaseUnitConfig aspect notification", () {
+    group("BaseUnit aspect notification", () {
       testWidgets("rebuilds a dependent whose currency flipped", (tester) async {
         final cubit = FakeMoneySettingsCubit(
           _moneySettingsState(bitcoin: BitcoinAmountDisplayMode.bitcoin),

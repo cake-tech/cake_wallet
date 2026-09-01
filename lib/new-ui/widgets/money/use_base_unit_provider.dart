@@ -8,7 +8,7 @@ import "package:flutter_bloc/flutter_bloc.dart";
 /// Read-only view of the money display settings for the current subtree.
 ///
 /// ```dart
-/// final useBaseUnit = BaseUnitConfig.useBaseUnitOf(context, CryptoCurrency.btc);
+/// final useBaseUnit = BaseUnit.useBaseUnitOf(context, CryptoCurrency.btc);
 /// ```
 class BaseUnit extends InheritedModel<Currency> {
   const BaseUnit({required this.state, required super.child});
@@ -22,7 +22,8 @@ class BaseUnit extends InheritedModel<Currency> {
       InheritedModel.inheritFrom<BaseUnit>(context, aspect: currency)!.state.getSymbol(currency);
 
   @override
-  bool updateShouldNotify(BaseUnit old) => state != old.state;
+  bool updateShouldNotify(BaseUnit old) =>
+      state.bitcoinAmountDisplayMode != old.state.bitcoinAmountDisplayMode;
 
   @override
   bool updateShouldNotifyDependent(BaseUnit old, Set<Currency> aspects) => aspects.any((c) =>
