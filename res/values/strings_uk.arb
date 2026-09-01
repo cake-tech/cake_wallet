@@ -433,6 +433,7 @@
   "error_text_node_port": "Порт вузла може містити лише числа від 0 до 65535",
   "error_text_node_proxy_address": "Будь ласка, введіть <IPv4-адресу>:<порт>, наприклад 127.0.0.1:9050",
   "error_text_payment_id": "Ідентифікатор платежу може містити лише від 16 до 64 шістнадцяткових символів",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Ім'я субадреси не може містити символи ` , ' \"\nі має бути довжиною від 1 до 20 символів",
   "error_text_template": "Назва та адреса шаблону не можуть містити символи ` , ' \"\nі мають бути довжиною від 1 до 106 символів",
   "error_text_wallet_name": "Назва гаманця може містити лише літери, цифри та символи _ -\nі має бути довжиною від 1 до 33 символів",

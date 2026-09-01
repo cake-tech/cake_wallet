@@ -8,6 +8,7 @@ import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/exceptions/monero_multiple_destinations_payment_id_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/src/monero.dart';
@@ -15,6 +16,26 @@ import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/wallet2.dart';
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 import 'package:mutex/mutex.dart';
+
+/// Returns true when `addresses` holds more than one non-empty destination and at
+/// least one of them is a Monero integrated address carrying an embedded payment ID.
+///
+/// `isIntegratedAddress` is injected so the multi-destination policy can be tested
+/// without invoking the native Monero bindings.
+bool hasMultipleDestinationsWithIntegratedPaymentId(
+  List<String> addresses,
+  bool Function(String address) isIntegratedAddress,
+) {
+  var nonEmptyCount = 0;
+  var hasIntegratedAddress = false;
+  for (final address in addresses) {
+    if (address.isEmpty) continue;
+    nonEmptyCount++;
+    hasIntegratedAddress = hasIntegratedAddress || isIntegratedAddress(address);
+    if (nonEmptyCount > 1 && hasIntegratedAddress) return true;
+  }
+  return false;
+}
 
 String _formatTransactionError(String error) {
   final message = error.replaceAll(
@@ -222,6 +243,18 @@ Future<PendingTransactionDescription> createTransactionMultDest(
     int accountIndex = 0,
     List<String> preferredInputs = const []}) async {
   final dstAddrs = outputs.map((e) => e.address).toList();
+
+  // CW-996: the native multi-destination API cannot mix an integrated address
+  // (embedded payment ID) with any other recipient. Reject before construction
+  // so the caller can surface actionable copy instead of a native error.
+  if (hasMultipleDestinationsWithIntegratedPaymentId(
+    dstAddrs,
+    (address) => currentWallet!.paymentIdFromAddress(strarg: address, nettype: currentWallet!.nettype())
+        .isNotEmpty,
+  )) {
+    throw const MoneroMultipleDestinationsPaymentIdException();
+  }
+
   final amounts = outputs.map((e) => currentWallet!.amountFromString(e.amount)).toList();
 
   final waddr = currentWallet!.ffiAddress();

@@ -434,6 +434,7 @@
   "error_text_node_port": "Cổng node chỉ có thể chứa các số từ 0 đến 65535",
   "error_text_node_proxy_address": "Vui lòng nhập <địa chỉ IPv4>:<cổng>, ví dụ: 127.0.0.1:9050",
   "error_text_payment_id": "ID thanh toán chỉ có thể chứa từ 16 đến 64 ký tự hex",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Tên địa chỉ phụ không được chứa các ký tự ` , ' \"\nvà phải dài từ 1 đến 20 ký tự",
   "error_text_template": "Tên và địa chỉ mẫu không được chứa các ký tự ` , ' \"\nvà phải có độ dài từ 1 đến 106 ký tự",
   "error_text_wallet_name": "Tên ví chỉ có thể chứa chữ cái, số, ký hiệu _ -\nvà phải dài từ 1 đến 33 ký tự",

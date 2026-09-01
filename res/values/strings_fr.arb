@@ -433,6 +433,7 @@
   "error_text_node_port": "Le port du nœud ne peut contenir que des chiffres entre 0 et 65535",
   "error_text_node_proxy_address": "Veuillez saisir <adresse IPv4>:<port>, par exemple 127.0.0.1:9050",
   "error_text_payment_id": "L’ID de paiement ne peut contenir que de 16 à 64 caractères hexadécimaux",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Le nom de la sous-adresse ne peut pas contenir les symboles ` , ' \"\net doit comporter entre 1 et 20 caractères",
   "error_text_template": "Le nom du modèle et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net doivent comporter entre 1 et 106 caractères",
   "error_text_wallet_name": "Le nom du portefeuille ne peut contenir que des lettres, des chiffres et les symboles _ - \net doit comporter entre 1 et 33 caractères",

@@ -438,6 +438,7 @@
   "error_text_node_port": "Der Node-Port darf nur Zahlen zwischen 0 und 65535 enthalten",
   "error_text_node_proxy_address": "Bitte geben Sie <IPv4-Adresse>:<Port> ein, z. B. 127.0.0.1:9050",
   "error_text_payment_id": "Die Zahlungs-ID darf nur 16 bis 64 Zeichen in Hex enthalten",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Der Name der Unteradresse darf die Zeichen ` , ' \" nicht enthalten\nund muss zwischen 1 und 20 Zeichen lang sein",
   "error_text_template": "Vorlagenname und Adresse dürfen die Zeichen ` , ' \" nicht enthalten\nund müssen zwischen 1 und 106 Zeichen lang sein",
   "error_text_wallet_name": "Der Wallet-Name darf nur Buchstaben, Zahlen sowie die Symbole _ und - enthalten\nund muss zwischen 1 und 33 Zeichen lang sein",

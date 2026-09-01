@@ -433,6 +433,7 @@
   "error_text_node_port": "لا يمكن أن يحتوي منفذ العقدة إلا على أرقام بين 0 و 65535",
   "error_text_node_proxy_address": "يرجى إدخال <عنوان IPv4>:<المنفذ>، على سبيل المثال 127.0.0.1:9050",
   "error_text_payment_id": "يمكن أن يحتوي معرّف الدفع فقط على 16 إلى 64 حرفًا سداسيًا عشريًا",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "لا يمكن أن يحتوي اسم العنوان الفرعي على الرموز ` , ' \"\nويجب أن يكون طوله بين 1 و20 حرفًا",
   "error_text_template": "لا يمكن أن يحتوي اسم القالب والعنوان على الرموز ` , ' \"\nويجب أن يتراوح طولهما بين 1 و 106 أحرف",
   "error_text_wallet_name": "يمكن أن يحتوي اسم المحفظة على أحرف وأرقام ورموز _ - فقط\nويجب أن يتراوح طوله بين 1 و33 حرفًا",

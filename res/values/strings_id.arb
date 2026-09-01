@@ -433,6 +433,7 @@
   "error_text_node_port": "Port node hanya dapat berisi angka antara 0 dan 65535",
   "error_text_node_proxy_address": "Harap masukkan <alamat IPv4>:<port>, misalnya 127.0.0.1:9050",
   "error_text_payment_id": "ID Pembayaran hanya dapat berisi 16 hingga 64 karakter heksadesimal",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Nama subalamat tidak boleh berisi simbol `, ' \"\ndan harus memiliki panjang antara 1 dan 20 karakter",
   "error_text_template": "Nama template dan alamat tidak boleh berisi simbol ` , ' \"\ndan harus memiliki panjang antara 1 hingga 106 karakter",
   "error_text_wallet_name": "Nama dompet hanya boleh berisi huruf, angka, simbol _ - \ndan harus memiliki panjang antara 1 dan 33 karakter",

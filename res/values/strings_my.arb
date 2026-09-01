@@ -433,6 +433,7 @@
   "error_text_node_port": "Node port တွင် 0 မှ 65535 အထိရှိသော နံပါတ်များသာ ထည့်နိုင်သည်",
   "error_text_node_proxy_address": "ကျေးဇူးပြု၍ <IPv4 address>:<port> ကို ထည့်ပါ၊ ဥပမာ 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID တွင် hex အက္ခရာ 16 လုံးမှ 64 လုံးအထိသာ ပါဝင်နိုင်သည်။",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "လိပ်စာခွဲအမည်တွင် ` , ' \" သင်္ကေတများ မပါဝင်နိုင်ပါ\nနှင့် စာလုံးရေ 1 မှ 20 အထိ ဖြစ်ရမည်",
   "error_text_template": "နမူနာပုံစံအမည်နှင့် လိပ်စာတွင် ` , ' \" သင်္ကေတများ မပါဝင်နိုင်ပါ\nနှင့် စာလုံးအရေအတွက် 1 မှ 106 အထိ ဖြစ်ရမည်",
   "error_text_wallet_name": "Wallet အမည်တွင် စာလုံးများ၊ နံပါတ်များ၊ _ - သင်္ကေတများသာ ပါဝင်နိုင်သည် \nနှင့် အက္ခရာအရေအတွက် 1 မှ 33 လုံးအတွင်း ဖြစ်ရမည်",

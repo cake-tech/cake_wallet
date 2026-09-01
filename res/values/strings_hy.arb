@@ -433,6 +433,7 @@
   "error_text_node_port": "Հանգույցի պորտը կարող է պարունակել միայն 0-ից 65535 միջակայքի թվեր",
   "error_text_node_proxy_address": "Խնդրում ենք մուտքագրել <IPv4 հասցե>:<պորտ>, օրինակ՝ 127.0.0.1:9050",
   "error_text_payment_id": "Վճարման ID-ն կարող է պարունակել միայն 16-ից 64 նիշ՝ հեքսադեցիմալ ձևաչափով",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Ենթահասցեի անունը չի կարող պարունակել ` , ' \" նշանները\nև պետք է լինի 1-ից 20 նիշ երկարությամբ",
   "error_text_template": "Կաղապարի անունը և հասցեն չեն կարող պարունակել ` , ' \" նշանները\nև պետք է ունենան 1-ից 106 նիշ երկարություն",
   "error_text_wallet_name": "Դրամապանակի անունը կարող է պարունակել միայն տառեր, թվեր, _ - նշաններ\nև պետք է լինի 1-ից 33 նիշ երկարությամբ",

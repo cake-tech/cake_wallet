@@ -433,6 +433,7 @@
   "error_text_node_port": "Düğüm portu yalnızca 0 ile 65535 arasındaki sayılardan oluşabilir",
   "error_text_node_proxy_address": "Lütfen <IPv4 adresi>:<port> girin, örneğin 127.0.0.1:9050",
   "error_text_payment_id": "Ödeme ID'si yalnızca hex olarak 16 ile 64 karakter arasında olabilir",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Alt adres adı ` , ' \" sembollerini içeremez\nve 1 ile 20 karakter uzunluğunda olmalıdır",
   "error_text_template": "Şablon adı ve adresi ` , ' \" sembollerini içeremez\nve 1 ile 106 karakter uzunluğunda olmalıdır",
   "error_text_wallet_name": "Cüzdan adı yalnızca harf, rakam, _ ve - sembollerini içerebilir \nve 1 ile 33 karakter uzunluğunda olmalıdır",

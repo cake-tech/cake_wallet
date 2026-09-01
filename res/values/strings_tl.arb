@@ -433,6 +433,7 @@
   "error_text_node_port": "Ang node port ay maaari lamang maglaman ng mga numero sa pagitan ng 0 at 65535",
   "error_text_node_proxy_address": "Pakilagay ang <IPv4 address>:<port>, halimbawa 127.0.0.1:9050",
   "error_text_payment_id": "Ang Payment ID ay maaari lamang maglaman ng 16 hanggang 64 na char sa hex",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Hindi maaaring maglaman ang pangalan ng subaddress ng mga simbolong `, ' \"\nat dapat ay may haba na 1 hanggang 20 character",
   "error_text_template": "Hindi maaaring maglaman ang pangalan ng template at address ng mga simbolong ` , ' \"\nat dapat ay may habang 1 hanggang 106 na character",
   "error_text_wallet_name": "Ang pangalan ng wallet ay maaari lamang maglaman ng mga titik, numero, _ - na simbolo\nat dapat ay may habang 1 hanggang 33 character",

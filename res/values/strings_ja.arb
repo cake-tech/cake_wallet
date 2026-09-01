@@ -433,6 +433,7 @@
   "error_text_node_port": "ノードポートは0〜65535の数値のみ入力できます",
   "error_text_node_proxy_address": "<IPv4 address>:<port> を入力してください（例: 127.0.0.1:9050）",
   "error_text_payment_id": "支払いIDには、16進数で16〜64文字のみ使用できます",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "サブアドレス名には ` , ' \" の記号を含めることはできません。\nまた、長さは1〜20文字である必要があります",
   "error_text_template": "テンプレート名とアドレスには ` , ' \" の記号を含めることはできません\nまた、長さは1〜106文字である必要があります",
   "error_text_wallet_name": "ウォレット名に使用できるのは、英字、数字、_、- のみです\n長さは1〜33文字である必要があります",

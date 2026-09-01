@@ -433,6 +433,7 @@
   "error_text_node_port": "节点端口只能包含 0 到 65535 之间的数字",
   "error_text_node_proxy_address": "请输入 <IPv4 地址>:<端口>，例如 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID 只能包含 16 到 64 个十六进制字符",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "子地址名称不能包含 `、'、\" 符号\n且长度必须为 1 到 20 个字符",
   "error_text_template": "模板名称和地址不能包含 `、'、\" 符号\n且长度必须在 1 到 106 个字符之间",
   "error_text_wallet_name": "钱包名称只能包含字母、数字、_ 和 - 符号\n且长度必须在 1 到 33 个字符之间",

@@ -433,6 +433,7 @@
   "error_text_node_port": "Port uzlu může obsahovat pouze čísla mezi 0 a 65535",
   "error_text_node_proxy_address": "Zadejte prosím <IPv4 adresu>:<port>, například 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID může obsahovat pouze 16 až 64 znaků v hexadecimálním formátu",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Název subadresy nesmí obsahovat symboly ` , ' \"\na musí mít délku 1 až 20 znaků",
   "error_text_template": "Název šablony a adresa nemohou obsahovat symboly ` , ' \"\na musí mít délku 1 až 106 znaků",
   "error_text_wallet_name": "Název peněženky může obsahovat pouze písmena, čísla a symboly _ - \na musí mít délku 1 až 33 znaků",

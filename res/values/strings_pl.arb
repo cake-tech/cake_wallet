@@ -433,6 +433,7 @@
   "error_text_node_port": "Port węzła może zawierać tylko liczby z zakresu od 0 do 65535",
   "error_text_node_proxy_address": "Wprowadź <adres IPv4>:<port>, na przykład 127.0.0.1:9050",
   "error_text_payment_id": "Payment ID może zawierać wyłącznie od 16 do 64 znaków w formacie szesnastkowym",
+  "error_text_payment_id_multiple_recipients": "Transactions cannot contain more than one destination when paying to a payment ID.",
   "error_text_subaddress_name": "Nazwa podadresu nie może zawierać symboli ` , ' \"\ni musi mieć długość od 1 do 20 znaków",
   "error_text_template": "Nazwa i adres szablonu nie mogą zawierać symboli ` , ' \"\noraz muszą mieć od 1 do 106 znaków",
   "error_text_wallet_name": "Nazwa portfela może zawierać tylko litery, cyfry oraz symbole _ i - \ni musi mieć długość od 1 do 33 znaków",
