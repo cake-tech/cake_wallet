@@ -372,3 +372,13 @@ msix_config:
   logo_path: assets/images/app_logo.png
   trim_logo: false
   capabilities: internetClient
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: source
+      path: ./scripts/sqlite/sqlite3.c
+      defines: # optional
+        default_options: false # optional, to disable default compile-time options used by package:sqlite3
+        defines:
+          - SQLITE_THREADSAFE=1
