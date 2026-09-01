@@ -203,11 +203,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         return createRoute(RouteSettings(name: Routes.welcomePage));
       }
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(
-          param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+        (_) => getIt.get<SetupPinCodePage>(param1: SetupPinCodeArgs(
+          onSuccessfulPinSetup: (context, dynamic _) {
             Navigator.of(context.context).pushNamed(Routes.welcomePage);
           },
-        ),
+          isInitialSetup: true,
+        )),
         fullscreenDialog: true,
       );
 
@@ -283,7 +284,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
 
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(param1: callback),
+        (_) => getIt.get<SetupPinCodePage>(param1: SetupPinCodeArgs(onSuccessfulPinSetup: callback)),
       );
 
     case Routes.restoreWalletType:
@@ -307,7 +308,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       }
 
       return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<SetupPinCodePage>(param1: callback, param2: true),
+        (_) => getIt.get<SetupPinCodePage>(
+            param1: SetupPinCodeArgs(onSuccessfulPinSetup: callback, isDuressPin: true)),
       );
 
     case Routes.restoreOptions:
@@ -528,11 +530,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => SettingsStoreBase.walletPasswordDirectInput
               ? getIt.get<WalletUnlockPage>(
                   param1: WalletUnlockArguments(
-                      callback: settings.arguments as OnAuthenticationFinished),
+                      callback: (settings.arguments as AuthPageArgs).onAuthenticationFinished),
                   instanceName: 'wallet_unlock_verifiable',
                   param2: true)
-              : getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
+              : getIt.get<AuthPage>(param1: settings.arguments as AuthPageArgs));
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
@@ -558,13 +559,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ? WillPopScope(
                   child: getIt.get<WalletUnlockPage>(
                       param1: WalletUnlockArguments(
-                          callback: settings.arguments as OnAuthenticationFinished),
+                          callback: (settings.arguments as AuthPageArgs).onAuthenticationFinished),
                       param2: false,
                       instanceName: 'wallet_unlock_verifiable'),
                   onWillPop: () async => false)
               : WillPopScope(
                   child: getIt.get<AuthPage>(
-                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
+                      param1: settings.arguments as AuthPageArgs),
                   onWillPop: () async => false));
 
     case Routes.silentPaymentsSettings:

@@ -33,10 +33,11 @@ dependencies:
   dio: ^5.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth_android: ^1.0.46
-  flutter_local_authentication:
-    git:
-      url: https://github.com/cake-tech/flutter_local_authentication
+#  local_auth_android: ^1.0.46
+#  flutter_local_authentication:
+#    git:
+#      url: https://github.com/cake-tech/flutter_local_authentication
+  local_auth: ^2.3.0
   package_info_plus: ^8.0.1
   devicelocale: 0.8.1
   auto_size_text: ^3.0.0
@@ -307,6 +308,7 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/biometry_icons/
 
   fonts:
     - family: Lato

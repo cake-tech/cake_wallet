@@ -15,7 +15,8 @@ class AuthViewModel = AuthViewModelBase with _$AuthViewModel;
 
 abstract class AuthViewModelBase with Store {
   AuthViewModelBase(
-      this._authService, this._sharedPreferences, this._settingsStore, this._biometricAuth)
+      this._authService, this._sharedPreferences, this._settingsStore, this._biometricAuth,
+      {this.biometryAllowed = true})
       : _failureCounter = 0,
         state = InitialExecutionState() {
     reaction((_) => state, _saveLastAuthTime);
@@ -24,13 +25,15 @@ abstract class AuthViewModelBase with Store {
   static const maxFailedLogins = 3;
   static const banTimeout = 180; // 3 minutes
   final banTimeoutKey = S.current.auth_store_ban_timeout;
+  final bool biometryAllowed;
 
   @observable
   ExecutionState state;
 
   int get pinLength => _settingsStore.pinCodeLength;
 
-  bool get isBiometricalAuthenticationAllowed => _settingsStore.allowBiometricalAuthentication;
+  bool get isBiometricalAuthenticationAllowed =>
+    biometryAllowed && _settingsStore.allowBiometricalAuthentication;
 
   @observable
   int _failureCounter;

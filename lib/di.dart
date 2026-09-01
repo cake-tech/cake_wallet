@@ -619,12 +619,17 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<AuthViewModel>(() => AuthViewModel(getIt.get<AuthService>(),
-      getIt.get<SharedPreferences>(), getIt.get<SettingsStore>(), BiometricAuth()));
+  getIt.registerSingleton<BiometricAuth>(BiometricAuth());
 
-  getIt.registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
-      (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
-          onAuthenticationFinished: onAuthFinished, closable: closable));
+  getIt.registerFactoryParam<AuthViewModel, AuthPageArgs?, void>((args, _) => AuthViewModel(
+      getIt.get<AuthService>(),
+      getIt.get<SharedPreferences>(),
+      getIt.get<SettingsStore>(),
+      getIt.get<BiometricAuth>(),
+      biometryAllowed: args?.biometryAllowed ?? true));
+
+  getIt.registerFactoryParam<AuthPage, AuthPageArgs, void>(
+      (args, _) => AuthPage(getIt.get<AuthViewModel>(param1: args), args: args));
 
   getIt.registerLazySingleton<Setup2FAViewModel>(
     () => Setup2FAViewModel(
@@ -657,91 +662,94 @@ Future<void> setup({
             lightningUsernameBloc: getIt.get<LightningUsernameBloc>(),
           ));
 
-  getIt.registerFactory<AuthPage>(instanceName: 'login', () {
-    return AuthPage(getIt.get<AuthViewModel>(), closable: false,
-        onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) async {
-      if (!isAuthenticated) {
-        return;
-      }
-      final authStore = getIt.get<AuthenticationStore>();
-      final appStore = getIt.get<AppStore>();
-      final useTotp = appStore.settingsStore.useTOTP2FA;
-      final shouldUseTotp2FAToAccessWallets =
-          appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
-      if (useTotp && shouldUseTotp2FAToAccessWallets) {
-        authPageState.close(
-          route: Routes.totpAuthCodePage,
-          arguments: TotpAuthArgumentsModel(
-            isForSetup: false,
-            isClosable: false,
-            onTotpAuthenticationFinished:
-                (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuthPageState) async {
-              if (!isAuthenticatedSuccessfully) {
+  getIt.registerFactory<AuthPage>(instanceName: "login", () {
+    return AuthPage(getIt.get<AuthViewModel>(),
+        args: AuthPageArgs(
+            closable: false,
+            onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) async {
+              if (!isAuthenticated) {
                 return;
               }
-              if (appStore.wallet != null) {
-                authStore.allowed();
-                return;
+              final authStore = getIt.get<AuthenticationStore>();
+              final appStore = getIt.get<AppStore>();
+              final useTotp = appStore.settingsStore.useTOTP2FA;
+              final shouldUseTotp2FAToAccessWallets =
+                  appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+              if (useTotp && shouldUseTotp2FAToAccessWallets) {
+                authPageState.close(
+                  route: Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    isForSetup: false,
+                    isClosable: false,
+                    onTotpAuthenticationFinished: (bool isAuthenticatedSuccessfully,
+                        TotpAuthCodePageState totpAuthPageState) async {
+                      if (!isAuthenticatedSuccessfully) {
+                        return;
+                      }
+                      if (appStore.wallet != null) {
+                        authStore.allowed();
+                        return;
+                      }
+
+                      totpAuthPageState.changeProcessText('Loading the wallet');
+
+                      if (loginError != null) {
+                        totpAuthPageState
+                            .changeProcessText('ERROR: ${loginError.toString()}'.trim());
+                      }
+
+                      ReactionDisposer? _reaction;
+                      _reaction = reaction((_) => appStore.wallet, (Object? _) {
+                        _reaction?.reaction.dispose();
+                        authStore.allowed();
+                      });
+                    },
+                  ),
+                );
+              } else {
+                // wallet is already loaded:
+                if (appStore.wallet != null || await requireHardwareWalletConnection()) {
+                  // goes to the dashboard:
+                  authStore.allowed();
+                  // trigger any deep links:
+                  final linkViewModel = getIt.get<LinkViewModel>();
+                  if (linkViewModel.currentLink != null) {
+                    linkViewModel.handleLink();
+                  }
+                  return;
+                }
+
+                // load the wallet:
+
+                authPageState.changeProcessText('Loading the wallet');
+
+                if (loginError != null) {
+                  authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
+                  loginError = null;
+                }
+
+                ReactionDisposer? _reaction;
+                _reaction = reaction((_) => appStore.wallet, (Object? _) {
+                  _reaction?.reaction.dispose();
+                  authStore.allowed();
+                  final linkViewModel = getIt.get<LinkViewModel>();
+                  if (linkViewModel.currentLink != null) {
+                    linkViewModel.handleLink();
+                  }
+                });
+
+                Timer.periodic(Duration(seconds: 1), (timer) {
+                  if (timer.tick > 30) {
+                    timer.cancel();
+                  }
+
+                  if (loginError != null) {
+                    authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
+                    timer.cancel();
+                  }
+                });
               }
-
-              totpAuthPageState.changeProcessText('Loading the wallet');
-
-              if (loginError != null) {
-                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
-              }
-
-              ReactionDisposer? _reaction;
-              _reaction = reaction((_) => appStore.wallet, (Object? _) {
-                _reaction?.reaction.dispose();
-                authStore.allowed();
-              });
-            },
-          ),
-        );
-      } else {
-        // wallet is already loaded:
-        if (appStore.wallet != null || await requireHardwareWalletConnection()) {
-          // goes to the dashboard:
-          authStore.allowed();
-          // trigger any deep links:
-          final linkViewModel = getIt.get<LinkViewModel>();
-          if (linkViewModel.currentLink != null) {
-            linkViewModel.handleLink();
-          }
-          return;
-        }
-
-        // load the wallet:
-
-        authPageState.changeProcessText('Loading the wallet');
-
-        if (loginError != null) {
-          authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
-          loginError = null;
-        }
-
-        ReactionDisposer? _reaction;
-        _reaction = reaction((_) => appStore.wallet, (Object? _) {
-          _reaction?.reaction.dispose();
-          authStore.allowed();
-          final linkViewModel = getIt.get<LinkViewModel>();
-          if (linkViewModel.currentLink != null) {
-            linkViewModel.handleLink();
-          }
-        });
-
-        Timer.periodic(Duration(seconds: 1), (timer) {
-          if (timer.tick > 30) {
-            timer.cancel();
-          }
-
-          if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
-            timer.cancel();
-          }
-        });
-      }
-    });
+            }));
   });
 
   getIt.registerSingleton<BottomSheetService>(BottomSheetServiceImpl());
@@ -1069,7 +1077,8 @@ Future<void> setup({
       getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, getIt.get<SendViewModel>()));
 
   getIt.registerFactory(
-      () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
+          () => SecuritySettingsViewModel(
+      getIt.get<SettingsStore>(), getIt.get<AuthService>(), getIt.get<BiometricAuth>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1354,20 +1363,19 @@ Future<void> setup({
     }
   });
 
-  getIt.registerFactoryParam<SetupPinCodeViewModel, bool?, void>(
-    (isDuressPin, _) => SetupPinCodeViewModel(
+  getIt.registerFactoryParam<SetupPinCodeViewModel, SetupPinCodeArgs, void>(
+    (args, _) => SetupPinCodeViewModel(
       getIt.get<AuthService>(),
       getIt.get<SettingsStore>(),
-      isDuressPin: isDuressPin ?? false,
+      args: args,
+      biometricAuth: getIt.get<BiometricAuth>(),
     ),
   );
 
-  getIt.registerFactoryParam<SetupPinCodePage, void Function(PinCodeState<PinCodeWidget>, String),
-      bool?>(
-    (onSuccessfulPinSetup, isDuressPin) => SetupPinCodePage(
-      getIt.get<SetupPinCodeViewModel>(param1: isDuressPin),
-      onSuccessfulPinSetup: onSuccessfulPinSetup,
-      isDuressPin: isDuressPin ?? false,
+  getIt.registerFactoryParam<SetupPinCodePage, SetupPinCodeArgs, void>(
+    (args, _) => SetupPinCodePage(
+      getIt.get<SetupPinCodeViewModel>(param1: args),
+      args: args,
     ),
   );
 
