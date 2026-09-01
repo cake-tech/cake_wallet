@@ -1,18 +1,18 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/digit_input.dart';
-import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/digit_input.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:mobx/mobx.dart";
 
 class HardwareWalletProceedOnDeviceSheet extends StatefulWidget {
   const HardwareWalletProceedOnDeviceSheet({
@@ -159,21 +159,27 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
         ),
       );
 
-  Widget get content {
-    if (_paringState is InitialTrezorParingState || _paringState is EnterPinTrezorParingState) {
-      return _enterPinCode(const ValueKey(0));
-    }
-
-    if (_paringState is VerifyingPinTrezorParingState) {
-      return _verifyingCode(const ValueKey(1));
-    }
-
-    if (_paringState is FailTrezorParingState) {
-      return _errorBox(const ValueKey(2), (_paringState as FailTrezorParingState).message);
-    }
-
-    return const SizedBox.shrink(key: ValueKey(3));
-  }
+  Widget get content => switch (_paringState) {
+        InitialTrezorParingState() || EnterPinTrezorParingState() => PinEntryWidget(
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: _isAwaitingPin,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(0),
+          ),
+        VerifyingPinTrezorParingState() => const VerifyingProgressIndicator(
+            key: ValueKey(1),
+          ),
+        FailTrezorParingState(:final message) => ConnectionErrorWidget(
+            error: message,
+            onRetryPressed: retry,
+            key: const ValueKey(2),
+          ),
+        _ => const SizedBox.shrink(
+            key: ValueKey(3),
+          ),
+      };
 
   void retry() {
     _controller.text = "";
@@ -219,135 +225,164 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
     }
   }
 
-  Widget _verifyingCode(Key key) => SizedBox(
-        key: key,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          spacing: 12,
-          mainAxisAlignment: MainAxisAlignment.center,
+}
+
+class ConnectionErrorWidget extends StatelessWidget {
+  const ConnectionErrorWidget({required this.error, required this.onRetryPressed, super.key});
+
+  final VoidCallback onRetryPressed;
+  final String error;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    key: key,
+    width: MediaQuery.of(context).size.width,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 12,
+        children: [
+          const Spacer(),
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          Text(
+            S.of(context).pairing_error,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            error,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const Spacer(),
+          NewPrimaryButton(
+            onPressed: onRetryPressed,
+            text: S.of(context).try_again,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class VerifyingProgressIndicator extends StatelessWidget {
+  const VerifyingProgressIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    key: key,
+    width: MediaQuery.of(context).size.width,
+    child: Column(
+      spacing: 12,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const CupertinoActivityIndicator(radius: 36),
+        const SizedBox(),
+        Text(
+          "${S.of(context).verifying_code}...",
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+        ),
+        Text(
+          S.of(context).this_can_take_few_seconds,
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+class PinEntryWidget extends StatelessWidget {
+  const PinEntryWidget({required this.pinOpenDuration, required this.pinLength, required this.controller, required this.iconPath, required this.isAwaitingPin, super.key});
+
+
+  final DigitInputController controller;
+  final String iconPath;
+  final bool isAwaitingPin;
+  final int pinLength;
+  final Duration pinOpenDuration;
+
+
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: key,
+    spacing: 12,
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      AnimatedContainer(
+        duration: pinOpenDuration,
+        curve: Curves.easeOutCubic,
+        width: isAwaitingPin ? 40 : 100,
+        height: isAwaitingPin ? 40 : 100,
+        child: CakeImageWidget(
+          imageUrl: iconPath,
+          colorFilter: ColorFilter.mode(
+            Theme.of(context).colorScheme.onSurfaceVariant,
+            BlendMode.srcIn,
+          ),
+        ),
+      ),
+      AnimatedSwitcher(
+        duration: pinOpenDuration,
+        switchInCurve: Curves.easeInCubic,
+        switchOutCurve: Curves.easeOutCubic,
+        child: isAwaitingPin
+            ? Column(
+          spacing: 24,
+          key: const ValueKey(1),
           children: [
-            const CupertinoActivityIndicator(radius: 36),
-            const SizedBox(),
             Text(
-              "${S.of(context).verifying_code}...",
+              textAlign: TextAlign.center,
+              "${S.of(context).pairing_code_desc_1}\n${S.of(context).pairing_code_desc_2}",
+            ),
+            DigitInput(
+              controller: controller,
+              desiredLength: pinLength,
+            ),
+          ],
+        )
+            : Column(
+          key: const ValueKey(0),
+          spacing: 12,
+          children: [
+            Text(
+              S.of(context).proceed_on_device,
               style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             ),
-            Text(
-              S.of(context).this_can_take_few_seconds,
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                S.of(context).proceed_on_device_description,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
         ),
-      );
-
-  Widget _errorBox(Key key, String errorText) => SizedBox(
-        key: key,
-        width: MediaQuery.of(context).size.width,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 12,
-            children: [
-              const Spacer(),
-              Icon(
-                Icons.error_outline,
-                size: 80,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              Text(
-                S.of(context).pairing_error,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                errorText,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(),
-              NewPrimaryButton(
-                onPressed: retry,
-                text: S.of(context).try_again,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ],
-          ),
-        ),
-      );
-
-  Widget _enterPinCode(Key key) => Column(
-        key: key,
-        spacing: 12,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: pinOpenDuration,
-            curve: Curves.easeOutCubic,
-            width: _isAwaitingPin ? 40 : 100,
-            height: _isAwaitingPin ? 40 : 100,
-            child: CakeImageWidget(
-              imageUrl: hardwareWalletIcon,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.onSurfaceVariant,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
-          AnimatedSwitcher(
-            duration: pinOpenDuration,
-            switchInCurve: Curves.easeInCubic,
-            switchOutCurve: Curves.easeOutCubic,
-            child: _isAwaitingPin
-                ? Column(
-                    spacing: 24,
-                    key: const ValueKey(1),
-                    children: [
-                      Text(
-                        textAlign: TextAlign.center,
-                        "${S.of(context).pairing_code_desc_1}\n${S.of(context).pairing_code_desc_2}",
-                      ),
-                      DigitInput(
-                        controller: _controller,
-                        desiredLength: pinLength,
-                      ),
-                    ],
-                  )
-                : Column(
-                    key: const ValueKey(0),
-                    spacing: 12,
-                    children: [
-                      Text(
-                        S.of(context).proceed_on_device,
-                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          S.of(context).proceed_on_device_description,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      );
+      ),
+    ],
+  );
 }
