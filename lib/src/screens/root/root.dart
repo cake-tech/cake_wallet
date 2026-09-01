@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -61,6 +62,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       : _isInactiveController = StreamController<bool>.broadcast(),
         _isInactive = false,
         _requestAuth = true,
+        _authRequired = false,
         _postFrameCallback = false;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
@@ -68,6 +70,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   bool _isInactive;
   bool _postFrameCallback;
   bool _requestAuth;
+
+  /// Set as soon as the app leaves the foreground while unlocked, and cleared
+  /// only once the user has actually authenticated again.
+  ///
+  /// This deliberately outlives [_isInactive], which is reset on resume: the
+  /// lock must not be released just because the app came back, only because
+  /// the PIN was entered. Note that the app is also paused while a native
+  /// in-app browser (SFSafariViewController / Custom Tab) covers it, and while
+  /// paused Flutter disables frame production, so [build] cannot be relied on
+  /// to schedule the unlock screen.
+  bool _authRequired;
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
@@ -170,8 +183,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
-          setState(() => _setInactive(true));
+        if (widget.authenticationStore.state == AuthenticationState.allowed) {
+          setState(() {
+            _authRequired = true;
+
+            if (!_isInactive) {
+              _setInactive(true);
+            }
+          });
         }
 
         if (widget.appStore.wallet?.type == WalletType.bitcoin) {
@@ -183,7 +202,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.resumed:
 
-        // Reset inactive state when app resumes
+        // Reset inactive state when app resumes. Note that this does NOT
+        // release the lock: _authRequired stays set until the user has
+        // authenticated.
         if (_isInactive) setState(() => _setInactive(false));
 
         widget.authService.requireAuth().then((value) {
@@ -191,6 +212,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             setState(() {
               _requestAuth = value;
             });
+            _presentAuthIfRequired();
           }
         });
         if (widget.appStore.wallet?.type == WalletType.bitcoin &&
@@ -250,54 +272,78 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
+  /// Pushes the unlock screen if the app owes the user an authentication.
+  ///
+  /// Called both from [didChangeAppLifecycleState] and from [build]. The
+  /// lifecycle path is the reliable one: while the app is paused Flutter stops
+  /// producing frames, so [build] may never run to schedule it.
+  void _presentAuthIfRequired() {
+    if (!_authRequired || !_requestAuth || _postFrameCallback) {
+      return;
+    }
+
+    final navigator = widget.navigatorKey.currentState;
+
+    if (navigator == null) {
+      // Too early to navigate; build() will retry once the navigator exists.
+      return;
+    }
+
+    _postFrameCallback = true;
+
+    // A native in-app browser (SFSafariViewController / Custom Tab) is
+    // presented above the whole Flutter view, so it would keep covering the
+    // unlock screen we are about to push.
+    closeInAppWebView();
+
+    navigator.pushNamed(
+      Routes.unlock,
+      arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+        if (!isAuthenticatedSuccessfully) {
+          return;
+        }
+        final useTotp = widget.appStore.settingsStore.useTOTP2FA;
+        final shouldUseTotp2FAToAccessWallets =
+            widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
+        if (useTotp && shouldUseTotp2FAToAccessWallets) {
+          _reset();
+          auth.close(
+            route: Routes.totpAuthCodePage,
+            arguments: TotpAuthArgumentsModel(
+              onTotpAuthenticationFinished:
+                  (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                if (!isAuthenticatedSuccessfully) {
+                  return;
+                }
+                _reset();
+                totpAuth.close(
+                  route: widget.linkViewModel.getRouteToGo(),
+                  arguments: widget.linkViewModel.getRouteArgs(),
+                );
+                widget.linkViewModel.currentLink = null;
+              },
+              isForSetup: false,
+              isClosable: false,
+            ),
+          );
+        } else {
+          _reset();
+          auth.close(
+            route: widget.linkViewModel.getRouteToGo(),
+            arguments: widget.linkViewModel.getRouteArgs(),
+          );
+          widget.linkViewModel.currentLink = null;
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // this only happens when the app has been in the background for some time
     // this does NOT trigger when the app is started from the "closed" state!
-    if (_isInactive && !_postFrameCallback && _requestAuth) {
-      _postFrameCallback = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.navigatorKey.currentState?.pushNamed(
-          Routes.unlock,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-            if (!isAuthenticatedSuccessfully) {
-              return;
-            }
-            final useTotp = widget.appStore.settingsStore.useTOTP2FA;
-            final shouldUseTotp2FAToAccessWallets =
-                widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
-            if (useTotp && shouldUseTotp2FAToAccessWallets) {
-              _reset();
-              auth.close(
-                route: Routes.totpAuthCodePage,
-                arguments: TotpAuthArgumentsModel(
-                  onTotpAuthenticationFinished:
-                      (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
-                    if (!isAuthenticatedSuccessfully) {
-                      return;
-                    }
-                    _reset();
-                    totpAuth.close(
-                      route: widget.linkViewModel.getRouteToGo(),
-                      arguments: widget.linkViewModel.getRouteArgs(),
-                    );
-                    widget.linkViewModel.currentLink = null;
-                  },
-                  isForSetup: false,
-                  isClosable: false,
-                ),
-              );
-            } else {
-              _reset();
-              auth.close(
-                route: widget.linkViewModel.getRouteToGo(),
-                arguments: widget.linkViewModel.getRouteArgs(),
-              );
-              widget.linkViewModel.currentLink = null;
-            }
-          },
-        );
-      });
+    if (_authRequired && !_postFrameCallback && _requestAuth) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _presentAuthIfRequired());
     }
 
     return WillPopScope(
@@ -309,6 +355,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _reset() {
     setState(() {
       _postFrameCallback = false;
+      _authRequired = false;
       _setInactive(false);
     });
 
