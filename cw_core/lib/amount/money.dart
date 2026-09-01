@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:cw_core/amount/utils.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/format_fixed.dart";
@@ -33,6 +34,14 @@ class Money implements Comparable<Money> {
     final amount = isBaseUnit ? BigInt.parse(source) : parseFixed(source, decimals);
 
     return Money(amount, currency, decimals);
+  }
+
+  factory Money.safeParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.parse(source.toString())
+        : parseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
+
+    return Money(amount, currency);
   }
 
   /// Parse the [source] and turn it into [Money] if possible trimming trailing 0s

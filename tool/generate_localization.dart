@@ -1,23 +1,22 @@
-import 'dart:io';
-import 'dart:convert';
-import './print_verbose_dummy.dart';
+import "dart:io";
+import "dart:convert";
 
-import 'localization/localization_constants.dart';
-import 'utils/utils.dart';
+import "localization/localization_constants.dart";
+import "utils/utils.dart";
 
-const inputPath = 'res/values/';
-const outputPath = 'lib/generated/';
-const localizationFileName = 'i18n.dart';
-const localeListFileName = 'locales.dart';
-const srcDir = 'srcDir';
-const defaultLocale = 'en';
+const inputPath = "res/values/";
+const outputPath = "lib/generated/";
+const localizationFileName = "i18n.dart";
+const localeListFileName = "locales.dart";
+const srcDir = "srcDir";
+const defaultLocale = "en";
 
 Future<void> main(List<String> args) async {
   final extraInfo = args.isNotEmpty
       ? args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
-          final parts = arg.split('=');
+          final parts = arg.split("=");
           var key = normalizeKeyName(parts[0]);
-          if (key.contains('--')) {
+          if (key.contains("--")) {
             key = key.substring(2);
           }
           acc[key] = parts.length > 1
@@ -37,7 +36,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      print('Wrong key: $key');
+      print("Wrong key: $key");
       return;
     }
 
@@ -45,7 +44,7 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      print('Wrong directory path: $dirPath');
+      print("Wrong directory path: $dirPath");
       return;
     }
 
@@ -54,12 +53,12 @@ Future<void> main(List<String> args) async {
       // Parse the locale from the file name (e.g. strings_pt_br.arb -> pt_BR),
       // normalizing the case so keys match LanguageService.supportedLocales.
       final fileName = element.uri.pathSegments.last;
-      if (!fileName.startsWith('strings_') || !fileName.endsWith('.arb')) {
-        print('Wrong file: ${element.path}');
+      if (!fileName.startsWith("strings_") || !fileName.endsWith(".arb")) {
+        print("Wrong file: ${element.path}");
         return;
       }
       final parts =
-          fileName.substring('strings_'.length, fileName.length - '.arb'.length).split('_');
+          fileName.substring("strings_".length, fileName.length - ".arb".length).split("_");
       final locale = parts.length > 1
           ? '${parts.first.toLowerCase()}_${parts.sublist(1).join('_').toUpperCase()}'
           : parts.first.toLowerCase();
@@ -72,8 +71,8 @@ Future<void> main(List<String> args) async {
     }
 
     try {
-      var output = '';
-      var locales = 'const locales = [';
+      var output = "";
+      var locales = "const locales = [";
 
       output += part1;
       output += textDirectionDeclaration;
@@ -82,7 +81,8 @@ Future<void> main(List<String> args) async {
       var config = json.decode(inputContent) as Map<String, dynamic>;
 
       output += localizedStrings(config: config, hasOverride: false);
-      output += '}' + '\n\n';
+      output += keyLookup(config: config);
+      output += "}" + "\n\n";
 
       localePath.forEach((key, dynamic value) {
         inputContent = File(localePath[key].toString()).readAsStringSync();
@@ -90,36 +90,36 @@ Future<void> main(List<String> args) async {
 
         locales += "'$key', ";
 
-        output += 'class \$$key extends S {' + '\n';
-        output += '  const \$$key();' + '\n';
+        output += "class \$$key extends S {" + "\n";
+        output += "  const \$$key();" + "\n";
 
         if (key != defaultLocale) {
           output += textDirectionDeclaration;
           output += localizedStrings(config: config, hasOverride: true);
         }
 
-        output += '}' + '\n\n';
+        output += "}" + "\n\n";
       });
 
       output += classDeclaration;
 
-      localePath.keys.forEach((key) {
-        output += '      Locale("$key", ""),' + '\n';
-      });
+      for (final key in localePath.keys) {
+        output += '      Locale("$key", ""),' + "\n";
+      }
 
       output += part2;
 
-      localePath.keys.forEach((key) {
-        output += '        case "$key":' + '\n';
-        output += '          S.current = const \$$key();' + '\n';
-        output += '          return SynchronousFuture<S>(S.current);' + '\n';
-      });
+      for (final key in localePath.keys) {
+        output += '        case "$key":' + "\n";
+        output += "          S.current = const \$$key();" + "\n";
+        output += "          return SynchronousFuture<S>(S.current);" + "\n";
+      }
 
       output += part3;
 
       await File(outputPath + localizationFileName).writeAsString(output);
 
-      locales += '];';
+      locales += "];";
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
@@ -129,34 +129,54 @@ Future<void> main(List<String> args) async {
 }
 
 String localizedStrings({required Map<String, dynamic> config, required bool hasOverride}) {
-  var output = '';
+  var output = "";
 
-  final pattern = RegExp('[\$]{(.*?)}');
+  final pattern = RegExp(r"[$]{(.*?)}");
 
   config.forEach((key, dynamic value) {
     final matches = pattern.allMatches(value as String);
 
     if (hasOverride) {
-      output += '  @override' + '\n';
+      output += "  @override" + "\n";
     }
 
     if (matches.isEmpty) {
-      output += '  String get ${key} => \"\"\"${value}\"\"\";' + '\n';
+      output += "  String get ${key} => \"\"\"${value}\"\"\";" + "\n";
     } else {
       final set = matches.map((elem) => elem.group(1)).toSet().toList();
 
-      output += '  String ${key}(';
+      output += "  String ${key}(";
 
       for (var elem in set) {
         if (elem == set.last) {
-          output += 'String ${elem}';
+          output += "String ${elem}";
         } else {
-          output += 'String ${elem}, ';
+          output += "String ${elem}, ";
         }
       }
-      output += ') => \"\"\"${value}\"\"\";' + '\n';
+      output += ') => """${value}""";' + "\n";
     }
   });
+
+  return output;
+}
+
+String keyLookup({required Map<String, dynamic> config}) {
+  final pattern = RegExp(r"[$]{(.*?)}");
+
+  var output = "\n  String? getByKeyOrNull(String key) => switch (key) {\n";
+
+  config.forEach((key, dynamic value) {
+    if (pattern.hasMatch(value as String)) {
+      return;
+    }
+
+    output += '        "$key" => $key,\n';
+  });
+
+  output += "        _ => null,\n";
+  output += "      };\n\n";
+  output += "  String getByKey(String key) => getByKeyOrNull(key) ?? key;\n";
 
   return output;
 }

@@ -17,6 +17,7 @@ dependencies:
   mobx: ^2.6.0
   flutter_mobx: ^2.3.0
   intl: any
+  meta: any
   encrypt: ^5.0.1
   decimal: ^2.3.3
   cake_backup:

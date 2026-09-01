@@ -102,14 +102,6 @@ class DesktopSidebarWrapper extends BasePage {
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
                   imagePath: 'assets/images/history.svg',
                 ),
-                SideMenuItem(
-                  widget: ServicesUpdatesWidget(
-                    dashboardViewModel.getServicesStatus(),
-                    enabled: dashboardViewModel.isEnabledBulletinAction,
-                  ),
-                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.status,
-                  onTap: () {},
-                ),
               ],
               bottomItems: [
                 SideMenuItem(

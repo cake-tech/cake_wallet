@@ -122,20 +122,6 @@ class CWSolana extends Solana {
     return solanaWallet.isTokenVerifiedOnJupiter(mintAddress);
   }
 
-  @override
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
-      return CryptoCurrency.sol;
-    }
-
-    final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
-
-    if (token != null) {
-      return token;
-    }
-
-    return transaction.amount.currency as CryptoCurrency;
-  }
 
   @override
   String getTokenAddress(CryptoCurrency asset) {

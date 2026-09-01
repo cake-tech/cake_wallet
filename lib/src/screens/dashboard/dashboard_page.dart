@@ -177,11 +177,7 @@ class _DashboardPageView extends BasePage {
 
     return Observer(
       builder: (context) {
-        return ServicesUpdatesWidget(
-          key: ValueKey('dashboard_page_services_update_button_key'),
-          dashboardViewModel.getServicesStatus(),
-          enabled: dashboardViewModel.isEnabledBulletinAction,
-        );
+        return Placeholder();
       },
     );
   }
@@ -234,7 +230,6 @@ class _DashboardPageView extends BasePage {
         }
         pages.clear();
         _isEffectsInstalled = false;
-        _setEffects(context);
 
         if (value) {
           controller.jumpToPage(1);
@@ -243,7 +238,6 @@ class _DashboardPageView extends BasePage {
         }
       },
     );
-    _setEffects(context);
 
     return SafeArea(
       minimum: EdgeInsets.only(bottom: 0),
@@ -317,126 +311,7 @@ class _DashboardPageView extends BasePage {
     );
   }
 
-  void _setEffects(BuildContext context) async {
-    if (_isEffectsInstalled || !context.mounted) {
-      return;
-    }
-    if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-      pages.add(
-        Semantics(
-          label: S.of(context).apps,
-          child: CakeFeaturesPage(
-            dashboardViewModel: dashboardViewModel,
-            cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
-          ),
-        ),
-      );
-    }
-    pages.add(Semantics(label: S.of(context).balance_page, child: balancePage));
-    pages.add(
-      Semantics(
-        label: S.of(context).history,
-        child: TransactionsPage(dashboardViewModel: dashboardViewModel),
-      ),
-    );
-    _isEffectsInstalled = true;
 
-    _showReleaseNotesPopup(context);
 
-    _showVulnerableSeedsPopup(context);
 
-    _showHavenPopup(context);
-
-    var needToPresentYat = false;
-
-    rootKey.currentState?.isInactive.listen(
-      (inactive) {
-        if (needToPresentYat) {
-          Future<void>.delayed(Duration(milliseconds: 500)).then(
-            (_) {
-              showPopUp<void>(
-                context: navigatorKey.currentContext!,
-                builder: (_) => YatEmojiId(dashboardViewModel.yatStore.emoji),
-              );
-              needToPresentYat = false;
-            },
-          );
-        }
-      },
-    );
-
-    dashboardViewModel.yatStore.emojiIncommingStream.listen(
-      (String emoji) {
-        if (!_isEffectsInstalled || emoji.isEmpty) {
-          return;
-        }
-
-        needToPresentYat = true;
-      },
-    );
-  }
-
-  void _showReleaseNotesPopup(BuildContext context) async {
-    final sharedPrefs = await SharedPreferences.getInstance();
-    final currentAppVersion =
-        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
-    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
-    final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
-
-    if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
-      Future<void>.delayed(
-        Duration(seconds: 1),
-        () {
-          showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return ReleaseNotesScreen(
-                title: 'Version ${dashboardViewModel.settingsStore.appVersion}',
-              );
-            },
-          );
-        },
-      );
-
-      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-    } else if (isNewInstall!) {
-      sharedPrefs.setInt(PreferencesKey.lastSeenAppVersion, currentAppVersion);
-    }
-  }
-
-  void _showVulnerableSeedsPopup(BuildContext context) async {
-    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
-
-    if (affectedWalletNames.isNotEmpty) {
-      Future<void>.delayed(
-        Duration(seconds: 1),
-        () {
-          showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return VulnerableSeedsPopup(affectedWalletNames);
-            },
-          );
-        },
-      );
-    }
-  }
-
-  void _showHavenPopup(BuildContext context) async {
-    final List<String> havenWalletList = await dashboardViewModel.checkForHavenWallets();
-
-    if (havenWalletList.isNotEmpty) {
-      Future<void>.delayed(
-        Duration(seconds: 1),
-        () {
-          showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return HavenWalletRemovalPopup(havenWalletList);
-            },
-          );
-        },
-      );
-    }
-  }
 }

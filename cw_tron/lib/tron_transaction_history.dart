@@ -1,85 +1,29 @@
-import 'dart:convert';
-import 'dart:core';
-import 'dart:developer';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_tron/tron_transaction_info.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/transaction_history.dart';
+import "dart:core";
 
-part 'tron_transaction_history.g.dart';
+import "package:cw_core/json_transaction_history.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_tron/tron_transaction_info.dart";
 
-class TronTransactionHistory = TronTransactionHistoryBase with _$TronTransactionHistory;
+const transactionsHistoryFileName = "tron_transactions.json";
 
-abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTransactionInfo>
-    with Store {
-  TronTransactionHistoryBase(
-      {required this.walletInfo, required String password, required this.encryptionFileUtils})
-      : _password = password {
-    transactions = ObservableMap<String, TronTransactionInfo>();
-  }
+class TronTransactionHistory extends JsonTransactionHistory<TronTransactionInfo> {
+  TronTransactionHistory({
+    required super.walletInfo,
+    required super.password,
+    required super.encryptionFileUtils,
+  });
 
-  String _password;
+  @override
+  String get fileName => transactionsHistoryFileName;
 
-  final WalletInfo walletInfo;
-  final EncryptionFileUtils encryptionFileUtils;
+  Iterable<TronToken> _tokens = const [];
 
-  Future<void> init() async {
-    clear();
-    await _load();
+  @override
+  Future<void> prepareForLoad() async {
+    _tokens = await TronToken.getAllForWallet(walletInfo.name);
   }
 
   @override
-  Future<void> save() async {
-    String transactionsHistoryFileNameForWallet = 'tron_transactions.json';
-    try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-      String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-      final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
-      final data = json.encode({'transactions': transactionMaps});
-      await encryptionFileUtils.write(path: path, password: _password, data: data);
-    } catch (e, s) {
-      log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
-      log(s.toString());
-    }
-  }
-
-  @override
-  void addOne(TronTransactionInfo transaction) => transactions[transaction.id] = transaction;
-
-  @override
-  void addMany(Map<String, TronTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
-
-  Future<Map<String, dynamic>> _read() async {
-    String transactionsHistoryFileNameForWallet = 'tron_transactions.json';
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-    final content = await encryptionFileUtils.read(path: path, password: _password);
-    if (content.isEmpty) {
-      return {};
-    }
-    return json.decode(content) as Map<String, dynamic>;
-  }
-
-  Future<void> _load() async {
-    try {
-      final content = await _read();
-      final txs = content['transactions'] as Map<String, dynamic>? ?? {};
-
-      for (var entry in txs.entries) {
-        final val = entry.value;
-
-        if (val is Map<String, dynamic>) {
-          final tx = TronTransactionInfo.fromJson(val);
-          _update(tx);
-        }
-      }
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  void _update(TronTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  TronTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
+      TronTransactionInfo.fromJson(json, tokens: _tokens);
 }

@@ -153,7 +153,7 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>>
       restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();

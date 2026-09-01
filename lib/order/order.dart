@@ -1,3 +1,4 @@
+import 'package:cw_core/action_list_item.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/format_amount.dart';
@@ -10,7 +11,7 @@ import 'order_source_description.dart';
 part 'order.part.dart';
 
 // @HiveType(typeId: Order.typeId)
-class Order extends HiveObject {
+class Order extends HiveObject with HistoryListItem {
   Order({
     required this.id,
     required this.transferId,
@@ -87,6 +88,9 @@ class Order extends HiveObject {
   OrderProviderDescription? get orderProvider => source == OrderSourceDescription.order
       ? OrderProviderDescription.deserialize(raw: providerRaw)
       : null;
+
+  @override
+  DateTime get date => createdAt;
 
   String get providerTitle {
     if (source == OrderSourceDescription.buy) {

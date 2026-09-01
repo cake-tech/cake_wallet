@@ -1,14 +1,12 @@
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:collection/collection.dart";
+import "package:cw_core/history_source.dart";
+import "package:cw_core/wallet_base.dart";
 
-part 'trade_filter_store.g.dart';
-
-class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
-
-abstract class TradeFilterStoreBase with Store {
-  TradeFilterStoreBase()
+class TradeFilterStore extends HistoryFilters {
+  TradeFilterStore(this._appStore)
       : displayXMRTO = true,
         displayChangeNow = true,
         displaySideShift = true,
@@ -25,51 +23,37 @@ abstract class TradeFilterStoreBase with Store {
         displaySwapXyz = true,
         displayNearIntents = true;
 
-  @observable
+  final AppStore _appStore;
+
   bool displayXMRTO;
 
-  @observable
   bool displayChangeNow;
 
-  @observable
   bool displaySideShift;
 
-  @observable
   bool displayMorphToken;
 
-  @observable
   bool displaySimpleSwap;
 
-  @observable
   bool displayTrocador;
 
-  @observable
   bool displayExolix;
 
-  @observable
   bool displayChainflip;
 
-  @observable
   bool displayThorChain;
 
-  @observable
   bool displayLetsExchange;
 
-  @observable
   bool displayStealthEx;
 
-  @observable
   bool displayXOSwap;
 
-  @observable
   bool displaySwapTrade;
 
-  @observable
   bool displaySwapXyz;
-  @observable
   bool displayNearIntents;
 
-  @computed
   int get enabledProvidersCount => [
         displayChangeNow,
         displaySideShift,
@@ -83,10 +67,9 @@ abstract class TradeFilterStoreBase with Store {
         displayXOSwap,
         displaySwapTrade,
         displaySwapXyz,
-        displayNearIntents
+        displayNearIntents,
       ].where((item) => item).length;
 
-  @computed
   bool get displayAllTrades =>
       displayChangeNow &&
       displaySideShift &&
@@ -102,7 +85,6 @@ abstract class TradeFilterStoreBase with Store {
       displaySwapXyz &&
       displayNearIntents;
 
-  @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
     switch (provider) {
       case ExchangeProviderDescription.changeNow:
@@ -188,49 +170,105 @@ abstract class TradeFilterStoreBase with Store {
     }
   }
 
-  List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
-    final _trades = trades.where((item) {
-      final isSameChain = item.trade.chainId != null
-          ? item.trade.chainId == wallet.chainId
-          : true; // returning default as true here so it falls back to the default checks if there's no chainId
-      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
-    }).toList();
-    final needToFilter = !displayAllTrades;
+  static const _swap = "Swap";
 
-    return needToFilter
-        ? _trades
-            .where((item) =>
-                (displayXMRTO && item.trade.provider == ExchangeProviderDescription.xmrto) ||
-                (displaySideShift &&
-                    item.trade.provider == ExchangeProviderDescription.sideShift) ||
-                (displayChangeNow &&
-                    item.trade.provider == ExchangeProviderDescription.changeNow) ||
-                (displayMorphToken &&
-                    item.trade.provider == ExchangeProviderDescription.morphToken) ||
-                (displaySimpleSwap &&
-                    item.trade.provider == ExchangeProviderDescription.simpleSwap) ||
-                (displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador) ||
-                (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
-                (displayChainflip &&
-                    item.trade.provider == ExchangeProviderDescription.chainflip) ||
-                (displayThorChain &&
-                    item.trade.provider == ExchangeProviderDescription.thorChain) ||
-                (displayLetsExchange &&
-                    item.trade.provider == ExchangeProviderDescription.letsExchange) ||
-                (displayStealthEx &&
-                    item.trade.provider == ExchangeProviderDescription.stealthEx) ||
-                (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
-                (displaySwapTrade &&
-                    item.trade.provider == ExchangeProviderDescription.swapTrade) ||
-                (displaySwapXyz && item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
-                (displayNearIntents &&
-                    item.trade.provider == ExchangeProviderDescription.nearIntents))
-            .toList()
-        : _trades;
+  static const _providers = [
+    ExchangeProviderDescription.changeNow,
+    ExchangeProviderDescription.sideShift,
+    ExchangeProviderDescription.simpleSwap,
+    ExchangeProviderDescription.trocador,
+    ExchangeProviderDescription.exolix,
+    ExchangeProviderDescription.chainflip,
+    ExchangeProviderDescription.thorChain,
+    ExchangeProviderDescription.letsExchange,
+    ExchangeProviderDescription.stealthEx,
+    ExchangeProviderDescription.xoSwap,
+    ExchangeProviderDescription.swapTrade,
+    ExchangeProviderDescription.swapsXyz,
+    ExchangeProviderDescription.nearIntents,
+  ];
+
+  @override
+  List<HistoryFilter> get filters => [
+        HistoryFilter(
+          key: _swap,
+          caption: _swap,
+          value: enabledProvidersCount > 0,
+          children: [
+            for (final provider in _providers)
+              HistoryFilter(
+                key: provider.title,
+                caption: provider.title,
+                value: _displaysProvider(provider),
+                iconPath: provider.image,
+              ),
+          ],
+        ),
+      ];
+
+  @override
+  void toggleFilter(HistoryFilter filter) {
+    if (filter.key == _swap) {
+      toggleDisplayExchange(ExchangeProviderDescription.all);
+      return;
+    }
+
+    final provider = _providers.firstWhereOrNull((provider) => provider.title == filter.key);
+
+    if (provider != null) {
+      toggleDisplayExchange(provider);
+    }
   }
 
-  bool isTradeInAccount(TradeListItem item, WalletBase wallet) =>
-      item.trade.fromWalletAddress == null
+  @override
+  void setAllFilters({required bool value}) {
+    if (value != displayAllTrades) {
+      toggleDisplayExchange(ExchangeProviderDescription.all);
+    }
+  }
+
+  @override
+  bool relevant(HistoryListItem item) {
+    final wallet = _appStore.wallet;
+
+    if (item is! Trade || wallet == null) {
+      return false;
+    }
+
+    final isSameChain = item.chainId != null ? item.chainId == wallet.chainId : true;
+
+    if (item.walletId != wallet.id || !isTradeInAccount(item, wallet) || !isSameChain) {
+      return false;
+    }
+
+    return displayAllTrades || _displaysProvider(item.provider);
+  }
+
+
+  bool _displaysProvider(ExchangeProviderDescription provider) =>
+      _displayByProvider[provider] ?? true;
+
+  Map<ExchangeProviderDescription, bool> get _displayByProvider => {
+        ExchangeProviderDescription.xmrto: displayXMRTO,
+        ExchangeProviderDescription.morphToken: displayMorphToken,
+        ExchangeProviderDescription.changeNow: displayChangeNow,
+        ExchangeProviderDescription.sideShift: displaySideShift,
+        ExchangeProviderDescription.simpleSwap: displaySimpleSwap,
+        ExchangeProviderDescription.trocador: displayTrocador,
+        ExchangeProviderDescription.exolix: displayExolix,
+        ExchangeProviderDescription.chainflip: displayChainflip,
+        ExchangeProviderDescription.thorChain: displayThorChain,
+        ExchangeProviderDescription.letsExchange: displayLetsExchange,
+        ExchangeProviderDescription.stealthEx: displayStealthEx,
+        ExchangeProviderDescription.xoSwap: displayXOSwap,
+        ExchangeProviderDescription.swapTrade: displaySwapTrade,
+        ExchangeProviderDescription.swapsXyz: displaySwapXyz,
+        ExchangeProviderDescription.nearIntents: displayNearIntents,
+      };
+
+
+  bool isTradeInAccount(Trade item, WalletBase wallet) =>
+      item.fromWalletAddress == null
           ? true
-          : wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!);
+          : wallet.walletAddresses.containsAddress(item.fromWalletAddress!);
 }

@@ -180,6 +180,9 @@ abstract class EVMChainWalletBase
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
+  @override
+  bool get hasTokens => true;
+
   //! Chain selection methods
 
   /// Select a different EVM network chain for this wallet
@@ -279,11 +282,12 @@ abstract class EVMChainWalletBase
     final tokenSymbol = transactionModel.tokenSymbol ??
         EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
 
-    final amountCurrency = Erc20Token(
-      name: '',
+    final amountCurrency = EVMChainTransactionInfo.amountCurrencyFor(
+      chainId: transactionModel.chainId,
+      tokens: erc20Currencies,
       contractAddress: transactionModel.contractAddress,
-      decimal: decimals,
-      symbol: tokenSymbol,
+      decimals: decimals,
+      tokenSymbol: tokenSymbol,
     );
     return EVMChainTransactionInfo(
       id: transactionModel.hash,
@@ -1435,7 +1439,7 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> removeTokenTransactionsInHistory(Erc20Token token) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.tokenSymbol == token.title);
+    transactionHistory.removeWhere((key, value) => value.tokenSymbol == token.title);
     await transactionHistory.save();
   }
 

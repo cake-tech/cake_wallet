@@ -1,3 +1,4 @@
+import 'package:cw_core/action_list_item.dart';
 import 'dart:async';
 
 import 'package:cake_wallet/evm/evm.dart';
@@ -9,7 +10,7 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:sqflite/sqflite.dart';
 
-class Trade {
+class Trade with HistoryListItem {
   Trade({
     this.internalId = 0,
     required this.id,
@@ -112,6 +113,10 @@ class Trade {
 
   int? chainId;
   double? fee;
+
+  //FIXME the fallback is not great, but it won't be a problem after swap refactor since the date is not nullable
+  @override
+  DateTime get date => createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   String get chainName {
     if (chainId == null) return '';

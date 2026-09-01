@@ -1,3 +1,5 @@
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -82,6 +84,10 @@ abstract class MoneroAccountListViewModelBase with Store {
         item.label,
         item.balance,
       );
+    }
+
+    if (getIt.isRegistered<TransactionHistoryBloc>()) {
+      getIt.get<TransactionHistoryBloc>().add(const TransactionHistoryRefreshed());
     }
   }
 }

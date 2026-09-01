@@ -1,43 +1,32 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/monero/monero.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/history_source.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/wallet_type.dart";
 
-part 'transaction_filter_store.g.dart';
-
-class TransactionFilterStore = TransactionFilterStoreBase with _$TransactionFilterStore;
-
-abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase(this._appStore)
+class TransactionFilterStore extends HistoryFilters {
+  TransactionFilterStore(this._appStore)
       : displayIncoming = true,
         displayOutgoing = true,
         displaySilentPayments = true;
 
   final AppStore _appStore;
 
-  @observable
   bool displayIncoming;
 
-  @observable
   bool displayOutgoing;
 
-  @observable
   bool displaySilentPayments;
 
-  @observable
   DateTime? startDate;
 
-  @observable
   DateTime? endDate;
 
-  @computed
   bool get displayAll => displayIncoming && displayOutgoing && displaySilentPayments;
 
-  @action
   void toggleAll() {
     if (displayAll) {
       displayOutgoing = false;
@@ -50,67 +39,103 @@ abstract class TransactionFilterStoreBase with Store {
     }
   }
 
-  @action
   void toggleIncoming() {
     displayIncoming = !displayIncoming;
   }
 
-  @action
   void toggleOutgoing() {
     displayOutgoing = !displayOutgoing;
   }
 
-  @action
   void toggleSilentPayments() {
     displaySilentPayments = !displaySilentPayments;
   }
 
-  @action
   void changeStartDate(DateTime date) => startDate = date;
 
-  @action
   void changeEndDate(DateTime date) => endDate = date;
 
-  List<ActionListItem> filtered({required List<ActionListItem> transactions}) {
-    var _transactions = <ActionListItem>[];
-    final needToFilter = !displayAll || (startDate != null && endDate != null);
+  static const _outgoing = "send";
+  static const _incoming = "receive";
+  static const _silentPayments = "silent_payments";
 
-    if (needToFilter) {
-      _transactions = transactions.where((item) {
-        var allowed = true;
+  @override
+  List<HistoryFilter> get filters => [
+        HistoryFilter(key: _outgoing, caption: _outgoing, value: displayOutgoing),
+        HistoryFilter(key: _incoming, caption: _incoming, value: displayIncoming),
+        if (_appStore.wallet?.type == WalletType.bitcoin)
+          HistoryFilter(
+            key: _silentPayments,
+            caption: _silentPayments,
+            value: displaySilentPayments,
+          ),
+      ];
 
-        if (allowed && startDate != null && endDate != null) {
-          if (item is TransactionListItem) {
-            allowed = (startDate?.isBefore(item.transaction.date) ?? false) &&
-                (endDate?.isAfter(item.transaction.date) ?? false);
-          } else if (item is AnonpayTransactionListItem) {
-            allowed = (startDate?.isBefore(item.transaction.createdAt) ?? false) &&
-                (endDate?.isAfter(item.transaction.createdAt) ?? false);
-          }
-        }
+  @override
+  void toggleFilter(HistoryFilter filter) {
+    switch (filter.key) {
+      case _outgoing:
+        toggleOutgoing();
+      case _incoming:
+        toggleIncoming();
+      case _silentPayments:
+        toggleSilentPayments();
+    }
+  }
 
-        if (allowed && (!displayAll)) {
-          if (item is TransactionListItem) {
-            final canShowSilentPayment = _appStore.wallet?.type == WalletType.bitcoin &&
-                (bitcoin?.txIsReceivedSilentPayment(item.transaction) ?? false);
+  @override
+  void setAllFilters({required bool value}) {
+    displayOutgoing = value;
+    displayIncoming = value;
+    displaySilentPayments = value;
+  }
 
-            allowed =
-                (displayOutgoing && item.transaction.direction == TransactionDirection.outgoing) ||
-                    (displayIncoming &&
-                        item.transaction.direction == TransactionDirection.incoming &&
-                        !canShowSilentPayment) ||
-                    (displaySilentPayments && canShowSilentPayment);
-          } else if (item is AnonpayTransactionListItem) {
-            allowed = displayIncoming;
-          }
-        }
-
-        return allowed;
-      }).toList();
-    } else {
-      _transactions = transactions;
+  @override
+  bool relevant(HistoryListItem item) {
+    if (!_inScope(item)) {
+      return false;
     }
 
-    return _transactions;
+    if (startDate != null && endDate != null) {
+      if (!(startDate!.isBefore(item.date) && endDate!.isAfter(item.date))) {
+        return false;
+      }
+    }
+
+    if (displayAll) {
+      return true;
+    }
+
+    if (item is TransactionInfo) {
+      final canShowSilentPayment = _appStore.wallet?.type == WalletType.bitcoin &&
+          (bitcoin?.txIsReceivedSilentPayment(item) ?? false);
+
+      return (displayOutgoing && item.direction == TransactionDirection.outgoing) ||
+          (displayIncoming &&
+              item.direction == TransactionDirection.incoming &&
+              !canShowSilentPayment) ||
+          (displaySilentPayments && canShowSilentPayment);
+    }
+
+    return displayIncoming;
   }
+
+  bool _inScope(HistoryListItem item) {
+    final wallet = _appStore.wallet;
+
+    if (item is TransactionInfo) {
+      if (wallet == null || wallet.type != WalletType.monero) {
+        return true;
+      }
+      return monero!.getTransactionInfoAccountId(item) == monero!.getCurrentAccount(wallet).id;
+    }
+
+    if (item is AnonpayInvoiceInfo) {
+      return item.walletId == wallet?.id;
+    }
+
+    return false;
+  }
+
+
 }

@@ -64,6 +64,7 @@ import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/sources/store_sources.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
@@ -181,13 +182,11 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
-import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
-import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -220,6 +219,10 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
+import 'package:cw_core/history_source.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/sources/history_sources.dart';
+import 'package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
@@ -390,10 +393,8 @@ Future<void> setup({
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
-  getIt
-      .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
-  getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
-  getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
+  getIt.registerSingleton<TradeFilterStore>(TradeFilterStore(getIt.get<AppStore>()));
+  getIt.registerSingleton<OrderFilterStore>(OrderFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(SendTemplateStore(templateSource: _templates));
@@ -401,8 +402,6 @@ Future<void> setup({
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(
       YatStore(appStore: getIt.get<AppStore>(), secureStorage: getIt.get<SecureStorage>())..init());
-  getIt.registerSingleton<AnonpayTransactionsStore>(
-      AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
 
   getIt.registerFactoryParam<HardwareWalletViewModel, HardwareWalletType, void>((type, _) {
@@ -562,8 +561,8 @@ Future<void> setup({
 
   getIt.registerSingleton(
     TradeMonitor(
-      tradesStore: getIt.get<TradesStore>(),
       appStore: getIt.get<AppStore>(),
+      tradesStore: getIt.get<TradesStore>(),
       preferences: getIt.get<SharedPreferences>(),
     ),
   );
@@ -572,17 +571,82 @@ Future<void> setup({
       tradeMonitor: getIt.get<TradeMonitor>(),
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      orderFilterStore: getIt.get<OrderFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
       yatStore: getIt.get<YatStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
+
+  getIt.registerSingleton<PayjoinFilterStore>(
+    PayjoinFilterStore(appStore: getIt.get<AppStore>()),
+  );
+
+  getIt.registerFactory<TransactionHistorySource>(
+    () => TransactionHistorySource(
+      emitter: getIt.get<AppStore>().wallet!.transactionHistory,
+      filters: getIt.get<TransactionFilterStore>(),
+      disposesEmitter: false,
+    ),
+  );
+
+  getIt.registerFactory<TradeHistorySource>(
+    () => TradeHistorySource(
+      emitter: TradeHistoryEmitter(),
+      filters: getIt.get<TradeFilterStore>(),
+    ),
+  );
+
+  getIt.registerFactory<OrderHistorySource>(
+    () => OrderHistorySource(
+      emitter: BoxHistoryEmitter<Order>(_ordersSource),
+      filters: getIt.get<OrderFilterStore>(),
+    ),
+  );
+
+  getIt.registerFactory<AnonpayHistorySource>(
+    () => AnonpayHistorySource(
+      emitter: BoxHistoryEmitter<AnonpayInvoiceInfo>(_anonpayInvoiceInfoSource),
+      filters: getIt.get<TransactionFilterStore>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<PayjoinHistoryEmitter>(
+    () => PayjoinHistoryEmitter(_payjoinSessionSource),
+  );
+
+  getIt.registerFactory<PayjoinHistorySource>(
+    () => PayjoinHistorySource(
+      emitter: getIt.get<PayjoinHistoryEmitter>(),
+      disposesEmitter: false,
+      filters: getIt.get<PayjoinFilterStore>(),
+    ),
+  );
+
+  // One per wallet: the sources bind to the current wallet's history and to
+  // wallet-scoped filters, so a shared instance would follow the wrong wallet.
+  getIt.registerLazySingleton<TransactionHistoryBloc>(
+    () => TransactionHistoryBloc(
+      appStore: getIt.get<AppStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+      sources: [
+        getIt.get<TransactionHistorySource>(),
+        getIt.get<TradeHistorySource>(),
+        getIt.get<OrderHistorySource>(),
+        getIt.get<AnonpayHistorySource>(),
+        getIt.get<PayjoinHistorySource>(),
+      ],
+    ),
+    dispose: (bloc) => bloc.close(),
+  );
+
+  getIt.registerFactoryParam<HistorySection, HistorySectionArguments, void>(
+    (args, _) => HistorySection(
+      bloc: getIt.get<TransactionHistoryBloc>(),
+      payjoinEmitter: getIt.get<PayjoinHistoryEmitter>(),
+      short: args.short,
+      roundedTopSection: args.roundedTopSection,
+      detailsAsPage: args.detailsAsPage,
+    ),
+  );
 
   getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
       (lightningMode, displayMode) {

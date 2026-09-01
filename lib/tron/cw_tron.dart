@@ -96,17 +96,6 @@ class CWTron extends Tron {
   Future<TronToken?> getTronToken(WalletBase wallet, String contractAddress) async =>
       (wallet as TronWallet).getTronToken(contractAddress);
 
-  @override
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as TronTransactionInfo;
-    if (transaction.amount.currency.symbol == CryptoCurrency.trx.title) {
-      return CryptoCurrency.trx;
-    }
-
-    wallet as TronWallet;
-    return wallet.tronTokenCurrencies.firstWhere((element) =>
-        transaction.amount.currency.symbol.toLowerCase() == element.symbol.toLowerCase());
-  }
 
   @override
   String getTokenAddress(CryptoCurrency asset) => (asset as TronToken).contractAddress;

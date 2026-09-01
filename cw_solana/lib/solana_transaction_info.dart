@@ -1,69 +1,75 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/json_transaction_info.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/transaction_direction.dart";
 
-class SolanaTransactionInfo extends TransactionInfo {
+class SolanaTransactionInfo extends JsonTransactionInfo {
   SolanaTransactionInfo({
-    required this.id,
-    required this.date,
-    required this.to,
-    required this.from,
-    required this.direction,
-    required this.amount,
+    required super.id,
+    required super.date,
+    required super.to,
+    required super.from,
+    required super.direction,
+    required super.amount,
     required this.isPending,
-    required this.fee,
+    required Money super.fee,
   });
 
-  @override
-  final String id;
-  @override
-  final String? to;
-  @override
-  final String? from;
+  factory SolanaTransactionInfo.fromJson(
+    Map<String, dynamic> data, {
+    Iterable<SPLToken> tokens = const [],
+  }) {
+    final symbol = data["tokenSymbol"] as String? ?? "SOL";
+    final decimals = data["tokenDecimals"] as int? ?? 6;
 
-  @override
-  String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
-
-  @override
-  final Money amount;
-  @override
-  final bool isPending;
-  @override
-  final Money fee;
-  @override
-  final TransactionDirection direction;
-  @override
-  final DateTime date;
-
-  factory SolanaTransactionInfo.fromJson(Map<String, dynamic> data) {
-    final symbol = data['tokenSymbol'] as String? ?? "SOL";
-    final decimals = data['tokenDecimals'] as int? ?? 6;
-
-    final currency = CryptoCurrency(name: symbol, title: symbol, decimals: decimals);
+    final currency = amountCurrencyFor(tokens: tokens, tokenSymbol: symbol, decimals: decimals);
 
     return SolanaTransactionInfo(
-      id: data['id'] as String,
-      amount: Money.parse(data['solAmount'].toString(), currency),
-      direction: parseTransactionDirectionFromInt(data['direction'] as int),
-      date: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
-      isPending: data['isPending'] as bool,
-      to: data['to'],
-      from: data['from'],
-      fee: Money.parse(data['txFee'], CryptoCurrency.sol),
+      id: data["id"] as String,
+      amount: Money.parse(data["solAmount"].toString(), currency),
+      direction: parseTransactionDirectionFromInt(data["direction"] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data["blockTime"] as int),
+      isPending: data["isPending"] as bool,
+      to: data["to"] as String?,
+      from: data["from"] as String?,
+      fee: Money.parse(data["txFee"] as String, CryptoCurrency.sol),
     );
   }
 
+  @override
+  String get txHash => id.replaceFirst(RegExp(r"_(outgoing|incoming)$"), "");
+
+  @override
+  final bool isPending;
+
+  static CryptoCurrency amountCurrencyFor({
+    required Iterable<SPLToken> tokens,
+    required String tokenSymbol,
+    required int decimals,
+  }) {
+    if (tokenSymbol == CryptoCurrency.sol.symbol) {
+      return CryptoCurrency.sol;
+    }
+
+    return tokens.firstWhereOrNull(
+          (token) => token.symbol.toLowerCase() == tokenSymbol.toLowerCase(),
+        ) ??
+        CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'solAmount': amount.toString(),
-        'direction': direction.index,
-        'blockTime': date.millisecondsSinceEpoch,
-        'isPending': isPending,
-        'tokenSymbol': amount.currency.symbol,
-        'tokenDecimals': amount.currency.decimals,
-        'to': to,
-        'from': from,
-        'txFee': fee.toString(),
+        "id": id,
+        "solAmount": amount.toString(),
+        "direction": direction.index,
+        "blockTime": date.millisecondsSinceEpoch,
+        "isPending": isPending,
+        "tokenSymbol": amount.currency.symbol,
+        "tokenDecimals": amount.currency.decimals,
+        "to": to,
+        "from": from,
+        "txFee": fee.toString(),
       };
 }

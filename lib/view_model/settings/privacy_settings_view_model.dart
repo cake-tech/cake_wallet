@@ -19,7 +19,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
