@@ -739,6 +739,7 @@
   "order_physical_card": "Yi Odar Katin Jiki",
   "other": "Sauran",
   "other_settings": "Sauran saituna",
+  "other_device_settings": "Sauran saitan na wayar",
   "outdated_electrum_wallet_description": "Sabbin walat ɗin Bitcoin da aka ƙirƙira a Cake yanzu suna da seed na kalmomi 24. Dole ne ka ƙirƙiri sabon walat ɗin Bitcoin ka kuma canja duk kuɗaɗenka zuwa sabon walat ɗin kalmomi 24, sannan ka daina amfani da walat masu seed na kalmomi 12. Da fatan za a yi haka nan take domin kare kuɗaɗenka.",
   "outdated_electrum_wallet_receive_warning": "Idan wannan walat ɗin yana da seed na kalmomi 12 kuma an ƙirƙira shi a cikin Cake, KAR KA saka Bitcoin a cikin wannan walat. Duk wani BTC da aka tura zuwa wannan walat na iya ɓacewa. Ƙirƙiri sabon walat mai kalmomi 24 (matsa menu a saman dama, zaɓi Wallets, zaɓi Create New Wallet, sannan zaɓi Bitcoin) sannan KA GAGGAUTA matsar da BTC ɗinka zuwa can. Sabbin (kalmomi 24) walat ɗin BTC daga Cake suna da tsaro",
   "outgoing": "Mai fita",

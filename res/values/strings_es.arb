@@ -738,6 +738,7 @@
   "order_physical_card": "Pedir tarjeta física",
   "other": "Otro",
   "other_settings": "Otros ajustes",
+  "other_device_settings": "Otros ajustes del dispositivo",
   "outdated_electrum_wallet_description": "Las nuevas billeteras de Bitcoin creadas en Cake ahora tienen una frase semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una frase semilla de 12 palabras. Haga esto de inmediato para proteger sus fondos.",
   "outdated_electrum_wallet_receive_warning": "Si esta billetera tiene una semilla de 12 palabras y se creó en Cake, NO deposites Bitcoin en esta billetera. Cualquier BTC transferido a esta billetera puede perderse. Crea una nueva billetera de 24 palabras (toca el menú en la parte superior derecha, selecciona Billeteras, elige Crear nueva billetera y luego selecciona Bitcoin) y mueve tu BTC allí INMEDIATAMENTE. Las nuevas billeteras BTC (de 24 palabras) de Cake son seguras",
   "outgoing": "Saliente",

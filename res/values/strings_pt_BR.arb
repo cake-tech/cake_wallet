@@ -711,6 +711,7 @@
   "order_physical_card": "Solicitar Cartão Físico",
   "other": "Outros",
   "other_settings": "Outras configurações",
+  "other_device_settings": "Outras configurações do dispositivo",
   "outdated_electrum_wallet_description": "As novas carteiras de Bitcoin criadas no Cake agora têm uma seed de 24 palavras. É obrigatório que você crie uma nova carteira de Bitcoin e transfira todos os seus fundos para a nova carteira de 24 palavras, e pare de usar carteiras com seed de 12 palavras. Faça isso imediatamente para proteger seus fundos.",
   "outdated_electrum_wallet_receive_warning": "Se esta carteira tiver uma seed de 12 palavras e tiver sido criada no Cake, NÃO deposite Bitcoin nesta carteira. Qualquer BTC transferido para esta carteira pode ser perdido. Crie uma nova carteira de 24 palavras (toque no menu no canto superior direito, selecione Carteiras, escolha Criar Nova Carteira e, em seguida, selecione Bitcoin) e mova IMEDIATAMENTE seu BTC para lá. As novas carteiras BTC (24 palavras) do Cake são seguras",
   "outgoing": "Saída",

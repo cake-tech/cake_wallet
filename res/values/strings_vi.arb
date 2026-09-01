@@ -738,6 +738,7 @@
   "order_physical_card": "Đặt thẻ vật lý",
   "other": "Khác",
   "other_settings": "Cài đặt khác",
+  "other_device_settings": "Cài đặt thiết bị khác",
   "outdated_electrum_wallet_description": "Các ví Bitcoin mới được tạo trong Cake hiện có cụm từ khôi phục (seed) 24 từ. Bạn bắt buộc phải tạo một ví Bitcoin mới và chuyển toàn bộ số dư của bạn sang ví 24 từ mới, đồng thời ngừng sử dụng các ví có seed 12 từ. Vui lòng thực hiện ngay để bảo vệ tài sản của bạn.",
   "outdated_electrum_wallet_receive_warning": "Nếu ví này có cụm từ khôi phục 12 từ và được tạo trong Cake, ĐỪNG nạp Bitcoin vào ví này. Bất kỳ BTC nào được chuyển vào ví này đều có thể bị mất. Hãy tạo một ví 24 từ mới (nhấn menu ở góc trên bên phải, chọn Wallets, chọn Create New Wallet, rồi chọn Bitcoin) và NGAY LẬP TỨC chuyển BTC của bạn sang đó. Ví BTC mới (24 từ) từ Cake là an toàn",
   "outgoing": "Gửi đi",

@@ -136,11 +136,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   sdk.TrezorClient? _client;
 
   Completer<String?>? _pinCompleter;
+  Completer<TrezorDeviceSettings>? _settingsCompleter;
 
   @observable
   TrezorParingState paringState = TrezorParingState.initial;
 
   void setParingPin(String pin) => _pinCompleter?.complete(pin);
+
+  void setDeviceSettings(TrezorDeviceSettings settings) => _settingsCompleter?.complete(settings);
 
   @override
   @action
@@ -336,6 +339,7 @@ abstract class TrezorParingState {
   static TrezorParingState initial = InitialTrezorParingState();
   static TrezorParingState enterPin = EnterPinTrezorParingState();
   static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
+  static TrezorParingState awaitingSettings = AwaitingSettingsTrezorParingState();
   static TrezorParingState success = SuccessTrezorParingState();
 
   static TrezorParingState fail(String message) => FailTrezorParingState(message);
@@ -347,10 +351,26 @@ class EnterPinTrezorParingState extends TrezorParingState {}
 
 class VerifyingPinTrezorParingState extends TrezorParingState {}
 
+class AwaitingSettingsTrezorParingState extends TrezorParingState {}
+
+class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
+
 class SuccessTrezorParingState extends TrezorParingState {}
 
 class FailTrezorParingState extends TrezorParingState {
   FailTrezorParingState(this.message);
 
   final String message;
+}
+
+class TrezorDeviceSettings {
+  const TrezorDeviceSettings({
+    required this.enableAutoParing,
+    required this.passphraseOnDevice,
+    this.passphrase,
+  });
+
+  final bool enableAutoParing;
+  final bool passphraseOnDevice;
+  final String? passphrase;
 }

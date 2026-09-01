@@ -737,6 +737,7 @@
   "order_physical_card": "Mag-order ng Pisikal na Card",
   "other": "Iba pa",
   "other_settings": "Iba pang mga setting",
+  "other_device_settings": "Iba pang mga setting ng device",
   "outdated_electrum_wallet_description": "Ang mga bagong Bitcoin wallet na ginagawa sa Cake ay mayroon na ngayong 24-word seed. Kinakailangan na gumawa ka ng bagong Bitcoin wallet at ilipat ang lahat ng iyong pondo sa bagong 24-word wallet, at itigil ang paggamit ng mga wallet na may 12-word seed. Mangyaring gawin ito kaagad upang maseguro ang iyong mga pondo.",
   "outdated_electrum_wallet_receive_warning": "Kung ang wallet na ito ay may 12-word seed at ginawa sa Cake, HUWAG magdeposito ng Bitcoin sa wallet na ito. Anumang BTC na mailipat sa wallet na ito ay maaaring mawala. Gumawa ng bagong 24-word wallet (i-tap ang menu sa kanang itaas, piliin ang Wallets, piliin ang Create New Wallet, pagkatapos ay piliin ang Bitcoin) at AGAD na ilipat ang iyong BTC doon. Ang mga bagong (24-word) BTC wallet mula sa Cake ay secure",
   "outgoing": "Palabas",

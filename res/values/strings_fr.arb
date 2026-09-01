@@ -737,6 +737,7 @@
   "order_physical_card": "Commander une carte physique",
   "other": "Autre",
   "other_settings": "Autres paramètres",
+  "other_device_settings": "Autres paramètres de l'appareil",
   "outdated_electrum_wallet_description": "Les nouveaux portefeuilles Bitcoin créés dans Cake disposent désormais d'une phrase de récupération (seed) de 24 mots. Il est obligatoire que vous créiez un nouveau portefeuille Bitcoin, que vous y transfériez tous vos fonds et que vous cessiez d'utiliser les portefeuilles avec une phrase de récupération de 12 mots. Veuillez le faire immédiatement afin de sécuriser vos fonds.",
   "outdated_electrum_wallet_receive_warning": "Si ce portefeuille a une phrase de récupération de 12 mots et a été créé dans Cake, NE DÉPOSEZ PAS de Bitcoin sur ce portefeuille. Tout BTC transféré vers ce portefeuille peut être perdu. Créez un nouveau portefeuille de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Portefeuilles, choisissez Créer un nouveau portefeuille, puis sélectionnez Bitcoin) et transférez-y IMMÉDIATEMENT vos BTC. Les nouveaux portefeuilles BTC (24 mots) de Cake sont sécurisés",
   "outgoing": "Sortant",

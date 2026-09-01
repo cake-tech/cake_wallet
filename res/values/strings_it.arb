@@ -738,6 +738,7 @@
   "order_physical_card": "Ordina carta fisica",
   "other": "Altro",
   "other_settings": "Altre impostazioni",
+  "other_device_settings": "Altre impostazioni del dispositivo",
   "outdated_electrum_wallet_description": "I nuovi wallet Bitcoin creati in Cake ora hanno un seed di 24 parole. È obbligatorio creare un nuovo wallet Bitcoin e trasferire tutti i tuoi fondi nel nuovo wallet con seed di 24 parole, e smettere di usare wallet con seed di 12 parole. Ti preghiamo di farlo immediatamente per mettere al sicuro i tuoi fondi.",
   "outdated_electrum_wallet_receive_warning": "Se questo wallet ha un seed di 12 parole ed è stato creato in Cake, NON depositare Bitcoin in questo wallet. Qualsiasi BTC trasferito su questo wallet potrebbe andare perso. Crea un nuovo wallet di 24 parole (tocca il menu in alto a destra, seleziona Wallet, scegli Crea nuovo wallet, quindi seleziona Bitcoin) e sposta IMMEDIATAMENTE lì i tuoi BTC. I nuovi wallet BTC (24 parole) di Cake sono sicuri",
   "outgoing": "In uscita",

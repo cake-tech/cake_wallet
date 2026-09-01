@@ -740,6 +740,7 @@
   "order_physical_card": "Ejerure Tarjeta Física",
   "other": "Ambue",
   "other_settings": "Ambue ñemboheko",
+  "other_device_settings": "Ñemboheko mba'apo oñemboheko",
   "outdated_electrum_wallet_description": "Umi billetera pyahu Bitcoin oñemoheñoiva Cake-pe ko'ãga oguereko peteĩ seed 24 ñe'ẽ. Tekotevẽ rejapo peteĩ billetera pyahu Bitcoin-pegua ha rembohasa opaite nde viru pe billetera pyahu 24 ñe'ẽpe, ha ani reipuruve billetera oguerekóva peteĩ seed 12 ñe'ẽ. Ejapo ko'ãva pya'e hag̃ua reñangareko porã nde viru rehe.",
   "outdated_electrum_wallet_receive_warning": "Ko billetera oguerekóramo peteĩ seed 12 ñe’ẽgui ha ojejapo Cake-pe, ANI REMOINGE Bitcoin ko billeterápe. Oimeraẽ BTC oñembohasáva ko billeterápe ikatu okañy. Emoheñói peteĩ billetera pyahu 24 ñe’ẽgui (epoko pe menú yvate akatúa gotyo, eiporavo Wallets, eiporavo Create New Wallet, ha upéi eiporavo Bitcoin) ha pya’eterei emongu’e nde BTC upépe. Umi billetera pyahu BTC (24 ñe’ẽ) ojapóva Cake-gui ha’e hekorosã",
   "outgoing": "Oñemondo",

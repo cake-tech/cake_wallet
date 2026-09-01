@@ -737,6 +737,7 @@
   "order_physical_card": "Objednat fyzickou kartu",
   "other": "Ostatní",
   "other_settings": "Další nastavení",
+  "other_device_settings": "Jiné nastavení zařízení",
   "outdated_electrum_wallet_description": "Nové bitcoinové peněženky vytvořené v Cake nyní mají 24slovnou seed frázi. Je povinné vytvořit novou bitcoinovou peněženku s 24slovnou seed frází, převést na ni všechny své prostředky a přestat používat peněženky s 12slovnou seed frází. Udělejte to prosím okamžitě, abyste zabezpečili své prostředky.",
   "outdated_electrum_wallet_receive_warning": "Pokud má tato peněženka 12slovný seed a byla vytvořena v Cake, NEPOSÍLEJTE do této peněženky Bitcoin. Jakékoli BTC převedené do této peněženky mohou být ztraceny. Vytvořte novou 24slovnou peněženku (klepněte na menu vpravo nahoře, vyberte Peněženky, zvolte Vytvořit novou peněženku a poté vyberte Bitcoin) a OKAMŽITĚ tam přesuňte své BTC. Nové (24slovné) BTC peněženky z Cake jsou bezpečné",
   "outgoing": "Odchozí",

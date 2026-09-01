@@ -737,6 +737,7 @@
   "order_physical_card": "Naruči fizičku karticu",
   "other": "Ostalo",
   "other_settings": "Ostale postavke",
+  "other_device_settings": "Ostale postavke uređaja",
   "outdated_electrum_wallet_description": "Novi Bitcoin novčanici stvoreni u Cakeu sada imaju seed od 24 riječi. Obavezno je da izradite novi Bitcoin novčanik i prenesete sva svoja sredstva u novi novčanik sa seedom od 24 riječi te prestanete koristiti novčanike sa seedom od 12 riječi. Učinite to odmah kako biste osigurali svoja sredstva.",
   "outdated_electrum_wallet_receive_warning": "Ako ovaj novčanik ima seed od 12 riječi i izrađen je u Cake Walletu, NEMOJTE uplaćivati Bitcoin u ovaj novčanik. Bilo koji BTC prebačen u ovaj novčanik može biti izgubljen. Izradite novi novčanik s 24 riječi (dodirnite izbornik gore desno, odaberite Novčanici, odaberite Izradi novi novčanik, zatim odaberite Bitcoin) i ODMAH premjestite svoj BTC tamo. Novi (24-riječni) BTC novčanici iz Cake Walleta su sigurni",
   "outgoing": "Odlazno",

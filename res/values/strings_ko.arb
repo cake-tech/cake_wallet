@@ -736,6 +736,7 @@
   "order_id": "주문 ID",
   "order_physical_card": "실물 카드 주문하기",
   "other": "기타",
+  "other_device_settings": "기타 기기 설정",
   "other_settings": "기타 설정",
   "outdated_electrum_wallet_description": "Cake에서 생성되는 새 비트코인 지갑은 이제 24단어 시드를 사용합니다. 반드시 새 비트코인 지갑을 생성한 뒤 모든 자금을 새 24단어 지갑으로 전송하고, 12단어 시드를 사용하는 지갑은 더 이상 사용하지 마십시오. 자금을 안전하게 보호하기 위해 즉시 진행해 주세요.",
   "outdated_electrum_wallet_receive_warning": "이 지갑에 12단어 시드가 있고 Cake에서 생성된 경우, 이 지갑에 비트코인을 입금하지 마십시오. 이 지갑으로 전송된 모든 BTC는 손실될 수 있습니다. 새 24단어 지갑을 생성(오른쪽 상단 메뉴를 탭하고 Wallets를 선택한 다음 Create New Wallet을 선택하고 Bitcoin을 선택)한 뒤, 즉시 BTC를 그곳으로 옮기십시오. Cake에서 생성한 새(24단어) BTC 지갑은 안전합니다.",

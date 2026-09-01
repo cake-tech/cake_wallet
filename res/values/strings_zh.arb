@@ -738,6 +738,7 @@
   "order_physical_card": "订购实体卡",
   "other": "其他",
   "other_settings": "其他设置",
+  "other_device_settings": "其他设备设置",
   "outdated_electrum_wallet_description": "在 Cake 中新创建的比特币钱包现在使用 24 词助记词。您必须创建一个新的比特币钱包，并将所有资金转移到新的 24 词钱包，同时停止使用 12 词助记词的钱包。请立即执行此操作以保障您的资金安全。",
   "outdated_electrum_wallet_receive_warning": "如果此钱包使用 12 词助记词且是在 Cake 中创建的，请勿向该钱包存入比特币。任何转入该钱包的 BTC 都可能丢失。请创建一个新的 24 词钱包（点击右上角菜单，选择“钱包”，选择“创建新钱包”，然后选择“比特币”），并立即将你的 BTC 转移到新钱包中。Cake 创建的新版（24 词）BTC 钱包是安全的。",
   "outgoing": "转出",

@@ -739,6 +739,7 @@
   "order_physical_card": "Pesan Kartu Fisik",
   "other": "Lainnya",
   "other_settings": "Pengaturan lainnya",
+  "other_device_settings": "Pengaturan perangkat lainnya",
   "outdated_electrum_wallet_description": "Dompet Bitcoin baru yang dibuat di Cake sekarang memiliki seed 24 kata. Anda wajib membuat dompet Bitcoin baru dan mentransfer semua dana Anda ke dompet baru dengan seed 24 kata, serta berhenti menggunakan dompet dengan seed 12 kata. Harap lakukan ini segera untuk mengamankan dana Anda.",
   "outdated_electrum_wallet_receive_warning": "Jika dompet ini memiliki seed 12 kata dan dibuat di Cake, JANGAN deposit Bitcoin ke dompet ini. BTC apa pun yang ditransfer ke dompet ini mungkin hilang. Buat dompet baru 24 kata (ketuk menu di pojok kanan atas, pilih Dompet, pilih Buat Dompet Baru, lalu pilih Bitcoin) dan SEGERA pindahkan BTC Anda ke sana. Dompet BTC baru (24 kata) dari Cake aman",
   "outgoing": "Keluar",

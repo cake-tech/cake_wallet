@@ -16,10 +16,10 @@ import 'package:mobx/mobx.dart';
 
 class HardwareWalletProceedOnDeviceSheet extends StatefulWidget {
   const HardwareWalletProceedOnDeviceSheet({
-    super.key,
     required this.hardwareWalletType,
     required this.trezorConnectVM,
     required this.onRetry,
+    super.key,
   });
 
   final HardwareWalletType hardwareWalletType;
@@ -51,7 +51,9 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
     _paringState = widget.trezorConnectVM.paringState;
     paringStateReaction = reaction((_) => widget.trezorConnectVM.paringState, (paringState) {
       if (paringState is SuccessTrezorParingState) {
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
         return;
       }
       setState(() => _paringState = paringState);
@@ -67,110 +69,110 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
   bool get _isAwaitingPin => _paringState == TrezorParingState.enterPin;
 
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: SafeArea(
-        bottom: false,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: SafeArea(
+  Widget build(BuildContext context) => PopScope(
+        canPop: false,
+        child: SafeArea(
+          bottom: false,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: SafeArea(
               child: Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Column(
-              children: [
-                ModalTopBar(
-                  title: "",
-                  leadingWidget: AnimatedSwitcher(
-                    layoutBuilder: (currentChild, previousChildren) {
-                      return Stack(
-                        alignment: Alignment.centerLeft,
-                        children: <Widget>[
-                          ...previousChildren,
-                          if (currentChild != null) currentChild,
-                        ],
-                      );
-                    },
-                    duration: pinOpenDuration,
-                    child: Text(
-                      key: ValueKey(pageTitle),
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                      pageTitle,
-                    ),
-                  ),
-                  trailingIcon: Icon(
-                    Icons.close,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  trailingSemanticLabel: S.of(context).close,
-                  onTrailingPressed: () => showPopUp(
-                    context: context,
-                    builder: (context) => AlertWithTwoActions(
-                      alertTitle: S.of(context).are_you_sure_exit,
-                      alertContent: S.of(context).hww_exit_desc,
-                      leftButtonText: S.of(context).cancel,
-                      rightButtonText: S.of(context).yes_exit,
-                      rightAlertButtonStyle: AlertButtonStyle.error(context),
-                      actionLeftButton: Navigator.of(context).pop,
-                      actionRightButton: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: DirectionalAnimatedSwitcher(
-                    duration: Duration(milliseconds: 400),
-                    child: content,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 24, right: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(),
-                      AnimatedOpacity(
-                        curve: Curves.easeOutQuad,
-                        opacity: hasFullPin ? 1 : 0,
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Column(
+                  children: [
+                    ModalTopBar(
+                      title: "",
+                      leadingWidget: AnimatedSwitcher(
+                        layoutBuilder: (currentChild, previousChildren) => Stack(
+                          alignment: Alignment.centerLeft,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        ),
                         duration: pinOpenDuration,
-                        child: ModernButton(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          iconColor: Theme.of(context).colorScheme.onPrimary,
-                          size: 36,
-                          icon: Icon(Icons.arrow_forward),
-                          semanticLabel: S.of(context).confirm,
-                          onPressed: () =>
-                              widget.trezorConnectVM.setParingPin(_controller.text.trim()),
+                        child: Text(
+                          key: ValueKey(pageTitle),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          pageTitle,
                         ),
                       ),
-                    ],
-                  ),
-                )
-              ],
+                      trailingIcon: Icon(
+                        Icons.close,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      trailingSemanticLabel: S.of(context).close,
+                      onTrailingPressed: () => showPopUp(
+                        context: context,
+                        builder: (context) => AlertWithTwoActions(
+                          alertTitle: S.of(context).are_you_sure_exit,
+                          alertContent: S.of(context).hww_exit_desc,
+                          leftButtonText: S.of(context).cancel,
+                          rightButtonText: S.of(context).yes_exit,
+                          rightAlertButtonStyle: AlertButtonStyle.error(context),
+                          actionLeftButton: Navigator.of(context).pop,
+                          actionRightButton: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: DirectionalAnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        child: content,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24, right: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox(),
+                          AnimatedOpacity(
+                            curve: Curves.easeOutQuad,
+                            opacity: hasFullPin ? 1 : 0,
+                            duration: pinOpenDuration,
+                            child: ModernButton(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              iconColor: Theme.of(context).colorScheme.onPrimary,
+                              size: 36,
+                              icon: const Icon(Icons.arrow_forward),
+                              semanticLabel: S.of(context).confirm,
+                              onPressed: () =>
+                                  widget.trezorConnectVM.setParingPin(_controller.text.trim()),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          )),
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget get content {
     if (_paringState is InitialTrezorParingState || _paringState is EnterPinTrezorParingState) {
-      return _enterPinCode();
+      return _enterPinCode(const ValueKey(0));
     }
 
-    if (_paringState is VerifyingPinTrezorParingState) return _verifyingCode();
+    if (_paringState is VerifyingPinTrezorParingState) {
+      return _verifyingCode(const ValueKey(1));
+    }
 
-    if (_paringState is FailTrezorParingState)
-      return _errorBox((_paringState as FailTrezorParingState).message);
+    if (_paringState is FailTrezorParingState) {
+      return _errorBox(const ValueKey(2), (_paringState as FailTrezorParingState).message);
+    }
 
-    return SizedBox.shrink(key: ValueKey(3));
+    return const SizedBox.shrink(key: ValueKey(3));
   }
 
   void retry() {
@@ -179,8 +181,22 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
   }
 
   String get pageTitle {
-    if (_paringState is InitialTrezorParingState) return S.of(context).device_confirmation;
-    if (_isAwaitingPin) return S.of(context).pairing_code;
+    if (_paringState is InitialTrezorParingState) {
+      return S.of(context).device_confirmation;
+    }
+
+    if (_isAwaitingPin) {
+      return S.of(context).pairing_code;
+    }
+
+    if (_paringState is AwaitingSettingsTrezorParingState) {
+      return S.of(context).other_device_settings;
+    }
+
+    if (_paringState is AwaitingPassphraseTrezorParingState) {
+      return S.of(context).passphrase_entry;
+    }
+
     return "";
   }
 
@@ -203,8 +219,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
     }
   }
 
-  Widget _verifyingCode() => Container(
-        key: ValueKey(1),
+  Widget _verifyingCode(Key key) => SizedBox(
+        key: key,
         width: MediaQuery.of(context).size.width,
         child: Column(
           spacing: 12,
@@ -214,7 +230,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             const SizedBox(),
             Text(
               "${S.of(context).verifying_code}...",
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             ),
             Text(
               S.of(context).this_can_take_few_seconds,
@@ -223,13 +239,13 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                 fontSize: 16,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-            )
+            ),
           ],
         ),
       );
 
-  Widget _errorBox(String errorText) => Container(
-        key: ValueKey(2),
+  Widget _errorBox(Key key, String errorText) => SizedBox(
+        key: key,
         width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -267,14 +283,14 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                 text: S.of(context).try_again,
                 color: Theme.of(context).colorScheme.primary,
                 textColor: Theme.of(context).colorScheme.onPrimary,
-              )
+              ),
             ],
           ),
         ),
       );
 
-  Widget _enterPinCode() => Column(
-        key: ValueKey(0),
+  Widget _enterPinCode(Key key) => Column(
+        key: key,
         spacing: 12,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -298,7 +314,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             child: _isAwaitingPin
                 ? Column(
                     spacing: 24,
-                    key: ValueKey(1),
+                    key: const ValueKey(1),
                     children: [
                       Text(
                         textAlign: TextAlign.center,
@@ -307,22 +323,19 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                       DigitInput(
                         controller: _controller,
                         desiredLength: pinLength,
-                      )
+                      ),
                     ],
                   )
                 : Column(
-                    key: ValueKey(0),
+                    key: const ValueKey(0),
                     spacing: 12,
                     children: [
                       Text(
                         S.of(context).proceed_on_device,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
                           S.of(context).proceed_on_device_description,
                           textAlign: TextAlign.center,
@@ -331,10 +344,10 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
-          )
+          ),
         ],
       );
 }
