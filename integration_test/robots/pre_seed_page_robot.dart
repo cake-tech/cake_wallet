@@ -1,4 +1,4 @@
-import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dar"';
+import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';

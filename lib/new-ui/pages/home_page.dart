@@ -1,15 +1,18 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/main.dart";
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
+import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
@@ -18,9 +21,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/transaction_direction.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +38,7 @@ class NewHomePage extends StatefulWidget {
   State<NewHomePage> createState() => _NewHomePageState();
 }
 
-class _NewHomePageState extends State<NewHomePage> {
+class _NewHomePageState extends State<NewHomePage> with RouteAware {
   MoneroAccountListViewModel? accountListViewModel;
   bool _lightningMode = false;
 
@@ -53,9 +53,9 @@ class _NewHomePageState extends State<NewHomePage> {
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
-        if(!context.mounted) {
+        if (!context.mounted) {
           return;
         }
         widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
@@ -71,6 +71,21 @@ class _NewHomePageState extends State<NewHomePage> {
       }
     });
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
 
   void _setAccountViewModel() {
     accountListViewModel = widget.dashboardViewModel.balanceViewModel.hasAccounts
@@ -191,6 +206,10 @@ class _NewHomePageState extends State<NewHomePage> {
                               MwebAd(
                                 dashboardViewModel: widget.dashboardViewModel,
                               ),
+                              SeedBackupReminderCard(
+                                dashboardViewModel: widget.dashboardViewModel,
+                                onTap: openSeedBackupReminder,
+                              ),
                             ],
                           );
                         },
@@ -227,6 +246,17 @@ class _NewHomePageState extends State<NewHomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void openSeedBackupReminder() {
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => SeedBackupReminderPage(
+          dashboardViewModel: widget.dashboardViewModel,
+          authService: getIt.get<AuthService>(),
+        ),
       ),
     );
   }

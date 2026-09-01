@@ -10,8 +10,8 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
-import 'package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart';
-import 'package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart';
+import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
+import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';

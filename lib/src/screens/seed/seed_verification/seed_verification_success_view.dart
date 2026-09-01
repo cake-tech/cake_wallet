@@ -1,9 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/pages/seed/open_wallet_after_seed_flow.dart';
+import "package:cake_wallet/new-ui/pages/seed/open_wallet_after_seed_flow.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import "package:cake_wallet/view_model/wallet_seed_view_model.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
