@@ -78,7 +78,7 @@ class DecredWalletService extends WalletService<
     di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
     di.derivationType = DerivationType.bip39;
     await di.save();
-    credentials.walletInfo!.save();
+    await credentials.walletInfo!.save();
     credentials.walletInfo!.network = network;
     // ios will move our wallet directory when updating. Since we must
     // recalculate the new path every time we open the wallet, ensure this path
@@ -152,7 +152,9 @@ class DecredWalletService extends WalletService<
       // On ios the stored dir no longer exists. We can only trust the basename.
       // dirPath may already be updated and lost the basename, so look at path.
       final randomBasename = basename(walletInfo.path);
-      final oldDir = await pathForWalletDir(id: randomBasename, type: getType()); // TODO: see note above — randomBasename is a legacy name, not an id
+      final oldDir = await pathForWalletDir(
+          id: randomBasename,
+          type: getType()); // TODO: see note above — randomBasename is a legacy name, not an id
       if (oldDir != dirPath) {
         await this.moveWallet(oldDir, dirPath);
       }
@@ -169,7 +171,7 @@ class DecredWalletService extends WalletService<
       "unsyncedaddrs": true,
     };
     await libwallet!.loadWallet(jsonEncode(config));
-    final passphrase = await _loadPassphrase(name, password);
+    final passphrase = await _loadPassphrase(walletInfo, password);
     final wallet = _createWalletInstance(walletInfo, di, password, passphrase: passphrase);
     await wallet.init();
     await _persistSeedDerivationType(wallet);
@@ -186,13 +188,13 @@ class DecredWalletService extends WalletService<
     currentWalletInfo.network = network;
     await currentWalletInfo.save();
 
-    if (libwallet == null) {
-      libwallet = await Libwallet.spawn();
-      libwallet!.initLibdcrwallet("", "err");
-    }
-    final currentWallet = _createWalletInstance(currentWalletInfo, di, password);
-
-    await currentWallet.renameWalletFiles(newName);
+// TODO(decred-id-refactor): this used to spawn/load a DecredWallet
+// instance here purely to call currentWallet.renameWalletFiles(newName).
+// That method's file-moving logic was removed in DecredWalletBase since
+// directories no longer move on rename — see wallet.dart's TODO. Still
+// unresolved: does libdcrwallet need to be told about the new name
+// internally (it appears to key an already-loaded wallet by name)? Needs
+// a real answer from libdcrwallet's contract before adding anything back.
 
     currentWalletInfo.name = newName;
     await currentWalletInfo.save();
@@ -254,14 +256,13 @@ class DecredWalletService extends WalletService<
     );
   }
 
-  Future<String?> _loadPassphrase(String name, String password) async {
-    if (!await WalletKeysFile.hasKeysFile(name, getType())) {
+  Future<String?> _loadPassphrase(WalletInfo walletInfo, String password) async {
+    if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       return null;
     }
     try {
       final keys = await WalletKeysFile.readKeysFile(
-        name,
-        getType(),
+        walletInfo,
         password,
         _encryptionFileUtils,
       );
@@ -276,8 +277,7 @@ class DecredWalletService extends WalletService<
     if (seed == null || seed.isEmpty) {
       return;
     }
-    final expected =
-        bip39.validateMnemonic(seed) ? DerivationType.bip39 : DerivationType.def;
+    final expected = bip39.validateMnemonic(seed) ? DerivationType.bip39 : DerivationType.def;
     if (wallet.derivationInfo.derivationType == expected) {
       return;
     }

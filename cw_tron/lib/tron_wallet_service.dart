@@ -132,10 +132,6 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
   Future<void> remove(WalletInfo walletInfo) async {
     final walletName = walletInfo.name;
     await super.remove(walletInfo);

@@ -110,32 +110,32 @@ class ZanoWalletService extends WalletService<
     await super.remove(walletInfo);
   }
 
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet =
-        ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
-            encryptionFileUtilsFor(isDirect));
-
-    final oldPath = await pathForWallet(name: currentName, type: getType());
-    final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
-    if (cached != null) {
-      currentWallet.hWallet = cached.walletId;
-      await currentWallet.closeWallet(cached.walletId, force: true);
-    }
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newDirPath = await pathForWalletDir(name: newName, type: getType());
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
-    currentWalletInfo.name = newName;
-    currentWalletInfo.dirPath = newDirPath;
-    currentWalletInfo.path = '$newDirPath/$newName';
-    await currentWalletInfo.save();
-  }
+  // @override
+  // Future<void> rename(String currentName, String password, String newName) async {
+  //   final currentWalletInfo = await WalletInfo.get(currentName, getType());
+  //   if (currentWalletInfo == null) {
+  //     throw Exception('Wallet not found');
+  //   }
+  //   final currentWallet =
+  //       ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
+  //           encryptionFileUtilsFor(isDirect));
+  //
+  //   final oldPath = await pathForWallet(name: currentName, type: getType());
+  //   final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
+  //   if (cached != null) {
+  //     currentWallet.hWallet = cached.walletId;
+  //     await currentWallet.closeWallet(cached.walletId, force: true);
+  //   }
+  //
+  //   await currentWallet.renameWalletFiles(newName);
+  //
+  //   final newDirPath = await pathForWalletDir(name: newName, type: getType());
+  //   currentWalletInfo.id = WalletBase.idFor(newName, getType());
+  //   currentWalletInfo.name = newName;
+  //   currentWalletInfo.dirPath = newDirPath;
+  //   currentWalletInfo.path = '$newDirPath/$newName';
+  //   await currentWalletInfo.save();
+  // }
 
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials,

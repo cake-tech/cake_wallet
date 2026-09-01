@@ -114,19 +114,21 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
+  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
+    if (currentWalletInfo.name == newName) return;
 
-    await super.rename(currentName, password, newName);
+    final oldName = currentWalletInfo.name;
 
-    final oldNameStillUsed = (await _findWalletByName(currentName)) != null;
-    if (oldNameStillUsed) {
-      for (final token in await Erc20Token.selectList("walletName = ?", [currentName])) {
-        final copiedToken = Erc20Token.copyWith(token, walletName: newName);
-        await copiedToken.save();
-      }
-    } else {
-      await Erc20Token.renameWallet(currentName, newName);
+    await super.rename(currentWalletInfo, password, newName);
+
+    // TODO(serhii): copies tokens forward under the new name rather
+    // than branching on whether oldName is "still used" (that check no longer
+    // means what it used to once names aren't unique). Leaves old-named rows
+    // behind — worth deciding whether those should also be deleted now that
+    // nothing should read them under the old name anymore.
+    for (final token in await Erc20Token.selectList("walletName = ?", [oldName])) {
+      final copiedToken = Erc20Token.copyWith(token, walletName: newName);
+      await copiedToken.save();
     }
   }
 
@@ -255,15 +257,8 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    final dir = Directory(walletInfo.dirPath);
-    if (dir.existsSync()) {
-      await dir.delete(recursive: true);
-    }
-    await WalletInfo.delete(walletInfo);
-    final nameStillUsed = (await _findWalletByName(wallet)) != null;
-    if (!nameStillUsed) {
-      await Erc20Token.deleteAllForWallet(wallet);
-    }
+    await Erc20Token.deleteAllForWallet(walletInfo.name);
+    await super.remove(walletInfo);
   }
 
   EVMChainWallet _createWalletInstance({

@@ -162,6 +162,7 @@ dependencies:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
   fl_chart: ^0.70.2
+  uuid: ^4.6.0
 
 dev_dependencies:
   flutter_test:

@@ -14,7 +14,7 @@ class WalletSwitchService {
   final WalletLoadingService _walletLoadingService;
 
   Future<void> switchToWallet(WalletInfo walletInfo) async {
-    final wallet = await _walletLoadingService.load(walletInfo.type, walletInfo.name);
+    final wallet = await _walletLoadingService.load(walletInfo);
 
     // load() recovers from a corrupted wallet by opening any other wallet it can,
     // so the one it returns may not be the one that was requested.

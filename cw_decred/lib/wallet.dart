@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/amount/money.dart';
-import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
@@ -612,42 +610,45 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-
-    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-
-    if (File(newDirPath).existsSync()) {
-      throw "wallet already exists at $newDirPath";
-    }
-
-    final sourceDir = Directory(currentDirPath);
-    final targetDir = Directory(newDirPath);
-
-    if (!targetDir.existsSync()) {
-      await targetDir.create(recursive: true);
-    }
-
-    await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length + 1);
-      final targetPath = p.join(targetDir.path, relativePath);
-
-      if (entity is File) {
-        await entity.rename(targetPath);
-      } else if (entity is Directory) {
-        await Directory(targetPath).create(recursive: true);
-      }
-    }
-
-    await sourceDir.delete(recursive: true);
-
-    for (final suffix in const ['.keys', '.keys.backup']) {
-      final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
-      if (file.existsSync()) {
-        await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
-      }
-    }
-  }
+  // Deliberately left as a no-op / not implemented for now — renaming a
+  // Decred wallet may still need to tell libdcrwallet itself about the new
+  // name internally (it appears to key an already-loaded wallet by name via
+  // walletSeed/estimateFee/syncStatus/etc.), independent of any file move.
+  // The directory-moving logic below (and its extension to also rename
+  // .keys/.keys.backup) is no longer needed either way: directories no
+  // longer move on rename, and .keys/.keys.backup are addressed via
+  // walletInfo.id through WalletKeysFile, which also never changes on
+  // rename. Needs a real answer from libdcrwallet's actual contract before
+  // writing a replacement.
+  //
+  // Future<void> renameWalletFiles(String newWalletName) async {
+  //   final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+  //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+  //   if (File(newDirPath).existsSync()) {
+  //     throw "wallet already exists at $newDirPath";
+  //   }
+  //   final sourceDir = Directory(currentDirPath);
+  //   final targetDir = Directory(newDirPath);
+  //   if (!targetDir.existsSync()) {
+  //     await targetDir.create(recursive: true);
+  //   }
+  //   await for (final entity in sourceDir.list(recursive: true)) {
+  //     final relativePath = entity.path.substring(sourceDir.path.length + 1);
+  //     final targetPath = p.join(targetDir.path, relativePath);
+  //     if (entity is File) {
+  //       await entity.rename(targetPath);
+  //     } else if (entity is Directory) {
+  //       await Directory(targetPath).create(recursive: true);
+  //     }
+  //   }
+  //   await sourceDir.delete(recursive: true);
+  //   for (final suffix in const ['.keys', '.keys.backup']) {
+  //     final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
+  //     if (file.existsSync()) {
+  //       await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
+  //     }
+  //   }
+  // }
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
@@ -702,7 +703,14 @@ abstract class DecredWalletBase
       return;
     }
 
-    final walletID = idPrefix + walletInfo.name;
+    // TODO(serhii): this was previously `idPrefix + walletInfo.name`.
+    // Existing UnspentCoinsInfo rows for wallets that already existed before
+    // this change were saved under the OLD name-based walletId. Switching to
+    // walletInfo.id means those old rows will no longer match here and will
+    // look orphaned/lost (isFrozen/isSending/note reset) for any wallet that
+    // existed pre-refactor. Check whether a one-time migration is needed to
+    // rewrite existing rows' walletId from name-based to id-based.
+    final walletID = idPrefix + walletInfo.id;
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
         final coinInfoList = this.unspentCoinsInfo.values.where((element) =>
@@ -736,7 +744,7 @@ abstract class DecredWalletBase
 
   void addCoinInfo(Unspent coin) {
     final newInfo = UnspentCoinsInfo(
-      walletId: idPrefix + walletInfo.name,
+      walletId: idPrefix + walletInfo.id,
       hash: coin.hash,
       isFrozen: false,
       isSending: coin.isSending,
