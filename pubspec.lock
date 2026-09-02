@@ -217,8 +217,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
-      resolved-ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
+      ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
+      resolved-ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -280,11 +280,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
-      resolved-ref: e18b6437daaf0572de6aea2439c2ec4d22658bbb
+      ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
+      resolved-ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
-    version: "0.14.0"
+    version: "0.23.0"
   bs58:
     dependency: "direct overridden"
     description:
@@ -1871,8 +1871,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
-      resolved-ref: 40af7c48cf34211ba3cc9e87dd05ed1af8a429a2
+      ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
+      resolved-ref: "40af7c48cf34211ba3cc9e87dd05ed1af8a429a2"
       url: "https://github.com/cake-tech/ledger-usb-plus"
     source: git
     version: "1.0.8"
@@ -2050,8 +2050,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "impls/monero.dart"
-      ref: "3bfb3856a838f2bf6b729501837bb0295dedf25d"
-      resolved-ref: "3bfb3856a838f2bf6b729501837bb0295dedf25d"
+      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
+      resolved-ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
       url: "https://github.com/mrcyjanek/monero_c.git"
     source: git
     version: "0.0.0"
@@ -2600,9 +2600,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      resolved-ref: "9457422fce3f1524437f6a1429200f048931a2fe"
-      url: "https://github.com/MrCyjaneK/rive_common"
+      ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      resolved-ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      url: "https://github.com/malik1004x/rive_common"
     source: git
     version: "0.4.15"
   riverpod:
@@ -3161,8 +3161,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
-      resolved-ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"
