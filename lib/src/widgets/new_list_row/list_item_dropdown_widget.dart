@@ -29,31 +29,29 @@ class ListItemDropdownWidget extends StatelessWidget {
     return ListItemStyleWrapper(
       isFirstInSection: isFirstInSection,
       isLastInSection: isLastInSection,
+      onTap: onTap,
       builder: (context, textStyle, labelStyle) {
-        return InkWell(
-          onTap: onTap,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: textStyle),
-              Row(
-                children: [
-                  if (trailingText != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(
-                        trailingText!,
-                        style: labelStyle,
-                      ),
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: textStyle),
+            Row(
+              children: [
+                if (trailingText != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      trailingText!,
+                      style: labelStyle,
                     ),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                ],
-              ),
-            ],
-          ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ],
         );
       },
     );

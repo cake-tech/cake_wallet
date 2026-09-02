@@ -307,6 +307,7 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/buy_payment_methods/
 
   fonts:
     - family: Lato
