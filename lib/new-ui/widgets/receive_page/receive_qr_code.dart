@@ -29,10 +29,15 @@ class ReceiveQrCode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size media = MediaQuery.sizeOf(context);
     final double targetY = largeQrMode ? largeQrModeBottomPadding + 50 : 0;
-    final double resolvedSize =
-        min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.5;
-    final double resolvedScale = largeQrMode ? 1.7 : 1;
+    final double reservedVertical = largeQrMode ? 300 : 260;
+    final double byShortest = min(media.width, media.height) * 0.5;
+    final double byHeight = max(160.0, media.height - reservedVertical);
+    final double resolvedSize = min(byShortest, byHeight);
+    final double resolvedScale = largeQrMode
+        ? min(1.7, max(1.0, (media.height - 180) / resolvedSize))
+        : 1;
 
     return Stack(
       alignment: Alignment.topCenter,
