@@ -337,13 +337,14 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
             ),
             const SizedBox(height: 24),
             LoadingPrimaryButton(
-              onPressed: () {
+              onPressed: () async {
                 if (widget.privacySettingsViewModel.addCustomNode) {
                   if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                     return;
                   }
 
-                  widget.nodeViewModel.save();
+                  await widget.nodeViewModel.save();
+                  widget.nodeViewModel.setAsCurrent(widget.nodeViewModel.editingNode!);
                 }
                 if (testnetValue == true &&
                     widget.privacySettingsViewModel.singleType == WalletType.bitcoin) {
@@ -352,7 +353,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
                   widget.nodeViewModel.port = publicBitcoinTestnetElectrumPort;
 
-                  widget.nodeViewModel.save();
+                  await widget.nodeViewModel.save();
                 }
                 if (_passphraseFormKey.currentState != null &&
                     !_passphraseFormKey.currentState!.validate()) {
