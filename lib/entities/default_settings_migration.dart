@@ -641,6 +641,13 @@ Future<void> defaultSettingsMigration(
         case 70:
           await _addTbbTokenToExistingSolanaWallets();
           break;
+        case 71:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Swaps.XYZ",
+            enabled: false,
+          );
+          break;
         default:
           break;
       }
