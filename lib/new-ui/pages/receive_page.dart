@@ -73,6 +73,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.lightningMode) {
+        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
         widget.receiveOptionViewModel.selectReceiveOption(
           widget.receiveOptionViewModel.options
                   .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
