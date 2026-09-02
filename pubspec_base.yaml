@@ -92,6 +92,7 @@ dependencies:
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   bloc: ^9.0.0
+  bloc_presentation: 1.1.2+3
   flutter_bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
   equatable: ^2.0.0
@@ -109,6 +110,8 @@ dependencies:
   #    git:
   #      url: https://github.com/cake-tech/tor.git
   #      ref: main
+  cw_keychain:
+    path: cw_keychain
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart
@@ -249,6 +252,7 @@ dev_dependencies:
 #       url: https://github.com/cake-tech/cake_backup.git
 #       ref: 3aba867dcab6737f6707782f5db15d71f303db38
 
+
 flutter_icons:
   image_path: "assets/images/app_logo.png"
   android: true
@@ -297,6 +301,7 @@ flutter:
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/
     - assets/new-ui/chain_badges/
+    - assets/new-ui/network-icons/
     - assets/new-ui/address-type-picker-icons/
     - assets/new-ui/address-type-picker-icons/zec/
     - assets/new-ui/trade_providers/

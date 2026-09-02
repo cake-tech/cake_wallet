@@ -9,13 +9,15 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_keychain/cw_keychain.dart';
 
 class WalletCreationService {
   WalletCreationService(
       {required WalletType initialType,
       required this.keyService,
       required this.sharedPreferences,
-      required this.settingsStore})
+      required this.settingsStore,
+      required this.keychain})
       : type = initialType {
     changeWalletType(type: type);
   }
@@ -24,6 +26,7 @@ class WalletCreationService {
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
+  final CwKeychain keychain;
   WalletService? _service;
 
   static const _isNewMoneroWalletPasswordUpdated = true;
@@ -33,18 +36,40 @@ class WalletCreationService {
     _service = getIt.get<WalletService>(param1: type);
   }
 
-  Future<bool> exists(String name) async {
+  Future<bool> exists(String name, {bool checkKeychain = true}) async {
     final walletName = name.toLowerCase();
-    return (await WalletInfo.getAll())
+    final existsLocally = (await WalletInfo.getAll())
         .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
+
+    if (existsLocally) {
+      return true;
+    }
+
+    return checkKeychain && await existsInKeychain(name);
+  }
+
+  Future<bool> existsInKeychain(String name) async {
+    if (!await keychain.available()) {
+      return false;
+    }
+
+    try {
+      final v1names = (await keychain.getAll()).map((item) => item.name.toLowerCase());
+      final unsupportedNames =
+          (await keychain.getUnsupported()).map((item) => item.name.toLowerCase());
+
+      return [...v1names, ...unsupportedNames].any((item) => item == name.toLowerCase());
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> typeExists(WalletType type) async {
     return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.type == type);
   }
 
-  Future<void> checkIfExists(String name) async {
-    if (await exists(name)) {
+  Future<void> checkIfExists(String name, {bool checkKeychain = true}) async {
+    if (await exists(name, checkKeychain: checkKeychain)) {
       throw Exception('Wallet with name ${name} already exists!');
     }
   }
@@ -117,8 +142,9 @@ class WalletCreationService {
     return wallet;
   }
 
-  Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
-    await checkIfExists(credentials.name);
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials,
+      {bool? isTestnet, bool checkKeychain = true}) async {
+    await checkIfExists(credentials.name, checkKeychain: checkKeychain);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();

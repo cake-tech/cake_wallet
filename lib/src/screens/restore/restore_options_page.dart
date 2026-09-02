@@ -1,7 +1,11 @@
+import "dart:io";
+
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -11,28 +15,33 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cw_core/wallet_info.dart';
+import "package:cw_keychain/cw_keychain.dart";
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class RestoreOptionsPage extends BasePage {
-  RestoreOptionsPage({required this.isNewInstall});
+  RestoreOptionsPage({required this.isNewInstall, required this.keychain});
 
   @override
   String get title => S.current.restore_restore_wallet;
   final bool isNewInstall;
+  final CwKeychain keychain;
 
   @override
   Widget body(BuildContext context) => _RestoreOptionsBody(
         isNewInstall: isNewInstall,
         themeType: currentTheme.type,
+    keychain: keychain,
       );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
-  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType});
+  const _RestoreOptionsBody(
+      {required this.isNewInstall, required this.themeType, required this.keychain});
 
   final bool isNewInstall;
   final ThemeType themeType;
+  final CwKeychain keychain;
 
   @override
   _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState();
@@ -40,6 +49,25 @@ class _RestoreOptionsBody extends StatefulWidget {
 
 class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   bool isRestoring = false;
+  bool hasKeychain = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkKeychain();
+  }
+
+  Future<void> checkKeychain() async {
+    if(widget.isNewInstall) {
+      return;
+    }
+
+    final available = await widget.keychain.available();
+    setState(() {
+      hasKeychain = available;
+    });
+  }
+
 
   String get imageRestoreHWPath => widget.themeType == ThemeType.dark
       ? 'assets/images/restore_hw_dark.png'
@@ -68,6 +96,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final imageRestoreQR = Image.asset(imageRestoreQRPath, width: 55);
     final imageSeedKeys = Image.asset(imageRestoreHotWalletPath, width: 55);
     final imageRestoreBackup = Image.asset(imageRestoreBackupPath, width: 55);
+    final imageKeychain = CakeImageWidget(imageUrl: "assets/new-ui/key_hero.svg", width:55);
+    final keychainName = Platform.isAndroid ? "Keystore" : "Keychain";
 
     return Center(
       child: Container(
@@ -128,6 +158,16 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     description: S.of(context).cold_or_recover_wallet,
                   ),
                 ),
+              if(!widget.isNewInstall && hasKeychain)
+                Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: OptionTile(
+                    onPressed: ()=>Navigator.of(context).pushNamed(Routes.keychainRestorePage, arguments: KeychainRestorePageParams(isInitial: false)),
+                    image: imageKeychain,
+                    title: keychainName,
+                    description: S.of(context).restore_from_keychain_desc(keychainName.toLowerCase()),
+                  )
+                )
             ],
           ),
         ),
