@@ -2105,7 +2105,8 @@ class DefaultSecureStorage extends SecureStorage {
   Future<void> write({required String key, required String? value}) async {
     // delete the value before writing on macOS because of a weird bug
     // https://github.com/mogol/flutter_secure_storage/issues/581
-    if (Platform.isMacOS) {
+    // Linux libsecret has a similar persist-across-restarts failure mode.
+    if (Platform.isMacOS || Platform.isLinux) {
       await _secureStorage.delete(key: key);
     }
     await _secureStorage.write(key: key, value: value);
