@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import "package:cw_core/resource_manager.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
 import 'package:cw_core/wallet_type.dart';
@@ -325,6 +326,24 @@ class DerivationInfo {
   }
 }
 
+
+// this class is supposed to be the minimum needed to uniquely identify a wallet
+// currently, wallets are guaranteed to be unique by name and type
+// this is an arbitrary restriction, the app will not allow you to make the same name/type twice
+// if that is ever to change you have to change this class as well
+class WalletKey extends ResourceKey {
+  const WalletKey(this.name, this.type);
+
+  final String name;
+  final WalletType type;
+
+  @override
+  bool operator ==(Object other) => other is WalletKey && other.name == name && other.type == type;
+
+  @override
+  int get hashCode => name.hashCode ^ type.hashCode;
+}
+
 class WalletInfo {
   WalletInfo(
       this.internalId,
@@ -418,6 +437,8 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+
+  WalletKey get key => WalletKey(name, type);
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
