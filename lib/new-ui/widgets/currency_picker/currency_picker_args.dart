@@ -124,6 +124,8 @@ class CurrencyPickerArgs {
     required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
     this.useSingleNetworkLayout = false,
+    this.walletName,
+    this.otherAssets,
   });
 
   final CryptoCurrency? selected;
@@ -134,4 +136,6 @@ class CurrencyPickerArgs {
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
   final bool useSingleNetworkLayout;
+  final String? walletName;
+  final CurrencyPickerArgs? otherAssets;
 }

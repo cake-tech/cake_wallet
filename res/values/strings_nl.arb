@@ -95,6 +95,7 @@
   "available_balance": "Beschikbaar saldo",
   "available_balance_description": "Het “Beschikbare saldo” of “Bevestigde saldo” zijn fondsen die direct kunnen worden uitgegeven. Als fondsen in het lagere saldo verschijnen maar niet in het bovenste saldo, dan moet je een paar minuten wachten tot de inkomende fondsen meer netwerkbevestigingen krijgen. Daarna kan het worden uitgegeven.",
   "available_balance_short": "Gem.: ${amount}",
+  "available_wallets": "Beschikbare portemonnees",
   "avg_savings": "Gem. besparingen",
   "avl": "Gem",
   "awaitDAppProcessing": "Wacht tot de dApp klaar is met verwerken.",
@@ -846,6 +847,7 @@
   "received": "Ontvangen",
   "receiving": "Bezig met ontvangen",
   "recieving": "Bezig met ontvangen",
+  "recipient_account_creation_fee": "Er is een extra ${amount} nodig om een ​​tokenaccount voor de ontvanger aan te maken, omdat deze er nog geen heeft.",
   "recipient_address": "Adres ontvanger",
   "reconnect": "Opnieuw verbinden",
   "reconnect_alert_text": "Weet je zeker dat je opnieuw verbinding wilt maken?",
@@ -1004,6 +1006,7 @@
   "send": "Verzenden",
   "send_address": "${cryptoCurrency}-adres",
   "send_amount": "Bedrag:",
+  "send_another_asset": "Stuur nog een item",
   "send_change_to_you": "Wisselgeld, aan jou:",
   "send_creating_transaction": "Transactie maken",
   "send_error_currency": "Valuta kan alleen cijfers bevatten",
@@ -1476,6 +1479,5 @@
   "zcash_card_enable_later": "Je kunt deze kaart later altijd inschakelen via de instellingen",
   "zcash_card_missing_funds": "Fondsen ontbreken?",
   "zcash_card_scan": "Scannen",
-  "zcash_card_warning": "Sluit de app niet voordat de procedure is voltooid. Als je dit wel doet, moet dit proces helemaal opnieuw worden gestart.",
-  "recipient_account_creation_fee": "Er is een extra ${amount} nodig om een ​​tokenaccount voor de ontvanger aan te maken, omdat deze er nog geen heeft."
+  "zcash_card_warning": "Sluit de app niet voordat de procedure is voltooid. Als je dit wel doet, moet dit proces helemaal opnieuw worden gestart."
 }

@@ -95,6 +95,7 @@
   "available_balance": "Ìwọ̀ntúnwọ̀nsì tó wà",
   "available_balance_description": "“Iwọntunwọnsi Wa” tabi “Iwọntunwọnsi Ti a Jẹ́rìí” jẹ́ àwọn owó tí o lè na lẹ́sẹ̀kẹsẹ. Bí àwọn owó bá hàn ní iwọntunwọnsi ìsàlẹ̀ ṣùgbọ́n kì í hàn ní iwọntunwọnsi òkè, nígbà náà o gbọdọ̀ dúró fún ìṣẹ́jú díẹ̀ kí àwọn owó tí ń wọlé lè gba ìjẹ́rìí nẹ́tíwọ́ọ̀kì púpọ̀ síi. Lẹ́yìn tí wọ́n bá ti gba ìjẹ́rìí púpọ̀ síi, o lè na wọ́n.",
   "available_balance_short": "Avl: ${amount}",
+  "available_wallets": "Awọn Woleti ti o wa",
   "avg_savings": "Ìpamọ́ àpapọ̀",
   "avl": "Avl",
   "awaitDAppProcessing": "Jọ̀wọ́, dúró kí dApp parí ìṣiṣẹ́.",
@@ -847,6 +848,7 @@
   "received": "Ti gbà",
   "receiving": "Gbigba",
   "recieving": "Gbigba",
+  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ.",
   "recipient_address": "Àdírẹ́sì olùgbà",
   "reconnect": "Tun so pọ̀",
   "reconnect_alert_text": "Ṣé ó dá ẹ lójú pé ẹ fẹ́ tún sopọ̀?",
@@ -1005,6 +1007,7 @@
   "send": "Fìránṣẹ́",
   "send_address": "Àdírẹ́sì ${cryptoCurrency}",
   "send_amount": "Iye:",
+  "send_another_asset": "Fi ohun-ini miiran ranṣẹ",
   "send_change_to_you": "Iyokù, sí ọ:",
   "send_creating_transaction": "Ń dá ìdúnàdúrà sílẹ̀",
   "send_error_currency": "Owo gbọdọ̀ ní àwọn nọ́mbà nìkan",
@@ -1476,6 +1479,5 @@
   "zcash_card_enable_later": "O le ma a mu kaadi yii ṣiṣẹ nigbamii ninu awọn eto",
   "zcash_card_missing_funds": "Ṣe owó rẹ sọnù?",
   "zcash_card_scan": "Ṣàwárí",
-  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀.",
-  "recipient_account_creation_fee": "A nilo afikun ${amount} lati ṣẹda akọọlẹ ami-ami kan fun olugba, nitori wọn ko ni ọkan sibẹsibẹ."
+  "zcash_card_warning": "Maṣe pa ohun elo naa titi ilana naa yoo fi pari; bí o bá ṣe bẹ́ẹ̀, ilana yìí yóò ní láti tún bẹ̀rẹ̀ láti ìbẹ̀rẹ̀."
 }

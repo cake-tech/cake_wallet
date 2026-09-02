@@ -95,6 +95,7 @@
   "available_balance": "Dostępne saldo",
   "available_balance_description": "„Dostępne saldo” lub „Potwierdzone saldo” to środki, które można wydać od razu. Jeśli środki pojawiają się w dolnym saldzie, ale nie w górnym, musisz poczekać kilka minut, aż przychodzące środki uzyskają więcej potwierdzeń sieci. Gdy uzyskają więcej potwierdzeń, będzie można je wydać.",
   "available_balance_short": "Średnia: ${amount}",
+  "available_wallets": "Dostępne portfele",
   "avg_savings": "Śr. oszczędności",
   "avl": "Avl",
   "awaitDAppProcessing": "Proszę poczekać, aż dApp zakończy przetwarzanie.",
@@ -846,6 +847,7 @@
   "received": "Otrzymane",
   "receiving": "Odbieranie",
   "recieving": "Odbieranie",
+  "recipient_account_creation_fee": "Do założenia konta tokenowego dla odbiorcy potrzebna jest dodatkowa ${amount}, ponieważ jeszcze takiego nie posiada.",
   "recipient_address": "Adres odbiorcy",
   "reconnect": "Połącz ponownie",
   "reconnect_alert_text": "Czy na pewno chcesz połączyć się ponownie?",
@@ -1004,6 +1006,7 @@
   "send": "Wyślij",
   "send_address": "Adres ${cryptoCurrency}",
   "send_amount": "Kwota:",
+  "send_another_asset": "Wyślij kolejny zasób",
   "send_change_to_you": "Reszta, do Ciebie:",
   "send_creating_transaction": "Tworzenie transakcji",
   "send_error_currency": "Waluta może zawierać tylko liczby",
@@ -1475,6 +1478,5 @@
   "zcash_card_enable_later": "Zawsze możesz włączyć tę kartę później w ustawieniach",
   "zcash_card_missing_funds": "Brakuje środków?",
   "zcash_card_scan": "Skanuj",
-  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa.",
-  "recipient_account_creation_fee": "Do założenia konta tokenowego dla odbiorcy potrzebna jest dodatkowa ${amount}, ponieważ jeszcze takiego nie posiada."
+  "zcash_card_warning": "Nie zamykaj aplikacji do czasu zakończenia procedury. Jeśli to zrobisz, proces będzie musiał rozpocząć się od nowa."
 }

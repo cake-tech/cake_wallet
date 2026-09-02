@@ -95,6 +95,7 @@
   "available_balance": "Magagamit na Balanse",
   "available_balance_description": "Ang “Magagamit na Balanse” o “Nakumpirmang Balanse” ay mga pondong maaari nang gastusin kaagad. Kung lumalabas ang mga pondo sa mas mababang balanse ngunit wala sa itaas na balanse, kailangan mong maghintay ng ilang minuto para makakuha ng mas maraming kumpirmasyon sa network ang mga papasok na pondo. Kapag nakakuha na sila ng mas maraming kumpirmasyon, maaari na silang gastusin.",
   "available_balance_short": "Avl: ${amount}",
+  "available_wallets": "Magagamit na mga Wallet",
   "avg_savings": "Avg. Matitipid",
   "avl": "Avl",
   "awaitDAppProcessing": "Mangyaring maghintay hanggang matapos ang pagproseso ng dApp.",
@@ -846,6 +847,7 @@
   "received": "Natanggap",
   "receiving": "Pagtanggap",
   "recieving": "Tumatanggap",
+  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito.",
   "recipient_address": "Address ng tatanggap",
   "reconnect": "Muling kumonekta",
   "reconnect_alert_text": "Sigurado ka bang gusto mong kumonekta muli?",
@@ -1004,6 +1006,7 @@
   "send": "Ipadala",
   "send_address": "${cryptoCurrency} address",
   "send_amount": "Halaga:",
+  "send_another_asset": "Magpadala ng isa pang asset",
   "send_change_to_you": "Sukli, sa iyo:",
   "send_creating_transaction": "Ginagawa ang transaksyon",
   "send_error_currency": "Ang currency ay maaari lamang maglaman ng mga numero",
@@ -1475,6 +1478,5 @@
   "zcash_card_enable_later": "Maaari mo itong paganahin anumang oras sa ibang pagkakataon sa mga setting",
   "zcash_card_missing_funds": "Nawawalang pondo?",
   "zcash_card_scan": "I-scan",
-  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula.",
-  "recipient_account_creation_fee": "Kailangan ng dagdag na ${amount} para gumawa ng token account para sa tatanggap, dahil wala pa sila nito."
+  "zcash_card_warning": "Huwag isara ang app hanggang sa makumpleto ang proseso; kung gagawin mo ito, kakailanganing magsimula muli mula sa simula."
 }

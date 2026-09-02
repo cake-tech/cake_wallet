@@ -472,11 +472,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       } catch (_) {}
     }
 
-    if (type != null) {
-      return await WalletInfo.selectList("type = ?", [type.index]);
+    if (type == null) {
+      return [];
     }
 
-    return await WalletInfo.getAll();
+    return WalletInfo.selectList("type = ?", [type.index]);
   }
 
   @action

@@ -95,6 +95,7 @@
   "available_balance": "Số dư khả dụng",
   "available_balance_description": "“Số dư khả dụng” hoặc “Số dư đã xác nhận” là số tiền có thể chi tiêu ngay lập tức. Nếu tiền xuất hiện ở số dư phía dưới nhưng không xuất hiện ở số dư phía trên, thì bạn phải đợi vài phút để khoản tiền đến có thêm xác nhận từ mạng. Sau khi có thêm xác nhận, chúng sẽ có thể chi tiêu.",
   "available_balance_short": "Trung bình: ${amount}",
+  "available_wallets": "Ví có sẵn",
   "avg_savings": "Tiết kiệm TB",
   "avl": "trung bình",
   "awaitDAppProcessing": "Vui lòng đợi dApp xử lý xong.",
@@ -847,6 +848,7 @@
   "received": "Đã nhận",
   "receiving": "Đang nhận",
   "recieving": "Đang nhận",
+  "recipient_account_creation_fee": "Cần thêm ${amount} để tạo tài khoản mã thông báo cho người nhận vì họ chưa có tài khoản.",
   "recipient_address": "Địa chỉ người nhận",
   "reconnect": "Kết nối lại",
   "reconnect_alert_text": "Bạn có chắc chắn muốn kết nối lại không?",
@@ -1005,6 +1007,7 @@
   "send": "Gửi",
   "send_address": "Địa chỉ ${cryptoCurrency}",
   "send_amount": "Số lượng:",
+  "send_another_asset": "Gửi nội dung khác",
   "send_change_to_you": "Tiền thừa, gửi về bạn:",
   "send_creating_transaction": "Đang tạo giao dịch",
   "send_error_currency": "Trường tiền tệ chỉ được chứa số",
@@ -1476,6 +1479,5 @@
   "zcash_card_enable_later": "Bạn luôn có thể bật thẻ này sau trong phần cài đặt",
   "zcash_card_missing_funds": "Thiếu tiền?",
   "zcash_card_scan": "Quét",
-  "zcash_card_warning": "Không đóng ứng dụng cho đến khi quy trình hoàn tất; nếu bạn làm vậy, quy trình này sẽ phải bắt đầu lại từ đầu.",
-  "recipient_account_creation_fee": "Cần thêm ${amount} để tạo tài khoản mã thông báo cho người nhận vì họ chưa có tài khoản."
+  "zcash_card_warning": "Không đóng ứng dụng cho đến khi quy trình hoàn tất; nếu bạn làm vậy, quy trình này sẽ phải bắt đầu lại từ đầu."
 }

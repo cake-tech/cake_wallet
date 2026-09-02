@@ -351,7 +351,6 @@ class AnyPayFlow {
       null,
       walletSwitcherViewModel: walletSwitcherViewModel,
       fromSend: SwapFromSendArgs.fromIntent(intent),
-      balanceViewModel: sendViewModel.balanceViewModel,
     );
     await Navigator.of(presentContext).push<void>(
       CupertinoPageRoute(
