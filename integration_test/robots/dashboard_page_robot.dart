@@ -30,7 +30,7 @@ class DashboardPageRobot {
     final hasAccounts = cryptoBalancewidget.dashboardViewModel.balanceViewModel.hasAccounts;
 
     if (hasAccounts) {
-      final walletName = cryptoBalancewidget.dashboardViewModel.name;
+      final walletName = cryptoBalancewidget.dashboardViewModel.groupName;
       commonTestCases.hasText(walletName);
     } else {
       final walletName = walletTypeToString(type);

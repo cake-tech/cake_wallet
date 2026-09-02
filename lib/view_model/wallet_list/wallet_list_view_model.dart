@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -22,7 +22,6 @@ abstract class WalletListViewModelBase with Store {
     this._walletManager,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
-        singleWalletsList = ObservableList<WalletListItem>(),
         expansionTileStateTrack = ObservableMap<int, bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
@@ -36,12 +35,9 @@ abstract class WalletListViewModelBase with Store {
 
   // @observable
   // ObservableList<WalletGroup> walletGroups;
-
   @observable
   ObservableList<WalletGroup> multiWalletGroups;
 
-  @observable
-  ObservableList<WalletListItem> singleWalletsList;
 
   @observable
   ObservableMap<int, bool> expansionTileStateTrack;
@@ -64,7 +60,7 @@ abstract class WalletListViewModelBase with Store {
       _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
 
   final AppStore _appStore;
-  final WalletManager _walletManager;
+  final WalletGroupManager _walletManager;
   final WalletLoadingService _walletLoadingService;
 
   WalletType get currentWalletType => _appStore.wallet!.type;
@@ -103,7 +99,6 @@ abstract class WalletListViewModelBase with Store {
     try {
       wallets.clear();
       multiWalletGroups.clear();
-      singleWalletsList.clear();
 
       final list = await WalletInfo.getAll();
 
@@ -113,16 +108,7 @@ abstract class WalletListViewModelBase with Store {
 
       await _walletManager.updateWalletGroups();
 
-      final walletGroupsFromManager = _walletManager.walletGroups;
-
-      for (var group in walletGroupsFromManager) {
-        if (group.wallets.length == 1) {
-          singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first, true));
-          continue;
-        }
-
-        multiWalletGroups.add(group);
-      }
+      multiWalletGroups.addAll(_walletManager.walletGroups);
     } finally {
       done.complete();
     }
@@ -139,25 +125,12 @@ abstract class WalletListViewModelBase with Store {
     // make a copy of the walletInfoSource:
     List<WalletInfo> wiList = await WalletInfo.getAll();
 
-    // Reorder single wallets using the singleWalletsList
-    int oldI = 0;
-    for (WalletListItem wallet in singleWalletsList) {
-      for (int i = 0; i < wiList.length; i++) {
-        if (wiList[i].id == wallet.key) {
-          oldI++;
-          wiList[i].sortOrder = oldI;
-          await wiList[i].save();
-          break;
-        }
-      }
-    }
 
-    // Reorder wallets within multi-wallet groups
     for (WalletGroup group in multiWalletGroups) {
       for (WalletInfo walletInfo in group.wallets) {
         for (int i = 0; i < wiList.length; i++) {
           if (wiList[i].id == walletInfo.id) {
-            wiList[i].sortOrder = i + oldI;
+            wiList[i].sortOrder = i;
             await wiList[i].save();
             wiList.removeAt(i);
             break;
@@ -241,11 +214,11 @@ abstract class WalletListViewModelBase with Store {
     }
   }
 
-  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info, [bool isSingleWallet = false]) {
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
     String formatedName = info.name;
     final list = info.name.split('_');
     if (list.length > 1) {
-      formatedName = isSingleWallet ? list.first : list.last;
+      formatedName = list.last;
     }
     return WalletListItem(
       walletInfo: info,

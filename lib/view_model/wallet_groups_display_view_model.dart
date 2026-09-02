@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -31,7 +31,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   final WalletType type;
   final AppStore _appStore;
-  final WalletManager _walletManager;
+  final WalletGroupManager _walletManager;
   final WalletLoadingService _walletLoadingService;
   final WalletListViewModel walletListViewModel;
 

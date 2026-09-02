@@ -45,7 +45,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -455,10 +455,9 @@ Future<void> setup({
 
   getIt.registerFactory<OmniChainWalletCreationService>(
     () => OmniChainWalletCreationService(
-      walletCreationService: getIt.get<WalletCreationService>(param1: WalletType.none),
       walletNewVMBuilder: (newWalletArguments) =>
           getIt.get<WalletNewVM>(param1: newWalletArguments),
-      walletManager: getIt.get<WalletManager>(),
+      walletManager: getIt.get<WalletGroupManager>(),
       walletLoadingService: getIt.get<WalletLoadingService>(),
       appStore: getIt.get<AppStore>(),
     ),
@@ -483,17 +482,13 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerLazySingleton<WalletManager>(
-    () => WalletManager(
-      getIt.get<SharedPreferences>(),
-    ),
-  );
+  getIt.registerLazySingleton<WalletGroupManager>(WalletGroupManager.new,);
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
-      getIt.get<WalletManager>(),
+      getIt.get<WalletGroupManager>(),
       getIt.get<WalletListViewModel>(),
       type: type,
     ),
@@ -609,7 +604,7 @@ Future<void> setup({
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>(),
-      walletManager: getIt.get<WalletManager>()
+      walletGroupManager: getIt.get<WalletGroupManager>()
   ));
 
   getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
@@ -962,7 +957,7 @@ Future<void> setup({
       () => WalletListViewModel(
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
-        getIt.get<WalletManager>(),
+        getIt.get<WalletGroupManager>(),
       ),
     );
   } else {
@@ -972,7 +967,7 @@ Future<void> setup({
       () => WalletListViewModel(
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
-        getIt.get<WalletManager>(),
+        getIt.get<WalletGroupManager>(),
       ),
     );
   }
@@ -988,7 +983,7 @@ Future<void> setup({
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
       walletListViewModel,
       getIt.get<WalletLoadingService>(),
-      getIt.get<WalletManager>(),
+      getIt.get<WalletGroupManager>(),
     ),
   );
 
@@ -1845,7 +1840,7 @@ Future<void> setup({
   getIt.registerFactory(() => BridgeViewModel(
         appStore: getIt.get<AppStore>(),
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
-        walletManager: getIt.get<WalletManager>(),
+        walletManager: getIt.get<WalletGroupManager>(),
         fiatConversionStore: getIt.get<FiatConversionStore>(),
         settingsStore: getIt.get<SettingsStore>(),
       ));

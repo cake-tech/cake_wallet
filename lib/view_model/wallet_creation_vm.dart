@@ -106,9 +106,6 @@ abstract class WalletCreationVMBase with Store {
     final type = this.type;
     try {
       state = IsExecutingState();
-      if (name.isEmpty) {
-        name = await generateName();
-      }
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
         throw Exception(S.current.wallet_password_is_empty);
@@ -139,7 +136,6 @@ abstract class WalletCreationVMBase with Store {
         }
 
         keepSortOrder = placeholder.sortOrder;
-        placeholderGroupId = placeholder.hashedWalletIdentifier;
         placeholderRealGroupId = placeholder.groupId;
         reservedId = placeholder.id;
         reservedDirPath = placeholder.dirPath;
@@ -151,13 +147,11 @@ abstract class WalletCreationVMBase with Store {
           await WalletInfoAddress.deleteByType(placeholder.internalId, t);
         }
         await WalletInfo.delete(placeholder);
-      } else {
-        walletCreationService.checkIfExists(name);
       }
 
-      final id = reservedId ?? const Uuid().v4();
-      final dirPath = reservedDirPath ?? await pathForWalletDir(id: id, type: type);
-      final path = reservedPath ?? await pathForWallet(id: id, type: type);
+      final walletId = reservedId ?? const Uuid().v4();
+      final dirPath = reservedDirPath ?? await pathForWalletDir(id: walletId, type: type);
+      final path = reservedPath ?? await pathForWallet(id: walletId, type: type);
 
       final credentials = getCredentials(options);
 
@@ -169,15 +163,15 @@ abstract class WalletCreationVMBase with Store {
       credentials.derivationInfo = di;
 
       credentials.walletInfo = WalletInfo.external(
-        id: id,
-        name: name,
+        id: walletId,
+        name: walletTypeToDisplayName(type),
         type: type,
         isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
         path: path,
         dirPath: dirPath,
-        address: '',
+        address: "",
         showIntroCakePayCard:
             (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfoId: diId,
@@ -187,18 +181,11 @@ abstract class WalletCreationVMBase with Store {
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
-      final String groupIdentifier;
-      if (placeholderGroupId != null && placeholderGroupId.isNotEmpty) {
-        groupIdentifier = placeholderGroupId;
-      } else if (groupId != null && groupId.isNotEmpty) {
-        groupIdentifier = groupId;
-      } else {
-        groupIdentifier = createHashedWalletIdentifier(wallet);
-      }
+
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = groupIdentifier;
+
 
       if (placeholderRealGroupId != null && placeholderRealGroupId.isNotEmpty) {
         credentials.walletInfo!.groupId = placeholderRealGroupId;

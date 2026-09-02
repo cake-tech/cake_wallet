@@ -6,7 +6,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import "package:cake_wallet/entities/wallet_manager.dart";
+import "package:cake_wallet/entities/wallet_group_manager.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/account.dart';
@@ -95,7 +95,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
       required this.sharedPreferences,
-      required this.walletManager,
+      required this.walletGroupManager,
       required this.keyService})
       : hasTradeAction = true,
         hasSwapAction = true,
@@ -124,7 +124,7 @@ abstract class DashboardViewModelBase with Store {
     unawaited(_loadConstraints());
     accountListViewModel = accountListViewModelFactory();
     final _wallet = wallet;
-    unawaited(walletManager.updateWalletGroups());
+    unawaited(walletGroupManager.updateWalletGroups());
 
     loadFilterItems();
 
@@ -355,10 +355,9 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
-  WalletIcon? get walletIcon {
-    walletManager.groupsRevision.value;
-    return walletManager.getGroupIcon(wallet.walletInfo);
-  }
+  WalletIcon? getGroupIcon(WalletInfo walletInfo) => walletGroupManager.getGroupIcon(walletInfo);
+  String? getGroupName(WalletInfo walletInfo) => walletGroupManager.getGroupName(walletInfo);
+
 
   @action
   void _reloadTransactions() {
@@ -1192,7 +1191,7 @@ abstract class DashboardViewModelBase with Store {
 
   List<FilterItem> exchangeFilterItems;
 
-  final WalletManager walletManager;
+  final WalletGroupManager walletGroupManager;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
@@ -1311,7 +1310,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    unawaited(walletManager.updateWalletGroups());
+    unawaited(walletGroupManager.updateWalletGroups());
 
     _onBitcoinAccountChangeReaction?.reaction.dispose();
     _onBitcoinAccountChangeReaction = null;

@@ -112,8 +112,8 @@ class _TopBarState extends State<TopBar> {
 
         final walletInfoBar = WalletInfoBar(
           hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
-          walletIcon: dashboardViewModel.walletIcon,
-          name: walletNameToDisplay(dashboardViewModel.wallet.name),
+          walletIcon: dashboardViewModel.getGroupIcon(dashboardViewModel.wallet.walletInfo),
+          groupName: dashboardViewModel.getGroupName(dashboardViewModel.wallet.walletInfo) ?? ""
         );
 
         final settingsButton = ModernButton.svg(

@@ -5,9 +5,9 @@ import "package:cw_core/wallet_info.dart";
 import "package:flutter/material.dart";
 
 class WalletInfoBar extends StatelessWidget {
-  const WalletInfoBar({required this.name, required this.walletIcon, this.hardwareWalletType, super.key});
+  const WalletInfoBar({required this.groupName, required this.walletIcon, this.hardwareWalletType, super.key});
 
-  final String name;
+  final String groupName;
   final WalletIcon? walletIcon;
   final HardwareWalletType? hardwareWalletType;
 
@@ -45,7 +45,7 @@ class WalletInfoBar extends StatelessWidget {
         const SizedBox(width: 8),
         Flexible(
           child: Text(
-            name,
+            groupName,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
             softWrap: false,

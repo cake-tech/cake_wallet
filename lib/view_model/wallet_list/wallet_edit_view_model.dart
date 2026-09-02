@@ -1,6 +1,6 @@
 import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/di.dart";
-import "package:cake_wallet/entities/wallet_manager.dart";
+import "package:cake_wallet/entities/wallet_group_manager.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_list_item.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart";
@@ -35,7 +35,7 @@ abstract class WalletEditViewModelBase with Store {
 
   final WalletListViewModel _walletListViewModel;
   final WalletLoadingService _walletLoadingService;
-  final WalletManager _walletManager;
+  final WalletGroupManager _walletManager;
 
   @action
   Future<void> changeName(

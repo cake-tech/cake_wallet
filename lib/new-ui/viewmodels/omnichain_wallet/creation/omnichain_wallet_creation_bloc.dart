@@ -113,10 +113,10 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
   // ---- Step 2: customization ----
 
-  void _onGroupNameChanged(
+  Future<void> _onGroupNameChanged(
       OmniChainWalletGroupNameChanged event,
       Emitter<WalletCreationState> emit,
-      ) {
+      ) async {
     final current = state;
     if (current is! WalletCreationCustomization) return;
 
@@ -124,7 +124,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
     emit(current.copyWith(
       groupName: groupName,
-      groupNameError: _validateGroupName(groupName),
+      groupNameError: await _validateGroupName(groupName),
     ));
   }
 
@@ -141,7 +141,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
     emit(current.copyWith(
       groupName: groupName,
-      groupNameError: _validateGroupName(groupName),
+      groupNameError: await _validateGroupName(groupName),
     ));
   }
 
@@ -270,7 +270,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
 
   // ---- Helpers ----
 
-  String? _validateGroupName(String groupName) {
+  Future<String?> _validateGroupName(String groupName) async {
     final trimmedGroupName = groupName.trim();
 
     if (trimmedGroupName.isEmpty) {
@@ -282,7 +282,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
       return lengthOrPatternError;
     }
 
-    if (creationService.groupNameExists(trimmedGroupName)) {
+    if (await creationService.walletGroupNameExists(trimmedGroupName)) {
       return 'Group name already exists';
     }
 
