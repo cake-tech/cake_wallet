@@ -129,13 +129,13 @@ abstract class WowneroSubaddressListBase with Store {
 
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
-    final allAddresses = subaddress_list.getAllSubaddresses();
-    final lastAddress = allAddresses.last.address;
-    if (allAddresses.isEmpty || _usedAddresses.contains(lastAddress)) {
+    var allAddresses = subaddress_list.getAllSubaddresses();
+    if (allAddresses.length < 2 || _usedAddresses.contains(allAddresses.last.address)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
       }
+      allAddresses = subaddress_list.getAllSubaddresses();
     }
 
     return allAddresses.map((s) {
