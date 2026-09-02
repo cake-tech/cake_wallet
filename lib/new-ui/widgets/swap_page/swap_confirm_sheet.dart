@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
@@ -15,7 +16,6 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -27,15 +27,16 @@ import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapConfirmSheet extends StatefulWidget {
-  const SwapConfirmSheet(
-      {super.key,
-      required this.exchangeViewModel,
-      required this.exchangeTradeViewModel,
-      required this.receiveAmount});
+  const SwapConfirmSheet({
+    required this.exchangeViewModel,
+    required this.exchangeTradeViewModel,
+    required this.receiveAmount,
+    super.key,
+  });
 
   final ExchangeViewModel exchangeViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final String receiveAmount;
+  final Money receiveAmount;
 
   @override
   State<SwapConfirmSheet> createState() => _SwapConfirmSheetState();
@@ -135,18 +136,26 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
 }
 
 class SwapTransactionDetails extends StatelessWidget {
-  const SwapTransactionDetails(
-      {super.key,
-      required this.exchangeViewModel,
-      required this.exchangeTradeViewModel,
-      required this.receiveAmount});
+  const SwapTransactionDetails({
+    required this.exchangeViewModel,
+    required this.exchangeTradeViewModel,
+    required this.receiveAmount,
+    super.key,
+  });
 
   final ExchangeViewModel exchangeViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final String receiveAmount;
+  final Money receiveAmount;
 
   @override
   Widget build(BuildContext context) {
+    final labelStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      fontFamily: 'Wix Madefor Text',
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -175,18 +184,37 @@ class SwapTransactionDetails extends StatelessWidget {
                         label: exchangeViewModel.depositCurrency.fullName ?? "",
                         iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
-                        trailingText: exchangeViewModel.amountParsingProxy
-                            .asDisplayStringWithSymbol(exchangeViewModel.depositCurrency
-                                    .tryParseAmount(exchangeTradeViewModel.trade.amount) ??
-                                Money.zero(exchangeViewModel.depositCurrency)),
+                        trailingWidget: MoneyText(
+                          exchangeTradeViewModel.trade.amountMoney ??
+                              Money.zero(exchangeViewModel.depositCurrency),
+                          showSymbol: true,
+                          style: labelStyle,
+                        ),
                       ),
                       if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                         ListItemRegularRow(
-                            showArrow: false,
-                            keyValue: "fee",
-                            label: S.of(context).fee,
-                            trailingText:
-                                "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                          showArrow: false,
+                          keyValue: "fee",
+                          label: S.of(context).fee,
+                          trailingWidget: Row(
+                            children: [
+                              MoneyText.optional(
+                                exchangeTradeViewModel.sendViewModel.pendingTransaction?.fee,
+                                showSymbol: true,
+                                style: labelStyle,
+                              ),
+                              Text(" (", style: labelStyle),
+                              MoneyText.optional(
+                                exchangeTradeViewModel
+                                    .sendViewModel.pendingTransactionFeeFiatAmount,
+                                trimZeros: false,
+                                showSymbol: true,
+                                style: labelStyle,
+                              ),
+                              Text(")", style: labelStyle),
+                            ],
+                          ),
+                        ),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
@@ -202,9 +230,11 @@ class SwapTransactionDetails extends StatelessWidget {
                         label: exchangeViewModel.receiveCurrency.fullName ?? "",
                         iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
-                        trailingText: (receiveAmount.withMaxDecimals(8)) +
-                            " " +
-                            (exchangeViewModel.receiveCurrency.title),
+                        trailingWidget: MoneyText(
+                          receiveAmount,
+                          showSymbol: true,
+                          style: labelStyle,
+                        ),
                       ),
                       ListItemRegularRow(
                           keyValue: "receiver",
@@ -279,16 +309,18 @@ class SwapTransactionDetails extends StatelessWidget {
 
   void _showExternalSendModal(BuildContext context) {
     if (context.mounted) {
+      final from = exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency;
+
       showMaterialModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return SwapSendExternalModal(
-                amount: exchangeTradeViewModel.trade.amount,
-                exchangeTradeViewModel: exchangeTradeViewModel,
-                from: exchangeTradeViewModel.trade.from ?? exchangeViewModel.depositCurrency,
-                to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
-                address: exchangeTradeViewModel.trade.inputAddress ?? "");
-          });
+        context: context,
+        builder: (context) => SwapSendExternalModal(
+          amount: exchangeTradeViewModel.trade.amountMoney ?? Money.zero(from),
+          exchangeTradeViewModel: exchangeTradeViewModel,
+          from: from,
+          to: exchangeTradeViewModel.trade.to ?? exchangeViewModel.receiveCurrency,
+          address: exchangeTradeViewModel.trade.inputAddress ?? "",
+        ),
+      );
     }
   }
 }

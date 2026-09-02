@@ -2,19 +2,23 @@ import "dart:math";
 
 import "package:cw_core/amount/utils.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
 import "package:cw_core/format_fixed.dart";
 import "package:cw_core/parse_fixed.dart";
 
 export "money_local.dart";
 
-class Money implements Comparable<Money> {
+typedef FiatMoney = Money<FiatCurrency>;
+typedef CryptoMoney = Money<CryptoCurrency>;
+
+class Money<T extends Currency> implements Comparable<Money<T>> {
   const Money(this.amount, this.currency, [int? overrideDecimals])
       : _overrideDecimals = overrideDecimals;
 
-  factory Money.zero(Currency currency) => Money(BigInt.zero, currency);
+  factory Money.zero(T currency) => Money(BigInt.zero, currency);
 
-  factory Money.fromInt(int amount, Currency currency) => Money(BigInt.from(amount), currency);
+  factory Money.fromInt(int amount, T currency) => Money(BigInt.from(amount), currency);
 
   /// Parse the [source] and turn it into [Money] trimming trailing 0s
   ///
@@ -22,7 +26,7 @@ class Money implements Comparable<Money> {
   /// not in canonical representation or if it is a decimal when [isBaseUnit]
   factory Money.parse(
     String source,
-    Currency currency, {
+    T currency, {
     bool isBaseUnit = false,
     bool strictParsing = true,
   }) {
@@ -39,9 +43,9 @@ class Money implements Comparable<Money> {
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
-  static Money? tryParse(
+  static Money<T>? tryParse<T extends Currency>(
     String source,
-    Currency currency, {
+    T currency, {
     bool isBaseUnit = false,
     bool strictParsing = true,
   }) {
@@ -59,7 +63,7 @@ class Money implements Comparable<Money> {
   }
 
   final BigInt amount;
-  final Currency currency;
+  final T currency;
 
   final int? _overrideDecimals;
 
@@ -82,7 +86,7 @@ class Money implements Comparable<Money> {
   /// [other] has to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
   @override
-  int compareTo(Money other) {
+  int compareTo(Money<T> other) {
     _assertSameCurrency(other);
 
     final aligned = _align(other);
@@ -109,7 +113,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator <(Money other) {
+  bool operator <(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     final aligned = _align(other);
@@ -120,7 +124,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator <=(Money other) {
+  bool operator <=(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     final aligned = _align(other);
@@ -131,7 +135,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator >(Money other) {
+  bool operator >(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     final aligned = _align(other);
@@ -142,7 +146,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands have to be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  bool operator >=(Money other) {
+  bool operator >=(Money<T> other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
     final aligned = _align(other);
@@ -153,7 +157,7 @@ class Money implements Comparable<Money> {
   ///
   /// Both operands must be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  Money operator +(Money other) {
+  Money<T> operator +(Money<T> other) {
     _assertSameCurrency(other);
 
     final aligned = _align(other);
@@ -161,13 +165,13 @@ class Money implements Comparable<Money> {
   }
 
   /// unary minus operator.
-  Money operator -() => copyWith(amount: -amount);
+  Money<T> operator -() => copyWith(amount: -amount);
 
   /// Subtracts the amount of [other] from this amount.
   ///
   /// Both operands must be in same currency, [ArgumentError] will be thrown
   /// otherwise.
-  Money operator -(Money other) {
+  Money<T> operator -(Money<T> other) {
     _assertSameCurrency(other);
 
     final aligned = _align(other);
@@ -177,12 +181,12 @@ class Money implements Comparable<Money> {
   /// Returns [Money] multiplied by [other].
   ///
   /// The result is again [Money].
-  Money operator *(BigInt other) => copyWith(amount: amount * other);
+  Money<T> operator *(BigInt other) => copyWith(amount: amount * other);
 
   /// Returns [Money] divided by [other].
   ///
   /// The result is again [Money].
-  Money operator /(BigInt other) {
+  Money<T> operator /(BigInt other) {
     if (other == BigInt.zero) {
       throw Exception("Division by zero.");
     }
@@ -206,7 +210,7 @@ class Money implements Comparable<Money> {
   ///
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
-  Money copyWith({BigInt? amount, Currency? currency, int? decimals}) {
+  Money<T> copyWith({BigInt? amount, T? currency, int? decimals}) {
     if (currency != null && amount == null && decimals == null &&
         currency.decimals != this.decimals) {
       return Money(
@@ -219,7 +223,7 @@ class Money implements Comparable<Money> {
     return Money(amount ?? this.amount, currency ?? this.currency, decimals ?? this.decimals);
   }
 
-  void _assertSameCurrency(Money other, [String? message]) {
+  void _assertSameCurrency(Money<T> other, [String? message]) {
     if (currency != other.currency) {
       throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
     }

@@ -870,7 +870,7 @@ abstract class EVMChainWalletBase
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
 
-      totalAmount = outputs.fold<Money>(Money.zero(transactionCurrency),
+      totalAmount = outputs.fold<CryptoMoney>(Money.zero(transactionCurrency),
           (acc, output) => acc + output.cryptoAmount.copyWith(currency: transactionCurrency));
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
@@ -971,7 +971,7 @@ abstract class EVMChainWalletBase
   Future<PendingTransaction> createCallDataTransaction(
     String to,
     String dataHex,
-    Money valueWei,
+    CryptoMoney valueWei,
     EVMChainTransactionPriority? priority,
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount, {
@@ -1061,8 +1061,11 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createApprovalTransaction(
-      Money amount, String spender, EVMChainTransactionPriority? priority,
-      {bool useBlinkProtection = true}) async {
+    CryptoMoney amount,
+    String spender,
+    EVMChainTransactionPriority? priority, {
+    bool useBlinkProtection = true,
+  }) async {
     final transactionCurrency =
         balance.keys.firstWhere((element) => element.symbol == amount.currency.symbol);
     assert(transactionCurrency is Erc20Token);

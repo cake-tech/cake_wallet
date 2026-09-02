@@ -14,11 +14,11 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cw_core/currency/currency.dart";
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -238,52 +238,58 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get pendingTransactionFiatAmount {
-    if (pendingTransaction == null) return '0.00';
+  Money<Currency> get pendingTransactionFiatAmount {
+    if (pendingTransaction == null) {
+      return Money.zero(fiatCurrency);
+    }
 
     try {
       final selectedCurrency = selectedCryptoCurrency == CryptoCurrency.btcln
           ? CryptoCurrency.btc
           : selectedCryptoCurrency;
-      var currency = _fiatConversationStore.prices.keys
+      final currency = _fiatConversationStore.prices.keys
           .firstWhere((k) => k.titleAndTagEqual(selectedCurrency));
 
-      final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency],
-          cryptoAmount: pendingTransaction!.amountFormatted);
-      return fiat;
+      final price = _fiatConversationStore.prices[currency];
+      final rate =
+          _fiatConversationStore.getExchangeRate(selectedCryptoCurrency, fiatCurrency, price);
+      return rate.convert(pendingTransaction!.amount);
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
-  String calculateTransactionFiatAmount(String amountValue) {
+  Money calculateTransactionFiatAmount(Money? amount) {
+    if (amount == null) {
+      return Money.zero(fiatCurrency);
+    }
+
     try {
-      final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[_fiatConversationStore.prices.keys
-              .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))],
-          cryptoAmount: amountValue);
-      return fiat;
+      final currency = pendingTransactionFeeCurrency(walletType);
+      final price = _fiatConversationStore.prices[_fiatConversationStore.prices.keys
+          .firstWhere((k) => k.titleAndTagEqual(currency))];
+      final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
+      return rate.convert(amount);
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
   @computed
-  String get pendingTransactionFeeFiatAmount {
+  Money<Currency> get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
-        final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency]!,
-          cryptoAmount: pendingTransaction!.feeFormattedValue,
-        );
-        return fiat;
+
+        final selectedCurrency = currency == CryptoCurrency.btcln ? CryptoCurrency.btc : currency;
+        final price = _fiatConversationStore.prices[selectedCurrency];
+        final rate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
+        return rate.convert(pendingTransaction!.fee);
       } else {
-        return '0.00';
+        return Money.zero(fiatCurrency);
       }
     } catch (_) {
-      return '0.00';
+      return Money.zero(fiatCurrency);
     }
   }
 
@@ -296,7 +302,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bsc:
       case WalletType.tron:
       case WalletType.solana:
-      case WalletType.bitcoin:
         return wallet.currency;
       default:
         return selectedCryptoCurrency;
@@ -349,22 +354,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get balance {
-    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
-      return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (walletType == WalletType.litecoin &&
-        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
-      return balanceViewModel.balances.values.first.availableBalance;
+  CryptoMoney get balance {
+    if (walletType == WalletType.litecoin) {
+      final balance = balanceViewModel.balances.values.first;
+
+      if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+        return balance.raw.secondAvailable ?? Money.zero(balance.secondAsset);
+      } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+        return balance.raw.available;
+      }
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
     final balanceForCurrency = wallet.balance[selectedCryptoCurrency];
-    if (balanceForCurrency == null) {
-      return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
-    }
-    return _appStore.amountParsingProxy
-        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
+
+    return balanceForCurrency?.available ?? Money.zero(selectedCryptoCurrency);
   }
+
+  @computed
+  String get balanceString => _appStore.amountParsingProxy.asDisplayString(balance);
 
   @action
   Future<void> updateSendingBalance() async {
@@ -386,14 +394,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  Future<String> get sendingBalance async {
+  Future<CryptoMoney> get sendingBalance async {
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
-        return _appStore.amountParsingProxy.getDisplayCryptoString(
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
+        if (selectedCryptoCurrency == CryptoCurrency.btcln) {
+          return balance;
+        }
+        return Money.fromInt(
+          await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+          walletTypeToCryptoCurrency(walletType),
+        );
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
@@ -402,7 +413,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+        return Money.fromInt(sendingBalance, walletTypeToCryptoCurrency(walletType));
       default:
         return balance;
     }
@@ -413,11 +424,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
+      isFiatDisabled ? "" : pendingTransactionFiatAmount.toStringWithSymbol();
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
+      isFiatDisabled ? "" : pendingTransactionFeeFiatAmount.toStringWithSymbol();
 
   @computed
   bool get isReadyForSend =>

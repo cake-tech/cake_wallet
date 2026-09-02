@@ -42,7 +42,7 @@ class TransactionSyncResult {
 
 class SolanaWalletClient {
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
-  static Money minValidAmount = Money.parse("0.00000003", CryptoCurrency.sol);
+  static CryptoMoney minValidAmount = Money.parse("0.00000003", CryptoCurrency.sol);
 
   static const int _signaturePageSize = 1000;
 
@@ -78,12 +78,12 @@ class SolanaWalletClient {
     }
   }
 
-  Future<Money> getBalance(String walletAddress, {bool throwOnError = false}) async {
+  Future<CryptoMoney> getBalance(String walletAddress, {bool throwOnError = false}) async {
     try {
       final balance = await _provider!.requestWithContext(
         SolanaRPCGetBalance(account: SolAddress(walletAddress)),
       );
-      return Money(balance.result, CryptoCurrency.sol);
+      return Money(balance.result as BigInt, CryptoCurrency.sol);
     } catch (_) {
       if (throwOnError) {
         rethrow;
@@ -141,7 +141,7 @@ class SolanaWalletClient {
     }
   }
 
-  Future<Money> getFeeForMessage(String message, Commitment commitment) async {
+  Future<CryptoMoney> getFeeForMessage(String message, Commitment commitment) async {
     try {
       final feeForMessage = await _provider!.request(
         SolanaRPCGetFeeForMessage(encodedMessage: message, commitment: commitment),
@@ -153,7 +153,7 @@ class SolanaWalletClient {
     }
   }
 
-  Future<Money> getEstimatedFee(SolanaPublicKey publicKey, Commitment commitment) async {
+  Future<CryptoMoney> getEstimatedFee(SolanaPublicKey publicKey, Commitment commitment) async {
     final message = await _getMessageForNativeTransaction(
       publicKey: publicKey,
       destinationAddress: publicKey.toAddress().address,
@@ -449,7 +449,7 @@ class SolanaWalletClient {
         decreasedMintForWallet != increasedMintForWallet;
 
     // Parse outgoing side (what was sent)
-    Money? outgoingMoney;
+    CryptoMoney? outgoingMoney;
     String? outgoingMintAddress;
     String? outgoingFrom;
     String? outgoingTo;
@@ -539,7 +539,7 @@ class SolanaWalletClient {
     }
 
     // Parse incoming side (what was received)
-    Money? incomingMoney;
+    CryptoMoney? incomingMoney;
     String? incomingMintAddress;
     String? incomingFrom;
     String? incomingTo;
@@ -1257,11 +1257,11 @@ class SolanaWalletClient {
   SolanaRPC? get getSolanaProvider => _provider;
 
   Future<PendingSolanaTransaction> signSolanaTransaction({
-    required Money inputAmount,
+    required CryptoMoney inputAmount,
     required String destinationAddress,
     required SolanaPrivateKey ownerPrivateKey,
     required bool isSendAll,
-    required Money solBalance,
+    required CryptoMoney solBalance,
     String? tokenMint,
     List<String> references = const [],
   }) async {
@@ -1300,7 +1300,7 @@ class SolanaWalletClient {
   Future<Message> _getMessageForNativeTransaction({
     required SolanaPublicKey publicKey,
     required String destinationAddress,
-    required Money lamports,
+    required CryptoMoney lamports,
     required Commitment commitment,
   }) async {
     final instructions = [
@@ -1320,12 +1320,12 @@ class SolanaWalletClient {
     );
   }
 
-  Future<Money> _getFeeFromCompiledMessage(Message message, Commitment commitment) {
+  Future<CryptoMoney> _getFeeFromCompiledMessage(Message message, Commitment commitment) {
     final base64Message = base64Encode(message.serialize());
     return getFeeForMessage(base64Message, commitment);
   }
 
-  Future<Money> _getRentExemptionAmount(int space) async {
+  Future<CryptoMoney> _getRentExemptionAmount(int space) async {
     final rent = await _provider!.request(
       SolanaRPCGetMinimumBalanceForRentExemption(size: space),
     );
@@ -1334,8 +1334,8 @@ class SolanaWalletClient {
   }
 
   Future<bool> hasSufficientFundsLeftForRent({
-    required Money totalOutflow,
-    required Money solBalance,
+    required CryptoMoney totalOutflow,
+    required CryptoMoney solBalance,
   }) async {
     final rentBuffer = await _provider!.request(
       SolanaRPCGetMinimumBalanceForRentExemption(size: SolanaTokenAccountUtils.accountSize),
@@ -1345,12 +1345,12 @@ class SolanaWalletClient {
   }
 
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
-    required Money inputAmount,
+    required CryptoMoney inputAmount,
     required String destinationAddress,
     required SolanaPrivateKey ownerPrivateKey,
     required Commitment commitment,
     required bool isSendAll,
-    required Money solBalance,
+    required CryptoMoney solBalance,
   }) async {
     final message = await _getMessageForNativeTransaction(
       publicKey: ownerPrivateKey.publicKey(),
@@ -1428,7 +1428,7 @@ class SolanaWalletClient {
     required SolanaPrivateKey ownerPrivateKey,
     required String destinationAddress,
     required SolAddress latestBlockhash,
-    required Money lamports,
+    required CryptoMoney lamports,
   }) {
     final owner = ownerPrivateKey.publicKey().toAddress();
 
@@ -1584,11 +1584,11 @@ class SolanaWalletClient {
   Future<PendingSolanaTransaction> _signSPLTokenTransaction({
     required int tokenDecimals,
     required String tokenMint,
-    required Money inputAmount,
+    required CryptoMoney inputAmount,
     required String destinationAddress,
     required SolanaPrivateKey ownerPrivateKey,
     required Commitment commitment,
-    required Money solBalance,
+    required CryptoMoney solBalance,
   }) async {
     final mintAddress = SolAddress(tokenMint);
     final tokenProgramId = await _getTokenProgramId(mintAddress);

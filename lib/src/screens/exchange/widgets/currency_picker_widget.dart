@@ -1,6 +1,6 @@
-import 'package:cw_core/currency.dart';
-import 'package:flutter/material.dart';
-import 'currency_picker_item_widget.dart';
+import "package:cw_core/currency/currency.dart";
+import "package:flutter/material.dart";
+import "currency_picker_item_widget.dart";
 
 class CurrencyPickerWidget extends StatelessWidget {
   CurrencyPickerWidget({

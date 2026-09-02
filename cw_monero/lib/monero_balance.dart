@@ -5,13 +5,13 @@ import 'package:cw_core/crypto_currency.dart';
 class MoneroBalance extends Balance {
   MoneroBalance({
     required this.fullBalance,
-    required Money unlockedBalance,
-    Money? frozen,
+    required CryptoMoney unlockedBalance,
+    CryptoMoney? frozen,
   }) : super(
           unlockedBalance,
           fullBalance - unlockedBalance,
           frozen: frozen ?? Money.zero(CryptoCurrency.xmr),
         );
 
-  final Money fullBalance;
+  final CryptoMoney fullBalance;
 }

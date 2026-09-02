@@ -9,6 +9,7 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/select_network_page.dart';
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -165,7 +166,6 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
             recentsLoaded: _recentsLoaded,
             natives: _natives,
             selected: widget.args.selected,
-            symbolResolver: widget.args.symbolResolver,
             onSelect: _selectCurrency,
             onStablecoinTap: _onStablecoinPillTapped,
           ),
@@ -187,7 +187,6 @@ class _MultiNetworkPickerBody extends StatefulWidget {
     required this.recentsLoaded,
     required this.natives,
     required this.selected,
-    required this.symbolResolver,
     required this.onSelect,
     required this.onStablecoinTap,
   });
@@ -199,7 +198,6 @@ class _MultiNetworkPickerBody extends StatefulWidget {
   final List<CryptoCurrency> recents;
   final Set<CryptoCurrency> natives;
   final void Function(CryptoCurrency) onSelect;
-  final String Function(CryptoCurrency) symbolResolver;
   final void Function(CryptoCurrency) onStablecoinTap;
 
   @override
@@ -268,7 +266,6 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     final recentsLoaded = widget.recentsLoaded;
     final natives = widget.natives;
     final selected = widget.selected;
-    final symbolResolver = widget.symbolResolver;
     final onSelect = widget.onSelect;
     final onStablecoinTap = widget.onStablecoinTap;
 
@@ -304,9 +301,12 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     isSelected: selected != null && selected == item,
                     chainPillLabel: _chainPillLabelFor(item),
                     chainBadgePath: _chainBadgePathFor(item),
-                    trailing: _SymbolTrailing(
-                      currency: item,
-                      symbolResolver: symbolResolver,
+                    trailing: CurrencySymbolText(
+                      item,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                     onTap: () => onSelect(item),
                   ),
@@ -359,7 +359,6 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
               child: _RecentsRow(
                 items: visibleRecents,
                 selected: section == _SelSection.recents ? selected : null,
-                symbolResolver: symbolResolver,
                 onTap: onSelect,
               ),
             ),
@@ -370,7 +369,6 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                 items: stablecoins,
                 selected: section == _SelSection.stablecoins ? selected : null,
                 onTap: onStablecoinTap,
-                symbolResolver: symbolResolver,
               ),
             ),
           if (cryptocurrencies.isNotEmpty)
@@ -384,9 +382,12 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                       isSelected: section == _SelSection.cryptocurrencies && selected == item,
                       chainPillLabel: _chainPillLabelFor(item),
                       chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
+                      trailing: CurrencySymbolText(
+                        item,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                       onTap: () => onSelect(item),
                     ),
@@ -402,9 +403,12 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     CurrencyPickerRow(
                       currency: item,
                       isSelected: section == _SelSection.moreCryptocurrencies && selected == item,
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
+                      trailing: CurrencySymbolText(
+                        item,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       onTap: () => onSelect(item),
                     ),
@@ -426,9 +430,12 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     CurrencyPickerRow(
                       currency: item,
                       isSelected: section == _SelSection.xstocks && selected == item,
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
+                      trailing: CurrencySymbolText(
+                        item,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       onTap: () => onSelect(item),
                       chainPillLabel: _chainPillLabelFor(item),
@@ -454,9 +461,12 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                       isSelected: section == _SelSection.allAssets && selected == item,
                       chainPillLabel: _chainPillLabelFor(item),
                       chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
+                      trailing: CurrencySymbolText(
+                        item,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       onTap: () => onSelect(item),
                     ),
@@ -531,27 +541,6 @@ class _PickerSection extends StatelessWidget {
   }
 }
 
-class _SymbolTrailing extends StatelessWidget {
-  const _SymbolTrailing({
-    required this.currency,
-    required this.symbolResolver,
-  });
-
-  final CryptoCurrency currency;
-  final String Function(CryptoCurrency) symbolResolver;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      symbolResolver(currency),
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-    );
-  }
-}
-
 class _SeeAllRow extends StatelessWidget {
   const _SeeAllRow({
     required this.expanded,
@@ -591,13 +580,11 @@ class _RecentsRow extends StatelessWidget {
   const _RecentsRow({
     required this.items,
     required this.selected,
-    required this.symbolResolver,
     required this.onTap,
   });
 
   final List<CryptoCurrency> items;
   final CryptoCurrency? selected;
-  final String Function(CryptoCurrency) symbolResolver;
   final void Function(CryptoCurrency) onTap;
 
   @override
@@ -612,7 +599,6 @@ class _RecentsRow extends StatelessWidget {
           final item = items[i];
           return _RecentPill(
             currency: item,
-            label: symbolResolver(item),
             isSelected: selected != null && selected == item,
             onTap: () => onTap(item),
           );
@@ -625,13 +611,11 @@ class _RecentsRow extends StatelessWidget {
 class _RecentPill extends StatelessWidget {
   const _RecentPill({
     required this.currency,
-    required this.label,
     required this.isSelected,
     required this.onTap,
   });
 
   final CryptoCurrency currency;
-  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -652,15 +636,15 @@ class _RecentPill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TokenImageWidget(
-              imageUrl: currency.iconPath ?? '',
+              imageUrl: currency.iconPath ?? "",
               size: 24,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
+            CurrencySymbolText(
+              currency,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -179,7 +178,7 @@ class ContactPage extends BasePage {
         items: contactViewModel.currencies,
         title: S.of(context).please_select,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency item) => contactViewModel.currency = item as CryptoCurrency,
+        onItemSelected: (item) => contactViewModel.currency = item as CryptoCurrency,
       ),
       context: context,
     );

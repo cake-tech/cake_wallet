@@ -903,15 +903,18 @@ abstract class MoneroWalletBase
     }
   }
 
-  Money _getUnlockedBalance() =>
+  CryptoMoney _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
-  Money _getFrozenBalance() {
+  CryptoMoney _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (final coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
+    for (final coin in unspentCoinsInfo.values.where(
+      (element) => element.walletId == id && element.accountIndex == walletAddresses.account!.id,
+    )) {
+      if (coin.isFrozen && !coin.isSending) {
+        frozenBalance += coin.value;
+      }
     }
 
     return Money.fromInt(frozenBalance, CryptoCurrency.xmr);

@@ -1,5 +1,5 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/currency/currency.dart";
 
 class ExchangeRate {
   const ExchangeRate({required this.base, required this.quote});

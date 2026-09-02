@@ -1,7 +1,8 @@
-import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/amount/exchange_rate.dart";
+import "package:cw_core/amount/money_double.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -56,6 +57,16 @@ class FiatConversionService {
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
-  }) async =>
-      await _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
+  }) =>
+      _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
+
+  static Future<ExchangeRate> fetchExchangeRate({
+    required CryptoCurrency crypto,
+    required FiatCurrency fiat,
+    required bool torOnly,
+  }) async {
+    final price = await _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
+
+    return ExchangeRate(base: crypto, quote: price.toMoney(fiat));
+  }
 }

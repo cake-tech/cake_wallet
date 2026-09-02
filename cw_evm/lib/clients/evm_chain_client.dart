@@ -301,8 +301,8 @@ class EVMChainClient {
   Future<PendingEVMChainTransaction> signTransaction({
     required Credentials privateKey,
     required String toAddress,
-    required Money amount,
-    required Money gasFee,
+    required CryptoMoney amount,
+    required CryptoMoney gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,
@@ -383,8 +383,8 @@ class EVMChainClient {
   Future<PendingEVMChainTransaction> signApprovalTransaction({
     required Credentials privateKey,
     required String spender,
-    required Money amount,
-    required Money gasFee,
+    required CryptoMoney amount,
+    required CryptoMoney gasFee,
     required int estimatedGasUnits,
     required int maxFeePerGas,
     required EVMChainTransactionPriority? priority,

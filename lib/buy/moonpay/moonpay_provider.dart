@@ -10,7 +10,7 @@ import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';

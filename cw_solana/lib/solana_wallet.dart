@@ -78,7 +78,7 @@ abstract class SolanaWalletBase
   SolanaWalletClient get client => _client;
 
   @observable
-  Money? estimatedFee;
+  CryptoMoney? estimatedFee;
 
   Timer? _transactionsUpdateTimer;
 

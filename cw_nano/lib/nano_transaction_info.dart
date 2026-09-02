@@ -8,7 +8,7 @@ class NanoTransactionInfo extends TransactionInfo {
   NanoTransactionInfo({
     required this.id,
     required this.height,
-    required Money amountRaw,
+    required CryptoMoney amountRaw,
     this.tokenSymbol = "XNO",
     required this.direction,
     required this.confirmed,
@@ -20,7 +20,7 @@ class NanoTransactionInfo extends TransactionInfo {
 
   final String id;
   final int height;
-  final Money amount;
+  final CryptoMoney amount;
   final TransactionDirection direction;
   final DateTime date;
   final bool confirmed;

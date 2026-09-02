@@ -1,10 +1,9 @@
-import 'package:cw_core/monero_amount_format.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_monero/api/account_list.dart' as account_list;
-import 'package:monero/src/monero.dart';
 
 part 'monero_account_list.g.dart';
 
@@ -62,8 +61,7 @@ abstract class MoneroAccountListBase with Store {
       return Account(
         id: accountRow.getRowId(),
         label: accountRow.getLabel(),
-        balance:
-            moneroAmountToString(amount: account_list.currentWallet!.amountFromString(balance)),
+        balance: Money.fromInt(account_list.currentWallet!.amountFromString(balance), CryptoCurrency.xmr),
       );
     }).toList();
 

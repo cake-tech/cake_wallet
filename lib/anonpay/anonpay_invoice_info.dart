@@ -1,9 +1,14 @@
-import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:cw_core/keyable.dart';
-import 'package:hive/hive.dart';
+import "package:cake_wallet/anonpay/anonpay_info_base.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:cw_core/hive_type_ids.dart";
+import "package:cw_core/keyable.dart";
+import "package:hive/hive.dart";
 
-part 'anonpay_invoice_info.part.dart';
+part "anonpay_invoice_info.part.dart";
 
 // @HiveType(typeId: AnonpayInvoiceInfo.typeId)
 class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoBase {
@@ -37,7 +42,7 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
   final String provider;
 
   static const typeId = ANONPAY_INVOICE_INFO_TYPE_ID;
-  static const boxName = 'AnonpayInvoiceInfo';
+  static const boxName = "AnonpayInvoiceInfo";
 
   AnonpayInvoiceInfo({
     required this.invoiceId,
@@ -46,13 +51,21 @@ class AnonpayInvoiceInfo extends HiveObject with Keyable implements AnonpayInfoB
     required this.clearnetStatusUrl,
     required this.onionStatusUrl,
     required this.status,
-    this.fiatAmount,
-    this.fiatEquiv,
-    this.amountTo,
     required this.coinTo,
     required this.address,
     required this.createdAt,
     required this.walletId,
     required this.provider,
+    this.fiatAmount,
+    this.fiatEquiv,
+    this.amountTo,
   });
+
+  Currency get currency => fiatAmount != null && fiatEquiv != null
+      ? FiatCurrency.deserialize(raw: fiatEquiv!)
+      : CryptoCurrency.fromFullName(coinTo);
+
+  Money? get amount => fiatAmount != null && fiatEquiv != null
+      ? fiatAmount?.tryToMoney(FiatCurrency.deserialize(raw: fiatEquiv!))
+      : amountTo?.tryToMoney(CryptoCurrency.fromFullName(coinTo));
 }

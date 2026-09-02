@@ -12,7 +12,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';

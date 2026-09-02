@@ -14,8 +14,8 @@ class MoneroTransactionInfo extends TransactionInfo {
   final DateTime date;
   final int accountIndex;
   final bool isPending;
-  final Money amount;
-  final Money fee;
+  final CryptoMoney amount;
+  final CryptoMoney fee;
   final int addressIndex;
   final int confirmations;
   String? recipientAddress;

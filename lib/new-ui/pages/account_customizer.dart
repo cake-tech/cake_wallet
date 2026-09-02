@@ -16,15 +16,16 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
@@ -96,14 +97,15 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
         break;
       }
 
+      final cryptoCurrency = widget.accountListViewModel.currency;
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[index].label,
             accountIndex: accounts[index].id,
-            balance: accounts[index].balance ?? "0.00",
-            accountBalance: accounts[index].balance ?? "0.00",
+            balance: accounts[index].balance ?? Money.zero(cryptoCurrency),
+            accountBalance: accounts[index].balance ?? Money.zero(cryptoCurrency),
             designSwitchDuration: Duration.zero,
-            assetName: widget.accountListViewModel.currency.title,
+            asset: widget.accountListViewModel.currency,
             onCustomizeTapped: (i == accounts.length - 1) ? _openCardCustomizer : null,
             selected: i == accounts.length - 1,
             width: cardWidth,
@@ -293,21 +295,16 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    final bloc = getIt.get<CardCustomizerBloc>(param1: false);
+    final currency = walletTypeToCryptoCurrency(widget.dashboardViewModel.type);
+    final bloc = getIt<CardCustomizerBloc>(param1: currency);
 
     Navigator.of(context).push(CupertinoPageRoute(
-      builder: (context) {
-        return BlocProvider(
+      builder: (context) => BlocProvider(
           create: (context) => bloc,
-          child: Material(
-            child: CardCustomizer(
-              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                  widget.dashboardViewModel.wallet.currency.name,
-              cryptoName: widget.dashboardViewModel.wallet.currency.name,
-            ),
+          child: const Material(
+            child: CardCustomizer(),
           ),
-        );
-      },
+        ),
     )).then((_) async {
       bloc.add(DesignSaved());
       await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
@@ -333,7 +330,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
             balance: _items[i].card.balance,
             accountIndex: _items[i].card.accountIndex,
             accountBalance: _items[i].card.accountBalance,
-            assetName: _items[i].card.assetName,
+            asset: _items[i].card.asset,
+            fiatCurrency: _items[i].card.fiatCurrency,
             designSwitchDuration: _items[i].card.designSwitchDuration,
             onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
             selected: i == _items.length - 1,
@@ -386,23 +384,27 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     _items.clear();
 
     final accounts = widget.accountListViewModel.accounts;
+    final cryptoCurrency = widget.accountListViewModel.currency;
     for (int i = 0; i < widget.accountListViewModel.accounts.length; i++) {
-      _items.add(AccountCustomizerListItem(
+      _items.add(
+        AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[i].label,
             accountIndex: accounts[i].id,
-            balance: accounts[i].balance ?? "0.00",
-            accountBalance: accounts[i].balance ?? "0.00",
-            assetName: widget.accountListViewModel.currency.title,
+            balance: accounts[i].balance ?? Money.zero(cryptoCurrency),
+            accountBalance: accounts[i].balance ?? Money.zero(cryptoCurrency),
+            asset: cryptoCurrency,
             selected: true,
-            designSwitchDuration: Duration(milliseconds: 200),
+            designSwitchDuration: const Duration(milliseconds: 200),
             width: cardWidth,
             design: i >= widget.dashboardViewModel.cardDesigns.length
                 ? CardDesign.genericDefault
                 : widget.dashboardViewModel.cardDesigns[i],
           ),
           order: i,
-          accountListItem: accounts[i]));
+          accountListItem: accounts[i],
+        ),
+      );
     }
 
     saveCardOrder();
