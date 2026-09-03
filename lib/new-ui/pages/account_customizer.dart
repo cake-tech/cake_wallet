@@ -66,6 +66,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
   final List<AccountCustomizerListItem> _items = [];
   bool _hasArchivedAccounts = false;
+  int? _accountBeingArchivedId;
   bool _loading = true;
 
   double get cardWidth => min(MediaQuery.sizeOf(context).width * 0.9, 768);
@@ -93,7 +94,8 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
   @override
   void dispose() {
-    saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
+    saveCardOrder(excludingAccountId: _accountBeingArchivedId)
+        .then((value) => widget.dashboardViewModel.loadCardDesigns());
     super.dispose();
   }
 
@@ -459,6 +461,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     );
 
     final hideRequested = result == true;
+    _accountBeingArchivedId = hideRequested ? account.id : null;
     if (hideRequested) {
       // Persist edits made on this screen before AccountHidden stores the hidden state.
       // AccountHidden intentionally owns only hidden state.
@@ -469,12 +472,24 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       bloc.add(DesignSaved());
     }
     await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-    await widget.dashboardViewModel.loadCardDesigns();
-    await loadCards();
-
-    if (hideRequested && _items.isNotEmpty) {
-      widget.accountListViewModel.select(_items.last.accountListItem);
+    if (hideRequested && _items.length > 1) {
+      final nextAccount = _items[_items.length - 2].accountListItem;
+      widget.accountListViewModel.select(
+        widget.accountListViewModel.accounts
+                .firstWhereOrNull((item) => item.id == nextAccount.id) ??
+            nextAccount,
+      );
     }
+    await widget.dashboardViewModel.loadCardDesigns();
+    if (!mounted) {
+      return;
+    }
+    await loadCards();
+    if (!mounted) {
+      return;
+    }
+
+    _accountBeingArchivedId = null;
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -512,9 +527,12 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     }
   }
 
-  Future<void> saveCardOrder() async {
+  Future<void> saveCardOrder({int? excludingAccountId}) async {
     for (int position = 0; position < _items.length; position++) {
       final item = _items[position];
+      if (item.accountListItem.id == excludingAccountId) {
+        continue;
+      }
 
       await BalanceCardStyleSettings.fromCardDesign(
         walletInfoId: _walletInfoId,

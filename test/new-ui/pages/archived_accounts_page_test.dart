@@ -494,7 +494,7 @@ void main() {
     expect(find.text("No Archived Accounts"), findsOneWidget);
   });
 
-  testWidgets("archive flow highlights archived accounts and protects the final visible account",
+  testWidgets("archive flow survives dismissal and protects the final visible account",
       (tester) async {
     final remainingAccount = AccountListItem(id: 0, label: "Primary", balance: "0");
     final archivedAccount = AccountListItem(
@@ -509,8 +509,10 @@ void main() {
     final events = <Type>[];
     final selections = <int>[];
     final canHideValues = <bool>[];
+    final finishArchiveReload = Completer<void>();
     var canHide = false;
     var cardDesignLoads = 0;
+    var pauseCardDesignLoad = false;
 
     SharedPreferences.setMockInitialValues(
       <String, Object>{PreferencesKey.accountsEducationSeen: true},
@@ -547,6 +549,9 @@ void main() {
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {
       cardDesignLoads++;
+      if (pauseCardDesignLoad) {
+        await finishArchiveReload.future;
+      }
     });
     when(() => balanceViewModel.isFiatDisabled).thenReturn(false);
     when(() => balanceViewModel.price).thenReturn(20);
@@ -586,6 +591,9 @@ void main() {
     var scopeOpen = true;
     getIt.pushNewScope();
     addTearDown(() async {
+      if (!finishArchiveReload.isCompleted) {
+        finishArchiveReload.complete();
+      }
       if (!states.isClosed) {
         await states.close();
       }
@@ -654,13 +662,42 @@ void main() {
     expect(find.text("This account has the following funds:"), findsOneWidget);
     expect(find.text("2.5 XMR"), findsOneWidget);
 
+    final loadsBeforeArchive = cardDesignLoads;
+    pauseCardDesignLoad = true;
     await tester.tap(find.text("Continue"));
     await tester.pump();
-    await _pumpUntil(tester, () => events.length == 2 && selections.length == 2);
-    await tester.pumpAndSettle();
+    await _pumpUntil(
+      tester,
+      () => events.length == 2 && selections.length == 2 && cardDesignLoads > loadsBeforeArchive,
+    );
 
     expect(events, <Type>[DesignSaved, AccountHidden]);
     expect(selections, <int>[archivedAccount.id, remainingAccount.id]);
+    await tester.pumpWidget(testApp(const SizedBox.shrink()));
+    pauseCardDesignLoad = false;
+    finishArchiveReload.complete();
+    await tester.pump();
+    final archivedSetting = await tester.runAsync(() async {
+      // Queue the final read behind both disposal writes from the unfixed flow.
+      await BalanceCardStyleSettings.getAll(42);
+      await BalanceCardStyleSettings.getAll(42);
+      return BalanceCardStyleSettings.get(42, archivedAccount.id);
+    });
+    expect(archivedSetting?.hidden, isTrue);
+    expect(selections, <int>[archivedAccount.id, remainingAccount.id]);
+
+    await tester.pumpWidget(
+      testApp(
+        Scaffold(
+          body: AccountCustomizer(
+            accountListViewModel: accountListViewModel,
+            dashboardViewModel: dashboardViewModel,
+          ),
+        ),
+      ),
+    );
+    await _pumpUntil(tester, () => find.text("Add Account").evaluate().isNotEmpty);
+
     final colorScheme = Theme.of(tester.element(find.byType(AccountCustomizer))).colorScheme;
     expect(archiveButton().backgroundColor, colorScheme.primary);
     expect(archiveButton().iconColor, colorScheme.onPrimary);
