@@ -261,6 +261,7 @@ abstract class Bitcoin {
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<String?> canReplaceByFee(Object wallet, Object tx);
   int getTransactionVSize(Object wallet, String txHex);
+  int? getTransactionFeeRate(Object transactionInfo);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,

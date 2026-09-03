@@ -185,6 +185,7 @@ class PendingBitcoinTransaction with PendingTransaction {
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
         fee: fee,
+        vsize: _tx.getVSize(),
       );
 
   @override
