@@ -1,4 +1,3 @@
-import "dart:async";
 import "dart:math";
 
 import "package:cake_wallet/generated/i18n.dart";
@@ -11,10 +10,22 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 class CardCustomizer extends StatefulWidget {
-  const CardCustomizer({required this.cryptoTitle, required this.cryptoName, super.key});
+  const CardCustomizer({
+    required this.cryptoTitle,
+    required this.cryptoName,
+    this.accountNumber,
+    this.balance = "0.00",
+    this.fiatBalance = "",
+    this.onArchive,
+    super.key,
+  });
 
   final String cryptoTitle;
   final String cryptoName;
+  final int? accountNumber;
+  final String balance;
+  final String fiatBalance;
+  final Future<bool> Function()? onArchive;
 
   @override
   State<CardCustomizer> createState() => _CardCustomizerState();
@@ -22,8 +33,9 @@ class CardCustomizer extends StatefulWidget {
 
 class _CardCustomizerState extends State<CardCustomizer> {
   final accountNameController = TextEditingController();
-  bool editEnabled = false;
   late final CardCustomizerBloc bloc;
+
+  bool get _isAccount => widget.accountNumber != null;
 
   @override
   void initState() {
@@ -32,18 +44,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
     bloc = context.read<CardCustomizerBloc>();
 
     if (bloc.state is! CardCustomizerNotLoaded) {
-      editEnabled = bloc.state.accountName.isNotEmpty;
       accountNameController.text = bloc.state.accountName;
-    } else {
-      late final StreamSubscription<CardCustomizerState> sub;
-      sub = bloc.stream.listen((state) {
-        if (state is! CardCustomizerNotLoaded) {
-          setState(() {
-            editEnabled = state.accountName.isNotEmpty;
-          });
-          sub.cancel();
-        }
-      });
     }
   }
 
@@ -62,73 +63,84 @@ class _CardCustomizerState extends State<CardCustomizer> {
     return design;
   }
 
+  Future<void> _requestArchive() async {
+    if (await widget.onArchive?.call() != true || !mounted) {
+      return;
+    }
+    Navigator.of(context).pop(true);
+  }
+
+  @override
+  void dispose() {
+    accountNameController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => BlocListener<CardCustomizerBloc, CardCustomizerState>(
-      listenWhen: (previous, current) => previous.accountName != current.accountName,
-      listener: (context, state) {
-        if (accountNameController.text != state.accountName) {
-          accountNameController.text = state.accountName;
-        }
-      },
-      child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
-        builder: (context, state) {
-          if (state is CardCustomizerNotLoaded) {
-            return const SizedBox.shrink();
+        listenWhen: (previous, current) => previous.accountName != current.accountName,
+        listener: (context, state) {
+          if (accountNameController.text != state.accountName) {
+            accountNameController.text = state.accountName;
           }
-          return PopScope(
-            child: SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  spacing: 25,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ModalTopBar(
-                      title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
-                      leadingIcon: const Icon(Icons.close),
-                      trailingIcon: bloc.canHide
-                          ? CakeImageWidget(imageUrl:
-                              "assets/new-ui/hide.svg",
-                              colorFilter: ColorFilter.mode(
-                                  Theme.of(context).colorScheme.primary, BlendMode.srcIn,),
-                            )
-                          : null,
-                      leadingSemanticLabel: S.of(context).close,
-                      trailingSemanticLabel: S.of(context).hide,
-                      // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
-                      onLeadingPressed: () => Navigator.of(context).maybePop(),
-                      onTrailingPressed: () => Navigator.of(context).maybePop(true),
-                      // onTrailingPressed: () {},
-                    ),
-                    if (editEnabled)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: Column(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(S.of(context).account_name),
-                            TextField(
-                              maxLength: 32,
-                              decoration: const InputDecoration(counterText: ""),
-                              onChanged: (value) {
-                                context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
-                              },
-                              controller: accountNameController,
-                            ),
-                          ],
-                        ),
+        },
+        child: BlocBuilder<CardCustomizerBloc, CardCustomizerState>(
+          builder: (context, state) {
+            if (state is CardCustomizerNotLoaded) {
+              return const SizedBox.shrink();
+            }
+            return PopScope(
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    spacing: 25,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ModalTopBar(
+                        title: _isAccount ? S.of(context).edit_account : S.of(context).edit_card,
+                        subtitle: _isAccount ? "#${widget.accountNumber}" : null,
+                        leadingIcon:
+                            Icon(_isAccount ? Icons.arrow_back_ios_new : Icons.close, size: 18),
+                        leadingSemanticLabel:
+                            _isAccount ? S.of(context).seed_alert_back : S.of(context).close,
+                        onLeadingPressed: () => Navigator.of(context).maybePop(),
                       ),
-                    BalanceCard(
-                      width: min(MediaQuery.of(context).size.width * 0.87, 768),
-                      selected: true,
-                      designSwitchDuration: const Duration(milliseconds: 300),
-                      accountName: editEnabled ? state.accountName : "",
-                      balance: "0.00",
-                      assetName: state.displaySats ? "sats" : widget.cryptoName,
-                      capitalizeAssetName: !state.displaySats,
-                      design: state.selectedDesign,
-                    ),
-                    Padding(
+                      BalanceCard(
+                        width: min(MediaQuery.of(context).size.width * 0.87, 768),
+                        selected: true,
+                        designSwitchDuration: const Duration(milliseconds: 300),
+                        accountIndex: widget.accountNumber,
+                        accountName: widget.accountNumber == null
+                            ? ""
+                            : state.accountName.trim().isEmpty
+                                ? S.of(context).unnamed_account
+                                : state.accountName,
+                        balance: widget.balance,
+                        fiatBalance: widget.fiatBalance,
+                        assetName: state.displaySats ? "sats" : widget.cryptoName,
+                        capitalizeAssetName: !state.displaySats,
+                        design: state.selectedDesign,
+                      ),
+                      if (_isAccount)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Column(
+                            spacing: 8,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(S.of(context).account_name),
+                              TextField(
+                                maxLength: 32,
+                                decoration: const InputDecoration(counterText: ""),
+                                onChanged: (value) {
+                                  context.read<CardCustomizerBloc>().add(AccountNameChanged(value));
+                                },
+                                controller: accountNameController,
+                              ),
+                            ],
+                          ),
+                        ),
+                      Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         child: Container(
                           decoration: BoxDecoration(
@@ -139,71 +151,69 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    spacing: 8,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(S.of(context).card_style),
-                                      SizedBox(
-                                        height: 63,
-                                        child: ListView.separated(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: state.availableDesigns.length,
-                                            separatorBuilder: (context, index) => const SizedBox(width: 8),
-                                            itemBuilder: (context, index) => GestureDetector(
-                                                onTap: () {
-                                                  context
-                                                      .read<CardCustomizerBloc>()
-                                                      .add(CardDesignSelected(index));
-                                                },
-                                                child: AnimatedContainer(
-                                                  duration: const Duration(milliseconds: 300),
-                                                  decoration: ShapeDecoration(
-                                                    shape: RoundedSuperellipseBorder(
-                                                      side: BorderSide(
-                                                          color:
-                                                              ((index == state.selectedDesignIndex)
-                                                                  ? Theme.of(context)
-                                                                      .colorScheme
-                                                                      .onSurface
-                                                                  : Colors.transparent),
-                                                          width: 1,),
-                                                      borderRadius:
-                                                          BorderRadiusGeometry.circular(12),
-                                                    ),
-                                                  ),
-                                                  child: AnimatedScale(
-                                                    duration: const Duration(milliseconds: 200),
-                                                    scale: index == state.selectedDesignIndex
-                                                        ? 0.94
-                                                        : 1,
-                                                    child: BalanceCard(
-                                                      width: 96,
-                                                      borderRadius: 10,
-                                                      selected: false,
-                                                      designSwitchDuration:
-                                                          const Duration(milliseconds: 300),
-                                                      design: _cardStylePreviewDesign(state, index),
-                                                    ),
-                                                  ),
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  spacing: 8,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(S.of(context).card_style),
+                                    SizedBox(
+                                      height: 63,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: state.availableDesigns.length,
+                                        separatorBuilder: (context, index) =>
+                                            const SizedBox(width: 8),
+                                        itemBuilder: (context, index) => GestureDetector(
+                                          onTap: () {
+                                            context
+                                                .read<CardCustomizerBloc>()
+                                                .add(CardDesignSelected(index));
+                                          },
+                                          child: AnimatedContainer(
+                                            duration: const Duration(milliseconds: 300),
+                                            decoration: ShapeDecoration(
+                                              shape: RoundedSuperellipseBorder(
+                                                side: BorderSide(
+                                                  color: ((index == state.selectedDesignIndex)
+                                                      ? Theme.of(context).colorScheme.onSurface
+                                                      : Colors.transparent),
+                                                  width: 1,
                                                 ),
-                                              ),),
+                                                borderRadius: BorderRadiusGeometry.circular(12),
+                                              ),
+                                            ),
+                                            child: AnimatedScale(
+                                              duration: const Duration(milliseconds: 200),
+                                              scale: index == state.selectedDesignIndex ? 0.94 : 1,
+                                              child: BalanceCard(
+                                                width: 96,
+                                                borderRadius: 10,
+                                                selected: false,
+                                                designSwitchDuration:
+                                                    const Duration(milliseconds: 300),
+                                                design: _cardStylePreviewDesign(state, index),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ],
-                                  ),),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 350),
                                 switchInCurve: Curves.easeOut,
                                 switchOutCurve: Curves.easeIn,
                                 transitionBuilder: (child, animation) => FadeTransition(
-                                    opacity: animation,
-                                    child: SizeTransition(
-                                      sizeFactor: animation,
-                                      axisAlignment: -1,
-                                      child: child,
-                                    ),
+                                  opacity: animation,
+                                  child: SizeTransition(
+                                    sizeFactor: animation,
+                                    axisAlignment: -1,
+                                    child: child,
                                   ),
+                                ),
                                 child: _showIconStylePanel(state)
                                     ? Column(
                                         key: const ValueKey("icon_style_panel"),
@@ -250,7 +260,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                                     .withAlpha(64)
                                                                 : Theme.of(context)
                                                                     .colorScheme
-                                                                .surfaceContainerHigh,
+                                                                    .surfaceContainerHigh,
                                                             border: Border.all(
                                                               color: isSelected
                                                                   ? Theme.of(context)
@@ -263,7 +273,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           child: Padding(
                                                             padding: const EdgeInsets.all(10),
                                                             child: CakeImageWidget(
-                                                                imageUrl: icon.path,),
+                                                              imageUrl: icon.path,
+                                                            ),
                                                           ),
                                                         ),
                                                       );
@@ -280,8 +291,9 @@ class _CardCustomizerState extends State<CardCustomizer> {
                               const SizedBox(height: 8),
                               Container(
                                 decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(16),),
+                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Column(
@@ -290,72 +302,121 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                     children: [
                                       Text(S.of(context).color),
                                       SizedBox(
-                                          width: double.infinity,
-                                          child: Wrap(
-                                            direction: Axis.horizontal,
-                                            spacing: 4,
-                                            runSpacing: 8,
-                                            children: List.generate(state.availableColors.length,
-                                                (index) => Material(
+                                        width: double.infinity,
+                                        child: Wrap(
+                                          direction: Axis.horizontal,
+                                          spacing: 4,
+                                          runSpacing: 8,
+                                          children: List.generate(
+                                            state.availableColors.length,
+                                            (index) => Material(
+                                              borderRadius: BorderRadius.circular(999999999),
+                                              child: InkWell(
                                                 borderRadius: BorderRadius.circular(999999999),
-                                                child: InkWell(
-                                                  borderRadius: BorderRadius.circular(999999999),
-                                                  onTap: () {
-                                                    context
-                                                        .read<CardCustomizerBloc>()
-                                                        .add(ColorSelected(index));
-                                                  },
-                                                  child: Stack(
-                                                    children: [
-                                                      AnimatedOpacity(
-                                                        duration: const Duration(milliseconds: 200),
-                                                        opacity: index == state.selectedColorIndex
-                                                            ? 1
-                                                            : 0,
-                                                        child: Container(
-                                                            width: 32,
-                                                            height: 32,
-                                                            decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(99999999),
-                                                                border: Border.all(
-                                                                    color: Theme.of(context)
-                                                                        .colorScheme
-                                                                        .onSurface,),),),
-                                                      ),
-                                                      AnimatedScale(
-                                                        duration: const Duration(milliseconds: 200),
-                                                        scale: index == state.selectedColorIndex
-                                                            ? 0.8
-                                                            : 1,
-                                                        child: Container(
-                                                          width: 32,
-                                                          height: 32,
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(99999999),
-                                                              gradient:
-                                                                  state.availableColors[index],),
+                                                onTap: () {
+                                                  context
+                                                      .read<CardCustomizerBloc>()
+                                                      .add(ColorSelected(index));
+                                                },
+                                                child: Stack(
+                                                  children: [
+                                                    AnimatedOpacity(
+                                                      duration: const Duration(milliseconds: 200),
+                                                      opacity:
+                                                          index == state.selectedColorIndex ? 1 : 0,
+                                                      child: Container(
+                                                        width: 32,
+                                                        height: 32,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.circular(99999999),
+                                                          border: Border.all(
+                                                            color: Theme.of(context)
+                                                                .colorScheme
+                                                                .onSurface,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                    AnimatedScale(
+                                                      duration: const Duration(milliseconds: 200),
+                                                      scale: index == state.selectedColorIndex
+                                                          ? 0.8
+                                                          : 1,
+                                                      child: Container(
+                                                        width: 32,
+                                                        height: 32,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.circular(99999999),
+                                                          gradient: state.availableColors[index],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),),
-                                          ),),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                        ),),
-                  ],
+                        ),
+                      ),
+                      if (bloc.canHide && widget.onArchive != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+                          child: Material(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(18),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: _requestArchive,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.archive_outlined,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(S.of(context).archive_account),
+                                          Text(
+                                            S.of(context).archive_account_reversible,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.chevron_right,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
 }

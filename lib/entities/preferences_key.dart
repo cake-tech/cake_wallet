@@ -1,6 +1,8 @@
 class PreferencesKey {
   static const currentWalletType = 'current_wallet_type';
   static const currentWalletName = 'current_wallet_name';
+  static const accountsEducationSeen = 'accounts_education_seen';
+  static const accountsHomePromoDismissed = 'accounts_home_promo_dismissed';
   static const currentNodeIdKey = 'current_node_id';
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';

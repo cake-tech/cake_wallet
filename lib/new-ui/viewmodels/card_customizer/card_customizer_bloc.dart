@@ -1,6 +1,7 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/monero/monero.dart";
+import "package:cake_wallet/wownero/wownero.dart" as wow;
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -112,20 +113,19 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<void> _init(_Init event, Emitter<CardCustomizerState> emit) async {
-    late final Account? account;
-    if (_wallet.type == WalletType.monero) {
-      account = monero!.getCurrentAccount(_wallet);
-    } else {
-      account = null;
-    }
-    final accountName = account?.label ?? "";
+    late final String accountName;
     late final int accountIndex;
-    if (account != null) {
+    if (_wallet.type == WalletType.monero) {
+      final account = monero!.getCurrentAccount(_wallet);
+      accountName = account.label;
       accountIndex = account.id;
-    } else if (lightningMode) {
-      accountIndex = 0;
+    } else if (_wallet.type == WalletType.wownero) {
+      final account = wow.wownero!.getCurrentAccount(_wallet);
+      accountName = account.label;
+      accountIndex = account.id;
     } else {
-      accountIndex = -1;
+      accountName = "";
+      accountIndex = lightningMode ? 0 : -1;
     }
     final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
@@ -234,6 +234,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   Future<void> saveAccountName() async {
     if (_wallet.type == WalletType.monero) {
       await saveMoneroAccountName();
+    } else if (_wallet.type == WalletType.wownero) {
+      await saveWowneroAccountName();
     }
   }
 
@@ -241,6 +243,17 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     final MoneroAccountList moneroAccountList = monero!.getAccountList(_wallet);
     await moneroAccountList.setLabelAccount(_wallet,
         accountIndex: state.accountIndex, label: state.accountName,);
+
+    await _wallet.save();
+  }
+
+  Future<void> saveWowneroAccountName() async {
+    final accountList = wow.wownero!.getAccountList(_wallet);
+    await accountList.setLabelAccount(
+      _wallet,
+      accountIndex: state.accountIndex,
+      label: state.accountName,
+    );
 
     await _wallet.save();
   }

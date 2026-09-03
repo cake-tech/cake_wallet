@@ -428,6 +428,9 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type == WalletType.monero) {
       return monero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
     }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
+    }
     if (wallet.type == WalletType.bitcoin) {
       return const [-1, 0];
     }
@@ -465,6 +468,9 @@ abstract class DashboardViewModelBase with Store {
   int get currentCardAccountIndex {
     if (wallet.type == WalletType.monero) {
       return monero!.getCurrentAccount(wallet).id;
+    }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getCurrentAccount(wallet).id;
     }
     return -1;
   }

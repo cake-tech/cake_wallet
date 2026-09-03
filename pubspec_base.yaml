@@ -287,6 +287,7 @@ flutter:
     - assets/faq/
     - assets/animation/
     - assets/new-ui/
+    - assets/new-ui/account_education/
     - assets/new-ui/icons/
     - assets/new-ui/hero/
     - assets/new-ui/balance_card_icons/
