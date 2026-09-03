@@ -87,7 +87,7 @@ class _WalletCreationOpeningPageBodyState extends State<WalletCreationOpeningPag
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                WalletIconAvatar(icon: walletIcon, size: 24, contentSize: 24),
+                WalletIconAvatar(icon: walletIcon, size: 34, contentSize: 24),
                 const SizedBox(width: 8),
                 Text(
                   groupName,

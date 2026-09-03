@@ -1,9 +1,9 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class ListItemRegularRowWidget extends StatelessWidget {
   const ListItemRegularRowWidget(
@@ -14,8 +14,6 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.trailingText,
       this.iconPath,
       this.badgeIconPath,
-      this.trailingTextPadding,
-      this.mainPadding,
       this.onTap,
       this.isFirstInSection = false,
       this.isLastInSection = false,
@@ -26,21 +24,17 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.trailingIconSize,
       this.bottomWidget,
       this.trailingWidget,
+      this.leadingAccessory,
       this.copyableText,
       this.leadingIconErrorWidget,
       this.leadingIconSize,
       this.badgeIconSize,
-      this.iconColor,
-      this.isSelected,
-      this.selectedIconColor,
-      });
+      this.iconColor});
 
   final String keyValue;
   final String label;
   final String? subtitle;
   final String? trailingText;
-  final EdgeInsets? trailingTextPadding;
-  final EdgeInsets? mainPadding;
   final String? iconPath;
   final String? badgeIconPath;
   final VoidCallback? onTap;
@@ -50,6 +44,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? trailingIconPath;
   final Widget? bottomWidget;
   final Widget? trailingWidget;
+  final bool? leadingAccessory;
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;
@@ -58,8 +53,6 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
-  final bool? isSelected;
-  final Color? selectedIconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +69,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
+            leadingAccessory: leadingAccessory,
             onTap: onTap,
             iconPath: iconPath,
             isFirstInSection: isFirstInSection,
@@ -129,95 +123,98 @@ class ListItemRegularRowWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: mainPadding ?? EdgeInsets.zero,
+                  IntrinsicHeight(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              if (isSelected != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 12.0),
-                                  child: AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 150),
-                                    opacity: isSelected! ? 1 : 0,
-                                    child: Icon(
-                                      Icons.check,
-                                      size: 18,
-                                      color: selectedIconColor ?? theme.colorScheme.primary,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: leadingAccessory == true ? 12 : 0),
+                        child: SizedBox(
+                          width: 6,
+                          child: leadingAccessory == true
+                              ? DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(16),
+                                      bottomRight: Radius.circular(16),
                                     ),
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
-                                ),
-                              if (iconPath != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 12.0,
-                                  ),
-                                  child: imageWidget ?? SizedBox(),
-                                ),
-                              Flexible(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (copied)
-                                      Text(
-                                        S.of(context).copied,
-                                        style: textStyle.copyWith(
-                                            color: Theme.of(context).colorScheme.primary),
-                                      )
-                                    else
-                                      Text(label,
-                                          style: foregroundColor == null
-                                              ? textStyle
-                                              : textStyle.copyWith(color: foregroundColor)),
-                                    if (subtitle != null)
-                                      Text(
-                                        subtitle!,
-                                        style: labelStyle.copyWith(fontSize: 12),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                                )
+                              : null,
                         ),
-                        Row(
+                      ),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (trailingTextToShow != null)
+                            if (iconPath != null)
                               Padding(
-                                padding: trailingTextPadding ?? const EdgeInsets.only(right: 8.0),
-                                child: Text(
-                                  trailingTextToShow,
-                                  style: labelStyle,
-                                ),
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: imageWidget ?? SizedBox(),
                               ),
-                            if (trailingWidget != null)
-                              trailingWidget!
-                            else if (trailingIconPath != null)
-                              CakeImageWidget(
-                                imageUrl: trailingIconPath!,
-                                height: trailingIconSize ?? 18,
-                                width: trailingIconSize ?? 18,
-                                colorFilter: ColorFilter.mode(
-                                    foregroundColor ??
-                                        Theme.of(context).colorScheme.onSurfaceVariant,
-                                    BlendMode.srcIn),
-                              )
-                            else if (showArrow)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 7.0),
-                                child: CakeImageWidget(
-                                    imageUrl: "assets/new-ui/arrow_forward.svg",
-                                    height: 14,
-                                    color: theme.colorScheme.onSurfaceVariant),
-                              )
+                            Flexible(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (copied)
+                                    Text(
+                                      S.of(context).copied,
+                                      style: textStyle.copyWith(
+                                          color: Theme.of(context).colorScheme.primary),
+                                    )
+                                  else
+                                    Text(label,
+                                        style: foregroundColor == null
+                                            ? textStyle
+                                            : textStyle.copyWith(color: foregroundColor)),
+                                  if (subtitle != null)
+                                    Text(
+                                      subtitle!,
+                                      style: labelStyle.copyWith(fontSize: 12),
+                                    ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (trailingTextToShow != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                trailingTextToShow,
+                                style: labelStyle,
+                              ),
+                            ),
+                          if (trailingWidget != null)
+                            trailingWidget!
+                          else if (trailingIconPath != null)
+                            CakeImageWidget(
+                              imageUrl: trailingIconPath!,
+                              height: trailingIconSize ?? 18,
+                              width: trailingIconSize ?? 18,
+                              colorFilter: ColorFilter.mode(
+                                  foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                                  BlendMode.srcIn),
+                            )
+                          else if (showArrow)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 7.0),
+                              child: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/arrow_forward.svg",
+                                  height: 14,
+                                  color: theme.colorScheme.onSurfaceVariant),
+                            )
+                        ],
+                      ),
+                    ],
+                  ),
                   ),
                   if (bottomWidget != null) bottomWidget!
                 ],

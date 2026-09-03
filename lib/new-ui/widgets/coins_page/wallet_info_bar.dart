@@ -40,7 +40,7 @@ class WalletInfoBar extends StatelessWidget {
         ),
         if (walletIcon != null) ...[
           const SizedBox(width: 8),
-          WalletIconAvatar(icon: walletIcon, size: 24, contentSize: 24),
+          WalletIconAvatar(icon: walletIcon, size: 32, contentSize: 24),
         ],
         const SizedBox(width: 8),
         Flexible(

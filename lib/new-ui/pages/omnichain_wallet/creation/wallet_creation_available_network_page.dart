@@ -276,9 +276,8 @@ class OmniChainNetworksModeSelector extends StatelessWidget {
             iconPath: "assets/new-ui/chains.svg",
             iconColor: theme.colorScheme.onSurfaceVariant,
             showArrow: false,
-            isSelected: selectedMode == OmniChainNetworksMode.allNetworks,
-            selectedIconColor: theme.colorScheme.primary,
-            mainPadding: const EdgeInsets.symmetric(vertical: 6),
+            leadingAccessory: selectedMode == OmniChainNetworksMode.allNetworks,
+
           ),
           ListItemRegularRow(
             keyValue: "omnichain_customize_option",
@@ -287,9 +286,8 @@ class OmniChainNetworksModeSelector extends StatelessWidget {
             iconPath: "assets/new-ui/pencil.svg",
             iconColor: theme.colorScheme.onSurfaceVariant,
             showArrow: false,
-            isSelected: selectedMode == OmniChainNetworksMode.customize,
-            selectedIconColor: theme.colorScheme.primary,
-            mainPadding: const EdgeInsets.symmetric(vertical: 6),
+            leadingAccessory: selectedMode == OmniChainNetworksMode.customize,
+
           ),
         ]
       },

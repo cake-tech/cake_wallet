@@ -73,7 +73,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             : Theme.of(context).colorScheme.onSurfaceVariant);
 
     final effectiveLeadingWidget =
-        walletIcon != null ? WalletIconAvatar(icon: walletIcon, size: 28, contentSize: 28) : leadingWidget;
+        walletIcon != null ? WalletIconAvatar(icon: walletIcon, size: 32, contentSize: 24) : leadingWidget;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),

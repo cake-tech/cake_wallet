@@ -11,6 +11,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.iconPath,
     this.contentPadding,
     this.height,
+    this.leadingAccessory,
   });
 
   final String? iconPath;
@@ -21,6 +22,7 @@ class ListItemStyleWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
+  final bool? leadingAccessory;
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +69,8 @@ class ListItemStyleWrapper extends StatelessWidget {
                       focusColor: Colors.transparent,
                       splashFactory: NoSplash.splashFactory,
                       child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: height == null ? 11 : 0),
+                          padding: EdgeInsets.fromLTRB(leadingAccessory == true ? 0 : 12,
+                              height == null ? 11 : 0, 12, height == null ? 11 : 0),
                           child: builder(context, textStyle, labelStyle))))),
           if (iconPath != null && isLastInSection == false)
             Container(
