@@ -1,4 +1,6 @@
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
+import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_passphrase_input.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/bordered_svg.dart";
 import "package:cake_wallet/new-ui/widgets/digit_input.dart";
@@ -181,21 +183,22 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             onRetryPressed: retry,
             key: const ValueKey(2),
           ),
-        AwaitingSettingsTrezorParingState() => WalletOptionsScreen(
+        AwaitingSettingsTrezorParingState(:final isAutoPairingAvailable) => WalletOptionsScreen(
             trezorConnectVM: widget.trezorConnectVM,
             iconPath: hardwareWalletIcon ?? "",
+            isAutoPairingAvailable: isAutoPairingAvailable,
             key: const ValueKey(3),
           ),
         AwaitingPassphraseTrezorParingState() => PinEntryWidget(
-          title: S.of(context).proceed_on_device,
-          description: S.of(context).proceed_on_device_description,
-          pinOpenDuration: pinOpenDuration,
-          pinLength: pinLength,
-          isAwaitingPin: false,
-          controller: _controller,
-          iconPath: hardwareWalletIcon ?? "",
-          key: const ValueKey(4),
-        ),
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).proceed_on_device_description,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(4),
+          ),
         _ => const SizedBox.shrink(
             key: ValueKey(5),
           ),
@@ -330,15 +333,16 @@ class VerifyingProgressIndicator extends StatelessWidget {
 }
 
 class PinEntryWidget extends StatelessWidget {
-  const PinEntryWidget(
-      {required this.pinOpenDuration,
-      required this.pinLength,
-      required this.controller,
-        required this.title,
-        required this.description,
-      required this.iconPath,
-      required this.isAwaitingPin,
-      super.key,});
+  const PinEntryWidget({
+    required this.pinOpenDuration,
+    required this.pinLength,
+    required this.controller,
+    required this.title,
+    required this.description,
+    required this.iconPath,
+    required this.isAwaitingPin,
+    super.key,
+  });
 
   final DigitInputController controller;
   final String iconPath;
@@ -413,26 +417,33 @@ class PinEntryWidget extends StatelessWidget {
 }
 
 class WalletOptionsScreen extends StatefulWidget {
-  const WalletOptionsScreen({required this.trezorConnectVM, required this.iconPath, super.key});
+  const WalletOptionsScreen({
+    required this.trezorConnectVM,
+    required this.isAutoPairingAvailable,
+    required this.iconPath,
+    super.key,
+  });
 
   final String iconPath;
   final TrezorConnectViewModelBase trezorConnectVM;
+  final bool isAutoPairingAvailable;
 
   @override
   State<WalletOptionsScreen> createState() => _WalletOptionsScreenState();
 }
 
 class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
-  bool _autoConnect = false;
+  bool _autoConnect = true;
   bool _usePassphrase = false;
   bool _setPassphraseOnDevice = false;
+  final _passphraseController  = TextEditingController();
 
   bool get anythingSelected => _autoConnect || _usePassphrase;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 18),
-    child: Column(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
@@ -486,38 +497,47 @@ class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
                   ),
                   NewListSections(
                     sections: {
-                      "auto": [
-                        ListItemToggle(
-                          value: _autoConnect,
-                          onChanged: (val) {
-                            setState(() {
-                              _autoConnect = val;
-                            });
-                          },
-                          keyValue: "autoconnect",
-                          label: S.of(context).auto_connect,
-                          subtitle: "description goes here",
-                        ),
-                      ],
+                      if (widget.isAutoPairingAvailable)
+                        "auto": [
+                          ListItemToggle(
+                            value: _autoConnect,
+                            onChanged: (val) => setState(() => _autoConnect = val),
+                            keyValue: "autoconnect",
+                            label: S.of(context).auto_connect,
+                            subtitle: "description goes here",
+                          ),
+                        ],
                       "pass": [
                         ListItemToggle(
                           value: _usePassphrase,
-                          onChanged: (val) {
-                            setState(() {
-                              _usePassphrase = val;
-                            });
-                          },
+                          onChanged: (val) => setState(() => _usePassphrase = val),
                           keyValue: "passphrase",
                           label: S.of(context).passphrase,
                           subtitle: S.of(context).wallet_has_passphrase,
                         ),
-                        if (_usePassphrase)
+                        if (_usePassphrase) ...[
                           ListItemToggle(
                             value: _setPassphraseOnDevice,
                             onChanged: (val) => setState(() => _setPassphraseOnDevice = val),
                             keyValue: "passphrase on device",
                             label: S.of(context).enter_passphrase_on_device,
                           ),
+                          if (!_setPassphraseOnDevice)
+                            ListItemRegularRow(
+                              keyValue: "passphrase on app",
+                              label: S.of(context).passphrase_raw,
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => MoneroHardwareWalletPassphraseInputModal(
+                                    controller: _passphraseController,
+                                  ),
+                                );
+                              },
+                            ),
+                        ]
                       ],
                     },
                   ),
@@ -525,20 +545,22 @@ class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
               ),
             ),
             NewPrimaryButton(
-                onPressed: () {
-                  widget.trezorConnectVM.setDeviceSettings(TrezorDeviceSettings(
-                    enableAutoParing: _autoConnect,
-                    passphraseOnDevice: _usePassphrase && _setPassphraseOnDevice,
-                  ));
-                },
-                text: anythingSelected ? S.of(context).continue_text : S.of(context).skip,
-                color: anythingSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceContainerHigh,
-                textColor: anythingSelected
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.primary,),
+              onPressed: () => widget.trezorConnectVM.setDeviceSettings(
+                TrezorDeviceSettings(
+                  enableAutoParing: _autoConnect,
+                  passphraseOnDevice: _usePassphrase && _setPassphraseOnDevice,
+                  passphrase: _usePassphrase && !_setPassphraseOnDevice ? _passphraseController.text : null,
+                ),
+              ),
+              text: anythingSelected ? S.of(context).continue_text : S.of(context).skip,
+              color: anythingSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surfaceContainerHigh,
+              textColor: anythingSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.primary,
+            ),
           ],
         ),
-  );
+      );
 }

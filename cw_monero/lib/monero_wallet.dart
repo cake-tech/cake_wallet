@@ -385,30 +385,20 @@ abstract class MoneroWalletBase
 
   MoneroTrezorService? trezorService;
 
-  Future<Trezor> _getTrezor() async {
-    if (trezorService == null) throw Exception("Trezor not connected");
-
-    final trezor = Trezor(trezorService!);
-    await trezor.newPassphraseSession(passphrase);
-    return trezor;
-  }
+  Trezor _getTrezor() => Trezor(trezorService ?? (throw Exception("Trezor not connected")));
 
   Future<void> syncTrezor() async {
     if (trezorService == null) throw Exception("Trezor not connected");
 
     final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
     final tdis = monero.Wallet_exportTrezorTdis(ptr);
-    final trezor = await _getTrezor();
-    final response = await trezor.keyImageSync(tdis);
+    final response = await _getTrezor().keyImageSync(tdis);
     final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
 
     if (!success) throw Exception(monero.Wallet_errorString(ptr));
   }
 
-  Future<String> signTrezorTransaction(String json) async {
-    final trezor = await _getTrezor();
-    return trezor.signTransaction(json);
-  }
+  Future<String> signTrezorTransaction(String json) => _getTrezor().signTransaction(json);
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {

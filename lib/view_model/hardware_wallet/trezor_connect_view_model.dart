@@ -208,7 +208,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
       await _client!.createChannel();
 
-      if (!_state!.pairingCredentials.any((c) => c.autoconnect == true)) {
+      final hasAutoPairingCredentials =
+          _state!.pairingCredentials.any((c) => c.autoconnect == true);
+      final isAutoPairingAvailable = _client is sdk.TrezorClientV2 && !hasAutoPairingCredentials;
+
+      paringState =
+          TrezorParingState.awaitingSettings(isAutoPairingAvailable: isAutoPairingAvailable);
+      _settingsCompleter = Completer<TrezorDeviceSettings>();
+      final settings = await _settingsCompleter!.future;
+
+      paringState = TrezorParingState.awaitingPassphrase;
+      if (settings.enableAutoParing && isAutoPairingAvailable) {
         if (_client case final sdk.TrezorClientV2 clientV2) {
           try {
             final auto = await clientV2.getAutoPairingCredentials();
@@ -218,9 +228,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         }
       }
 
-      paringState = TrezorParingState.awaitingSettings;
-      _settingsCompleter = Completer<TrezorDeviceSettings>();
-      await _settingsCompleter!.future;
+      if ((settings.passphrase ?? "").isNotEmpty || settings.passphraseOnDevice) {
+        final passphrase = settings.passphraseOnDevice
+            ? const sdk.TrezorPassphrase.onDevice()
+            : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
+        await _client!.createSession(passphrase);
+      }
+
       paringState = TrezorParingState.success;
       return true;
     } catch (e) {
@@ -341,9 +355,12 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 abstract class TrezorParingState {
   static TrezorParingState initial = InitialTrezorParingState();
   static TrezorParingState enterPin = EnterPinTrezorParingState();
-  static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
-  static TrezorParingState awaitingSettings = AwaitingSettingsTrezorParingState();
   static TrezorParingState success = SuccessTrezorParingState();
+  static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
+  static TrezorParingState awaitingPassphrase = AwaitingPassphraseTrezorParingState();
+
+  static TrezorParingState awaitingSettings({required bool isAutoPairingAvailable}) =>
+      AwaitingSettingsTrezorParingState(isAutoPairingAvailable: isAutoPairingAvailable);
 
   static TrezorParingState fail(String message) => FailTrezorParingState(message);
 }
@@ -354,7 +371,11 @@ class EnterPinTrezorParingState extends TrezorParingState {}
 
 class VerifyingPinTrezorParingState extends TrezorParingState {}
 
-class AwaitingSettingsTrezorParingState extends TrezorParingState {}
+class AwaitingSettingsTrezorParingState extends TrezorParingState {
+  AwaitingSettingsTrezorParingState({required this.isAutoPairingAvailable});
+
+  final bool isAutoPairingAvailable;
+}
 
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
 
