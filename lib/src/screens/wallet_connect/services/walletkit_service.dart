@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_service.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'bottom_sheet_service.dart';
 import 'chain_service/solana/solana_chain_id.dart';
 import 'chain_service/solana/solana_chain_service.dart';
-
 part 'walletkit_service.g.dart';
 
 class WalletKitService = WalletKitServiceBase with _$WalletKitService;
@@ -159,6 +160,16 @@ abstract class WalletKitServiceBase with Store {
 
     for (final cId in SolanaChainId.values) {
       SolanaChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
+    }
+
+    for (final cId in TronChainId.values) {
+      TronChainService(
         reference: cId,
         appStore: appStore,
         wcKeyService: walletKeyService,
@@ -316,7 +327,7 @@ abstract class WalletKitServiceBase with Store {
             namespaces: NamespaceUtils.regenerateNamespacesWithChains(
               args.params.generatedNamespaces!,
             ),
-            sessionProperties: args.params.sessionProperties,
+            sessionProperties: _sessionPropertiesFor(args.params),
           );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
@@ -336,6 +347,15 @@ abstract class WalletKitServiceBase with Store {
         );
       }
     }
+  }
+
+  Map<String, String>? _sessionPropertiesFor(ProposalData proposal) {
+    final namespaceKeys = proposal.generatedNamespaces?.keys ?? const <String>[];
+    if (!namespaceKeys.any((key) => key.split(":").first == "tron")) {
+      return proposal.sessionProperties;
+    }
+
+    return {...?proposal.sessionProperties, "tron_method_version": "v1"};
   }
 
   @action
