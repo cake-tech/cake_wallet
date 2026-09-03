@@ -1333,7 +1333,7 @@
   "transport_type": "Transport Type",
   "trocador_desc": "is an exchange aggregator that leverages multiple underlying exchanges to find competitive rates.",
   "trocador_desc_kyc": "Alongside the provider name, a KYC Rating is shown. This is set by Trocador and it's based on their own criteria.",
-  "trongrid_history": "TronGrid history",
+  "trongrid_history": "Use TronGrid / TronScan for History",
   "trusted": "Trusted",
   "try_again": "Try again",
   "trying_to_spend_locked_funds": "Transaction rejected because you are trying to spend funds that have relative time lock, please wait and try again later, or disable the locked funds from coin control",

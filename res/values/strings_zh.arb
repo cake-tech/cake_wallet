@@ -1295,7 +1295,7 @@
   "transport_type": "传输类型",
   "trocador_desc": "是一个交易所聚合器，利用多个底层交易所来寻找有竞争力的汇率。",
   "trocador_desc_kyc": "在提供商名称旁边会显示 KYC 评级。该评级由 Trocador 设定，并基于其自身的评估标准。",
-  "trongrid_history": "TronGrid 历史",
+  "trongrid_history": "使用 TronGrid / TronScan 获取历史记录",
   "trusted": "可信赖",
   "try_again": "再试一次",
   "trying_to_spend_locked_funds": "交易被拒绝，因为您正在尝试花费带有相对时间锁的资金。请稍候再试，或在币种控制中禁用锁定资金。",

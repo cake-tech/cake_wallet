@@ -1295,7 +1295,7 @@
   "transport_type": "トランスポートタイプ",
   "trocador_desc": "は、複数の取引所を活用して競争力のあるレートを見つける交換アグリゲーターです。",
   "trocador_desc_kyc": "プロバイダー名とともに、KYC評価が表示されます。これはTrocadorによって設定され、独自の基準に基づいています。",
-  "trongrid_history": "TronGrid 履歴",
+  "trongrid_history": "履歴に TronGrid / TronScan を使用する",
   "trusted": "信頼できる",
   "try_again": "もう一度試してください",
   "trying_to_spend_locked_funds": "相対時間ロックのある資金を使用しようとしているため、トランザクションは拒否されました。しばらく待ってから再度お試しください。または、コインコントロールでロックされた資金を無効にしてください。",

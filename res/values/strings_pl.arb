@@ -1294,7 +1294,7 @@
   "transport_type": "Typ transportu",
   "trocador_desc": "to agregator giełd, który wykorzystuje wiele bazowych platform wymiany, aby znaleźć konkurencyjne kursy.",
   "trocador_desc_kyc": "Obok nazwy dostawcy wyświetlana jest ocena KYC. Jest ona ustalana przez Trocador i opiera się na jego własnych kryteriach.",
-  "trongrid_history": "Historia TronGrid",
+  "trongrid_history": "Użyj TronGrid / TronScan do historii",
   "trusted": "Zaufany",
   "try_again": "Spróbuj ponownie",
   "trying_to_spend_locked_funds": "Transakcja odrzucona, ponieważ próbujesz wydać środki objęte względną blokadą czasową. Poczekaj i spróbuj ponownie później albo wyłącz zablokowane środki w kontroli monet",

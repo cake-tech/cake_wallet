@@ -1294,7 +1294,7 @@
   "transport_type": "Typ transportu",
   "trocador_desc": "je agregátor směnáren, který využívá více podkladových směnáren k nalezení konkurenceschopných kurzů.",
   "trocador_desc_kyc": "Vedle názvu poskytovatele se zobrazuje hodnocení KYC. Toto hodnocení nastavuje Trocador a je založeno na jejich vlastních kritériích.",
-  "trongrid_history": "Historie TronGrid",
+  "trongrid_history": "Pro historii použijte TronGrid / TronScan",
   "trusted": "Důvěryhodné",
   "try_again": "Zkuste to znovu",
   "trying_to_spend_locked_funds": "Transakce byla zamítnuta, protože se pokoušíte utratit prostředky s relativním časovým zámkem. Počkejte prosím a zkuste to znovu později, nebo v ovládání mincí zakažte uzamčené prostředky.",

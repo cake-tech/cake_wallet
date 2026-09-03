@@ -1330,7 +1330,7 @@
   "transport_type": "Transporttyp",
   "trocador_desc": "ist ein Swap-Aggregator, der mehrere zugrunde liegende Swap-Dienste nutzt, um wettbewerbsfähige Kurse zu finden.",
   "trocador_desc_kyc": "Neben dem Anbieternamen wird ein KYC-Rating angezeigt. Dieses wird von Trocador festgelegt und basiert auf deren eigenen Kriterien.",
-  "trongrid_history": "TronGrid-Verlauf",
+  "trongrid_history": "Verwenden Sie TronGrid / TronScan für den Verlauf",
   "trusted": "Vertrauenswürdig",
   "try_again": "Erneut versuchen",
   "trying_to_spend_locked_funds": "Transaktion abgelehnt, weil Sie versuchen, Guthaben auszugeben, das einer relativen Zeitsperre unterliegt. Bitte warten Sie und versuchen Sie es später erneut oder deaktivieren Sie die gesperrten Guthaben in der Coin Control",

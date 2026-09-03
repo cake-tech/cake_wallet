@@ -1294,7 +1294,7 @@
   "transport_type": "Aktarım Türü",
   "trocador_desc": "rekabetçi oranlar bulmak için birden fazla altta yatan borsadan yararlanan bir borsa toplayıcısıdır.",
   "trocador_desc_kyc": "Sağlayıcı adının yanında bir KYC Derecelendirmesi gösterilir. Bu, Trocador tarafından belirlenir ve kendi kriterlerine dayanır.",
-  "trongrid_history": "TronGrid geçmişi",
+  "trongrid_history": "Geçmiş için TronGrid / TronScan'i kullanın",
   "trusted": "Güvenilir",
   "try_again": "Tekrar deneyin",
   "trying_to_spend_locked_funds": "Göreceli zaman kilidine sahip fonları harcamaya çalıştığınız için işlem reddedildi. Lütfen bekleyin ve daha sonra tekrar deneyin veya coin control üzerinden kilitli fonları devre dışı bırakın.",

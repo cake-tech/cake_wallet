@@ -1295,7 +1295,7 @@
   "transport_type": "Tipo di trasporto",
   "trocador_desc": "è un aggregatore di exchange che sfrutta più exchange sottostanti per trovare tassi competitivi.",
   "trocador_desc_kyc": "Accanto al nome del fornitore viene mostrata una valutazione KYC. Questa è impostata da Trocador e si basa sui propri criteri.",
-  "trongrid_history": "Cronologia di TronGrid",
+  "trongrid_history": "Usa TronGrid / TronScan per la cronologia",
   "trusted": "Affidabile",
   "try_again": "Riprova",
   "trying_to_spend_locked_funds": "Transazione rifiutata perché stai tentando di spendere fondi con un blocco temporale relativo. Attendi e riprova più tardi oppure disabilita i fondi bloccati dal controllo monete",

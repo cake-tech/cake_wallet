@@ -1294,7 +1294,7 @@
   "transport_type": "Vrsta transporta",
   "trocador_desc": "je agregator mjenjačnica koji koristi više mjenjačnica kako bi pronašao konkurentne tečajeve.",
   "trocador_desc_kyc": "Uz naziv pružatelja usluga prikazuje se KYC ocjena. To je postavio Trocador i temelji se na njihovim vlastitim kriterijima.",
-  "trongrid_history": "Povijest TronGrid-a",
+  "trongrid_history": "Koristite TronGrid / TronScan za povijest",
   "trusted": "Pouzdano",
   "try_again": "Pokušajte ponovno",
   "trying_to_spend_locked_funds": "Transakcija je odbijena jer pokušavate potrošiti sredstva koja imaju relativno vremensko zaključavanje. Pričekajte i pokušajte ponovno kasnije ili onemogućite zaključana sredstva u kontroli novčića.",
