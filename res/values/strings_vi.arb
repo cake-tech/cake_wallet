@@ -1295,7 +1295,7 @@
   "transport_type": "Loại truyền tải",
   "trocador_desc": "là một công cụ tổng hợp trao đổi, tận dụng nhiều sàn giao dịch khác nhau để tìm ra tỷ giá cạnh tranh.",
   "trocador_desc_kyc": "Bên cạnh tên nhà cung cấp, Xếp hạng KYC sẽ được hiển thị. Xếp hạng này do Trocador thiết lập và dựa trên các tiêu chí riêng của họ.",
-  "trongrid_history": "Lịch sử TronGrid",
+  "trongrid_history": "Sử dụng TronGrid/TronScan cho Lịch sử",
   "trusted": "Đáng tin cậy",
   "try_again": "Thử lại",
   "trying_to_spend_locked_funds": "Giao dịch bị từ chối vì bạn đang cố gắng chi tiêu số tiền có khóa thời gian tương đối. Vui lòng đợi và thử lại sau, hoặc tắt số tiền bị khóa trong kiểm soát coin",

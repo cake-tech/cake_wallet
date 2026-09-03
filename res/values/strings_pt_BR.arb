@@ -1240,7 +1240,7 @@
   "transport_type": "Tipo de transporte",
   "trocador_desc": "é um agregador de corretoras que utiliza múltiplas plataformas subjacentes para encontrar taxas competitivas.",
   "trocador_desc_kyc": "Ao lado do nome do provedor, uma classificação de KYC é exibida. Ela é definida pelo Trocador e baseada em seus próprios critérios.",
-  "trongrid_history": "Histórico do TronGrid",
+  "trongrid_history": "Use TronGrid / TronScan para histórico",
   "trusted": "Confiável",
   "try_again": "Tente novamente",
   "trying_to_spend_locked_funds": "Transação rejeitada porque você está tentando gastar fundos que possuem uma trava de tempo (time lock). Por favor, aguarde e tente novamente mais tarde, ou desative os fundos travados no controle de moedas.",

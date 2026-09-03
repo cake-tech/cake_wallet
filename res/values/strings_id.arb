@@ -1297,7 +1297,7 @@
   "transport_type": "Jenis Transport",
   "trocador_desc": "adalah agregator pertukaran yang memanfaatkan berbagai pertukaran yang mendasarinya untuk menemukan kurs yang kompetitif.",
   "trocador_desc_kyc": "Di samping nama penyedia, Peringkat KYC ditampilkan. Ini ditetapkan oleh Trocador dan didasarkan pada kriteria mereka sendiri.",
-  "trongrid_history": "Riwayat TronGrid",
+  "trongrid_history": "Gunakan TronGrid / TronScan untuk Riwayat",
   "trusted": "Tepercaya",
   "try_again": "Coba lagi",
   "trying_to_spend_locked_funds": "Transaksi ditolak karena Anda mencoba membelanjakan dana yang memiliki kunci waktu relatif. Harap tunggu dan coba lagi nanti, atau nonaktifkan dana terkunci dari kontrol koin",

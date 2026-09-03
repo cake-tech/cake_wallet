@@ -1294,7 +1294,7 @@
   "transport_type": "Transporttype",
   "trocador_desc": "is een exchange-aggregator die meerdere onderliggende exchanges gebruikt om concurrerende tarieven te vinden.",
   "trocador_desc_kyc": "Naast de naam van de provider wordt een KYC-rating weergegeven. Deze wordt ingesteld door Trocador en is gebaseerd op hun eigen criteria.",
-  "trongrid_history": "TronGrid-geschiedenis",
+  "trongrid_history": "Gebruik TronGrid / TronScan voor geschiedenis",
   "trusted": "Vertrouwd",
   "try_again": "Probeer het opnieuw",
   "trying_to_spend_locked_funds": "Transactie afgewezen omdat je probeert fondsen uit te geven met een relatieve tijdvergrendeling. Wacht even en probeer het later opnieuw, of schakel de vergrendelde fondsen uit in Coin Control",

@@ -1294,7 +1294,7 @@
   "transport_type": "Uri ng Transportasyon",
   "trocador_desc": "ay isang exchange aggregator na gumagamit ng maraming pinagbabatayang exchange upang makahanap ng mapagkumpitensyang mga rate.",
   "trocador_desc_kyc": "Kasama ng pangalan ng provider, ipinapakita ang isang KYC Rating. Itinakda ito ng Trocador at nakabatay sa sarili nilang pamantayan.",
-  "trongrid_history": "Kasaysayan ng TronGrid",
+  "trongrid_history": "Gamitin ang TronGrid / TronScan para sa Kasaysayan",
   "trusted": "Pinagkakatiwalaan",
   "try_again": "Subukang muli",
   "trying_to_spend_locked_funds": "Tinanggihan ang transaksyon dahil sinusubukan mong gastusin ang mga pondong may relatibong time lock. Mangyaring maghintay at subukang muli sa ibang pagkakataon, o i-disable ang mga naka-lock na pondo sa coin control.",

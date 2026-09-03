@@ -1294,7 +1294,7 @@
   "transport_type": "Type de transport",
   "trocador_desc": "est un agrégateur d'échanges qui s'appuie sur plusieurs plateformes d'échange sous-jacentes afin de trouver des taux compétitifs.",
   "trocador_desc_kyc": "À côté du nom du fournisseur, une note KYC est affichée. Celle-ci est définie par Trocador et repose sur ses propres critères.",
-  "trongrid_history": "Historique TronGrid",
+  "trongrid_history": "Utilisez TronGrid / TronScan pour l'historique",
   "trusted": "Fiable",
   "try_again": "Réessayer",
   "trying_to_spend_locked_funds": "Transaction rejetée car vous essayez de dépenser des fonds soumis à un verrouillage temporel relatif. Veuillez patienter et réessayer plus tard, ou désactiver les fonds verrouillés dans le contrôle des pièces.",

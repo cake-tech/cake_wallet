@@ -1294,7 +1294,7 @@
   "transport_type": "전송 방식",
   "trocador_desc": "여러 거래소를 연동해 경쟁력 있는 환율을 찾는 거래소 애그리게이터입니다.",
   "trocador_desc_kyc": "공급자 이름과 함께 KYC 등급이 표시됩니다. 이 등급은 Trocador가 설정하며, 자체 기준에 따라 결정됩니다.",
-  "trongrid_history": "TronGrid 내역",
+  "trongrid_history": "기록을 위해 TronGrid / TronScan 사용",
   "trusted": "신뢰할 수 있음",
   "try_again": "다시 시도",
   "trying_to_spend_locked_funds": "상대적 시간 잠금이 설정된 자금을 사용하려고 하여 거래가 거부되었습니다. 잠시 기다렸다가 나중에 다시 시도하거나, 코인 컨트롤에서 잠긴 자금을 비활성화하세요.",
