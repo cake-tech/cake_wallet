@@ -15,6 +15,7 @@ class ModalTopBar extends StatelessWidget {
       this.padding,
       this.leadingWidget,
       this.trailingWidget,
+      this.titleLeadingWidget,
       this.leadingSemanticLabel,
       this.trailingSemanticLabel}) {
     if (leadingIcon != null && leadingWidget != null) {
@@ -34,6 +35,7 @@ class ModalTopBar extends StatelessWidget {
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
+  final Widget? titleLeadingWidget;
 
   /// Accessible name for the leading chrome button. Required (and must be
   /// non-empty) whenever a [leadingIcon] is supplied, because the icon alone
@@ -50,6 +52,38 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final titleSwitcher = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: Semantics(
+        key: ValueKey(title),
+        header: title.isNotEmpty,
+        // Android reads the heading from headingLevel since the
+        // Flutter 3.41 engine; header: alone only covers iOS.
+        headingLevel: title.isNotEmpty ? 1 : null,
+        child: titleLeadingWidget == null
+            ? Text(
+                title,
+                style: Theme.of(context).textTheme.headlineMedium,
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
+                children: [
+                  ExcludeSemantics(child: titleLeadingWidget),
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+
     return Padding(
       padding: padding ?? EdgeInsets.all(18),
       child: Stack(
@@ -57,25 +91,14 @@ class ModalTopBar extends StatelessWidget {
         children: [
           Positioned(
             top: 6,
+            left: titleLeadingWidget == null ? null : buttonSize + 8,
+            right: titleLeadingWidget == null ? null : buttonSize + 8,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Semantics(
-                    key: ValueKey(title),
-                    header: title.isNotEmpty,
-                    // Android reads the heading from headingLevel since the
-                    // Flutter 3.41 engine; header: alone only covers iOS.
-                    headingLevel: title.isNotEmpty ? 1 : null,
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                ),
+                if (titleLeadingWidget == null) titleSwitcher else Expanded(child: titleSwitcher),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(subtitle!,
                       style: Theme.of(context)
