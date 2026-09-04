@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
+import "package:cake_wallet/new-ui/pages/reset_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -806,6 +807,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.aboutPage:
       final page = getIt.get<AboutPage>();
       return handleRouteWithPlatformAwareness((context) => page);
+
+    case Routes.resetPage:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<ResetPage>(),
+      );
 
     case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;
