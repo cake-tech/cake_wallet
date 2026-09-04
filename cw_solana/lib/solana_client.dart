@@ -85,7 +85,7 @@ class SolanaWalletClient {
       final balance = await _provider!.requestWithContext(
         SolanaRPCGetBalance(account: SolAddress(walletAddress)),
       );
-      return Money(balance.result, CryptoCurrency.sol);
+      return Money(balance.result as BigInt, CryptoCurrency.sol);
     } catch (_) {
       if (throwOnError) {
         rethrow;
@@ -195,6 +195,32 @@ class SolanaWalletClient {
     } catch (_) {
       if (throwOnError) rethrow;
 
+      return null;
+    }
+  }
+
+  Future<List<List<int>?>?> getAccountsData(List<String> addresses) async {
+    if (addresses.isEmpty) {
+      return const [];
+    }
+    if (_provider == null) {
+      return null;
+    }
+
+    try {
+      final accounts = await Future.wait(
+        addresses.map(
+          (address) => _provider!.request(
+            SolanaRPCGetAccountInfo(
+              account: SolAddress(address),
+              encoding: SolanaRPCEncoding.base64,
+            ),
+          ),
+        ),
+      );
+      return accounts.map<List<int>?>((account) => account?.toBytesData()).toList();
+    } catch (e) {
+      printV("Error fetching solana accounts data: $e");
       return null;
     }
   }
@@ -1103,7 +1129,7 @@ class SolanaWalletClient {
           try {
             return await _provider!.request(
               SolanaRPCGetTransaction(
-                transactionSignature: signature['signature'],
+                transactionSignature: signature['signature'] as String,
                 encoding: SolanaRPCEncoding.jsonParsed,
                 maxSupportedTransactionVersion: 1,
                 skipVerification: true,
@@ -1275,10 +1301,10 @@ class SolanaWalletClient {
       if (response.statusCode != 200) return null;
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final symbol = decodedResponse['symbol'] ?? '';
-      final name = decodedResponse['name'] ?? '';
+      final symbol = decodedResponse['symbol'] as String? ?? '';
+      final name = decodedResponse['name'] as String? ?? '';
       final rawDecimals = decodedResponse["decimals"];
-      final iconPath = decodedResponse['logo'] ?? '';
+      final iconPath = decodedResponse['logo'] as String? ?? '';
 
       final filteredTokenSymbol = symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
 
@@ -2012,7 +2038,7 @@ class SolanaWalletClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return jsonResponse['image'];
+        return jsonResponse['image'] as String?;
       } else {
         return null;
       }
