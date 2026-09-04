@@ -61,13 +61,11 @@ class WalletCreationService {
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
     _ensureServiceAvailable();
-    await checkIfExists(credentials.name);
 
-    if (credentials.password == null) {
-      credentials.password = generateWalletPassword();
-    }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    credentials.password ??= generateWalletPassword();
+
+    await keyService.saveWalletPasswordForWallet(
+        walletInfo: credentials.walletInfo!, password: credentials.password!,);
 
     if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;

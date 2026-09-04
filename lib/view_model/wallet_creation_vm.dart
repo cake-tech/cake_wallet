@@ -1,28 +1,26 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
-import 'package:cw_core/exceptions.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/zcash/zcash_network_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:polyseed/polyseed.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/wallet_creation_service.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/nano/nano.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/view_model/restore/restore_wallet.dart";
+import "package:cake_wallet/view_model/seed_settings_view_model.dart";
+import "package:cake_wallet/zcash/zcash_network_type.dart";
+import "package:cw_core/exceptions.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
+import "package:polyseed/polyseed.dart";
 import "package:uuid/uuid.dart";
 
-part 'wallet_creation_vm.g.dart';
+part "wallet_creation_vm.g.dart";
 
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
@@ -64,7 +62,7 @@ abstract class WalletCreationVMBase with Store {
 
   bool isPolyseed(String seed) =>
       [WalletType.monero, WalletType.wownero].contains(type) &&
-      (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
+          (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   Future<bool> nameExists(String name) => walletCreationService.exists(name);
 
@@ -117,7 +115,6 @@ abstract class WalletCreationVMBase with Store {
 
       WalletInfo? placeholder;
       int? keepSortOrder;
-      String? placeholderGroupId;
       String? placeholderRealGroupId;
       String? reservedId;
       String? reservedDirPath;
@@ -173,7 +170,7 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: "",
         showIntroCakePayCard:
-            (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
+        (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
       );
@@ -189,6 +186,10 @@ abstract class WalletCreationVMBase with Store {
 
       if (placeholderRealGroupId != null && placeholderRealGroupId.isNotEmpty) {
         credentials.walletInfo!.groupId = placeholderRealGroupId;
+      }
+
+      if (keepSortOrder != null) {
+        credentials.walletInfo!.sortOrder = keepSortOrder;
       }
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();

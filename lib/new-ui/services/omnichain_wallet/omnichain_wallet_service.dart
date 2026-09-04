@@ -45,6 +45,9 @@ class OmniChainWalletCreationService {
     return walletManager.getWalletsInGroup(groupKey);
   }
 
+  String _memberWalletName(WalletType type, String groupId) =>
+      "${walletTypeToDisplayName(type)} ($groupId)";
+
   Future<void> createGroup({required OmniChainCreateGroupRequest request}) async {
     try {
       final primaryType = request.primaryType;
@@ -100,10 +103,10 @@ class OmniChainWalletCreationService {
 
       final restTypesRaw = types.where((type) => type != primaryType).toList();
 
-      // await _createWalletPlaceholders(
-      //   groupId: groupId,
-      //   restTypes: restTypesRaw,
-      // );
+      await _createWalletPlaceholders(
+        groupId: groupId,
+        restTypes: restTypesRaw,
+      );
     } catch (e) {
       throw Exception('Failed to create wallet group: ${e.toString()}');
     }
@@ -133,12 +136,9 @@ class OmniChainWalletCreationService {
       options = defaultMoneroOptions;
     }
 
-    // No groupId passed here on purpose — this placeholder already has its
-    // real group id baked in from _createWalletPlaceholders, and _create()'s
-    // placeholder-reuse branch (walletInfoIdOverride) must preserve that,
-    // not overwrite it with something new.
     await _createSingleWallet(
       type: walletInfo.type,
+      groupId: walletInfo.groupId,
       isChildWallet: true,
       mnemonic: mnemonic,
       options: options,
@@ -184,10 +184,11 @@ class OmniChainWalletCreationService {
     String? groupId,
   }) async {
     final newArgs =
-        NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
+    NewWalletArguments(type: type, mnemonic: mnemonic, isChildWallet: isChildWallet);
 
     final walletNewVM = walletNewVMBuilder(newArgs);
-    walletNewVM.name = walletTypeToDisplayName(type);
+    walletNewVM.name =
+    groupId != null ? _memberWalletName(type, groupId) : walletTypeToDisplayName(type);
     walletNewVM.toggleUseTestnet(useTestnet);
     walletNewVM.setZcashNetwork(zcashNetwork);
     walletNewVM.seedSettingsViewModel.setPassphrase(passphrase);
@@ -214,7 +215,7 @@ class OmniChainWalletCreationService {
 
       final info = WalletInfo.external(
         id: id,
-        name: walletTypeToDisplayName(type),
+        name: _memberWalletName(type, groupId),
         type: type,
         isRecovery: false,
         restoreHeight: 0,
@@ -228,6 +229,8 @@ class OmniChainWalletCreationService {
         hashedWalletIdentifier: groupId,
         isReady: false,
       );
+
+      info.groupId = groupId;
 
       await info.save();
     }

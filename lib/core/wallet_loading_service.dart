@@ -22,10 +22,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
   WalletLoadingService(
-    this.sharedPreferences,
-    this.keyService,
-    this.walletServiceFactory,
-  );
+      this.sharedPreferences,
+      this.keyService,
+      this.walletServiceFactory,
+      );
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
@@ -34,16 +34,17 @@ class WalletLoadingService {
   Future<void> renameWallet(WalletInfo walletInfo, String newName, {String? password}) async {
     try {
       final walletService = walletServiceFactory.call(walletInfo.type);
-      final name = walletInfo.name;
-      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+      final walletPassword = password ?? (await keyService.getWalletPasswordForWallet(walletInfo));
 
-      // Save the current wallet's password to the new wallet name's key
-      await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
+      // Password storage is keyed by walletInfo.id, which a rename doesn't
+      // change — nothing to move or delete here anymore. (Previously this
+      // saved under the new name's key and deleted the old one; if the app
+      // died between those two calls, the password was gone. That whole
+      // failure mode no longer exists.)
       await walletService.rename(walletInfo, walletPassword, newName);
-      await keyService.deleteWalletPassword(walletName: name);
 
       if (walletInfo.type == WalletType.monero) {
-        final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
+        final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(walletInfo.name);
         final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
         final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
         await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
@@ -61,7 +62,7 @@ class WalletLoadingService {
             PreferencesKey.backgroundSyncLastTrigger(walletInfo.name), DateTime.now().toIso8601String());
       }
       final walletService = walletServiceFactory.call(walletInfo.type);
-      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: walletInfo.name));
+      final walletPassword = password ?? (await keyService.getWalletPasswordForWallet(walletInfo));
       final wallet = await walletService.openWallet(walletInfo, walletPassword);
 
       if (walletInfo.type == WalletType.monero) {
@@ -98,7 +99,7 @@ class WalletLoadingService {
       for (var info in await WalletInfo.getAll()) {
         try {
           final walletService = walletServiceFactory.call(info.type);
-          final walletPassword = await keyService.getWalletPassword(walletName: info.name);
+          final walletPassword = await keyService.getWalletPasswordForWallet(info);
           wallet = await walletService.openWallet(info, walletPassword);
 
           if (info.type == WalletType.monero) {
@@ -176,20 +177,21 @@ class WalletLoadingService {
       return;
     }
 
+    final walletInfo = wallet.walletInfo;
     final password = generateWalletPassword();
     // Save new generated password with backup key for case where
     // wallet will change password, but it will fail to update in secure storage
-    final bakWalletName = '#__${wallet.name}_bak__#';
-    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
+    final bakWalletId = '#__${walletInfo.id}_bak__#';
+    await keyService.saveWalletPasswordForId(walletId: bakWalletId, password: password);
     await wallet.changePassword(password);
-    await keyService.saveWalletPassword(walletName: wallet.name, password: password);
+    await keyService.saveWalletPasswordForWallet(walletInfo: walletInfo, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }
 
   Future<String> _getCorruptedWalletSeeds(WalletInfo walletInfo) async {
     final walletService = walletServiceFactory.call(walletInfo.type);
-    final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+    final password = await keyService.getWalletPasswordForWallet(walletInfo);
 
     return "\n\n${walletInfo.type} (${walletInfo.name}): ${await walletService.getSeeds(walletInfo, password)}";
   }

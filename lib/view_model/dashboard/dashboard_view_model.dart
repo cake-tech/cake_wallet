@@ -1539,7 +1539,7 @@ abstract class DashboardViewModelBase with Store {
       final walletInfos = await WalletInfo.getAll();
       for (var walletInfo in walletInfos) {
         if (walletInfo.type == WalletType.bitcoin) {
-          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+          final password = await keyService.getWalletPasswordForWallet(walletInfo);
           final jsonSource = await read(path: walletInfo.path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;

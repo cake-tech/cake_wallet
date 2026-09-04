@@ -172,7 +172,7 @@ class BackgroundSync {
             printV("WALLET $i SYNCED");
             try {
               await wallet.stopBackgroundSync(
-                  (await keyService.getWalletPassword(walletName: wallet.name)));
+                  await keyService.getWalletPasswordForWallet(walletInfo),);
             } catch (e) {
               printV("error stopping sync: $e");
             }
@@ -235,7 +235,7 @@ class BackgroundSync {
             "${wallet.currency.fullName} in ${wallet.name}: TX: ${tx.date} ${tx.amount} ${tx.direction}");
       }
       wallet.id;
-      await wallet.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));
+      await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(walletInfo));
       await wallet.close(shouldCleanup: true);
     }
   }
