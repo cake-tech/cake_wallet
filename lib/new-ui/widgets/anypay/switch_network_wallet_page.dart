@@ -1,5 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";

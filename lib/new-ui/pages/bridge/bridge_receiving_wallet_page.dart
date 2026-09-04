@@ -3,7 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receive_address_input_page.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
