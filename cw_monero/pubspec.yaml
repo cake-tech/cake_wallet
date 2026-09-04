@@ -32,8 +32,8 @@ dependencies:
   ledger_flutter_plus: ^1.4.1
   trezor_flutter:
     git:
-      url: https://github.com/cake-tech/trezor-flutter
-      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
       path: trezor-flutter
 
 dev_dependencies:
