@@ -64,6 +64,7 @@ jobs:
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/lib/node_modules /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/swift /usr/local/share/powershell /usr/share/miniconda /opt/az /usr/local/graalvm
           sudo docker image prune -af > /dev/null
           df -h /
 
@@ -169,6 +170,12 @@ jobs:
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
+
+      - name: Reclaim the space the dependency images took
+        run: |
+          docker system prune -af --volumes > /dev/null
+          df -h /
+
       - name: Regenerate mweb bindings
         run: |
           git checkout -- cw_mweb/pubspec.yaml
