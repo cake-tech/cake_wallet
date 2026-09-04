@@ -640,6 +640,7 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get shouldShowMwebAd {
+    return false;
     if (wallet.type != WalletType.litecoin) return false;
 
     if (mwebEnabled) return false;

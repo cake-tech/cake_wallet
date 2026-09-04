@@ -3,6 +3,7 @@ import "dart:io";
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/imported_nft.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -29,6 +30,22 @@ class EVMChainWalletService extends WalletService<
   final bool isDirect;
   final EvmChainRegistry _registry = EvmChainRegistry();
 
+  List<WalletType> get _evmWalletTypes {
+    return _registry.getRegisteredWalletTypes();
+  }
+
+  List<String> get _importedNFTChains =>
+      _registry.getAllChains().map((chain) => chain.shortCode).toList();
+
+  Future<WalletInfo?> _findWalletByName(String name) async {
+    for (final type in _evmWalletTypes) {
+      final walletInfo = await WalletInfo.get(name, type);
+      if (walletInfo != null) {
+        return walletInfo;
+      }
+    }
+    return null;
+  }
   /// getType() is not meaningful for this unified service, it throws to prevent misuse
   @override
   WalletType getType() {
@@ -121,14 +138,16 @@ class EVMChainWalletService extends WalletService<
 
     await super.rename(currentWalletInfo, password, newName);
 
-    // TODO(serhii): copies tokens forward under the new name rather
-    // than branching on whether oldName is "still used" (that check no longer
-    // means what it used to once names aren't unique). Leaves old-named rows
-    // behind — worth deciding whether those should also be deleted now that
-    // nothing should read them under the old name anymore.
     for (final token in await Erc20Token.selectList("walletName = ?", [oldName])) {
       final copiedToken = Erc20Token.copyWith(token, walletName: newName);
       await copiedToken.save();
+    }
+
+    final ownNFTs = (await ImportedNFT.getAllForWallet(oldName))
+        .where((nft) => _importedNFTChains.contains(nft.chain));
+    for (final nft in ownNFTs) {
+      await ImportedNFT.copyWith(nft, walletName: newName).save();
+    }
     }
   }
 
@@ -257,8 +276,12 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    await Erc20Token.deleteAllForWallet(walletInfo.name);
     await super.remove(walletInfo);
+    final nameStillUsed = (await _findWalletByName(walletInfo.name)) != null;
+    if (!nameStillUsed) {
+      await Erc20Token.deleteAllForWallet(walletInfo.name);
+      await ImportedNFT.deleteAllForWallet(walletInfo.name, chains: _importedNFTChains);
+    }
   }
 
   EVMChainWallet _createWalletInstance({
