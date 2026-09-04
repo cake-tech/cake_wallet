@@ -1,3 +1,5 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -117,7 +119,11 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
-                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                    onRefresh: () {
+                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+                      return widget.dashboardViewModel.refreshDashboard();
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(
