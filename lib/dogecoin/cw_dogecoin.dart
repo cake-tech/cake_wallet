@@ -1,11 +1,11 @@
-part of 'dogecoin.dart';
+part of "dogecoin.dart";
 
 class CWDogeCoin extends DogeCoin {
   @override
-  WalletService createDogeCoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return DogeCoinWalletService(unspentCoinSource, isDirect);
-  }
+  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, {
+    required bool isDirect,
+  }) =>
+      DogeCoinWalletService(unspentCoinSource, isDirect: isDirect);
 
   @override
   WalletCredentials createDogeCoinNewWalletCredentials({
@@ -31,7 +31,11 @@ class CWDogeCoin extends DogeCoin {
     String? passphrase,
   }) =>
       DogeCoinRestoreWalletFromSeedCredentials(
-          name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
+        name: name,
+        mnemonic: mnemonic,
+        password: password,
+        passphrase: passphrase,
+      );
 
   @override
   TransactionPriority deserializeDogeCoinTransactionPriority(int raw) =>
@@ -39,8 +43,10 @@ class CWDogeCoin extends DogeCoin {
 
   @override
   TransactionPriority getDefaultTransactionPriority() => DogecoinTransactionPriority.medium;
+
   @override
   List<TransactionPriority> getTransactionPriorities() => DogecoinTransactionPriority.all;
+
   @override
   TransactionPriority getDogeCoinTransactionPrioritySlow() => DogecoinTransactionPriority.slow;
 }
