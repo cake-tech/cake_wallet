@@ -828,16 +828,26 @@ Future<void> _validateWalletInfoBoxData() async {
 
       List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
 
-      for (var name in walletNames) {
+      for (final walletId in walletNames) {
+        if (walletId.endsWith(".backup")) {
+          try {
+            final legacyBackupDir = Directory('${walletsDir.path}$walletId');
+            if (legacyBackupDir.existsSync() && legacyBackupDir.listSync().isEmpty) {
+              legacyBackupDir.deleteSync();
+            }
+          } catch (_) {}
+          continue;
+        }
+
         final Directory dir;
         try {
-          dir = Directory(await pathForWalletDir(name: name, type: type));
+          dir = Directory(await pathForWalletDir(id: walletId, type: type));
         } catch (_) {
           continue;
         }
 
         final walletFiles = dir.listSync();
-        final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+        final hasCacheFile = walletFiles.any((element) => element.path.contains("$walletId/$walletId"));
 
         if (!hasCacheFile) {
           continue;
@@ -851,8 +861,8 @@ Future<void> _validateWalletInfoBoxData() async {
           }
         }
 
-        final id = prefix + '_' + name;
-        final exist = (await WalletInfo.getAll()).any((el) => el.id == id);
+        final id = walletId;
+        final exist = await WalletInfo.getById(id) != null;
 
         if (exist) {
           continue;
@@ -861,12 +871,12 @@ Future<void> _validateWalletInfoBoxData() async {
         final walletInfo = WalletInfo.external(
           id: id,
           type: type,
-          name: name,
+          name: walletId,
           isRecovery: true,
           restoreHeight: 0,
           date: DateTime.now(),
           dirPath: dir.path,
-          path: '${dir.path}/$name',
+          path: '${dir.path}/$walletId',
           address: '',
           showIntroCakePayCard: false,
         );
@@ -1041,7 +1051,7 @@ Future<void> addAddressesForMoneroWallets() async {
       (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
-      final walletPath = await pathForWallet(name: info.name, type: WalletType.monero);
+      final walletPath = info.path;
       final addressFilePath = '$walletPath.address.txt';
       final addressFile = File(addressFilePath);
 

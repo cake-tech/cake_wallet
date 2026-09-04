@@ -103,6 +103,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -301,6 +302,10 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
+  ElectrumBalance balanceForAccount(Object wallet, int accountIndex);
+  String accountBalancesKey(Object wallet);
+  Future<void> setCurrentAccount(Object wallet, int accountIndex);
+  bool isTransactionForCurrentAccount(Object wallet, Object transaction);
 }
   """;
 
@@ -324,6 +329,7 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -372,12 +378,6 @@ import 'package:cw_monero/pending_monero_transaction.dart';
 """;
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
-class Account {
-  Account({required this.id, required this.label, this.balance});
-  final int id;
-  final String label;
-  final String? balance;
-}
 
 class Subaddress {
   Subaddress({
@@ -536,6 +536,7 @@ abstract class MoneroAccountList {
 Future<void> generateWownero(bool hasImplementation) async {
   final outputFile = File(wowneroOutputPath);
   const wowneroCommonHeaders = """
+import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -585,12 +586,6 @@ import 'package:cw_wownero/pending_wownero_transaction.dart';
 """;
   const wowneroCwPart = "part 'cw_wownero.dart';";
   const wowneroContent = """
-class Account {
-  Account({required this.id, required this.label, this.balance});
-  final int id;
-  final String label;
-  final String? balance;
-}
 
 class Subaddress {
   Subaddress({

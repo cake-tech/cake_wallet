@@ -1,27 +1,26 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
-import 'package:cw_core/exceptions.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/zcash/zcash_network_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:polyseed/polyseed.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/wallet_creation_service.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/nano/nano.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/view_model/restore/restore_wallet.dart";
+import "package:cake_wallet/view_model/seed_settings_view_model.dart";
+import "package:cake_wallet/zcash/zcash_network_type.dart";
+import "package:cw_core/exceptions.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
+import "package:polyseed/polyseed.dart";
+import "package:uuid/uuid.dart";
 
-part 'wallet_creation_vm.g.dart';
+part "wallet_creation_vm.g.dart";
 
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
@@ -52,6 +51,7 @@ abstract class WalletCreationVMBase with Store {
 
   @observable
   String? repeatedWalletPassword;
+
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
@@ -62,33 +62,48 @@ abstract class WalletCreationVMBase with Store {
 
   bool isPolyseed(String seed) =>
       [WalletType.monero, WalletType.wownero].contains(type) &&
-      (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
+          (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   Future<bool> nameExists(String name) => walletCreationService.exists(name);
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   bool _isCreating = false;
-  Future<void> create({dynamic options}) async {
+
+  Future<void> create({
+    dynamic options,
+    bool makeCurrent = true,
+    bool isGroupCreationDeferred = false,
+    String? groupId,
+    int? walletInfoIdOverride,
+  }) async {
     try {
       if (_isCreating) {
         printV("not creating because we don't feel like doing so");
         return;
       }
       _isCreating = true;
-      await _create(options: options);
+      await _create(
+          options: options,
+          makeCurrent: makeCurrent,
+          isGroupCreationDeferred: isGroupCreationDeferred,
+          walletInfoIdOverride: walletInfoIdOverride,
+          groupId: groupId);
     } finally {
       _isCreating = false;
     }
   }
 
-  Future<void> _create({dynamic options}) async {
+  Future<void> _create({
+    dynamic options,
+    bool makeCurrent = true,
+    bool isGroupCreationDeferred = false,
+    String? groupId,
+    int? walletInfoIdOverride,
+  }) async {
     final type = this.type;
     try {
       state = IsExecutingState();
-      if (name.isEmpty) {
-        name = await generateName();
-      }
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
         throw Exception(S.current.wallet_password_is_empty);
@@ -98,9 +113,42 @@ abstract class WalletCreationVMBase with Store {
         throw Exception(S.current.repeated_password_is_incorrect);
       }
 
-      await walletCreationService.checkIfExists(name);
-      final dirPath = await pathForWalletDir(name: name, type: type);
-      final path = await pathForWallet(name: name, type: type);
+      WalletInfo? placeholder;
+      int? keepSortOrder;
+      String? placeholderRealGroupId;
+      String? reservedId;
+      String? reservedDirPath;
+      String? reservedPath;
+
+      if (walletInfoIdOverride != null) {
+        final rows = await WalletInfo.selectList('walletInfoId = ?', [walletInfoIdOverride]);
+        if (rows.isEmpty) {
+          throw Exception('Placeholder WalletInfo not found (id=$walletInfoIdOverride)');
+        }
+        placeholder = rows.first;
+
+        name = placeholder.name;
+        if (type != placeholder.type) {
+          throw Exception('Type mismatch: placeholder is ${placeholder.type}, requested $type');
+        }
+
+        keepSortOrder = placeholder.sortOrder;
+        placeholderRealGroupId = placeholder.groupId;
+        reservedId = placeholder.id;
+        reservedDirPath = placeholder.dirPath;
+        reservedPath = placeholder.path;
+
+        await WalletInfoAddressInfo.deleteByWalletInfoId(placeholder.internalId);
+        await WalletInfoAddressMap.deleteByWalletInfoId(placeholder.internalId);
+        for (final t in WalletInfoAddressType.values) {
+          await WalletInfoAddress.deleteByType(placeholder.internalId, t);
+        }
+        await WalletInfo.delete(placeholder);
+      }
+
+      final walletId = reservedId ?? const Uuid().v4();
+      final dirPath = reservedDirPath ?? await pathForWalletDir(id: walletId, type: type);
+      final path = reservedPath ?? await pathForWallet(id: walletId, type: type);
 
       final credentials = getCredentials(options);
 
@@ -112,17 +160,17 @@ abstract class WalletCreationVMBase with Store {
       credentials.derivationInfo = di;
 
       credentials.walletInfo = WalletInfo.external(
-        id: WalletBase.idFor(name, type),
-        name: name,
+        id: walletId,
+        name: walletTypeToDisplayName(type),
         type: type,
         isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
         path: path,
         dirPath: dirPath,
-        address: '',
+        address: "",
         showIntroCakePayCard:
-            (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
+        (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
       );
@@ -130,14 +178,28 @@ abstract class WalletCreationVMBase with Store {
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
+
+
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
+
+
+      if (placeholderRealGroupId != null && placeholderRealGroupId.isNotEmpty) {
+        credentials.walletInfo!.groupId = placeholderRealGroupId;
+      }
+
+      if (keepSortOrder != null) {
+        credentials.walletInfo!.sortOrder = keepSortOrder;
+      }
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();
       await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
-      _appStore.authenticationStore.allowedCreate();
+
+      if (!isGroupCreationDeferred) {
+        _appStore.authenticationStore.allowedCreate();
+      }
+
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");

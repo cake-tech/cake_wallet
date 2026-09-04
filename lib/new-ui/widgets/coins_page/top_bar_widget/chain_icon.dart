@@ -1,69 +1,103 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class ChainIcon extends StatelessWidget {
   const ChainIcon(
       {super.key,
-      required this.iconPath,
-      required this.dashboardViewModel,
-      required this.isSyncHeavy,
-      required this.showSyncedMessage});
+        required this.iconPath,
+        required this.dashboardViewModel,
+        required this.isSyncHeavy,
+        required this.showSyncedMessage,
+        required this.openChainSelection});
+
+  static const syncedColor = Color(0xFF12A439);
+  static const syncingColor = Color(0xFFFFB84E);
 
   final String iconPath;
   final bool isSyncHeavy;
   final DashboardViewModel dashboardViewModel;
   final bool showSyncedMessage;
+  final VoidCallback openChainSelection;
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        final progress = dashboardViewModel.status.progress();
-        final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
+  Widget build(BuildContext context) => Observer(
+    builder: (_) {
+      final progress = dashboardViewModel.status.progress();
+      final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
 
-        return Stack(
-          children: [
-            AnimatedOpacity(
-              duration: Duration(milliseconds: 100),
-              opacity: done ? 0 : 1,
-              // Faded out means "nothing to report", so it must leave the tree too.
-              child: ExcludeSemantics(
-                excluding: done || showSyncedMessage,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  color: showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E),
-                  strokeWidth: 2,
-                  semanticsLabel: S.of(context).synchronizing,
-                  semanticsValue: "${(progress * 100).round()}%",
-                ),
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999999),
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            openChainSelection();
+          },
+          child: Container(
+            decoration: ShapeDecoration(
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadiusGeometry.circular(900),
               ),
+              color: Theme.of(context).colorScheme.surfaceContainerLowest,
             ),
-            AnimatedScale(
-              duration: Duration(milliseconds: 150),
-              scale: done ? 1 : 0.8,
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 150),
-                child: CakeImageWidget(
-                  imageUrl: iconPath,
-                  key: ValueKey(progress >= 1),
-                  width: 36,
-                  height: 36,
-                  colorFilter: ColorFilter.mode(
-                    done
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                        : Theme.of(context).colorScheme.primary,
-                    BlendMode.srcIn,
-                  ),
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 100),
+                      opacity: done ? 0 : 1,
+                      // Faded out, or showing the green "synced" ring, means
+                      // "nothing to report" — it must leave the tree too.
+                      child: ExcludeSemantics(
+                        excluding: done || showSyncedMessage,
+                        child: SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(
+                            value: progress,
+                            color: showSyncedMessage ? syncedColor : syncingColor,
+                            strokeWidth: 2,
+                            semanticsLabel: S.of(context).synchronizing,
+                            semanticsValue: "${(progress * 100).round()}%",
+                          ),
+                        ),
+                      ),
+                    ),
+                    AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      scale: done ? 1 : 0.8,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 150),
+                        child: CakeImageWidget(
+                          imageUrl: iconPath,
+                          key: ValueKey(progress >= 1),
+                          width: 32,
+                          height: 32,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 4),
+              ],
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ),
+      );
+    },
+  );
 }

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -16,11 +17,13 @@ class SyncBar extends StatelessWidget {
     required this.dashboardViewModel,
     required this.isSyncHeavy,
     required this.showSyncedMessage,
+    this.forceCompact = false,
   });
 
   final DashboardViewModel dashboardViewModel;
   final bool isSyncHeavy;
   final bool showSyncedMessage;
+  final bool forceCompact;
 
   static const failStatuses = [
     FailedSyncStatus,
@@ -46,79 +49,82 @@ class SyncBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Observer(
-      builder: (_) {
-        final status = dashboardViewModel.status;
-        final Widget? icon = _getIcon(context, status.runtimeType);
+    builder: (_) {
+      final status = dashboardViewModel.status;
+      final Widget? icon = _getIcon(context, status.runtimeType);
+      final bool useFullBar = showFullBar && !forceCompact;
 
-        return Expanded(
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              if (!_showFullBar()) _buildCompactBar(context),
-              if (_showFullBar())
-                // A single node: the localized status text (plus any active
-                // Tor/MWEB/Silent Payments badge) is the label, and the hint says
-                // where tapping leads. Everything inside is redundant with it.
-                Semantics(
-                  button: true,
-                  label: _statusSemanticsLabel(context, status),
-                  hint: S.of(context).manage_nodes,
-                  onTap: () => _openNodeManagement(context),
-                  child: ExcludeSemantics(
-                    child: GestureDetector(
-                      onTap: () => _openNodeManagement(context),
-                      child: AnimatedSwitcher(
-                        duration: Duration(milliseconds: 100),
-                        child: Container(
-                          key: ValueKey(status.runtimeType),
-                          height: 36,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9999),
-                            border: _getBorder(context, status.runtimeType),
-                            color: _getBackgroundColor(context, status.runtimeType),
-                          ),
-                          child: Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (icon != null) icon,
-                              // if (dashboardViewModel.silentPaymentsScanningActive &&
-                              //     progressStatuses.contains(status.runtimeType)) ...[
-                              //   Text(
-                              //     "${(status.progress() * 100).toInt()}%",
-                              //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
-                              //   ),
-                              //   Text(
-                              //     "·",
-                              //     style: TextStyle(fontSize: 12),
-                              //   )
-                              // ],
-                              Text(
-                                syncStatusTitle(status,
-                                    dashboardViewModel.settingsStore.syncStatusDisplayMode),
-                                style: _getTextStyle(context, status.runtimeType),
-                              ),
-                            ],
-                          ),
+      return SizedBox(
+        height: 36,
+        width: useFullBar ? 220 : null,
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            if (!useFullBar) _buildCompactBar(context),
+            if (useFullBar)
+            // A single node: the localized status text (plus any active
+            // Tor/MWEB/Silent Payments badge) is the label, and the hint says
+            // where tapping leads. Everything inside is redundant with it.
+              Semantics(
+                button: true,
+                label: _statusSemanticsLabel(context, status),
+                hint: S.of(context).manage_nodes,
+                onTap: () => _openNodeManagement(context),
+                child: ExcludeSemantics(
+                  child: GestureDetector(
+                    onTap: () => _openNodeManagement(context),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 100),
+                      child: Container(
+                        key: ValueKey(status.runtimeType),
+                        height: 36,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(9999),
+                          border: _getBorder(context, status.runtimeType),
+                          color: _getBackgroundColor(context, status.runtimeType),
+                        ),
+                        child: Row(
+                          spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            if (icon != null) icon,
+                            // if (dashboardViewModel.silentPaymentsScanningActive &&
+                            //     progressStatuses.contains(status.runtimeType)) ...[
+                            //   Text(
+                            //     "${(status.progress() * 100).toInt()}%",
+                            //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
+                            //   ),
+                            //   Text(
+                            //     "·",
+                            //     style: TextStyle(fontSize: 12),
+                            //   )
+                            // ],
+                            Text(
+                              syncStatusTitle(status,
+                                  dashboardViewModel.settingsStore.syncStatusDisplayMode),
+                              style: _getTextStyle(context, status.runtimeType),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
-        );
-      },
-    );
+              ),
+          ],
+        ),
+      );
+    },
+  );
 
   void _openNodeManagement(BuildContext context) =>
       CupertinoScaffold.showCupertinoModalBottomSheet(
           context: context,
           barrierColor: Colors.black.withAlpha(85),
           builder: (context) => FractionallySizedBox(
-                  child: Material(
+              child: Material(
                 child: getIt.get<ManageNodesPage>(param1: false),
               )));
 
@@ -130,19 +136,26 @@ class SyncBar extends StatelessWidget {
       spacing: 6,
       children: [
         if (dashboardViewModel.isTorEnabled)
-          CakeImageWidget(
+          const CakeImageWidget(
             imageUrl: "assets/new-ui/tor.svg",
             width: 20,
             height: 20,
           ),
-        if (_showDot()) const CupertinoActivityIndicator(radius: 8),
-        if(_showLightSyncCheck()) const Icon(Icons.check, color: syncedColor, size: 18),
-    ],
+        if (_showDot())
+          const PulsingDot()
+        else if (_showLightSyncCheck())
+          const Icon(Icons.check, color: syncedColor, size: 18)
+        else
+          const SizedBox(width: 5, height: 5),
+      ],
     );
 
     final label = _joinLabels([
       if (dashboardViewModel.isTorEnabled) S.of(context).tor_connection,
       if (_showDot()) S.of(context).synchronizing,
+      if (_showLightSyncCheck())
+        syncStatusTitle(
+            dashboardViewModel.status, dashboardViewModel.settingsStore.syncStatusDisplayMode),
     ]);
 
     if (label.isEmpty) return row;
@@ -192,13 +205,11 @@ class SyncBar extends StatelessWidget {
       color = Theme.of(context).colorScheme.onSurfaceVariant;
     }
 
-    return TextStyle(
-        fontSize: 12, fontWeight: FontWeight.w400, color: color);
+    return TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: color);
   }
 
   Widget? _getIcon(BuildContext context, Type status) {
-
-    if(status == SyncedSyncStatus) {
+    if (status == SyncedSyncStatus) {
       return Icon(Icons.check, color: syncedColor, size: 12);
     }
 
@@ -227,7 +238,7 @@ class SyncBar extends StatelessWidget {
       children.add(CakeImageWidget(
         imageUrl: "assets/new-ui/mweb_sync.svg",
         colorFilter:
-            ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+        ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
       ));
     }
     if (dashboardViewModel.hasSilentPayments) {
@@ -243,15 +254,15 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  bool _showFullBar() {
-    if (dashboardViewModel.status.runtimeType == SyncedSyncStatus)
+  bool get showFullBar {
+    if (dashboardViewModel.status.runtimeType == SyncedSyncStatus) {
       return isSyncHeavy && _isShowingSyncedMessage;
+    }
     return isSyncHeavy || failStatuses.contains(dashboardViewModel.status.runtimeType);
   }
 
   bool _showDot() =>
       !isSyncHeavy && progressStatuses.contains(dashboardViewModel.status.runtimeType);
 
-  bool _showLightSyncCheck() =>
-      !isSyncHeavy && _isShowingSyncedMessage;
+  bool _showLightSyncCheck() => !isSyncHeavy && _isShowingSyncedMessage;
 }

@@ -117,8 +117,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
-  Future<void> renameWalletFiles(String newWalletName) =>
-      copyWalletFilesTo(fromName: walletInfo.name, toName: newWalletName, type: type);
+  Future<void> renameWalletFiles(String newWalletName) async {}
 
   Future<String> signMessage(String message, {String? address = null});
 

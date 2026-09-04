@@ -386,10 +386,10 @@ class CWWownero extends Wownero {
       final walletService = WowneroWalletService(unspentCoinsInfo);
       final flutterSecureStorage = secureStorageShared;
       final keyService = KeyService(flutterSecureStorage);
-      final password = await keyService.getWalletPassword(walletName: w.name);
+      final password = await keyService.getWalletPasswordForWallet(w);
       String seed = "unknown";
       try {
-        final wallet = await walletService.openWallet(w.name, password);
+        final wallet = await walletService.openWallet(w, password);
         seed = wallet.seed;
         wallet.close();
       } catch (e) {

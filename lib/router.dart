@@ -11,8 +11,13 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_available_network_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_details_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_summary_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_wallet_opening_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -53,6 +58,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/settings/wallet_accounts_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
@@ -149,8 +155,9 @@ import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -169,6 +176,7 @@ import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
@@ -201,6 +209,47 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
+    case Routes.walletCreationTypeSelectionPage:
+      return handleRouteWithPlatformAwareness(
+        (_) => getIt.get<WalletCreationTypeSelectionPage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) {},
+            isCreate: true,
+          ),
+        ),
+      );
+
+    case Routes.walletCreationDetailsPage:
+      final omniChainWalletBloc = settings.arguments! as OmniChainWalletBloc;
+
+      return handleRouteWithPlatformAwareness(
+        (_) => BlocProvider.value(
+          value: omniChainWalletBloc,
+          child: getIt.get<WalletCreationDetailsPage>(),
+        ),
+      );
+
+    case Routes.walletCreationSuccessPage:
+      final omniChainWalletBloc = settings.arguments! as OmniChainWalletBloc;
+
+      return handleRouteWithPlatformAwareness(
+            (_) => BlocProvider.value(
+          value: omniChainWalletBloc,
+          child: getIt.get<WalletCreationSuccessPage>(),
+        ),
+      );
+
+    case Routes.walletCreationOpeningPage:
+      final omniChainWalletBloc = settings.arguments as OmniChainWalletBloc;
+
+      return handleRouteWithPlatformAwareness(
+        (_) => BlocProvider.value(
+          value: omniChainWalletBloc,
+          child: getIt.get<WalletCreationOpeningPage>(),
+        ),
+      );
+
+
     case Routes.welcomeWallet:
       if (SettingsStoreBase.walletPasswordDirectInput) {
         return createRoute(RouteSettings(name: Routes.welcomePage));
@@ -225,21 +274,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               arguments: NewWalletArguments(type: availableWalletTypes.first)),
         );
       }
-      return createRoute(RouteSettings(name: Routes.newWalletType));
-
-    case Routes.newWalletType:
-      return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<NewWalletTypePage>(
-          param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                Navigator.of(context).pushNamed(
-              Routes.newWallet,
-              arguments: NewWalletArguments(type: type),
-            ),
-            isCreate: true,
-          ),
-        ),
-      );
+      return createRoute(RouteSettings(name: Routes.walletCreationTypeSelectionPage));
 
     case Routes.walletGroupsDisplayPage:
       final type = settings.arguments as WalletType;
@@ -838,7 +873,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
-      final type = args['type'] as WalletType;
+      final types = args['types'] as List<WalletType>? ?? [];
       final isFromRestore = args['isFromRestore'] as bool? ?? false;
       final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
@@ -846,7 +881,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
       final setZcashNetwork = args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
 
-      final viewModelParam = {'type': type, 'isPow': false};
+      final viewModelParam = {
+        'type': types.length == 1 ? types.first : WalletType.none,
+        'isPow': false,
+      };
 
       return handleRouteWithPlatformAwareness(
         (context) => AdvancedPrivacySettingsPage(
@@ -857,7 +895,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           zcashNetwork: zcashNetwork,
           setZcashNetwork: setZcashNetwork,
           advancedPrivacySettingsViewModel:
-              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+              getIt.get<AdvancedPrivacySettingsViewModel>(param1: types),
           nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
           seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
         ),
@@ -953,6 +991,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+
+    case Routes.walletAccountsPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletAccountsPage>());
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

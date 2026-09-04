@@ -120,7 +120,7 @@ class WalletRestorePage extends BasePage {
                           Routes.advancedPrivacySettings,
                           arguments: {
                             'isFromRestore': true,
-                            'type': walletRestoreViewModel.type,
+                            'types': [walletRestoreViewModel.type],
                             'useTestnet': walletRestoreViewModel.useTestnet,
                             'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
                             'zcashNetwork': walletRestoreViewModel.zcashNetwork,

@@ -7,7 +7,6 @@ import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/mnemonic_validation.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -55,10 +54,6 @@ class DecredWalletService extends WalletService<
   WalletType getType() => WalletType.decred;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
   Future<DecredWallet> create(DecredNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final mnemonic = (credentials.mnemonic?.isNotEmpty == true)
@@ -66,7 +61,7 @@ class DecredWalletService extends WalletService<
         : bip39.generateMnemonic(strength: strength);
     validateDecredMnemonic(mnemonic, allowNativeSeed: false);
     await this.init();
-    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    final dirPath = credentials.walletInfo!.path;
     final network = isTestnet == true ? testnet : mainnet;
     final config = {
       "name": credentials.walletInfo!.name,
@@ -83,7 +78,7 @@ class DecredWalletService extends WalletService<
     di.derivationPath = isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
     di.derivationType = DerivationType.bip39;
     await di.save();
-    credentials.walletInfo!.save();
+    await credentials.walletInfo!.save();
     credentials.walletInfo!.network = network;
     // ios will move our wallet directory when updating. Since we must
     // recalculate the new path every time we open the wallet, ensure this path
@@ -130,11 +125,8 @@ class DecredWalletService extends WalletService<
   }
 
   @override
-  Future<DecredWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<DecredWallet> openWallet(WalletInfo walletInfo, String password) async {
+
     final di = await walletInfo.getDerivationInfo();
     if (walletInfo.network == null || walletInfo.network == "") {
       walletInfo.network = di.derivationPath == seedRestorePathTestnet ||
@@ -146,14 +138,23 @@ class DecredWalletService extends WalletService<
 
     await this.init();
 
+    // TODO(wallet-id-refactor): this whole file always recomputes the wallet
+    // dir from an identifier rather than trusting walletInfo.dirPath — see
+    // create()'s comment about iOS relocating the directory. Needs a
+    // deliberate decision, not resolved here: does that iOS issue still  exist?
+    // If not, we can just use walletInfo.dirPath.
+    final dirPath = await pathForWalletDir(id: walletInfo.id, type: getType());
+
     // Cake wallet version 4.27.0 and earlier gave a wallet dir that did not
     // match the name. Move those to the correct place.
-    final dirPath = await pathForWalletDir(name: name, type: getType());
+
     if (walletInfo.path != "") {
       // On ios the stored dir no longer exists. We can only trust the basename.
       // dirPath may already be updated and lost the basename, so look at path.
       final randomBasename = basename(walletInfo.path);
-      final oldDir = await pathForWalletDir(name: randomBasename, type: getType());
+      final oldDir = await pathForWalletDir(
+          id: randomBasename,
+          type: getType()); // TODO: see note above — randomBasename is a legacy name, not an id
       if (oldDir != dirPath) {
         await this.moveWallet(oldDir, dirPath);
       }
@@ -164,13 +165,13 @@ class DecredWalletService extends WalletService<
     }
 
     final config = {
-      "name": name,
+      "name": walletInfo.name,
       "datadir": dirPath,
       "net": walletInfo.network,
       "unsyncedaddrs": true,
     };
     await libwallet!.loadWallet(jsonEncode(config));
-    final passphrase = await _loadPassphrase(name, password);
+    final passphrase = await _loadPassphrase(walletInfo, password);
     final wallet = _createWalletInstance(walletInfo, di, password, passphrase: passphrase);
     await wallet.init();
     await _persistSeedDerivationType(wallet);
@@ -178,43 +179,25 @@ class DecredWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
     final di = await currentWalletInfo.getDerivationInfo();
     final network =
-        di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
-            ? testnet
-            : mainnet;
+    di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
+        ? testnet
+        : mainnet;
     currentWalletInfo.network = network;
-    currentWalletInfo.save();
-    if (libwallet == null) {
-      libwallet = await Libwallet.spawn();
-      libwallet!.initLibdcrwallet("", "err");
-    }
-    final currentWallet = _createWalletInstance(currentWalletInfo, di, password);
+    await currentWalletInfo.save();
 
-    await currentWallet.renameWalletFiles(newName);
+// TODO(decred-id-refactor): this used to spawn/load a DecredWallet
+// instance here purely to call currentWallet.renameWalletFiles(newName).
+// That method's file-moving logic was removed in DecredWalletBase since
+// directories no longer move on rename — see wallet.dart's TODO. Still
+// unresolved: does libdcrwallet need to be told about the new name
+// internally (it appears to key an already-loaded wallet by name)? Needs
+// a real answer from libdcrwallet's contract before adding anything back.
 
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-    newWalletInfo.dirPath = "";
-    newWalletInfo.path = "";
-
-    await newWalletInfo.save();
+    currentWalletInfo.name = newName;
+    await currentWalletInfo.save();
   }
 
   @override
@@ -223,7 +206,7 @@ class DecredWalletService extends WalletService<
     validateDecredMnemonic(credentials.mnemonic);
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
-    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    final dirPath = credentials.walletInfo!.path;
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,
@@ -273,14 +256,13 @@ class DecredWalletService extends WalletService<
     );
   }
 
-  Future<String?> _loadPassphrase(String name, String password) async {
-    if (!await WalletKeysFile.hasKeysFile(name, getType())) {
+  Future<String?> _loadPassphrase(WalletInfo walletInfo, String password) async {
+    if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       return null;
     }
     try {
       final keys = await WalletKeysFile.readKeysFile(
-        name,
-        getType(),
+        walletInfo,
         password,
         _encryptionFileUtils,
       );
@@ -295,8 +277,7 @@ class DecredWalletService extends WalletService<
     if (seed == null || seed.isEmpty) {
       return;
     }
-    final expected =
-        bip39.validateMnemonic(seed) ? DerivationType.bip39 : DerivationType.def;
+    final expected = bip39.validateMnemonic(seed) ? DerivationType.bip39 : DerivationType.def;
     if (wallet.derivationInfo.derivationType == expected) {
       return;
     }
@@ -311,7 +292,7 @@ class DecredWalletService extends WalletService<
       {bool? isTestnet}) async {
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
-    final dirPath = await pathForWalletDir(name: credentials.walletInfo!.name, type: getType());
+    final dirPath = credentials.walletInfo!.path;
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,

@@ -1,21 +1,31 @@
-import 'package:cake_wallet/di.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/core/wallet_loading_service.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/entities/wallet_group_manager.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 Future<void> loadCurrentWallet({String? password}) async {
   final appStore = getIt.get<AppStore>();
+  final walletManager = getIt.get<WalletGroupManager>();
   final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
   final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
   if (name == null) {
-    throw Exception('Incorrect current wallet name: $name');
+    throw Exception("Incorrect current wallet name: $name");
   }
 
   final type = deserializeFromInt(typeRaw);
+  final walletInfo = await WalletInfo.get(name, type);
+
+  if (walletInfo == null) {
+    throw Exception("Wallet not found: $name");
+  }
+
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  final wallet = await walletLoadingService.load(type, name, password: password);
+  final wallet = await walletLoadingService.load(walletInfo, password: password);
   await appStore.changeCurrentWallet(wallet);
+  await walletManager.updateWalletGroups();
 }
