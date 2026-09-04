@@ -215,12 +215,7 @@ class _NewSendPageState extends State<NewSendPage> {
   final _addressFocusNode = FocusNode();
   final _disposers = <ReactionDisposer>[];
   StreamSubscription<Uri>? _deepLinkSubscription;
-  late final AnyPayFlow _anyPayFlow = AnyPayFlow(
-    anyPayService: widget.anyPayService,
-    sendViewModel: widget.sendViewModel,
-    authService: widget.authService,
-    walletSwitcherViewModel: widget.walletSwitcherViewModel,
-  );
+  late final AnyPayFlow _anyPayFlow;
   ContactRecord? newContactAddress;
 
   bool _justHandledPasteButton = false;
@@ -228,6 +223,12 @@ class _NewSendPageState extends State<NewSendPage> {
   @override
   void initState() {
     super.initState();
+    _anyPayFlow = AnyPayFlow(
+      anyPayService: widget.anyPayService,
+      sendViewModel: widget.sendViewModel,
+      authService: widget.authService,
+      walletSwitcherViewModel: widget.walletSwitcherViewModel,
+    );
     _addInputControllers();
 
     _disposers.add(

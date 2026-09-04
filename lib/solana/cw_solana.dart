@@ -131,11 +131,11 @@ class CWSolana extends Solana {
 
     final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
 
-    if (token == null) {
-      throw StateError('No SPL token for symbol ${transaction.amount.currency.symbol}');
+    if (token != null) {
+      return token;
     }
 
-    return token;
+    return transaction.amount.currency as CryptoCurrency;
   }
 
   @override
@@ -277,6 +277,8 @@ class CWSolana extends Solana {
               'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
             );
         }
+      } on JupiterSwapFailedException {
+        rethrow;
       } catch (e) {
         throw Exception('Failed to execute Jupiter swap: $e');
       }
@@ -384,6 +386,40 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<PendingTransaction> sendNFT(
+    WalletBase wallet, {
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  }) =>
+      (wallet as SolanaWallet).sendNFT(
+        mintAddress: mintAddress,
+        destinationAddress: destinationAddress,
+        name: name,
+      );
+
+  @override
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress) async {
+    final metadata = await (wallet as SolanaWallet).client.getNFTOnChainMetadata(mintAddress);
+
+    if (metadata == null) {
+      return null;
+    }
+
+    return SolanaNFTMetadata(
+      mint: metadata.mint,
+      name: metadata.name,
+      symbol: metadata.symbol,
+      metadataUri: metadata.metadataUri,
+      imageUrl: metadata.imageUrl,
+    );
+  }
+
+  @override
+  Future<Set<String>> getHeldTokenMints(WalletBase wallet) =>
+      (wallet as SolanaWallet).heldTokenMints();
+
+  @override
   Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
     if (wallet is! SolanaWallet) return;
 
@@ -421,7 +457,9 @@ class CWSolana extends Solana {
       if (discoveredMints.isNotEmpty) {
         await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
       }
-    } catch (_) {}
+    } catch (e) {
+      printV("Error discovering wallet tokens: ${e.toString()}");
+    }
   }
 
   @override

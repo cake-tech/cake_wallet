@@ -33,17 +33,19 @@ class SPLToken extends CryptoCurrency {
     required String mint,
     required String symbol,
     required String mintAddress,
+    required int decimal,
     String? iconPath,
     bool isPotentialScam = false,
-  }) => SPLToken(
-      name: name,
-      symbol: symbol,
-      mintAddress: mintAddress,
-      decimal: 0,
-      mint: mint,
-      iconPath: iconPath,
-      isPotentialScam: isPotentialScam,
-    );
+  }) =>
+      SPLToken(
+        name: name,
+        symbol: symbol,
+        mintAddress: mintAddress,
+        decimal: decimal,
+        mint: mint,
+        iconPath: iconPath,
+        isPotentialScam: isPotentialScam,
+      );
 
   SPLToken.copyWith(SPLToken other, {String? icon, String? tag, bool? enabled, String? walletName})
       : name = other.name,
@@ -130,19 +132,19 @@ class SPLToken extends CryptoCurrency {
   }
 
   Map<String, dynamic> toMap() => {
-      selfIdColumn: id,
-      "walletName": walletName,
-      "name": name,
-      "symbol": symbol,
-      "mintAddress": mintAddress,
-      "decimal": decimal,
-      "mint": mint,
-      "enabled": _enabled ? 1 : 0,
-      "iconPath": iconPath,
-      "networkIconUrl": networkIconUrl,
-      "tag": tag,
-      "isPotentialScam": isPotentialScam ? 1 : 0,
-    };
+        selfIdColumn: id,
+        "walletName": walletName,
+        "name": name,
+        "symbol": symbol,
+        "mintAddress": mintAddress,
+        "decimal": decimal,
+        "mint": mint,
+        "enabled": _enabled ? 1 : 0,
+        "iconPath": iconPath,
+        "networkIconUrl": networkIconUrl,
+        "tag": tag,
+        "isPotentialScam": isPotentialScam ? 1 : 0,
+      };
 
   static String get tableName => "SPLToken";
   static String get selfIdColumn => "${tableName}Id";
@@ -172,7 +174,8 @@ class SPLToken extends CryptoCurrency {
     return List.generate(list.length, (index) => SPLToken.fromMap(list[index]));
   }
 
-  static Future<List<SPLToken>> getAllForWallet(String walletName) async => selectList("walletName = ?", [walletName]);
+  static Future<List<SPLToken>> getAllForWallet(String walletName) async =>
+      selectList("walletName = ?", [walletName]);
 
   static Future<SPLToken?> getByMint(String walletName, String mintAddress) async {
     final list = await selectList("walletName = ? AND mintAddress = ?", [walletName, mintAddress]);
@@ -180,12 +183,13 @@ class SPLToken extends CryptoCurrency {
   }
 
   static Future<int> deleteForWallet(String walletName, String mintAddress) => db!.delete(
-      tableName,
-      where: "walletName = ? AND mintAddress = ?",
-      whereArgs: [walletName, mintAddress],
-    );
+        tableName,
+        where: "walletName = ? AND mintAddress = ?",
+        whereArgs: [walletName, mintAddress],
+      );
 
-  static Future<int> deleteAllForWallet(String walletName) => db!.delete(tableName, where: "walletName = ?", whereArgs: [walletName]);
+  static Future<int> deleteAllForWallet(String walletName) =>
+      db!.delete(tableName, where: "walletName = ?", whereArgs: [walletName]);
 
   static Future<void> renameWallet(String oldName, String newName) async {
     await db!.delete(tableName, where: "walletName = ?", whereArgs: [newName]);
