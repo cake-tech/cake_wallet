@@ -43,7 +43,7 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/db/sqlite.dart';
-import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/erc20_token_legacy.dart' show performErc20TokenHiveMigration;
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
@@ -51,8 +51,8 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/spl_token.dart';
-import 'package:cw_core/tron_token.dart';
+import 'package:cw_core/spl_token_legacy.dart' show performSplTokenHiveMigration;
+import 'package:cw_core/tron_token_legacy.dart' show performTronTokenHiveMigration;
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
@@ -265,18 +265,10 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
-    CakeHive.registerAdapter(Erc20TokenAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
-    CakeHive.registerAdapter(SPLTokenAdapter());
-  }
-
-  if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
-    CakeHive.registerAdapter(TronTokenAdapter());
-  }
   await performHiveMigration();
+  await performErc20TokenHiveMigration();
+  await performSplTokenHiveMigration();
+  await performTronTokenHiveMigration();
 
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =

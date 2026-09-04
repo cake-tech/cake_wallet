@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import "package:cake_wallet/core/auth_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
@@ -41,6 +42,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashbo
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
+import "package:cake_wallet/src/screens/dashboard/pages/nft_send_page.dart";
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
@@ -139,6 +141,7 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
@@ -357,9 +360,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ConnectDevicePageParams(
               walletType: availableWalletTypes.first,
               hardwareWalletType: hardwareWalletType,
-              onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                  Routes.chooseHardwareWalletAccount,
-                  arguments: [availableWalletTypes.first, hardwareWalletType]),
+              onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                Routes.chooseHardwareWalletAccount,
+                arguments: [availableWalletTypes.first, hardwareWalletType],
+              ),
               isReconnect: false,
             ),
             getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
@@ -369,19 +373,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
-                Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]);
+            onTypeSelected: (context, type) {
+              if (hardwareWalletType == HardwareWalletType.trezor &&
+                  !trezorUseNative.contains(type)) {
+                Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                );
                 return;
               }
 
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,
-                onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                    Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]),
+                onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                ),
                 isReconnect: false,
               );
 
@@ -440,6 +448,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
+      final initialRawInput = args?["rawLink"] as String?;
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return handleRouteWithPlatformAwareness(
@@ -447,6 +456,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           child: getIt.get<NewSendPage>(
             param1: SendPageParams(
                 initialPaymentRequest: initialPaymentRequest,
+                initialRawInput: initialRawInput,
                 unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
           ),
         ),
@@ -941,7 +951,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.nftDetailsPage:
-      return MaterialPageRoute<void>(
+      return MaterialPageRoute<bool>(
         builder: (_) => NFTDetailsPage(
           arguments: settings.arguments as NFTDetailsPageArguments,
           dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -952,6 +962,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => ImportNFTPage(
           nftViewModel: settings.arguments as NFTViewModel,
+        ),
+      );
+
+    case Routes.nftSendPage:
+      return MaterialPageRoute<bool>(
+        builder: (_) => NFTSendPage(
+          nftSendViewModel: getIt.get<NFTSendViewModel>(),
+          authService: getIt.get<AuthService>(),
+          arguments: settings.arguments as NFTSendPageArguments,
         ),
       );
 

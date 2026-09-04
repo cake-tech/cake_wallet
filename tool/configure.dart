@@ -127,6 +127,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
+import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
@@ -156,6 +157,7 @@ import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
+import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
@@ -274,7 +276,7 @@ abstract class Bitcoin {
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
-  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect, bool isBitcoin);
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
@@ -338,9 +340,9 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -486,6 +488,11 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   Future<void> syncTrezor(Object wallet);
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
+  Future<int> getNodeHeight(Object wallet);
+  String getLegacySeed(Object wallet, String langName);
+  bool isBackgroundSyncRunning(Object wallet);
+  Future<void> startBackgroundSync(Object wallet);
+  Future<void> stopBackgroundSync(Object wallet, String password);
 }
 
 abstract class MoneroSubaddressList {
@@ -921,6 +928,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 """;
   const solanaCWHeaders = """
@@ -1016,7 +1024,16 @@ abstract class Solana {
   });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
-  
+
+  Future<PendingTransaction> sendNFT(
+    WalletBase wallet, {
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  });
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress);
+  Future<Set<String>> getHeldTokenMints(WalletBase wallet);
+
   TransactionInfo getTransactionInfo({
     required String id,
     required DateTime blockTime,
@@ -1027,6 +1044,22 @@ abstract class Solana {
     required bool isPending,
     required Money fee,
   });
+}
+
+class SolanaNFTMetadata {
+  const SolanaNFTMetadata({
+    required this.mint,
+    required this.name,
+    required this.symbol,
+    required this.metadataUri,
+    this.imageUrl,
+  });
+
+  final String mint;
+  final String name;
+  final String symbol;
+  final String metadataUri;
+  final String? imageUrl;
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1176,6 +1209,7 @@ import 'package:cw_core/zano_asset.dart';
 import 'package:hive/hive.dart';
 """;
   const zanoCWHeaders = """
+import 'package:cw_zano/bip39_seed.dart' as zano_bip39;
 import 'package:cw_zano/mnemonics/english.dart';
 import 'package:cw_zano/model/zano_transaction_credentials.dart';
 import 'package:cw_zano/model/zano_transaction_info.dart';
@@ -1194,12 +1228,12 @@ abstract class Zano {
   List<String> getWordList(String language);
 
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
-  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password, required String? passphrase});
+  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password, required String? passphrase, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
-  WalletService createZanoWalletService();
+  WalletService createZanoWalletService(bool isDirect);
   CryptoCurrency? assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
@@ -1209,6 +1243,8 @@ abstract class Zano {
   Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
   String getAddress(WalletBase wallet);
   bool validateAddress(String address);
+  bool isBip39Seed(String mnemonic);
+  int getHeightByDate({required DateTime date});
   Map<String, List<int>> debugCallLength();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
@@ -1257,12 +1293,12 @@ import 'package:cw_decred/mnemonic.dart';
 
 abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, String? password, String? passphrase, String? mnemonic, WalletInfo? walletInfo});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDecredTransactionPriorityMedium();
@@ -1774,7 +1810,7 @@ abstract class Zcash {
   bool showMissingFundsCard(WalletBase wallet);
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
-  Future<bool> hasOrchardMigratableBalance(WalletBase wallet);
+  bool hasOrchardMigratableBalance(WalletBase wallet);
 }
   """;
 

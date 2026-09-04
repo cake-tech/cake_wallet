@@ -101,6 +101,7 @@ class ReceiveQrCode extends StatelessWidget {
                                   child: QrImage(
                                     data: qrData,
                                     size: qrSize,
+                                    semanticsLabel: S.of(context).qr_code_receive_address,
                                     embeddedImagePath: embeddedIconAsset,
                                   ),
                                 ),
@@ -112,23 +113,29 @@ class ReceiveQrCode extends StatelessWidget {
                       ),
                     ),
                     if (hasPayjoin)
-                      Opacity(
-                        opacity: largeQrMode ? 0 : 1,
-                        child: Container(
-                          width: qrSize,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 4,
-                              children: [
-                                const CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
-                                Text(S.of(context).payjoin_enabled),
-                              ],
+                      // Hidden but still mounted in large-QR mode; keep it out
+                      // of the semantics tree there so it isn't a focus stop.
+                      ExcludeSemantics(
+                        excluding: largeQrMode,
+                        child: Opacity(
+                          opacity: largeQrMode ? 0 : 1,
+                          child: Container(
+                            width: qrSize,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.vertical(bottom: Radius.circular(16)),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                spacing: 4,
+                                children: [
+                                  const CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
+                                  Text(S.of(context).payjoin_enabled),
+                                ],
+                              ),
                             ),
                           ),
                         ),

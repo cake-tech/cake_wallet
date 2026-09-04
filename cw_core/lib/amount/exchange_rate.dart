@@ -5,14 +5,14 @@ import "package:cw_core/amount/money_double.dart";
 import 'package:cw_core/currency.dart';
 
 class ExchangeRate {
+  const ExchangeRate({required this.base, required this.quote});
+
   /// The currency being priced (e.g. BTC in a BTC/USD pair).
   final Currency base;
 
   /// The price of one whole unit of [base], in the quote currency
   /// (e.g. 45000 USD in a BTC/USD pair).
   final Money quote;
-
-  const ExchangeRate({required this.base, required this.quote});
 
   /// Builds a pair from a raw [rate], the price of one whole [base] unit in
   /// [quoteCurrency].
@@ -47,23 +47,31 @@ class ExchangeRate {
   /// Throws an [ArgumentError] if [amount]'s currency is not part of
   /// this pair.
   Money convert(Money amount) {
-    if (base == quote.currency && base == amount.currency) return amount;
-
-    final scale = BigInt.from(10).pow(base.decimals);
+    if (base == quote.currency && base == amount.currency) {
+      return amount;
+    }
 
     if (amount.currency == base) {
-      if (quote.isZero) return Money.zero(quote.currency);
+      final scale = BigInt.from(10).pow(amount.decimals);
 
-      return Money(amount.amount * quote.amount ~/ scale, quote.currency);
+      return quote.isZero
+          ? Money.zero(quote.currency)
+          : Money(amount.amount * quote.amount ~/ scale, quote.currency, quote.decimals);
     }
 
     if (amount.currency == quote.currency) {
-      if (quote.isZero) return Money.zero(base);
+      if (quote.isZero) {
+        return Money.zero(base);
+      }
 
-      return Money(amount.amount * scale ~/ quote.amount, base);
+      final numerator = amount.amount * BigInt.from(10).pow(base.decimals + quote.decimals);
+      final denominator = quote.amount * BigInt.from(10).pow(amount.decimals);
+
+      return Money(numerator ~/ denominator, base);
     }
 
     throw ArgumentError(
-        "Unable to convert ${amount.currency.symbol} in ${base.symbol}/${quote.currency.symbol} pair");
+      "Unable to convert ${amount.currency.symbol} in ${base.symbol}/${quote.currency.symbol} pair",
+    );
   }
 }

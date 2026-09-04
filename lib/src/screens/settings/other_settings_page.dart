@@ -143,6 +143,7 @@ class OtherSettingsPage extends BasePage {
                 },
               }),
             ),
+          if(_otherSettingsViewModel.hasSignVerify)
           ListItemRegularRow(
               keyValue: "security_backup_page_sign_and_verify",
               label: S.of(context).sign_verify_title,
@@ -152,10 +153,12 @@ class OtherSettingsPage extends BasePage {
         ],
         if (_otherSettingsViewModel.walletType == WalletType.bitcoin)
           "btc_logging": [
+            if(_otherSettingsViewModel.hasLightning)
             ListItemRegularRow(
                 keyValue: "export_lightning_logs",
                 label: S.of(context).export_lightning_logs,
                 onTap: () => onExportLNLog(context)),
+            if(_otherSettingsViewModel.hasPayjoin)
             ListItemRegularRow(
                 keyValue: "export_payjoin_logs",
                 label: S.of(context).export_payjoin_logs,

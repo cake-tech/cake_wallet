@@ -84,7 +84,11 @@ class _DashboardPageState extends State<DashboardPage> {
 
     final dashboardPageView = RefreshIndicator(
       displacement: responsiveLayoutUtil.screenHeight * 0.1,
-      onRefresh: () async => await widget.dashboardViewModel.refreshDashboard(),
+      onRefresh: () async {
+        unawaited(widget.balancePage.nftViewModel.getNFTAssetByWallet());
+
+        await widget.dashboardViewModel.refreshDashboard();
+      },
       child: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         child: Container(
