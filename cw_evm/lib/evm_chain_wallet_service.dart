@@ -148,7 +148,7 @@ class EVMChainWalletService extends WalletService<
     for (final nft in ownNFTs) {
       await ImportedNFT.copyWith(nft, walletName: newName).save();
     }
-    }
+
   }
 
   @override

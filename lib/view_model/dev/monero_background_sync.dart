@@ -96,6 +96,7 @@ abstract class DevMoneroBackgroundSyncBase with Store {
   @action
   Future<void> stopBackgroundSync() async {
     final keyService = getIt.get<KeyService>();
-    await w.stopBackgroundSync(await keyService.getWalletPasswordForWallet(wallet.walletInfo));
+    final password = await keyService.getWalletPasswordForWallet(wallet.walletInfo);
+    await monero!.stopBackgroundSync(wallet, password);
   }
 }
