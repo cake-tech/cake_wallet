@@ -79,7 +79,7 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
                         key: ValueKey(
                             'wallet_group_existing_seed_description_page_verify_seed_button_key'),
                         onPressed: () => Navigator.pushNamed(context, Routes.preSeedPage),
-                        text: S.current.verify_seed,
+                        text: S.current.verify_phrase,
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                       ),

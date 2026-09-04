@@ -36,6 +36,7 @@ class AuthService with Store {
 
   static const List<String> _alwaysAuthenticateRoutes = [
     Routes.showKeys,
+    Routes.seed,
     Routes.backup,
     Routes.setupPin,
     Routes.setup_2faPage,

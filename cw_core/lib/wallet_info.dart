@@ -349,7 +349,8 @@ class WalletInfo {
       this.addressPageType,
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
-      this.favoriteTokenAddress)
+      this.favoriteTokenAddress,
+      this.showSeedBackupReminder)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -397,7 +398,8 @@ class WalletInfo {
         null,
         receiveInfoboxDismissed ?? false,
         showCombinedBalance ?? true,
-        favoriteTokenAddress);
+        favoriteTokenAddress,
+        false);
   }
 
   static String get tableName => 'walletInfo';
@@ -418,6 +420,7 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  bool showSeedBackupReminder;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -587,6 +590,7 @@ class WalletInfo {
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
+        "showSeedBackupReminder": showSeedBackupReminder ? 1 : 0,
         "network": network,
       };
 
@@ -616,7 +620,8 @@ class WalletInfo {
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
-        json["favoriteTokenAddress"] as String? ?? null);
+        json["favoriteTokenAddress"] as String? ?? null,
+        json['showSeedBackupReminder'] == 1);
     info.network = json['network'] as String?;
     return info;
   }
@@ -663,5 +668,15 @@ class WalletInfo {
   Future<void> updateRestoreHeight(int height) async {
     restoreHeight = height;
     await save();
+  }
+
+  Future<void> updateShowSeedBackupReminder(bool show) async {
+    showSeedBackupReminder = show;
+
+    try {
+      await save();
+    } catch (e) {
+      printV("Failed to save the seed backup reminder flag: $e");
+    }
   }
 }
