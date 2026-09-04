@@ -909,8 +909,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "69b3276b090fa6ac01b4483ca3adca93a8e615be"
-      resolved-ref: "69b3276b090fa6ac01b4483ca3adca93a8e615be"
+      ref: d53afcca247ed4a700d90368fe71b3880c816990
+      resolved-ref: d53afcca247ed4a700d90368fe71b3880c816990
       url: "https://github.com/MrCyjaneK/fast_scanner"
     source: git
     version: "5.1.1"
@@ -2935,7 +2935,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7

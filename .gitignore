@@ -219,6 +219,7 @@ flatpak-build/
 **/linux/flutter/generated_plugins.cmake
 
 scripts/torch_dart/
+scripts/scanqr_c_gozxing
 fiat-check-output.txt
 scripts/zcash_lib
 scripts/android/yttrium
