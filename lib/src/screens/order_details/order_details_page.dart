@@ -1,10 +1,12 @@
 import 'package:cake_wallet/src/screens/order_details/cake_pay_detail_list_card_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/cake_pay_order_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +16,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:mobx/mobx.dart';
 
 class OrderDetailsPage extends BasePage {
   OrderDetailsPage(this.orderDetailsViewModel);
@@ -43,11 +46,44 @@ class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
 
   final OrderDetailsViewModel orderDetailsViewModel;
   final MaterialThemeBase currentTheme;
+  ReactionDisposer? _sessionExpiredReaction;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _sessionExpiredReaction = reaction<bool>(
+      (_) => orderDetailsViewModel.isCakePaySessionExpired,
+      (isExpired) {
+        if (!isExpired) {
+          return;
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) {
+            return;
+          }
+
+          showPopUp<void>(
+            context: context,
+            builder: (dialogContext) => AlertWithOneAction(
+              alertTitle: S.of(dialogContext).error,
+              alertContent: S.of(dialogContext).cake_pay_session_expired,
+              buttonText: S.of(dialogContext).ok,
+              buttonAction: () => Navigator.of(dialogContext).pop(),
+            ),
+          );
+        });
+      },
+      fireImmediately: true,
+    );
+  }
 
   @override
   void dispose() {
-    super.dispose();
+    _sessionExpiredReaction?.call();
     orderDetailsViewModel.timer?.cancel();
+    super.dispose();
   }
 
   @override

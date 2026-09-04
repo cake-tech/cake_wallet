@@ -1,3 +1,5 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,9 +20,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/transaction_direction.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -102,7 +101,11 @@ class _NewHomePageState extends State<NewHomePage> {
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
-                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                    onRefresh: () {
+                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+                      return widget.dashboardViewModel.refreshDashboard();
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(

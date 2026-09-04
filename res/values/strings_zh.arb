@@ -686,6 +686,10 @@
   "new_transactions_notifications": "发送新交易通知",
   "new_wallet": "新钱包",
   "newConnection": "新连接",
+  "nft_import_failed": "无法导入此 NFT。检查地址并重试。",
+  "nft_not_held_by_wallet": "不属于该钱包",
+  "nft_send_not_an_nft": "该资产不是 NFT，因此无法从这里发送。",
+  "nft_some_not_loaded": "部分NFT无法加载",
   "nfts": "NFTs",
   "no": "否",
   "no_cards_found": "未找到卡片",
@@ -847,6 +851,7 @@
   "received": "已接收",
   "receiving": "接收",
   "recieving": "接收中",
+  "recipient_account_creation_fee": "需要额外的 ${amount} 来为收件人创建一个令牌帐户，因为他们还没有令牌帐户。",
   "recipient_address": "收款地址",
   "reconnect": "重新连接",
   "reconnect_alert_text": "您确定要重新连接吗？",
@@ -1405,6 +1410,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "钱包",
   "warning": "警告",
+  "watching": "仅供查看",
   "wc_action_approve": "批准",
   "wc_approve_request_title": "批准请求",
   "wc_connect_request_title": "连接请求",
@@ -1476,6 +1482,5 @@
   "zcash_card_enable_later": "您随时可以在设置中启用此卡",
   "zcash_card_missing_funds": "资金不见了？",
   "zcash_card_scan": "扫描",
-  "zcash_card_warning": "在该过程完成之前请勿关闭应用程序，否则该过程将需要从头重新开始。",
-  "recipient_account_creation_fee": "需要额外的 ${amount} 来为收件人创建一个令牌帐户，因为他们还没有令牌帐户。"
+  "zcash_card_warning": "在该过程完成之前请勿关闭应用程序，否则该过程将需要从头重新开始。"
 }

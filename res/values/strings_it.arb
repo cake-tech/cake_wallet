@@ -685,6 +685,10 @@
   "new_transactions_notifications": "Invia notifiche per le nuove transazioni",
   "new_wallet": "Nuovo wallet",
   "newConnection": "Nuova connessione",
+  "nft_import_failed": "Impossibile importare questo NFT. Controlla l'indirizzo e riprova.",
+  "nft_not_held_by_wallet": "Non trattenuto da questo portafoglio",
+  "nft_send_not_an_nft": "Questa risorsa non è un NFT, quindi non può essere inviata da qui.",
+  "nft_some_not_loaded": "Impossibile caricare alcuni NFT",
   "nfts": "NFT",
   "no": "No",
   "no_cards_found": "Nessuna carta trovata",
@@ -847,6 +851,7 @@
   "received": "Ricevuto",
   "receiving": "Ricezione",
   "recieving": "Ricezione",
+  "recipient_account_creation_fee": "È necessario un extra di ${amount} per creare un account token per il destinatario, perché non ne ha ancora uno.",
   "recipient_address": "Indirizzo del destinatario",
   "reconnect": "Riconnetti",
   "reconnect_alert_text": "Sei sicuro di voler riconnetterti?",
@@ -1406,6 +1411,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Portafogli",
   "warning": "Attenzione",
+  "watching": "Solo visualizzazione",
   "wc_action_approve": "Approva",
   "wc_approve_request_title": "Approva la richiesta",
   "wc_connect_request_title": "Richiesta di connessione",
@@ -1478,6 +1484,5 @@
   "zcash_card_enable_later": "Puoi sempre abilitare questa carta in seguito nelle impostazioni",
   "zcash_card_missing_funds": "Fondi mancanti?",
   "zcash_card_scan": "Scansiona",
-  "zcash_card_warning": "Non chiudere l'app finché la procedura non è completata, altrimenti sarà necessario riavviare il processo da zero.",
-  "recipient_account_creation_fee": "È necessario un extra di ${amount} per creare un account token per il destinatario, perché non ne ha ancora uno."
+  "zcash_card_warning": "Non chiudere l'app finché la procedura non è completata, altrimenti sarà necessario riavviare il processo da zero."
 }

@@ -685,6 +685,10 @@
   "new_transactions_notifications": "ส่งการแจ้งเตือนเกี่ยวกับธุรกรรมใหม่",
   "new_wallet": "กระเป๋าเงินใหม่",
   "newConnection": "การเชื่อมต่อใหม่",
+  "nft_import_failed": "ไม่สามารถนำเข้า NFT นี้ ตรวจสอบที่อยู่แล้วลองอีกครั้ง",
+  "nft_not_held_by_wallet": "ไม่ได้ถือโดยกระเป๋าเงินนี้",
+  "nft_send_not_an_nft": "เนื้อหานี้ไม่ใช่ NFT ดังนั้นจึงไม่สามารถส่งจากที่นี่ได้",
+  "nft_some_not_loaded": "NFT บางตัวไม่สามารถโหลดได้",
   "nfts": "NFTs",
   "no": "ไม่",
   "no_cards_found": "ไม่พบการ์ด",
@@ -846,6 +850,7 @@
   "received": "ได้รับ",
   "receiving": "กำลังรับ",
   "recieving": "กำลังรับ",
+  "recipient_account_creation_fee": "จำเป็นต้องมี ${amount} เพิ่มเติมเพื่อสร้างบัญชีโทเค็นสำหรับผู้รับ เนื่องจากยังไม่มีบัญชี",
   "recipient_address": "ที่อยู่ผู้รับ",
   "reconnect": "เชื่อมต่อใหม่",
   "reconnect_alert_text": "คุณแน่ใจหรือไม่ว่าต้องการเชื่อมต่อใหม่?",
@@ -1404,6 +1409,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "กระเป๋าเงิน",
   "warning": "คำเตือน",
+  "watching": "ดูอย่างเดียว",
   "wc_action_approve": "อนุมัติ",
   "wc_approve_request_title": "อนุมัติคำขอ",
   "wc_connect_request_title": "เชื่อมต่อคำขอ",
@@ -1475,6 +1481,5 @@
   "zcash_card_enable_later": "คุณสามารถเปิดใช้งานการ์ดนี้ได้เสมอในภายหลังในการตั้งค่า",
   "zcash_card_missing_funds": "ยอดเงินหายไป?",
   "zcash_card_scan": "สแกน",
-  "zcash_card_warning": "อย่าปิดแอปจนกว่าขั้นตอนจะเสร็จสิ้น หากคุณปิดแอป กระบวนการนี้จะต้องเริ่มใหม่ตั้งแต่ต้น",
-  "recipient_account_creation_fee": "จำเป็นต้องมี ${amount} เพิ่มเติมเพื่อสร้างบัญชีโทเค็นสำหรับผู้รับ เนื่องจากยังไม่มีบัญชี"
+  "zcash_card_warning": "อย่าปิดแอปจนกว่าขั้นตอนจะเสร็จสิ้น หากคุณปิดแอป กระบวนการนี้จะต้องเริ่มใหม่ตั้งแต่ต้น"
 }

@@ -139,6 +139,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.zcash:
         return zcash!.createZcashNewWalletCredentials(
