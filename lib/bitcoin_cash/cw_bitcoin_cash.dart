@@ -1,4 +1,4 @@
-part of 'bitcoin_cash.dart';
+part of "bitcoin_cash.dart";
 
 class CWBitcoinCash extends BitcoinCash {
   @override
@@ -6,9 +6,10 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   WalletService createBitcoinCashWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return BitcoinCashWalletService(unspentCoinSource, isDirect);
-  }
+    Box<UnspentCoinsInfo> unspentCoinSource, {
+    required bool isDirect,
+  }) =>
+      BitcoinCashWalletService(unspentCoinSource, isDirect: isDirect);
 
   @override
   WalletCredentials createBitcoinCashNewWalletCredentials({
@@ -27,13 +28,18 @@ class CWBitcoinCash extends BitcoinCash {
       );
 
   @override
-  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-          {required String name,
-          required String mnemonic,
-          required String password,
-          String? passphrase}) =>
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    String? passphrase,
+  }) =>
       BitcoinCashRestoreWalletFromSeedCredentials(
-          name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
+        name: name,
+        mnemonic: mnemonic,
+        password: password,
+        passphrase: passphrase,
+      );
 
   @override
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw) =>
