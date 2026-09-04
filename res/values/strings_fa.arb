@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "با خاموش کردن این گزینه، ممکن است نرخ کارمزدها در برخی موارد دقیق نباشد؛ بنابراین ممکن است برای تراکنش‌های خود کارمزد را بیش از حد یا کمتر از حد پرداخت کنید",
   "disable_fiat": "غیرفعال کردن فیات",
   "disable_sell": "غیرفعال کردن عملیات فروش",
+  "disable_token_image_refresh": "غیرفعال کردن Token Image Refresh",
   "disable_tor": "غیرفعال کردن Tor",
   "disable_trade_option": "غیرفعال کردن گزینهٔ معامله",
   "disableBatteryOptimization": "غیرفعال کردن بهینه‌سازی باتری",

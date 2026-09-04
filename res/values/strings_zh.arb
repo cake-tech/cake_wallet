@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "关闭此选项后，在某些情况下手续费费率可能不准确，因此您最终可能会为交易手续费多付或少付",
   "disable_fiat": "禁用法币",
   "disable_sell": "禁用卖出操作",
+  "disable_token_image_refresh": "禁用令牌图像刷新",
   "disable_tor": "禁用 Tor",
   "disable_trade_option": "禁用交易选项",
   "disableBatteryOptimization": "关闭电池优化",

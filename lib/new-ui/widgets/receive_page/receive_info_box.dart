@@ -201,6 +201,7 @@ class InfoboxCurrencyRow extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(9999999)),
                             child: TokenImageWidget(
                               imageUrl: entry.value.iconPath ?? '',
+                              networkImageUrl: entry.value.networkIconUrl,
                               size: 24,
                             ),
                           ),

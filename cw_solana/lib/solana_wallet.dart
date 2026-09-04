@@ -167,11 +167,68 @@ abstract class SolanaWalletBase
       );
       if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
+        token.networkIconUrl = null;
         await token.save();
       }
     }
 
     await prefs.setBool(_scamCheckDoneKey, true);
+  }
+
+  bool _iconRefreshInFlight = false;
+
+  Future<void> _refreshTokenIcons() async {
+    if (_iconRefreshInFlight) {
+      return;
+    }
+
+    _iconRefreshInFlight = true;
+
+    try {
+      final prefs = await _sharedPrefs.future;
+
+      if (prefs.getBool("disable_token_image_refresh") ?? false) {
+        return;
+      }
+
+      final tokens = _splTokens.toList()
+        ..sort((a, b) => (b.enabled ? 1 : 0).compareTo(a.enabled ? 1 : 0));
+
+      for (final token in tokens) {
+        if (token.isPotentialScam || !token.hasPlaceholderIcon) {
+          continue;
+        }
+
+        try {
+          final fetched = await _client.getTokenInfo(token.mintAddress);
+
+          final logoUrl = fetched?.iconPath;
+
+          if (logoUrl == null || !logoUrl.startsWith("http")) {
+            continue;
+          }
+
+          final exists = await SPLToken.getByMint(walletInfo.name, token.mintAddress);
+
+          if (exists == null) {
+            continue;
+          }
+
+          if (token.isPotentialScam) {
+            continue;
+          }
+
+          token.networkIconUrl = logoUrl;
+          await token.save();
+        } catch (e) {
+          printV("Failed to fetch icon url for ${token.symbol}: $e");
+        }
+      }
+    } catch (e) {
+      printV("Token icon refresh failed: $e");
+    } finally {
+      _iconRefreshInFlight = false;
+    }
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -767,11 +824,13 @@ abstract class SolanaWalletBase
         token,
         enabled: existingToken?.enabled ?? token.enabled,
         walletName: walletInfo.name,
-      );
+      )..networkIconUrl = existingToken?.networkIconUrl;
 
       await newToken.save();
       _upsertCachedToken(newToken);
     }
+
+    _refreshTokenIcons();
   }
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {

@@ -6,6 +6,7 @@ class CakeImageWidget extends StatelessWidget {
   const CakeImageWidget({
     super.key,
     this.imageUrl,
+    this.fallbackImagePath,
     this.height,
     this.width,
     this.fit,
@@ -21,6 +22,7 @@ class CakeImageWidget extends StatelessWidget {
   });
 
   final String? imageUrl;
+  final String? fallbackImagePath;
   final double? height;
   final double? width;
   final BoxFit? fit;
@@ -93,6 +95,24 @@ class CakeImageWidget extends StatelessWidget {
         );
       }
     } else {
+      final Widget? fallbackImage = (fallbackImagePath?.isNotEmpty ?? false)
+          ? CakeImageWidget(
+              imageUrl: fallbackImagePath,
+              height: height,
+              width: width,
+              fit: fit,
+              loadingWidget: loadingWidget,
+              errorWidget: errorWidget,
+              color: color,
+              colorFilter: colorFilter,
+              borderRadius: borderRadius,
+              alignment: alignment,
+              allowDrawingOutsideViewBox: allowDrawingOutsideViewBox,
+              filterQuality: filterQuality,
+              semanticsLabel: semanticsLabel,
+            )
+          : null;
+
       imageWidget = isSvg
           ? SvgPicture.network(
               imageUrl!,
@@ -104,8 +124,8 @@ class CakeImageWidget extends StatelessWidget {
               fit: fit ?? BoxFit.contain,
               semanticsLabel: semanticsLabel,
               excludeFromSemantics: _isDecorative,
-              placeholderBuilder: (_) => _buildLoadingWidget(),
-              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
+              placeholderBuilder: (_) => fallbackImage ?? _buildLoadingWidget(),
+              errorBuilder: (_, __, ___) => fallbackImage ?? _buildErrorWidget(context),
             )
           : Image.network(
               imageUrl!,
@@ -118,9 +138,9 @@ class CakeImageWidget extends StatelessWidget {
               excludeFromSemantics: _isDecorative,
               loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
                 if (progress == null) return child;
-                return _buildLoadingWidget();
+                return fallbackImage ?? _buildLoadingWidget();
               },
-              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
+              errorBuilder: (_, __, ___) => fallbackImage ?? _buildErrorWidget(context),
             );
     }
 

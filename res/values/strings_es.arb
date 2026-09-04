@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Al desactivar esto, las tarifas de comisión podrían ser inexactas en algunos casos, por lo que podría acabar pagando de más o de menos las comisiones de sus transacciones.",
   "disable_fiat": "Desactivar moneda fiat",
   "disable_sell": "Desactivar acción de venta",
+  "disable_token_image_refresh": "Deshabilitar la actualización de la imagen del token",
   "disable_tor": "Desactivar Tor",
   "disable_trade_option": "Desactivar la opción de intercambio",
   "disableBatteryOptimization": "Desactivar la optimización de batería",

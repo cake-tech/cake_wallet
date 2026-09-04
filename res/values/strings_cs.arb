@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Vypnutím této funkce mohou být sazby poplatků v některých případech nepřesné, takže můžete za transakční poplatky zaplatit více nebo méně, než je potřeba",
   "disable_fiat": "Zakázat fiat",
   "disable_sell": "Zakázat akci prodeje",
+  "disable_token_image_refresh": "Zakázat aktualizaci obrázku tokenu",
   "disable_tor": "Zakázat Tor",
   "disable_trade_option": "Zakázat možnost obchodování",
   "disableBatteryOptimization": "Vypnout optimalizaci baterie",

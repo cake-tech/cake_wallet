@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "En désactivant cette option, les taux de frais peuvent être inexacts dans certains cas ; vous pourriez donc finir par payer trop ou pas assez de frais pour vos transactions.",
   "disable_fiat": "Désactiver la monnaie fiduciaire",
   "disable_sell": "Désactiver l'action de vente",
+  "disable_token_image_refresh": "Désactiver l'actualisation de l'image du jeton",
   "disable_tor": "Désactiver Tor",
   "disable_trade_option": "Désactiver l'option d'échange",
   "disableBatteryOptimization": "Désactiver l'optimisation de la batterie",

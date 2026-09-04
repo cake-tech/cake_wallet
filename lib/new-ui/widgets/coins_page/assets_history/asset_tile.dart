@@ -94,10 +94,18 @@ class AssetTile extends StatelessWidget {
                         children: [
                           // Decorative: the asset name is already in the row text.
                           ExcludeSemantics(
-                            child: iconPath.isNotEmpty
+                            child: iconPath.isNotEmpty || balance.asset.networkIconUrl != null
                                 ? TokenImageWidget(
                                     imageUrl: iconPath,
+                                    networkImageUrl: balance.asset.networkIconUrl,
                                     size: 36,
+                                    errorWidget: Text(
+                                      balance.asset.name
+                                          .substring(0, min(2, balance.asset.name.length)),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
+                                    ),
                                   )
                                 : Container(
                                     width: 36,

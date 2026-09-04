@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Ta hanyar kashe wannan, ƙimar kuɗin ma'amala na iya zama ba daidai ba a wasu lokuta, don haka za ka iya ƙarewa kana biyan kuɗin ma'amala fiye da kima ko ƙasa da kima.",
   "disable_fiat": "Kashe fiat",
   "disable_sell": "Kashe aikin sayarwa",
+  "disable_token_image_refresh": "Kashe Farkon Hoto Token",
   "disable_tor": "Kashe Tor",
   "disable_trade_option": "Kashe zaɓin ciniki",
   "disableBatteryOptimization": "Kashe inganta amfani da baturi",

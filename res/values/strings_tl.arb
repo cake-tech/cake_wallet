@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Kapag in-off mo ito, maaaring hindi tumpak ang mga rate ng fee sa ilang pagkakataon, kaya maaari kang mapadagdag o makulangan sa pagbabayad ng fee para sa iyong mga transaksyon",
   "disable_fiat": "I-disable ang fiat",
   "disable_sell": "I-disable ang pagbebenta",
+  "disable_token_image_refresh": "Huwag paganahin ang Token Image Refresh",
   "disable_tor": "I-disable ang Tor",
   "disable_trade_option": "I-disable ang opsyon sa trade",
   "disableBatteryOptimization": "I-disable ang Pag-optimize ng Baterya",

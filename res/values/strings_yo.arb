@@ -360,6 +360,7 @@
   "disable_fee_api_warning": "Nípa pípà èyí, àwọn oṣuwọn owó ìdúná le má ṣe tọ́nà ní àwọn ìgbà kan, nítorí náà o lè parí ní sísan owó ìdúná ju tàbí kéré ju fún àwọn ìdúnà rẹ",
   "disable_fiat": "Pa fiat",
   "disable_sell": "Pa iṣẹ́ títà dúró",
+  "disable_token_image_refresh": "Pa àmi Aworan Sọ",
   "disable_tor": "Pa Tor",
   "disable_trade_option": "Pa aṣayan iṣowo",
   "disableBatteryOptimization": "Pa Imudára Batiri Dúró",
