@@ -50,6 +50,7 @@ void main() {
         walletInfoId INTEGER,
         accountIndex INTEGER DEFAULT -1,
         gradientIndex INTEGER DEFAULT -1,
+        hidden BOOLEAN DEFAULT FALSE,
         useSpecialDesign BOOLEAN DEFAULT FALSE,
         backgroundImagePath TEXT DEFAULT "",
         iconStyleIndex INTEGER DEFAULT 0,

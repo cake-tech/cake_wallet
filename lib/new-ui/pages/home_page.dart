@@ -2,11 +2,13 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/account_education_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
@@ -16,6 +18,9 @@ import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -182,6 +187,14 @@ class _NewHomePageState extends State<NewHomePage> {
                               ),
                             ],
                           ),
+                          if (_supportsAccountEducationAndArchival &&
+                              accountListViewModel != null &&
+                              !_lightningMode)
+                            AccountsPromo(
+                              preferences: widget.dashboardViewModel.sharedPreferences,
+                              walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
+                              onTap: _openAccountsFromPromo,
+                            ),
                           Observer(
                             builder: (_) {
                               return Column(
@@ -238,10 +251,36 @@ class _NewHomePageState extends State<NewHomePage> {
 
   Future<void> openAccountCustomizer() async {
     final accountList = accountListViewModel;
-    if (accountList == null) {
+    if (accountList == null || !_checkReadyToManage()) {
+      return;
+    }
+    await _showAccountCustomizer(accountList);
+  }
+
+  Future<void> _openAccountsFromPromo() async {
+    if (!_supportsAccountEducationAndArchival) {
       return;
     }
 
+    final accountList = accountListViewModel;
+    if (accountList == null || !_checkReadyToManage()) {
+      return;
+    }
+
+    await AccountEducationPage.show(
+      context,
+      widget.dashboardViewModel.sharedPreferences,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _showAccountCustomizer(accountList);
+  }
+
+  bool get _supportsAccountEducationAndArchival =>
+      supportsAccountEducationAndArchival(widget.dashboardViewModel.wallet.type);
+
+  Future<void> _showAccountCustomizer(MoneroAccountListViewModel accountList) async {
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
@@ -258,13 +297,21 @@ class _NewHomePageState extends State<NewHomePage> {
         );
       },
     );
+    if (!mounted) {
+      return;
+    }
     await widget.dashboardViewModel.loadCardDesigns();
   }
 
   void openCardCustomizer() async {
+    if (!_checkReadyToManage()) {
+      return;
+    }
     final bloc = getIt.get<CardCustomizerBloc>(
-        param1: _lightningMode,
-        param2: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi);
+        param1: CardCustomizerBlocParams(
+            lightningMode: _lightningMode,
+            amountDisplayMode: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
+            canHide: false));
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
@@ -272,8 +319,8 @@ class _NewHomePageState extends State<NewHomePage> {
         return ModalNavigator(
             parentContext: context,
             heightMode: ModalHeightModes.fullScreen,
-            rootPage: BlocProvider(
-              create: (context) => bloc,
+            rootPage: BlocProvider.value(
+              value: bloc,
               child: Material(
                   child: CardCustomizer(
                 cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
@@ -286,5 +333,21 @@ class _NewHomePageState extends State<NewHomePage> {
     bloc.add(DesignSaved());
     await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
     widget.dashboardViewModel.loadCardDesigns();
+  }
+
+  bool _checkReadyToManage() {
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).wallet_is_syncing,
+          alertContent: S.of(context).cannot_manage_accounts_during_sync,
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 }
