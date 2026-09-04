@@ -1,13 +1,13 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart';
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_preset_icons.dart";
 import 'package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/new_elevated_button.dart';
-import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/select_background_color_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -54,98 +54,14 @@ class OmniChainSelectIconSheet extends StatefulWidget {
         ),
       );
 
-  static const _presetIcons = <_SelectableIcon>[
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'heart',
-      assetPath: 'assets/new-ui/favorite_icon.svg',
-      label: 'Heart',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'flower',
-      assetPath: 'assets/new-ui/wallet_icons/flower.svg',
-      label: 'Flower',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'star',
-      assetPath: 'assets/new-ui/wallet_icons/star.svg',
-      label: 'Star',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'cart',
-      assetPath: 'assets/new-ui/wallet_icons/cart.svg',
-      label: 'Cart',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'chess',
-      assetPath: 'assets/new-ui/wallet_icons/chess.svg',
-      label: 'Chess',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'paraglider',
-      assetPath: 'assets/new-ui/wallet_icons/paraglider.svg',
-      label: 'Paraglider',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'tshirt',
-      assetPath: 'assets/new-ui/wallet_icons/tshirt.svg',
-      label: 'T-Shirt',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'piggy_bank',
-      assetPath: 'assets/new-ui/wallet_icons/piggy_bank.svg',
-      label: 'Piggy Bank',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'bank',
-      assetPath: 'assets/new-ui/wallet_icons/bank.svg',
-      label: 'Bank',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'dice',
-      assetPath: 'assets/new-ui/wallet_icons/dice.svg',
-      label: 'Dice',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'motorcycle',
-      assetPath: 'assets/new-ui/wallet_icons/motorcycle.svg',
-      label: 'Motorcycle',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'paper_plane',
-      assetPath: 'assets/new-ui/wallet_icons/paper_plane.svg',
-      label: 'Paper Plane',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'infinity',
-      assetPath: 'assets/new-ui/wallet_icons/infinity.svg',
-      label: 'Infinity',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'shield',
-      assetPath: 'assets/new-ui/wallet_icons/shield.svg',
-      label: 'Shield',
-    ),
-    _SelectableIcon(
-      type: WalletIconType.preset,
-      value: 'music_notes',
-      assetPath: 'assets/new-ui/wallet_icons/music_notes.svg',
-      label: 'Music Notes',
-    ),
-  ];
+  static final _presetIcons = WalletPresetIcons.all
+      .map((preset) => _SelectableIcon(
+            type: WalletIconType.preset,
+            value: preset.value,
+            assetPath: preset.assetPath,
+            label: preset.label,
+          ))
+      .toList();
 
   @override
   State<OmniChainSelectIconSheet> createState() => _OmniChainSelectIconSheetState();
@@ -226,6 +142,7 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
     final colors = OmniChainWalletEmojiPickerSheet.backgroundColors(context);
     final colorIndex = _selectedColorIndex.clamp(0, colors.length - 1);
 
+    final theme = Theme.of(context);
     final previewIcon = _canConfirm
         ? WalletIcon(
       type: _selectedType!,
@@ -286,6 +203,22 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
                           onSelected: _select,
                         ),
                       ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SafeArea(
+                      top: false,
+                      child: FloatingBlurWrapper(
+                        child: PrimaryButton(
+                          key: const ValueKey("omnichain_icon_picker_apply_button_key"),
+                          onPressed: _confirm,
+                          text: "Apply",
+                          color: theme.colorScheme.primary,
+                          textColor: theme.colorScheme.onPrimary,
+                          isDisabled: !_canConfirm,
+                        ),
+                      ),
                     ),
                   ),
                 ],

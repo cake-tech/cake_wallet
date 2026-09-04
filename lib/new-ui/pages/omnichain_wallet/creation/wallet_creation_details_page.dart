@@ -11,7 +11,6 @@ import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
-import "package:cw_core/currency_for_wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
@@ -83,16 +82,7 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
             children: [
               const Spacer(flex: 2),
               Center(
-                child: state.selectedTypes.length == 1
-                    ? Center(
-                  child: CakeImageWidget(
-                    imageUrl:
-                    getCryptoCurrencyIconForWalletListItem(state.selectedTypes.first),
-                    width: 100,
-                    height: 100,
-                  ),
-                )
-                    : Stack(
+                child: Stack(
                   clipBehavior: Clip.none,
                   children: [
                     WalletIconAvatar(icon: state.walletIcon),

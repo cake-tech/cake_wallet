@@ -39,7 +39,7 @@ class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
 }
 
 class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPickerSheet> {
-  static const _defaultIcon = "😀";
+  static const _defaultIcon = "";
 
   late String _selectedIcon;
   late int _selectedColorIndex;

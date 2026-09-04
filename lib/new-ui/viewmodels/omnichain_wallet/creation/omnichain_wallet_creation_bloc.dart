@@ -1,9 +1,11 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/generate_name.dart";
 import "package:cw_core/wallet_type.dart";
 
@@ -76,8 +78,18 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     final current = state;
     if (current is! WalletCreationChainSelection || !current.hasAnySelected) return;
 
+    final selectedTypes = Set<WalletType>.unmodifiable(current.selectedTypes);
+
     emit(WalletCreationCustomization(
-      selectedTypes: Set<WalletType>.unmodifiable(current.selectedTypes),
+      selectedTypes: selectedTypes,
+      walletIcon: selectedTypes.length == 1
+          ? WalletIcon(
+              type: WalletIconType.image,
+              value: getCryptoCurrencyIconForWalletListItem(selectedTypes.first),
+              colorIndex: 0,
+              backgroundEnabled: false,
+            )
+          : null,
     ));
   }
 

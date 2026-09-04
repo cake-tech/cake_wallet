@@ -1,6 +1,9 @@
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_preset_icons.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 
 class WalletIconAvatar extends StatelessWidget {
@@ -47,15 +50,18 @@ class _WalletIconContent extends StatelessWidget {
 
     switch (icon.type) {
       case WalletIconType.emoji:
-      case WalletIconType.preset:
+        if (icon.value.isEmpty) return const SizedBox.shrink();
+        return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
       case WalletIconType.image:
         return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
+      case WalletIconType.preset:
+        final assetPath = WalletPresetIcons.assetPathFor(icon.value) ?? icon.value;
+        return CakeImageWidget(imageUrl: assetPath, width: size, height: size);
       case WalletIconType.crypto:
-      // TODO: once the crypto-icon picker exists, resolve icon.value
-      // (a currency ticker) to its logo asset the same way
-      // getCryptoCurrencyIconForWalletListItem does for single-currency
-      // wallets.
-        return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
+        final walletType = WalletType.values.asNameMap()[icon.value];
+        final assetPath =
+            walletType != null ? getCryptoCurrencyIconForWalletListItem(walletType) : icon.value;
+        return CakeImageWidget(imageUrl: assetPath, width: size, height: size);
     }
   }
 }

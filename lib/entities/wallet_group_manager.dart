@@ -182,9 +182,8 @@ class WalletGroupManager {
     _markGroupsChanged();
   }
 
-  /// Sets a group's custom icon. Same single-row-update guarantee as [setGroupName].
   Future<void> setGroupIcon(String groupKey, WalletIcon icon) async {
-    if (groupKey.isEmpty || icon.value.isEmpty) return;
+    if (groupKey.isEmpty) return;
 
     final persisted = await WalletGroupDbEntry.get(groupKey);
     if (persisted == null) return;
