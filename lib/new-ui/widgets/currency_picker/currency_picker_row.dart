@@ -10,6 +10,7 @@ class CurrencyPickerRow extends StatelessWidget {
     required this.isSelected,
     required this.trailing,
     required this.onTap,
+    this.subtitle,
     this.chainPillLabel,
     this.chainBadgePath,
   });
@@ -18,6 +19,7 @@ class CurrencyPickerRow extends StatelessWidget {
   final bool isSelected;
   final Widget trailing;
   final VoidCallback onTap;
+  final String? subtitle;
   final String? chainPillLabel;
   final String? chainBadgePath;
 
@@ -30,8 +32,9 @@ class CurrencyPickerRow extends StatelessWidget {
         selected: isSelected,
         child: InkWell(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Container(
+            height: subtitle == null ? 48 : 56,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
                 ExcludeSemantics(
@@ -39,32 +42,50 @@ class CurrencyPickerRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          currency.fullName ?? currency.title,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              currency.fullName ?? currency.title,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(letterSpacing: -0.07),
+                            ),
+                          ),
+                          if (chainPillLabel != null) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: colors.surfaceContainerHigh,
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                        ),
+                              child: Text(
+                                chainPillLabel!,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: -0.06,
+                                      color: colors.primary,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      if (chainPillLabel != null) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            chainPillLabel!,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: colors.onSecondaryContainer,
-                                ),
-                          ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle!,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                letterSpacing: -0.06,
+                                color: colors.onSurfaceVariant,
+                              ),
                         ),
                       ],
                     ],
@@ -72,12 +93,22 @@ class CurrencyPickerRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 trailing,
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
                 ExcludeSemantics(
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 20,
-                    color: isSelected ? colors.primary : colors.onSurfaceVariant,
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: Center(
+                      child: CakeImageWidget(
+                        imageUrl: "assets/new-ui/arrow_right.svg",
+                        width: 7,
+                        height: 12,
+                        colorFilter: ColorFilter.mode(
+                          isSelected ? colors.primary : colors.onSurfaceVariant,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -99,10 +130,10 @@ class _IconWithBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = TokenImageWidget(
       imageUrl: currency.iconPath ?? '',
-      size: 32,
-      errorWidget: Container(
-        width: 32,
-        height: 32,
+      size: 28,
+      errorWidget: SizedBox(
+        width: 28,
+        height: 28,
         child: Center(
           child: Text(
             currency.title.length >= 2 ? currency.title.substring(0, 2) : currency.title,
@@ -110,34 +141,31 @@ class _IconWithBadge extends StatelessWidget {
         ),
       ),
     );
-    if (badgePath == null) return icon;
+    if (badgePath == null) {
+      return icon;
+    }
     return SizedBox(
-      width: 36,
-      height: 36,
+      width: 28,
+      height: 28,
       child: Stack(
-        clipBehavior: Clip.none,
         children: [
           icon,
           Positioned(
-            right: -2,
-            bottom: -2,
+            right: 0,
+            bottom: 0,
             child: Container(
-              width: 18,
-              height: 18,
+              width: 12,
+              height: 12,
+              padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  width: 2,
-                ),
+                borderRadius: BorderRadius.circular(4),
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              padding: const EdgeInsets.all(2),
               child: CakeImageWidget(
                 imageUrl: badgePath,
                 color: Theme.of(context).colorScheme.surface,
-                width: 13,
-                height: 13,
+                width: 6,
+                height: 6,
                 fit: BoxFit.cover,
               ),
             ),

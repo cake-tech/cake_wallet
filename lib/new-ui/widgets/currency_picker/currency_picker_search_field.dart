@@ -16,11 +16,12 @@ class CurrencyPickerSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        height: 44,
+        padding: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
           border: Border.all(color: colors.surfaceContainer, width: 1),
@@ -28,8 +29,12 @@ class CurrencyPickerSearchField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            ExcludeSemantics(child: Icon(Icons.search, size: 20, color: colors.primary)),
-            const SizedBox(width: 10),
+            ExcludeSemantics(
+              child: SizedBox(
+                width: 44,
+                child: Center(child: Icon(Icons.search, size: 20, color: colors.primary)),
+              ),
+            ),
             Expanded(
               // The hint names the field only while it is empty, so the label is
               // supplied once there is text to keep exactly one announcement.
@@ -38,13 +43,14 @@ class CurrencyPickerSearchField extends StatelessWidget {
                   label: controller.text.isEmpty ? null : hintText,
                   child: TextFormField(
                     controller: controller,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.8),
                     decoration: InputDecoration(
                       isCollapsed: true,
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       hintText: hintText,
-                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 12.8,
                             color: colors.onSurfaceVariant,
                           ),
                     ),
