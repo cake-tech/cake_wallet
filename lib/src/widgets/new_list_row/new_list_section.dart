@@ -90,6 +90,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemRegularRow) {
       return ListItemRegularRowWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
@@ -116,6 +117,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemToggle) {
       return ListItemToggleWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         leadingEndWidget: item.leadingEndWidget,
@@ -128,6 +130,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemCheckbox) {
       return ListItemCheckboxWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
@@ -144,6 +147,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemDropdown) {
       return ListItemDropdownWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         trailingText: item.trailingText,
@@ -155,6 +159,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemSelector) {
       return ListItemSelectorWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         options: item.options,

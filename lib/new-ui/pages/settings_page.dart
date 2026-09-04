@@ -138,7 +138,7 @@ class SettingsMainPage extends StatelessWidget {
     List<ListItem> buildItems(SettingsSectionData section) => section.items
         .map((item) => item.condition(dashboardViewModel)
             ? ListItemRegularRow(
-                keyValue: item.title,
+                keyValue: item.route,
                 label: item.title,
                 iconPath: item.iconPath,
                 onTap: () {

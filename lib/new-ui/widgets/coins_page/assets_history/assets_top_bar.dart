@@ -62,6 +62,7 @@ class AssetsTopBar extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         child: GestureDetector(
+                          key: const ValueKey("assets_history_action_button_key"),
                           onTap: actionButton.onPressed,
                           child: Container(
                             height: 40,

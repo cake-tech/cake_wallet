@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/enumerable_item.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
@@ -312,8 +313,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
       itemName = item.title;
     } else if (item is MoneroSeedType) {
       itemName = item.title;
+    } else if (item is EnumerableItem) {
+      itemName = item.title;
     } else {
-      itemName = '';
+      itemName = item.toString();
     }
 
     return itemName;

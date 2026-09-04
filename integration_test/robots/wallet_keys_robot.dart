@@ -1,48 +1,49 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/monero_wallet_keys.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:polyseed/polyseed.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
+import "package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/monero_wallet_keys.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_monero/monero_wallet.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:polyseed/polyseed.dart";
 
-import '../components/common_test_cases.dart';
+import "../core/base_robot.dart";
 
-class WalletKeysAndSeedPageRobot {
-  WalletKeysAndSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class WalletKeysAndSeedPageRobot extends BaseRobot {
+  WalletKeysAndSeedPageRobot(super.tester);
 
-  final WidgetTester tester;
-  final CommonTestCases commonTestCases;
-
-  Future<void> isWalletKeysAndSeedPage() async {
-    await commonTestCases.isSpecificPage<WalletKeysPage>();
-    await commonTestCases.takeScreenshots('wallet_keys_page');
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<WalletKeysPage>();
   }
 
   void hasTitle() {
     final walletKeysPage = tester.widget<WalletKeysPage>(find.byType(WalletKeysPage));
     final walletKeysViewModel = walletKeysPage.walletKeysViewModel;
-    commonTestCases.hasText(walletKeysViewModel.title);
+    hasText(walletKeysViewModel.title);
   }
 
   void hasShareWarning() {
-    commonTestCases.hasText(S.current.do_not_share_warning_text.toUpperCase());
+    hasText(S.current.do_not_share_warning_text.toUpperCase());
   }
 
+  int _verifiedCredentials = 0;
+
   Future<void> confirmWalletCredentials(WalletType walletType) async {
+    _verifiedCredentials = 0;
+
     final walletKeysPage = tester.widget<WalletKeysPage>(find.byType(WalletKeysPage));
     final walletKeysViewModel = walletKeysPage.walletKeysViewModel;
 
     final appStore = walletKeysViewModel.appStore;
     final walletName = walletType.name;
-    bool hasSeed = appStore.wallet!.seed != null;
-    bool hasHexSeed = appStore.wallet!.hexSeed != null;
-    bool hasPrivateKey = appStore.wallet!.privateKey != null;
+    final hasSeed = appStore.wallet!.seed != null;
+    final hasHexSeed = appStore.wallet!.hexSeed != null;
+    final hasPrivateKey = appStore.wallet!.privateKey != null;
 
     if (walletType == WalletType.monero) {
-      final moneroWallet = appStore.wallet as MoneroWalletBase;
+      final moneroWallet = appStore.wallet! as MoneroWalletBase;
       final lang = PolyseedLang.getByPhrase(moneroWallet.seed);
       final legacySeed = moneroWallet.seedLegacy(lang.nameEnglish);
 
@@ -58,10 +59,11 @@ class WalletKeysAndSeedPageRobot {
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
       final seedWords = appStore.wallet!.seed!.split(" ");
-      for (var seedWord in seedWords) {
-        commonTestCases.hasTextAtLestOnce(seedWord);
+      for (final seedWord in seedWords) {
+        hasTextAtLeastOnce(seedWord);
       }
-      tester.printToConsole('$walletName wallet has seeds properly displayed');
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
 
     if (isEVMCompatibleChain(walletType) ||
@@ -69,39 +71,59 @@ class WalletKeysAndSeedPageRobot {
         walletType == WalletType.tron) {
       if (hasSeed) {
         final seedWords = appStore.wallet!.seed!.split(" ");
-        for (var seedWord in seedWords) {
-          commonTestCases.hasTextAtLestOnce(seedWord);
+        for (final seedWord in seedWords) {
+          hasTextAtLeastOnce(seedWord);
         }
-        tester.printToConsole('$walletName wallet has seeds properly displayed');
+        _verifiedCredentials++;
+        tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasPrivateKey) {
-        await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-        commonTestCases.hasText(appStore.wallet!.privateKey!);
-        tester.printToConsole('$walletName wallet has private key properly displayed');
+        await _openKeysTab();
+        hasText(appStore.wallet!.privateKey!);
+        _verifiedCredentials++;
+        tester.printToConsole("$walletName wallet has private key properly displayed");
       }
     }
 
     if (walletType == WalletType.nano || walletType == WalletType.banano) {
       if (hasSeed) {
         final seedWords = appStore.wallet!.seed!.split(" ");
-        for (var seedWord in seedWords) {
-          commonTestCases.hasTextAtLestOnce(seedWord);
+        for (final seedWord in seedWords) {
+          hasTextAtLeastOnce(seedWord);
         }
-        tester.printToConsole('$walletName wallet has seeds properly displayed');
+        _verifiedCredentials++;
+        tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasHexSeed) {
-        await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-        commonTestCases.hasText(appStore.wallet!.hexSeed!);
-        tester.printToConsole('$walletName wallet has hexSeed properly displayed');
+        await _openKeysTab();
+        hasText(appStore.wallet!.hexSeed!);
+        _verifiedCredentials++;
+        tester.printToConsole("$walletName wallet has hexSeed properly displayed");
       }
       if (hasPrivateKey) {
-        await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-        commonTestCases.hasText(appStore.wallet!.privateKey!);
-        tester.printToConsole('$walletName wallet has private key properly displayed');
+        await _openKeysTab();
+        hasText(appStore.wallet!.privateKey!);
+        _verifiedCredentials++;
+        tester.printToConsole("$walletName wallet has private key properly displayed");
       }
     }
 
-    await commonTestCases.defaultSleepTime(seconds: 5);
+    _expectSomethingWasVerified(walletType);
+  }
+
+  void _expectSomethingWasVerified(WalletType walletType) {
+    expect(
+      _verifiedCredentials,
+      greaterThan(0),
+      reason: "Nothing was verified for ${walletType.name}, this suite covers no credential "
+          "for that type so it cannot tell a working keys page from a broken one",
+    );
+  }
+
+  Future<void> _openKeysTab() async {
+    await tapByKey("wallet_keys_page_keys");
+
+    await settle();
   }
 
   Future<void> _confirmMoneroWalletCredentials(
@@ -112,67 +134,69 @@ class WalletKeysAndSeedPageRobot {
   ) async {
     final keys = appStore.wallet!.keys as MoneroWalletKeys;
 
-    final hasPublicSpendKey = commonTestCases.isKeyPresent(
-      '${walletName}_wallet_public_spend_key_item_key',
-    );
-    final hasPrivateSpendKey = commonTestCases.isKeyPresent(
-      '${walletName}_wallet_private_spend_key_item_key',
-    );
-    final hasPublicViewKey = commonTestCases.isKeyPresent(
-      '${walletName}_wallet_public_view_key_item_key',
-    );
-    final hasPrivateViewKey = commonTestCases.isKeyPresent(
-      '${walletName}_wallet_private_view_key_item_key',
-    );
+    final hasPublicSpendKey = isKeyPresent("${walletName}_wallet_public_spend_key_item_key");
+    final hasPrivateSpendKey = isKeyPresent("${walletName}_wallet_private_spend_key_item_key");
+    final hasPublicViewKey = isKeyPresent("${walletName}_wallet_public_view_key_item_key");
+    final hasPrivateViewKey = isKeyPresent("${walletName}_wallet_private_view_key_item_key");
     final hasSeeds = seed.isNotEmpty;
     final hasSeedLegacy = Polyseed.isValidSeed(seed);
 
     if (hasPublicSpendKey) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-      commonTestCases.hasText(keys.publicSpendKey);
-      tester.printToConsole('$walletName wallet has public spend key properly displayed');
+      await _openKeysTab();
+      hasText(keys.publicSpendKey);
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has public spend key properly displayed");
     }
     if (hasPrivateSpendKey) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-      commonTestCases.hasText(keys.privateSpendKey);
-      tester.printToConsole('$walletName wallet has private spend key properly displayed');
+      await _openKeysTab();
+      hasText(keys.privateSpendKey);
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has private spend key properly displayed");
     }
     if (hasPublicViewKey) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-      commonTestCases.hasText(keys.publicViewKey);
-      tester.printToConsole('$walletName wallet has public view key properly displayed');
+      await _openKeysTab();
+      hasText(keys.publicViewKey);
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has public view key properly displayed");
     }
     if (hasPrivateViewKey) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_keys');
-      commonTestCases.hasText(keys.privateViewKey);
-      tester.printToConsole('$walletName wallet has private view key properly displayed');
+      await _openKeysTab();
+      hasText(keys.privateViewKey);
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has private view key properly displayed");
     }
     if (hasSeeds) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_seed');
+      await tapByKey("wallet_keys_page_seed");
+      await settle();
+
       final seedWords = seed.split(" ");
-      for (var seedWord in seedWords) {
-        commonTestCases.hasTextAtLestOnce(seedWord);
+      for (final seedWord in seedWords) {
+        hasTextAtLeastOnce(seedWord);
       }
-      tester.printToConsole('$walletName wallet has seeds properly displayed');
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
     if (hasSeedLegacy) {
-      await commonTestCases.tapItemByKey('wallet_keys_page_seed_legacy');
+      await tapByKey("wallet_keys_page_seed_legacy");
+      await settle();
+
       final seedWords = legacySeed.split(" ");
-      for (var seedWord in seedWords) {
-        commonTestCases.hasTextAtLestOnce(seedWord);
+      for (final seedWord in seedWords) {
+        hasTextAtLeastOnce(seedWord);
       }
-      tester.printToConsole('$walletName wallet has legacy seeds properly displayed');
+      _verifiedCredentials++;
+      tester.printToConsole("$walletName wallet has legacy seeds properly displayed");
     }
   }
 
   Future<void> backToDashboard() async {
-    tester.printToConsole('Going back to dashboard from credentials page');
-    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+    tester.printToConsole("Going back to dashboard from credentials page");
+    await settle();
 
-    await commonTestCases.goBack();
-    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+    await goBack();
+    await settle();
 
-    await commonTestCases.goBack();
-    await tester.pumpAndSettle(Duration(milliseconds: 2000));
+    await goBack();
+    await settle();
   }
 }

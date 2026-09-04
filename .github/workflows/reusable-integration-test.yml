@@ -1,0 +1,676 @@
+name: Reusable Integration Test Logic
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      suite_dir:
+        required: false
+        type: string
+        default: "integration_test/suites"
+      test_tier:
+        required: false
+        type: string
+        default: "tier0"
+      extra_dart_defines:
+        required: false
+        type: string
+        default: ""
+      environment:
+        required: false
+        type: string
+        default: ""
+      record_screen:
+        required: false
+        type: boolean
+        default: false
+      write_funds_secrets:
+        required: false
+        type: boolean
+        default: false
+      timeout_minutes:
+        required: false
+        type: number
+        default: 180
+      slack_notify:
+        required: false
+        type: boolean
+        default: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    env:
+      STORE_PASS: test@cake_wallet
+      KEY_PASS: test@cake_wallet
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/lib/node_modules /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/swift /usr/local/share/powershell /usr/share/miniconda /opt/az /usr/local/graalvm
+          sudo docker image prune -af > /dev/null
+          df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+          if [[ ! -c /dev/kvm ]]; then
+            echo "::error::/dev/kvm is not a character device, this runner has no usable KVM"
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Restore flutter sdk
+        id: flutter-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
+      - name: Install Flutter
+        run: |
+          if [[ ! -d "$HOME/flutter/bin" ]]; then
+            git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
+          fi
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$HOME/flutter/bin"
+          flutter --version
+
+      - name: Save flutter sdk
+        if: steps.flutter-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+
+      - name: Restore pub packages
+        id: pub-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
+          restore-keys: pub-cache-${{ runner.os }}-
+
+      - name: Add rust android targets
+        run: |
+          rustup target add x86_64-linux-android aarch64-linux-android armv7-linux-androideabi i686-linux-android
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add secrets
+        run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
+      - name: Add funded wallet secrets
+        if: ${{ inputs.write_funds_secrets }}
+        run: |
+          echo "${{ secrets.FUNDS_SECRETS_FILE }}" | base64 --decode > integration_test/core/funded_wallets.dart
+
+      - name: Build dependencies utilizing ghcr cache
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_USE_CLOUD=true \
+            ./scripts/android/docker/build.sh
+
+      - name: Reclaim the space the dependency images took
+        run: |
+          docker system prune -af --volumes > /dev/null
+          df -h /
+
+      - name: Regenerate mweb bindings
+        run: |
+          git checkout -- cw_mweb/pubspec.yaml
+          rm -f cw_mweb/pubspec.lock
+          rm -rf cw_mweb/.dart_tool
+
+          # Hosted runners ship libclang, only install when it is actually missing
+          if ! ldconfig -p | grep -q libclang; then
+            sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null
+          fi
+
+          pushd cw_mweb
+            flutter pub get
+            dart run ffigen --config ffigen_config.yaml
+          popd
+
+          # Fail here in seconds rather than minutes into the gradle build
+          if ! grep -q "final class GoSlice" cw_mweb/lib/generated_bindings.g.dart; then
+            echo "::error::mweb bindings regenerated without class modifiers, ffigen resolved too old"
+            exit 1
+          fi
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/android
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Save pub packages
+        if: steps.pub-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
+
+      - name: Build generated code
+        run: |
+          flutter --version
+          ./model_generator.sh
+
+      - name: Generate KeyStore
+        run: |
+          keytool -genkey -v -keystore android/app/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
+
+      - name: Generate key properties
+        run: |
+          dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
+
+      - name: Compile assets/images graphics
+        run: |
+          while read -r dir; do
+            dart run vector_graphics_compiler --input-dir "$dir" --out-dir "$dir" > /dev/null &
+          done < <(find assets/images -type d)
+          wait
+
+      - name: Rename app
+        run: |
+          sanitized_branch_name=${BRANCH_NAME#origin/}  # Remove 'origin/' prefix if it exists
+          sanitized_branch_name=${sanitized_branch_name:0:16}  # Take only the first 16 characters
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | tr '[:upper:]' '[:lower:]')  # Convert to lowercase
+          sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
+
+          echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
+
+      - name: Prime test build
+        run: |
+          search_dir="${{ inputs.suite_dir }}"
+          if [[ "${{ inputs.test_tier }}" != "all" ]]; then
+            search_dir="$search_dir/${{ inputs.test_tier }}"
+          fi
+          first_suite=$(find "$search_dir" -name "*_test.dart" -type f | sort | head -1)
+          echo "Priming build with $first_suite"
+          flutter build apk --debug --target-platform android-x64 --target="$first_suite" --dart-define=CI_BUILD=true
+
+      - name: Prepare emulator test script
+        run: |
+          cat > /tmp/emulator_ready.sh << 'EOF'
+          #!/bin/bash
+
+          echo "Waiting for boot completion..."
+          timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; done' || echo "Boot completion timeout, continuing"
+
+          echo "Waiting for package manager..."
+          timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; done' || echo "Package manager timeout, continuing"
+
+          echo "Waiting for settings service..."
+          timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; done' || echo "Settings service timeout, continuing"
+
+          echo "Emulator readiness check completed"
+          EOF
+
+          chmod +x /tmp/emulator_ready.sh
+
+          # Takes the tier to run as its first argument, the workflow runs it once per tier
+          # so each tier uploads its logs before the next one can take the runner down
+          cat > /tmp/run_integration_tests.sh << 'EOF'
+          #!/bin/bash
+
+          TIER="$1"
+
+          /tmp/emulator_ready.sh
+
+          adb shell settings put global window_animation_scale 0.0 || true
+          adb shell settings put global transition_animation_scale 0.0 || true
+          adb shell settings put global animator_duration_scale 0.0 || true
+
+          echo "===== resources before $TIER ====="
+          free -h || true
+          df -h / || true
+
+          if [[ "$RECORD_SCREEN" == "true" ]]; then
+            echo "Starting chunked screen recording..."
+            (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_${TIER}_$i.mp4" || break; i=$((i+1)); done) &
+            RECORD_LOOP_PID=$!
+          fi
+
+          # Both tiers get one retry. tier1 talks to live nodes and providers, and giving it
+          # no retry meant a driver that never attached was reported as a failing test.
+          RETRIES=1
+
+          set -o pipefail
+          set +e
+          env \
+            SUITE_DIR="${{ inputs.suite_dir }}" \
+            TEST_TIER="$TIER" \
+            EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+            TEST_TIMEOUT=600 \
+            RETRY_COUNT=$RETRIES \
+            PLATFORM=android \
+            SUMMARY_FILE="${TIER}_summary.txt" \
+            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log"
+          TEST_EXIT_CODE=$?
+          set -e
+
+          echo "===== resources after $TIER ====="
+          free -h || true
+          df -h / || true
+
+          adb logcat -d > "${TIER}_logcat.txt" || true
+
+          if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
+            echo "Stopping screen recording and encrypting..."
+            kill "$RECORD_LOOP_PID" || true
+            adb shell killall -INT screenrecord || true
+            sleep 5
+
+            mkdir -p recordings
+            for f in $(adb shell ls /sdcard/rec_*.mp4 2>/dev/null | tr -d '\r'); do
+              adb pull "$f" recordings/ || true
+            done
+
+            # Recordings show seed words on screen so they are never uploaded in plaintext,
+            # and a keyserver flake must never eat the test exit code
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
+            for f in recordings/*.mp4; do
+              [[ -f "$f" ]] || continue
+              gpg --trust-model always --encrypt --output "$f.gpg" \
+                --recipient 6B3199AD9B3D23B8 \
+                --recipient 35C8DBAFB8D9ACAC \
+                "$f" || echo "Encrypting $f failed, discarding it"
+              rm "$f"
+            done
+          fi
+
+          exit $TEST_EXIT_CODE
+          EOF
+
+          chmod +x /tmp/run_integration_tests.sh
+          
+      - name: Cap the gradle heap for the test phase
+        run: |
+          sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx3072M/' android/gradle.properties
+          grep '^org.gradle.jvmargs' android/gradle.properties
+          pkill -f GradleDaemon || echo "No gradle daemon to stop"
+          free -h || true
+          df -h / || true
+
+      - name: Integration tests on Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          RECORD_SCREEN: ${{ inputs.record_screen }}
+        with:
+          api-level: 29
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
+          disable-animations: false
+          working-directory: ${{ github.workspace }}
+          script: bash /tmp/run_integration_tests.sh ${{ inputs.test_tier }}
+
+      - name: Upload test logs
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs
+          path: |
+            ${{ github.workspace }}/${{ inputs.test_tier }}_run.log
+            ${{ github.workspace }}/${{ inputs.test_tier }}_logcat.txt
+            ${{ github.workspace }}/recordings/*.gpg
+
+      - name: Integration tests on Android Emulator (tier1, non-blocking)
+        if: ${{ inputs.test_tier == 'tier0' }}
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          RECORD_SCREEN: ${{ inputs.record_screen }}
+        with:
+          api-level: 29
+          arch: x86_64
+          profile: pixel_5
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
+          disable-animations: false
+          working-directory: ${{ github.workspace }}
+          script: bash /tmp/run_integration_tests.sh tier1
+
+      - name: Upload tier1 logs
+        if: ${{ always() && inputs.test_tier == 'tier0' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs-tier1
+          path: |
+            ${{ github.workspace }}/tier1_run.log
+            ${{ github.workspace }}/tier1_logcat.txt
+
+      # Superseded runs are cancelled on purpose, reporting those would be noise
+      - name: Report the run to slack
+        if: ${{ !cancelled() && inputs.slack_notify }}
+        continue-on-error: true
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TESTS_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_TESTS_CHANNEL }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          ACTOR: ${{ github.actor }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DART_DEFINES: ${{ inputs.extra_dart_defines }}
+        run: |
+          if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
+            echo "::notice::No slack token or channel configured, skipping the report"
+            exit 0
+          fi
+
+          fmt() {
+            printf '%dm %02ds' $(( $1 / 60 )) $(( $1 % 60 ))
+          }
+
+          field() {
+            awk -F= -v key="$2" '$1 == key { print $2; exit }' "$1"
+          }
+
+          tier_line() {
+            local file="$1" label="$2" note="$3"
+
+            if [[ ! -f "$file" ]]; then
+              printf '*%s*\n%s' "$label" "$note"
+              return
+            fi
+
+            printf '*%s*\n%s/%s passed in %s' "$label" \
+              "$(field "$file" passed)" "$(field "$file" total)" \
+              "$(fmt "$(field "$file" duration)")"
+          }
+
+          # For scenarios where the suite never ran because of driver issues, 
+          # we can't call it a failing test, so we just log it
+          failure_lines() {
+            local file="$1" label="$2"
+
+            [[ -f "$file" ]] || return 0
+
+            while IFS= read -r entry; do
+              [[ -n "$entry" ]] || continue
+
+              local rest="${entry#*|}"
+              local name="${entry%%|*}"
+              local duration="${rest%%|*}"
+              local reason="${rest#*|}"
+
+              if [[ "$reason" == "void" ]]; then
+                printf '\n• `%s` (%s) _%s, driver never attached, the suite did not run_' \
+                  "$name" "$(fmt "$duration")" "$label"
+              else
+                printf '\n• `%s` (%s) _%s_' "$name" "$(fmt "$duration")" "$label"
+              fi
+            done < <(sed -n 's/^fail=//p' "$file")
+          }
+
+          # Adding the results for the funds suites to the report too, so we know if we need to topup
+          chain_lines() {
+            local status_wanted="$1" icon="$2" file
+            local seen=""
+
+            for file in *_summary.txt; do
+              [[ -f "$file" ]] || continue
+
+              while IFS= read -r entry; do
+                [[ -n "$entry" ]] || continue
+
+                local chain="${entry%%|*}"
+                local rest="${entry#*|}"
+                local status="${rest%%|*}"
+                local detail="${rest#*|}"
+
+                [[ "$status" == "$status_wanted" ]] || continue
+                [[ "$seen" == *"[$chain]"* ]] && continue
+                seen="$seen[$chain]"
+
+                printf '\n%s *%s* _%s_' "$icon" "$chain" "$detail"
+              done < <(sed -n 's/^chain=//p' "$file")
+            done
+          }
+
+          pass_names() {
+            local file="$1" label="$2"
+
+            [[ -f "$file" ]] || return 0
+
+            printf '*%s* (%s)' "$label" "$(field "$file" passed)"
+
+            while IFS= read -r entry; do
+              [[ -n "$entry" ]] || continue
+              printf '\n• %s _%s_' "${entry%%|*}" "$(fmt "${entry##*|}")"
+            done < <(sed -n 's/^pass=//p' "$file")
+          }
+
+          tier0_failed=1
+          tier1_failed=0
+          total_passed=0
+
+          if [[ -f all_summary.txt ]]; then
+            tier0_failed=$(field all_summary.txt failed)
+          else
+            [[ -f tier0_summary.txt ]] && tier0_failed=$(field tier0_summary.txt failed)
+            [[ -f tier1_summary.txt ]] && tier1_failed=$(field tier1_summary.txt failed)
+          fi
+
+          for file in tier0_summary.txt tier1_summary.txt; do
+            [[ -f "$file" ]] || continue
+            total_passed=$(( total_passed + $(field "$file" passed) ))
+          done
+
+          if (( tier0_failed > 0 )); then
+            headline=":x:  Integration tests failed"
+          elif (( tier1_failed > 0 )); then
+            headline=":warning:  Gate passed, tier1 has failures"
+          else
+            headline=":white_check_mark:  Integration tests passed"
+          fi
+
+          if (( tier0_failed > 0 )); then
+            tier1_note="_skipped, tier0 failed_"
+          else
+            tier1_note="_did not run_"
+          fi
+
+          where="<$REPO_URL/tree/$BRANCH|$BRANCH>"
+          if [[ -n "$PR_NUMBER" ]]; then
+            where="$where  ·  <$REPO_URL/pull/$PR_NUMBER|#$PR_NUMBER ${PR_TITLE:-}>"
+          fi
+
+          failures=$(printf '%s%s%s' \
+            "$(failure_lines tier0_summary.txt tier0)" \
+            "$(failure_lines tier1_summary.txt tier1)" \
+            "$(failure_lines all_summary.txt suites)")
+
+          if [[ -f all_summary.txt ]]; then
+            primary=$(tier_line all_summary.txt suites '')
+            secondary=""
+          else
+            primary=$(tier_line tier0_summary.txt tier0 '_did not run_')
+            secondary=$(tier_line tier1_summary.txt tier1 "$tier1_note")
+          fi
+
+          chains=$(printf '%s%s%s%s' \
+            "$(chain_lines ok ':white_check_mark:')" \
+            "$(chain_lines empty ':moneybag:')" \
+            "$(chain_lines waiting ':hourglass:')" \
+            "$(chain_lines failed ':x:')")
+
+          needs_funding=$(chain_lines empty ':moneybag:')
+          too_slow=$(chain_lines waiting ':hourglass:')
+
+          blocks=$(jq -n \
+            --arg headline "$headline" \
+            --arg where "$where" \
+            --arg primary "$primary" \
+            --arg secondary "$secondary" \
+            --arg failures "$failures" \
+            --arg chains "$chains" \
+            --arg funding "$needs_funding" \
+            --arg slow "$too_slow" \
+            --arg defines "$(printf '%s' "$DART_DEFINES" | tr ';' ' ')" \
+            --arg commit "${COMMIT:0:8}" \
+            --arg actor "$ACTOR" \
+            --arg repo "$REPO_URL" \
+            --arg run "$RUN_URL" \
+            '[
+              { type: "header", text: { type: "plain_text", text: $headline, emoji: true } },
+              { type: "section", text: { type: "mrkdwn", text: $where } },
+              { type: "section", fields: (
+                  [ { type: "mrkdwn", text: $primary } ]
+                  + (if $secondary == "" then [] else
+                      [ { type: "mrkdwn", text: $secondary } ] end)
+              ) }
+            ]
+            + (if $failures == "" then [] else
+                [ { type: "section", text: { type: "mrkdwn",
+                    text: ("*Did not pass*" + $failures) } } ]
+              end)
+            + (if $chains == "" then [] else
+                [ { type: "divider" },
+                  { type: "section", text: { type: "mrkdwn",
+                    text: ("*Chains*" + $chains) } } ]
+              end)
+            + (if $funding == "" then [] else
+                [ { type: "context", elements: [ { type: "mrkdwn",
+                    text: ":moneybag:  The chains above could not cover a send. Top those wallets up and re run the funds workflow, nothing there needs debugging :)." } ] } ]
+              end)
+            + (if $slow == "" then [] else
+                [ { type: "context", elements: [ { type: "mrkdwn",
+                    text: ":hourglass:  Still rescanning when the clock ran out, so nothing was proven either way and the run is not red for them." } ] } ]
+              end)
+            + [
+              { type: "context", elements: [
+                  { type: "mrkdwn",
+                    text: ("<" + $repo + "/commit/" + $commit + "|" + $commit + ">  ·  " + $actor
+                           + (if $defines == "" then "" else "  ·  `" + $defines + "`" end)) }
+              ] },
+              { type: "actions", elements: [
+                  { type: "button", url: $run,
+                    text: { type: "plain_text", text: "View run", emoji: false } }
+              ] }
+            ]')
+
+          response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-type: application/json; charset=utf-8" \
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$headline" \
+              --argjson blocks "$blocks" \
+              '{channel: $channel, text: $text, blocks: $blocks}')")
+
+          if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
+            error=$(jq -r '.error // "unknown"' <<< "$response")
+            needed=$(jq -r '.needed // empty' <<< "$response")
+
+            if [[ -n "$needed" ]]; then
+              echo "::warning::Slack rejected the report: $error, it wants the $needed scope"
+            else
+              echo "::warning::Slack rejected the report: $error"
+            fi
+
+            exit 0
+          fi
+
+          thread_ts=$(jq -r '.ts // empty' <<< "$response")
+
+          if [[ -z "$thread_ts" ]] || (( total_passed == 0 )); then
+            exit 0
+          fi
+
+          # So that the channel is not clutter (and uglyyyy), we put everything that passed in the thread
+          # and the short version is the one that shows up in the channel
+          passed=$(printf '%s\n\n%s' \
+            "$(pass_names tier0_summary.txt tier0)" "$(pass_names tier1_summary.txt tier1)")
+
+          curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-type: application/json; charset=utf-8" \
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg ts "$thread_ts" --arg text "$passed" \
+              '{channel: $channel, thread_ts: $ts, text: $text}')" > /dev/null
+
+      - name: Post-test cleanup
+        if: always()
+        run: |
+          pkill -f emulator || echo "No emulator processes to kill"
+          pkill -f adb || echo "No adb processes to kill"

@@ -1,0 +1,53 @@
+name: Funds Integration Tests
+
+permissions:
+  contents: read
+  packages: write
+
+# This test is never triggered automatically as it moves real funds
+on:
+  workflow_dispatch:
+    inputs:
+      flows:
+        description: "Which flows to run"
+        required: true
+        type: choice
+        options:
+          - all
+          - send
+          - swap
+        default: all
+      chains:
+        description: "auto discovers every funded chain, or a comma separated list of wallet type names"
+        required: true
+        type: string
+        default: auto
+      spend:
+        description: "Actually broadcast and create trades. Off runs the dry runs only"
+        required: true
+        type: boolean
+        default: false
+      record_screen:
+        description: "Record the emulator screen, uploaded GPG encrypted"
+        required: true
+        type: boolean
+        default: true
+
+concurrency:
+  group: funds-integration-tests
+  cancel-in-progress: false
+
+jobs:
+  funds-tests:
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      ref: ${{ github.sha }}
+      suite_dir: integration_test/funds_suites
+      test_tier: all
+      write_funds_secrets: true
+      record_screen: ${{ inputs.record_screen }}
+      timeout_minutes: 120
+      slack_notify: true
+      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }};SPEND=${{ inputs.spend }}"
+    secrets: inherit
+

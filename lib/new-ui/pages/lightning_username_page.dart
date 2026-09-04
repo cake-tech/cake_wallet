@@ -112,6 +112,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                             ),
                             SizedBox(),
                             NewPrimaryButton(
+                                key: ValueKey('lightning_username_page_skip_button_key'),
                                 onPressed: () {
                                   Navigator.of(context).popUntil((route) => route.isFirst);
                                 },

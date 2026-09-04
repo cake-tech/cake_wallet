@@ -211,6 +211,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                               widget.exchangeViewModel.receiveAmount.isNotEmpty &&
                                               widget.exchangeViewModel.depositAmount.isEmpty;
                                           return TextField(
+                                            key: ValueKey(widget.isReceiverCard
+                                                ? "swap_page_receive_amount_field_key"
+                                                : "swap_page_deposit_amount_field_key"),
                                             keyboardType: TextInputType.numberWithOptions(
                                               signed: false,
                                               decimal: !widget.useBaseUnit,

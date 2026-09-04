@@ -93,6 +93,7 @@ class _TopBarState extends State<TopBar> {
               showSyncedMessage: showSyncedMessage,
             ),
             ModernButton.svg(
+              key: ValueKey('home_page_settings_button_key'),
               iconColor: Theme.of(context).colorScheme.primary,
               size: 36,
               onPressed: () {

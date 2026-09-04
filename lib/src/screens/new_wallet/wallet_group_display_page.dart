@@ -114,6 +114,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
             Observer(
               builder: (context) {
                 return LoadingPrimaryButton(
+                  key: ValueKey('wallet_group_display_page_next_button_key'),
                   isLoading: walletGroupsDisplayViewModel.isFetchingMnemonic,
                   onPressed: () {
                     if (walletGroupsDisplayViewModel.hasNoFilteredWallet) {
