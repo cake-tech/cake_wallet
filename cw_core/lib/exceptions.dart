@@ -55,6 +55,8 @@ class SignSPLTokenTransactionRentException implements Exception {}
 
 class NoAssociatedTokenAccountException implements Exception {}
 
+class NotAnNFTException implements Exception {}
+
 class AmbiguousTokenSymbolException implements Exception {
   AmbiguousTokenSymbolException(this.symbol);
 

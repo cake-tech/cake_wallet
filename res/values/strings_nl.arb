@@ -685,6 +685,10 @@
   "new_transactions_notifications": "Stuur meldingen over nieuwe transacties",
   "new_wallet": "Nieuwe wallet",
   "newConnection": "Nieuwe verbinding",
+  "nft_import_failed": "Kan deze NFT niet importeren. Controleer het adres en probeer het opnieuw.",
+  "nft_not_held_by_wallet": "Niet in handen van deze portemonnee",
+  "nft_send_not_an_nft": "Dit item is geen NFT en kan dus niet vanaf hier worden verzonden.",
+  "nft_some_not_loaded": "Sommige NFT's konden niet worden geladen",
   "nfts": "NFT's",
   "no": "Nee",
   "no_cards_found": "Geen kaarten gevonden",
@@ -846,6 +850,7 @@
   "received": "Ontvangen",
   "receiving": "Bezig met ontvangen",
   "recieving": "Bezig met ontvangen",
+  "recipient_account_creation_fee": "Er is een extra ${amount} nodig om een ​​tokenaccount voor de ontvanger aan te maken, omdat deze er nog geen heeft.",
   "recipient_address": "Adres ontvanger",
   "reconnect": "Opnieuw verbinden",
   "reconnect_alert_text": "Weet je zeker dat je opnieuw verbinding wilt maken?",
@@ -1406,6 +1411,7 @@
   "wallets": "Wallets",
   "warning": "Waarschuwing",
   "wc_action_add_chain": "Ketting toevoegen",
+  "watching": "Alleen bekijken",
   "wc_action_approve": "Goedkeuren",
   "wc_action_burn": "Brandwond",
   "wc_action_close_token_account": "Tokenaccount sluiten",
@@ -1569,6 +1575,5 @@
   "zcash_card_enable_later": "Je kunt deze kaart later altijd inschakelen via de instellingen",
   "zcash_card_missing_funds": "Fondsen ontbreken?",
   "zcash_card_scan": "Scannen",
-  "zcash_card_warning": "Sluit de app niet voordat de procedure is voltooid. Als je dit wel doet, moet dit proces helemaal opnieuw worden gestart.",
-  "recipient_account_creation_fee": "Er is een extra ${amount} nodig om een ​​tokenaccount voor de ontvanger aan te maken, omdat deze er nog geen heeft."
+  "zcash_card_warning": "Sluit de app niet voordat de procedure is voltooid. Als je dit wel doet, moet dit proces helemaal opnieuw worden gestart."
 }
