@@ -1,190 +1,178 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
-import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ledger_bitcoin/psbt.dart';
-import 'package:trezor_connect/trezor_connect.dart';
+import 'package:ledger_bitcoin/src/utils/uint8list_extension.dart' as ext;
+import 'package:trezor_flutter/trezor_flutter.dart' as sdk;
 
 class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService {
-  BitcoinTrezorService(this.connect);
+  BitcoinTrezorService(this.client) : _trezorBitcoin = sdk.TrezorBitcoin(client);
 
-  final TrezorConnect connect;
+  final sdk.TrezorClient client;
+  final sdk.TrezorBitcoin _trezorBitcoin;
+
+  @override
+  Future<Uint8List> getMasterFingerprint() async {
+    final publicKey = await _trezorBitcoin.getPublicKey(derivationPath: "m/84'/0'/0'");
+    final fingerprintBuffer = ByteData(4)..setUint32(0, publicKey.$2);
+    return fingerprintBuffer.buffer.asUint8List();
+  }
 
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final accounts = <HardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
-    final requestParams = <TrezorGetPublicKeyParams>[];
 
     for (final i in indexRange) {
-      requestParams.add(TrezorGetPublicKeyParams(path: "m/84'/0'/$i'"));
+      final derivationPath = "m/84'/0'/$i'";
+      final xPub =
+          await _trezorBitcoin.getPublicKey(derivationPath: derivationPath, ignoreXpubMagic: true);
+      final hd = Bip32Slip10Secp256k1.fromExtendedKey(xPub.$1).childKey(Bip32KeyIndex(0));
+
+      final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
+
+      accounts.add(
+        HardwareAccountData(
+          address: address,
+          accountIndex: i,
+          derivationPath: derivationPath,
+          xpub: xPub.$1,
+        ),
+      );
     }
 
-    final accounts = await connect.getPublicKeyBundle(requestParams);
-
-    return accounts?.map((account) {
-          final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub).childKey(Bip32KeyIndex(0));
-          final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
-          return HardwareAccountData(
-            address: address,
-            xpub: account.xpub,
-            accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
-            derivationPath: account.serializedPath,
-          );
-        }).toList() ??
-        [];
+    return accounts;
   }
 
   @override
   Future<Uint8List> signTransaction({required String transaction}) async {
     final psbt = PsbtV2()..deserialize(base64Decode(transaction));
+    final masterFingerprint = await getMasterFingerprint();
 
-    final inputs = <TrezorTxInput>[];
+    final inputs = <sdk.TrezorTxInput>[];
+    final prevTxs = <String, sdk.TrezorPrevTx>{};
+
     final inputCount = psbt.getGlobalInputCount();
     for (var i = 0; i < inputCount; i++) {
-      final inputTxRaw = psbt.getInputNonWitnessUtxo(i);
-      final inputTx = BtcTransaction.fromRaw(hex.encode(inputTxRaw!));
-      final inputOutputIndex = psbt.getInputOutputIndex(i);
+      final rawPrevTx = psbt.getInputNonWitnessUtxo(i);
+      if (rawPrevTx == null) {
+        throw StateError("PSBT input $i is missing its previous transaction");
+      }
+      final prevTx = BtcTransaction.fromRaw(hex.encode(rawPrevTx));
+      final vout = psbt.getInputOutputIndex(i);
 
-      final publicKeys = psbt.inputMaps[i].keys.where((e) => e.startsWith("06"));
-      final pubkey = Uint8List.fromList(hex.decode(publicKeys.first.substring(2)));
+      final txidBytes = psbt.getInputPreviousTxid(i).reversed.toList();
 
-      inputs.add(TrezorTxInput(
-          prevHash: hex.encode(psbt.getInputPreviousTxid(i).reversed.toList()),
-          prevIndex: inputOutputIndex,
-          amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
-          addressPath: psbt.getInputBip32Derivation(i, pubkey)!.$2,
+      final pubkey = _firstDerivationPubkey(psbt.inputMaps[i], "06");
+      if (pubkey == null) {
+        throw StateError("PSBT input $i is missing its BIP32 derivation");
+      }
+
+      final derivation = psbt.getInputBip32Derivation(i, pubkey)!;
+      final path = derivation.$2;
+
+      if (!listEquals(derivation.$1, masterFingerprint)) {
+        throw Exception("Fingerprint missmatch with the PSBT");
+      }
+
+      inputs.add(
+        sdk.TrezorTxInput(
+          addressPath: path,
+          prevHash: txidBytes,
+          prevIndex: vout,
+          amount: prevTx.outputs[vout].amount.toInt(),
           sequence: psbt.getInputSequence(i),
-          scriptType: "SPENDWITNESS"));
+          scriptType: "SPENDWITNESS",
+        ),
+      );
+
+      prevTxs[hex.encode(txidBytes)] = sdk.TrezorPrevTx(
+        meta: sdk.TrezorPrevTxMeta(
+          version: Uint8List.fromList(prevTx.version).readUint32LE(0),
+          lockTime: Uint8List.fromList(prevTx.locktime).readUint32LE(0),
+          inputsCount: prevTx.inputs.length,
+          outputsCount: prevTx.outputs.length,
+        ),
+        inputs: prevTx.inputs
+            .map(
+              (e) => sdk.TrezorPrevInput(
+                prevHash: hex.decode(e.txId),
+                prevIndex: e.txIndex,
+                scriptSig: e.scriptSig.toBytes(),
+                sequence: Uint8List.fromList(e.sequence).readUint32LE(0),
+              ),
+            )
+            .toList(),
+        outputs: prevTx.outputs
+            .map(
+              (e) => sdk.TrezorPrevOutput(
+                amount: e.amount.toInt(),
+                scriptPubkey: e.scriptPubKey.toBytes(),
+              ),
+            )
+            .toList(),
+      );
     }
 
-    final outputs = <TrezorTxOutput>[];
+    final outputs = <sdk.TrezorTxOutput>[];
     final outputCount = psbt.getGlobalOutputCount();
     for (var i = 0; i < outputCount; i++) {
+      final amount = psbt.getOutputAmount(i);
+
+      // An output carrying our own BIP32 derivation is change: identify it
+      // by path so the device verifies it internally instead of displaying
+      // it as a payment.
+      final changePubkey = _firstDerivationPubkey(psbt.outputMaps[i], "02");
+      if (changePubkey != null) {
+        final (fingerprint, path) = psbt.getOutputBip32Derivation(i, changePubkey);
+        if (listEquals(fingerprint, masterFingerprint)) {
+          outputs.add(sdk.TrezorTxOutput(
+            addressPath: path,
+            amount: amount,
+            scriptType: "PAYTOWITNESS",
+          ));
+          continue;
+        }
+      }
+
       final script = Script.fromRaw(byteData: psbt.getOutputScript(i));
-      // Trezor's protocol expects script_type: PAYTOADDRESS whenever the
-      // output is identified by `address` (vs. own-change `addressPath`).
-      // Suite parses the address string itself to determine the actual
-      // on-chain script type (P2WPKH, P2TR, P2SH, etc.); script_type is
-      // only semantically meaningful when addressPath is set. Passing
-      // PAYTOWITNESS / PAYTOP2SHWITNESS / PAYTOTAPROOT here together with
-      // `address` causes Suite to reject the deeplink as "Invalid
-      // parameters from calling app" because those values specifically
-      // mean "own change paid to that wallet type."
-      outputs.add(TrezorTxOutput(
-        amount: psbt.getOutputAmount(i),
+      outputs.add(sdk.TrezorTxOutput(
         address: script.toAddress(),
+        amount: amount,
         scriptType: "PAYTOADDRESS",
-        // ToDo: when change-output detection lands, set addressPath + _getScriptType(...) for own-change outputs.
-        // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
       ));
     }
 
-    final signedTx = await connect.signTransaction(coin: 'btc', inputs: inputs, outputs: outputs);
+    final signed = await _trezorBitcoin.signTransaction(
+      inputs: inputs,
+      outputs: outputs,
+      prevTxs: prevTxs,
+      version: psbt.getGlobalTxVersion(),
+      lockTime: psbt.getGlobalFallbackLocktime() ?? 0,
+    );
 
-    return Uint8List.fromList(BytesUtils.fromHexString(signedTx!.serializedTx));
+    return signed.serializedTx;
   }
 
   @override
-  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) async {
-    final sig = await connect.signMessage(derivationPath ?? "m/84'/0'/0'/0/0",
-        message: hex.encode(message), hex: true);
-    return base64Decode(sig!.signature);
-  }
-}
-
-class LitecoinTrezorService extends HardwareWalletService
-    with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
-  LitecoinTrezorService(this.connect);
-
-  final TrezorConnect connect;
-
-  @override
-  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
-    final indexRange = List.generate(limit, (i) => i + index);
-    final requestParams = <TrezorGetPublicKeyParams>[];
-    final xpubVersion = Bip44Conf.litecoinMainNet.altKeyNetVer;
-
-    for (final i in indexRange) {
-      final derivationPath = "m/84'/2'/$i'";
-      requestParams.add(TrezorGetPublicKeyParams(path: derivationPath, coin: "LTC"));
-    }
-
-    final accounts = await connect.getPublicKeyBundle(requestParams);
-
-    return accounts?.map((account) {
-          final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub, xpubVersion)
-              .childKey(Bip32KeyIndex(0));
-
-          final address = generateP2WPKHAddress(hd: hd, index: 0, network: LitecoinNetwork.mainnet);
-          return HardwareAccountData(
-            address: address,
-            xpub: account.xpub,
-            accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
-            derivationPath: account.serializedPath,
-          );
-        }).toList() ??
-        [];
-  }
-
-  @override
-  Future<String> signLitecoinTransaction({
-    required List<BitcoinBaseOutput> outputs,
-    required List<PSBTReadyUtxoWithAddress> inputs,
-    required Map<String, PublicKeyWithDerivationPath> publicKeys,
-  }) async {
-    final readyInputs = inputs
-        .map((input) => TrezorTxInput(
-              prevHash: input.utxo.txHash,
-              prevIndex: input.utxo.vout,
-              amount: input.utxo.value.toInt(),
-              addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
-              scriptType: "SPENDWITNESS",
-            ))
-        .toList();
-
-    final readyOutputs = outputs.map((output) {
-      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
-
-      return TrezorTxOutput(
-        amount: output.toOutput.amount.toInt(),
-        address: maybeChangePath != null
-            ? null
-            : output.toOutput.scriptPubKey.toAddress(network: LitecoinNetwork.mainnet),
-        scriptType: _getScriptType(output.toOutput.scriptPubKey.getAddressType()!),
-        addressPath: maybeChangePath != null
-            ? Bip32PathParser.parse(maybeChangePath.derivationPath).toList()
-            : null,
+  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) =>
+      _trezorBitcoin.signMessage(
+        derivationPath: derivationPath ?? "m/84'/0'/0'/0/0",
+        message: message,
       );
-    }).toList();
 
-    final signedTx =
-        await connect.signTransaction(coin: 'LTC', inputs: readyInputs, outputs: readyOutputs);
-
-    return signedTx!.serializedTx;
-  }
-}
-
-String _getScriptType(BitcoinAddressType addressType) {
-  switch (addressType) {
-    case P2pkhAddressType.p2pkh:
-      return "PAYTOADDRESS";
-    case P2shAddressType.p2wpkhInP2sh:
-      return "PAYTOSCRIPTHASH";
-    case SegwitAddresType.p2tr:
-      return "PAYTOTAPROOT";
-    case SegwitAddresType.p2wsh:
-      return "PAYTOP2SHWITNESS";
-    case SegwitAddresType.p2wpkh:
-      return "PAYTOWITNESS";
-    default:
-      throw Exception("Unknown Address Type");
+  /// Extracts the pubkey from the first BIP32-derivation record
+  /// ([keyTypeHex] `06` for inputs, `02` for outputs) of a PSBT key-value map.
+  Uint8List? _firstDerivationPubkey(Map<String, Uint8List> map, String keyTypeHex) {
+    final key = map.keys.where((mapKey) => mapKey.startsWith(keyTypeHex)).firstOrNull;
+    if (key == null) return null;
+    return Uint8List.fromList(hex.decode(key.substring(2)));
   }
 }

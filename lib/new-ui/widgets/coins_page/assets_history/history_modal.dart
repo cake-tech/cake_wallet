@@ -40,7 +40,9 @@ class HistoryModal extends StatelessWidget {
               child: Stack(
             children: [
               Material(
-                  child: CustomScrollView(controller: ModalScrollController.of(context), slivers: [
+                  child: CustomScrollView(physics: ClampingScrollPhysics(),
+                      controller: ModalScrollController.of(context),
+                      slivers: [
                 HistorySection(
                     detailsAsPage: true,
                     dashboardViewModel: dashboardViewModel,

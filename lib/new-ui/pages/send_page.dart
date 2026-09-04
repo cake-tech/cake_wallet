@@ -1,11 +1,13 @@
-import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
+import "dart:async";
+
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/address_validator.dart";
+import "package:cake_wallet/core/anypay/anypay_models.dart";
+import "package:cake_wallet/core/anypay/anypay_parser.dart";
+import "package:cake_wallet/core/anypay/anypay_service.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart";
-import "package:cake_wallet/core/universal_address_detector.dart";
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/contact_record.dart";
 import "package:cake_wallet/entities/priority_for_wallet_type.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -14,14 +16,10 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
-import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
-import "package:cake_wallet/new-ui/widgets/anypay/evm_address_detected_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
-import "package:cake_wallet/new-ui/widgets/anypay/send_to_network_page.dart";
-import "package:cake_wallet/new-ui/widgets/anypay/swap_from_network_page.dart";
-import "package:cake_wallet/new-ui/widgets/anypay/switch_network_wallet_page.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
@@ -40,22 +38,17 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
-import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
-import "package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
-import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
-import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
-import "package:cake_wallet/view_model/payment/payment_view_model.dart";
+import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
@@ -66,11 +59,9 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/lnurl.dart";
-import "package:cw_core/payment_uris.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -169,12 +160,14 @@ class SendPageModes {
 class SendPageParams {
   SendPageParams({
     this.initialPaymentRequest,
+    this.initialRawInput,
     SendPageModes? mode,
     this.unspentCoinType = UnspentCoinType.any,
     this.initialCurrency,
   }) : mode = mode ?? SendPageModes.normal;
 
   final PaymentRequest? initialPaymentRequest;
+  final String? initialRawInput;
   final SendPageModes mode;
   final CryptoCurrency? initialCurrency;
   final UnspentCoinType unspentCoinType;
@@ -183,13 +176,15 @@ class SendPageParams {
 class NewSendPage extends StatefulWidget {
   NewSendPage({
     required this.sendViewModel,
-    required this.paymentViewModel,
+    required this.anyPayService,
+    required this.linkViewModel,
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
+        initialRawInput = params.initialRawInput,
         mode = params.mode {
     if (params.initialCurrency != null) {
       sendViewModel.selectedCryptoCurrency = params.initialCurrency!;
@@ -197,11 +192,13 @@ class NewSendPage extends StatefulWidget {
   }
 
   final SendViewModel sendViewModel;
-  final PaymentViewModel paymentViewModel;
+  final AnyPayService anyPayService;
+  final LinkViewModel linkViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
+  final String? initialRawInput;
   final SendPageModes mode;
 
   @override
@@ -216,8 +213,9 @@ class _NewSendPageState extends State<NewSendPage> {
   final _memoControllers = <TextEditingController>[];
   final _formKey = GlobalKey<FormState>();
   final _addressFocusNode = FocusNode();
-  BuildContext? loadingBottomSheetContext;
-  BuildContext? dialogContext;
+  final _disposers = <ReactionDisposer>[];
+  StreamSubscription<Uri>? _deepLinkSubscription;
+  late final AnyPayFlow _anyPayFlow;
   ContactRecord? newContactAddress;
 
   bool _justHandledPasteButton = false;
@@ -225,69 +223,72 @@ class _NewSendPageState extends State<NewSendPage> {
   @override
   void initState() {
     super.initState();
+    _anyPayFlow = AnyPayFlow(
+      anyPayService: widget.anyPayService,
+      sendViewModel: widget.sendViewModel,
+      authService: widget.authService,
+      walletSwitcherViewModel: widget.walletSwitcherViewModel,
+    );
     _addInputControllers();
 
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, (all) {
-      if (all) {
-        widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
-        _amountControllers[_selectedOutput].text = S.current.all;
-      }
-    });
-
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].address, (address) {
-      if (_addressControllers[_selectedOutput].text != address) {
-        _addressControllers[_selectedOutput].text = address;
-      }
-    });
-
-    reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (memo) {
-      if (memo != _memoControllers[_selectedOutput].text) {
-        _memoControllers[_selectedOutput].text = memo;
-      }
-    });
-
-    if (widget.initialPaymentRequest != null) {
-      if (_isInitialRequestTypeSameAsCurrentWallet()) {
-        final contractAddress = widget.initialPaymentRequest!.contractAddress;
-        if (contractAddress != null && contractAddress.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (!mounted) {
-              return;
-            }
-            await _applyPaymentSelectingCurrency(widget.initialPaymentRequest!, null);
-          });
-        } else {
-          _addressControllers[0].text = widget.initialPaymentRequest!.address;
-          _applyNote(widget.initialPaymentRequest!.note, 0);
-          _amountControllers[0].text = widget.initialPaymentRequest!.amount;
+    _disposers.add(
+      reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, (all) {
+        if (all) {
+          widget.sendViewModel.outputs[_selectedOutput].isFiatEntry = false;
+          _amountControllers[_selectedOutput].text = S.current.all;
         }
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
-            if (mounted) {
-              final paymentRequest = widget.initialPaymentRequest!;
-              final scheme = paymentRequest.scheme.toLowerCase();
-              final String uri;
-              if (scheme.isEmpty || scheme == "lightning") {
-                uri = paymentRequest.address;
-              } else if (scheme == "ethereum") {
-                uri = ERC681URI(
-                  address: paymentRequest.address,
-                  amount: paymentRequest.amount,
-                  contractAddress: paymentRequest.contractAddress,
-                  chainId: paymentRequest.chainId ?? _currentEvmChainIdOrMainnet(),
-                  rawTokenAmount: paymentRequest.rawTokenAmount,
-                ).toString();
-              } else {
-                final amount =
-                    paymentRequest.amount.isNotEmpty ? "?amount=${paymentRequest.amount}" : "";
-                uri = "${paymentRequest.scheme}:${paymentRequest.address}$amount";
-              }
-              _handlePaymentFlow(uri, paymentRequest);
-            }
-          },
+      }),
+    );
+
+    _disposers.add(
+      reaction((_) => widget.sendViewModel.outputs[_selectedOutput].address, (address) {
+        if (_addressControllers[_selectedOutput].text != address) {
+          _addressControllers[_selectedOutput].text = address;
+        }
+      }),
+    );
+
+    _disposers.add(
+      reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (memo) {
+        if (memo != _memoControllers[_selectedOutput].text) {
+          _memoControllers[_selectedOutput].text = memo;
+        }
+      }),
+    );
+
+    if (widget.initialRawInput != null || widget.initialPaymentRequest != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          return;
+        }
+        await _runAnyPayFlow(
+          rawInput: widget.initialRawInput,
+          paymentRequest: widget.initialPaymentRequest,
         );
-      }
+      });
+    }
+
+    if (widget.mode == SendPageModes.normal) {
+      _deepLinkSubscription = widget.linkViewModel.incomingPaymentLinks.listen((link) async {
+        if (!mounted) {
+          return;
+        }
+
+        final state = widget.sendViewModel.state;
+        if (_anyPayFlow.isSwitchingWallet ||
+            state is IsExecutingState ||
+            state is TransactionCommitting) {
+          printV("dropping incoming payment link while the send flow is busy");
+          return;
+        }
+
+        final route = ModalRoute.of(context);
+        if (route != null && !route.isCurrent) {
+          Navigator.of(context).popUntil((r) => r == route);
+        }
+
+        await _runAnyPayFlow(rawInput: link.toString());
+      });
     }
 
     _addressFocusNode.addListener(() async {
@@ -296,6 +297,25 @@ class _NewSendPageState extends State<NewSendPage> {
         await _resolveAddressForOutput(output);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _deepLinkSubscription?.cancel();
+    for (final disposer in _disposers) {
+      disposer();
+    }
+    for (final controller in _amountControllers) {
+      controller.dispose();
+    }
+    for (final controller in _addressControllers) {
+      controller.dispose();
+    }
+    for (final controller in _memoControllers) {
+      controller.dispose();
+    }
+    _addressFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _resolveAddressForOutput(Output output) async {
@@ -326,6 +346,9 @@ class _NewSendPageState extends State<NewSendPage> {
   Widget build(BuildContext context) => Observer(
         builder: (_) {
           final output = widget.sendViewModel.outputs[_selectedOutput];
+          final recipientChain = widget.sendViewModel.isEVMWallet
+              ? evm!.getChainInfoByChainId(_currentEvmChainIdOrMainnet())
+              : null;
           return SafeArea(
             bottom: false,
             child: KeyboardHideOverlay(
@@ -452,11 +475,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 output.resetParsedAddress();
                                                 await _resolveAddressForOutput(output);
 
-                                                // Process the payment through the new flow
-                                                await _handlePaymentFlow(
-                                                  uri.toString(),
-                                                  PaymentRequest.fromString(uri.toString()),
-                                                );
+                                                await _runAnyPayFlow(rawInput: uri.toString());
                                               },
                                               onEditingComplete: _addressFocusNode.unfocus,
                                               onPushAddressBookButton: (_) {
@@ -478,16 +497,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                                       ? output.extractedAddress
                                                       : output.address;
 
-                                                  await _handlePaymentFlow(
-                                                    address,
-                                                    PaymentRequest(
-                                                      address,
-                                                      _amountControllers[_selectedOutput].text,
-                                                      _memoControllers[_selectedOutput].text,
-                                                      "",
-                                                      null,
-                                                    ),
-                                                  );
+                                                  await _runAnyPayPaste(address);
                                                 } finally {
                                                   _justHandledPasteButton = false;
                                                 }
@@ -498,10 +508,17 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   widget.sendViewModel.selectedCryptoCurrency,
                                             ),
                                             if (widget.sendViewModel.isEVMWallet &&
-                                                _hasEvmRecipient(output))
+                                                _hasEvmRecipient(output) &&
+                                                recipientChain != null)
                                               RecipientNetworkSelector(
-                                                wallet: widget.sendViewModel.wallet,
-                                                onTap: _presentRecipientNetworkPicker,
+                                                networkName: recipientChain.name,
+                                                networkIconPath: symbolIconPathForWalletType(
+                                                      widget.sendViewModel.wallet.type,
+                                                    ) ??
+                                                    "",
+                                                onTap: () => _presentRecipientNetworkPicker(
+                                                  recipientChain,
+                                                ),
                                               ),
                                           ],
                                         ),
@@ -1033,555 +1050,124 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _handleManualNetworkSelection(ChainInfo target) async {
-    final address = _addressControllers[_selectedOutput].text.trim();
+    final output = widget.sendViewModel.outputs[_selectedOutput];
+    final address = output.isParsedAddress
+        ? output.extractedAddress
+        : _addressControllers[_selectedOutput].text.trim();
     final note = _memoControllers[_selectedOutput].text;
     final isTokenSelected = widget.sendViewModel.selectedCryptoCurrency is Erc20Token;
     final amount = isTokenSelected ? "" : _amountControllers[_selectedOutput].text;
-    final paymentRequest = PaymentRequest(address, amount, note, "", null);
-    await _handleEvmNetworkFlow(target, paymentRequest);
-  }
+    final request =
+        AnyPayParser.fromPaymentRequest(PaymentRequest(address, amount, note, "", null));
 
-  bool _isInitialRequestTypeSameAsCurrentWallet() {
-    final req = widget.initialPaymentRequest;
-    if (req == null) {
-      return false;
+    final evaluation = await widget.anyPayService.evaluateForEvmChain(request, target.chainId);
+    if (!mounted) {
+      return;
     }
-
-    final currentType = widget.sendViewModel.wallet.type;
-    if (evm != null && isEVMCompatibleChain(currentType)) {
-      final targetChainId = _evmTargetChainId(req);
-      if (targetChainId != null) {
-        return targetChainId == _currentEvmChainIdOrMainnet();
-      }
-    }
-    return widget.sendViewModel.walletCurrencyName == req.scheme.toLowerCase();
-  }
-
-  int? _evmTargetChainId(PaymentRequest req) {
-    final scheme = req.scheme.toLowerCase();
-    if (scheme == "ethereum") {
-      if (req.chainId != null) {
-        return req.chainId;
-      }
-
-      return _currentEvmChainIdOrMainnet();
-    }
-    try {
-      return getChainIdByCryptoCurrency(CryptoCurrency.fromString(scheme));
-    } catch (_) {
-      return null;
-    }
+    await _handleEvaluation(evaluation, fallbackCurrency: target.currency);
   }
 
   int _currentEvmChainIdOrMainnet() {
     final wallet = widget.sendViewModel.wallet;
-    if (evm != null && isEVMCompatibleChain(wallet.type)) {
+    if (isEVMCompatibleChain(wallet.type)) {
       return evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
     }
     return 1;
   }
 
-  Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
-    final isEip681 = uri.toLowerCase().startsWith("ethereum:");
-    if (!isEip681 && (uri.contains("@") || paymentRequest.address.contains("@"))) {
-      return;
+  Future<bool> _handleIfOpenCryptoPay(String input) async {
+    if (!OpenCryptoPayService.isOpenCryptoPayQR(input) ||
+        widget.sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln) {
+      return false;
     }
 
-    if (OpenCryptoPayService.isOpenCryptoPayQR(uri) &&
-        widget.sendViewModel.selectedCryptoCurrency != CryptoCurrency.btcln) {
-      final request = await widget.sendViewModel.getOpenCryptoPayRequest(uri);
-      if (request == null) {
-        return;
-      }
+    if (_selectedOutput != 0) {
+      setState(() => _selectedOutput = 0);
+    }
+
+    final request = await widget.sendViewModel.getOpenCryptoPayRequest(input);
+    if (request != null && mounted) {
       _applyPaymentRequest(request);
-      return;
     }
-
-    try {
-      final result = await widget.paymentViewModel.processAddress(uri);
-
-      if (paymentRequest.contractAddress != null) {
-        await widget.sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
-      }
-
-      // This automatically switches to lightning mode if you are in a bitcoin wallet
-      if (result.addressDetectionResult?.detectedCurrency == CryptoCurrency.btcln) {
-        widget.sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
-        widget.sendViewModel.coinTypeToSpendFrom = UnspentCoinType.lightning;
-      }
-
-      switch (result.type) {
-        case PaymentFlowType.singleWallet:
-        case PaymentFlowType.multipleWallets:
-        case PaymentFlowType.noWallets:
-          await _showPaymentConfirmation(
-            widget.paymentViewModel,
-            widget.walletSwitcherViewModel,
-            paymentRequest,
-            result,
-          );
-          break;
-        case PaymentFlowType.evmNetworkSelection:
-          if (result.chainId != null && evm!.getChainInfoByChainId(result.chainId!) == null) {
-            _showUnsupportedNetworkAlert(result.chainId!);
-            return;
-          }
-
-          final targetChainId =
-              paymentRequest.scheme.isNotEmpty ? _evmTargetChainId(paymentRequest) : null;
-          final targetChain =
-              targetChainId != null ? evm!.getChainInfoByChainId(targetChainId) : null;
-          final currentChainId = isEVMCompatibleChain(widget.sendViewModel.wallet.type)
-              ? _currentEvmChainIdOrMainnet()
-              : null;
-          final isCrossChain = targetChain != null && targetChain.chainId != currentChainId;
-
-          if (isCrossChain) {
-            await _handleEvmNetworkFlow(targetChain, paymentRequest);
-          } else if (widget.sendViewModel.isEVMWallet) {
-            await _applyPaymentSelectingCurrency(paymentRequest, null);
-          } else {
-            await _showEvmNetworkPicker(paymentRequest, result.walletType);
-          }
-          break;
-        case PaymentFlowType.solanaTokenSelection:
-        case PaymentFlowType.tronTokenSelection:
-          await _showPaymentConfirmation(
-            widget.paymentViewModel,
-            widget.walletSwitcherViewModel,
-            paymentRequest,
-            result,
-          );
-          break;
-        case PaymentFlowType.currentWalletCompatible:
-        case PaymentFlowType.error:
-        case PaymentFlowType.incompatible:
-          _applyPaymentRequest(paymentRequest);
-          break;
-      }
-    } catch (e) {
-      printV("Payment flow error: $e");
-      _applyPaymentRequest(paymentRequest);
-    }
-  }
-
-  void _showUnsupportedNetworkAlert(int chainId) {
-    if (!mounted) {
-      return;
-    }
-
-    showPopUp<void>(
-      context: context,
-      builder: (context) => AlertWithOneAction(
-        alertTitle: S.of(context).error,
-        alertContent: S.of(context).unsupported_network_requested(chainId.toString()),
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
-
-  Future<void> _showPaymentConfirmation(
-    PaymentViewModel paymentViewModel,
-    WalletSwitcherViewModel walletSwitcherViewModel,
-    PaymentRequest paymentRequest,
-    PaymentFlowResult result,
-  ) async {
-    if (!mounted || result.walletType == null) {
-      return;
-    }
-
-    final destinationType = result.walletType!;
-    final isEvmTarget = isEVMCompatibleChain(destinationType);
-    final destinationChainId = result.chainId;
-    final destinationNetworkName = networkDisplayName(destinationType, destinationChainId);
-    final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? "";
-
-    final currentType = widget.sendViewModel.wallet.type;
-    final currentChainId =
-        isEVMCompatibleChain(currentType) && evm != null ? _currentEvmChainIdOrMainnet() : null;
-    final currentNetworkName = networkDisplayName(currentType, currentChainId);
-    final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? "";
-
-    final hasSingleWallet =
-        result.type == PaymentFlowType.singleWallet || result.wallets.length == 1;
-    final hasMultipleWallets =
-        result.type == PaymentFlowType.multipleWallets || result.wallets.length > 1;
-    final hasWallet = hasSingleWallet || hasMultipleWallets || result.wallet != null;
-
-    final decisionTitle = isEvmTarget
-        ? S.of(context).send_to_network(destinationNetworkName)
-        : S.of(context).network_address_detected(destinationNetworkName);
-    final swapConfirmTitle = isEvmTarget
-        ? S.of(context).swap_from_network(currentNetworkName)
-        : S.of(context).network_address_detected(destinationNetworkName);
-    final swapConfirmPrimary = isEvmTarget
-        ? S.of(context).continue_to_swap
-        : S.of(context).swap_from_network(currentNetworkName);
-
-    if (hasWallet) {
-      await Navigator.of(context).push<void>(
-        CupertinoPageRoute(
-          builder: (pageContext) => SendToNetworkPage(
-            title: decisionTitle,
-            destinationNetworkName: destinationNetworkName,
-            destinationIconPath: destinationNetworkIcon,
-            currentNetworkName: currentNetworkName,
-            onSwitchWallet: () => _onSwitchWalletSelected(
-              pageContext,
-              result,
-              paymentRequest,
-              destinationNetworkName,
-              destinationNetworkIcon,
-              hasMultipleWallets,
-            ),
-            onSwap: () => _onSwapSelected(pageContext, result, paymentRequest),
-          ),
-        ),
-      );
-    } else {
-      await Navigator.of(context).push<void>(
-        CupertinoPageRoute(
-          builder: (pageContext) => SwapFromNetworkPage(
-            title: swapConfirmTitle,
-            primaryButtonText: swapConfirmPrimary,
-            primaryHasSwapIcon: !isEvmTarget,
-            destinationNetworkName: destinationNetworkName,
-            destinationNetworkIconPath: destinationNetworkIcon,
-            currentNetworkName: currentNetworkName,
-            currentNetworkIconPath: currentNetworkIcon,
-            onProceed: () => _onSwapSelected(pageContext, result, paymentRequest),
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _onSwapSelected(
-    BuildContext pageContext,
-    PaymentFlowResult result,
-    PaymentRequest paymentRequest,
-  ) async {
-    await _handleSwapFlow(result, pageContext, paymentRequest);
-  }
-
-  Future<void> _onSwitchWalletSelected(
-    BuildContext pageContext,
-    PaymentFlowResult result,
-    PaymentRequest paymentRequest,
-    String destName,
-    String destIcon,
-    bool hasMultipleWallets,
-  ) async {
-    WalletInfo? destinationWalletInfo;
-    if (hasMultipleWallets) {
-      destinationWalletInfo = await SwitchNetworkWalletPage.push(
-        context: pageContext,
-        networkName: destName,
-        targetIconPath: destIcon,
-        wallets: result.wallets,
-      );
-      if (destinationWalletInfo == null) {
-        return;
-      }
-    } else {
-      destinationWalletInfo =
-          result.wallet ?? (result.wallets.isNotEmpty ? result.wallets.first : null);
-    }
-
-    if (destinationWalletInfo == null) {
-      return;
-    }
-
-    // We may have awaited the wallet picker above, so make sure the decision page
-    // is still around before we reach into its navigator.
-    if (!pageContext.mounted) {
-      return;
-    }
-    if (Navigator.of(pageContext).canPop()) {
-      Navigator.of(pageContext).pop();
-    }
-    if (!mounted) {
-      return;
-    }
-    await _completeWalletSwitch(destinationWalletInfo, result, paymentRequest);
-  }
-
-  Future<void> _applyPaymentSelectingCurrency(
-    PaymentRequest paymentRequest,
-    CryptoCurrency? fallbackCurrency,
-  ) async {
-    String? amountOverride;
-    final contract = paymentRequest.contractAddress;
-    if (contract != null && contract.isNotEmpty) {
-      final walletType = widget.sendViewModel.wallet.type;
-      final lookupType = evm != null && isEVMCompatibleChain(walletType)
-          ? (evm!.getWalletTypeByChainId(_currentEvmChainIdOrMainnet()) ?? walletType)
-          : walletType;
-      final token = await TokenUtilities.findTokenByAddress(
-        walletType: lookupType,
-        address: contract,
-      );
-      if (!mounted) {
-        return;
-      }
-
-      if (token == null) {
-        final rerouted = await _rerouteChainlessContractPayment(paymentRequest);
-        if (rerouted || !mounted) {
-          return;
-        }
-        _showUnsupportedTokenAlert();
-        return;
-      }
-      await widget.sendViewModel.fetchTokenForContractAddress(contract, walletType: lookupType);
-      amountOverride = paymentRequest.resolveTokenAmount(token);
-    } else if (fallbackCurrency != null) {
-      widget.sendViewModel.setSelectedCryptoCurrency(fallbackCurrency.title);
-      if (paymentRequest.amount.isEmpty) {
-        widget.sendViewModel.outputs[_selectedOutput].setCryptoAmount("");
-        _amountControllers[_selectedOutput].clear();
-      }
-    }
-    if (!mounted) {
-      return;
-    }
-    _applyPaymentRequest(paymentRequest, amountOverride: amountOverride);
-  }
-
-  Future<bool> _rerouteChainlessContractPayment(PaymentRequest paymentRequest) async {
-    if (evm == null || paymentRequest.chainId != null) {
-      return false;
-    }
-
-    if (paymentRequest.scheme.toLowerCase() != "ethereum") {
-      return false;
-    }
-
-    final contract = paymentRequest.contractAddress;
-    if (contract == null || contract.isEmpty) {
-      return false;
-    }
-
-    final currentChainId = isEVMCompatibleChain(widget.sendViewModel.wallet.type)
-        ? _currentEvmChainIdOrMainnet()
-        : null;
-
-    // QRs from old app versions omit the chainId on mainnet, so a contract the current
-    // network does not know may still belong to another EVM network
-    final chainId = await TokenUtilities.findEvmChainIdForContract(
-      contract,
-      excludingChainId: currentChainId,
-    );
-    if (chainId == null || !mounted) {
-      return false;
-    }
-
-    final targetChain = evm!.getChainInfoByChainId(chainId);
-    if (targetChain == null) {
-      return false;
-    }
-
-    printV("chainless contract payment rerouted to chainId $chainId");
-    await _handleEvmNetworkFlow(targetChain, paymentRequest);
     return true;
   }
 
-  Future<void> _completeWalletSwitch(
-    WalletInfo wallet,
-    PaymentFlowResult result,
-    PaymentRequest paymentRequest,
-  ) async {
-    widget.walletSwitcherViewModel.selectWallet(wallet);
-    final success = await widget.walletSwitcherViewModel.switchToSelectedWallet();
-    if (!success) {
-      _showNetworkSwitchFailedAlert();
-      return;
-    }
+  Future<void> _runAnyPayFlow({String? rawInput, PaymentRequest? paymentRequest}) async {
+    assert(rawInput != null || paymentRequest != null);
+
+    final evaluation = rawInput != null
+        ? await widget.anyPayService.evaluateRawInput(rawInput)
+        : await widget.anyPayService.evaluatePaymentRequest(paymentRequest!);
+
     if (!mounted) {
       return;
     }
 
-    bool completedFlow = false;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || completedFlow) {
-        return;
-      }
-      showModalBottomSheet<void>(
-        context: context,
-        isDismissible: false,
-        builder: (BuildContext sheetContext) {
-          if (completedFlow) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (Navigator.canPop(sheetContext)) {
-                Navigator.of(sheetContext).pop();
-              }
-            });
-            return const SizedBox.shrink();
-          }
-          loadingBottomSheetContext = sheetContext;
-          return LoadingBottomSheet(titleText: S.of(sheetContext).loading_your_wallet);
-        },
-      );
-    });
+    if (await _handleIfOpenCryptoPay(evaluation.request.rawInput)) {
+      return;
+    }
 
-    bool chainSwitchFailed = false;
+    await _handleEvaluation(evaluation);
+  }
+
+  Future<void> _runAnyPayPaste(String pasted) async {
+    if (await _handleIfOpenCryptoPay(pasted)) {
+      return;
+    }
+
+    final parsed = PaymentRequest.fromString(pasted);
+    final parsedAmount = parsed.amount == "0" ? "" : parsed.amount;
+    final merged = parsed.copyWith(
+      amount: parsedAmount.isNotEmpty ? parsedAmount : _amountControllers[_selectedOutput].text,
+      note: parsed.note.isNotEmpty ? parsed.note : _memoControllers[_selectedOutput].text,
+    );
+
+    await _runAnyPayFlow(paymentRequest: merged);
+  }
+
+  Future<void> _handleEvaluation(
+    AnyPayEvaluation evaluation, {
+    CryptoCurrency? fallbackCurrency,
+  }) async {
+    final evaluationResult = await _anyPayFlow.handleEvaluation(
+      context,
+      evaluation,
+      fallbackCurrency: fallbackCurrency,
+    );
+    if (evaluationResult == null || !mounted) {
+      return;
+    }
+
     try {
-      if (evm != null &&
-          isEVMCompatibleChain(widget.sendViewModel.wallet.type) &&
-          result.chainId != null) {
-        final appStore = getIt.get<AppStore>();
-        final node = appStore.settingsStore
-            .getCurrentNode(widget.sendViewModel.wallet.type, chainId: result.chainId);
-        await evm!.selectChain(widget.sendViewModel.wallet, result.chainId!, node: node);
-      }
-    } catch (e, s) {
-      chainSwitchFailed = true;
-      printV("completeWalletSwitch failed: $e\n$s");
-    }
-
-    if (!chainSwitchFailed) {
-      try {
-        await widget.sendViewModel.wallet.updateBalance();
-      } catch (e) {
-        printV("balance refresh after network switch failed: $e");
-      }
-    }
-
-    completedFlow = true;
-    if (loadingBottomSheetContext != null &&
-        loadingBottomSheetContext!.mounted &&
-        Navigator.canPop(loadingBottomSheetContext!)) {
-      Navigator.of(loadingBottomSheetContext!).pop();
-    }
-    loadingBottomSheetContext = null;
-
-    if (!mounted) {
-      return;
-    }
-
-    if (chainSwitchFailed) {
-      _showNetworkSwitchFailedAlert();
-      return;
-    }
-
-    await _applyPaymentSelectingCurrency(
-      paymentRequest,
-      result.addressDetectionResult?.detectedCurrency,
-    );
-  }
-
-  void _showNetworkSwitchFailedAlert() {
-    if (!mounted) {
-      return;
-    }
-
-    showPopUp<void>(
-      context: context,
-      builder: (context) => AlertWithOneAction(
-        alertTitle: S.of(context).error,
-        alertContent: S.of(context).network_switch_failed,
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
-
-  void _showUnsupportedTokenAlert() {
-    if (!mounted) {
-      return;
-    }
-
-    showPopUp<void>(
-      context: context,
-      builder: (context) => AlertWithOneAction(
-        alertTitle: S.of(context).error,
-        alertContent: S.of(context).unsupported_token_requested,
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
-
-  Future<void> _showEvmNetworkPicker(
-    PaymentRequest paymentRequest,
-    WalletType? fixedNetwork,
-  ) async {
-    if (!mounted || evm == null || fixedNetwork == null || !isEVMCompatibleChain(fixedNetwork)) {
-      return;
-    }
-
-    final chains = evm!.getAllChains();
-    final networks = chains.map((chain) {
-      final walletType = evm!.getWalletTypeByChainId(chain.chainId) ?? fixedNetwork;
-      return RecipientNetworkItem(
-        chainId: chain.chainId,
-        name: chain.name,
-        iconPath: getCryptoCurrencyIconForWalletListItem(walletType, chainId: chain.chainId),
-        chainBadgeIconPath: symbolIconPathForWalletType(walletType),
+      await _applyIntent(
+        evaluationResult.request,
+        token: evaluationResult.token,
+        fallbackCurrency: evaluationResult.fallbackCurrency,
+        amountOverride: evaluationResult.amountOverride,
       );
-    }).toList();
-
-    final selectedChainId =
-        await EvmAddressDetectedSheet.show(context: context, networks: networks);
-    if (!mounted || selectedChainId == null) {
-      return;
+    } catch (e) {
+      printV("Payment flow error: $e");
+      _applyPaymentRequest(evaluationResult.request.paymentRequest);
     }
-
-    final target = chains.firstWhere(
-      (chain) => chain.chainId == selectedChainId,
-      orElse: () => chains.first,
-    );
-    await _handleEvmNetworkFlow(target, paymentRequest);
   }
 
-  Future<void> _handleEvmNetworkFlow(ChainInfo target, PaymentRequest paymentRequest) async {
-    if (evm == null || !mounted) {
-      return;
+  Future<void> _applyIntent(
+    AnyPayRequest request, {
+    CryptoCurrency? token,
+    CryptoCurrency? fallbackCurrency,
+    String? amountOverride,
+  }) async {
+    final currency = token ?? fallbackCurrency;
+    if (currency != null) {
+      widget.sendViewModel.applyAnyPayCurrency(currency);
     }
 
-    final targetType = evm!.getWalletTypeByChainId(target.chainId);
-    if (targetType == null) {
-      _showUnsupportedNetworkAlert(target.chainId);
-      return;
+    if (token == null && fallbackCurrency != null && request.amount.isEmpty) {
+      widget.sendViewModel.outputs[_selectedOutput].setCryptoAmount("");
+      _amountControllers[_selectedOutput].clear();
     }
 
-    final detection = AddressDetectionResult(
-      address: paymentRequest.address,
-      detectedWalletType: targetType,
-      detectedCurrency: target.currency,
-      chainId: target.chainId,
-      amount: paymentRequest.amount,
-      note: paymentRequest.note,
-      scheme: "",
-      isValid: true,
-    );
-    widget.paymentViewModel.applyManualEvmSelection(detection);
-
-    final currentType = widget.sendViewModel.wallet.type;
-    final currentChainId = isEVMCompatibleChain(currentType) ? _currentEvmChainIdOrMainnet() : null;
-    if (currentChainId != null && target.chainId == currentChainId) {
-      await _applyPaymentSelectingCurrency(paymentRequest, target.currency);
-      return;
-    }
-
-    final compatibleWallets = await widget.paymentViewModel.getWalletsByType(targetType);
-    if (!mounted) {
-      return;
-    }
-
-    final result = PaymentFlowResult.evmNetworkSelection(
-      detection,
-      compatibleWallets: compatibleWallets,
-      wallet: compatibleWallets.isNotEmpty ? compatibleWallets.first : null,
-    );
-
-    await _showPaymentConfirmation(
-      widget.paymentViewModel,
-      widget.walletSwitcherViewModel,
-      paymentRequest,
-      result,
-    );
+    _applyPaymentRequest(request.paymentRequest, amountOverride: amountOverride);
   }
 
   void _applyPaymentRequest(PaymentRequest paymentRequest, {String? amountOverride}) {
@@ -1604,81 +1190,6 @@ class _NewSendPageState extends State<NewSendPage> {
     // _memoControllers[_selectedOutput].text = paymentRequest.note;
 
     _applyNote(paymentRequest.note, _selectedOutput);
-  }
-
-  Future<void> _handleSwapFlow(
-    PaymentFlowResult result,
-    BuildContext presentContext,
-    PaymentRequest paymentRequest,
-  ) async {
-    if (!mounted) {
-      return;
-    }
-
-    final destWalletType = result.walletType;
-    if (destWalletType == null) {
-      return;
-    }
-
-    CryptoCurrency? resolvedToken;
-    final contract = paymentRequest.contractAddress;
-    if (contract != null && contract.isNotEmpty) {
-      resolvedToken = await TokenUtilities.findTokenByAddress(
-        walletType: destWalletType,
-        address: contract,
-      );
-    }
-    if (!mounted || !presentContext.mounted) {
-      return;
-    }
-
-    if (contract != null && contract.isNotEmpty && resolvedToken == null) {
-      _showUnsupportedTokenAlert();
-      return;
-    }
-
-    final receiveCurrency = resolvedToken ??
-        result.detectedCurrency ??
-        walletTypeToCryptoCurrency(destWalletType, chainId: result.chainId);
-
-    final receiveAmountValue = resolvedToken != null
-        ? paymentRequest.resolveTokenAmount(resolvedToken)
-        : (paymentRequest.amount.isNotEmpty ? paymentRequest.amount : null);
-    final receiveAmount =
-        receiveAmountValue != null ? Money.tryParse(receiveAmountValue, receiveCurrency) : null;
-
-    final isFiatDisabled = widget.sendViewModel.isFiatDisabled;
-    final depositBalanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
-      for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
-        r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
-          fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
-          fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
-        ),
-    };
-
-    final page = NewSwapPage(
-      getIt.get<ExchangeViewModel>(),
-      widget.authService,
-      getIt.get<AddressResolverService>(),
-      null,
-      walletSwitcherViewModel: widget.walletSwitcherViewModel,
-      fromSend: SwapFromSendArgs(
-        recipientAddress: result.addressDetectionResult?.address ?? "",
-        receiveCurrency: receiveCurrency,
-        targetWalletType: destWalletType,
-        depositBalanceByAsset: depositBalanceByAsset,
-        receiveAmount: receiveAmount,
-      ),
-    );
-    await Navigator.of(presentContext).push<void>(
-      CupertinoPageRoute(
-        builder: (context) => Material(
-          color: Theme.of(context).colorScheme.surface,
-          child: SafeArea(bottom: false, child: page),
-        ),
-      ),
-    );
   }
 
   void showErrorValidationAlert(BuildContext context) {

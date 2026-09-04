@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/balance.dart';
+import "package:cw_core/imported_nft.dart";
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -40,7 +42,7 @@ class SolanaWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -68,7 +70,7 @@ class SolanaWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -83,7 +85,7 @@ class SolanaWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }
@@ -91,15 +93,21 @@ class SolanaWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    await File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
       throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
+    final nameStillUsed = await WalletInfo.get(wallet, getType()) != null;
+    if (!nameStillUsed) {
+      await SPLToken.deleteAllForWallet(wallet);
+      await ImportedNFT.deleteAllForWallet(wallet, chains: const [ImportedNFT.solanaChain]);
+    }
+
     final prefs = await SharedPreferences.getInstance();
-    for (final key in prefs.getKeys().where(
-            (k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+    for (final key
+        in prefs.getKeys().where((k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
       await prefs.remove(key);
     }
   }
@@ -116,7 +124,7 @@ class SolanaWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;
@@ -139,7 +147,7 @@ class SolanaWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
 
     return wallet;

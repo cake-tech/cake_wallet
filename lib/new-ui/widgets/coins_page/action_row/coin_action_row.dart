@@ -166,7 +166,8 @@ class CoinActionRow extends StatelessWidget {
 
     if (code == null || code.isEmpty) return;
 
-    late final PaymentRequest req;
+    PaymentRequest? req;
+    String? rawInput;
     var unspentCoinType = UnspentCoinType.any;
     if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
       unspentCoinType = UnspentCoinType.lightning;
@@ -176,8 +177,6 @@ class CoinActionRow extends StatelessWidget {
       unspentCoinType = UnspentCoinType.lightning;
       final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
       req = PaymentRequest(code, amount, "", "", "");
-    } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
-      req = PaymentRequest(code, "", "", "", "");
     } else if (Uri.tryParse(code)?.scheme == "wc") {
       if (!isWalletConnectCompatibleChain(walletType)) {
         showPopUp<void>(
@@ -194,19 +193,19 @@ class CoinActionRow extends StatelessWidget {
       Navigator.of(context)
           .pushNamed(Routes.walletConnectConnectionsListing, arguments: Uri.parse(code));
       return;
-    } else if (["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
+    } else if (!OpenCryptoPayService.isOpenCryptoPayQR(code) &&
+        ["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
       Navigator.of(context).pushNamed(Routes.newNode,
           arguments: {"editingNode": Node.fromUri(Uri.parse(code), walletType)});
       return;
     } else {
-      final uri = Uri.tryParse(code);
-      if (uri == null) return;
-      req = PaymentRequest.fromUri(uri);
+      rawInput = code;
     }
 
     final sendPage = getIt.get<NewSendPage>(
       param1: SendPageParams(
         initialPaymentRequest: req,
+        initialRawInput: rawInput,
         unspentCoinType: unspentCoinType,
       ),
     );
