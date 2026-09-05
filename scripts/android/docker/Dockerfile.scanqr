@@ -1,0 +1,11 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/android
+COPY scripts/prepare_scanqr.sh /w/scripts/prepare_scanqr.sh
+COPY scripts/android/build_scanqr.sh /w/scripts/android/build_scanqr.sh
+RUN /w/scripts/android/build_scanqr.sh \
+    && rm -rf /w/scripts/scanqr_c_gozxing/.git
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w
