@@ -179,11 +179,7 @@ class WalletListBodyState extends State<WalletListBody> {
                           label: groupName,
                           leadingWidget: group.icon != null
                               ? WalletIconAvatar(icon: group.icon, size: 32, contentSize: 24)
-                              : CakeImageWidget(
-                            imageUrl: "assets/new-ui/navbar/wallets.svg",
-                            width: 28,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                              : const SizedBox(width: 32, height: 32),
                           isExpanded: isExpanded,
                           onExpansionChanged: (value) {
                             widget.walletListViewModel.updateTileState(index, value);
