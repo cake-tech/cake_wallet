@@ -504,7 +504,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get explorerDescription => S.current.view_transaction_on + Uri.parse(_explorerUrl).host;
 
   void launchExplorer() {
-    launchUrl(Uri.parse(_explorerUrl));
+    // Deliberately not the in-app browser: it is presented above the whole
+    // Flutter view, so the app lock cannot cover the transaction it shows.
+    launchUrl(Uri.parse(_explorerUrl), mode: LaunchMode.externalApplication);
   }
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {
