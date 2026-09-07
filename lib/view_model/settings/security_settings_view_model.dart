@@ -9,12 +9,11 @@ part 'security_settings_view_model.g.dart';
 class SecuritySettingsViewModel = SecuritySettingsViewModelBase with _$SecuritySettingsViewModel;
 
 abstract class SecuritySettingsViewModelBase with Store {
-  SecuritySettingsViewModelBase(this._settingsStore, this._authService)
-      : _biometricAuth = BiometricAuth();
+  SecuritySettingsViewModelBase(this._settingsStore, this.authService, this._biometricAuth);
 
   final BiometricAuth _biometricAuth;
   final SettingsStore _settingsStore;
-  final AuthService _authService;
+  final AuthService authService;
 
   @computed
   bool get isAppSecure => _settingsStore.isAppSecure;
@@ -40,6 +39,13 @@ abstract class SecuritySettingsViewModelBase with Store {
     return await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated();
   }
 
+  @computed
+  bool get pinRequiredForTransactions => _settingsStore.pinRequiredForTransactions;
+
+  set pinRequiredForTransactions(bool value) => _settingsStore.pinRequiredForTransactions = value;
+
+  BiometricDisplayType? get biometricDisplayType => _biometricAuth.displayType;
+
   @action
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
 
@@ -54,5 +60,5 @@ abstract class SecuritySettingsViewModelBase with Store {
   @action
   void setEnableDuressPin(bool value) => _settingsStore.enableDuressPin = value;
 
-  Future<void> clearDuressPin() async => await _authService.clearDuressPin();
+  Future<void> clearDuressPin() async => await authService.clearDuressPin();
 }

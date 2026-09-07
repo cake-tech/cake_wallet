@@ -259,7 +259,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.navigatorKey.currentState?.pushNamed(
           Routes.unlock,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+          arguments: AuthPageArgs(onAuthenticationFinished:(bool isAuthenticatedSuccessfully, AuthPageState auth) {
             if (!isAuthenticatedSuccessfully) {
               return;
             }
@@ -296,7 +296,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               widget.linkViewModel.currentLink = null;
             }
           },
-        );
+        ));
       });
     }
 
