@@ -255,10 +255,13 @@ jobs:
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
 
       - name: Prime test build
+        env:
+          SUITE_DIR_INPUT: ${{ inputs.suite_dir }}
+          TEST_TIER_INPUT: ${{ inputs.test_tier }}
         run: |
-          search_dir="${{ inputs.suite_dir }}"
-          if [[ "${{ inputs.test_tier }}" != "all" ]]; then
-            search_dir="$search_dir/${{ inputs.test_tier }}"
+          search_dir="$SUITE_DIR_INPUT"
+          if [[ "$TEST_TIER_INPUT" != "all" ]]; then
+            search_dir="$search_dir/$TEST_TIER_INPUT"
           fi
           first_suite=$(find "$search_dir" -name "*_test.dart" -type f | sort | head -1)
           echo "Priming build with $first_suite"
@@ -290,6 +293,35 @@ jobs:
 
           TIER="$1"
 
+          # These arrive from the step's env block rather than as substituted text. An empty one
+          # would silently fall back to the runner's own default suite dir, so say so instead.
+          if [[ -z "${SUITE_DIR_INPUT:-}" ]]; then
+            echo "SUITE_DIR_INPUT never reached the emulator script"
+            exit 1
+          fi
+
+          KEYS_IMPORTED=""
+
+          import_encryption_keys() {
+            if [[ -n "$KEYS_IMPORTED" ]]; then
+              return
+            fi
+
+            # A keyserver flake must never eat the test exit code
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
+            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
+            KEYS_IMPORTED=1
+          }
+
+          # The plaintext goes either way, an artifact we could not encrypt is worse than none
+          encrypt_and_drop() {
+            gpg --trust-model always --encrypt --output "$1.gpg" \
+              --recipient 6B3199AD9B3D23B8 \
+              --recipient 35C8DBAFB8D9ACAC \
+              "$1" || echo "Encrypting $1 failed, discarding it"
+            rm -f "$1"
+          }
+
           /tmp/emulator_ready.sh
 
           adb shell settings put global window_animation_scale 0.0 || true
@@ -313,9 +345,9 @@ jobs:
           set -o pipefail
           set +e
           env \
-            SUITE_DIR="${{ inputs.suite_dir }}" \
+            SUITE_DIR="$SUITE_DIR_INPUT" \
             TEST_TIER="$TIER" \
-            EXTRA_DART_DEFINES="${{ inputs.extra_dart_defines }}" \
+            EXTRA_DART_DEFINES="$EXTRA_DART_DEFINES_INPUT" \
             TEST_TIMEOUT=600 \
             RETRY_COUNT=$RETRIES \
             PLATFORM=android \
@@ -330,6 +362,14 @@ jobs:
 
           adb logcat -d > "${TIER}_logcat.txt" || true
 
+          # A funds run puts real funded seeds on the device and these carry whatever the app
+          # logs, so they leave the runner the same way the recordings do
+          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
+            import_encryption_keys
+            encrypt_and_drop "${TIER}_logcat.txt"
+            encrypt_and_drop "${TIER}_run.log"
+          fi
+
           if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
             echo "Stopping screen recording and encrypting..."
             kill "$RECORD_LOOP_PID" || true
@@ -341,17 +381,11 @@ jobs:
               adb pull "$f" recordings/ || true
             done
 
-            # Recordings show seed words on screen so they are never uploaded in plaintext,
-            # and a keyserver flake must never eat the test exit code
-            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
-            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
+            # Recordings show seed words on screen so they are never uploaded in plaintext
+            import_encryption_keys
             for f in recordings/*.mp4; do
               [[ -f "$f" ]] || continue
-              gpg --trust-model always --encrypt --output "$f.gpg" \
-                --recipient 6B3199AD9B3D23B8 \
-                --recipient 35C8DBAFB8D9ACAC \
-                "$f" || echo "Encrypting $f failed, discarding it"
-              rm "$f"
+              encrypt_and_drop "$f"
             done
           fi
 
@@ -372,6 +406,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           RECORD_SCREEN: ${{ inputs.record_screen }}
+          ENCRYPT_LOGS: ${{ inputs.write_funds_secrets }}
+          SUITE_DIR_INPUT: ${{ inputs.suite_dir }}
+          EXTRA_DART_DEFINES_INPUT: ${{ inputs.extra_dart_defines }}
         with:
           api-level: 29
           arch: x86_64
@@ -390,7 +427,9 @@ jobs:
           name: integration-test-logs
           path: |
             ${{ github.workspace }}/${{ inputs.test_tier }}_run.log
+            ${{ github.workspace }}/${{ inputs.test_tier }}_run.log.gpg
             ${{ github.workspace }}/${{ inputs.test_tier }}_logcat.txt
+            ${{ github.workspace }}/${{ inputs.test_tier }}_logcat.txt.gpg
             ${{ github.workspace }}/recordings/*.gpg
 
       - name: Integration tests on Android Emulator (tier1, non-blocking)
@@ -399,6 +438,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           RECORD_SCREEN: ${{ inputs.record_screen }}
+          ENCRYPT_LOGS: ${{ inputs.write_funds_secrets }}
+          SUITE_DIR_INPUT: ${{ inputs.suite_dir }}
+          EXTRA_DART_DEFINES_INPUT: ${{ inputs.extra_dart_defines }}
         with:
           api-level: 29
           arch: x86_64
@@ -417,7 +459,9 @@ jobs:
           name: integration-test-logs-tier1
           path: |
             ${{ github.workspace }}/tier1_run.log
+            ${{ github.workspace }}/tier1_run.log.gpg
             ${{ github.workspace }}/tier1_logcat.txt
+            ${{ github.workspace }}/tier1_logcat.txt.gpg
 
       # Superseded runs are cancelled on purpose, reporting those would be noise
       - name: Report the run to slack

@@ -25,6 +25,9 @@ Supporting pieces:
 
 - `test_driver/integration_test.dart` is the standard flutter drive driver.
 - `integration_test_runner.sh` discovers and runs suites, see Running locally.
+- `integration_test_runner_test.sh` pins the runner's data wipe guards, which decide
+  whether a local run clears a test package or the wallet you actually use. Run it after
+  touching `clean_data_directories`, it needs no device and takes a second.
 - `.github/workflows/integration_tests.yml` is the PR gate,
   `reusable-integration-test.yml` holds the shared build and emulator pipeline.
 
@@ -89,9 +92,10 @@ SUITE_DIR=integration_test/suites/tier0/fiat_currency_test.dart ./integration_te
 ```
 
 Runner knobs (environment variables): `SUITE_DIR`, `TEST_TIER` (tier0, tier1, all),
-`PLATFORM` (android, linux, auto), `FLUTTER_DEVICE`, `RETRY_COUNT`, `EXTRA_DART_DEFINES`,
-`REMOVE_DATA_DIRECTORY=N` to keep app data between suites, `VOID_GRACE` for how long a
-driver that cannot attach is given to recover.
+`PLATFORM` (android, linux, macos, auto), `FLUTTER_DEVICE`, `RETRY_COUNT`,
+`EXTRA_DART_DEFINES`, `REMOVE_DATA_DIRECTORY=N` to keep app data between suites,
+`REMOVE_DESKTOP_DATA=Y` to let a desktop run wipe the wallet directories it shares with the
+installed app, `VOID_GRACE` for how long a driver that cannot attach is given to recover.
 
 Test knobs (dart defines): `TEST_WALLET_TYPES=all` runs every available wallet type,
 a comma separated list of type names runs just those, unset runs the representative set
@@ -211,8 +215,8 @@ the two sent it. A post coming back `missing_scope` means the app is short the
 `funds_suites/` restore funded wallets and move real funds: a small self send on every
 funded chain, and one real swap with its deposit broadcast. They only run from the manual
 `Funds Integration Tests` workflow, which the team lead dispatches from the Actions tab
-before a release. Nothing gates the dispatch, anyone who can run workflows in the repo can
-start a funds run, so treat it as a deliberate release step and not a routine check.
+before a release. The job runs in the `funds` environment, so add required reviewers to that
+environment under Settings, Environments, or a dispatch still starts without an approval.
 
 Funded seeds live in the `FUNDS_SECRETS_FILE` secret, a base64 encoded replacement for
 `integration_test/core/funded_wallets.dart` mapping wallet type names to that chain's

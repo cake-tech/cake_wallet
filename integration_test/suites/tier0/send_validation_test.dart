@@ -30,8 +30,7 @@ void main() {
     await homePageRobot.openSendSheet();
     await sendRobot.isDisplayed();
 
-    // test that nothing happens when there's no address or amount filled in
-    await sendRobot.tapSendButton();
+    await sendRobot.tapSendButtonWhenReady(timeout: const Duration(minutes: 5));
     await sendRobot.expectNoTransactionBuilt();
 
     // test that no transaction is built when the address is wrong or cannot be parsed

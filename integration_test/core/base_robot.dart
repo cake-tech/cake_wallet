@@ -18,8 +18,10 @@ abstract class BaseRobot {
       return;
     }
 
-    if (isBenignError(pending.toString())) {
-      tester.printToConsole("Ignoring benign background error: $pending");
+    final kind = benignErrorKind(pending.toString());
+
+    if (kind != null) {
+      tester.printToConsole("Ignoring benign $kind background error: $pending");
       return;
     }
 

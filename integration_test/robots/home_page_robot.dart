@@ -1,7 +1,7 @@
 import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
-import "package:flutter/material.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
@@ -83,9 +83,9 @@ class HomePageRobot extends BaseRobot {
   }
 
   Future<void> confirmAllTransactionsVisible() async {
-    await pumpUntilFound(find.byType(HistoryTile));
+    await pumpUntilFound(_allViewTiles);
 
-    final rendered = tester.widgetList(find.byType(HistoryTile)).length;
+    final rendered = tester.widgetList(_allViewTiles).length;
 
     if (_dashboardTransactionCount() > 3) {
       expect(
@@ -97,7 +97,7 @@ class HomePageRobot extends BaseRobot {
       return;
     }
 
-    expect(find.byType(HistoryTile), findsWidgets);
+    expect(_allViewTiles, findsWidgets);
   }
 
   String firstTransactionIdInAllView() {
@@ -120,7 +120,7 @@ class HomePageRobot extends BaseRobot {
   String openedTransactionId() {
     final modal = tester.widget<TransactionDetailsModal>(find.byType(TransactionDetailsModal));
 
-    return modal.transactionDetailsViewModel.transactionInfo.txHash;
+    return modal.transactionDetailsViewModel.transactionInfo.id;
   }
 
   void hasTransactionIdRow() {
@@ -139,7 +139,9 @@ class HomePageRobot extends BaseRobot {
 
   Future<void> confirmSyncIndicatorShown(Type statusType) async {
     final shown = await pumpUntil(
-      () => tester.any(find.byKey(const ValueKey("home_page_sync_status_key"))),
+      () =>
+          tester.any(find.byKey(ValueKey(statusType))) ||
+          tester.any(find.byType(CupertinoActivityIndicator)),
     );
 
     expect(

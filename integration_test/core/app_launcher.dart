@@ -48,9 +48,10 @@ class AppLauncher {
   void _installTestErrorHandler(FlutterExceptionHandler? bindingHandler) {
     FlutterError.onError = (details) {
       final reportedByTestFramework = details.library == "Flutter test framework";
+      final kind = reportedByTestFramework ? null : benignErrorKind(details.exceptionAsString());
 
-      if (!reportedByTestFramework && isBenignError(details.exceptionAsString())) {
-        debugPrint("Ignoring benign error: ${details.exceptionAsString()}");
+      if (kind != null) {
+        debugPrint("Ignoring benign $kind error: ${details.exceptionAsString()}");
         return;
       }
 

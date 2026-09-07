@@ -1,20 +1,37 @@
-// Errors the app itself tolerates at runtime
-bool isBenignError(String message) => _benignFragments.any(message.contains);
+String? benignErrorKind(String message) {
+  if (_toleratedAssertions.any(message.contains)) {
+    return "assertion";
+  }
 
-const List<String> _benignFragments = [
-  // Debug build assertions. The semantics ones are real accessibility bugs that already
-  // exist on dev, take them off this list once they are fixed.
+  if (_toleratedAssets.any(message.contains)) {
+    return "asset";
+  }
+
+  if (_toleratedNetworkNoise.any(message.contains)) {
+    return "network";
+  }
+
+  return null;
+}
+
+// Debug build assertions. The semantics ones are real accessibility bugs that already
+// exist on dev, take them off this list once they are fixed.
+const List<String> _toleratedAssertions = [
   "overflowed by",
   "minValue, and maxValue must be valid numbers",
   "node.parent?._dirty",
   "RenderBox was not laid out",
+];
 
-  // CakeImageWidget reports these before falling back to the svg
+// CakeImageWidget reports these before falling back to the svg
+const List<String> _toleratedAssets = [
   "Unable to load asset",
   "NetworkImageLoadException",
   "Failed to load network image",
+];
 
-  // The same failures exception_handler.dart ignores
+// The same failures exception_handler.dart ignores
+const List<String> _toleratedNetworkNoise = [
   "SocketException",
   "HttpException",
   "ClientException",

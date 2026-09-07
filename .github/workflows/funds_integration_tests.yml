@@ -41,6 +41,7 @@ jobs:
   funds-tests:
     uses: ./.github/workflows/reusable-integration-test.yml
     with:
+      environment: funds
       ref: ${{ github.sha }}
       suite_dir: integration_test/funds_suites
       test_tier: all

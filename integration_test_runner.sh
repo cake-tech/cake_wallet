@@ -6,7 +6,7 @@ set -euo pipefail
 #   SUITE_DIR             directory to collect *_test.dart suites from, or a single suite file
 #                         (default integration_test/suites)
 #   TEST_TIER             tier0, tier1 or all, narrows SUITE_DIR to a tier subdirectory
-#   PLATFORM              android, linux or auto, picks the between-suite data reset
+#   PLATFORM              android, linux, macos or auto, picks the between-suite data reset
 #   ANDROID_APP_ID        package cleared between suites on android (default read from android/app.properties)
 #   PREBUILT_APK          prebuilt apk passed to flutter drive, its dart defines are already baked in
 #   EXTRA_DART_DEFINES    semicolon separated KEY=VALUE pairs
@@ -16,6 +16,8 @@ set -euo pipefail
 #   MAX_VOID_ATTEMPTS     extra attempts when the driver never attached (default 2)
 #   MAX_TOTAL_VOID_ATTEMPTS  give up on the whole run after this many, the environment is broken (default 4)
 #   REMOVE_DATA_DIRECTORY set to N to keep app data between suites (default wipes it)
+#   REMOVE_DESKTOP_DATA   set to Y to let a desktop run wipe the wallet directories below,
+#                         they belong to the installed wallet so this is off by default
 #   SUMMARY_FILE          path to write a key=value summary of the run to, for reporting
 #   VOID_GRACE            seconds to let a driver that cannot attach recover before the
 #                         attempt is ended early (default 60)
@@ -28,6 +30,7 @@ RETRY_COUNT=${RETRY_COUNT:-1}
 MAX_VOID_ATTEMPTS=${MAX_VOID_ATTEMPTS:-2}
 MAX_TOTAL_VOID_ATTEMPTS=${MAX_TOTAL_VOID_ATTEMPTS:-4}
 REMOVE_DATA_DIRECTORY=${REMOVE_DATA_DIRECTORY:-Y}
+REMOVE_DESKTOP_DATA=${REMOVE_DESKTOP_DATA:-N}
 EXTRA_DART_DEFINES=${EXTRA_DART_DEFINES:-}
 SUMMARY_FILE=${SUMMARY_FILE:-}
 VOID_GRACE=${VOID_GRACE:-60}
@@ -37,7 +40,7 @@ VOID_GRACE=${VOID_GRACE:-60}
 VOID_MARKERS="unusually long time to connect to the VM|taking unusually long time to initialize|Service has disappeared|Flutter Driver extension is taking a long time to become available"
 PREBUILT_APK=${PREBUILT_APK:-}
 
-# Linux desktop data directories to wipe between suites
+# Desktop data directories, shared with the installed wallet, see REMOVE_DESKTOP_DATA
 DATA_DIRS=(
     "$HOME/.local/share/com.example.cake_wallet"
     "$HOME/Documents/cake_wallet"
@@ -87,6 +90,8 @@ resolve_platform() {
 
     if command -v adb > /dev/null 2>&1 && adb devices 2>/dev/null | grep -q "device$"; then
         PLATFORM="android"
+    elif [[ "$(uname -s)" == "Darwin" ]]; then
+        PLATFORM="macos"
     else
         PLATFORM="linux"
     fi
@@ -151,16 +156,23 @@ clean_data_directories() {
         return
     fi
 
-    log "Cleaning app data..."
-
     if [[ "$PLATFORM" == "android" ]]; then
         if [[ "$ANDROID_APP_ID" != *".test_"* ]]; then
             error "Refusing to clear $ANDROID_APP_ID, it is not a test build. Rename the app first: printf 'id=com.cakewallet.test_local\\nname=local\\n' > android/app.properties"
+            exit 1
         fi
 
+        log "Cleaning app data..."
         adb shell pm clear "$ANDROID_APP_ID" > /dev/null 2>&1 || log "pm clear skipped, $ANDROID_APP_ID not installed yet"
         return
     fi
+
+    if [[ "$REMOVE_DESKTOP_DATA" != "Y" ]]; then
+        log "Keeping the desktop wallet data, set REMOVE_DESKTOP_DATA=Y to wipe it between suites"
+        return
+    fi
+
+    log "Cleaning app data..."
 
     for dir in "${DATA_DIRS[@]}"; do
         if [[ -d "$dir" ]]; then
