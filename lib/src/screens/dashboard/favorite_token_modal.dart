@@ -39,11 +39,13 @@ class FavoriteTokenModal extends StatelessWidget {
                         child: NewListSections(
                           sections: {
                             "": tokens
-                                .map((item) => ListItemRegularRow(
-                                    keyValue: item.title,
-                                    label: "${item.fullName} (${item.title})",
-                                    iconPath: item.iconPath,
-                                    onTap: () => Navigator.of(context).pop(item)))
+                                .asMap()
+                                .entries
+                                .map((entry) => ListItemRegularRow(
+                                    keyValue: "${entry.value.title}_${entry.key}",
+                                    label: "${entry.value.fullName} (${entry.value.title})",
+                                    iconPath: entry.value.iconPath,
+                                    onTap: () => Navigator.of(context).pop(entry.value)))
                                 .toList()
                           },
                         ),

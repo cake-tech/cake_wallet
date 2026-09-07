@@ -231,6 +231,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   return item.isCurrent
                                       ? SizedBox.shrink()
                                       : EditWalletButtonWidget(
+                                          key: ValueKey("wallet_list_edit_${item.name}_button_key"),
                                           width: 64,
                                           onTap: () => Navigator.of(context).pushNamed(
                                             Routes.walletEdit,
@@ -314,6 +315,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 trailingWidget: wallet.isCurrent
                                     ? null
                                     : EditWalletButtonWidget(
+                                        key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
                                         width: 64,
                                         onTap: () {
                                           Navigator.of(context).pushNamed(

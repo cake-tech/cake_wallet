@@ -1,19 +1,15 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/welcome/create_pin_welcome_page.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/welcome/create_pin_welcome_page.dart";
+import "package:cake_wallet/wallet_type_utils.dart";
 
-import '../components/common_test_cases.dart';
+import "../core/base_robot.dart";
 
-class CreatePinWelcomePageRobot {
-  CreatePinWelcomePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class CreatePinWelcomePageRobot extends BaseRobot {
+  CreatePinWelcomePageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isCreatePinWelcomePage() async {
-    await commonTestCases.isSpecificPage<CreatePinWelcomePage>();
-    await commonTestCases.takeScreenshots('create_pin_welcome_page');
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<CreatePinWelcomePage>();
   }
 
   void hasTitle() {
@@ -24,7 +20,7 @@ class CreatePinWelcomePageRobot {
 
     title = S.current.cake_wallet;
 
-    commonTestCases.hasText(title);
+    hasText(title);
   }
 
   void hasDescription() {
@@ -35,12 +31,10 @@ class CreatePinWelcomePageRobot {
 
     description = S.current.new_first_wallet_text;
 
-    commonTestCases.hasText(description);
+    hasText(description);
   }
 
   Future<void> tapSetAPinButton() async {
-    await commonTestCases.tapItemByKey('create_pin_welcome_page_create_a_pin_button_key');
-
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("create_pin_welcome_page_create_a_pin_button_key");
   }
 }

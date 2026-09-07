@@ -24,7 +24,6 @@ jobs:
         KEY_PASS: test@cake_wallet
         MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-        DESKTOP_FORCE_MOBILE: Y
       volumes:
         - /opt/cw_cache_linux/root/.cache:/root/.cache
         - /opt/cw_cache_linux/root/.ccache:/root/.ccache
@@ -61,14 +60,6 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@cakewallet.com"
           git config --global user.name "CakeWallet CI"
-
-      - name: Get the full commit message
-        run: |
-          FULL_MESSAGE="$(git log -1 --pretty=%B)"
-          echo "message<<EOF" >> $GITHUB_ENV
-          echo "$FULL_MESSAGE" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Add secrets
         run: |
           touch cw_bitcoin/lib/.secrets.g.dart
@@ -143,54 +134,7 @@ jobs:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
 
-      - name: Prepare virtual desktop
-        if: ${{ contains(env.message, 'run tests') }}
-        run: |
-          nohup Xvfb :99 -screen 0 720x1280x16 &
-          echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
-          dbus-daemon --system --fork
-          nohup NetworkManager &
-          nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
-
-      # Note for people adding tests:
-      # - Tests are ran on Linux, with some things being mocked out.
-      # - Screen recording is being provided for the entire length of the test, you can download it in github articats.
-      # - Screen recordeding is encrypted, look at step "Stop screen recording, encrypt and upload", and add your key if you want
-      #   Reason for encryption is the fact that we restore the wallet from seed, and we don't want to leak that, while there
-      #   isn't much in those wallets anyway, we still wouldn't like to leak it to anyone who is able to access github.
-
-      - name: Test [confirm_seeds_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "confirm_seeds_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
-
-      - name: Test [create_wallet_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "create_wallet_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
-
-      # - name: Test [exchange_flow_test]
-      #   if: ${{ contains(env.message, 'run tests') }}
-      #   timeout-minutes: 20
-      #   run: |
-      #     xmessage -timeout 30 "exchange_flow_test" &
-      #     rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-      #     exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
-
-      - name: Test [restore_wallet_through_seeds_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
-
+      # Integration tests moved to integration_tests.yml
       - name: Test [cw_core]
         timeout-minutes: 15
         run: cd cw_core && flutter test
@@ -198,32 +142,3 @@ jobs:
       - name: Test [cw_monero]
         timeout-minutes: 15
         run: cd cw_monero && flutter test
-
-      - name: Stop screen recording, encrypt and upload
-        if: always()
-        run: |
-          if [[ ! -f "/opt/screen_grab.mkv" ]];
-          then
-            exit 0;
-          fi
-          killall ffmpeg
-          sleep 5
-          killall -9 ffmpeg || true
-          sleep 5
-          # Feel free to add your own public key if you wish
-          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
-          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
-          gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
-            --recipient 6B3199AD9B3D23B8 \
-            --recipient 35C8DBAFB8D9ACAC \
-            /opt/screen_grab.mkv
-          rm /opt/screen_grab.mkv
-          mv /opt/screen_grab.mkv.gpg ./screen_grab.mkv.gpg
-
-      - name: Upload Artifact to github
-        if: always()
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          path: ${{ github.workspace }}/screen_grab.mkv.gpg
-          name: tests_screen_grab

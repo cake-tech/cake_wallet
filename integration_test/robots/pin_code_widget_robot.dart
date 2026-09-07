@@ -1,13 +1,13 @@
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import '../components/common_test_cases.dart';
+import "../core/base_robot.dart";
 
-class PinCodeWidgetRobot {
-  PinCodeWidgetRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class PinCodeWidgetRobot extends BaseRobot {
+  PinCodeWidgetRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
+  @override
+  Future<void> isDisplayed() async => hasPinCodeWidget();
 
   void hasPinCodeWidget() {
     final pinCodeWidget = find.bySubtype<PinCodeWidget>();
@@ -15,38 +15,25 @@ class PinCodeWidgetRobot {
   }
 
   void hasNumberButtonsVisible() {
-    // Confirmation for buttons 1-9
     for (var i = 1; i < 10; i++) {
-      commonTestCases.hasValueKey('pin_code_button_${i}_key');
+      hasValueKey("pin_code_button_${i}_key");
     }
-
-    // Confirmation for 0 button
-    commonTestCases.hasValueKey('pin_code_button_0_key');
+    hasValueKey("pin_code_button_0_key");
   }
 
-  Future<void> enterPassword(String password, {int pumpDuration = 100}) async {
-    await commonTestCases.enterText(
-      password,
-      'enter_wallet_password',
-    );
-    await tester.pumpAndSettle();
-    await commonTestCases.tapItemByKey(
-      'unlock',
-    );
-    await tester.pumpAndSettle();
+  Future<void> enterPassword(String password) async {
+    await enterTextByKey("enter_wallet_password", password);
+    await settle();
 
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("unlock");
+    await settle();
   }
 
-  Future<void> enterPinCode(List<int> pinCode, {int pumpDuration = 100}) async {
-    for (int pin in pinCode) {
-      await commonTestCases.tapItemByKey(
-        'pin_code_button_${pin}_key',
-        pumpDuration: pumpDuration,
-      );
+  Future<void> enterPinCode(List<int> pinCode) async {
+    for (final pin in pinCode) {
+      await tapByKey("pin_code_button_${pin}_key");
     }
 
-    await commonTestCases.takeScreenshots('pin_code_widget');
-    await commonTestCases.defaultSleepTime();
+    await settle();
   }
 }
