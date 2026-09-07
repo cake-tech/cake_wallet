@@ -115,9 +115,9 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const sar = FiatCurrency(symbol: 'SAR', countryCode: "sau", fullName: "Saudi Riyal");
   static const sek = FiatCurrency(symbol: 'SEK', countryCode: "swe", fullName: "Swedish Krona");
   static const sgd = FiatCurrency(symbol: 'SGD', countryCode: "sgp", fullName: "Singapore Dollar");
-  static const thb =
-      FiatCurrency(symbol: 'THB', countryCode: "tha", fullName: "New Thaiwan Dollar");
-  static const twd = FiatCurrency(symbol: 'TWD', countryCode: "twn", fullName: "Thai Baht");
+  static const thb = FiatCurrency(symbol: 'THB', countryCode: "tha", fullName: "Thai Baht");
+  static const twd =
+      FiatCurrency(symbol: 'TWD', countryCode: "twn", fullName: "New Taiwan Dollar");
   static const uah = FiatCurrency(symbol: 'UAH', countryCode: "ukr", fullName: "Ukrainian Hryvnia");
   static const usd =
       FiatCurrency(symbol: 'USD', countryCode: "usa", fullName: "United States Dollar");
