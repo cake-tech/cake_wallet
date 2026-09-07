@@ -76,6 +76,7 @@ class $BackupService {
     "flutter_assets/isolate_snapshot_data",
     "README.txt",
     ".lock",
+    "~_BACKUP_TMP",
   ];
 
   Future<void> importBackupV2(Uint8List data, String password) async {
