@@ -7,7 +7,9 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/message_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/widgets/transaction_message_preview.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
@@ -123,10 +125,12 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                             return null;
                                           }
 
-                                          final shouldBuildBottomWidget = item.value.length > 25;
+                                          final isMessage = item is MessageListItem;
+                                          final shouldBuildBottomWidget =
+                                              isMessage || item.value.length > 25;
 
                                           return ListItemRegularRow(
-                                            copyableText: item.value,
+                                            copyableText: isMessage ? null : item.value,
                                             showArrow: false,
                                             keyValue: ((item.key as ValueKey?)?.value as String?) ??
                                                 item.title,
@@ -245,6 +249,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {
     return switch (item.runtimeType) {
+      MessageListItem => TransactionMessagePreview(message: item.value),
       AddressListItem => _segmentedAddressList(item.value),
       _ => Text(
           item.value,
