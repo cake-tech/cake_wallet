@@ -20,6 +20,7 @@ class SeedPageHeader extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SizedBox(height: 24),
           ExcludeSemantics(child: image),
           SizedBox(height: imageSpacing),
           Semantics(

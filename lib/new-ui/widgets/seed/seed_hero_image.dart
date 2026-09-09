@@ -14,7 +14,7 @@ class SeedHeroImage extends StatelessWidget {
     return CakeImageWidget(
       imageUrl: "assets/new-ui/hero/${name}_$variant.svg",
       width: 200,
-      height: 228.57,
+      height: 175,
     );
   }
 }
