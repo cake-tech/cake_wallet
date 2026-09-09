@@ -670,12 +670,14 @@ class WalletInfo {
     await save();
   }
 
-  Future<void> updateShowSeedBackupReminder(bool show) async {
-    showSeedBackupReminder = show;
+  Future<void> clearSeedBackupReminder() async {
+    final previous = showSeedBackupReminder;
+    showSeedBackupReminder = false;
 
     try {
       await save();
     } catch (e) {
+      showSeedBackupReminder = previous;
       printV("Failed to save the seed backup reminder flag: $e");
     }
   }

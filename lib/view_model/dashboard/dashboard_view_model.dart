@@ -1148,7 +1148,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   Future<void> dismissSeedBackupReminder() async {
     showSeedBackupReminder = false;
-    await wallet.walletInfo.updateShowSeedBackupReminder(false);
+    await wallet.walletInfo.clearSeedBackupReminder();
   }
 
   @action

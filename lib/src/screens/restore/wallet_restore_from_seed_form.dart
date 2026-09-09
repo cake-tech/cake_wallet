@@ -334,8 +334,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     });
   }
 
-  void _setLanguageLabel(String language) =>
-      languageController.text = '${language.replaceAll("POLYSEED_", "")} (Seed language)';
+  void _setLanguageLabel(String language) => languageController.text =
+      "${language.replaceAll("POLYSEED_", "")} (${S.current.seed_language})";
 
   void _changeSeedType(MoneroSeedType item) {
     widget.seedSettingsViewModel.setMoneroSeedType(item);

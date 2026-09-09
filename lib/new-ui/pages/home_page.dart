@@ -43,19 +43,21 @@ class NewHomePage extends StatefulWidget {
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
   MoneroAccountListViewModel? accountListViewModel;
   bool _lightningMode = false;
+  late final ReactionDisposer _walletReaction;
+  late final ReactionDisposer _migrationReaction;
 
   @override
   void initState() {
     super.initState();
     _setAccountViewModel();
-    reaction((_) => widget.dashboardViewModel.wallet, (_) {
+    _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
       _setAccountViewModel();
       setState(() {
         _lightningMode = false;
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
+    _migrationReaction = reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
         if (!context.mounted) {
           return;
@@ -82,6 +84,8 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   void dispose() {
+    _walletReaction();
+    _migrationReaction();
     routeObserver.unsubscribe(this);
     super.dispose();
   }

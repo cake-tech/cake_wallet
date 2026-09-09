@@ -103,18 +103,10 @@ class _PreSeedPageState extends State<PreSeedPage> {
   void _confirmSkip() {
     Navigator.of(context).push(
       CupertinoPageRoute<void>(
-        builder: (_) => SkipSeedVerificationPage(onConfirm: _skipVerification),
+        builder: (_) => SkipSeedVerificationPage(
+          onConfirm: () => openWalletAfterSeedFlow(context, widget.wallet.type),
+        ),
       ),
     );
-  }
-
-  Future<void> _skipVerification() async {
-    await widget.wallet.walletInfo.updateShowSeedBackupReminder(true);
-
-    if (!mounted) {
-      return;
-    }
-
-    openWalletAfterSeedFlow(context, widget.wallet.type);
   }
 }

@@ -153,6 +153,6 @@ abstract class WalletSeedViewModelBase with Store {
       return;
     }
 
-    await _walletInfo.updateShowSeedBackupReminder(false);
+    await _walletInfo.clearSeedBackupReminder();
   }
 }
