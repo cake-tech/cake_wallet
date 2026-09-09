@@ -151,7 +151,7 @@ class _NFTSendPage extends BasePage {
   }
 
   Future<void> _onSendPressed(BuildContext context) async {
-    if (nftSendViewModel.state is IsExecutingState) {
+    if (nftSendViewModel.isStartingSend || nftSendViewModel.state is IsExecutingState) {
       return;
     }
 
@@ -163,18 +163,23 @@ class _NFTSendPage extends BasePage {
 
     final destinationAddress = addressController.text.trim();
 
-    await authService.authenticateAction(
-      context,
-      conditionToDetermineIfToUse2FA: nftSendViewModel.shouldRequireTOTP2FAFor(destinationAddress),
-      onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully || !context.mounted) {
-          nftSendViewModel.reset();
-          return;
-        }
+    try {
+      await authService.authenticateAction(
+        context,
+        conditionToDetermineIfToUse2FA:
+            nftSendViewModel.shouldRequireTOTP2FAFor(destinationAddress),
+        onAuthSuccess: (isAuthenticatedSuccessfully) async {
+          if (!isAuthenticatedSuccessfully || !context.mounted) {
+            nftSendViewModel.reset();
+            return;
+          }
 
-        await _createAndConfirm(context, destinationAddress);
-      },
-    );
+          await _createAndConfirm(context, destinationAddress);
+        },
+      );
+    } finally {
+      nftSendViewModel.markSendSettled();
+    }
   }
 
   Future<void> _createAndConfirm(BuildContext context, String destinationAddress) async {
