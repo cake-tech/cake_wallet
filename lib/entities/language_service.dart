@@ -93,12 +93,16 @@ class LanguageService {
 
   static Future<String> localeDetection() async {
     try {
-      var locale = await Devicelocale.currentLocale ?? '';
-      locale = Intl.shortLocale(locale);
-
+      final locale = Intl.canonicalizedLocale(await Devicelocale.currentLocale ?? "");
       if (list.keys.contains(locale)) {
         return locale;
       }
+
+      final language = Intl.shortLocale(locale);
+      if (list.keys.contains(language)) {
+        return language;
+      }
+
       return LanguageService.defaultLocale;
     } catch (_) {
       return LanguageService.defaultLocale;
