@@ -37,12 +37,18 @@ class TronTransactionSummary {
       ownerAddress = value.ownerAddress.toAddress();
       final contractAddress = value.contractAddress.toAddress();
       final token = tokensByContract[contractAddress];
-      final call = _Trc20Call.tryDecode(value.data);
+      final callValue = value.callValue ?? BigInt.zero;
+      final callTokenValue = value.callTokenValue ?? BigInt.zero;
+      final call = callValue > BigInt.zero || callTokenValue > BigInt.zero
+          ? null
+          : _Trc20Call.tryDecode(value.data);
 
       if (call != null) {
+        lines.add(call.isApprove ? S.current.approve_tokens : S.current.send);
         lines.add("${S.current.value}: ${_tokenAmount(call.amount, token, call.isApprove)}");
         lines.add("${S.current.from}: $ownerAddress");
-        lines.add("${call.isApprove ? S.current.wc_spender : S.current.to}: ${call.address}");
+        final counterparty = call.isApprove ? S.current.wc_approved_address : S.current.to;
+        lines.add("$counterparty: ${call.address}");
       } else {
         lines.add("${S.current.from}: $ownerAddress");
         lines.add("${S.current.to}: $contractAddress");
@@ -51,12 +57,10 @@ class TronTransactionSummary {
         lines.add("${S.current.wc_call_data}: $callData");
       }
 
-      final callValue = value.callValue ?? BigInt.zero;
       if (callValue > BigInt.zero) {
         lines.add("${S.current.value}: ${_trx(callValue)}");
       }
 
-      final callTokenValue = value.callTokenValue ?? BigInt.zero;
       if (callTokenValue > BigInt.zero) {
         final tokenAmount = S.current.wc_raw_amount(callTokenValue.toString());
         lines.add("${S.current.token}: TRC10 ${value.tokenId ?? ""}, $tokenAmount");
@@ -72,8 +76,8 @@ class TronTransactionSummary {
       lines.add("${S.current.transaction}: ${contract.type.name}");
       lines.add(_prettyJson.convert(_withTrxAmounts(json)));
     }
-
-    final feeLimit = rawTransaction.feeLimit;
+    final feeLimit =
+        rawTransaction.feeLimit ?? (value is TriggerSmartContract ? BigInt.zero : null);
     if (feeLimit != null) {
       rows.add(WCConnectionModel(title: S.current.wc_max_network_fee, text: _trx(feeLimit)));
     }
