@@ -1,28 +1,29 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_scam_banner.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_sheet_header.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.dart';
-import 'package:flutter/material.dart';
-import 'package:reown_walletkit/reown_walletkit.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
+import "package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart";
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_dapp_card.dart";
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart";
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_scam_banner.dart";
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_sheet_header.dart";
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_wallet_card.dart";
+import "package:flutter/material.dart";
+import "package:reown_walletkit/reown_walletkit.dart";
 
 class WCSigningRequestSheet extends StatelessWidget {
   const WCSigningRequestSheet({
-    super.key,
     required this.title,
     required this.swipeLabel,
     required this.dappName,
-    required this.message,
+    required this.decoded,
     required this.walletName,
     required this.address,
+    super.key,
     this.dappIconUrl,
     this.dappSubtitle,
     this.verifyContext,
-    this.messageTitle,
-    this.extraRows = const [],
+    this.infoRows = const [],
     this.signAllCount,
   });
 
@@ -31,9 +32,8 @@ class WCSigningRequestSheet extends StatelessWidget {
   final String dappName;
   final String? dappIconUrl;
   final String? dappSubtitle;
-  final String message;
-  final String? messageTitle;
-  final List<WCMessageRow> extraRows;
+  final WCDecodedRequest decoded;
+  final List<WCDecodedRow> infoRows;
   final String walletName;
   final String address;
   final VerifyContext? verifyContext;
@@ -57,7 +57,7 @@ class WCSigningRequestSheet extends StatelessWidget {
                 WCDappCard(
                   name: dappName,
                   iconUrl: dappIconUrl,
-                  subtitle: dappSubtitle ?? '',
+                  subtitle: dappSubtitle ?? "",
                   action: WCDappCardAction.sign,
                   verifyContext: verifyContext,
                 ),
@@ -69,9 +69,8 @@ class WCSigningRequestSheet extends StatelessWidget {
                 WCWalletCard(walletName: walletName, address: address),
                 const SizedBox(height: 24),
                 WCMessageCard(
-                  title: messageTitle,
-                  message: message,
-                  extraRows: extraRows,
+                  decoded: decoded,
+                  infoRows: infoRows,
                 ),
               ],
             ),

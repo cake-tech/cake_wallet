@@ -14,6 +14,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -48,6 +50,8 @@ abstract class WalletKitServiceBase with Store {
   final SharedPreferences sharedPreferences;
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
+
+  Timer? _proposalTimeout;
 
   late ReownWalletKit _walletKit;
 
@@ -241,6 +245,8 @@ abstract class WalletKitServiceBase with Store {
 
     resetConnectionsState();
 
+    _proposalTimeout?.cancel();
+
     _walletKit.core.removeLogListener(_logListener);
 
     _walletKit.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
@@ -296,6 +302,8 @@ abstract class WalletKitServiceBase with Store {
   Future<void> _onSessionProposal(SessionProposalEvent? args) async {
     debugPrint('_onSessionProposal ${jsonEncode(args?.params)}');
 
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       final proposer = args.params.proposer;
       final result = (await _bottomSheetHandler.queueBottomSheet(
@@ -341,6 +349,8 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     debugPrint('_onSessionProposalError $args');
+
+    _proposalTimeout?.cancel();
 
     if (args != null) {
       String errorMessage = args.error.message;
@@ -460,7 +470,17 @@ abstract class WalletKitServiceBase with Store {
               dappName: requesterMetadata.name,
               dappIconUrl: requesterIcon,
               dappSubtitle: requesterMetadata.url,
-              message: combinedMessageBody,
+              decoded: WCDecodedRequest(
+                actionTitle: S.current.wc_action_sign_message,
+                rows: [
+                  WCDecodedRow(
+                    label: S.current.wc_message_label,
+                    value: combinedMessageBody,
+                  ),
+                ],
+                hideTo: true,
+                hideValue: true,
+              ),
               walletName: appStore.wallet?.name ?? '',
               address: addressForAuth,
               verifyContext: args.verifyContext,
@@ -584,20 +604,64 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> pairWithUri(Uri uri) async {
+    if (!_isPairingUriUsable(uri)) {
+      _showPairingFailed();
+      return;
+    }
+
     try {
       debugPrint('pairWithUri - Pairing with URI: $uri');
       await _walletKit.pair(uri: uri);
+      _awaitProposal();
     } on ReownSignError catch (e) {
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(message: e.message),
       );
-    } catch (e) {
-      _bottomSheetHandler.queueBottomSheet(
-        isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(message: e.toString()),
-      );
+    } catch (e, s) {
+      printV('pairWithUri failed: $e\n$s');
+      _showPairingFailed();
     }
+  }
+
+  static final _symKeyFormat = RegExp(r"^[0-9a-fA-F]{64}$");
+
+  bool _isPairingUriUsable(Uri uri) {
+    if (uri.path.split("@").first.isEmpty) {
+      return false;
+    }
+
+    if (!_symKeyFormat.hasMatch(uri.queryParameters["symKey"] ?? "")) {
+      return false;
+    }
+
+    if ((uri.queryParameters["relay-protocol"] ?? "").isEmpty) {
+      return false;
+    }
+
+    final expiry = int.tryParse(uri.queryParameters["expiryTimestamp"] ?? "");
+    if (expiry != null &&
+        DateTime.fromMillisecondsSinceEpoch(expiry * 1000).isBefore(DateTime.now())) {
+      return false;
+    }
+
+    return true;
+  }
+
+  void _awaitProposal() {
+    _proposalTimeout?.cancel();
+    _proposalTimeout = Timer(const Duration(seconds: 20), _showPairingFailed);
+  }
+
+  void _showPairingFailed() {
+    _proposalTimeout?.cancel();
+    _proposalTimeout = null;
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: BottomSheetMessageDisplayWidget(
+        message: S.current.wc_connection_link_failed,
+      ),
+    );
   }
 
   @action

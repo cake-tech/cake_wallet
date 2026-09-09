@@ -111,6 +111,12 @@ class CWSolana extends Solana {
       await (wallet as SolanaWallet).deleteSPLToken(token as SPLToken);
 
   @override
+  Future<List<List<int>?>?> getAccountsData(WalletBase wallet, List<String> addresses) async {
+    final solanaWallet = wallet as SolanaWallet;
+    return solanaWallet.getAccountsData(addresses);
+  }
+
+  @override
   Future<SPLToken?> getSPLToken(WalletBase wallet, String mintAddress) async {
     final solanaWallet = wallet as SolanaWallet;
     return await solanaWallet.getSPLToken(mintAddress);

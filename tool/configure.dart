@@ -984,6 +984,7 @@ abstract class Solana {
   );
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
+  Future<List<List<int>?>?> getAccountsData(WalletBase wallet, List<String> addresses);
 
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);

@@ -962,6 +962,9 @@ abstract class SolanaWalletBase
     await transactionHistory.save();
   }
 
+  Future<List<List<int>?>?> getAccountsData(List<String> addresses) =>
+      _client.getAccountsData(addresses);
+
   Future<SPLToken?> getSPLToken(String mintAddress) async {
     try {
       return await _client.fetchSPLTokenInfo(mintAddress);
