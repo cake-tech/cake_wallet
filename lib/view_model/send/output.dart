@@ -137,7 +137,7 @@ abstract class OutputBase with Store {
 
       int fee = 0;
       if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
-        fee = _wallet.calculateEstimatedFee(
+        fee = await _wallet.calculateEstimatedFee(
           _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           cryptoAmountMoney.amount.toInt(),
         );
@@ -160,7 +160,7 @@ abstract class OutputBase with Store {
           }
           if (_settingsStore.getPriority(_wallet.type) ==
               bitcoin!.getBitcoinTransactionPriorityCustom()) {
-            fee = bitcoin!.getEstimatedFeeWithFeeRate(
+            fee = await bitcoin!.getEstimatedFeeWithFeeRate(
                 _wallet, _settingsStore.customBitcoinFeeRate, cryptoAmountMoney.amount.toInt());
           }
 

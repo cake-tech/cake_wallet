@@ -348,17 +348,7 @@ class CWWownero extends Wownero {
     return {'id': ptx.id, 'hex': ptx.hex, 'key': ptx.txKey};
   }
 
-  @override
-  List<Unspent> getUnspents(Object wallet) {
-    final wowneroWallet = wallet as WowneroWallet;
-    return wowneroWallet.unspentCoins;
-  }
 
-  @override
-  Future<void> updateUnspents(Object wallet) async {
-    final wowneroWallet = wallet as WowneroWallet;
-    await wowneroWallet.updateUnspent();
-  }
 
   @override
   Future<int> getCurrentHeight() async {

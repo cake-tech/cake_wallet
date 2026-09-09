@@ -13,6 +13,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -128,7 +129,8 @@ abstract class ZcashWalletBase
   }
 
   @override
-  int calculateEstimatedFee(final TransactionPriority priority, final int? amount) {
+  Future<int> calculateEstimatedFee(final TransactionPriority priority, final int? amount,
+      {CoinSelection selection = const AllCoinSelection()}) async {
     return internalCalculateEstimatedFee(priority, amount);
   }
 

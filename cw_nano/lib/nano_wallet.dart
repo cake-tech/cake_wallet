@@ -17,6 +17,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -149,7 +150,9 @@ abstract class NanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0; // always 0 :)
+  Future<int> calculateEstimatedFee(TransactionPriority priority, int? amount,
+          {CoinSelection selection = const AllCoinSelection()}) async =>
+      0; // always 0 :)
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");

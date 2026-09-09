@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/amount/money.dart';
 import 'package:path/path.dart' as p;
+import 'package:cw_core/coin_control/coin_control_wallet.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -24,6 +25,7 @@ import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -39,15 +41,14 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
     extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, CoinControlWallet {
   DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password,
-      Box<UnspentCoinsInfo> unspentCoinsInfo, Libwallet libwallet, Function() closeLibwallet,
+      Libwallet libwallet, Function() closeLibwallet,
       {this.passphrase, required this.encryptionFileUtils})
       : _password = password,
         _libwallet = libwallet,
         _closeLibwallet = closeLibwallet,
         this.syncStatus = NotConnectedSyncStatus(),
-        this.unspentCoinsInfo = unspentCoinsInfo,
         this.watchingOnly =
             derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
                 derivationInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
@@ -92,7 +93,6 @@ abstract class DecredWalletBase
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
   FeeCache feeRateSlow = FeeCache(defaultFeeRate);
   Timer? syncTimer;
-  Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   @override
   @observable
@@ -369,18 +369,16 @@ abstract class DecredWalletBase
         send: () async => throw "unable to send with watching only wallet",
       );
     }
-    var totalIn = 0;
-    final ignoreInputs = [];
-    this.unspentCoinsInfo.values.forEach((unspent) {
-      if (unspent.isFrozen || !unspent.isSending) {
-        final input = {"txid": unspent.hash, "vout": unspent.vout};
-        ignoreInputs.add(input);
-        return;
-      }
-      totalIn += unspent.value;
-    });
-
     final creds = credentials as DecredTransactionCredentials;
+
+    final spendable = await spendableCoins(selection: creds.coinSelection);
+    final spendableIds = spendable.map((coin) => coin.id).toSet();
+
+    var totalIn = spendable.fold<int>(0, (sum, coin) => sum + coin.value);
+    final ignoreInputs = _unspents
+        .where((coin) => !spendableIds.contains(coin.id))
+        .map((coin) => {"txid": coin.hash, "vout": coin.vout})
+        .toList();
     var totalAmt = 0;
     var sendAll = false;
     final outputs = [];
@@ -404,7 +402,7 @@ abstract class DecredWalletBase
 
     // throw exception if no selected coins under coin control
     // or if the total coins selected, is less than the amount the user wants to spend
-    if (ignoreInputs.length == unspentCoinsInfo.values.length || totalIn < totalAmt) {
+    if (spendable.isEmpty || totalIn < totalAmt) {
       throw TransactionNoInputsException();
     }
 
@@ -457,7 +455,8 @@ abstract class DecredWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority, int? amount,
+      {CoinSelection selection = const AllCoinSelection()}) async {
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
           36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
@@ -586,18 +585,7 @@ abstract class DecredWalletBase
   Future<void> updateBalance() async {
     final balanceMap = await _libwallet.balance(walletInfo.name);
 
-    var totalFrozen = 0;
-
-    unspentCoinsInfo.values.forEach((info) {
-      _unspents.forEach((element) {
-        if (element.hash == info.hash &&
-            element.vout == info.vout &&
-            info.isFrozen &&
-            element.value == info.value) {
-          totalFrozen += element.value;
-        }
-      });
-    });
+    final totalFrozen = await frozenBalance();
 
     balance[CryptoCurrency.dcr] = DecredBalance(
       confirmed: Money.fromInt(balanceMap["confirmed"] ?? 0, currency),
@@ -686,70 +674,17 @@ abstract class DecredWalletBase
     }
   }
 
-  List<Unspent> unspents() {
-    this.updateUnspents(_unspents);
-    return _unspents;
-  }
+  /// The wallet's spendable outputs.
+  ///
+  /// dcrwallet already filters out what the protocol will not let us spend
+  /// (immature coinbase, ticket-locked outputs) via the `spendable` flag, so
+  /// those never enter this list. Nothing is written here: this is chain data,
+  /// and the user's frozen state lives in the store keyed by output id.
+  @override
+  List<Unspent> get unspents => _unspents;
 
-  void updateUnspents(List<Unspent> unspentCoins) {
-    if (this.unspentCoinsInfo.isEmpty) {
-      unspentCoins.forEach((coin) => this.addCoinInfo(coin));
-      return;
-    }
-
-    if (unspentCoins.isEmpty) {
-      this.unspentCoinsInfo.clear();
-      return;
-    }
-
-    final walletID = idPrefix + walletInfo.name;
-    if (unspentCoins.isNotEmpty) {
-      unspentCoins.forEach((coin) {
-        final coinInfoList = this.unspentCoinsInfo.values.where((element) =>
-            element.walletId == walletID && element.hash == coin.hash && element.vout == coin.vout);
-
-        if (coinInfoList.isEmpty) {
-          this.addCoinInfo(coin);
-        } else {
-          final coinInfo = coinInfoList.first;
-
-          coin.isFrozen = coinInfo.isFrozen;
-          coin.isSending = coinInfo.isSending;
-          coin.note = coinInfo.note;
-        }
-      });
-    }
-
-    final List<dynamic> keys = <dynamic>[];
-    this.unspentCoinsInfo.values.forEach((element) {
-      final existUnspentCoins = unspentCoins.where((coin) => element.hash.contains(coin.hash));
-
-      if (existUnspentCoins.isEmpty) {
-        keys.add(element.key);
-      }
-    });
-
-    if (keys.isNotEmpty) {
-      unspentCoinsInfo.deleteAll(keys);
-    }
-  }
-
-  void addCoinInfo(Unspent coin) {
-    final newInfo = UnspentCoinsInfo(
-      walletId: idPrefix + walletInfo.name,
-      hash: coin.hash,
-      isFrozen: false,
-      isSending: coin.isSending,
-      noteRaw: "",
-      address: coin.address,
-      value: coin.value,
-      vout: coin.vout,
-      isChange: coin.isChange,
-      keyImage: coin.keyImage,
-    );
-
-    unspentCoinsInfo.add(newInfo);
-  }
+  @override
+  Future<void> refreshUnspents() => fetchUnspents();
 
   // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
   // it. Returns -1 if not.

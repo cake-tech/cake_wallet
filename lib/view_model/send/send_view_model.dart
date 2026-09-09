@@ -50,7 +50,6 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
@@ -65,6 +64,8 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/coin_control/coin_control_wallet.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -91,14 +92,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       output.updateWallet(wallet);
     }
 
-    // Update unspent coins list view model with the new wallet reference
-    unspentCoinsListViewModel.updateWallet(wallet);
-
-    // Update sending balance to reflect the new wallet's balance
-    updateSendingBalance();
+    coinSelection = const AllCoinSelection();
   }
 
-  UnspentCoinsListViewModel unspentCoinsListViewModel;
+  @observable
+  CoinSelection coinSelection = const AllCoinSelection();
 
   SendViewModelBase(
     this._appStore,
@@ -109,7 +107,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.contactListViewModel,
     this.transactionDescriptionBox,
     this.hardwareWalletViewModel,
-    this.unspentCoinsListViewModel,
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
@@ -126,8 +123,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         super(appStore: _appStore) {
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
-    unspentCoinsListViewModel.initialSetup();
-    // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
     reaction((_) {
       if (isEVMCompatibleChain(wallet.type)) {
@@ -143,7 +138,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (selectedCryptoCurrency == selectionAtChainChange) {
         selectedCryptoCurrency = wallet.currency;
       }
-      updateSendingBalance();
     });
   }
 
@@ -367,45 +361,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<void> updateSendingBalance() async {
-    // force the sendingBalance to recompute since unspent coins aren't observable
-    // or at least mobx can't detect the changes
-
-    final currentType = coinTypeToSpendFrom;
-
-    if (currentType == UnspentCoinType.any) {
-      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
-    } else if (currentType == UnspentCoinType.nonMweb) {
-      coinTypeToSpendFrom = UnspentCoinType.any;
-    } else if (currentType == UnspentCoinType.mweb) {
-      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
-    }
-
-    // set it back to the original value:
-    coinTypeToSpendFrom = currentType;
-  }
+  void applyCoinSelection(CoinSelection selection) => coinSelection = selection;
 
   @computed
   Future<String> get sendingBalance async {
-    // only for electrum, monero, wownero, decred wallets atm:
-    switch (wallet.type) {
-      case WalletType.bitcoin:
-        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
-        return _appStore.amountParsingProxy.getDisplayCryptoString(
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-      case WalletType.dogecoin:
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.decred:
-        final sendingBalance =
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
-      default:
-        return balance;
+    final CoinControlWallet? w =
+        wallet is CoinControlWallet ? wallet as CoinControlWallet : null;
+    if (w == null) return balance;
+    if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
+
+    final spendable = await w.spendableCoins(selection: coinSelection, coinType: coinTypeToSpendFrom);
+    final total = spendable.fold<int>(0, (sum, coin) => sum + coin.value);
+
+    if (wallet.type == WalletType.bitcoin) {
+      return _appStore.amountParsingProxy
+          .getDisplayCryptoString(total, walletTypeToCryptoCurrency(walletType));
     }
+
+    return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(total));
   }
 
   @computed
@@ -442,16 +415,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasCoinControl =>
-      [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.decred,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin
-      ].contains(wallet.type) &&
-      coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet is CoinControlWallet && coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
@@ -1278,6 +1242,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          coinSelection: coinSelection,
           payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
         );
       case WalletType.litecoin:
@@ -1287,11 +1252,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
           coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
+          coinSelection: coinSelection,
         );
 
       case WalletType.monero:
-        return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return monero!.createMoneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority!, coinSelection: coinSelection);
 
       case WalletType.wownero:
         return wownero!
@@ -1322,7 +1288,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.decred:
         this.coinTypeToSpendFrom = UnspentCoinType.any;
-        return decred!.createDecredTransactionCredentials(outputs, priority!);
+        return decred!
+            .createDecredTransactionCredentials(outputs, priority!, coinSelection: coinSelection);
       case WalletType.zcash:
         return zcash!.createZcashTransactionCredentials(
           outputs,

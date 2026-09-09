@@ -157,7 +157,7 @@ class PayjoinManager {
               final proposalPsbt = message['psbt'] as String;
               writePayjoinLog("Sender($pjUri) proposedPSBT: $proposalPsbt");
 
-              final utxos = _wallet.getUtxoWithPrivateKeys();
+              final utxos = await _wallet.getUtxoWithPrivateKeys();
               final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
               writePayjoinLog("Sender($pjUri) finalizedPsbt: $finalizedPsbt");
 
@@ -290,10 +290,10 @@ class PayjoinManager {
               break;
 
             case PayjoinReceiverRequestTypes.getCandidateInputs:
-              utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
+              utxos = await _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
               if (utxos.isEmpty) {
                 await _wallet.updateAllUnspents();
-                utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
+                utxos = await _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
               }
               // Candidates arrive in wallet scan order (address, then age), which is
               // predictable; shuffle so the receiver's input choice can't mirror it.

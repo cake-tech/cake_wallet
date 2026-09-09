@@ -269,6 +269,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await performErc20TokenHiveMigration();
   await performSplTokenHiveMigration();
   await performTronTokenHiveMigration();
+  await performUnspentCoinsInfoHiveMigration();
 
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =

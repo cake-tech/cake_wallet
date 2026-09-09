@@ -265,7 +265,6 @@ class DecredWalletService extends WalletService<
       walletInfo,
       di,
       password,
-      unspentCoinsInfoSource,
       libwallet!,
       closeLibwallet,
       passphrase: passphrase,

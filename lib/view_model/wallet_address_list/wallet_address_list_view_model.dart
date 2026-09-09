@@ -205,9 +205,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletAddressListItem get address =>
       WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
 
-  @computed
-  String get payjoinEndpoint =>
-      wallet.type == WalletType.bitcoin ? bitcoin!.getPayjoinEndpoint(wallet) : "";
+  @observable
+  String payjoinEndpoint = "";
+
+  @action
+  Future<void> updatePayjoinEndpoint() async {
+    payjoinEndpoint =
+        wallet.type == WalletType.bitcoin ? await bitcoin!.getPayjoinEndpoint(wallet) : "";
+  }
 
   @computed
   bool get isPayjoinUnavailable => payjoinEndpoint.isEmpty;
@@ -684,6 +689,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   void _init() {
+    // Resolved here and on every wallet change, because it is no longer a
+    // synchronous getter: it depends on the wallet having a spendable output.
+    updatePayjoinEndpoint();
+
     _baseItems = [];
 
     if (wallet.walletAddresses.hiddenAddresses.isNotEmpty) {

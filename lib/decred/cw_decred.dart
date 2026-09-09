@@ -49,7 +49,8 @@ class CWDecred extends Decred {
       DecredTransactionPriority.deserialize(raw: raw);
 
   @override
-  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority) =>
+  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority,
+          {CoinSelection coinSelection = const AllCoinSelection()}) =>
       DecredTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -63,6 +64,7 @@ class CWDecred extends Decred {
                 ))
             .toList(),
         priority: priority as DecredTransactionPriority,
+        coinSelection: coinSelection,
       );
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
@@ -82,17 +84,7 @@ class CWDecred extends Decred {
     await decredWallet.walletAddresses.generateNewAddress(label);
   }
 
-  @override
-  List<Unspent> getUnspents(Object wallet) {
-    final decredWallet = wallet as DecredWallet;
-    return decredWallet.unspents();
-  }
 
-  @override
-  void updateUnspents(Object wallet) {
-    final decredWallet = wallet as DecredWallet;
-    decredWallet.unspents();
-  }
 
   @override
   int heightByDate(DateTime date) {

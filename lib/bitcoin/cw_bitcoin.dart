@@ -1,6 +1,13 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
+  Future<List<BitcoinUnspent>> _allSpendable(
+    ElectrumWallet wallet, {
+    UnspentCoinType coinType = UnspentCoinType.any,
+  }) async =>
+      (await wallet.spendableCoins(coinType: coinType))
+          .cast<BitcoinUnspent>();
+
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -148,6 +155,7 @@ class CWBitcoin extends Bitcoin {
     required TransactionPriority priority,
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    CoinSelection coinSelection = const AllCoinSelection(),
     String? payjoinUri,
   }) {
     final bitcoinFeeRate =
@@ -169,6 +177,7 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
+        coinSelection: coinSelection,
         payjoinUri: payjoinUri);
   }
 
@@ -201,6 +210,7 @@ class CWBitcoin extends Bitcoin {
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
+          candidates: await _allSpendable(electrumWallet),
         );
 
         return estimatedTx.amount;
@@ -211,7 +221,7 @@ class CWBitcoin extends Bitcoin {
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
-          coinTypeToSpendFrom: coinTypeToSpendFrom,
+          candidates: await _allSpendable(electrumWallet, coinType: coinTypeToSpendFrom),
         );
         return estimatedTx.amount;
       }
@@ -225,7 +235,7 @@ class CWBitcoin extends Bitcoin {
               ? priority as LitecoinTransactionPriority
               : priority as BitcoinTransactionPriority,
         ),
-        coinTypeToSpendFrom: coinTypeToSpendFrom,
+        candidates: await _allSpendable(electrumWallet, coinType: coinTypeToSpendFrom),
       );
 
       return estimatedTx.amount;
@@ -252,22 +262,6 @@ class CWBitcoin extends Bitcoin {
           {int? customRate}) =>
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
-  @override
-  List<BitcoinUnspent> getUnspents(Object wallet,
-      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
-      switch (coinTypeToSpendFrom) {
-        case UnspentCoinType.mweb:
-          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
-        case UnspentCoinType.nonMweb:
-          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
-        case UnspentCoinType.lightning:
-        case UnspentCoinType.any:
-          return true;
-      }
-    }).toList();
-  }
 
   Future<void> updateUnspents(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
@@ -513,10 +507,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
-      {int? outputsCount, int? size}) {
+  Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
+      {int? outputsCount, int? size}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.calculateEstimatedFeeWithFeeRate(
+      candidates: await _allSpendable(bitcoinWallet),
       feeRate,
       amount,
       outputsCount: outputsCount,
@@ -601,8 +596,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && (wallet as BitcoinWallet).isPayjoinAvailable;
+  Future<bool> isPayjoinAvailable(Object wallet) async =>
+      wallet is BitcoinWallet && await wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
@@ -781,9 +776,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String getPayjoinEndpoint(Object wallet) {
+  Future<String> getPayjoinEndpoint(Object wallet) async {
     final _wallet = wallet as ElectrumWallet;
-    if (!isPayjoinAvailable(wallet)) return '';
+    if (!await isPayjoinAvailable(wallet)) return '';
     return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
   }
 

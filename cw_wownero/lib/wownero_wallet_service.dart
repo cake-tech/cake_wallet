@@ -112,7 +112,6 @@ class WowneroWalletService extends WalletService<
       final wallet = WowneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -155,7 +154,6 @@ class WowneroWalletService extends WalletService<
       wallet = WowneroWallet(
           walletInfo: walletInfo,
           derivationInfo: await walletInfo.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: password);
       throw WalletDeprecationException(seed: wallet.seed, curr: wallet.currency);
 
@@ -245,7 +243,6 @@ class WowneroWalletService extends WalletService<
     final currentWallet = WowneroWallet(
         walletInfo: currentWalletInfo,
         derivationInfo: await currentWalletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         password: password);
 
     await currentWallet.renameWalletFiles(newName);
@@ -273,7 +270,6 @@ class WowneroWalletService extends WalletService<
       final wallet = WowneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -310,7 +306,6 @@ class WowneroWalletService extends WalletService<
       final wallet = WowneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -358,7 +353,6 @@ class WowneroWalletService extends WalletService<
       final wallet = WowneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         password: password,
       );
       await wallet.init();
@@ -390,7 +384,6 @@ class WowneroWalletService extends WalletService<
     final wallet = WowneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         password: password);
     await wallet.init();
 

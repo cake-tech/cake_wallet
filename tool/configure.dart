@@ -113,6 +113,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -211,7 +212,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, CoinSelection coinSelection = const AllCoinSelection(), String? payjoinUri});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -225,8 +226,6 @@ abstract class Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount);
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
-  List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
-  Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
       Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
   WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
@@ -246,7 +245,7 @@ abstract class Bitcoin {
   ReceivePageOption getBitcoinLightningReceivePageOption();
   ReceivePageOption getBitcoinSegwitPageOption();
   ReceivePageOption getLitecoinMwebReceivePageOption();
-  bool isPayjoinAvailable(Object wallet);
+  Future<bool> isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool hasSelectedLightning(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
@@ -263,7 +262,7 @@ abstract class Bitcoin {
   int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
+  Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
@@ -289,7 +288,7 @@ abstract class Bitcoin {
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
-  String getPayjoinEndpoint(Object wallet);
+  Future<String> getPayjoinEndpoint(Object wallet);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
@@ -326,6 +325,7 @@ Future<void> generateMonero(bool hasImplementation) async {
   const moneroCommonHeaders = """
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:mobx/mobx.dart';
@@ -436,8 +436,6 @@ abstract class Monero {
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
 
-  List<Unspent> getUnspents(Object wallet);
-  Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
 
@@ -465,7 +463,7 @@ abstract class Monero {
 WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
-  Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
+  Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, CoinSelection coinSelection = const AllCoinSelection()});
   Object createMoneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
   String formatterMoneroAmountToString({required int amount});
   double formatterMoneroAmountToDouble({required int amount});
@@ -538,6 +536,7 @@ Future<void> generateWownero(bool hasImplementation) async {
   const wowneroCommonHeaders = """
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:mobx/mobx.dart';
@@ -645,8 +644,6 @@ abstract class Wownero {
   List<TransactionPriority> getTransactionPriorities();
   List<String> getWowneroWordList(String language);
 
-  List<Unspent> getUnspents(Object wallet);
-  Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
   void wownerocCheck();
@@ -721,6 +718,7 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 import 'dart:typed_data';
 
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -1276,6 +1274,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -1306,14 +1305,12 @@ abstract class Decred {
   TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
 
-  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
+  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority, {CoinSelection coinSelection = const AllCoinSelection()});
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
   Future<void> updateAddress(Object wallet, String address, String label);
   Future<void> generateNewAddress(Object wallet, String label);
 
-  List<Unspent> getUnspents(Object wallet);
-  void updateUnspents(Object wallet);
 
   int heightByDate(DateTime date);
 

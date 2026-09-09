@@ -1,3 +1,4 @@
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
@@ -26,6 +27,9 @@ class BitcoinUnspent extends Unspent {
 
   final BaseBitcoinAddressRecord bitcoinAddressRecord;
   bool? isPegOut;
+
+  @override
+  String get id => bitcoinAddressRecord.type == SegwitAddresType.mweb ? hash : "$hash:$vout";
 }
 
 class BitcoinSilentPaymentsUnspent extends BitcoinUnspent {
@@ -62,6 +66,9 @@ class BitcoinSilentPaymentsUnspent extends BitcoinUnspent {
     };
     return json;
   }
+
+  @override
+  bool get isSilentPayment => true;
 
   String? silentPaymentTweak;
   String? silentPaymentLabel;

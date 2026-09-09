@@ -9,52 +9,28 @@ import 'package:mutex/mutex.dart';
 Wallet2Coins? coins = null;
 final coinsMutex = Mutex();
 
-Future<void> refreshCoins(int accountIndex) async {
-  if (coinsMutex.isLocked) {
-    return;
-  }
-  coins = currentWallet!.coins();
-  final coinsPtr = coins!.ffiAddress();
-  await coinsMutex.acquire();
-  await Isolate.run(() => monero.Coins_refresh(Pointer.fromAddress(coinsPtr)));
-  coinsMutex.release();
-}
+Future<void> refreshCoins(int accountIndex) => coinsMutex.protect(() async {
+      final refreshed = currentWallet!.coins();
+      final coinsPtr = refreshed.ffiAddress();
+      await Isolate.run(() => monero.Coins_refresh(Pointer.fromAddress(coinsPtr)));
+      coins = refreshed;
+    });
 
-Future<int> countOfCoins() async {
-  await coinsMutex.acquire();
-  final count = coins!.count();
-  coinsMutex.release();
-  return count;
-}
+Future<int> countOfCoins() => coinsMutex.protect(() async => coins!.count());
 
-Future<Wallet2CoinsInfo> getCoin(int index) async {
-  await coinsMutex.acquire();
-  final coin = coins!.coin(index);
-  coinsMutex.release();
-  return coin;
-}
+Future<Wallet2CoinsInfo> getCoin(int index) => coinsMutex.protect(() async => coins!.coin(index));
 
-Future<int?> getCoinByKeyImage(String keyImage) async {
-  final count = await countOfCoins();
-  for (int i = 0; i < count; i++) {
-    final coin = await getCoin(i);
-    if (keyImage == coin.keyImage()) {
-      return i;
-    }
-  }
-  return null;
-}
+Future<List<Wallet2CoinsInfo>> readAllCoins() => coinsMutex.protect(() async {
+      final all = coins!;
+      return List.generate(all.count(), all.coin);
+    });
 
-Future<void> freezeCoin(int index) async {
-  await coinsMutex.acquire();
-  final coinsPtr = coins!.ffiAddress();
-  await Isolate.run(() => monero.Coins_setFrozen(Pointer.fromAddress(coinsPtr), index: index));
-  coinsMutex.release();
-}
+Future<void> freezeCoin(int index) => coinsMutex.protect(() async {
+      final coinsPtr = coins!.ffiAddress();
+      await Isolate.run(() => monero.Coins_setFrozen(Pointer.fromAddress(coinsPtr), index: index));
+    });
 
-Future<void> thawCoin(int index) async {
-  await coinsMutex.acquire();
-  final coinsPtr = coins!.ffiAddress();
-  await Isolate.run(() => monero.Coins_thaw(Pointer.fromAddress(coinsPtr), index: index));
-  coinsMutex.release();
-}
+Future<void> thawCoin(int index) => coinsMutex.protect(() async {
+      final coinsPtr = coins!.ffiAddress();
+      await Isolate.run(() => monero.Coins_thaw(Pointer.fromAddress(coinsPtr), index: index));
+    });

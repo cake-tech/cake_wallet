@@ -119,7 +119,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      sendViewModel.updateSendingBalance();
     });
 
     /// if the current wallet doesn't match the one in the qr code
@@ -848,14 +847,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   child: GestureDetector(
                     key: ValueKey('send_page_unspent_coin_button_key'),
                     onTap: () async {
-                      await Navigator.of(context).pushNamed(
-                        Routes.unspentCoinsList,
-                        arguments: widget.sendViewModel.coinTypeToSpendFrom,
-                      );
-                      if (mounted) {
-                        // we just got back from the unspent coins list screen, so we need to recompute the sending balance:
-                        sendViewModel.updateSendingBalance();
-                      }
                     },
                     child: Container(
                       color: Colors.transparent,
@@ -1075,7 +1066,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     reaction((_) => sendViewModel.isReadyForSend, (bool isReadyForSend) {
       if (isReadyForSend) {
-        sendViewModel.updateSendingBalance();
       }
     });
 
