@@ -226,8 +226,23 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   final String? silentPaymentTweak;
   final String spendDerivationPath;
 
+  // Cached scripthash for the underlying P2TR output script (used when watching a
+  // previously-discovered silent payment output for repeat deposits). Only meaningful for
+  // p2tr output records; computing it for a p2sp receiving address throws and yields ''.
+  String? _scriptHash;
+
   @override
   String get derivationPath => spendDerivationPath;
+
+  String getScriptHash(BasedUtxoNetwork network) {
+    if (_scriptHash != null) return _scriptHash!;
+    try {
+      _scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } catch (_) {
+      return '';
+    }
+    return _scriptHash!;
+  }
 
   @override
   String toJSON() => json.encode({

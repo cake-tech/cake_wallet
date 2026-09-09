@@ -182,6 +182,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   String get addressForExchange => getFreshAddress();
 
+  // Previously-discovered silent payment OUTPUT scripts (the per-payment P2TR addresses
+  // P_k), as opposed to the sp1... receiving addresses (type p2sp). These records carry the
+  // per-output tweak required to spend, and are watched for repeat deposits (address reuse).
+  // NOTE: calling getScriptHash on a p2sp receiving record is invalid — this filter to
+  // p2tr is what keeps the reuse watch operating only on real taproot scripts.
+  List<BitcoinSilentPaymentAddressRecord> get silentPaymentOutputAddresses => silentAddresses
+      .where((addr) => addr.type == SegwitAddresType.p2tr)
+      .toList();
+
   @override
   @computed
   String get address {

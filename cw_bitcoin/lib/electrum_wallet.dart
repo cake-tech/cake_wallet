@@ -415,6 +415,23 @@ abstract class ElectrumWalletBase
   @observable
   bool silentPaymentsScanningActive = false;
 
+  /// Approach B — repeat-deposit (address reuse) detection for Silent Payments.
+  ///
+  /// When true, previously-discovered silent payment OUTPUT scripts (the per-payment P2TR
+  /// addresses, P_k) are polled and subscribed so that ADDITIONAL deposits to them — i.e.
+  /// the same taproot address being reused by a plain payment — are detected and stay
+  /// spendable via the persisted per-output tweak (b_spend + tweak).
+  ///
+  /// PRIVACY: querying these scripthashes on an Electrum server reveals that the outputs
+  /// belong to one wallet, which partially defeats Silent Payments' unlinkability. It only
+  /// matters once an address is actually reused on-chain; prefer a self-hosted node. Set
+  /// this to false to disable the behaviour entirely.
+  bool watchSilentPaymentOutputReuse = true;
+
+  // Reentrancy guard: the reuse check can be triggered concurrently by startSync and by a
+  // scripthash subscription firing; this prevents double-registration of the same deposit.
+  bool _isCheckingSpReuse = false;
+
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
@@ -652,7 +669,22 @@ abstract class ElectrumWalletBase
               await save();
             }
 
+            // Persist address+tweak records for matched outputs that were already SPENT at
+            // scan time. They never enter tx.unspents (no balance/unspent impact), but the
+            // record must exist in silentAddresses so a from-seed-restored wallet can watch the
+            // taproot script for repeat deposits. On a live wallet the record already persists
+            // across the spend; this covers the rescan case. Gated by the reuse feature flag.
+            if (watchSilentPaymentOutputReuse &&
+                tx.spentSilentPaymentRecords != null &&
+                tx.spentSilentPaymentRecords!.isNotEmpty) {
+              walletAddresses.addSilentAddresses(tx.spentSilentPaymentRecords!);
+            }
+
             await updateAllUnspents();
+
+            // Start watching the just-discovered SP output scripts for repeat deposits, so
+            // live detection begins immediately rather than waiting for the next full sync.
+            await _subscribeForSilentPaymentOutputReuse();
           }
         }
       }
@@ -694,6 +726,161 @@ abstract class ElectrumWalletBase
     walletAddresses.addSilentAddresses(
       [unspent.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord],
     );
+  }
+
+  /// Approach B — detect ADDITIONAL deposits to previously-discovered silent payment output
+  /// scripts (P_k), e.g. a plain payment that re-uses the taproot address.
+  ///
+  /// Such deposits are NOT found by tweak scanning (their tweak derives from the re-using
+  /// transaction's inputs, not ours), so we poll each found output's scripthash and register
+  /// any new UTXO as an incoming silent payment receive, re-using the persisted per-output
+  /// tweak so it stays spendable via the normal SP spend path (b_spend + tweak).
+  ///
+  /// The deposit is registered into transactionHistory[].unspents so that fetchBalances
+  /// (which sums SP balance from tx.unspents) and updateAllUnspents (which re-injects
+  /// tx.unspents into unspentCoins) both pick it up. The caller is responsible for invoking
+  /// updateBalance / updateAllUnspents afterwards (startSync already does; the subscription
+  /// path does too).
+  ///
+  /// IMPORTANT: this relies on the per-output tweak persisted on the p2tr record in
+  /// walletAddresses.silentAddresses. Those records must NEVER be pruned (e.g. by a
+  /// zero-balance cleanup) — they are the only persisted source of the tweak, and losing it
+  /// permanently strands any funds (re)deposited to that address.
+  ///
+  /// Removal of spent deposits is handled by the existing send-path pruning (the broadcast
+  /// listener removes spent unspents from tx.unspents) plus the server only returning unspent
+  /// outputs from listunspent — this method only ADDS.
+  ///
+  /// Returns true if at least one new deposit was registered.
+  Future<bool> _checkSilentPaymentOutputReuse() async {
+    if (!hasSilentPaymentsScanning || !watchSilentPaymentOutputReuse) return false;
+    if (_isCheckingSpReuse) return false;
+
+    _isCheckingSpReuse = true;
+    try {
+      final foundOutputs = walletAddresses.silentPaymentOutputAddresses;
+      if (foundOutputs.isEmpty) return false;
+
+      // Outpoints we already track: tweak-scanned outputs + previously-detected reuse.
+      final knownOutpoints = <String>{};
+      for (final tx in transactionHistory.transactions.values) {
+        tx.unspents?.forEach((u) => knownOutpoints.add('${u.hash}:${u.vout}'));
+      }
+
+      var foundNew = false;
+
+      for (final record in foundOutputs) {
+        final tweak = record.silentPaymentTweak;
+        if (tweak == null) continue; // cannot derive the spend key without it
+
+        final scriptHash = record.getScriptHash(network);
+        if (scriptHash.isEmpty) continue;
+
+        final unspents = await electrumClient.getListUnspent(scriptHash);
+        if (unspents == null) continue;
+
+        for (final item in unspents) {
+          try {
+            final txHash = item['tx_hash'] as String;
+            final vout = item['tx_pos'] as int;
+            final outpoint = '$txHash:$vout';
+            if (knownOutpoints.contains(outpoint)) continue;
+            knownOutpoints.add(outpoint);
+
+            final value = item['value'] as int;
+
+            final unspent = BitcoinSilentPaymentsUnspent(
+              record,
+              txHash,
+              value,
+              vout,
+              silentPaymentTweak: tweak,
+              silentPaymentLabel: null,
+            );
+
+            final existingTx = transactionHistory.transactions[txHash];
+            if (existingTx != null) {
+              existingTx.unspents ??= [];
+              existingTx.unspents!.add(unspent);
+              existingTx.isReceivedSilentPayment = true;
+              unspent.confirmations = existingTx.confirmations;
+              if (existingTx.direction == TransactionDirection.incoming) {
+                existingTx.amount += value;
+              }
+              transactionHistory.addOne(existingTx);
+            } else {
+              final txInfo = await fetchTransactionInfo(hash: txHash);
+              if (txInfo == null) continue;
+              txInfo.isReceivedSilentPayment = true;
+              txInfo.direction = TransactionDirection.incoming;
+              txInfo.amount = value;
+              txInfo.unspents = [unspent];
+              unspent.confirmations = txInfo.confirmations;
+              transactionHistory.addOne(txInfo);
+            }
+
+            _updateSilentAddressRecord(unspent);
+            foundNew = true;
+
+            printV('SP reuse watch: registered repeat deposit of $value sats to '
+                '${record.address} ($outpoint)');
+          } catch (e) {
+            printV('SP reuse watch: failed to register unspent: $e');
+          }
+        }
+      }
+
+      if (foundNew) await save();
+
+      return foundNew;
+    } catch (e) {
+      printV('SP reuse watch failed: $e');
+      return false;
+    } finally {
+      _isCheckingSpReuse = false;
+    }
+  }
+
+  /// Subscribe to scripthash updates for previously-discovered silent payment output scripts
+  /// (P_k), so repeat deposits (address reuse) are detected live. See
+  /// [watchSilentPaymentOutputReuse] for the privacy trade-off. Idempotent: skips scripts
+  /// already present in _scripthashesUpdateSubject.
+  Future<void> _subscribeForSilentPaymentOutputReuse() async {
+    if (!hasSilentPaymentsScanning || !watchSilentPaymentOutputReuse) return;
+
+    final outputs = walletAddresses.silentPaymentOutputAddresses;
+    if (outputs.isEmpty) return;
+
+    await Future.wait(outputs.map((address) async {
+      final sh = address.getScriptHash(network);
+      if (sh.isEmpty || _scripthashesUpdateSubject.containsKey(sh)) return;
+
+      try {
+        _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+      } catch (e) {
+        printV("failed scripthashUpdate (sp output reuse): $e");
+        return;
+      }
+
+      _scripthashesUpdateSubject[sh]?.listen((event) async {
+        try {
+          final foundNew = await _checkSilentPaymentOutputReuse();
+          if (foundNew) {
+            await updateBalance();
+            await updateAllUnspents();
+          }
+        } catch (e, s) {
+          printV("sp output reuse sub error: $e");
+          _onError?.call(FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: this.runtimeType.toString(),
+          ));
+        }
+      }, onError: (e, s) {
+        printV("sp output reuse sub_listen error: $e $s");
+      });
+    }));
   }
 
   DateTime? _lastSilentPaymentsScan;
@@ -746,6 +933,11 @@ abstract class ElectrumWalletBase
       await subscribeForUpdates();
       await checkIfBatchSupported();
       await updateTransactions();
+
+      // Register any repeat deposits to previously-found silent payment outputs into
+      // transactionHistory BEFORE computing unspents/balance below, so updateAllUnspents
+      // (re-injects tx.unspents) and updateBalance (sums tx.unspents) both pick them up.
+      await _checkSilentPaymentOutputReuse();
 
       await updateAllUnspents();
       await updateBalance();
@@ -3472,6 +3664,10 @@ abstract class ElectrumWalletBase
         printV("sub_listen error: $e $s");
       });
     }));
+
+    // Approach B: also subscribe previously-discovered silent payment output scripts (P_k)
+    // so repeat deposits (address reuse) are detected live, not only on full re-sync.
+    await _subscribeForSilentPaymentOutputReuse();
   }
 
   Future<List<Map<String, dynamic>>> fetchBalancesBatch(
@@ -4384,6 +4580,10 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               );
 
               List<BitcoinUnspent> unspents = [];
+              // Records for matched outputs already spent on-chain at scan time — carried out
+              // so they can be persisted for repeat-deposit watching after a from-seed restore
+              // (see ElectrumTransactionInfo.spentSilentPaymentRecords).
+              final spentRecords = <BitcoinSilentPaymentAddressRecord>[];
 
               addToWallet.forEach((BSpend, scanResultPerLabel) {
                 scanResultPerLabel.forEach((label, scanOutput) {
@@ -4435,12 +4635,22 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                     if (spent == null) {
                       unspents.add(unspent);
                       txInfo.unspents!.add(unspent);
+                    } else {
+                      // Output already spent: keep the address+tweak record (balance 0) so the
+                      // taproot script can still be watched for repeat deposits after a
+                      // from-seed restore. Deliberately NOT added to unspents (no balance impact).
+                      receivedAddressRecord.balance = 0;
+                      spentRecords.add(receivedAddressRecord);
                     }
 
                     txInfo.amount += Money.fromInt(unspent.value, txInfo.amount.currency);
                   });
                 });
               });
+
+              if (spentRecords.isNotEmpty) {
+                txInfo.spentSilentPaymentRecords = spentRecords;
+              }
 
               scanData.sendPort.send({txInfo.id: txInfo});
             } catch (e, stacktrace) {

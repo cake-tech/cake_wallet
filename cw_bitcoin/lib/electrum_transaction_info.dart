@@ -28,6 +28,13 @@ class ElectrumTransactionInfo extends TransactionInfo {
   bool isReceivedSilentPayment;
   bool isHogEx;
 
+  // Transient (intentionally NOT serialized): address+tweak records for matched silent
+  // payment outputs that were ALREADY SPENT at scan time. Carried out of the scan isolate so
+  // the wallet can persist them into silentAddresses and keep watching the taproot script for
+  // repeat deposits (address reuse) after a from-seed restore — without affecting balance or
+  // the spendable unspent set (these never enter `unspents`).
+  List<BitcoinSilentPaymentAddressRecord>? spentSilentPaymentRecords;
+
   ElectrumTransactionInfo(
     this.type, {
     required String id,
@@ -45,6 +52,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
+    this.spentSilentPaymentRecords,
     Map<String, dynamic>? additionalInfo,
   }) {
     this.id = id;
