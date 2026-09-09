@@ -1,4 +1,4 @@
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';

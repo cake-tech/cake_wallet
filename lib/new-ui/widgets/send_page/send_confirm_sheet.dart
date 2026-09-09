@@ -9,7 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';

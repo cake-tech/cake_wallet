@@ -1,7 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';

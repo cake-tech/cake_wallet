@@ -7,7 +7,7 @@ import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bl
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';

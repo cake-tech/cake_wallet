@@ -426,7 +426,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: Locale(appStore.settingsStore.languageCode),
+              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),

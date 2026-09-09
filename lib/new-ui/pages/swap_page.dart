@@ -10,7 +10,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";

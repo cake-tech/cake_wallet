@@ -3,7 +3,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
@@ -17,8 +17,7 @@ import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal(
-      {
+  const TransactionDetailsModal({
     required this.transactionDetailsViewModel,
     this.highlightNoteField = false,
     super.key,

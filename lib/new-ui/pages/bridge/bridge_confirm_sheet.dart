@@ -2,7 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/bridge/confirm_details_card.dart';
 import 'package:cake_wallet/new-ui/widgets/bridge/network_path_pill.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';

@@ -1,7 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cw_core/utils/print_verbose.dart';

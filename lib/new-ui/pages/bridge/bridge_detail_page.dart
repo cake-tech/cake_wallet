@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';

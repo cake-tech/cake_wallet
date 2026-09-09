@@ -1,7 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/new-ui/widgets/bridge/transfer_history_row.dart';
 import 'package:flutter/material.dart';

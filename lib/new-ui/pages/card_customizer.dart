@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';

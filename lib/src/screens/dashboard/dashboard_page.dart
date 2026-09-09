@@ -28,7 +28,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
@@ -42,13 +41,11 @@ class DashboardPage extends StatefulWidget {
     required this.bottomSheetService,
     required this.balancePage,
     required this.dashboardViewModel,
-    required this.addressListViewModel,
   });
 
   final BalancePage balancePage;
   final BottomSheetService bottomSheetService;
   final DashboardViewModel dashboardViewModel;
-  final WalletAddressListViewModel addressListViewModel;
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -100,7 +97,6 @@ class _DashboardPageState extends State<DashboardPage> {
             balancePage: widget.balancePage,
             bottomSheetService: widget.bottomSheetService,
             dashboardViewModel: widget.dashboardViewModel,
-            addressListViewModel: widget.addressListViewModel,
           ),
         ),
       ),
@@ -128,7 +124,6 @@ class _DashboardPageView extends BasePage {
     required this.bottomSheetService,
     required this.balancePage,
     required this.dashboardViewModel,
-    required this.addressListViewModel,
   });
 
   final BalancePage balancePage;
@@ -220,7 +215,6 @@ class _DashboardPageView extends BasePage {
 
   final DashboardViewModel dashboardViewModel;
   final BottomSheetService bottomSheetService;
-  final WalletAddressListViewModel addressListViewModel;
 
   int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();

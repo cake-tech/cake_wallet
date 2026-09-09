@@ -2,7 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/multi_network_currency_picker.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/single_network_currency_picker.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import 'package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart';
 import 'package:flutter/material.dart';
 
 class CurrencyPickerSheet extends StatelessWidget {
