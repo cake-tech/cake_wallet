@@ -147,8 +147,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
 
-    final colors = Theme.of(context).colorScheme;
-
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
         currencyIconPath: widget.currency.iconPath ?? "",
@@ -553,28 +551,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     return address;
   }
 
-  void _presentCurrencyPicker() {
-    final rawCurrencies = widget.isReceiverCard
-        ? widget.exchangeViewModel.receiveCurrencies
-        : widget.exchangeViewModel.depositCurrencies;
-    final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+  Future<void> _presentCurrencyPicker() async {
+    final currencies = _pickableAssets(
+      widget.isReceiverCard
+          ? widget.exchangeViewModel.receiveCurrencies
+          : widget.exchangeViewModel.depositCurrencies,
+    );
     final restrictToCurrentBalances = !widget.isReceiverCard &&
         widget.balanceByAsset != null &&
         widget.balanceByAsset!.isNotEmpty;
-    if (!restrictToCurrentBalances) {
-      appendEvmDefaultTokens(currencies);
-    }
-    if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
-      currencies.sort((a, b) {
-        if (a == CryptoCurrency.btcln) {
-          return -1;
-        }
-        if (b == CryptoCurrency.btcln) {
-          return 1;
-        }
-        return 0;
-      });
-    }
 
     List<CryptoCurrency> items = currencies;
     if (restrictToCurrentBalances) {
@@ -589,15 +574,29 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       items = items.where((c) => cryptoCurrencyOrTokenToWalletType(c) == network).toList();
     }
 
-    if (items.length <= 1) {
-      return;
-    }
-
     final selected = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrency
         : widget.exchangeViewModel.depositCurrency;
 
-    CurrencyPickerSheet.show(
+    CryptoCurrency? otherAsset;
+    final otherAssets = _canSendFromOtherSource
+        ? CurrencyPickerArgs(
+            items: _pickableAssets(widget.exchangeViewModel.depositCurrencies),
+            selected: selected,
+            recentsSource: RecentsSource.trades,
+            onSelected: (currency) {
+              widget.onCurrencySelected(currency);
+              otherAsset = currency;
+            },
+            symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+          )
+        : null;
+
+    if (items.length <= 1 && otherAssets == null) {
+      return;
+    }
+
+    await CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(
         items: items,
@@ -608,8 +607,42 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
         symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+        walletName: widget.walletName,
+        otherAssets: otherAssets,
       ),
     );
+
+    if (otherAsset == null || !mounted) {
+      return;
+    }
+    await _promptSourceWallet();
+  }
+
+  bool get _canSendFromOtherSource => !widget.isReceiverCard && !widget.sourceSelectorMode;
+
+  List<CryptoCurrency> _pickableAssets(List<Currency> currencies) {
+    final assets = currencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(assets);
+    if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
+      assets.sort((a, b) {
+        if (a == CryptoCurrency.btcln) {
+          return -1;
+        }
+        if (b == CryptoCurrency.btcln) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    return assets;
+  }
+
+  Future<void> _promptSourceWallet() async {
+    final wallets = await widget.exchangeViewModel.depositWallets;
+    if (!mounted || wallets.isEmpty) {
+      return;
+    }
+    await _presentWalletPicker();
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
@@ -632,7 +665,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     } catch (_) {}
   }
 
-  void _presentWalletPicker() async {
+  Future<void> _presentWalletPicker() async {
     final res = await showMaterialModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -677,8 +710,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     if (wallet == null) {
       return;
     }
-    widget.exchangeViewModel.depositAddress = wallet.address;
-    addressController.text = _normalizeAddressFormat(wallet.address);
+    final isLoadedWallet = wallet.name == widget.exchangeViewModel.wallet.name &&
+        wallet.type == widget.exchangeViewModel.wallet.type;
+    final address = isLoadedWallet
+        ? widget.exchangeViewModel.wallet.walletAddresses.addressForExchange
+        : wallet.address;
+    widget.exchangeViewModel.depositAddress = address;
+    addressController.text = _normalizeAddressFormat(address);
+    if (isLoadedWallet) {
+      return;
+    }
     widget.walletSwitcherViewModel.selectWallet(wallet);
     await widget.walletSwitcherViewModel.switchToSelectedWallet();
   }

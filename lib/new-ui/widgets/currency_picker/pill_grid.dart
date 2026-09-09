@@ -18,8 +18,7 @@ class PillGrid extends StatelessWidget {
   final String Function(CryptoCurrency c) symbolResolver;
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
+  Widget build(BuildContext context) => LayoutBuilder(
       builder: (context, constraints) {
         const gap = 8.0;
         final cardWidth = (constraints.maxWidth - gap) / 2;
@@ -41,7 +40,6 @@ class PillGrid extends StatelessWidget {
         );
       },
     );
-  }
 }
 
 class _PillCard extends StatelessWidget {
@@ -62,12 +60,13 @@ class _PillCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(80),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        height: 36,
+        padding: const EdgeInsets.only(left: 6, right: 8),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-          borderRadius: BorderRadius.circular(80),
+          borderRadius: BorderRadius.circular(20),
           border: isSelected ? Border.all(color: colors.primary, width: 1.5) : null,
         ),
         child: Row(
@@ -81,15 +80,23 @@ class _PillCard extends StatelessWidget {
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.06,
                     ),
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: colors.onSurfaceVariant,
+            SizedBox(
+              width: 12,
+              height: 12,
+              child: Center(
+                child: CakeImageWidget(
+                  imageUrl: "assets/new-ui/arrow_right.svg",
+                  width: 5,
+                  height: 9,
+                  colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
+                ),
+              ),
             ),
           ],
         ),

@@ -16,8 +16,8 @@ class CurrencyPickerListContainer extends StatelessWidget {
           height: 1,
           thickness: 1,
           color: colors.surfaceContainerHigh,
-          indent: 56,
-          endIndent: 24,
+          indent: 52,
+          endIndent: 12,
         ));
       }
     }
