@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -221,6 +222,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
       orders.add(orderRecord);
       updateRemainingTime();
       _startExpirationTimer();
+    } on CakePayUnauthorizedException {
+      rethrow;
     } catch (e) {
       sendViewModel.state = FailureState(
           sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
@@ -274,8 +277,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
       formattedRemainingTime = formatDuration(remainingTime!);
     }
   }
-
-  Future<void> logout() async => await _cakePayService.logout();
 
   void _startExpirationTimer() {
     _timer?.cancel();
