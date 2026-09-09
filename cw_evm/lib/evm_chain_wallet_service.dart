@@ -3,6 +3,7 @@ import "dart:io";
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/imported_nft.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -35,6 +36,9 @@ class EVMChainWalletService extends WalletService<
   List<WalletType> get _evmWalletTypes {
     return _registry.getRegisteredWalletTypes();
   }
+
+  List<String> get _importedNFTChains =>
+      _registry.getAllChains().map((chain) => chain.shortCode).toList();
 
   Future<WalletInfo?> _findWalletByName(String name) async {
     for (final type in _evmWalletTypes) {
@@ -192,8 +196,15 @@ class EVMChainWalletService extends WalletService<
         final copiedToken = Erc20Token.copyWith(token, walletName: newName);
         await copiedToken.save();
       }
+
+      final ownNFTs = (await ImportedNFT.getAllForWallet(currentName))
+          .where((nft) => _importedNFTChains.contains(nft.chain));
+      for (final nft in ownNFTs) {
+        await ImportedNFT.copyWith(nft, walletName: newName).save();
+      }
     } else {
       await Erc20Token.renameWallet(currentName, newName);
+      await ImportedNFT.renameWallet(currentName, newName, chains: _importedNFTChains);
     }
 
     final oldDir = Directory(p.join(await pathForWalletTypeDir(type: type), currentName));
@@ -351,6 +362,7 @@ class EVMChainWalletService extends WalletService<
     final nameStillUsed = (await _findWalletByName(wallet)) != null;
     if (!nameStillUsed) {
       await Erc20Token.deleteAllForWallet(wallet);
+      await ImportedNFT.deleteAllForWallet(wallet, chains: _importedNFTChains);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import "package:cake_wallet/core/auth_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
@@ -44,6 +45,7 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
+import "package:cake_wallet/src/screens/dashboard/pages/nft_send_page.dart";
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
@@ -143,6 +145,7 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
@@ -962,7 +965,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.nftDetailsPage:
-      return MaterialPageRoute<void>(
+      return MaterialPageRoute<bool>(
         builder: (_) => NFTDetailsPage(
           arguments: settings.arguments as NFTDetailsPageArguments,
           dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -973,6 +976,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => ImportNFTPage(
           nftViewModel: settings.arguments as NFTViewModel,
+        ),
+      );
+
+    case Routes.nftSendPage:
+      return MaterialPageRoute<bool>(
+        builder: (_) => NFTSendPage(
+          nftSendViewModel: getIt.get<NFTSendViewModel>(),
+          authService: getIt.get<AuthService>(),
+          arguments: settings.arguments as NFTSendPageArguments,
         ),
       );
 

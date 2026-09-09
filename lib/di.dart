@@ -223,6 +223,7 @@ import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
+import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
@@ -1699,6 +1700,9 @@ Future<void> setup({
   );
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
+
+  getIt.registerFactory(() =>
+      NFTSendViewModel(appStore, getIt.get<ContactListViewModel>(param1: CryptoCurrency.sol)));
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
