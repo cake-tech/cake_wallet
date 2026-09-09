@@ -42,8 +42,8 @@ class CurrencyPickerFooter extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Theme.of(context).colorScheme.surfaceDim.withAlpha(0),
-                    Theme.of(context).colorScheme.surfaceDim,
+                    Theme.of(context).colorScheme.surface.withAlpha(0),
+                    Theme.of(context).colorScheme.surface,
                   ],
                 ),
               ),

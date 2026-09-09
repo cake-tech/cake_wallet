@@ -15,6 +15,10 @@ String chainNameForCurrency(CryptoCurrency c) {
   return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
 }
 
+String assetNameForCurrency(CryptoCurrency c) => c == CryptoCurrency.btcln
+    ? (CryptoCurrency.btc.fullName ?? CryptoCurrency.btc.title)
+    : (c.fullName ?? c.title);
+
 final Set<String> _stablecoinSymbols = {
   for (final c in CryptoCurrency.all)
     if (c.groups.contains(CurrencyGroups.stablecoin)) c.title.toUpperCase(),
@@ -100,9 +104,10 @@ CurrencyPickerBalance? balanceForAsset(
   }
 
   final title = asset.title.toUpperCase();
+  final tag = asset.tag?.toUpperCase();
   CurrencyPickerBalance? byTitle;
   for (final entry in balances.entries) {
-    if (entry.key.title.toUpperCase() == title) {
+    if (entry.key.title.toUpperCase() == title && entry.key.tag?.toUpperCase() == tag) {
       if (byTitle != null) {
         return null;
       }

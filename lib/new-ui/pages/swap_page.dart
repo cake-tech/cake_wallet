@@ -99,7 +99,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
     return {
       for (final r in balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
+          amount: "${r.availableBalance} ${r.formattedAssetTitle}",
           fiat: balanceViewModel.isFiatDisabled
               ? null
               : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",

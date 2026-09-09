@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class CurrencyPickerRow extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              currency.fullName ?? currency.title,
+                              assetNameForCurrency(currency),
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
                                   .textTheme

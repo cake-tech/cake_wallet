@@ -199,12 +199,14 @@ class _WalletAssetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final network = walletTypeToCryptoCurrency(args.filterByNetwork!);
+    final network = args.filterByNetwork!;
+    final chainName = chainNameForCurrency(currency);
     return CurrencyPickerRow(
       currency: currency,
       isSelected: args.selected == currency,
       subtitle: args.symbolResolver(currency),
-      chainBadgePath: currency.chainIconPath ?? network.chainIconPath,
+      chainPillLabel: chainName == walletTypeToString(network) ? null : chainName,
+      chainBadgePath: currency.chainIconPath ?? walletTypeToCryptoCurrency(network).chainIconPath,
       trailing: _BalanceTrailing(balance: balanceForAsset(args.balanceByAsset, currency)),
       onTap: () => onTap(currency),
     );
