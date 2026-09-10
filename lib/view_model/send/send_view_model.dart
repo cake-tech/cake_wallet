@@ -883,7 +883,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
             final fromCurrency = trade.from ?? CryptoCurrency.sol;
-            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
+            final amount = Money.tryParse(
+              trade.amount.sanitized(),
+              fromCurrency,
+              strictParsing: false,
+            ) ?? Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
