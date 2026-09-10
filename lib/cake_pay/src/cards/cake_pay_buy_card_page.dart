@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
@@ -497,19 +498,37 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
-    bool isLogged = await cakePayBuyCardViewModel.isUserLogged;
-    if (!isLogged) {
-      cakePayBuyCardViewModel.isSimulatingFlow = false;
-      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
-    } else {
-      try {
-        await cakePayBuyCardViewModel.createOrder();
-      } catch (_) {
+    try {
+      final isLogged = await cakePayBuyCardViewModel.isUserLogged;
+
+      if (!isLogged) {
         cakePayBuyCardViewModel.isSimulatingFlow = false;
-        await cakePayBuyCardViewModel.logout();
+
+        if (context.mounted) {
+          Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+        }
+        return;
       }
+
+      await cakePayBuyCardViewModel.createOrder();
+    } on CakePayUnauthorizedException {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
+
+      if (context.mounted) {
+        Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+      }
+    } catch (error) {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
+      _sendViewModel.state = FailureState(
+        _sendViewModel.translateErrorMessage(
+          error,
+          cakePayBuyCardViewModel.walletType,
+          _sendViewModel.wallet.currency,
+        ),
+      );
+    } finally {
+      cakePayBuyCardViewModel.isPurchasing = false;
     }
-    cakePayBuyCardViewModel.isPurchasing = false;
   }
 
   BuildContext? dialogContext;

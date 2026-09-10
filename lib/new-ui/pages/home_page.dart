@@ -1,3 +1,5 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -51,9 +53,9 @@ class _NewHomePageState extends State<NewHomePage> {
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val)  {
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
-        if(!context.mounted) {
+        if (!context.mounted) {
           return;
         }
         widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
@@ -100,7 +102,11 @@ class _NewHomePageState extends State<NewHomePage> {
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
-                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                    onRefresh: () {
+                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+                      return widget.dashboardViewModel.refreshDashboard();
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(

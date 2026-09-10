@@ -78,7 +78,6 @@ abstract class CakePayCardsListViewModelBase with Store {
       };
 
   String searchString;
-  String? username;
   int page;
 
   late Country _initialSelectedCountry;
@@ -86,6 +85,9 @@ abstract class CakePayCardsListViewModelBase with Store {
   late bool _initialDisplayGiftCards;
   late bool _initialDisplayDenominationsCards;
   late bool _initialDisplayCustomValueCards;
+
+  @observable
+  String? username;
 
   @observable
   List<CakePayCard> userCards;
@@ -189,12 +191,9 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @action
   Future<void> checkAuth() async {
-    authFuture = ObservableFuture(cakePayService.isLogged());
-
-    final logged = await authFuture!;
-    if (logged) {
-      username = await cakePayService.getUserEmail();
-    }
+    final logged = await cakePayService.isLogged();
+    username = logged ? await cakePayService.getUserEmail() : null;
+    authFuture = ObservableFuture.value(logged);
   }
 
   @action
