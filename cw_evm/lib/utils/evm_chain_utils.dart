@@ -46,8 +46,8 @@ class EVMChainUtils {
   static String getScanProviderPreferenceKey(int chainId) => switch (chainId) {
       1 => "use_etherscan",
       137 => "use_polygonscan",
-      8453 => "use_basescan",
-      42161 => "use_arbiscan",
+      8453 => "use_base_scan",
+      42161 => "use_arbitrum_scan",
       56 => "use_bscscan",
       _ => "use_etherscan",
     };
