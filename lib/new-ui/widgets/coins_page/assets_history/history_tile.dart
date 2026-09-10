@@ -147,7 +147,8 @@ class HistoryTile extends StatelessWidget {
         title: title,
         date: date,
         amount: amount,
-        amountFiat: amountFiat ?? Money.zero(amount.currency),
+        amountFiat: amountFiat,
+        amountFiatWidget: amountFiat == null ? const SizedBox.shrink() : null,
         // Decorative: `title` already reads out sent/received/pending.
         leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context)),
         roundedTop: roundedTop,

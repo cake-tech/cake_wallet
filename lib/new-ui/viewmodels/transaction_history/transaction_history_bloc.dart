@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
+import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/viewmodels/transaction_history/history_list_extension.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -128,11 +129,15 @@ class TransactionHistoryBloc extends Bloc<TransactionHistoryEvent, TransactionHi
       return;
     }
 
-    await Future.wait(
-      appStore.wallet!.balance.keys.map(
-            (currency) => fiatConversionStore.fetch(currency, fiat),
-      ),
-    );
+    if(appStore.settingsStore.fiatApiMode != FiatApiMode.disabled) {
+      await Future.wait(
+        appStore.wallet!.balance.keys.map(
+              (currency) => fiatConversionStore.fetch(currency, fiat,
+              torOnly: appStore.settingsStore.fiatApiMode == FiatApiMode.torOnly),
+        ),
+      );
+    }
+
 
 
     emit(TransactionHistoryLoaded.from(sources));

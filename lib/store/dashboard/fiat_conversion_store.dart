@@ -1,5 +1,8 @@
 import "package:cake_wallet/core/fiat_conversion_service.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
@@ -16,6 +19,11 @@ abstract class FiatConversionStoreBase with Store {
   ObservableMap<CryptoCurrency, double> prices;
 
   Money? convertSync(Money amount, Currency target) {
+    final fiatApiMode = getIt.get<SettingsStore>().fiatApiMode;
+    if(fiatApiMode == FiatApiMode.disabled) {
+      return null;
+    }
+
     if (amount.currency is FiatCurrency && target is CryptoCurrency) {
       if (prices[target] == null) {
         return null;
@@ -58,12 +66,12 @@ abstract class FiatConversionStoreBase with Store {
     throw ArgumentError("for now, only fiat <-> crypto conversions are supported");
   }
 
-  Future<void> fetch(CryptoCurrency target, FiatCurrency fiat) async {
+  Future<void> fetch(CryptoCurrency target, FiatCurrency fiat, {bool torOnly = false}) async {
     if (prices[target] == null) {
       prices[target] = await FiatConversionService.fetchPrice(
         crypto: target,
         fiat: fiat,
-        torOnly: false,
+        torOnly: torOnly,
       );
     }
   }

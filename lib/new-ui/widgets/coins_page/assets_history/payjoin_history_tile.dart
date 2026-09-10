@@ -27,7 +27,7 @@ class PayjoinHistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => HistoryTileBase(
-        title: "${isSending ? S.of(context).outgoing : S.of(context).incoming} Payjoin - ${state}",
+        title: "${isSending ? S.of(context).outgoing : S.of(context).incoming} Payjoin",
         date: createdAt,
         amount: amount,
         leadingIcon: ClipRRect(

@@ -101,6 +101,7 @@ class HistoryTileBase extends StatelessWidget {
                               amountWidget!,
                             if (amountFiat != null)
                               MoneyText(amountFiat!,
+                                  trimZeros: false,
                                   style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,),)
                             else if (amountFiatWidget != null)
