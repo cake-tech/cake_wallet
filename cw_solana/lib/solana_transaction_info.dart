@@ -26,13 +26,17 @@ class SolanaTransactionInfo extends TransactionInfo {
   String get txHash => id.replaceFirst(RegExp(r'_(outgoing|incoming)$'), '');
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
+
   @override
   final bool isPending;
+
   @override
-  final Money fee;
+  final CryptoMoney fee;
+
   @override
   final TransactionDirection direction;
+
   @override
   final DateTime date;
 

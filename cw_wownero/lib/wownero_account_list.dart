@@ -1,5 +1,6 @@
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wownero_amount_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_wownero/api/account_list.dart' as account_list;
@@ -50,7 +51,7 @@ abstract class WowneroAccountListBase with Store {
         return Account(
           id: wownero.SubaddressAccountRow_getRowId(accountRow),
           label: wownero.SubaddressAccountRow_getLabel(accountRow),
-          balance: wowneroAmountToString(amount: wownero.Wallet_amountFromString(balance)),
+          balance: Money.fromInt(wownero.Wallet_amountFromString(balance), CryptoCurrency.wow),
         );
       }).toList();
 

@@ -1,7 +1,9 @@
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/hive_type_ids.dart";
+import "package:hive/hive.dart";
 
-part 'nano_account.part.dart';
+part "nano_account.part.dart";
 
 // @HiveType(typeId: NanoAccount.typeId)
 class NanoAccount extends HiveObject {
@@ -20,4 +22,6 @@ class NanoAccount extends HiveObject {
 
   // @HiveField(3)
   String? balance;
+
+  Money? get balanceMoney => balance != null ? Money.tryParse(balance!, CryptoCurrency.nano) : null;
 }

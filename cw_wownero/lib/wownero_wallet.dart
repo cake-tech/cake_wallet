@@ -726,19 +726,24 @@ abstract class WowneroWalletBase
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  Money _getFullBalance() => Money.fromInt(
-      wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id), CryptoCurrency.wow);
+  CryptoMoney _getFullBalance() => Money.fromInt(
+        wownero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id),
+        CryptoCurrency.wow,
+      );
 
-  Money _getUnlockedBalance() => Money.fromInt(
-      wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id),
-      CryptoCurrency.wow);
+  CryptoMoney _getUnlockedBalance() => Money.fromInt(
+        wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id),
+        CryptoCurrency.wow,
+      );
 
-  Money _getFrozenBalance() {
+  CryptoMoney _getFrozenBalance() {
     var frozenBalance = 0;
 
     for (final coin in unspentCoinsInfo.values.where((element) =>
         element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen) frozenBalance += coin.value;
+      if (coin.isFrozen) {
+        frozenBalance += coin.value;
+      }
     }
 
     return Money.fromInt(frozenBalance, CryptoCurrency.wow);

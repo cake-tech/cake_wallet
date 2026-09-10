@@ -197,14 +197,14 @@ class CryptoBalanceWidget extends StatelessWidget {
                       dashboardViewModel: dashboardViewModel,
                       availableBalanceLabel:
                           '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
-                      availableBalance: balance.availableBalance,
-                      availableFiatBalance: balance.fiatAvailableBalance,
+                      availableBalance: balance.raw.available.toString(),
+                      availableFiatBalance: balance.fiatAvailableBalanceRaw?.toString() ?? "",
                       additionalBalanceLabel:
                           '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
-                      additionalBalance: balance.additionalBalance,
-                      additionalFiatBalance: balance.fiatAdditionalBalance,
-                      frozenBalance: balance.frozenBalance,
-                      frozenFiatBalance: balance.fiatFrozenBalance,
+                      additionalBalance: balance.raw.available.toString(),
+                      additionalFiatBalance: balance.fiatAvailableBalanceRaw?.toString() ?? "",
+                      frozenBalance: balance.raw.frozen?.toString() ?? "",
+                      frozenFiatBalance: balance.fiatFrozenBalanceRaw?.toString() ?? "",
                       currency: balance.asset,
                       hasAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasAdditionalBalance(balance.asset),
@@ -212,10 +212,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                           dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
                       hasSecondAvailableBalance:
                           dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
-                      secondAdditionalBalance: balance.secondAdditionalBalance,
-                      secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalance,
-                      secondAvailableBalance: balance.secondAvailableBalance,
-                      secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
+                      secondAdditionalBalance: balance.raw.secondUnavailable?.toString() ?? "",
+                      secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalanceRaw?.toString() ?? "",
+                      secondAvailableBalance: balance.raw.secondAvailable?.toString() ?? "",
+                      secondAvailableFiatBalance: balance.fiatSecondAvailableBalanceRaw?.toString() ?? "",
                       secondAdditionalBalanceLabel:
                           '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
                       secondAvailableBalanceLabel:

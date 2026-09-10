@@ -19,7 +19,7 @@ class PendingZcashTransaction with PendingTransaction {
   final ZcashTransactionCredentials credentials;
   final zkool_pay.PcztPackage txPlan;
   String? _txId;
-  final Money availableBalance;
+  final CryptoMoney availableBalance;
 
   @override
   String get id => _txId ?? '';
@@ -28,7 +28,7 @@ class PendingZcashTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  Money get amount {
+  CryptoMoney get amount {
     final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
     if (isAll) {
       return availableBalance - fee;
@@ -42,7 +42,7 @@ class PendingZcashTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   Future<void> commit() async {

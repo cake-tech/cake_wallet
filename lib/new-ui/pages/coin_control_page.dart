@@ -11,10 +11,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import "package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart";
 
 class CoinControlPageArgs {
+  const CoinControlPageArgs({required this.canEdit, this.coinTypeToSpendFrom});
+
   final bool canEdit;
   final UnspentCoinType? coinTypeToSpendFrom;
-
-  const CoinControlPageArgs({required this.canEdit, this.coinTypeToSpendFrom});
 }
 
 class NewCoinControlPage extends StatefulWidget {
@@ -223,20 +223,19 @@ class CoinControlListSection extends StatelessWidget {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
+  Widget build(BuildContext context) => ListView.separated(
       shrinkWrap: true,
       padding: EdgeInsets.zero,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
       separatorBuilder: (_, __) => Container(
         height: 1,
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
       ),
-      itemBuilder: (_, int index) {
-        return Observer(builder: (_) {
+      itemBuilder: (_, index) => Observer(builder: (_) {
           final item = items[index];
-          final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
+          final fiatAmount = unspentCoinsListViewModel.fiatAmounts[item.id];
+
           return GestureDetector(
             onTap: () => Navigator.of(context).pushNamed(
               Routes.unspentCoinsDetails,
@@ -263,8 +262,6 @@ class CoinControlListSection extends StatelessWidget {
                     },
             ),
           );
-        });
-      },
+        }),
     );
-  }
 }

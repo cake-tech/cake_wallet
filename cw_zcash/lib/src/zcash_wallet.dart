@@ -92,7 +92,7 @@ abstract class ZcashWalletBase
   static int _minSweepThreshold({required final bool ironwood}) =>
       ironwood ? _ironwoodMigrateMinNote : _autoShieldMinSweep;
 
-  Money _feeFromTxPlan(
+  CryptoMoney _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
     final TransactionPriority priority,
     final int tryReduceFeeAmount, {

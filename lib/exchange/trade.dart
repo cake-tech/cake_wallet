@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/format_amount.dart';
@@ -322,4 +324,10 @@ class Trade {
 
   String amountFormatted() => formatAmount(amount);
   String receiveAmountFormatted() => formatAmount(receiveAmount ?? '');
+
+  CryptoMoney? get amountMoney => from?.parseAmount(amount.withMaxDecimals(from!.decimals));
+
+  CryptoMoney? get receiveMoney => receiveAmount != null || to != null
+      ? to!.parseAmount(receiveAmount!.withMaxDecimals(to!.decimals))
+      : null;
 }

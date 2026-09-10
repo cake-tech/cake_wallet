@@ -178,7 +178,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                               final item = unspentCoinsListViewModel.items[index];
                               return Observer(builder: (_) {
                                 final fiatAmount =
-                                    unspentCoinsListViewModel.fiatAmounts[item.amount] ?? '';
+                                    unspentCoinsListViewModel.fiatAmounts[item.id];
                                 return GestureDetector(
                                   onTap: () => Navigator.of(context).pushNamed(
                                     Routes.unspentCoinsDetails,
@@ -186,8 +186,8 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                                   ),
                                   child: UnspentCoinsListItem(
                                     note: item.note,
-                                    amount: item.amount,
-                                    fiatAmount: fiatAmount,
+                                    amount: item.amount.toStringWithSymbol(),
+                                    fiatAmount: fiatAmount?.toStringWithSymbol() ?? "",
                                     address: item.address,
                                     isSending: item.isSending,
                                     isFrozen: item.isFrozen,

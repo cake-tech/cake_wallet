@@ -146,8 +146,8 @@ class CWEVM extends EVM {
   TransactionInfo getTransactionInfo({
     required String id,
     required int height,
-    required Money amount,
-    required Money fee,
+    required CryptoMoney amount,
+    required CryptoMoney fee,
     required String tokenSymbol,
     int exponent = 18,
     required TransactionDirection direction,
@@ -279,7 +279,7 @@ class CWEVM extends EVM {
   @override
   Future<PendingTransaction> createTokenApproval(
     WalletBase wallet,
-    Money amount,
+    CryptoMoney amount,
     String spender,
     TransactionPriority? priority, {
     bool useBlinkProtection = true,
@@ -298,7 +298,7 @@ class CWEVM extends EVM {
     WalletBase wallet,
     String to,
     String dataHex,
-    Money valueWei,
+    CryptoMoney valueWei,
     TransactionPriority? priority, {
     bool useBlinkProtection = true,
     String? sourceTokenAddress,
@@ -380,7 +380,7 @@ class CWEVM extends EVM {
 
   // Chain-specific integrations (only for Ethereum)
   @override
-  Future<Money>? getDEuroSavingsBalance(WalletBase wallet) {
+  Future<CryptoMoney>? getDEuroSavingsBalance(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).savingsBalance;
     }
@@ -388,7 +388,7 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<Money>? getDEuroSavingsV1Balance(WalletBase wallet) {
+  Future<CryptoMoney>? getDEuroSavingsV1Balance(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).savingsBalanceV1;
     }
@@ -396,7 +396,7 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<Money>? getDEuroAccruedInterest(WalletBase wallet) {
+  Future<CryptoMoney>? getDEuroAccruedInterest(WalletBase wallet) {
     if (wallet.chainId == 1 && wallet is EVMChainWallet) {
       return DEuro(wallet).accruedInterest;
     }

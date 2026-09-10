@@ -1,7 +1,7 @@
 import "dart:async";
 
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 

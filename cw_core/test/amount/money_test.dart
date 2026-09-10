@@ -45,7 +45,7 @@ void main() {
     });
 
     test("tryParse", () {
-      var money = Money.tryParse("1", CryptoCurrency.btc);
+      var money = CryptoMoney.tryParse("1", CryptoCurrency.btc);
       expect(money?.amount, BigInt.from(100000000));
 
       money = Money.tryParse("-1", CryptoCurrency.btc);

@@ -17,14 +17,14 @@ const String dEuroAddress = "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea";
 const String frontendCode = "0x00000000000000000000000000000000000000000043616b652057616c6c6574";
 
 class DEuro {
-  final v2.Savings _savings;
-  final ERC20 _dEuro;
-  final EVMChainWallet _wallet;
-
   DEuro(EVMChainWallet wallet)
       : _wallet = wallet,
         _savings = _getSavings(wallet.getWeb3Client()!),
         _dEuro = _getDEuroToken(wallet.getWeb3Client()!);
+
+  final v2.Savings _savings;
+  final ERC20 _dEuro;
+  final EVMChainWallet _wallet;
 
   static v2.Savings _getSavings(Web3Client client) => v2.Savings(
         address: EthereumAddress.fromHex(savingsV2Address),
@@ -43,14 +43,15 @@ class DEuro {
 
   EthereumAddress get _address => EthereumAddress.fromHex(_wallet.walletAddresses.primaryAddress);
 
-  Future<Money> get savingsBalance async =>
+  Future<CryptoMoney> get savingsBalance async =>
       Money((await _savings.savings(accountOwner: _address)).saved, CryptoCurrency.deuro);
 
-  Future<Money> get savingsBalanceV1 async => Money(
-      (await _getSavingsGateway(_wallet.getWeb3Client()!).savings(accountOwner: _address)).saved,
-      CryptoCurrency.deuro);
+  Future<CryptoMoney> get savingsBalanceV1 async => Money(
+        (await _getSavingsGateway(_wallet.getWeb3Client()!).savings(accountOwner: _address)).saved,
+        CryptoCurrency.deuro,
+      );
 
-  Future<Money> get accruedInterest async =>
+  Future<CryptoMoney> get accruedInterest async =>
       Money(await _savings.accruedInterest(accountOwner: _address), CryptoCurrency.deuro);
 
   Future<BigInt> get interestRate => _savings.currentRatePPM();

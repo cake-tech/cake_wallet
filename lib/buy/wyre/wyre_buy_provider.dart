@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';

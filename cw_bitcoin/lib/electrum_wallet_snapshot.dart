@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
@@ -102,7 +103,7 @@ class ElectrumWalletSnapshot {
           frozen: Money.zero(currency),
         );
     final lightningBalance =
-        ElectrumBalance.fromJSON(data['lightningBalance'] as String?, currency);
+        ElectrumBalance.fromJSON(data['lightningBalance'] as String?, CryptoCurrency.btcln);
 
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};

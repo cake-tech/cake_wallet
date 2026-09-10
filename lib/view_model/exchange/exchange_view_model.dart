@@ -15,7 +15,8 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cw_core/currency/currency.dart";
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -240,7 +241,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
         final balance = wallet.balance[depositCurrency];
         if (balance != null) {
-          depositAvailableAmount = _appStore.amountParsingProxy.asDisplayString(balance.available);
+          depositAvailableAmount = balance.available;
           return false;
         }
         return true;
@@ -254,16 +255,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       );
       final balanceForCurrency = balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (depositCurrency == currency && balanceForCurrency != null) {
-        depositAvailableAmount =
-            _appStore.amountParsingProxy.asDisplayStringWithSymbol(balanceForCurrency.available);
+        depositAvailableAmount = balanceForCurrency.available;
       }
     } else {
       final currency = depositCurrency;
       final sendingBalance = Money.fromInt(
-          await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
-      final amount = _appStore.amountParsingProxy.asDisplayStringWithSymbol(sendingBalance);
+        await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any),
+        currency,
+      );
       if (depositCurrency == currency) {
-        depositAvailableAmount = amount;
+        depositAvailableAmount = sendingBalance;
       }
     }
   }
@@ -356,7 +357,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   ExchangeTradeState tradeState;
 
   @observable
-  Money? _depositAmount;
+  CryptoMoney? _depositAmount;
 
   @computed
   bool get hasDepositAmount => _depositAmount != null;
@@ -366,14 +367,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _depositAmount == null ? "" : amountParsingProxy.asDisplayString(_depositAmount!);
 
   @computed
+  CryptoMoney get depositMoney => _depositAmount ?? Money.zero(depositCurrency);
+
+  @computed
   String get depositAmountCanonical => _depositAmount == null ? "0.0" : _depositAmount.toString();
 
   @observable
-  Money? _receiveAmount;
+  CryptoMoney? _receiveAmount;
 
   @computed
   String get receiveAmount =>
       _receiveAmount == null ? "" : amountParsingProxy.asDisplayString(_receiveAmount!);
+
+  @computed
+  CryptoMoney get receiveMoney => _receiveAmount ?? Money.zero(receiveCurrency);
 
   @action
   // only set canonical formated amounts here;
@@ -496,7 +503,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
 
   @computed
-  String? get balanceDisplay {
+  CryptoMoney? get balanceDisplay {
     CryptoCurrency? balanceCurrency;
     if (isEVMCompatibleChain(wallet.type) ||
         wallet.type == WalletType.solana ||
@@ -510,8 +517,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       balanceCurrency = depositCurrency;
     }
     final bal = balanceCurrency != null ? wallet.balance[balanceCurrency]?.available : null;
-    if (bal == null) return null;
-    return amountParsingProxy.asDisplayString(bal);
+
+    return bal;
   }
 
   //* Still open to further optimize these checks
@@ -653,96 +660,49 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @computed
-  String get depositAmountFiatFormatted {
-    var amount = '0.00';
-    try {
-      if (_depositAmount != null) {
-        if (fiatConversionStore.prices[depositCurrency] == null) return '';
+  String get receiveAmountFiat => receiveMoneyFiat?.toString() ?? "";
 
-        amount = calculateFiatAmount(
-          price: fiatConversionStore.prices[depositCurrency]!,
-          cryptoAmount: _depositAmount.toString(),
-        );
-      }
-    } catch (_) {
-      log('Error calculating deposit amount fiat formatted: $_');
+  @computed
+  Money<Currency>? get receiveMoneyFiat {
+    if (isFiatDisabled) {
+      return null;
     }
-    return isFiatDisabled ? '' : '$amount';
+
+    if (_receiveAmount == null) {
+      return Money.zero(fiat);
+    }
+
+    try {
+      final price = fiatConversionStore.prices[receiveCurrency];
+      final rate = fiatConversionStore.getExchangeRate(receiveCurrency, fiat, price);
+      return rate.convert(_receiveAmount!);
+    } catch (e) {
+      log("Error calculating receive amount fiat formatted: $e");
+    }
+    return Money.zero(fiat);
   }
 
   @computed
-  String get receiveAmountFiat {
-    var amount = '';
-    try {
-      if (_receiveAmount != null) {
-        if (fiatConversionStore.prices[receiveCurrency] == null) return '';
-
-        amount = calculateFiatAmount(
-            price: fiatConversionStore.prices[receiveCurrency]!,
-            cryptoAmount: _receiveAmount.toString(),
-            raw: true);
-      }
-    } catch (_) {
-      log('Error calculating receive amount fiat formatted: $_');
-    }
-    return amount;
-  }
+  String get depositAmountFiat => depositMoneyFiat?.toString() ?? "";
 
   @computed
-  String get depositAmountFiat {
-    var amount = '';
-    try {
-      if (_depositAmount != null) {
-        if (fiatConversionStore.prices[depositCurrency] == null) return '';
-
-        amount = calculateFiatAmount(
-          price: fiatConversionStore.prices[depositCurrency]!,
-          cryptoAmount: _depositAmount.toString(),
-          raw: true,
-        );
-      }
-    } catch (_) {
-      log('Error calculating deposit amount fiat formatted: $_');
+  Money<Currency>? get depositMoneyFiat {
+    if (isFiatDisabled) {
+      return null;
     }
-    return amount;
-  }
 
-  String roundedDepositAmount(int digits) {
-    if (depositAmount.split(".").last.length <= digits) {
-      return depositAmount;
+    if (_depositAmount == null) {
+      return Money.zero(fiat);
     }
+
     try {
-      return double.parse(depositAmount).toStringAsPrecision(digits);
+      final price = fiatConversionStore.prices[depositCurrency];
+      final rate = fiatConversionStore.getExchangeRate(depositCurrency, fiat, price);
+      return rate.convert(_depositAmount!);
     } catch (e) {
-      return "0";
+      log("Error calculating deposit amount fiat formatted: $e");
     }
-  }
-
-  String roundedReceiveAmount(int digits) {
-    if (receiveAmount.split(".").last.length <= digits) {
-      return receiveAmount;
-    }
-    try {
-      return double.parse(receiveAmount).toStringAsPrecision(digits);
-    } catch (e) {
-      return "0";
-    }
-  }
-
-  String roundedReceiveAmountFiat(int digits) {
-    if (receiveAmountFiat.split(".").last.length <= digits) {
-      return receiveAmountFiat;
-    }
-
-    return double.tryParse(receiveAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
-  }
-
-  String roundedDepositAmountFiat(int digits) {
-    if (depositAmountFiat.split(".").last.length <= digits) {
-      return depositAmountFiat;
-    }
-
-    return double.tryParse(depositAmountFiat)?.toStringAsPrecision(digits) ?? '0.00';
+    return Money.zero(fiat);
   }
 
   @action
@@ -1385,8 +1345,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       final amount = depositCurrency == CryptoCurrency.btcln
           // FIXME amount estimation is broken/impossible for ln, konsti suggested this
-          ? (amountParsingProxy.parseCryptoString(depositAvailableAmount, depositCurrency) -
-              Money.fromInt(10, depositCurrency))
+          ? (depositAvailableAmount - Money.fromInt(10, depositCurrency))
           : await bitcoin!.estimateFakeSendAllTxAmount(
               wallet,
               priority,
@@ -1458,7 +1417,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @observable
-  String depositAvailableAmount = "";
+  late CryptoMoney depositAvailableAmount = Money.zero(depositCurrency);
 
   @action
   void reverseSwapDirection() {

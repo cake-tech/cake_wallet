@@ -23,7 +23,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         isFrozen = unspentCoinsItem.isFrozen,
         note = unspentCoinsItem.note {
     items = [
-      StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount),
+      StandartListItem(title: S.current.transaction_details_amount, value: unspentCoinsItem.amount.toStringWithSymbol()),
       StandartListItem(
           title: S.current.transaction_details_transaction_id, value: unspentCoinsItem.hash),
       StandartListItem(title: S.current.widgets_address, value: formattedAddress),

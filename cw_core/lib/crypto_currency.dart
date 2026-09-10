@@ -1,5 +1,5 @@
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency.dart';
+import 'package:cw_core/currency/currency.dart';
 import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
@@ -1145,10 +1145,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   bool titleAndTagEqual(CryptoCurrency other) => title == other.title && tag == other.tag;
 
   @override
-  Money parseAmount(String value) => Money.parse(value, this);
+  CryptoMoney parseAmount(String value) => CryptoMoney.parse(value, this);
 
   @override
-  Money? tryParseAmount(String value) => Money.tryParse(value, this);
+  CryptoMoney? tryParseAmount(String value) => Money.tryParse(value, this);
 
   /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
   String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>

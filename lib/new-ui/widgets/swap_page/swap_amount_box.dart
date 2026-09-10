@@ -16,7 +16,7 @@ import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currencies_with_memo.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -147,15 +147,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
 
-    final colors = Theme.of(context).colorScheme;
-
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
         currencyIconPath: widget.currency.iconPath ?? "",
         currencyLabel: currencyToShow,
         chainIconPath: chainIconPath,
         walletName: widget.walletName,
-        availableBalance: _sourceBalance()?.amount.split(" ").first ?? "—",
+        availableBalance: _sourceBalance()?.amount,
         onTap: _presentCurrencyPicker,
       );
     }
@@ -383,13 +381,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         widget.allAmount?.call();
                       },
                       cryptoAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmount(6)
-                          : widget.exchangeViewModel.roundedDepositAmount(6),
+                          ? widget.exchangeViewModel.receiveMoney
+                          : widget.exchangeViewModel.depositMoney,
                       fiatAmount: widget.isReceiverCard
-                          ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
-                          : widget.exchangeViewModel.roundedDepositAmountFiat(6),
-                      cryptoCurrencySymbol: currencyToShow,
-                      fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                          ? widget.exchangeViewModel.receiveMoneyFiat
+                          : widget.exchangeViewModel.depositMoneyFiat,
                     );
                   },
                 ),
@@ -607,7 +603,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         useSingleNetworkLayout: widget.useSingleNetworkLayout,
         recentsSource: RecentsSource.trades,
         onSelected: widget.onCurrencySelected,
-        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+        fiatCurrency: widget.exchangeViewModel.fiat,
       ),
     );
   }

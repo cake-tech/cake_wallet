@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -141,23 +142,21 @@ class _CardsViewState extends State<CardsView> {
               final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
                   .getMainBalanceRecord(widget.lightningMode);
 
-              late final String walletBalance;
-              late final String walletFiatBalance;
+              Money? walletBalance;
+              Money? walletFiatBalance;
               if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
-                if (widget.dashboardViewModel.balanceViewModel.displayMode ==
-                    BalanceDisplayMode.hiddenBalance) {
-                  walletBalance = '●●●●●●';
-                  walletFiatBalance = '●●●●●●';
-                } else {
-                  walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
-                  walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
-                }
+                walletBalance = walletBalanceRecord?.combinedAvailableBalance ??
+                  Money.zero(widget.dashboardViewModel.wallet.currency);
+              walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ??
+                  Money.zero(widget.dashboardViewModel.settingsStore.fiatCurrency);
               } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
-                walletBalance = "";
+                walletBalance = null;
                 walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
               } else {
-                walletBalance = walletBalanceRecord?.availableBalance ?? "0";
-                walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
+                walletBalance = walletBalanceRecord?.raw.available ??
+                  Money.zero(widget.dashboardViewModel.wallet.currency);
+                walletFiatBalance = walletBalanceRecord?.fiatAvailableBalanceRaw ??
+                  Money.zero(widget.dashboardViewModel.settingsStore.fiatCurrency);
               }
 
               // the card designs is empty if widget gets built before it loads.
@@ -171,19 +170,14 @@ class _CardsViewState extends State<CardsView> {
               else
                 cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
 
-              final String accountName;
-              final String accountBalance;
-              if (account == null) {
-                accountName = "";
-                accountBalance = "";
-              } else {
-                accountName = account.label;
-                accountBalance = account.balance ?? "0.00";
-              }
+              final accountBalance = account != null
+                ? account.balance ?? Money.zero(widget.dashboardViewModel.wallet.currency)
+                : null;
 
-              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
-                  ? ""
-                  : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+              final asset = walletBalanceRecord?.asset ??
+                (widget.lightningMode
+                    ? CryptoCurrency.btcln
+                    : widget.dashboardViewModel.wallet.currency);
 
               final List<BalanceCardAction> actions = widget.lightningMode
                   ? [
@@ -211,14 +205,12 @@ class _CardsViewState extends State<CardsView> {
 
               return BalanceCard(
                 width: effectiveCardWidth,
-                accountName: accountName,
+                accountName: account?.label ?? "",
                 accountBalance: accountBalance,
-                designSwitchDuration: Duration(milliseconds: 150),
-                assetName: assetName,
-                capitalizeAssetName: _shouldCapitalizeAssetName(),
+                designSwitchDuration: const Duration(milliseconds: 150),
+              asset: asset,
                 balance: walletBalance,
-                fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                    widget.dashboardViewModel.settingsStore.fiatCurrency.title,
+                fiatCurrency: walletBalanceRecord?.fiatCurrency ?? widget.dashboardViewModel.settingsStore.fiatCurrency,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
                 fiatBalance: walletFiatBalance,
                 selected: _selectedIndex == visualIndex,
@@ -236,23 +228,6 @@ class _CardsViewState extends State<CardsView> {
   String get assetTitleFallback =>
       widget.dashboardViewModel.appStore.amountParsingProxy.getCryptoSymbol(
           widget.lightningMode ? CryptoCurrency.btcln : widget.dashboardViewModel.wallet.currency);
-
-  bool _shouldCapitalizeAssetName() {
-    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
-      return true;
-    }
-
-    switch (widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi) {
-      case BitcoinAmountDisplayMode.satoshi:
-        return false;
-      case BitcoinAmountDisplayMode.satoshiForLightning:
-        return !widget.lightningMode;
-      case BitcoinAmountDisplayMode.bitcoin:
-        return true;
-      default:
-        return true;
-    }
-  }
 
   double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
       responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);

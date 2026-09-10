@@ -198,15 +198,13 @@ class RBFDetailsPage extends BasePage {
                     transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                 currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                 amount: S.of(bottomSheetContext).send_amount,
-                amountValue:
-                    transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amount,
                 fiatAmountValue:
-                    transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                    transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmount,
                 fee: S.of(bottomSheetContext).send_fee,
-                feeValue:
-                    transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                feeFiatAmount: transactionDetailsViewModel
-                    .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.fee,
+                feeFiatAmount:
+                    transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmount,
                 outputs: transactionDetailsViewModel.sendViewModel.outputs,
                 footerType: FooterType.slideActionButton,
                 accessibleNavigationModeSlideActionButtonText: S.of(context).send,
@@ -220,7 +218,6 @@ class RBFDetailsPage extends BasePage {
                   } catch (_) {}
                 },
                 change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
-                amountParsingProxy: transactionDetailsViewModel.sendViewModel.amountParsingProxy,
               ),
             );
             if (result == null) {

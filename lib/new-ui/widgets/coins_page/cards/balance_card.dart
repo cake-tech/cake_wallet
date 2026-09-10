@@ -1,7 +1,12 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/card_design.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:flutter/material.dart";
 
 class BalanceCardAction {
   final String label;
@@ -14,38 +19,37 @@ class BalanceCardAction {
 }
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard(
-      {super.key,
-      required this.width,
-      required this.design,
-      this.gradient,
-      this.borderRadius = 20,
-      this.selected = false,
-      this.accountName = "",
-      this.accountBalance = "",
-      this.balance = "",
-      this.fiatBalance = "",
-      this.assetName = "",
-      this.fiatCurrencyTitle = "",
-      this.designSwitchDuration = const Duration(),
-      this.actions = const [],
-      this.capitalizeAssetName = true,
-      this.onCustomizeTapped,
-      this.accountIndex,
-      this.fiatFirst = false});
+  const BalanceCard({
+    required this.width,
+    required this.design,
+    required this.asset,
+    super.key,
+    this.gradient,
+    this.borderRadius = 20,
+    this.selected = false,
+    this.accountName = "",
+    this.accountBalance,
+    this.balance,
+    this.fiatBalance,
+    this.fiatCurrency,
+    this.designSwitchDuration = Duration.zero,
+    this.actions = const [],
+    this.onCustomizeTapped,
+    this.accountIndex,
+    this.fiatFirst = false,
+  });
 
   final double width;
   final double borderRadius;
   final Gradient? gradient;
-  final String accountBalance;
+  final Money? balance;
+  final Money? fiatBalance;
   final String accountName;
-  final String balance;
-  final String fiatBalance;
-  final String fiatCurrencyTitle;
+  final Money? accountBalance;
   final bool fiatFirst;
   final int? accountIndex;
-  final bool capitalizeAssetName;
-  final String assetName;
+  final CryptoCurrency asset;
+  final FiatCurrency? fiatCurrency;
   final bool selected;
   final CardDesign design;
   final List<BalanceCardAction> actions;
@@ -54,19 +58,17 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Duration textFadeDuration = Duration(milliseconds: 80);
-    final double iconWidth = width * 0.15;
+    const textFadeDuration = Duration(milliseconds: 80);
+    final iconWidth = width * 0.15;
 
-    final name = fiatFirst ? fiatCurrencyTitle : assetName;
-    final resolvedAssetName = capitalizeAssetName ? name.toUpperCase() : name.toLowerCase();
+    final resolvedCurrency = fiatFirst && fiatCurrency != null ? fiatCurrency! : asset;
 
     final leadText = fiatFirst ? S.of(context).wallet_balance : accountName;
 
-    final bool showText = accountBalance.isNotEmpty ||
+    final bool showText = accountBalance != null ||
         leadText.isNotEmpty ||
-        balance.isNotEmpty ||
-        fiatBalance.isNotEmpty ||
-        resolvedAssetName.isNotEmpty;
+        balance != null ||
+        fiatBalance != null;
 
     final height = width * 0.62;
 
@@ -91,7 +93,6 @@ class BalanceCard extends StatelessWidget {
                 ? ClipRSuperellipse(
                     borderRadius: BorderRadius.circular(borderRadius),
                     key: ValueKey(design.imagePath),
-                    // Purely decorative card artwork.
                     child: ExcludeSemantics(
                       child: CakeImageWidget(
                         imageUrl: design.imagePath,
@@ -101,9 +102,7 @@ class BalanceCard extends StatelessWidget {
                       ),
                     ),
                   )
-                : const SizedBox.shrink(
-                    key: ValueKey('svgFullOff'),
-                  ),
+                : const SizedBox.shrink(key: ValueKey("svgFullOff")),
           ),
           Padding(
             padding: EdgeInsets.all(width * 0.05),
@@ -117,7 +116,7 @@ class BalanceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (leadText.isNotEmpty || accountBalance.isNotEmpty)
+                      if (leadText.isNotEmpty || accountBalance != null)
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,8 +130,9 @@ class BalanceCard extends StatelessWidget {
                                     child: AnimatedDefaultTextStyle(
                                       duration: designSwitchDuration,
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: design.colors.textColor),
+                                            fontWeight: FontWeight.w500,
+                                            color: design.colors.textColor,
+                                          ),
                                       child: Text("$accountIndex."),
                                     ),
                                   ),
@@ -146,63 +146,62 @@ class BalanceCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            AnimatedOpacity(
-                              opacity: selected ? 0 : 1,
-                              duration: textFadeDuration,
-                              // Opacity alone keeps the text readable by screen
-                              // readers, so drop it while it is invisible.
-                              child: ExcludeSemantics(
-                                excluding: selected,
-                                child: Text(
-                                  accountBalance,
+                            if (accountBalance != null)
+                              AnimatedOpacity(
+                                opacity: selected ? 0 : 1,
+                                duration: textFadeDuration,
+                                child: MoneyText(
+                                  accountBalance!,
+                                  fractionalDigits: 2,
+                                  trimZeros: false,
+                                  showSymbol: false,
                                   style: TextStyle(color: design.colors.textColor, fontSize: 14),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       AnimatedOpacity(
                         opacity: selected ? 1 : 0,
                         duration: textFadeDuration,
-                        // Only the selected card's balance is visible, so only it
-                        // may be announced.
-                        child: ExcludeSemantics(
-                          excluding: !selected,
-                          child: AnimatedSwitcher(
-                            duration: designSwitchDuration,
-                            layoutBuilder: (currentChild, previousChildren) {
-                              return Stack(
-                                alignment: Alignment.centerLeft,
-                                children: <Widget>[
-                                  ...previousChildren,
-                                  if (currentChild != null) currentChild,
-                                ],
-                              );
-                            },
-                            child: Row(
-                              key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
-                              spacing: 8.0,
-                              children: [
-                                AnimatedDefaultTextStyle(
-                                  duration: designSwitchDuration,
-                                  style: DefaultTextStyle.of(context).style.copyWith(
-                                      color: design.colors.textColor,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: -0.4),
-                                  child: Text(fiatFirst ? fiatBalance : balance),
-                                ),
-                                AnimatedDefaultTextStyle(
-                                  duration: designSwitchDuration,
-                                  style: DefaultTextStyle.of(context).style.copyWith(
-                                      color: design.colors.textColorSecondary,
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w400,
-                                      letterSpacing: -0.4),
-                                  child: Text(resolvedAssetName),
-                                ),
+                        child: AnimatedSwitcher(
+                          duration: designSwitchDuration,
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
                               ],
-                            ),
+                            );
+                          },
+                          child: Row(
+                            key: ValueKey("$balance ${resolvedCurrency.symbol.toUpperCase()}"),
+                            spacing: 8,
+                            children: [
+                              AnimatedDefaultTextStyle(
+                                duration: designSwitchDuration,
+                                style: DefaultTextStyle.of(context).style.copyWith(
+                                    color: design.colors.textColor,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: -0.4,
+                                ),
+                                child: MoneyText.optional(
+                                  fiatFirst ? fiatBalance : balance,
+                                  trimZeros: !fiatFirst,
+                                  showSymbol: false,
+                                ),
+                              ),
+                              AnimatedDefaultTextStyle(
+                                duration: designSwitchDuration,
+                                style: DefaultTextStyle.of(context).style.copyWith(
+                                    color: design.colors.textColorSecondary,
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: -0.4),
+                                child: CurrencySymbolText(resolvedCurrency),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -223,9 +222,11 @@ class BalanceCard extends StatelessWidget {
                               ],
                             );
                           },
-                          child: Text(
-                            key: ValueKey(fiatFirst ? balance : fiatBalance),
-                            fiatFirst ? "$assetName $balance" : fiatBalance,
+                          child: MoneyText.optional(
+                            fiatFirst ? balance : fiatBalance,
+                            withSymbolPrefix: true,
+                            trimZeros: fiatFirst,
+                            key: const ValueKey("balance_card_sub_balance"),
                           ),
                         ),
                       ),
@@ -263,12 +264,9 @@ class BalanceCard extends StatelessWidget {
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
                       child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          // Purely decorative card artwork.
-                          ? ExcludeSemantics(
-                              child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
-                            )
+                          ? _CornerSvgIcon(design: design, iconWidth: iconWidth)
                           : const SizedBox.shrink(
-                              key: ValueKey('svgIconOff'),
+                              key: ValueKey("svgIconOff"),
                             ),
                     ),
                   ],
@@ -282,28 +280,18 @@ class BalanceCard extends StatelessWidget {
             child: AnimatedOpacity(
               duration: designSwitchDuration,
               opacity: onCustomizeTapped == null ? 0 : 1,
-              // Faded out and inert: must not be a focusable phantom control.
-              child: ExcludeSemantics(
-                excluding: onCustomizeTapped == null,
-                child: Semantics(
-                  button: true,
-                  label: S.of(context).wallet_menu,
-                  onTap: onCustomizeTapped,
-                  child: GestureDetector(
-                    excludeFromSemantics: true,
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onCustomizeTapped,
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      child: Center(
-                        child: CakeImageWidget(
-                          imageUrl: "assets/new-ui/3dots_vertical.svg",
-                          alignment: Alignment.topRight,
-                          colorFilter:
-                              ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
-                        ),
-                      ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onCustomizeTapped,
+                child: SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: Center(
+                    child: CakeImageWidget(
+                      imageUrl: "assets/new-ui/3dots_vertical.svg",
+                      alignment: Alignment.topRight,
+                      colorFilter:
+                          ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
                     ),
                   ),
                 ),

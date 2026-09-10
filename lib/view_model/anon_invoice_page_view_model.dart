@@ -1,20 +1,20 @@
-import 'package:cake_wallet/anonpay/anonpay_api.dart';
-import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anonpay/anonpay_request.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/utils/qr_util.dart';
-import 'package:cw_core/receive_page_option.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cake_wallet/anonpay/anonpay_api.dart";
+import "package:cake_wallet/anonpay/anonpay_invoice_info.dart";
+import "package:cake_wallet/anonpay/anonpay_request.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/utils/qr_util.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
+import "package:cw_core/receive_page_option.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
-part 'anon_invoice_page_view_model.g.dart';
+part "anon_invoice_page_view_model.g.dart";
 
 class AnonInvoicePageViewModel = AnonInvoicePageViewModelBase with _$AnonInvoicePageViewModel;
 

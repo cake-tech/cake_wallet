@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/utilities.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 
 enum CakePayCardType {
   prepaid('Prepaid Cards'),

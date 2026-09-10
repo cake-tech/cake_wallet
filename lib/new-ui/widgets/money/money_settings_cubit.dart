@@ -4,7 +4,7 @@ import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:mobx/mobx.dart";
 
 class MoneySettingsCubit extends Cubit<MoneySettingsState> {

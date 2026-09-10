@@ -1,20 +1,20 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class NumberPad extends StatelessWidget {
+  const NumberPad({
+    required this.onNumberPressed,
+    required this.onDeletePressed,
+    required this.focusNode,
+    super.key,
+    this.onDecimalPressed,
+  });
+
   final VoidCallback? onDecimalPressed;
   final VoidCallback onDeletePressed;
   final void Function(int index) onNumberPressed;
   final FocusNode focusNode;
-
-  const NumberPad({
-    super.key,
-    required this.onNumberPressed,
-    required this.onDeletePressed,
-    required this.focusNode,
-    this.onDecimalPressed,
-  });
 
   @override
   Widget build(BuildContext context) => KeyboardListener(
@@ -29,8 +29,10 @@ class NumberPad extends StatelessWidget {
               return onDecimalPressed!();
             }
 
-            int? number = int.tryParse(keyEvent.character ?? '');
-            if (number != null) return onNumberPressed(number);
+            final int? number = int.tryParse(keyEvent.character ?? "");
+            if (number != null) {
+              return onNumberPressed(number);
+            }
           }
         },
         child: SizedBox(
@@ -42,12 +44,14 @@ class NumberPad extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             children: List.generate(12, (index) {
               if (index == 9) {
-                if (onDecimalPressed == null) return Container();
+                if (onDecimalPressed == null) {
+                  return Container();
+                }
                 return InkWell(
                   onTap: onDecimalPressed,
                   child: Center(
                     child: Text(
-                      '.',
+                      ".",
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             fontSize: 30,
@@ -61,21 +65,19 @@ class NumberPad extends StatelessWidget {
                 index = 0;
               } else if (index == 11) {
                 return MergeSemantics(
-                  child: Container(
-                    child: Semantics(
-                      label: S.of(context).delete,
-                      button: true,
-                      onTap: onDeletePressed,
-                      child: TextButton(
-                        onPressed: onDeletePressed,
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shape: CircleBorder(),
-                        ),
-                        child: Image.asset(
-                          'assets/images/delete_icon.png',
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                  child: Semantics(
+                    label: S.of(context).delete,
+                    button: true,
+                    onTap: onDeletePressed,
+                    child: TextButton(
+                      onPressed: onDeletePressed,
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shape: const CircleBorder(),
+                      ),
+                      child: Image.asset(
+                        "assets/images/delete_icon.png",
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -88,7 +90,7 @@ class NumberPad extends StatelessWidget {
                 onTap: () => onNumberPressed(index),
                 child: Center(
                   child: Text(
-                    '$index',
+                    "$index",
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           fontSize: 30,

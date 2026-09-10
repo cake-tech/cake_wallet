@@ -10,7 +10,7 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/ios_legacy_helper.dart' as ios_legacy_helper;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';

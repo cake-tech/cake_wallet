@@ -59,13 +59,13 @@ class CWNano extends Nano {
   Account getCurrentAccount(Object wallet) {
     final nanoWallet = wallet as NanoWallet;
     final acc = nanoWallet.walletAddresses.account;
-    return Account(id: acc!.id, label: acc.label, balance: acc.balance);
+    return Account(id: acc!.id, label: acc.label, balance: acc.balanceMoney);
   }
 
   @override
-  void setCurrentAccount(Object wallet, int id, String label, String? balance) {
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance) {
     final nanoWallet = wallet as NanoWallet;
-    nanoWallet.walletAddresses.account = NanoAccount(id: id, label: label, balance: balance);
+    nanoWallet.walletAddresses.account = NanoAccount(id: id, label: label, balance: balance.toString());
     nanoWallet.regenerateAddress();
   }
 
