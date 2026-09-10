@@ -15,7 +15,6 @@ class WalletInfoBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconPath = hardwareWalletIcon;
     final semanticsLabel =
         hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
 
@@ -31,12 +30,12 @@ class WalletInfoBar extends StatelessWidget {
                 sizeFactor: animation,
                 child: FadeTransition(opacity: animation, child: child),
               ),
-              child: iconPath == null
+              child: hardwareWalletIcon == null
                   ? const SizedBox.shrink(key: ValueKey("empty"))
                   : Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: CakeImageWidget(
-                        imageUrl: iconPath,
+                        imageUrl: hardwareWalletIcon!,
                         key: const ValueKey("hardware_wallet_icon"),
                         width: 24,
                         height: 24,

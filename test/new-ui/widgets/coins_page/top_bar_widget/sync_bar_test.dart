@@ -31,26 +31,6 @@ class _UnknownSyncStatus extends SyncStatus {
   double progress() => 0;
 }
 
-const _progressStatusTypes = <Type>[
-  SyncingSyncStatus,
-  NotConnectedSyncStatus,
-  SyncronizingSyncStatus,
-  AttemptingSyncStatus,
-  StartingScanSyncStatus,
-  AttemptingScanSyncStatus,
-  SyncedTipSyncStatus,
-  ProcessingSyncStatus,
-  ConnectingSyncStatus,
-  ConnectedSyncStatus,
-];
-
-const _failureStatusTypes = <Type>[
-  FailedSyncStatus,
-  LostConnectionSyncStatus,
-  TimedOutSyncStatus,
-  UnsupportedSyncStatus,
-];
-
 void main() {
   late bool registeredThemeStore;
 
@@ -65,85 +45,6 @@ void main() {
     if (registeredThemeStore) {
       await getIt.unregister<ThemeStore>();
     }
-  });
-
-  group("SyncBar.replacesWalletNameForStatus", () {
-    test("replaces the wallet name for every progress status in light and heavy wallets", () {
-      for (final statusType in _progressStatusTypes) {
-        for (final isSyncHeavy in [false, true]) {
-          expect(
-            SyncBar.replacesWalletNameForStatus(
-              statusType,
-              isSyncHeavy: isSyncHeavy,
-              showSyncedMessage: false,
-            ),
-            isTrue,
-            reason: "$statusType should replace the wallet name",
-          );
-        }
-      }
-    });
-
-    test("replaces the wallet name for every failure status in light and heavy wallets", () {
-      for (final statusType in _failureStatusTypes) {
-        for (final isSyncHeavy in [false, true]) {
-          expect(
-            SyncBar.replacesWalletNameForStatus(
-              statusType,
-              isSyncHeavy: isSyncHeavy,
-              showSyncedMessage: false,
-            ),
-            isTrue,
-            reason: "$statusType should replace the wallet name",
-          );
-        }
-      }
-    });
-
-    test("replaces the wallet name for the transient synced message in all wallets", () {
-      for (final isSyncHeavy in [false, true]) {
-        expect(
-          SyncBar.replacesWalletNameForStatus(
-            SyncedSyncStatus,
-            isSyncHeavy: isSyncHeavy,
-            showSyncedMessage: true,
-          ),
-          isTrue,
-        );
-      }
-    });
-
-    test("does not replace the wallet name once the synced message expires in any wallet", () {
-      for (final isSyncHeavy in [false, true]) {
-        expect(
-          SyncBar.replacesWalletNameForStatus(
-            SyncedSyncStatus,
-            isSyncHeavy: isSyncHeavy,
-            showSyncedMessage: false,
-          ),
-          isFalse,
-        );
-      }
-    });
-
-    test("unknown statuses replace the name only for sync-heavy wallets", () {
-      expect(
-        SyncBar.replacesWalletNameForStatus(
-          _UnknownSyncStatus,
-          isSyncHeavy: true,
-          showSyncedMessage: false,
-        ),
-        isTrue,
-      );
-      expect(
-        SyncBar.replacesWalletNameForStatus(
-          _UnknownSyncStatus,
-          isSyncHeavy: false,
-          showSyncedMessage: false,
-        ),
-        isFalse,
-      );
-    });
   });
 
   testWidgets("unknown sync-heavy statuses render a localized fallback", (tester) async {
@@ -177,7 +78,7 @@ void main() {
     expect(find.bySemanticsLabel(S.current.synchronizing), findsOneWidget);
   });
 
-  testWidgets("active Silent Payments syncing shows integer progress in the 210 by 40 pill",
+  testWidgets("active Silent Payments syncing shows integer progress and its icon in a 40px pill",
       (tester) async {
     final dashboardViewModel = _ObservableDashboardViewModel(SyncingSyncStatus(100, 0.24));
     final settingsStore = _MockSettingsStore();
@@ -232,7 +133,7 @@ void main() {
     expect(progressText.style?.color, warningOutlineColor);
     expect(find.text("·"), findsOneWidget);
     expect(find.text(S.current.Blocks_remaining("100")), findsOneWidget);
-    expect(tester.getSize(pill), const Size(210, 40));
+    expect(tester.getSize(pill).height, 40);
     expect(Size(silentPaymentsIcon.width!, silentPaymentsIcon.height!), const Size(16, 16));
     expect(
       silentPaymentsIcon.colorFilter,

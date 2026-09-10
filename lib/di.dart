@@ -1032,39 +1032,11 @@ Future<void> setup({
           getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
-      (AccountListItem? account, _) {
-    final wallet = getIt.get<AppStore>().wallet!;
-
-    if (wallet.type == WalletType.monero) {
-      final accountList = monero?.getAccountList(wallet);
-      if (accountList == null) {
-        throw StateError("Monero account support is unavailable");
-      }
-
-      return MoneroAccountEditOrCreateViewModel(
-        accountList,
-        null,
-        wallet: wallet,
-        accountListItem: account,
-      );
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      final accountList = wownero?.getAccountList(wallet);
-      if (accountList == null) {
-        throw StateError("Wownero account support is unavailable");
-      }
-
-      return MoneroAccountEditOrCreateViewModel(
-        null,
-        accountList,
-        wallet: wallet,
-        accountListItem: account,
-      );
-    }
-
-    throw StateError("Account creation is unavailable for ${wallet.type}");
-  });
+      (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
+          monero!.getAccountList(getIt.get<AppStore>().wallet!),
+          wownero?.getAccountList(getIt.get<AppStore>().wallet!),
+          wallet: getIt.get<AppStore>().wallet!,
+          accountListItem: account));
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(

@@ -39,6 +39,13 @@ class _ObservableDashboardViewModel extends Mock implements DashboardViewModel {
 
 class _MockSettingsStore extends Mock implements SettingsStore {}
 
+class _UnknownSyncStatus extends SyncStatus {
+  const _UnknownSyncStatus();
+
+  @override
+  double progress() => 0;
+}
+
 void _stubDashboardViewModel(
   _ObservableDashboardViewModel dashboardViewModel,
   _MockWallet wallet,
@@ -58,6 +65,9 @@ void _stubDashboardViewModel(
   when(() => dashboardViewModel.wallet).thenReturn(wallet);
   when(() => wallet.name).thenReturn(walletName);
   when(() => wallet.hardwareWalletType).thenReturn(null);
+  final settingsStore = _MockSettingsStore();
+  when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+  when(() => settingsStore.syncStatusDisplayMode).thenReturn(SyncStatusDisplayMode.blocksRemaining);
 }
 
 Widget _buildTopBar(DashboardViewModel dashboardViewModel) => TopBar(
@@ -89,36 +99,92 @@ void main() {
     }
   });
 
-  testWidgets("light sync keeps the wallet name hidden for the three-second Synced message",
+  for (final isSyncHeavy in [false, true]) {
+    testWidgets(
+        "keeps the name hidden until Synced expires, then restores it (heavy: $isSyncHeavy)",
+        (tester) async {
+      const walletName = "My Bitcoin Wallet";
+      final wallet = _MockWallet();
+      final dashboardViewModel = _ObservableDashboardViewModel(SyncingSyncStatus(100, 0.5));
+
+      _stubDashboardViewModel(dashboardViewModel, wallet, walletName, isSyncHeavy: isSyncHeavy);
+
+      await tester.pumpWidget(_buildTestApp(_buildTopBar(dashboardViewModel)));
+      await tester.pump();
+
+      expect(find.text(walletName), findsNothing);
+      expect(find.byType(SyncBar), findsOneWidget);
+
+      dashboardViewModel.setStatus(SyncedSyncStatus());
+      await tester.pump();
+
+      expect(find.text(walletName), findsNothing);
+      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(tester.widget<SyncBar>(find.byType(SyncBar)).showSyncedMessage, isTrue);
+
+      await tester.pump(const Duration(seconds: 3) - const Duration(milliseconds: 1));
+
+      expect(find.text(walletName), findsNothing);
+      expect(find.byIcon(Icons.check), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 1));
+
+      expect(find.text(walletName), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(find.byType(SyncBar), findsNothing);
+
+      dashboardViewModel.setStatus(SyncingSyncStatus(100, 0.5));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text(walletName), findsNothing);
+    });
+  }
+
+  testWidgets("replaces the wallet name for progress and failure statuses in all wallets",
       (tester) async {
-    const walletName = "My Bitcoin Wallet";
-    final wallet = _MockWallet();
-    final dashboardViewModel = _ObservableDashboardViewModel(SyncingSyncStatus(100, 0.5));
+    final statuses = <SyncStatus>[
+      SyncingSyncStatus(100, 0.5),
+      const NotConnectedSyncStatus(),
+      SyncronizingSyncStatus(),
+      AttemptingSyncStatus(),
+      StartingScanSyncStatus(0),
+      AttemptingScanSyncStatus(),
+      SyncedTipSyncStatus(100),
+      ProcessingSyncStatus(),
+      ConnectingSyncStatus(),
+      ConnectedSyncStatus(),
+      FailedSyncStatus(),
+      LostConnectionSyncStatus(),
+      TimedOutSyncStatus(),
+      UnsupportedSyncStatus(),
+      const _UnknownSyncStatus(),
+      SyncedSyncStatus(),
+    ];
 
-    _stubDashboardViewModel(dashboardViewModel, wallet, walletName);
+    for (final isSyncHeavy in [false, true]) {
+      for (final status in statuses) {
+        final dashboardViewModel = _ObservableDashboardViewModel(status);
+        _stubDashboardViewModel(
+          dashboardViewModel,
+          _MockWallet(),
+          "Wallet",
+          isSyncHeavy: isSyncHeavy,
+        );
 
-    await tester.pumpWidget(_buildTestApp(_buildTopBar(dashboardViewModel)));
-    await tester.pump();
+        await tester.pumpWidget(_buildTestApp(_buildTopBar(dashboardViewModel)));
+        await tester.pump(const Duration(milliseconds: 150));
 
-    expect(find.text(walletName), findsNothing);
-    expect(find.byType(SyncBar), findsOneWidget);
-
-    dashboardViewModel.setStatus(SyncedSyncStatus());
-    await tester.pump();
-
-    expect(find.text(walletName), findsNothing);
-    expect(find.byIcon(Icons.check), findsOneWidget);
-    expect(tester.widget<SyncBar>(find.byType(SyncBar)).showSyncedMessage, isTrue);
-
-    await tester.pump(const Duration(seconds: 3) - const Duration(milliseconds: 1));
-
-    expect(find.text(walletName), findsNothing);
-    expect(find.byIcon(Icons.check), findsOneWidget);
-
-    await tester.pump(const Duration(milliseconds: 1));
-
-    expect(find.text(walletName), findsOneWidget);
-    expect(find.byType(SyncBar), findsNothing);
+        final showsName = status.runtimeType == SyncedSyncStatus ||
+            (status is _UnknownSyncStatus && !isSyncHeavy);
+        expect(
+          find.text("Wallet"),
+          showsName ? findsOneWidget : findsNothing,
+          reason: "$status, sync-heavy: $isSyncHeavy",
+        );
+        expect(find.byType(SyncBar), showsName ? findsNothing : findsOneWidget);
+      }
+    }
   });
 
   testWidgets("rebinds to a replacement view model and cancels its stale Synced timer",
@@ -170,6 +236,7 @@ void main() {
     expect(tester.widget<SyncBar>(find.byType(SyncBar)).showSyncedMessage, isTrue);
 
     await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(milliseconds: 150));
     expect(find.text(secondWalletName), findsOneWidget);
     expect(find.byType(SyncBar), findsNothing);
   });
@@ -193,7 +260,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets("lays out the synced Bitcoin header to the Figma geometry", (tester) async {
+  testWidgets("uses natural control widths in the synced Bitcoin header", (tester) async {
     await tester.binding.setSurfaceSize(const Size(376, 200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -229,17 +296,16 @@ void main() {
     for (final icon in tester.widgetList<CakeImageWidget>(switcherIcons)) {
       expect(Size(icon.width!, icon.height!), const Size(27, 27));
     }
-    expect(tester.getSize(walletInfo).width, 190);
+    expect(tester.getSize(walletInfo).width, 217);
     expect(tester.getRect(settingsButton).right, 358);
   });
 
-  testWidgets("centers the 333-wide syncing group without growing its 36-high header slot",
+  testWidgets("fits the syncing pill between the controls at different screen widths",
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(376, 200));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     final wallet = _MockWallet();
-    final settingsStore = _MockSettingsStore();
     final dashboardViewModel = _ObservableDashboardViewModel(SyncingSyncStatus(100, 0.24));
 
     _stubDashboardViewModel(
@@ -250,9 +316,6 @@ void main() {
       hasSilentPayments: true,
       silentPaymentsScanningActive: true,
     );
-    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
-    when(() => settingsStore.syncStatusDisplayMode)
-        .thenReturn(SyncStatusDisplayMode.blocksRemaining);
 
     await tester.pumpWidget(
       _buildTestApp(
@@ -264,9 +327,6 @@ void main() {
     );
     await tester.pump();
 
-    final switcherRect = tester.getRect(find.byType(LightningSwitcher));
-    final syncBarRect = tester.getRect(find.byType(SyncBar));
-    final settingsRect = tester.getRect(find.byType(ModernButton));
     final pill = find.descendant(
       of: find.byType(SyncBar),
       matching: find.byWidgetPredicate(
@@ -276,15 +336,25 @@ void main() {
             widget.constraints?.maxHeight == 40,
       ),
     );
-    final pillRect = tester.getRect(pill);
 
-    expect(syncBarRect.size, const Size(210, 36));
-    expect(pillRect.size, const Size(210, 40));
-    expect(pillRect.left - switcherRect.right, closeTo(12, 0.001));
-    expect(settingsRect.left - pillRect.right, closeTo(12, 0.001));
-    expect(pillRect.center.dy, closeTo(syncBarRect.center.dy, 0.001));
-    expect(settingsRect.right - switcherRect.left, closeTo(333, 0.001));
-    expect((switcherRect.left + settingsRect.right) / 2, closeTo(188, 0.001));
+    for (final width in [320.0, 376.0, 600.0]) {
+      await tester.binding.setSurfaceSize(Size(width, 200));
+      await tester.pump();
+
+      final switcherRect = tester.getRect(find.byType(LightningSwitcher));
+      final syncBarRect = tester.getRect(find.byType(SyncBar));
+      final settingsRect = tester.getRect(find.byType(ModernButton));
+      final pillRect = tester.getRect(pill);
+
+      expect(switcherRect.left, 18);
+      expect(settingsRect.right, width - 18);
+      expect(syncBarRect.height, 36);
+      expect(pillRect.height, 40);
+      expect(pillRect.left - switcherRect.right, closeTo(12, 0.001));
+      expect(settingsRect.left - pillRect.right, closeTo(12, 0.001));
+      expect(pillRect.center.dy, closeTo(syncBarRect.center.dy, 0.001));
+      expect(tester.takeException(), isNull);
+    }
   });
 
   testWidgets("keeps the non-Lightning header geometry unchanged", (tester) async {

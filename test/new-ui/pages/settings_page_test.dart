@@ -79,7 +79,7 @@ void main() {
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
-    when(() => wallet.type).thenReturn(WalletType.wownero);
+    when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.hardwareWalletType).thenReturn(null);
     when(() => accountListViewModel.accounts).thenReturn(const []);
     when(() => accountListViewModel.selected).thenReturn(

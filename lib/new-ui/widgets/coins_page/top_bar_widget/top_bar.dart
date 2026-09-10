@@ -39,6 +39,17 @@ class _TopBarState extends State<TopBar> {
   Timer? syncedMessageTimer;
   ReactionDisposer? _statusReactionDisposer;
 
+  bool get replacesWalletName {
+    final status = widget.dashboardViewModel.status.runtimeType;
+    if (status == SyncedSyncStatus) {
+      return showSyncedMessage;
+    }
+
+    return widget.dashboardViewModel.isSyncHeavy ||
+        SyncBar.progressStatuses.contains(status) ||
+        SyncBar.failStatuses.contains(status);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,64 +109,39 @@ class _TopBarState extends State<TopBar> {
   Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.only(left: 18, right: 18, top: 10 + _additionalTopPadding(context)),
         child: Observer(
-          builder: (_) {
-            final syncBar = SyncBar(
-              dashboardViewModel: widget.dashboardViewModel,
-              isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
-              showSyncedMessage: showSyncedMessage,
-            );
-            final replacesWalletName = syncBar.replacesWalletName;
-            final hasLightning = widget.dashboardViewModel.hasLightning;
-            final leading = hasLightning
-                ? LightningSwitcher(
-                    lightningMode: widget.lightningMode,
-                    onLightningSwitchPress: widget.onLightningSwitchPress,
-                  )
-                : ChainIcon(
-                    iconPath: widget.dashboardViewModel.wallet.currency.flatIconPath ?? "",
-                    dashboardViewModel: widget.dashboardViewModel,
-                    isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
-                    showSyncedMessage: showSyncedMessage,
-                  );
-            final settingsButton = ModernButton.svg(
-              iconColor: Theme.of(context).colorScheme.primary,
-              size: 36,
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                widget.onSettingsButtonPress();
-              },
-              svgPath: "assets/new-ui/top-settings.svg",
-              semanticLabel: S.of(context).settings_title,
-            );
-
-            if (hasLightning && widget.dashboardViewModel.isSyncHeavy && replacesWalletName) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  leading,
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: SizedBox(
-                      width: 210,
-                      height: 36,
-                      child: syncBar,
+          builder: (_) => Row(
+            spacing: 12,
+            children: [
+              widget.dashboardViewModel.hasLightning
+                  ? LightningSwitcher(
+                      lightningMode: widget.lightningMode,
+                      onLightningSwitchPress: widget.onLightningSwitchPress,
+                    )
+                  : ChainIcon(
+                      iconPath: widget.dashboardViewModel.wallet.currency.flatIconPath ?? "",
+                      dashboardViewModel: widget.dashboardViewModel,
+                      isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+                      showSyncedMessage: showSyncedMessage,
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  settingsButton,
-                ],
-              );
-            }
-
-            return Row(
-              spacing: 12,
-              children: [
-                leading,
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
+              Expanded(
+                child: SizedBox(
+                  height: 36,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 150),
+                    reverseDuration: Duration.zero,
+                    layoutBuilder: (currentChild, previousChildren) => Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
+                    ),
                     child: replacesWalletName
-                        ? syncBar
+                        ? SyncBar(
+                            dashboardViewModel: widget.dashboardViewModel,
+                            isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+                            showSyncedMessage: showSyncedMessage,
+                          )
                         : Row(
                             children: [
                               Expanded(
@@ -165,27 +151,31 @@ class _TopBarState extends State<TopBar> {
                                       widget.dashboardViewModel.wallet.hardwareWalletType,
                                 ),
                               ),
-                              if (syncBar.hasCompactContent) ...[
+                              if (widget.dashboardViewModel.isTorEnabled) ...[
                                 const SizedBox(width: 6),
-                                syncBar,
+                                SyncBar(
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+                                  showSyncedMessage: showSyncedMessage,
+                                ),
                               ],
                             ],
                           ),
                   ),
                 ),
-                if (hasLightning && !replacesWalletName)
-                  SizedBox(
-                    width: 63,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: settingsButton,
-                    ),
-                  )
-                else
-                  settingsButton,
-              ],
-            );
-          },
+              ),
+              ModernButton.svg(
+                iconColor: Theme.of(context).colorScheme.primary,
+                size: 36,
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  widget.onSettingsButtonPress();
+                },
+                svgPath: "assets/new-ui/top-settings.svg",
+                semanticLabel: S.of(context).settings_title,
+              ),
+            ],
+          ),
         ),
       );
 

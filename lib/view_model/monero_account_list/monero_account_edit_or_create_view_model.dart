@@ -33,7 +33,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   @observable
   String label;
 
-  final MoneroAccountList? _moneroAccountList;
+  final MoneroAccountList _moneroAccountList;
   final WowneroAccountList? _wowneroAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
@@ -48,26 +48,25 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
     return ret.isNotEmpty ? ret : CardDesign.allGradients;
   }
 
-  Future<void> _saveRandomCardDesign(int accountIndex) async {
+  Future<void> _saveRandomCardDesign() async {
     final gradients = await _getUsableCardGradients();
 
     await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
-            accountIndex: accountIndex,
-            cardOrder: accountIndex,
+            accountIndex: _moneroAccountList.accounts.length,
+            cardOrder: _moneroAccountList.accounts.length,
             design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
                 .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
   }
 
   Future<void> save() async {
+    await _saveRandomCardDesign();
     if (_wallet.type == WalletType.monero) {
-      await _saveRandomCardDesign(_moneroAccountList!.accounts.length);
       await saveMonero();
     }
 
     if (_wallet.type == WalletType.wownero) {
-      await _saveRandomCardDesign(_wowneroAccountList!.accounts.length);
       await saveWownero();
     }
   }
@@ -77,10 +76,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = IsExecutingState();
 
       if (_accountListItem != null) {
-        await _moneroAccountList!
-            .setLabelAccount(_wallet, accountIndex: _accountListItem.id, label: label);
+        await _moneroAccountList.setLabelAccount(_wallet,
+            accountIndex: _accountListItem.id, label: label);
       } else {
-        await _moneroAccountList!.addAccount(_wallet, label: label);
+        await _moneroAccountList.addAccount(_wallet, label: label);
       }
 
       await _wallet.save();

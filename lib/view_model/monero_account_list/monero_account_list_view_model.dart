@@ -58,7 +58,10 @@ abstract class MoneroAccountListViewModelBase with Store {
   }
 
   @computed
-  AccountListItem get selected => accounts.firstWhere((item) => item.isSelected);
+  AccountListItem get selected {
+    final currentId = monero!.getCurrentAccount(_wallet).id;
+    return accounts.firstWhere((item) => item.id == currentId);
+  }
 
   final WalletBase _wallet;
 

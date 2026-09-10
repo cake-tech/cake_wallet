@@ -75,8 +75,6 @@ class _NewHomePageState extends State<NewHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isEVMWallet = widget.dashboardViewModel.isEVMWallet;
-
     return Container(
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
@@ -106,7 +104,7 @@ class _NewHomePageState extends State<NewHomePage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: isEVMWallet ? 36.0 : 24.0,
+                    spacing: 24.0,
                     children: [
                       TopBar(
                         key: ValueKey(widget.dashboardViewModel.wallet.id),
@@ -140,7 +138,7 @@ class _NewHomePageState extends State<NewHomePage> {
                         },
                       ),
                       Column(
-                        spacing: isEVMWallet ? 24 : 20,
+                        spacing: 20,
                         children: [
                           Column(
                             children: [
