@@ -388,7 +388,7 @@ abstract class MoneroWalletBase
   MoneroTrezorService? trezorService;
 
   Future<Trezor> _getTrezor() async {
-    if (trezorService == null) throw Exception("Trezor not connected");
+    if (trezorService == null) throw HardwareWalletNotConnectedException("Trezor not connected");
 
     final trezor = Trezor(trezorService!);
     await trezor.newPassphraseSession(passphrase);

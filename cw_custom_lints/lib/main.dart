@@ -18,12 +18,12 @@ class CwCustomLintsPlugin extends Plugin {
 
   @override
   void register(PluginRegistry registry) {
-    registry.registerWarningRule(PrintVerboseRule());
-    registry.registerWarningRule(RestrictedImportsRule());
-    registry.registerWarningRule(HttpForceProxyRule());
-    registry.registerWarningRule(ModernButtonSemanticsRule());
-    registry.registerWarningRule(ModalTopBarSemanticsRule());
-    registry.registerWarningRule(MoneyAmountToStringRule());
+    // registry.registerWarningRule(PrintVerboseRule());
+    // registry.registerWarningRule(RestrictedImportsRule());
+    // registry.registerWarningRule(HttpForceProxyRule());
+    // registry.registerWarningRule(ModernButtonSemanticsRule());
+    // registry.registerWarningRule(ModalTopBarSemanticsRule());
+    // registry.registerWarningRule(MoneyAmountToStringRule());
     registry.registerWarningRule(UseCakeExceptionRule());
 
     registry.registerFixForRule(PrintVerboseRule.code, ReplaceWithPrintV.new);

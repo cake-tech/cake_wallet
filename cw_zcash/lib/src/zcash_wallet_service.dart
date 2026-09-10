@@ -94,7 +94,7 @@ class ZcashWalletService
   Future<ZcashWallet> openWallet(final String name, final String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
     if (await isWalletExit(name)) {
@@ -150,7 +150,7 @@ class ZcashWalletService
       throw WalletNotFoundException();
     }
     if (!await isWalletExit(currentName)) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);
@@ -176,11 +176,11 @@ class ZcashWalletService
     final bool? isTestnet,
   }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
-      throw Exception("Seed is missing");
+      throw BadMnemonicException("Seed is missing");
     }
 
     if (!bip39.validateMnemonic(credentials.seed!)) {
-      throw Exception("Seed is not valid bip39");
+      throw BadMnemonicException("Seed is not valid bip39");
     }
 
     return ZcashWalletBase.restore(credentials);

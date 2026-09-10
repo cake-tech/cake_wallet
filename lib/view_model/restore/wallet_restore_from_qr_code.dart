@@ -206,7 +206,7 @@ class WalletRestoreFromQRCode {
         }
       });
       if (isEVMCompatibleChain(type) && !bip39.validateMnemonic(seedValue)) {
-        throw Exception(
+        throw BadMnemonicException(
           'EVM mnemonic has an invalid checksum. Please check the seed phrase for typos.',
         );
       }

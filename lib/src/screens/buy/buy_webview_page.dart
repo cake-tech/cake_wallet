@@ -83,10 +83,7 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
           return;
         }
 
-        final url = (await _webViewController!.getUrl())?.toString();
-        if (url == null) {
-          throw Exception('_saveOrder: Url is null');
-        }
+        final url = (await _webViewController!.getUrl())!.toString();
 
         if (url.contains(keyword)) {
           final urlParts = url.split(splitSymbol);

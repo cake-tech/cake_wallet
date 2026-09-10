@@ -190,10 +190,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
         final res = await _pinCompleter!.future;
         paringState = TrezorParingState.verifyingPin;
-        if (res == null) {
-          throw Exception();
-        }
-        return res;
+        return res!;
       }
 
       final deviceInfo = await _deviceName;
@@ -320,7 +317,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       _state = state;
       return state;
     } catch (_) {
-      throw Exception("Unable to save Trezor State");
+      rethrow;
     }
   }
 

@@ -444,7 +444,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType is LightningAddressType) {
-      throw Exception("Lightning addresses cannot be rotated");
+      throw ArgumentError("Lightning addresses cannot be rotated");
     }
 
     if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {

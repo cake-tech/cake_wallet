@@ -312,8 +312,9 @@ abstract class SolanaWalletBase
             .toList(growable: false);
 
     if (matches.isEmpty) {
-      throw Exception(
-        "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+      throw BadCurrencyException(
+        "Currency ${requestedCurrency.title} ${requestedCurrency
+            .tag} is not accessible in the wallet, try to enable it first.", requestedCurrency,
       );
     }
 
