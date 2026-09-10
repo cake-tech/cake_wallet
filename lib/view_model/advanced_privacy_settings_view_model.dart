@@ -59,6 +59,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.zcash:
+      case WalletType.zano:
+      case WalletType.decred:
         return true;
 
       case WalletType.bitcoin:
@@ -73,8 +75,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.zano:
-      case WalletType.decred:
         return false;
     }
   }
@@ -107,7 +107,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.zano,
         WalletType.dogecoin,
         WalletType.zcash,
-      ].contains(type);
+        WalletType.decred,
+    ].contains(type);
 
   @computed
   bool get addCustomNode => _addCustomNode;

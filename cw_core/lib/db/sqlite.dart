@@ -65,7 +65,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 10,
+    version: 12,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -154,7 +154,11 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
     }
-    if(oldVersion <= 10) {
+
+    if (oldVersion <= 10) {
+      await _createImportedNFTTable(db);
+    }
+    if(oldVersion <= 11) {
       await _createChartsTables(db);
     }
   }, onCreate: (Database db, int version) async {
@@ -256,6 +260,8 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createErc20TokenTable(db);
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
+          await _createImportedNFTTable(db);
+
     },
   );
 }
@@ -444,6 +450,26 @@ CREATE TABLE IF NOT EXISTS SPLToken (
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_spltoken_wallet_mint
 ON SPLToken (walletName, mintAddress);
+""");
+}
+
+Future<void> _createImportedNFTTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS ImportedNFT (
+  ImportedNFTId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletName TEXT NOT NULL,
+  chain TEXT NOT NULL,
+  identifier TEXT NOT NULL,
+  name TEXT,
+  symbol TEXT,
+  description TEXT,
+  imageUrl TEXT,
+  isOwned INTEGER
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_importednft_wallet_chain_identifier
+ON ImportedNFT (walletName, chain, identifier);
 """);
 }
 

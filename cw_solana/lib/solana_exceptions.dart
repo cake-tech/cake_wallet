@@ -30,9 +30,15 @@ class SolanaCreateAssociatedTokenAccountException extends CreateAssociatedTokenA
 
 class SolanaSignSPLTokenTransactionRentException extends SignSPLTokenTransactionRentException {}
 
+class SolanaNotAnNFTException extends NotAnNFTException {}
+
 class SolanaNoAssociatedTokenAccountException extends NoAssociatedTokenAccountException {
   SolanaNoAssociatedTokenAccountException(this.account, this.mint);
 
   final String account;
   final String mint;
+}
+
+class SolanaAmbiguousTokenSymbolException extends AmbiguousTokenSymbolException {
+  SolanaAmbiguousTokenSymbolException(super.symbol);
 }

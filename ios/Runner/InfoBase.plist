@@ -201,7 +201,6 @@
             <array>
                 <string>solana</string>
                 <string>solana-wallet</string>
-                <string>solana_wallet</string>
             </array>
         </dict>
         <dict>
