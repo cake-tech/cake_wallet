@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -93,7 +94,7 @@ class ZcashWalletService
   Future<ZcashWallet> openWallet(final String name, final String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
     if (await isWalletExit(name)) {
@@ -137,7 +138,7 @@ class ZcashWalletService
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -146,10 +147,10 @@ class ZcashWalletService
   Future<void> rename(final String currentName, final String password, final String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
     if (!await isWalletExit(currentName)) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException();
     }
 
     await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);
@@ -175,11 +176,11 @@ class ZcashWalletService
     final bool? isTestnet,
   }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
-      throw Exception("Seed is missing");
+      throw BadMnemonicException("Seed is missing");
     }
 
     if (!bip39.validateMnemonic(credentials.seed!)) {
-      throw Exception("Seed is not valid bip39");
+      throw BadMnemonicException("Seed is not valid bip39");
     }
 
     return ZcashWalletBase.restore(credentials);

@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+
+class AnyPayParseException extends CurrencyParseException {
+	const AnyPayParseException(super.message);
+}
 
 class AnyPayApi {
   static const contentTypePaymentRequest = 'application/payment-request';
@@ -36,7 +41,7 @@ class AnyPayApi {
       case 'litecoin':
         return CryptoCurrency.ltc;
       default:
-        throw Exception('Unexpected scheme: ${scheme}');
+        throw AnyPayParseException('Unexpected scheme: ${scheme}');
     }
   }
 
@@ -63,7 +68,7 @@ class AnyPayApi {
 
     if (response.statusCode != 200) {
       await ExceptionHandler.onError(FlutterErrorDetails(exception: response));
-      throw Exception('Unexpected response http code: ${response.statusCode}');
+      throw ServerResponseException('Unexpected response http code: ${response.statusCode}');
     }
 
     final decodedBody = json.decode(response.body) as Map<String, dynamic>;
@@ -95,11 +100,11 @@ class AnyPayApi {
 
     if (response.statusCode == 400) {
       final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-      throw Exception(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');
+      throw ServerResponseException(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected response');
+      throw ServerResponseException('Unexpected response');
     }
 
     final decodedBody = json.decode(response.body) as Map<String, dynamic>;

@@ -1,4 +1,5 @@
 import 'dart:io';
+import "package:cake_wallet/core/backup_service.dart";
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -47,13 +48,11 @@ abstract class RestoreFromBackupViewModelBase with Store {
         await backupService.importBackupFile(file, password, checkBackupApp: checkBackupApp);
       } on IncompatibleBackupAppException {
         rethrow;
+      } on UnknownBackupVersionException {
+        state = FailureState(
+            'This is not a valid backup file, please make sure you have selected the correct one');
       } catch (e, s) {
-        if (e.toString().contains("unknown_backup_version")) {
-          state = FailureState(
-              'This is not a valid backup file, please make sure you have selected the correct one');
-        } else {
-          state = FailureState(e.toString() + "\n" + s.toString());
-        }
+        state = FailureState(e.toString() + "\n" + s.toString());
       }
 
       try {

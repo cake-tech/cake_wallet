@@ -22,7 +22,7 @@ String decrypt({required String source, required String key}) {
 
 String hash({required String source}) {
   // FIX-ME: Uninplemented
-  throw Exception('Unimplemented');
+  throw UnimplementedError();
   // final algorithm = PBKDF2();
   // final hash = Password.hash(source, algorithm);
 

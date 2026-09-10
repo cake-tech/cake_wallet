@@ -1,7 +1,7 @@
-class PayjoinSessionError {
-  final String message;
+import "package:cw_core/exceptions/cake_exception.dart";
 
-  const PayjoinSessionError._(this.message);
+class PayjoinSessionError extends CakeException{
+  const PayjoinSessionError._(super.message);
 
   factory PayjoinSessionError.recoverable(String message) = RecoverableError;
   factory PayjoinSessionError.unrecoverable(String message) = UnrecoverableError;

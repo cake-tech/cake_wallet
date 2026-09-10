@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/payjoin/payjoin_persister.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
@@ -120,7 +121,7 @@ class PayjoinManager {
 
       return Sender.load(token: senderToken, persister: persister);
     } catch (e) {
-      throw Exception('Error initializing Payjoin Sender: $e');
+      throw PayjoinSenderInitException('Error initializing Payjoin Sender: $e');
     }
   }
 

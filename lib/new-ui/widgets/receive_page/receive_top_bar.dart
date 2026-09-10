@@ -6,22 +6,22 @@ void nothing() {}
 class ModalTopBar extends StatelessWidget {
   ModalTopBar(
       {super.key,
-      required this.title,
-      this.subtitle,
-      this.onLeadingPressed = nothing,
-      this.onTrailingPressed = nothing,
-      this.leadingIcon,
-      this.trailingIcon,
-      this.padding,
-      this.leadingWidget,
-      this.trailingWidget,
-      this.leadingSemanticLabel,
-      this.trailingSemanticLabel}) {
-    if (leadingIcon != null && leadingWidget != null) {
-      throw Exception("Cannot have both leadingIcon and leadingWidget");
+        required this.title,
+        this.subtitle,
+        this.onLeadingPressed = nothing,
+        this.onTrailingPressed = nothing,
+        this.leadingIcon,
+        this.trailingIcon,
+        this.padding,
+        this.leadingWidget,
+        this.trailingWidget,
+        this.leadingSemanticLabel,
+        this.trailingSemanticLabel}) {
+    if(leadingIcon != null && leadingWidget != null) {
+      throw ArgumentError("Cannot have both leadingIcon and leadingWidget");
     }
-    if (trailingIcon != null && trailingWidget != null) {
-      throw Exception("Cannot have both trailingIcon and trailingWidget");
+    if(trailingIcon != null && trailingWidget != null) {
+      throw ArgumentError("Cannot have both trailingIcon and trailingWidget");
     }
   }
 

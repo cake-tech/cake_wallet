@@ -4,6 +4,7 @@ import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -204,7 +205,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         } else if (widget.walletType == WalletType.zano) {
           height = zano!.getHeightByDate(date: date);
         } else {
-          throw Exception("unknown currency in BlockchainHeightWidget");
+          throw BadWalletTypeException("unknown currency in BlockchainHeightWidget",widget.walletType);
         }
       }
       if (mounted) {

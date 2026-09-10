@@ -1,4 +1,5 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_info.dart';
 
 class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
@@ -28,7 +29,7 @@ class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
       case 3:
         return bip39;
       default:
-        throw Exception('Unexpected token: $raw for SeedType deserialize');
+        throw DeserializeException('Unexpected token: $raw for SeedType deserialize');
     }
   }
 
@@ -56,7 +57,7 @@ class BitcoinSeedType extends EnumerableItem<int> with Serializable<int> {
       case 1:
         return bip39;
       default:
-        throw Exception('Unexpected token: $raw for SeedType deserialize');
+        throw DeserializeException('Unexpected token: $raw for SeedType deserialize');
     }
   }
 }
@@ -81,7 +82,7 @@ class NanoSeedType extends EnumerableItem<int> with Serializable<int> {
       case 1:
         return bip39;
       default:
-        throw Exception('Unexpected token: $raw for SeedType deserialize');
+        throw DeserializeException('Unexpected token: $raw for SeedType deserialize');
     }
   }
 }

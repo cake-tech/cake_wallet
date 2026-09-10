@@ -1,5 +1,6 @@
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_evm/contract/erc20.dart';
 import 'package:cw_evm/contract/oft.dart';
@@ -23,9 +24,15 @@ class USDT0Service {
     final oftAddress = USDT0Config.getOftContractAddress(sourceChainId);
     final dstEid = USDT0Config.getEndpointId(destinationChainId);
 
-    if (oftAddress == null || dstEid == null) {
-      throw Exception(
-        'USDT0 not supported for chain $sourceChainId -> $destinationChainId',
+    if (oftAddress == null) {
+      throw BadChainIdException(
+          'USDT0 not supported for chain $sourceChainId'
+      );
+    }
+
+    if(dstEid == null) {
+      throw BadChainIdException(
+          'USDT0 not supported for chain $destinationChainId'
       );
     }
 
@@ -58,9 +65,15 @@ class USDT0Service {
     final oftAddress = USDT0Config.getOftContractAddress(sourceChainId);
     final dstEid = USDT0Config.getEndpointId(destinationChainId);
 
-    if (oftAddress == null || dstEid == null) {
-      throw Exception(
-        'USDT0 not supported for chain $sourceChainId -> $destinationChainId',
+    if (oftAddress == null) {
+      throw BadChainIdException(
+        'USDT0 not supported for chain $sourceChainId'
+      );
+    }
+
+    if(dstEid == null) {
+      throw BadChainIdException(
+          'USDT0 not supported for chain $destinationChainId'
       );
     }
 

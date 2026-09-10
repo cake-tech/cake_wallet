@@ -134,7 +134,7 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   @computed
   @override
   MoneroBalance get balance {
-    throw Exception('Unimplemented');
+    throw UnimplementedError();
     // return MoneroBalance();
     //return MoneroBalance(
     //	fullBalance: balance.fullBalance,

@@ -26,6 +26,8 @@ import "package:mobx/mobx.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:trezor_connect/trezor_connect.dart" as connect_sdk;
 import "package:trezor_flutter/trezor_flutter.dart" as sdk;
+import "package:cw_core/exceptions/cake_exception.dart";
+
 
 part "trezor_connect_view_model.g.dart";
 
@@ -188,10 +190,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
         final res = await _pinCompleter!.future;
         paringState = TrezorParingState.verifyingPin;
-        if (res == null) {
-          throw Exception();
-        }
-        return res;
+        return res!;
       }
 
       final deviceInfo = await _deviceName;
@@ -277,7 +276,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw Exception("Unexpected wallet type: ${wallet.type} for trezor");
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for trezor', wallet.type);
     }
   }
 
@@ -318,7 +317,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       _state = state;
       return state;
     } catch (_) {
-      throw Exception("Unable to save Trezor State");
+      rethrow;
     }
   }
 

@@ -10,6 +10,7 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -56,7 +57,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null && hasFeesPriority) {
-      throw Exception('Unexpected type ${wallet.type}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type}', wallet.type);
     }
 
     return priority!;

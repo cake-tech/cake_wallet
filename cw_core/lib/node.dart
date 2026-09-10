@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:blockchain_utils/hex/hex.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node_list.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
@@ -300,7 +301,7 @@ class Node {
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
-        throw Exception('Unexpected type ${type.toString()} for Node uri');
+        throw BadWalletTypeException('Unexpected type ${type.toString()} for Node uri', type);
     }
   }
 
@@ -513,7 +514,7 @@ class Node {
           data["error"] != null ||
           data["balance"] == null ||
           data["receivable"] == null) {
-        throw Exception(
+        throw ServerResponseException(
             "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
       }
       return true;
@@ -661,7 +662,7 @@ class DaemonRpc {
 
     if (initialResponse.statusCode != 401 ||
         !initialResponse.headers.containsKey('www-authenticate')) {
-      throw Exception('Unexpected response: ${initialResponse.body}');
+      throw ServerResponseException('Unexpected response: ${initialResponse.body}');
     }
 
     // Extract Digest details from `WWW-Authenticate` header.
@@ -688,13 +689,13 @@ class DaemonRpc {
     );
 
     if (authenticatedResponse.statusCode != 200) {
-      throw Exception('RPC call failed: ${authenticatedResponse.body}');
+      throw ServerResponseException('RPC call failed: ${authenticatedResponse.body}');
     }
 
     final Map<String, dynamic> result =
         jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
-      throw Exception('RPC Error: ${result['error']}');
+      throw ServerResponseException('RPC Error: ${result['error']}');
     }
 
     return result['result'] as Map<String, dynamic>;

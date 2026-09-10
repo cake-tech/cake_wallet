@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/core/lightning_invoice_service.dart';
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -81,13 +82,13 @@ class ExolixExchangeProvider extends ExchangeProvider {
           params['amount'] = errorResponse['minAmount'].toString();
           continue;
         }
-        throw Exception('Error 422: ${errorResponse['message'] ?? 'Unknown error'}');
+        throw ExchangeProviderResponseCodeException('Error 422: ${errorResponse['message'] ?? 'Unknown error'}', response.statusCode);
       } else {
-        throw Exception('Unexpected HTTP status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected HTTP status: ${response.statusCode}', response.statusCode);
       }
     }
 
-    throw Exception('Failed to fetch limits after retrying.');
+    throw ExchangeProviderResponseException('Failed to fetch limits after retrying.');
   }
 
   @override
@@ -137,8 +138,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-
-        throw Exception(message);
+        
+        throw ExchangeProviderResponseCodeException(message??"", response.statusCode);
       }
 
       final rate = double.tryParse(responseJSON['rate']?.toString() ?? '') ?? 0.0;
@@ -238,8 +239,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-
-      throw Exception(errorMessage);
+      
+      throw ExchangeProviderResponseCodeException(errorMessage??"", response.statusCode);
     }
 
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -261,7 +262,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -336,7 +337,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 

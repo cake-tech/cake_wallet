@@ -59,9 +59,9 @@ class PayjoinSenderWorker {
         return await _runSenderV1(sender);
       } else if (e is HttpException) {
         printV(e);
-        throw Exception(PayjoinSessionError.recoverable(e.toString()));
+        throw PayjoinSessionError.recoverable(e.toString());
       } else {
-        throw Exception(PayjoinSessionError.unrecoverable(e.toString()));
+        throw PayjoinSessionError.unrecoverable(e.toString());
       }
     }
   }

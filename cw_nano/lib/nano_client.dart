@@ -3,12 +3,14 @@ import 'dart:convert';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
+import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
@@ -84,7 +86,7 @@ class NanoClient {
         data["error"] != null ||
         data["balance"] == null ||
         data["receivable"] == null) {
-      throw Exception(
+      throw ServerResponseException(
           "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
     }
     final currentBalance = data["balance"] as String;
@@ -149,7 +151,7 @@ class NanoClient {
     AccountInfoResponse? accountInfo = await getAccountInfo(ourAddress);
 
     if (accountInfo == null) {
-      throw Exception(
+      throw NanoChangeRepException(
           "error while getting account info, you can't change the rep of an unopened account");
     }
 
@@ -184,7 +186,7 @@ class NanoClient {
     try {
       return await processBlock(changeBlock, "change");
     } catch (e) {
-      throw Exception("error while changing representative: $e");
+      throw NanoChangeRepException("error while changing representative: $e");
     }
   }
 
@@ -203,11 +205,11 @@ class NanoClient {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body) as Map<String, dynamic>;
       if (decoded.containsKey("error")) {
-        throw Exception("Received error ${decoded["error"]}");
+        throw ServerResponseException("Received error ${decoded["error"]}");
       }
       return decoded["work"] as String;
     } else {
-      throw Exception("Received work error ${response.body}");
+      throw ServerResponseException("Received work error ${response.body}");
     }
   }
 
@@ -241,7 +243,7 @@ class NanoClient {
 
     final Map<String, dynamic> decoded = jsonDecode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
-      throw Exception("Received error ${decoded["error"]}");
+      throw ServerResponseException("Received error ${decoded["error"]}");
     }
 
     // return the hash of the transaction:
@@ -268,7 +270,7 @@ class NanoClient {
     // get the account info (we need the frontier and representative):
     AccountInfoResponse? infoResponse = await getAccountInfo(publicAddress);
     if (infoResponse == null) {
-      throw Exception(
+      throw ServerResponseException(
           "error while getting account info! (we probably don't have an open account yet)");
     }
 
@@ -341,7 +343,7 @@ class NanoClient {
     }
 
     if ((BigInt.tryParse(amountRaw) ?? BigInt.zero) <= BigInt.zero) {
-      throw Exception("amountRaw must be greater than zero");
+      throw ArgumentError("amountRaw must be greater than zero");
     }
 
     BlockContentsResponse? frontierContents;
@@ -351,7 +353,7 @@ class NanoClient {
       frontierContents = await getBlockContents(frontier);
 
       if (frontierContents == null) {
-        throw Exception("error while getting frontier block info");
+        throw NanoBlockException("error while getting frontier block info");
       }
 
       final String frontierHash = NanoSignatures.computeStateHash(
@@ -370,7 +372,7 @@ class NanoClient {
       );
 
       if (!valid) {
-        throw Exception(
+        throw NanoBlockException(
             "Frontier block signature is invalid! Potentially malicious block detected!");
       }
     }
@@ -439,7 +441,7 @@ class NanoClient {
     );
     final Map<String, dynamic> decoded = json.decode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
-      throw Exception("Received error ${decoded["error"]}");
+      throw ServerResponseException("Received error ${decoded["error"]}");
     }
   }
 
