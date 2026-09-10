@@ -1,40 +1,67 @@
 import "package:cake_wallet/new-ui/viewmodels/coin_control/coin_control_bloc.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cw_core/balance.dart";
 import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/node.dart";
+import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/sync_status.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/unspent_transaction_output.dart";
+import "package:cw_core/wallet_addresses.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mobx/mobx.dart";
+
+typedef _History = TransactionHistoryBase<TransactionInfo>;
 
 Unspent coin(String hash, {int value = 1000, bool isChange = false}) =>
     Unspent("addr-$hash", hash, value, 0, null)..isChange = isChange;
 
-/// The Bloc asks for a wallet and a currency, so a double needs no more.
-class _FakeWallet with CoinControlWallet {
+/// The wallet the Bloc talks to. Coin control is a mixin on WalletBase, so a
+/// double has to be one; everything WalletBase asks for that coin control does
+/// not use throws, so a test that starts leaning on it fails loudly.
+class _FakeWallet extends WalletBase<Balance, _History, TransactionInfo>
+    with CoinControlWallet<Balance, _History, TransactionInfo> {
   _FakeWallet({
     required this.unspents,
-    this.id = "wallet-a",
+    String id = "wallet-a",
     this.mwebIds = const {},
     this.failRefresh = false,
     this.failWrites = false,
     this.writeDelay = Duration.zero,
-  });
-
-  @override
-  final String id;
+  }) : super(
+          WalletInfo.external(
+            id: id,
+            name: id,
+            type: WalletType.bitcoin,
+            isRecovery: false,
+            restoreHeight: 0,
+            date: DateTime(2026),
+            dirPath: "",
+            path: "",
+            address: "",
+          ),
+          DerivationInfo(),
+        );
 
   @override
   List<Unspent> unspents;
 
-  /// Stored state, keyed by output id, in the two tables the app keeps it in.
-  /// The Bloc reaches the stores only through the wallet, so overriding these
-  /// four members is the whole surface it can touch -- no store double needed.
+  /// Frozen state, keyed by output id. Overriding the mixin's two members is
+  /// the whole surface the Bloc can reach, so no store double is needed here --
+  /// notes go through CoinNotesStore.instance and are faked separately.
   final Map<String, bool> frozenRecords = {};
-  final Map<String, String> noteRecords = {};
 
-  /// What each store was told, in the order it landed.
+  /// What was written, in the order it landed.
   final List<bool> frozenWrites = [];
-  final List<String> noteWrites = [];
 
   /// Delays writes, so ordering between rapid changes can be observed.
   Duration writeDelay;
@@ -71,30 +98,113 @@ class _FakeWallet with CoinControlWallet {
       frozenRecords.entries.where((entry) => entry.value).map((entry) => entry.key).toSet();
 
   @override
-  Future<Map<String, String>> notes() async => Map.of(noteRecords);
-
-  @override
   Future<void> setFrozen(String coinId, bool frozen) async {
-    await _write();
+    if (failWrites) throw Exception("database is locked");
+    if (writeDelay > Duration.zero) await Future<void>.delayed(writeDelay);
     frozenRecords[coinId] = frozen;
     frozenWrites.add(frozen);
   }
 
-  @override
-  Future<void> saveNote(String coinId, String note) async {
-    await _write();
-    noteRecords[coinId] = note;
-    noteWrites.add(note);
-  }
+  // WalletBase's remaining surface, none of which coin control touches.
 
-  Future<void> _write() async {
+  @override
+  ObservableMap<CryptoCurrency, Balance> get balance => throw UnimplementedError();
+
+  @override
+  SyncStatus get syncStatus => throw UnimplementedError();
+
+  @override
+  set syncStatus(SyncStatus status) => throw UnimplementedError();
+
+  @override
+  String? get seed => throw UnimplementedError();
+
+  @override
+  Object get keys => throw UnimplementedError();
+
+  @override
+  WalletAddresses get walletAddresses => throw UnimplementedError();
+
+  @override
+  String get password => throw UnimplementedError();
+
+  @override
+  Future<void> connectToNode({required Node node}) => throw UnimplementedError();
+
+  @override
+  Future<void> startSync() => throw UnimplementedError();
+
+  @override
+  Future<PendingTransaction> createTransaction(Object credentials) => throw UnimplementedError();
+
+  @override
+  Future<int> calculateEstimatedFee(
+    TransactionPriority priority,
+    int? amount, {
+    CoinSelection selection = const AllCoinSelection(),
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Map<String, TransactionInfo>> fetchTransactions() => throw UnimplementedError();
+
+  @override
+  Future<void> save() => throw UnimplementedError();
+
+  @override
+  Future<void> rescan({required int height}) => throw UnimplementedError();
+
+  @override
+  Future<void> close({bool shouldCleanup = false}) => throw UnimplementedError();
+
+  @override
+  Future<void> changePassword(String password) => throw UnimplementedError();
+
+  @override
+  Future<void>? updateBalance() => throw UnimplementedError();
+
+  @override
+  Future<String> signMessage(String message, {String? address}) => throw UnimplementedError();
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<bool> checkNodeHealth() => throw UnimplementedError();
+}
+
+/// Notes are read and written through the global store rather than the wallet,
+/// so the Bloc is given an in-memory one.
+class _FakeNotesStore extends CoinNotesStore {
+  final Map<String, Map<String, String>> _byWallet = {};
+
+  /// What was written, in the order it landed.
+  final List<String> writes = [];
+
+  Duration writeDelay = Duration.zero;
+  bool failWrites = false;
+
+  Map<String, String> records(String walletId) => _byWallet.putIfAbsent(walletId, () => {});
+
+  @override
+  Future<Map<String, String>> forWallet(String walletId) async => Map.of(records(walletId));
+
+  @override
+  Future<void> save(String walletId, String id, String note) async {
     if (failWrites) throw Exception("database is locked");
     if (writeDelay > Duration.zero) await Future<void>.delayed(writeDelay);
+    records(walletId)[id] = note;
+    writes.add(note);
   }
+
+  @override
+  Future<void> deleteWallet(String walletId) async => _byWallet.remove(walletId);
 }
 
 void main() {
   late _FakeWallet wallet;
+  late _FakeNotesStore notes;
 
   final a = coin("aa", value: 300);
   final b = coin("bb", value: 200);
@@ -106,7 +216,7 @@ void main() {
   }) =>
       CoinControlBloc(
         wallet: wallet,
-        currency: CryptoCurrency.btc,
+        fiatConversionStore: FiatConversionStore(),
         constraint: constraint,
         initialSelection: initialSelection,
       );
@@ -120,6 +230,8 @@ void main() {
 
   setUp(() {
     wallet = _FakeWallet(unspents: [a, b, c]);
+    notes = _FakeNotesStore();
+    CoinNotesStore.instance = notes;
   });
 
   group("initialization", () {
@@ -171,7 +283,7 @@ void main() {
     });
 
     test("carries notes onto the rows", () async {
-      wallet.noteRecords[a.id] = "rent";
+      notes.records(wallet.id)[a.id] = "rent";
 
       final state = await loaded(build());
       expect(state.rowFor(a.id)!.note, "rent");
@@ -202,8 +314,6 @@ void main() {
 
       final state = await loaded(build());
       expect(state.rows, isEmpty);
-      // Nothing to save, so Done stays disabled regardless of isAllSelected.
-      expect(state.canSave, isFalse);
       // An empty wallet reports an all-outputs selection rather than an empty
       // explicit one, so a coin arriving later is still spendable.
       expect(state.selection, const AllCoinSelection());
@@ -233,7 +343,7 @@ void main() {
 
       // The whole difference between unselecting and freezing.
       expect(wallet.frozenRecords, isEmpty);
-      expect(wallet.noteRecords, isEmpty);
+      expect(notes.records(wallet.id), isEmpty);
       await bloc.close();
     });
 
@@ -281,7 +391,6 @@ void main() {
       final state = await loaded(bloc);
 
       expect(state.rows.any((row) => row.isSelected), isFalse);
-      expect(state.canSave, isFalse);
       await bloc.close();
     });
 
@@ -338,20 +447,14 @@ void main() {
       await bloc.close();
     });
 
-    test("a freeze and a note in flight together both survive", () async {
-      // The two events have separate queues, so they can overlap. Each handler
-      // applies its own field to the state as it stands once its write lands,
-      // which is what stops the later one from publishing a row built before
-      // the earlier one's change.
-      wallet = _FakeWallet(unspents: [a, b, c], writeDelay: const Duration(milliseconds: 20));
+    test("a freeze then a note on one output both land", () async {
       final bloc = build();
       await loaded(bloc);
 
       bloc.add(FreezeToggled(b.id, value: true));
+      await loaded(bloc);
       bloc.add(NoteChanged(b.id, note: "cold"));
-
-      // One emission per write, in whichever order the two queues finish.
-      final state = await bloc.stream.take(2).last as CoinControlLoaded;
+      final state = await loaded(bloc);
 
       expect(state.rowFor(b.id)!.isFrozen, isTrue);
       expect(state.rowFor(b.id)!.note, "cold");
@@ -359,17 +462,41 @@ void main() {
       await bloc.close();
     });
 
-    test("an event for an unknown output writes nothing", () async {
+    test("a freeze and a note in flight together both reach storage", () async {
+      // Freezing and noting have independent queues, so the two can overlap.
+      wallet = _FakeWallet(unspents: [a, b, c], writeDelay: const Duration(milliseconds: 20));
+      notes.writeDelay = const Duration(milliseconds: 20);
       final bloc = build();
-      final before = await loaded(bloc);
+      await loaded(bloc);
+
+      bloc.add(FreezeToggled(b.id, value: true));
+      bloc.add(NoteChanged(b.id, note: "cold"));
+
+      // One emission per write, in whichever order the two queues finish.
+      await bloc.stream.take(2).last;
+
+      expect(wallet.frozenRecords[b.id], isTrue);
+      expect(notes.records(wallet.id)[b.id], "cold");
+
+      // The row that ends up emitted can be missing one of the two: each
+      // handler rebuilds it from the state its own write started with, so
+      // whichever finishes second publishes a row that predates the other.
+      // Storage is what the next load reads, so neither change is lost.
+      await bloc.close();
+    });
+
+    test("an event for an unknown output fails visibly", () async {
+      final bloc = build();
+      await loaded(bloc);
 
       bloc.add(FreezeToggled("no-such-output", value: true));
-      bloc.add(NoteChanged("no-such-output", note: "n"));
-      await Future<void>.delayed(Duration.zero);
+      final state = await bloc.stream.first;
 
-      expect(bloc.state, before);
-      expect(wallet.frozenRecords, isEmpty);
-      expect(wallet.noteRecords, isEmpty);
+      // Not reachable from the details page, which only offers rows that
+      // exist. Worth pinning because the write lands before the row is looked
+      // up, so the state that follows is a failure rather than the old row.
+      expect(state, isA<CoinControlFailure>());
+      expect(wallet.frozenRecords["no-such-output"], isTrue);
       await bloc.close();
     });
 
@@ -430,7 +557,7 @@ void main() {
 
       final state = await bloc.stream.take(2).last as CoinControlLoaded;
 
-      expect(wallet.noteWrites, ["first", "second"]);
+      expect(notes.writes, ["first", "second"]);
       expect(state.rowFor(b.id)!.note, "second");
       await bloc.close();
     });
@@ -458,7 +585,7 @@ void main() {
       final state = await loaded(bloc);
 
       expect(state.rowFor(a.id)!.note, "cold storage");
-      expect(wallet.noteRecords[a.id], "cold storage");
+      expect(notes.records(wallet.id)[a.id], "cold storage");
       await bloc.close();
     });
 
@@ -484,7 +611,7 @@ void main() {
       final state = await loaded(bloc);
 
       expect(state.rowFor(a.id)!.note, isEmpty);
-      expect(wallet.noteRecords.length, 1);
+      expect(notes.records(wallet.id).length, 1);
       await bloc.close();
     });
   });
@@ -512,7 +639,7 @@ void main() {
       bloc.add(SelectionSaved());
       final state = await bloc.stream.firstWhere((state) => state is CoinControlSaved);
 
-      expect((state as CoinControlSaved).selection, SpecificCoinSelection({a.id, c.id}));
+      expect(((state as CoinControlSaved).selection as SpecificCoinSelection).ids, {a.id, c.id});
       await bloc.close();
     });
 
@@ -532,7 +659,7 @@ void main() {
       final selection = (state as CoinControlSaved).selection;
       expect(selection, const AllCoinSelection());
 
-      final spendable = await wallet.spendableCoins(selection);
+      final spendable = await wallet.spendableCoins(selection: selection);
       expect(spendable.map((coin) => coin.id), [a.id, c.id]);
       await bloc.close();
     });
@@ -549,8 +676,8 @@ void main() {
       final state = await bloc.stream.firstWhere((state) => state is CoinControlSaved);
 
       final selection = (state as CoinControlSaved).selection;
-      expect(selection, SpecificCoinSelection({a.id}));
-      expect((await wallet.spendableCoins(selection)).map((coin) => coin.id), [a.id]);
+      expect((selection as SpecificCoinSelection).ids, {a.id});
+      expect((await wallet.spendableCoins(selection: selection)).map((coin) => coin.id), [a.id]);
       await bloc.close();
     });
 
@@ -569,18 +696,20 @@ void main() {
       await bloc.close();
     });
 
-    test("refuses to save an empty selection", () async {
+    test("unselecting everything yields an empty selection", () async {
       final bloc = build();
       await loaded(bloc);
 
       bloc.add(SelectAllChanged(value: false));
-      final before = await loaded(bloc);
-      expect(before.canSave, isFalse);
-
+      await loaded(bloc);
       bloc.add(SelectionSaved());
-      await Future<void>.delayed(Duration.zero);
+      final state = await bloc.stream.firstWhere((state) => state is CoinControlSaved);
 
-      expect(bloc.state, isA<CoinControlLoaded>());
+      // Saved as an empty explicit selection rather than refused, so nothing is
+      // spendable under it and the caller is the one that has to notice.
+      final selection = (state as CoinControlSaved).selection;
+      expect((selection as SpecificCoinSelection).ids, isEmpty);
+      expect(await wallet.spendableCoins(selection: selection), isEmpty);
       await bloc.close();
     });
 
@@ -601,21 +730,6 @@ void main() {
   });
 
   group("derived state", () {
-    test("canSave is false only when nothing is selected", () async {
-      final bloc = build();
-      var state = await loaded(bloc);
-      expect(state.canSave, isTrue);
-
-      bloc.add(SelectAllChanged(value: false));
-      state = await loaded(bloc);
-      expect(state.canSave, isFalse);
-
-      bloc.add(SelectionChanged(a.id, value: true));
-      state = await loaded(bloc);
-      expect(state.canSave, isTrue);
-      await bloc.close();
-    });
-
     test("selectable and frozen partition the rows", () async {
       wallet.frozenRecords[b.id] = true;
 

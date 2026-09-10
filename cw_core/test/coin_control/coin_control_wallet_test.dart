@@ -1,5 +1,3 @@
-import "package:cw_core/coin_control/coin_control_wallet.dart";
-import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import "package:cw_core/unspent_coin_type.dart";
@@ -7,53 +5,14 @@ import "package:cw_core/unspent_transaction_output.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "fake_coin_control_stores.dart";
+import "fake_coin_control_wallet.dart";
 
 Unspent coin(String hash, int vout, {int value = 1000}) =>
     Unspent("addr-$hash", hash, value, vout, null);
 
-/// The mixin asks only for a wallet id, so a double needs only that. Anything
-/// more would be testing WalletBase rather than coin control.
-class _FakeWallet with CoinControlWallet {
-  _FakeWallet({
-    required this.id,
-    required this.unspents,
-    required this.frozenCoinsStore,
-    CoinNotesStore? coinNotesStore,
-    this.coinTypeOf,
-  }) : coinNotesStore = coinNotesStore ?? FakeCoinNotesStore();
-
-  @override
-  final String id;
-
-  @override
-  List<Unspent> unspents;
-
-  @override
-  final FrozenCoinsStore frozenCoinsStore;
-
-  @override
-  final CoinNotesStore coinNotesStore;
-
-  /// Stands in for a chain that has more than one kind of output.
-  final UnspentCoinType Function(Unspent coin)? coinTypeOf;
-
-  int refreshCount = 0;
-
-  @override
-  Future<void> refreshUnspents() async => refreshCount++;
-
-  @override
-  bool allowsCoinType(Unspent coin, UnspentCoinType coinType) {
-    if (coinTypeOf == null || coinType == UnspentCoinType.any) {
-      return true;
-    }
-    return coinTypeOf!(coin) == coinType;
-  }
-}
-
 void main() {
   late FakeFrozenCoinsStore store;
-  late _FakeWallet wallet;
+  late FakeCoinControlWallet wallet;
 
   final a = coin("aa", 0, value: 100);
   final b = coin("bb", 0, value: 200);
@@ -61,7 +20,7 @@ void main() {
 
   setUp(() {
     store = FakeFrozenCoinsStore();
-    wallet = _FakeWallet(
+    wallet = FakeCoinControlWallet(
       id: "wallet-a",
       unspents: [a, b, c],
       frozenCoinsStore: store,
@@ -69,18 +28,19 @@ void main() {
   });
 
   group("spendableCoins", () {
-    test("returns everything under an all-outputs selection", () async {
-      final spendable = await wallet.spendableCoins(const AllCoinSelection());
+    test("defaults to an all-outputs selection when none is given", () async {
+      final spendable = await wallet.spendableCoins();
       expect(spendable.map((coin) => coin.id), [a.id, b.id, c.id]);
     });
 
     test("returns only the selected outputs", () async {
-      final spendable = await wallet.spendableCoins(SpecificCoinSelection({a.id, c.id}));
+      final spendable = await wallet.spendableCoins(selection: SpecificCoinSelection({a.id, c.id}));
       expect(spendable.map((coin) => coin.id), [a.id, c.id]);
     });
 
     test("returns nothing for an empty selection", () async {
-      final spendable = await wallet.spendableCoins(SpecificCoinSelection(const <String>{}));
+      final spendable =
+          await wallet.spendableCoins(selection: SpecificCoinSelection(const <String>{}));
       expect(spendable, isEmpty);
     });
 
@@ -88,14 +48,14 @@ void main() {
       // The rule the previous implementation dropped in two fee estimators.
       await wallet.setFrozen(b.id, true);
 
-      final spendable = await wallet.spendableCoins(const AllCoinSelection());
+      final spendable = await wallet.spendableCoins();
       expect(spendable.map((coin) => coin.id), [a.id, c.id]);
     });
 
     test("excludes a frozen output even when it is explicitly selected", () async {
       await wallet.setFrozen(b.id, true);
 
-      final spendable = await wallet.spendableCoins(SpecificCoinSelection({a.id, b.id}));
+      final spendable = await wallet.spendableCoins(selection: SpecificCoinSelection({a.id, b.id}));
       expect(spendable.map((coin) => coin.id), [a.id]);
     });
 
@@ -103,28 +63,19 @@ void main() {
       await wallet.setFrozen(b.id, true);
       await wallet.setFrozen(b.id, false);
 
-      final spendable = await wallet.spendableCoins(const AllCoinSelection());
+      final spendable = await wallet.spendableCoins();
       expect(spendable.map((coin) => coin.id), [a.id, b.id, c.id]);
-    });
-
-    test("a note alone does not make an output unspendable", () async {
-      // Notes live in their own table for exactly this reason: there is no
-      // path by which annotating an output can affect what is spendable.
-      await wallet.saveNote(b.id, "just a note");
-
-      final spendable = await wallet.spendableCoins(const AllCoinSelection());
-      expect(spendable, hasLength(3));
     });
 
     test("reads the frozen set once per call, not once per output", () async {
       final counting = _CountingStore(store);
-      final counted = _FakeWallet(
+      final counted = FakeCoinControlWallet(
         id: "wallet-a",
         unspents: List.generate(50, (i) => coin("tx$i", 0)),
         frozenCoinsStore: counting,
       );
 
-      await counted.spendableCoins(const AllCoinSelection());
+      await counted.spendableCoins();
 
       // Transaction building calls this repeatedly per transaction, so a read
       // per output would be n * passes queries against the store.
@@ -134,7 +85,7 @@ void main() {
     test("another wallet's frozen record does not affect this one", () async {
       await store.setFrozen("wallet-b", b.id, true);
 
-      final spendable = await wallet.spendableCoins(const AllCoinSelection());
+      final spendable = await wallet.spendableCoins();
       expect(spendable, hasLength(3));
     });
 
@@ -142,18 +93,18 @@ void main() {
       await wallet.setFrozen(b.id, true);
       wallet.unspents = [coin("aa", 0), coin("bb", 0), coin("cc", 0)];
 
-      final spendable = await wallet.spendableCoins(SpecificCoinSelection({a.id, b.id}));
+      final spendable = await wallet.spendableCoins(selection: SpecificCoinSelection({a.id, b.id}));
       expect(spendable.map((coin) => coin.id), [a.id]);
     });
   });
 
   group("spendableCoins with a coin type", () {
-    late _FakeWallet mixedWallet;
+    late FakeCoinControlWallet mixedWallet;
     final mweb = coin("mweb-out", 0);
     final regular = coin("regular-out", 0);
 
     setUp(() {
-      mixedWallet = _FakeWallet(
+      mixedWallet = FakeCoinControlWallet(
         id: "wallet-a",
         unspents: [regular, mweb],
         frozenCoinsStore: store,
@@ -163,14 +114,12 @@ void main() {
     });
 
     test("any accepts every kind", () async {
-      final spendable =
-          await mixedWallet.spendableCoins(const AllCoinSelection(), coinType: UnspentCoinType.any);
+      final spendable = await mixedWallet.spendableCoins(coinType: UnspentCoinType.any);
       expect(spendable, hasLength(2));
     });
 
     test("narrows to the requested kind", () async {
       final spendable = await mixedWallet.spendableCoins(
-        const AllCoinSelection(),
         coinType: UnspentCoinType.nonMweb,
       );
       expect(spendable.map((coin) => coin.id), [regular.id]);
@@ -181,7 +130,6 @@ void main() {
       // flow cannot make: the constraint is applied by this method, not by the
       // selection, and not by filtering the list the user was shown.
       final spendable = await mixedWallet.spendableCoins(
-        const AllCoinSelection(),
         coinType: UnspentCoinType.mweb,
       );
       expect(spendable.map((coin) => coin.id), [mweb.id]);
@@ -189,7 +137,7 @@ void main() {
 
     test("an explicit selection of the wrong kind yields nothing", () async {
       final spendable = await mixedWallet.spendableCoins(
-        SpecificCoinSelection({mweb.id}),
+        selection: SpecificCoinSelection({mweb.id}),
         coinType: UnspentCoinType.nonMweb,
       );
       expect(spendable, isEmpty);
@@ -199,7 +147,6 @@ void main() {
       await mixedWallet.setFrozen(regular.id, true);
 
       final spendable = await mixedWallet.spendableCoins(
-        const AllCoinSelection(),
         coinType: UnspentCoinType.nonMweb,
       );
       expect(spendable, isEmpty);
@@ -237,41 +184,6 @@ void main() {
     test("ignores another wallet's frozen records", () async {
       await store.setFrozen("wallet-b", a.id, true);
       expect(await wallet.frozenBalance(), 0);
-    });
-  });
-
-  group("notes", () {
-    test("round-trip through the wallet", () async {
-      await wallet.saveNote(a.id, "cold storage");
-      expect((await wallet.notes())[a.id], "cold storage");
-    });
-
-    test("are scoped to the wallet", () async {
-      final notesStore = FakeCoinNotesStore();
-      final other = _FakeWallet(
-        id: "wallet-b",
-        unspents: [a],
-        frozenCoinsStore: store,
-        coinNotesStore: notesStore,
-      );
-      final mine = _FakeWallet(
-        id: "wallet-a",
-        unspents: [a],
-        frozenCoinsStore: store,
-        coinNotesStore: notesStore,
-      );
-
-      await other.saveNote(a.id, "other wallet");
-
-      expect(await mine.notes(), isEmpty);
-    });
-
-    test("freezing an output does not touch its note", () async {
-      await wallet.saveNote(a.id, "cold storage");
-      await wallet.setFrozen(a.id, true);
-      await wallet.setFrozen(a.id, false);
-
-      expect((await wallet.notes())[a.id], "cold storage");
     });
   });
 }

@@ -54,8 +54,10 @@ void main() {
       expect(selection.allows(coin("received-later", 0)), isTrue);
     });
 
-    test("compares equal to another instance", () {
-      expect(const AllCoinSelection(), const AllCoinSelection());
+    test("every const instance is the same instance", () {
+      // It carries no state, so callers can compare against a const literal --
+      // which several of them do -- without the class needing value equality.
+      expect(const AllCoinSelection(), same(const AllCoinSelection()));
     });
   });
 
@@ -94,22 +96,15 @@ void main() {
       expect(selection.allows(coin("aa", 0, keyImage: "ki-2")), isFalse);
     });
 
-    test("compares equal regardless of id order", () {
-      expect(
-        SpecificCoinSelection(["aa:0", "bb:1"]),
-        SpecificCoinSelection(["bb:1", "aa:0"]),
-      );
+    test("holds exactly the ids it was given, whatever the order", () {
+      // Asserted on the set rather than through ==, which this class does not
+      // define: what anything downstream reads is the ids, and comparing two
+      // selections is not something the flow does.
+      expect(SpecificCoinSelection(["aa:0", "bb:1"]).ids, {"bb:1", "aa:0"});
     });
 
-    test("is not equal to a selection with different ids", () {
-      expect(
-        SpecificCoinSelection(["aa:0"]),
-        isNot(SpecificCoinSelection(["aa:0", "bb:1"])),
-      );
-    });
-
-    test("is never equal to an all-outputs selection", () {
-      expect(SpecificCoinSelection(["aa:0"]), isNot(const AllCoinSelection()));
+    test("drops a duplicated id", () {
+      expect(SpecificCoinSelection(["aa:0", "aa:0"]).ids, hasLength(1));
     });
 
     test("rejects mutation of the id set after construction", () {
