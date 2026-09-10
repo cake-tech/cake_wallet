@@ -11,6 +11,7 @@ import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/db/sqlite.dart" as sqlite;
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
@@ -18,6 +19,7 @@ import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
 import "package:sqflite/sqflite.dart";
@@ -113,6 +115,20 @@ void main() {
       resolver.settingsFor(WalletType.ethereum),
       contains(WalletSettingsItemType.walletConnect),
     );
+  });
+
+  test("supplied settings icons are bundled and missing designs keep the existing fallback",
+      () async {
+    const resolver = WalletSettingsResolver();
+    for (final type in WalletType.values) {
+      final path = resolver.iconPathFor(type);
+      if ([WalletType.wownero, WalletType.haven, WalletType.banano].contains(type)) {
+        expect(path, getCryptoCurrencyIconForWalletListItem(type));
+        continue;
+      }
+      final asset = await rootBundle.load("$path.vec");
+      expect(asset.lengthInBytes, greaterThan(0), reason: "$type: $path");
+    }
   });
 
   test("app settings expose only implemented destinations in the Figma order", () {

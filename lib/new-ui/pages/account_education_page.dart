@@ -2,6 +2,7 @@ import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
@@ -79,13 +80,12 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
         distributeChildren: true,
         children: [
           _EducationText(text: strings.accounts_education_organize_title),
-          Image.asset(
-            "assets/new-ui/account_education/accounts_overview.png",
-            key: const ValueKey("accounts-education-overview-image"),
+          const CakeImageWidget(
+            imageUrl: "assets/new-ui/account_education/accounts_overview.svg",
+            key: ValueKey("accounts-education-overview-image"),
             width: 133,
             height: 324,
             fit: BoxFit.contain,
-            excludeFromSemantics: true,
           ),
           _EducationText(
             text: strings.accounts_education_organize_description,
@@ -95,13 +95,12 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
       ),
       _EducationSlide(
         children: [
-          Image.asset(
-            "assets/new-ui/account_education/recovery_shield.png",
-            key: const ValueKey("accounts-education-recovery-image"),
+          const CakeImageWidget(
+            imageUrl: "assets/new-ui/account_education/recovery_shield.svg",
+            key: ValueKey("accounts-education-recovery-image"),
             width: 213,
             height: 213,
             fit: BoxFit.contain,
-            excludeFromSemantics: true,
           ),
           const SizedBox(height: 25.5),
           _EducationText(
@@ -117,24 +116,22 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
       ),
       _EducationSlide(
         children: [
-          Image.asset(
-            "assets/new-ui/account_education/account_order.png",
-            key: const ValueKey("accounts-education-order-image"),
+          const CakeImageWidget(
+            imageUrl: "assets/new-ui/account_education/account_order.svg",
+            key: ValueKey("accounts-education-order-image"),
             width: 309,
             height: 48,
             fit: BoxFit.contain,
-            excludeFromSemantics: true,
           ),
           const SizedBox(height: 51),
           _EducationText(text: strings.accounts_education_order_title),
           const SizedBox(height: 51),
-          Image.asset(
-            "assets/new-ui/account_education/ordered_account.png",
-            key: const ValueKey("accounts-education-ordered-account-image"),
+          const CakeImageWidget(
+            imageUrl: "assets/new-ui/account_education/ordered_account.svg",
+            key: ValueKey("accounts-education-ordered-account-image"),
             width: 160,
             height: 99,
             fit: BoxFit.contain,
-            excludeFromSemantics: true,
           ),
           const SizedBox(height: 51),
           Column(
@@ -155,13 +152,12 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
       ),
       _EducationSlide(
         children: [
-          Image.asset(
-            "assets/new-ui/account_education/archive_warning.png",
-            key: const ValueKey("accounts-education-archive-image"),
+          const CakeImageWidget(
+            imageUrl: "assets/new-ui/account_education/archive_warning.svg",
+            key: ValueKey("accounts-education-archive-image"),
             width: 232,
             height: 101,
             fit: BoxFit.contain,
-            excludeFromSemantics: true,
           ),
           const SizedBox(height: 51),
           Column(
@@ -198,10 +194,10 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
                 padding: const EdgeInsets.all(18),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 24,
-                      color: Theme.of(context).colorScheme.primary,
+                    const CakeImageWidget(
+                      imageUrl: "assets/new-ui/settings_row_icons/accounts.svg",
+                      width: 24,
+                      height: 24,
                     ),
                     const SizedBox(width: 8),
                     Text(strings.accounts, style: Theme.of(context).textTheme.headlineMedium),

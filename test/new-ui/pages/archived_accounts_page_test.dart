@@ -621,9 +621,8 @@ void main() {
     await _pumpUntil(tester, () => find.text("Add Account").evaluate().isNotEmpty);
 
     ModernButton archiveButton() => tester.widget<ModernButton>(
-          find.ancestor(
-            of: find.byIcon(Icons.inventory_2_outlined),
-            matching: find.byType(ModernButton),
+          find.byWidgetPredicate(
+            (widget) => widget is ModernButton && widget.semanticLabel == "Archived Accounts",
           ),
         );
 

@@ -204,9 +204,30 @@ class WalletSettingsResolver {
   String titleFor(WalletType walletType, S strings) =>
       '${walletTypeToString(walletType)} ${strings.settings_title}'.trim();
 
-  String iconPathFor(WalletType walletType) => walletType == WalletType.none
-      ? 'assets/new-ui/wallet-setting.svg'
-      : getCryptoCurrencyIconForWalletListItem(walletType);
+  String iconPathFor(WalletType walletType) => switch (walletType) {
+        WalletType.none => 'assets/new-ui/wallet-setting.svg',
+        WalletType.wownero ||
+        WalletType.haven ||
+        WalletType.banano =>
+          getCryptoCurrencyIconForWalletListItem(walletType),
+        WalletType.monero ||
+        WalletType.bitcoin ||
+        WalletType.litecoin ||
+        WalletType.ethereum ||
+        WalletType.bitcoinCash ||
+        WalletType.nano ||
+        WalletType.polygon ||
+        WalletType.solana ||
+        WalletType.tron ||
+        WalletType.zano ||
+        WalletType.decred ||
+        WalletType.dogecoin ||
+        WalletType.base ||
+        WalletType.arbitrum ||
+        WalletType.zcash ||
+        WalletType.bsc =>
+          'assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg',
+      };
 
   List<List<SettingsListItem>> resolveSections(S strings, DashboardViewModel viewModel) {
     final supportedTypes = settingsFor(viewModel.wallet.type);

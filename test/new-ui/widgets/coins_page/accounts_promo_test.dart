@@ -24,13 +24,16 @@ void main() {
         home: Scaffold(
           body: AccountsPromo(
             preferences: preferences,
-            walletName: "Monero",
+            walletName: "Bitcoin",
             onTap: () => openCount++,
           ),
         ),
       );
 
-  test("education and archival entry points follow the Monero adapter", () {
+  test("Bitcoin promo eligibility is separate from Monero education and archival", () {
+    expect(AccountsPromo.supportsWallet(WalletType.bitcoin), isTrue);
+    expect(AccountsPromo.supportsWallet(WalletType.monero), isFalse);
+    expect(AccountsPromo.supportsWallet(WalletType.wownero), isFalse);
     expect(supportsAccountEducationAndArchival(WalletType.monero), isTrue);
     expect(supportsAccountEducationAndArchival(WalletType.wownero), isFalse);
   });
@@ -38,11 +41,11 @@ void main() {
   testWidgets("shows generic current-wallet copy and opens Accounts", (tester) async {
     await tester.pumpWidget(testApp());
 
-    expect(find.text("Accounts for Monero are here!"), findsOneWidget);
+    expect(find.text("Accounts for Bitcoin are here!"), findsOneWidget);
     expect(find.text("Manage all your assets in a unified interface"), findsOneWidget);
     expect(find.text("Don’t show this anymore"), findsOneWidget);
 
-    await tester.tap(find.text("Accounts for Monero are here!"));
+    await tester.tap(find.text("Accounts for Bitcoin are here!"));
     expect(openCount, 1);
   });
 
@@ -52,7 +55,7 @@ void main() {
     await tester.tap(find.text("Don’t show this anymore"));
     await tester.pumpAndSettle();
 
-    expect(find.text("Accounts for Monero are here!"), findsNothing);
+    expect(find.text("Accounts for Bitcoin are here!"), findsNothing);
     expect(preferences.getBool(PreferencesKey.accountsHomePromoDismissed), isTrue);
     expect(openCount, 0);
   });
@@ -61,6 +64,6 @@ void main() {
     await preferences.setBool(PreferencesKey.accountsHomePromoDismissed, true);
     await tester.pumpWidget(testApp());
 
-    expect(find.text("Accounts for Monero are here!"), findsNothing);
+    expect(find.text("Accounts for Bitcoin are here!"), findsNothing);
   });
 }

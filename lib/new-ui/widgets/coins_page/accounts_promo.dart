@@ -1,6 +1,7 @@
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
@@ -15,6 +16,8 @@ class AccountsPromo extends StatefulWidget {
   final SharedPreferences preferences;
   final String walletName;
   final VoidCallback onTap;
+
+  static bool supportsWallet(WalletType walletType) => walletType == WalletType.bitcoin;
 
   @override
   State<AccountsPromo> createState() => _AccountsPromoState();
@@ -62,11 +65,10 @@ class _AccountsPromoState extends State<AccountsPromo> {
                 ),
                 child: Row(
                   children: [
-                    CakeImageWidget(
+                    const CakeImageWidget(
                       imageUrl: "assets/new-ui/settings_row_icons/accounts.svg",
                       width: 24,
                       height: 24,
-                      colorFilter: ColorFilter.mode(theme.colorScheme.primary, BlendMode.srcIn),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

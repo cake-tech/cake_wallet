@@ -290,6 +290,7 @@ flutter:
     - assets/new-ui/account_education/
     - assets/new-ui/icons/
     - assets/new-ui/hero/
+    - assets/new-ui/network_icons/
     - assets/new-ui/balance_card_icons/
     - assets/new-ui/balance_card_backgrounds/
     - assets/new-ui/settings_row_icons/

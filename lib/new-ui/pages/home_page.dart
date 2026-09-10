@@ -187,7 +187,7 @@ class _NewHomePageState extends State<NewHomePage> {
                               ),
                             ],
                           ),
-                          if (_supportsAccountEducationAndArchival &&
+                          if (_supportsAccountsPromo &&
                               accountListViewModel != null &&
                               !_lightningMode)
                             AccountsPromo(
@@ -258,7 +258,7 @@ class _NewHomePageState extends State<NewHomePage> {
   }
 
   Future<void> _openAccountsFromPromo() async {
-    if (!_supportsAccountEducationAndArchival) {
+    if (!_supportsAccountsPromo) {
       return;
     }
 
@@ -277,8 +277,8 @@ class _NewHomePageState extends State<NewHomePage> {
     await _showAccountCustomizer(accountList);
   }
 
-  bool get _supportsAccountEducationAndArchival =>
-      supportsAccountEducationAndArchival(widget.dashboardViewModel.wallet.type);
+  bool get _supportsAccountsPromo =>
+      AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type);
 
   Future<void> _showAccountCustomizer(MoneroAccountListViewModel accountList) async {
     await CupertinoScaffold.showCupertinoModalBottomSheet(

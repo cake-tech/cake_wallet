@@ -207,9 +207,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                             widget.dashboardViewModel.sharedPreferences,
                           ),
                         ),
-                        ModernButton(
+                        ModernButton.svg(
                           semanticLabel: S.of(context).archived_accounts,
-                          icon: const Icon(Icons.inventory_2_outlined),
+                          svgPath: "assets/new-ui/archived.svg",
                           size: 36,
                           iconSize: 19,
                           backgroundColor:
@@ -668,8 +668,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                     padding: const EdgeInsets.fromLTRB(18, 32, 18, 24),
                     child: Column(
                       children: [
-                        Image.asset(
-                          "assets/new-ui/account_education/create_account.png",
+                        const CakeImageWidget(
+                          imageUrl: "assets/new-ui/account_education/create_account.svg",
                           width: 125,
                           height: 125,
                         ),

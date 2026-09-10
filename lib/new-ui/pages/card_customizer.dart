@@ -381,9 +381,14 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                                 child: Row(
                                   children: [
-                                    Icon(
-                                      Icons.archive_outlined,
-                                      color: Theme.of(context).colorScheme.primary,
+                                    Padding(
+                                      padding: const EdgeInsets.all(2.5),
+                                      child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/archived.svg",
+                                        width: 19,
+                                        height: 19,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(

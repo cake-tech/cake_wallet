@@ -364,7 +364,12 @@ class _ArchivedAccountRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                _ArchiveIcon(size: 22, color: theme.colorScheme.onSurfaceVariant),
+                CakeImageWidget(
+                  imageUrl: "assets/new-ui/account.svg",
+                  width: 24,
+                  height: 24,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -584,7 +589,12 @@ class _AccountSummary extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _ArchiveIcon(size: 22, color: theme.colorScheme.onSurfaceVariant),
+          CakeImageWidget(
+            imageUrl: "assets/new-ui/account.svg",
+            width: 24,
+            height: 24,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -666,11 +676,15 @@ class _ArchiveIcon extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-        child: Icon(
-          Icons.archive_outlined,
-          size: size,
-          color: color,
+  Widget build(BuildContext context) => SizedBox.square(
+        dimension: size,
+        child: Center(
+          child: CakeImageWidget(
+            imageUrl: "assets/new-ui/archived.svg",
+            width: size * 19 / 24,
+            height: size * 19 / 24,
+            color: color,
+          ),
         ),
       );
 }
