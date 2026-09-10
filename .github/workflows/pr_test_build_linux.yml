@@ -10,44 +10,291 @@ defaults:
   run:
     shell: bash
 
+env:
+  CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+  CW_DOCKER_USE_CLOUD: "true"
+
 jobs:
-  PR_test_build:
+  guard:
     # Fork PRs don't have access to repository secrets, so the generated
     # lib/.secrets.g.dart would be empty and the build fails to compile.
     # Skip for forks, mirroring the Android workflow's internal-build guard.
     if: github.event.pull_request.head.repo.fork == false
-    runs-on: [Linux, amd64, forlinux]
+    runs-on: puzl-ubuntu-latest
+    steps:
+      - run: echo "internal PR"
+
+  base:
+    needs: guard
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
-      env:
-        STORE_PASS: test@cake_wallet
-        KEY_PASS: test@cake_wallet
-        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
-        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-        DESKTOP_FORCE_MOBILE: Y
       volumes:
-        - /opt/cw_cache_linux/root/.cache:/root/.cache
-        - /opt/cw_cache_linux/root/.ccache:/root/.ccache
-        - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
-        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
-        - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
         - /var/run/docker.sock:/var/run/docker.sock
-
     steps:
       - name: Fix github actions messing up $HOME...
         run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
-
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build base
+        run: ./scripts/linux/docker/build.sh --only base
 
+  bitbox:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
       - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build bitbox
+        run: ./scripts/linux/docker/build.sh --only bitbox
+
+  mwebd:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build mwebd
+        run: ./scripts/linux/docker/build.sh --only mwebd
+
+  reown:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build reown
+        run: ./scripts/linux/docker/build.sh --only reown
+
+  zcash:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build zcash
+        run: ./scripts/linux/docker/build.sh --only zcash
+
+  torch:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build torch
+        run: ./scripts/linux/docker/build.sh --only torch
+
+  monero:
+    needs: base
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build monero
+        run: ./scripts/linux/docker/build.sh --only monero --coin ${{ matrix.coin }} --target x86_64-linux-gnu
+
+  monero_merge:
+    needs: monero
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge monero
+        run: ./scripts/linux/docker/build.sh --only monero --merge
+
+  final:
+    needs: [bitbox, mwebd, reown, zcash, torch, monero_merge]
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build final
+        run: ./scripts/linux/docker/build.sh --only final
+
+  app:
+    needs: final
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        DESKTOP_FORCE_MOBILE: Y
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -97,12 +344,8 @@ jobs:
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
-      - name: Build dependencies utilizing ghcr cache
-        run: |
-          env \
-            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
-            CW_DOCKER_USE_CLOUD=true \
-            ./scripts/linux/docker/build.sh
+      - name: Extract native dependencies
+        run: ./scripts/linux/docker/build.sh --extract
 
       - name: Execute Build and Setup Commands
         run: |
