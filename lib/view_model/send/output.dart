@@ -241,7 +241,7 @@ abstract class OutputBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> _wallet;
 
   WalletType get walletType => _wallet.type;
 
@@ -261,7 +261,7 @@ abstract class OutputBase with Store {
 
   @action
   void updateWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
     estimatedFee = Money.zero(cryptoCurrencyHandler());
   }

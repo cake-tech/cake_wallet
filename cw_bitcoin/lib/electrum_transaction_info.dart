@@ -9,7 +9,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
@@ -23,42 +23,35 @@ class ElectrumTransactionBundle {
   final int confirmations;
 }
 
-class ElectrumTransactionInfo extends TransactionInfo {
+class ElectrumTransactionInfo extends JsonTransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
 
   ElectrumTransactionInfo(
     this.type, {
-    required String id,
+    required super.id,
     int? height,
-    required Money amount,
-    Money? fee,
+    required this.amount,
+    super.fee,
     List<String>? inputAddresses,
     List<String>? outputAddresses,
-    required TransactionDirection direction,
+    required super.direction,
     required bool isPending,
-    bool isReplaced = false,
-    required DateTime date,
+    this.isReplaced = false,
+    required super.date,
     required int confirmations,
-    String? to,
+    super.to,
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
     Map<String, dynamic>? additionalInfo,
-  }) {
-    this.id = id;
+  }) : super(amount: amount) {
     this.height = height;
-    this.amount = amount;
     this.inputAddresses = inputAddresses;
     this.outputAddresses = outputAddresses;
-    this.fee = fee;
-    this.direction = direction;
-    this.date = date;
     this.isPending = isPending;
-    this.isReplaced = isReplaced;
     this.confirmations = confirmations;
-    this.to = to;
     this.additionalInfo = additionalInfo ?? {};
   }
 
@@ -116,7 +109,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+      {required Set<String> addresses, int? height, String? id}) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -196,7 +189,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final walletCurrency = walletTypeToCryptoCurrency(type);
     final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
     return ElectrumTransactionInfo(type,
-        id: bundle.originalTransaction.txId(),
+        id: id ?? bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
         isReplaced: false,
@@ -247,6 +240,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   final WalletType type;
 
+  // has to stay non-final because of sp.
+  @override
+  Money amount;
+
+  bool isReplaced;
+
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,
         id: id,
@@ -263,6 +262,42 @@ class ElectrumTransactionInfo extends TransactionInfo {
         additionalInfo: additionalInfo);
   }
 
+  bool get _hasMissingInputTx =>
+      type == WalletType.bitcoin && additionalInfo['hasMissingInputTx'] == true;
+
+  bool get _isPegIn => additionalInfo["isPegIn"] as bool? ?? false;
+
+  bool get _isPegOut => additionalInfo["isPegOut"] as bool? ?? false;
+
+  bool get _fromPegOut => additionalInfo["fromPegOut"] as bool? ?? false;
+
+  @override
+  int get neededConfirmations =>
+      type == WalletType.litecoin && (_isPegOut || _fromPegOut) ? 6 : 0;
+
+  @override
+  String get title {
+    if(_isPegIn) {
+      return "mask";
+    } else if(_isPegOut) {
+      return "unmask";
+    } else if(_hasMissingInputTx) {
+      return "transaction_missing_data";
+    } else {
+      return super.title;
+    }
+  }
+
+  @override
+  String? get status {
+    if(isReplaced ?? false) {
+      return "(replaced)";
+    }
+
+    return super.status;
+  }
+
+  @override
   Map<String, dynamic> toJson() {
     final m = <String, dynamic>{};
     m['id'] = id;

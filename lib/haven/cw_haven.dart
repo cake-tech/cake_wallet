@@ -36,7 +36,7 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>> create(
       WalletCredentials credentials,
       {bool? isTestnet}) {
     throw UnimplementedError();
@@ -48,7 +48,7 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>> openWallet(
       String name, String password) {
     throw UnimplementedError();
   }
@@ -59,19 +59,19 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>>
       restoreFromHardwareWallet(WalletCredentials credentials) {
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>>
       restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) {
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>>
       restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) {
     throw UnimplementedError();
   }

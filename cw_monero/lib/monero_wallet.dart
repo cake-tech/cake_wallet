@@ -790,11 +790,11 @@ abstract class MoneroWalletBase
       final newIds = transactions.keys.toSet();
 
       // Remove transactions that no longer exist
-      currentIds.difference(newIds).forEach((id) => transactionHistory.transactions.remove(id));
+      currentIds.difference(newIds).forEach(transactionHistory.remove);
 
       // Add or update transactions
-      transactions.forEach((key, tx) => transactionHistory.transactions[key] = tx);
-      await transactionHistory.save();
+      transactionHistory.addMany(transactions);
+      transactionHistory.markLoaded();
       _isTransactionUpdating = false;
     } catch (e) {
       printV(e);

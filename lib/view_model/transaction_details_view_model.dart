@@ -323,20 +323,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
-    if (isEVMCompatibleChain(wallet.type)) {
-      return evm!.assetOfTransaction(wallet, transactionInfo);
-    }
-
     if (isLightning(transactionInfo)) {
       return CryptoCurrency.btcln;
     }
 
-    return switch (wallet.type) {
-      WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
-      WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
-      WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ?? CryptoCurrency.zano,
-      _ => walletTypeToCryptoCurrency(wallet.type)
-    };
+    return transactionInfo.assetOfTransaction ?? walletTypeToCryptoCurrency(wallet.type);
   }
 
   @computed

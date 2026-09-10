@@ -420,7 +420,7 @@ abstract class Monero {
 
   MoneroSubaddressList getSubaddressList(Object wallet);
 
-  TransactionHistoryBase getTransactionHistory(Object wallet);
+  TransactionHistory getTransactionHistory(Object wallet);
 
   MoneroWalletDetails getMoneroWalletDetails(Object wallet);
 
@@ -629,7 +629,7 @@ abstract class Wownero {
 
   WowneroSubaddressList getSubaddressList(Object wallet);
 
-  TransactionHistoryBase getTransactionHistory(Object wallet);
+  TransactionHistory getTransactionHistory(Object wallet);
 
   WowneroWalletDetails getWowneroWalletDetails(Object wallet);
 
@@ -985,7 +985,6 @@ abstract class Solana {
   Future<void> deleteSPLToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getSPLToken(WalletBase wallet, String contractAddress);
 
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   Money? getEstimateFees(WalletBase wallet);
@@ -1148,7 +1147,6 @@ abstract class Tron {
   Future<void> deleteTronToken(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getTronToken(WalletBase wallet, String contractAddress);
 
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   String getTokenAddress(CryptoCurrency asset);
   String getTronBase58Address(String hexAddress, WalletBase wallet);
 
@@ -1235,7 +1233,6 @@ abstract class Zano {
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
   WalletService createZanoWalletService(bool isDirect);
-  CryptoCurrency? assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
   Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token);
@@ -1530,7 +1527,6 @@ abstract class EVM {
   Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
   
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);

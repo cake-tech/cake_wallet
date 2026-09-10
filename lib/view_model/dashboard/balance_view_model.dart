@@ -132,7 +132,7 @@ abstract class BalanceViewModelBase with Store {
   bool isReversing;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase wallet;
 
   @computed
   double get price {
@@ -519,7 +519,7 @@ abstract class BalanceViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>? wallet) {
     if (wallet == null) return;
 
     this.wallet = wallet;

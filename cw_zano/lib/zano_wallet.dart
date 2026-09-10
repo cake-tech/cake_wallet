@@ -296,7 +296,6 @@ abstract class ZanoWalletBase
       final transfers = result.recentHistory.history!;
       final transactions = Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
       transactionHistory.addMany(transactions);
-      await transactionHistory.save();
     }
   }
 
@@ -661,7 +660,7 @@ abstract class ZanoWalletBase
       final transactions = await fetchTransactions();
       transactionHistory.clear();
       transactionHistory.addMany(transactions);
-      await transactionHistory.save();
+      transactionHistory.markLoaded();
       _isTransactionUpdating = false;
     } catch (e) {
       printV("e: $e");

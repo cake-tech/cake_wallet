@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/transaction_history/transaction_history_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
@@ -178,7 +179,7 @@ class _NewHomePageState extends State<NewHomePage> {
                             );
                           }),
                           UnconfirmedBalanceWidget(
-                            dashboardViewModel: widget.dashboardViewModel,
+                            bloc: getIt.get<TransactionHistoryBloc>(),
                           ),
                         ],
                       ),

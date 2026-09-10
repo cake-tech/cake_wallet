@@ -207,7 +207,7 @@ abstract class YatStoreBase with Store {
   Stream<String> get emojiIncommingStream => emojiIncommingSC.stream;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? _wallet;
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>? _wallet;
 
   Future<void> init() async {
     if (_wallet == null) {
@@ -222,7 +222,7 @@ abstract class YatStoreBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) {
+      WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet) {
     this._wallet = wallet;
     emoji = wallet?.walletInfo?.yatEmojiId ?? '';
     init();

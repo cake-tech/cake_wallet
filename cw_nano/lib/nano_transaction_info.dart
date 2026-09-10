@@ -1,68 +1,64 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/format_amount.dart";
+import "package:cw_core/json_transaction_info.dart";
+import "package:cw_core/transaction_direction.dart";
 
-class NanoTransactionInfo extends TransactionInfo {
+class NanoTransactionInfo extends JsonTransactionInfo {
   NanoTransactionInfo({
-    required this.id,
+    required super.id,
     required this.height,
-    required Money amountRaw,
-    this.tokenSymbol = "XNO",
-    required this.direction,
+    required super.amount,
+    required super.direction,
     required this.confirmed,
-    required this.date,
+    required super.date,
     required this.confirmations,
-    required this.to,
-    required this.from,
-  }) : this.amount = amountRaw;
+    required super.to,
+    required super.from,
+    this.tokenSymbol = "XNO",
+  });
 
-  final String id;
-  final int height;
-  final Money amount;
-  final TransactionDirection direction;
-  final DateTime date;
-  final bool confirmed;
-  final int confirmations;
-  final String tokenSymbol;
-  final String? to;
-  final String? from;
-  String? _fiatAmount;
-
-  bool get isPending => !this.confirmed;
+  factory NanoTransactionInfo.fromJson(Map<String, dynamic> data) => NanoTransactionInfo(
+        id: data["id"] as String,
+        height: data["height"] as int,
+        amount: Money(BigInt.parse(data["amountRaw"] as String), CryptoCurrency.nano),
+        direction: parseTransactionDirectionFromInt(data["direction"] as int),
+        date: DateTime.fromMillisecondsSinceEpoch(data["date"] as int),
+        confirmed: data["confirmed"] as bool,
+        confirmations: data["confirmations"] as int,
+        tokenSymbol: data["tokenSymbol"] as String,
+        to: data["to"] as String,
+        from: data["from"] as String,
+      );
 
   @override
-  String fiatAmount() => _fiatAmount ?? '';
+  final int height;
+  final bool confirmed;
+  @override
+  final int confirmations;
+  final String tokenSymbol;
+  String? _fiatAmount;
+
+  @override
+  bool get isPending => !confirmed;
+
+  @override
+  String fiatAmount() => _fiatAmount ?? "";
 
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
-  factory NanoTransactionInfo.fromJson(Map<String, dynamic> data) {
-    return NanoTransactionInfo(
-      id: data['id'] as String,
-      height: data['height'] as int,
-      amountRaw: Money(BigInt.parse(data['amountRaw'] as String), CryptoCurrency.nano),
-      direction: parseTransactionDirectionFromInt(data['direction'] as int),
-      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-      confirmed: data['confirmed'] as bool,
-      confirmations: data['confirmations'] as int,
-      tokenSymbol: data['tokenSymbol'] as String,
-      to: data['to'] as String,
-      from: data['from'] as String,
-    );
-  }
-
+  @override
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'height': height,
-        'amountRaw': amount.amount.toString(),
-        'direction': direction.index,
-        'date': date.millisecondsSinceEpoch,
-        'confirmed': confirmed,
-        'confirmations': confirmations,
-        'tokenSymbol': tokenSymbol,
-        'to': to,
-        'from': from,
+        "id": id,
+        "height": height,
+        "amountRaw": amount.amount.toString(),
+        "direction": direction.index,
+        "date": date.millisecondsSinceEpoch,
+        "confirmed": confirmed,
+        "confirmations": confirmations,
+        "tokenSymbol": tokenSymbol,
+        "to": to,
+        "from": from,
       };
 }

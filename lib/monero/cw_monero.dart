@@ -150,7 +150,7 @@ class CWMonero extends Monero {
   MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
 
   @override
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
+  TransactionHistory getTransactionHistory(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.transactionHistory;
   }

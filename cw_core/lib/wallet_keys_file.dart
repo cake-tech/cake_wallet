@@ -10,7 +10,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
-mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
+mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistory,
         TransactionType extends TransactionInfo>
     on WalletBase<BalanceType, HistoryType, TransactionType> {
   Future<String> makePath() => pathForWallet(name: walletInfo.name, type: walletInfo.type);

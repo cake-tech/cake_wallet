@@ -298,7 +298,7 @@ abstract class NanoWalletBase
       final bool isSend = transactionModel.type == "send";
       result[transactionModel.hash] = NanoTransactionInfo(
         id: transactionModel.hash,
-        amountRaw: Money(transactionModel.amount, currency),
+        amount: Money(transactionModel.amount, currency),
         height: transactionModel.height,
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
         confirmed: transactionModel.confirmed,

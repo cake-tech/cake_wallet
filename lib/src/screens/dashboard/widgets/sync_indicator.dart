@@ -34,7 +34,6 @@ class SyncIndicator extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(15)),
           child: GestureDetector(
             onTap: onTap,
-            onLongPress: dashboardViewModel.toggleSwitchStatusDisplayMode,
             child: Container(
               height: 30,
               width: syncIndicatorWidth,

@@ -40,7 +40,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
         _originalState = {};
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final FiatConversionStore _fiatConversationStore;
   final UnspentCoinType coinTypeToSpendFrom;

@@ -388,7 +388,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         },
         onUpdateDepositTransactionEvent: (txs) async {
           if (txs.isNotEmpty) {
-            txs.forEach((tx) => transactionHistory.transactions.remove(tx.id));
+            txs.forEach((tx) => transactionHistory.remove(tx.id));
             await transactionHistory.save();
           }
         },

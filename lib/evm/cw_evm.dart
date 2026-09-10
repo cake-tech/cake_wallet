@@ -203,39 +203,6 @@ class CWEVM extends EVM {
     return evmWallet.getErc20Token(contractAddress, chainName);
   }
 
-  @override
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
-    transaction as EVMChainTransactionInfo;
-    final evmWallet = wallet as EVMChainWallet;
-
-    final nativeCurrency = evmWallet.currency;
-    final nativeCurrencyTitle = nativeCurrency.title;
-    final currentChainId = evmWallet.selectedChainId;
-
-    // If transaction is from a different chain, we will return native currency as fallback
-    // This can happen during chain switching when old transactions are still visible
-    if (transaction.chainId != currentChainId) {
-      return nativeCurrency;
-    }
-
-    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title ||
-        transaction.tokenSymbol == "MATIC") {
-      return CryptoCurrency.maticpoly;
-    }
-
-    if (transaction.tokenSymbol == nativeCurrencyTitle) {
-      return nativeCurrency;
-    }
-
-    // Otherwise, it's an ERC20 token
-    // Also using firstWhereOrNull to handle cases where token isn't found (e.g., during chain switch)
-    final erc20Token = evmWallet.erc20Currencies.firstWhereOrNull(
-      (element) =>
-          transaction.contractAddress?.toLowerCase() == element.contractAddress.toLowerCase(),
-    );
-
-    return erc20Token ?? nativeCurrency;
-  }
 
   @override
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled) =>

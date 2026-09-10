@@ -23,8 +23,8 @@ abstract class WalletChangeListenerViewModelBase with Store {
   void onWalletChange(WalletBase wallet) {}
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> _wallet;
   @computed
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> get wallet =>
+  WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> get wallet =>
       _wallet;
 }

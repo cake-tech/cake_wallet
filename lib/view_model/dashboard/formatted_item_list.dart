@@ -1,11 +1,11 @@
-import "package:cake_wallet/view_model/dashboard/action_list_item.dart";
+import "package:cw_core/action_list_item.dart";
 import "package:cake_wallet/view_model/dashboard/date_section_item.dart";
 import "package:flutter/foundation.dart";
 
 enum _DateBucket { recent, last7Days, last30Days, byMonth }
 
-List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
-  final formattedList = <ActionListItem>[];
+List<HistoryListItem> formattedItemsList(List<HistoryListItem> items) {
+  final formattedList = <HistoryListItem>[];
   items.sort((a, b) => b.date.compareTo(a.date));
 
   final now = DateTime.now();
@@ -31,30 +31,21 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
       case _DateBucket.recent:
         if (lastBucket != _DateBucket.recent) {
           formattedList.add(
-            TodayTransactionItem(
-              date,
-              key: const ValueKey("today_section_item_key"),
-            ),
+            TodayTransactionItem(date),
           );
         }
         break;
       case _DateBucket.last7Days:
         if (lastBucket != _DateBucket.last7Days) {
           formattedList.add(
-            Last7daysTransactionItem(
-              date,
-              key: const ValueKey("last_7_days_section_item_key"),
-            ),
+            Last7daysTransactionItem(date),
           );
         }
         break;
       case _DateBucket.last30Days:
         if (lastBucket != _DateBucket.last30Days) {
           formattedList.add(
-            Last30daysTransactionItem(
-              date,
-              key: const ValueKey("last_30_days_section_item_key"),
-            ),
+            Last30daysTransactionItem(date),
           );
         }
         break;
@@ -65,10 +56,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
         if (isNewMonth) {
           lastMonthDate = date;
           formattedList.add(
-            DateSectionItem(
-              date,
-              key: ValueKey("date_section_item_${date.year}_${date.month}_key"),
-            ),
+            DateSectionItem(date),
           );
         }
         break;

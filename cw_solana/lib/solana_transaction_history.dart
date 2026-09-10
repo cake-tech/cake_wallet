@@ -1,107 +1,29 @@
-import 'dart:convert';
-import 'dart:core';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_solana/solana_transaction_info.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/transaction_history.dart';
+import "dart:core";
 
-part 'solana_transaction_history.g.dart';
+import "package:cw_core/json_transaction_history.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_solana/solana_transaction_info.dart";
 
-const transactionsHistoryFileName = 'solana_transactions.json';
+const transactionsHistoryFileName = "solana_transactions.json";
 
-class SolanaTransactionHistory = SolanaTransactionHistoryBase with _$SolanaTransactionHistory;
-
-abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<SolanaTransactionInfo>
-    with Store {
-  SolanaTransactionHistoryBase(
-      {required this.walletInfo, required String password, required this.encryptionFileUtils})
-      : _password = password {
-    transactions = ObservableMap<String, SolanaTransactionInfo>();
-  }
-
-  final WalletInfo walletInfo;
-  final EncryptionFileUtils encryptionFileUtils;
-  String _password;
-
-  Future<void> init() async {
-    clear();
-    await _load();
-  }
-
-  Future<void> _saveQueue = Future.value();
+class SolanaTransactionHistory extends JsonTransactionHistory<SolanaTransactionInfo> {
+  SolanaTransactionHistory({
+    required super.walletInfo,
+    required super.password,
+    required super.encryptionFileUtils,
+  });
 
   @override
-  Future<void> save() => saveAndConfirm();
+  String get fileName => transactionsHistoryFileName;
 
-  Future<bool> saveAndConfirm() {
-    final write = _saveQueue.then((_) async {
-      try {
-        await _write();
+  Iterable<SPLToken> _tokens = const [];
 
-        return true;
-      } catch (e, s) {
-        printV('Error while saving solana transaction history: ${e.toString()}');
-        printV(s);
-
-        return false;
-      }
-    });
-
-    _saveQueue = write;
-
-    return write;
-  }
-
-  Future<void> _write() async {
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    final path = '$dirPath/$transactionsHistoryFileName';
-    final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
-    final data = json.encode({'transactions': transactionMaps});
-    await encryptionFileUtils.write(path: path, password: _password, data: data);
+  @override
+  Future<void> prepareForLoad() async {
+    _tokens = await SPLToken.getAllForWallet(walletInfo.name);
   }
 
   @override
-  void addOne(SolanaTransactionInfo transaction) => transactions[transaction.id] = transaction;
-
-  @override
-  void addMany(Map<String, SolanaTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
-
-  Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    final path = '$dirPath/$transactionsHistoryFileName';
-    final content = await encryptionFileUtils.read(path: path, password: _password);
-    if (content.isEmpty) {
-      return {};
-    }
-    return json.decode(content) as Map<String, dynamic>;
-  }
-
-  Future<void> _load() async {
-    try {
-      final content = await _read();
-      final txs = content['transactions'] as Map<String, dynamic>? ?? {};
-
-      txs.entries.forEach((entry) {
-        final val = entry.value;
-
-        if (val is! Map<String, dynamic>) {
-          return;
-        }
-
-        try {
-          _update(SolanaTransactionInfo.fromJson(val));
-        } catch (e) {
-          printV("Skipping unreadable solana transaction ${entry.key}: ${e.toString()}");
-        }
-      });
-    } catch (e) {
-      printV(e);
-    }
-  }
-
-  void _update(SolanaTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  SolanaTransactionInfo transactionFromJson(Map<String, dynamic> json) =>
+      SolanaTransactionInfo.fromJson(json, tokens: _tokens);
 }

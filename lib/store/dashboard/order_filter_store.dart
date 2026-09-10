@@ -1,23 +1,18 @@
-import 'package:cake_wallet/order/order_provider_description.dart';
-import 'package:cake_wallet/order/order_source_description.dart';
-import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/order/order_provider_description.dart";
+import "package:cake_wallet/order/order_source_description.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/history_source.dart";
 
-part 'order_filter_store.g.dart';
+class OrderFilterStore extends HistoryFilters {
+  OrderFilterStore(this._appStore) : displayCakePay = true;
 
-class OrderFilterStore = OrderFilterStoreBase with _$OrderFilterStore;
+  final AppStore _appStore;
 
-abstract class OrderFilterStoreBase with Store {
-  OrderFilterStoreBase() : displayCakePay = true;
-
-  @observable
   bool displayCakePay;
 
-  @computed
   bool get displayAllOrders => displayCakePay;
 
-  @action
   void toggleDisplayOrder(OrderProviderDescription provider) {
     switch (provider) {
       case OrderProviderDescription.cakePay:
@@ -26,20 +21,30 @@ abstract class OrderFilterStoreBase with Store {
     }
   }
 
-  List<OrderListItem> filtered({
-    required List<OrderListItem> orders,
-    required WalletBase wallet,
-  }) {
-    final walletOrders = orders.where((item) => item.order.walletId == wallet.id).toList();
+  static const _cakePay = "Cake Pay";
 
-    final cakePayOrders = walletOrders.where((item) {
-      final order = item.order;
-      final isOrderSource = order.source == OrderSourceDescription.order;
-      final isCakePay = order.orderProvider == OrderProviderDescription.cakePay;
-      return isOrderSource && isCakePay;
-    }).toList();
+  @override
+  List<HistoryFilter> get filters =>
+      [HistoryFilter(key: _cakePay, caption: _cakePay, value: displayCakePay)];
 
-    if (!displayCakePay) return <OrderListItem>[];
-    return cakePayOrders;
+  @override
+  void toggleFilter(HistoryFilter filter) =>
+      toggleDisplayOrder(OrderProviderDescription.cakePay);
+
+  @override
+  void setAllFilters({required bool value}) => displayCakePay = value;
+
+  @override
+  bool relevant(HistoryListItem item) {
+    if (item is! Order || item.walletId != _appStore.wallet?.id) {
+      return false;
+    }
+
+    final isOrderSource = item.source == OrderSourceDescription.order;
+    final isCakePay = item.orderProvider == OrderProviderDescription.cakePay;
+
+    return displayCakePay && isOrderSource && isCakePay;
   }
+
+
 }

@@ -154,7 +154,7 @@ class SolanaWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+  Future<WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo>>
       restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();

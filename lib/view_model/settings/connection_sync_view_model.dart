@@ -28,7 +28,7 @@ abstract class ConnectionSyncViewModelBase with Store {
   ConnectionSyncViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistory<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;

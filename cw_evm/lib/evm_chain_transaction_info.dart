@@ -1,50 +1,43 @@
 // ignore_for_file: overridden_fields, annotate_overrides
+import 'package:collection/collection.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/json_transaction_info.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 
-class EVMChainTransactionInfo extends TransactionInfo {
+class EVMChainTransactionInfo extends JsonTransactionInfo {
   EVMChainTransactionInfo({
-    required this.id,
+    required super.id,
     required this.height,
-    required this.amount,
-    required this.fee,
+    required super.amount,
+    required Money super.fee,
     required this.tokenSymbol,
     this.exponent = 18,
-    required this.direction,
+    required super.direction,
     required this.isPending,
-    required this.date,
+    required super.date,
     required this.confirmations,
-    required this.to,
-    required this.from,
+    required super.to,
+    required super.from,
     this.evmSignatureName,
     this.contractAddress,
     required this.chainId,
   });
 
-  final String id;
   final int height;
-  final Money amount;
   final int exponent;
-  final TransactionDirection direction;
-  final DateTime date;
   final bool isPending;
-  final Money fee;
   final int confirmations;
   final String tokenSymbol;
   String? _fiatAmount;
-  final String? to;
-  final String? from;
   final String? evmSignatureName;
   final String? contractAddress;
   final int chainId;
 
-  /// Get fee currency symbol based on wallet type
   String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
 
   @override
@@ -53,11 +46,47 @@ class EVMChainTransactionInfo extends TransactionInfo {
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
-  factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
+  static CryptoCurrency amountCurrencyFor({
+    required int chainId,
+    required Iterable<Erc20Token> tokens,
+    required String? contractAddress,
+    required int decimals,
+    required String tokenSymbol,
+  }) {
+    final native =
+        EvmChainRegistry().getChainConfig(chainId)!.nativeCurrency;
+
+    if (tokenSymbol == native.title) {
+      return native;
+    }
+
+    final registered = tokens.firstWhereOrNull(
+      (token) => contractAddress?.toLowerCase() == token.contractAddress.toLowerCase(),
+    );
+
+    return registered ??
+        Erc20Token(
+          name: "",
+          contractAddress: contractAddress ?? "",
+          decimal: decimals,
+          symbol: tokenSymbol,
+        );
+  }
+
+  factory EVMChainTransactionInfo.fromJson(
+    Map<String, dynamic> data,
+    int chainId, {
+    Iterable<Erc20Token> tokens = const [],
+  }) {
     final decimals = data['exponent'] as int? ?? 18;
     final tokenSymbol = data['tokenSymbol'] as String;
-    final currency =
-        Erc20Token(name: '', symbol: tokenSymbol, contractAddress: '', decimal: decimals);
+    final currency = amountCurrencyFor(
+      chainId: chainId,
+      tokens: tokens,
+      contractAddress: data['contractAddress'] as String?,
+      decimals: decimals,
+      tokenSymbol: tokenSymbol,
+    );
 
     final feeCurrency =
         EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency ?? CryptoCurrency.eth;
@@ -81,12 +110,22 @@ class EVMChainTransactionInfo extends TransactionInfo {
     );
   }
 
+  @override
+  String? get status {
+    if(chainId == 1 && evmSignatureName == "approval") {
+      return "(approval)";
+    }
+
+    return super.status;
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,
         'amount': amount.amount.toString(),
         'exponent': exponent,
-        'fee': fee.amount.toString(),
+        'fee': fee!.amount.toString(),
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,
         'isPending': isPending,
