@@ -103,8 +103,8 @@ Future<void> _writeXChaCha20({
   );
 
   final tmpFile = File('$path.tmp');
-  await tmpFile.writeAsBytes(encrypted, flush: true);
-  await tmpFile.rename(path);
+  tmpFile.writeAsBytesSync(encrypted, flush: true);
+  tmpFile.renameSync(path);
 }
 
 Future<String> _readXChaCha20({
