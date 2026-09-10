@@ -685,6 +685,10 @@
   "new_transactions_notifications": "새 거래에 대한 알림 보내기",
   "new_wallet": "새 지갑",
   "newConnection": "새 연결",
+  "nft_import_failed": "이 NFT를 가져올 수 없습니다. 주소를 확인하고 다시 시도하세요.",
+  "nft_not_held_by_wallet": "이 지갑에 보관되지 않음",
+  "nft_send_not_an_nft": "이 자산은 NFT가 아니므로 여기에서 보낼 수 없습니다.",
+  "nft_some_not_loaded": "일부 NFT를 로드할 수 없습니다",
   "nfts": "NFTs",
   "no": "아니요",
   "no_cards_found": "카드를 찾을 수 없습니다",
@@ -846,6 +850,7 @@
   "received": "수신됨",
   "receiving": "수신",
   "recieving": "수신 중",
+  "recipient_account_creation_fee": "아직 토큰 계정이 없기 때문에 수신자를 위한 토큰 계정을 생성하려면 추가 ${amount}가 필요합니다.",
   "recipient_address": "수신자 주소",
   "reconnect": "재연결",
   "reconnect_alert_text": "정말 다시 연결하시겠습니까?",
@@ -1404,6 +1409,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "지갑",
   "warning": "경고",
+  "watching": "보기 전용",
   "wc_action_approve": "승인",
   "wc_approve_request_title": "요청 승인",
   "wc_connect_request_title": "연결 요청",
@@ -1475,6 +1481,5 @@
   "zcash_card_enable_later": "설정에서 언제든지 나중에 이 카드를 활성화할 수 있습니다.",
   "zcash_card_missing_funds": "자금이 사라졌나요?",
   "zcash_card_scan": "스캔",
-  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다.",
-  "recipient_account_creation_fee": "아직 토큰 계정이 없기 때문에 수신자를 위한 토큰 계정을 생성하려면 추가 ${amount}가 필요합니다."
+  "zcash_card_warning": "절차가 완료될 때까지 앱을 닫지 마십시오. 닫으면 이 과정을 처음부터 다시 시작해야 합니다."
 }
