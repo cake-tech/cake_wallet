@@ -690,6 +690,10 @@
   "new_transactions_notifications": "Yeni işlemler için bildirim gönder",
   "new_wallet": "Yeni Cüzdan",
   "newConnection": "Yeni Bağlantı",
+  "nft_import_failed": "Bu NFT içe aktarılamadı. Adresi kontrol edip tekrar deneyin.",
+  "nft_not_held_by_wallet": "Bu cüzdanda tutulmuyor",
+  "nft_send_not_an_nft": "Bu varlık bir NFT olmadığından buradan gönderilemez.",
+  "nft_some_not_loaded": "Bazı NFT'ler yüklenemedi",
   "nfts": "NFT'ler",
   "no": "Hayır",
   "no_cards_found": "Kart bulunamadı",
@@ -851,6 +855,7 @@
   "received": "Alındı",
   "receiving": "Alma",
   "recieving": "Alınıyor",
+  "recipient_account_creation_fee": "Alıcının henüz bir token hesabı olmadığı için, alıcı için bir token hesabı oluşturmak için fazladan ${amount} gerekiyor.",
   "recipient_address": "Alıcı adresi",
   "reconnect": "Yeniden bağlan",
   "reconnect_alert_text": "Yeniden bağlanmak istediğinizden emin misiniz?",
@@ -1409,6 +1414,7 @@
   "walletConnect": "WalletConnect",
   "wallets": "Cüzdanlar",
   "warning": "Uyarı",
+  "watching": "Yalnızca görüntüle",
   "wc_action_approve": "Onayla",
   "wc_approve_request_title": "İsteği onayla",
   "wc_connect_request_title": "Bağlantı isteği",
@@ -1425,6 +1431,7 @@
   "wc_permission_sign_messages": "Mesajları ve yazılan verileri imzalayın",
   "wc_permission_switch_chains": "EVM zincirlerini değiştirin ve ekleyin",
   "wc_permission_view_balance": "Cüzdan bakiyenizi ve etkinliğinizi görüntüleyin",
+  "wc_request_for_different_wallet": "Bu istek farklı bir cüzdan için yapıldı. Bu uygulamaya bağlı cüzdanı açın ve tekrar deneyin.",
   "wc_scam_warning_message": "Bu isteğin bilinen bir dolandırıcılıktan geldiği anlaşılıyor. Lütfen dikkatli bir şekilde ilerleyin.",
   "wc_scam_warning_title": "UYARI!",
   "wc_scan_qr": "QR'yi tara",
@@ -1479,6 +1486,5 @@
   "zcash_card_enable_later": "Bu kartı daha sonra ayarlardan her zaman etkinleştirebilirsiniz",
   "zcash_card_missing_funds": "Bakiye eksik mi?",
   "zcash_card_scan": "Tara",
-  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir.",
-  "recipient_account_creation_fee": "Alıcının henüz bir token hesabı olmadığı için, alıcı için bir token hesabı oluşturmak için fazladan ${amount} gerekiyor."
+  "zcash_card_warning": "İşlem tamamlanana kadar uygulamayı kapatmayın; aksi takdirde bu işlemin baştan yeniden başlatılması gerekecektir."
 }

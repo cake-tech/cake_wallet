@@ -1,11 +1,11 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart";
 import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
-import "package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart";
-import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -70,16 +70,15 @@ class ChartsAssetGridHeader extends StatelessWidget {
       );
 
   void _showCurrencyPicker(BuildContext context, ChartsBloc bloc) {
-    showPopUp(
+    CurrencyPickerSheet.show(
       context: context,
-      builder: (context) => CurrencyPicker(
-        selectedAtIndex: -1,
+      args: CurrencyPickerArgs(
         items: CryptoCurrency.all,
-        onItemSelected: (item) {
-          if (item is CryptoCurrency) {
-            bloc.add(CurrencyAdded(currency: item));
-          }
+        onSelected: (item) {
+          bloc.add(CurrencyAdded(currency: item));
         },
+        showStablesHeader: false,
+        symbolResolver: (item) => item.symbol,
       ),
     );
   }
