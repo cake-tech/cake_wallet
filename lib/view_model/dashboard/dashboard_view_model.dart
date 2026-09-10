@@ -7,6 +7,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -423,65 +424,62 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  List<int> get cardAccountIndices {
+    if (wallet.type == WalletType.monero) {
+      return monero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
+    }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
+    }
+    if (wallet.type == WalletType.bitcoin) {
+      return const [-1, 0];
+    }
+    return const [-1];
+  }
+
   @action
   Future<void> loadCardDesigns() async {
     final accountStyleSettings =
         await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: cardAccountIndices,
+      settings: accountStyleSettings,
+    );
 
-    late final int numAccounts;
-    if (wallet.type == WalletType.monero) {
-      numAccounts = monero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.wownero) {
-      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.bitcoin) {
-      // bitcoin and lightning
-      numAccounts = 2;
-    } else {
-      numAccounts = 1;
-    }
     cardDesigns.clear();
-    Map<int, int> newOrder = {};
-
-    for (int i = 0; i < numAccounts; i++) {
-      late final int index;
-      if (balanceViewModel.hasAccounts) {
-        index = i;
-      } else if (wallet.type == WalletType.bitcoin && i == 1) {
-        index = 0;
-      } else {
-        index = -1;
-      }
-
-      final setting = accountStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
-
-      late final CryptoCurrency curr;
-      if (wallet.type == WalletType.bitcoin && i == 1) {
-        curr = CryptoCurrency.btcln;
-      } else {
-        curr = wallet.currency;
-      }
-
-      cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
-      if (setting?.cardOrder != null) {
-        newOrder[setting!.cardOrder] = i;
-      }
+    for (final accountIndex in layout.designOrder) {
+      cardDesigns.add(CardDesign.fromStyleSettings(
+          layout.settingFor(accountIndex),  wallet.type == WalletType.bitcoin && accountIndex == 0
+          ? CryptoCurrency.btcln
+          : wallet.currency));
     }
 
-    // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
-    for (int i = 0; i < numAccounts; i++) {
-      if (!newOrder.containsKey(i) && !(wallet.type != WalletType.bitcoin && i == 1)) {
-        int free = 0;
-        while (newOrder.containsValue(free)) {
-          free++;
-        }
-        if (wallet.type == WalletType.bitcoin) {
-          newOrder[free] = 0;
-        } else {
-          newOrder[free] = i;
-        }
-      }
+    cardOrder = {
+      for (int position = 0; position < layout.visible.length; position++)
+        position: layout.visible[position],
+    }.asObservable();
+
+    if (layout.needsRepair) {
+      await BalanceCardStyleSettings.setVisibleOrder(wallet.walletInfo.internalId, layout.orders);
     }
-    cardOrder = newOrder.asObservable();
+  }
+
+
+  int get currentCardAccountIndex {
+    if (wallet.type == WalletType.monero) {
+      return monero!.getCurrentAccount(wallet).id;
+    }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getCurrentAccount(wallet).id;
+    }
+    return -1;
+  }
+
+  CardDesign get currentCardDesign {
+    final designIndex =
+        BalanceCardLayout.designOrderOf(cardOrder.values).indexOf(currentCardAccountIndex);
+
+    return cardDesigns[designIndex == -1 ? 0 : designIndex];
   }
 
   void _transactionDisposerCallback(int _) async {

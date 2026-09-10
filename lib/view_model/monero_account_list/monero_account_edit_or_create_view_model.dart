@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/balance_card_layout.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -51,10 +52,19 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   Future<void> _saveRandomCardDesign(int accountIndex) async {
     final gradients = await _getUsableCardGradients();
 
+    final accountIndices = _wallet.type == WalletType.monero
+        ? _moneroAccountList!.accounts.map((account) => account.id).toList()
+        : _wowneroAccountList!.accounts.map((account) => account.id).toList();
+
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accountIndices,
+      settings: await BalanceCardStyleSettings.getAll(_wallet.walletInfo.internalId),
+    );
+
     await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
             accountIndex: accountIndex,
-            cardOrder: accountIndex,
+            cardOrder: layout.visible.length,
             design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
                 .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
