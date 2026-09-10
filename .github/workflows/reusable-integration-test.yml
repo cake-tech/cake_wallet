@@ -42,6 +42,10 @@ on:
         required: false
         type: boolean
         default: false
+      extract_only:
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -49,7 +53,7 @@ defaults:
 
 jobs:
   integration-test:
-    runs-on: ubuntu-latest
+    runs-on: puzl-ubuntu-latest
     environment: ${{ inputs.environment }}
     timeout-minutes: ${{ inputs.timeout_minutes }}
     env:
@@ -61,23 +65,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
+      - name: Authenticate git for package clones
+        run: |
+          git config --global --unset-all credential.helper || true
+          git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/lib/node_modules /opt/hostedtoolcache/CodeQL
           sudo rm -rf /usr/share/swift /usr/local/share/powershell /usr/share/miniconda /opt/az /usr/local/graalvm
           sudo docker image prune -af > /dev/null
           df -h /
-
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          sudo chmod 666 /dev/kvm || true
 
           if [[ ! -c /dev/kvm ]]; then
             echo "::error::/dev/kvm is not a character device, this runner has no usable KVM"
             exit 1
           fi
+
+      - name: Install protobuf compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
 
       - uses: actions/setup-java@v4
         with:
@@ -121,9 +134,8 @@ jobs:
           key: pub-cache-${{ runner.os }}-${{ hashFiles('pubspec_base.yaml', 'cw_*/pubspec.yaml') }}
           restore-keys: pub-cache-${{ runner.os }}-
 
-      - name: Add rust android targets
-        run: |
-          rustup target add x86_64-linux-android aarch64-linux-android armv7-linux-androideabi i686-linux-android
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -165,43 +177,25 @@ jobs:
           echo "${{ secrets.FUNDS_SECRETS_FILE }}" | base64 --decode > integration_test/core/funded_wallets.dart
 
       - name: Build dependencies utilizing ghcr cache
+        if: ${{ !inputs.extract_only }}
         run: |
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
             CW_DOCKER_USE_CLOUD=true \
             ./scripts/android/docker/build.sh
 
+      - name: Extract native dependencies
+        if: ${{ inputs.extract_only }}
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_USE_CLOUD=true \
+            ./scripts/android/docker/build.sh --extract
+
       - name: Reclaim the space the dependency images took
         run: |
           docker system prune -af --volumes > /dev/null
           df -h /
-
-      - name: Regenerate mweb bindings
-        run: |
-          git checkout -- cw_mweb/pubspec.yaml
-          rm -f cw_mweb/pubspec.lock
-          rm -rf cw_mweb/.dart_tool
-
-          # Hosted runners ship libclang, only install when it is actually missing
-          if ! ldconfig -p | grep -q libclang; then
-            sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null
-          fi
-
-          if ! command -v protoc > /dev/null ||
-             [[ ! -f /usr/include/google/protobuf/descriptor.proto ]]; then
-            sudo apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev > /dev/null
-          fi
-
-          pushd cw_mweb
-            flutter pub get
-            dart run ffigen --config ffigen_config.yaml
-          popd
-
-          # Fail here in seconds rather than minutes into the gradle build
-          if ! grep -q "final class GoSlice" cw_mweb/lib/generated_bindings.g.dart; then
-            echo "::error::mweb bindings regenerated without class modifiers, ffigen resolved too old"
-            exit 1
-          fi
 
       - name: Execute Build and Setup Commands
         run: |

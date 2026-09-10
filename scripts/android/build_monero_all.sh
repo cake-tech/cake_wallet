@@ -9,11 +9,23 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero zano;
+if [[ -n "${COIN:-}" ]]; then
+    COINS=("$COIN")
+else
+    COINS=(monero wownero zano)
+fi
+
+if [[ -n "${TARGET:-}" ]]; then
+    TARGETS=("$TARGET")
+else
+    TARGETS=(x86_64-linux-android aarch64-linux-android armv7a-linux-androideabi)
+fi
+
+for COIN in "${COINS[@]}";
 do
     pushd ../monero_c
         monero_c_tag=$(git describe --tags)
-        for target in {x86_64,aarch64}-linux-android armv7a-linux-androideabi
+        for target in "${TARGETS[@]}"
         do
             if [[ -f "release/${monero_c_tag}/${target}/${COIN}_libwallet2_api_c.so" ]];
             then
