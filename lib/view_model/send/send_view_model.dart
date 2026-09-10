@@ -871,9 +871,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       final isSendAll = outputs.any((output) => output.sendAll);
 
       if (!isSendAll) {
-        final estimateTxAmountDouble = outputs.fold<double>(
-            0, (acc, output) => acc + (double.tryParse(output.cryptoAmount) ?? 0));
-        if (estimateTxAmountDouble <= 0) throw Exception('Amount must be greater than 0');
+        final estimateTxAmount = outputs.fold<BigInt>(
+            BigInt.zero, (acc, output) => acc + output.cryptoAmountMoney.amount);
+        if (estimateTxAmount <= BigInt.zero) {
+          throw Exception('Amount must be greater than 0');
+        }
       }
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));

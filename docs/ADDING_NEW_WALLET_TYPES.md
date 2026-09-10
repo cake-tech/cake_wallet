@@ -2,7 +2,7 @@
 
 ## Important: EVM-Compatible Wallets
 
-**If you're adding an EVM-compatible wallet (Ethereum, Polygon, Base, Arbitrum, Optimism, etc.)**, please refer to the **[Adding New L2 Network Guide](./adding_new_l2_network_guide.md)** instead. EVM wallets use a unified architecture and don't require the full setup described in this guide.
+**If you're adding an EVM-compatible wallet (Ethereum, Polygon, Base, Arbitrum, Optimism, etc.)**, please refer to the **[Adding New L2 Network Guide](./ADDING_EVM_L2_WALLET_NETWORK_TYPES.md)** instead. EVM wallets use a unified architecture and don't require the full setup described in this guide.
 
 **For EVM wallets:**
 - Use `WalletType.evm` (unified type for all EVM chains)
@@ -984,7 +984,7 @@ Add:
    dart run build_runner build --delete-conflicting-outputs
    ```
 
-4. **EVM Wallets**: If adding an EVM-compatible wallet, use the [L2 Network Guide](./adding_new_l2_network_guide.md) instead.
+4. **EVM Wallets**: If adding an EVM-compatible wallet, use the [L2 Network Guide](./ADDING_EVM_L2_WALLET_NETWORK_TYPES.md) instead.
 
 5. **Token Support**: If your wallet supports tokens (like ERC20, SPL, TRC20):
    - Add token checks in `exchange_trade_view_model.dart`
@@ -1029,4 +1029,4 @@ Add:
 
 ---
 
-Copyright (C) 2018-2023 Cake Labs LLC
+Copyright (C) 2018-2025 Cake Labs LLC

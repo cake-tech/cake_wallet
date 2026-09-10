@@ -65,6 +65,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
+import "package:flutter_localizations/flutter_localizations.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -330,6 +331,7 @@ Future<void> initialSetup({
   required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
+  await GlobalMaterialLocalizations.delegate.load(const Locale("en"));
   await defaultSettingsMigration(
     secureStorage: secureStorage,
     version: initialMigrationVersion,
@@ -427,7 +429,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: Locale(appStore.settingsStore.languageCode),
+              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),

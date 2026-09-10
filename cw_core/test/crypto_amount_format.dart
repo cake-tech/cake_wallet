@@ -108,6 +108,15 @@ void main() {
       });
     });
 
+    group("Locale without intl number data", () {
+      test("should format as English instead of throwing (ha)", () {
+        const input = "1123.4567";
+        final result = input.withLocalSeperator("ha");
+
+        expect(result, equals("1,123.4567"));
+      });
+    });
+
     group('With XMR Suffix', () {
       const locale = 'de_CH';
 
