@@ -19,6 +19,9 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   final int decimals;
 
   @override
+  String get apiString => "fiat.$title";
+
+  @override
   final String symbol;
 
   static List<FiatCurrency> get all => _all.values.toList();

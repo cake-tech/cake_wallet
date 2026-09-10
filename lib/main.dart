@@ -309,7 +309,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 71,
+    initialMigrationVersion: 72,
   );
 }
 
