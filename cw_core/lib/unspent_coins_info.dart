@@ -98,11 +98,12 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
           ?.type;
 
       if (type == null) {
-        return;
+        continue;
       }
 
       try {
         await record.migrateToSqlite(type);
+        await record.delete();
       } catch (e) {
         printV("Error migrating unspent record ${record.walletId}: $e, continuing anyway");
       }
