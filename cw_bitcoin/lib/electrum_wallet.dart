@@ -604,6 +604,7 @@ abstract class ElectrumWalletBase
         isSingleScan: doSingleScan ?? false,
         debugLogPath: debugLogPath,
         rescanHeights: rescanHeights,
+        watchOutputReuse: watchSilentPaymentOutputReuse,
       ),
     );
 
@@ -678,6 +679,14 @@ abstract class ElectrumWalletBase
                 tx.spentSilentPaymentRecords != null &&
                 tx.spentSilentPaymentRecords!.isNotEmpty) {
               walletAddresses.addSilentAddresses(tx.spentSilentPaymentRecords!);
+
+              // These records are the only persisted source of the per-output tweak, and any
+              // repeat deposit they unlock is already on-chain. Poll now instead of waiting for
+              // the next startSync: the initial blockchain.scripthash.subscribe reply is routed
+              // by request id and never reaches the subject registered by
+              // _subscribeForSilentPaymentOutputReuse below, so only a later change
+              // notification would otherwise trigger the check.
+              if (await _checkSilentPaymentOutputReuse()) await updateBalance();
             }
 
             await updateAllUnspents();
@@ -805,7 +814,7 @@ abstract class ElectrumWalletBase
               existingTx.isReceivedSilentPayment = true;
               unspent.confirmations = existingTx.confirmations;
               if (existingTx.direction == TransactionDirection.incoming) {
-                existingTx.amount += value;
+                existingTx.amount += Money.fromInt(value, currency);
               }
               transactionHistory.addOne(existingTx);
             } else {
@@ -813,7 +822,7 @@ abstract class ElectrumWalletBase
               if (txInfo == null) continue;
               txInfo.isReceivedSilentPayment = true;
               txInfo.direction = TransactionDirection.incoming;
-              txInfo.amount = value;
+              txInfo.amount = Money.fromInt(value, currency);
               txInfo.unspents = [unspent];
               unspent.confirmations = txInfo.confirmations;
               transactionHistory.addOne(txInfo);
@@ -4295,6 +4304,10 @@ class ScanData {
   final String debugLogPath;
   final List<int>? rescanHeights;
 
+  /// Mirrors [ElectrumWalletBase.watchSilentPaymentOutputReuse]. Controls whether a catch-up
+  /// scan runs in historical mode (see `historicalModeFor` in _handleScanSilentPayments).
+  final bool watchOutputReuse;
+
   ScanData({
     required this.sendPort,
     required this.silentAddress,
@@ -4310,6 +4323,7 @@ class ScanData {
     required this.isSingleScan,
     required this.debugLogPath,
     required this.rescanHeights,
+    required this.watchOutputReuse,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -4328,6 +4342,7 @@ class ScanData {
       isSingleScan: scanData.isSingleScan,
       debugLogPath: scanData.debugLogPath,
       rescanHeights: scanData.rescanHeights,
+      watchOutputReuse: scanData.watchOutputReuse,
     );
   }
 }
@@ -4342,6 +4357,22 @@ class SyncResponse {
 Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
   final hasForcedRescanHeights = !shouldUpdateSyncStatus;
+
+  // Historical mode makes electrs return tweaks for transactions whose taproot outputs have
+  // since been SPENT. Without it the server only reports transactions that still have an
+  // unspent taproot output, so the funding tx of an already-spent P_k is never returned.
+  //
+  // That is fatal for [ElectrumWalletBase.watchSilentPaymentOutputReuse]: the per-output tweak
+  // needed to detect (and later spend) a repeat deposit to a P_k can ONLY be learned from that
+  // funding tx. A wallet restored from seed has no silent payment history yet, so it never
+  // produces `rescanHeights`, so it never enabled historical mode — and therefore could never
+  // discover a reused output whose first payment had already been spent.
+  //
+  // Scoped deliberately: forced rescans keep their previous behaviour, a catch-up/restore scan
+  // now opts in, and the live tip-following scan does not (historical mode returns several
+  // times more data per block).
+  bool historicalModeFor(int height) =>
+      hasForcedRescanHeights || (scanData.watchOutputReuse && height < scanData.chainTip);
   CakeTor.instance = await CakeTorInstance.getInstance();
 
   var node = scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001");
@@ -4404,7 +4435,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       final req = ElectrumTweaksSubscribe(
         height: syncHeight,
         count: getCountToScanPerRequest(syncHeight),
-        historicalMode: hasForcedRescanHeights,
+        historicalMode: historicalModeFor(syncHeight),
       );
 
       var _scanningStream = await scanningClient.subscribe(req);
@@ -4467,7 +4498,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               ElectrumTweaksSubscribe(
                 height: nextHeight,
                 count: getCountToScanPerRequest(nextHeight),
-                historicalMode: hasForcedRescanHeights,
+                historicalMode: historicalModeFor(nextHeight),
               ),
             );
 
