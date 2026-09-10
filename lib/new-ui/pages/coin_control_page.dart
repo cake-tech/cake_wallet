@@ -1,4 +1,4 @@
-import "package:cake_wallet/entities/calculate_fiat_amount.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/coin_control/coin_control_bloc.dart";
@@ -7,6 +7,7 @@ import "package:cake_wallet/new-ui/widgets/modal_header.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:flutter/cupertino.dart";
@@ -104,10 +105,6 @@ class NewCoinControlPage extends StatelessWidget {
                     return Center(child: Text(S.of(context).coin_control_load_failed));
                   }
 
-                  if (state is! CoinControlLoaded) {
-                    return const SizedBox.shrink();
-                  }
-
                   return Expanded(
                     child: SingleChildScrollView(
                       child: SafeArea(
@@ -122,74 +119,84 @@ class NewCoinControlPage extends StatelessWidget {
                                       ? S.of(context).coin_control_desc
                                       : S.of(context).coin_control_desc_no_edit),
                             ),
-                            if (state.rows.isNotEmpty && canEdit)
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Row(
-                                  spacing: 20,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => context
-                                          .read<CoinControlBloc>()
-                                          .add(SelectAllChanged(value: true)),
-                                      child: Text(S.of(context).select_all,
-                                          style: TextStyle(
-                                              color: Theme.of(context).colorScheme.primary,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400)),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => context
-                                          .read<CoinControlBloc>()
-                                          .add(SelectAllChanged(value: false)),
-                                      child: Text(S.of(context).unselect_all,
-                                          style: TextStyle(
-                                              color: Theme.of(context).colorScheme.primary,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w400)),
-                                    )
-                                  ],
-                                ),
-                              )
-                            else
-                              SizedBox(
-                                height: 24,
-                              ),
-                            if (state.rows.isEmpty) ...[
-                              SizedBox(height: 12),
-                              Center(
-                                  child: Text(
-                                S.of(context).no_unspent_coins,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                              )),
-                            ],
-                            if (state.selectable.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: _section(context, state.selectable),
-                              ),
-                            if (state.frozen.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                                child: Column(
-                                    spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                            if(state is CoinControlLoaded) ...[
+                              if (state.rows.isNotEmpty && canEdit)
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    spacing: 20,
                                     children: [
-                                      SizedBox(height: 12),
-                                      Text(
-                                        S.of(context).frozen,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                      GestureDetector(
+                                        onTap: () => context
+                                            .read<CoinControlBloc>()
+                                            .add(SelectAllChanged(value: true)),
+                                        child: Text(S.of(context).select_all,
+                                            style: TextStyle(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400)),
                                       ),
-                                      _section(context, state.frozen),
-                                    ]),
-                              ),
-                            SizedBox(height: 12)
+                                      GestureDetector(
+                                        onTap: () => context
+                                            .read<CoinControlBloc>()
+                                            .add(SelectAllChanged(value: false)),
+                                        child: Text(S.of(context).unselect_all,
+                                            style: TextStyle(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400)),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              else
+                                SizedBox(
+                                  height: 24,
+                                ),
+                              if (state.rows.isEmpty) ...[
+                                SizedBox(height: 12),
+                                Center(
+                                    child: Text(
+                                      S.of(context).no_unspent_coins,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    )),
+                              ],
+                              if (state.selectable.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                  child: CoinControlListSection(
+                                    rows: state.selectable,
+                                    canEdit: canEdit,
+                                    fiatConversionStore: bloc.fiatConversionStore,
+                                  ),
+                                ),
+                              if (state.frozen.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                                  child: Column(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 12),
+                                        Text(
+                                          S.of(context).frozen,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w400,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                        ),
+                                        CoinControlListSection(
+                                          rows: state.frozen,
+                                          canEdit: canEdit,
+                                          fiatConversionStore: bloc.fiatConversionStore,
+                                        ),
+                                      ]),
+                                ),
+                              const SizedBox(height: 12)
+                            ]
                           ],
                         ),
                       ),
@@ -203,23 +210,7 @@ class NewCoinControlPage extends StatelessWidget {
       ),
     );
 
-  Widget _section(BuildContext context, List<CoinRow> rows) => CoinControlListSection(
-        rows: rows,
-        canEdit: canEdit,
-        fiatAmountFor: _fiatAmountFor,
-      );
 
-  /// Fiat is formatted here rather than in the Bloc: prices tick independently
-  /// of coin state, so folding them in would re-emit state for no reason.
-  String _fiatAmountFor(CoinRow row) {
-    if (isFiatDisabled) return "";
-
-    final price = fiatConversionStore.prices[row.amount.currency];
-    if (price == null || price == 0.0) return "";
-
-    return "${fiatCurrency.title} "
-        "${calculateFiatAmount(price: price, cryptoAmount: row.amount.toString())}";
-  }
 }
 
 class CoinControlListSection extends StatelessWidget {
@@ -227,12 +218,12 @@ class CoinControlListSection extends StatelessWidget {
     super.key,
     required this.rows,
     required this.canEdit,
-    required this.fiatAmountFor,
+    required this.fiatConversionStore,
   });
 
   final List<CoinRow> rows;
   final bool canEdit;
-  final String Function(CoinRow row) fiatAmountFor;
+  final FiatConversionStore fiatConversionStore;
 
   @override
   Widget build(BuildContext context) => ListView.separated(
@@ -254,9 +245,10 @@ class CoinControlListSection extends StatelessWidget {
           ),
           child: CoinControlListItem(
             note: row.note,
-            amount: row.amount.toString(),
-            fiatAmount: fiatAmountFor(row),
-            address: row.address,
+            amount: row.amount.toStringWithSymbol(),
+            fiatAmount: fiatConversionStore
+                  .convertSync(row.amount, getIt.get<SettingsStore>().fiatCurrency)?.toStringWithSymbol(trimZeros: false) ?? "",
+              address: row.address,
             isSending: row.isSelected,
             isFrozen: row.isFrozen,
             isChange: row.isChange,

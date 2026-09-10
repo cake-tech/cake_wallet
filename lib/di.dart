@@ -331,7 +331,6 @@ late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
-late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
@@ -340,7 +339,6 @@ Future<void> setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
@@ -351,7 +349,6 @@ Future<void> setup({
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
-  _unspentCoinsInfoSource = unspentCoinsInfoSource;
   _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
@@ -1306,16 +1303,14 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_unspentCoinsInfoSource);
+        return monero!.createMoneroWalletService();
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
-          _unspentCoinsInfoSource,
           _payjoinSessionSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
-          _unspentCoinsInfoSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
@@ -1325,11 +1320,9 @@ Future<void> setup({
       case WalletType.bsc:
         return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
-        return dogecoin!.createDogeCoinWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return dogecoin!.createDogeCoinWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
@@ -1338,12 +1331,11 @@ Future<void> setup({
       case WalletType.tron:
         return tron!.createTronWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
-        return wownero!.createWowneroWalletService(_unspentCoinsInfoSource);
+        return wownero!.createWowneroWalletService();
       case WalletType.zano:
         return zano!.createZanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.decred:
-        return decred!.createDecredWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return decred!.createDecredWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:
@@ -1546,17 +1538,13 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
-  // The coin control Bloc is a factory: one per opening of the page, and its
-  // selection lives no longer than that.
-  getIt.registerFactoryParam<CoinControlBloc, CoinControlPageArgs?, void>((args, _) {
-    final wallet = getIt.get<AppStore>().wallet!;
-
-    return CoinControlBloc(
-      wallet: wallet as CoinControlWallet,
-      constraint: args?.coinTypeToSpendFrom ?? UnspentCoinType.any,
-      initialSelection: args?.initialSelection ?? const AllCoinSelection(),
-    );
-  });
+  getIt.registerFactoryParam<CoinControlBloc, CoinControlPageArgs?, void>(
+      (args, _) => CoinControlBloc(
+            wallet: getIt.get<AppStore>().wallet! as CoinControlWallet,
+            fiatConversionStore: getIt.get<FiatConversionStore>(),
+            constraint: args?.coinTypeToSpendFrom ?? UnspentCoinType.any,
+            initialSelection: args?.initialSelection ?? const AllCoinSelection(),
+          ));
 
   getIt.registerFactoryParam<NewCoinControlPage, CoinControlPageArgs?, void>(
       (args, _) => NewCoinControlPage(

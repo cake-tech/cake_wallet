@@ -75,9 +75,8 @@ class WowneroWalletService extends WalletService<
     WowneroRestoreWalletFromSeedCredentials,
     WowneroRestoreWalletFromKeysCredentials,
     WowneroNewWalletCredentials> {
-  WowneroWalletService(this.unspentCoinsInfoSource);
+  WowneroWalletService();
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();

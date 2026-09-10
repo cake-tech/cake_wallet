@@ -851,9 +851,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await updateAllUnspents();
   }
 
-  /// MWEB outputs are only spendable when MWEB is switched on, so the rule
-  /// lives here rather than in a coin type the caller has to remember to
-  /// downgrade before building a transaction.
   @override
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) {
     final isMweb = coin is BitcoinUnspent &&

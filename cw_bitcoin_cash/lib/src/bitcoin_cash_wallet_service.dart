@@ -7,20 +7,17 @@ import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<
     BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials,
     BitcoinCashRestoreWalletFromWIFCredentials,
     BitcoinCashNewWalletCredentials> {
-  BitcoinCashWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  BitcoinCashWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
   @override

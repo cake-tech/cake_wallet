@@ -378,8 +378,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(unspentCoinSource);
+  WalletService createMoneroWalletService() => MoneroWalletService();
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {

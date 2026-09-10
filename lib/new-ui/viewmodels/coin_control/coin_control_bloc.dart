@@ -1,10 +1,11 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
-import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:meta/meta.dart";
 
@@ -14,7 +15,7 @@ part "coin_control_state.dart";
 
 class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   CoinControlBloc({
-    required this.wallet,
+    required this.fiatConversionStore, required this.wallet,
     this.constraint = UnspentCoinType.any,
     CoinSelection initialSelection = const AllCoinSelection(),
   })  : _initialSelection = initialSelection,
@@ -30,6 +31,7 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   }
 
   final CoinControlWallet wallet;
+  final FiatConversionStore fiatConversionStore;
   final CoinSelection _initialSelection;
   final UnspentCoinType constraint;
 
@@ -40,7 +42,7 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
       await wallet.refreshUnspents();
 
       final frozen = await wallet.frozenIds();
-      final notes = await wallet.notes();
+      final notes = await CoinNotesStore.instance.forWallet(wallet.id);
 
       final rows = <CoinRow>[];
       for (final coin in wallet.unspents) {
@@ -105,7 +107,7 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   Future<void> _onNoteChanged(NoteChanged event, Emitter<CoinControlState> emit) async {
     if (state case final CoinControlLoaded s) {
       try {
-        await wallet.saveNote(event.id, event.note);
+        await CoinNotesStore.instance.save(wallet.id, event.id, event.note);
 
         emit(
           s.withRow(

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/amount/money.dart';
 import 'package:path/path.dart' as p;
-import 'package:cw_core/coin_control/coin_control_wallet.dart';
+import "package:cw_core/coin_control/coin_control_wallet.dart";
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -25,14 +25,13 @@ import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/coin_control/coin_selection.dart';
+import "package:cw_core/coin_control/coin_selection.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
 part 'wallet.g.dart';
@@ -674,12 +673,6 @@ abstract class DecredWalletBase
     }
   }
 
-  /// The wallet's spendable outputs.
-  ///
-  /// dcrwallet already filters out what the protocol will not let us spend
-  /// (immature coinbase, ticket-locked outputs) via the `spendable` flag, so
-  /// those never enter this list. Nothing is written here: this is chain data,
-  /// and the user's frozen state lives in the store keyed by output id.
   @override
   List<Unspent> get unspents => _unspents;
 

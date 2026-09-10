@@ -8,7 +8,6 @@ import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -23,9 +22,8 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
+  BitcoinWalletService(this.payjoinSessionSource, this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final Box<PayjoinSession> payjoinSessionSource;
   final bool isDirect;
 

@@ -13,7 +13,5 @@ class DecredTransactionCredentials {
   final List<OutputInfo> outputs;
   final DecredTransactionPriority? priority;
   final int? feeRate;
-
-  /// Which outputs the user allowed this transaction to spend.
   final CoinSelection coinSelection;
 }

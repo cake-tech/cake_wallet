@@ -93,12 +93,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  /// Estimated fee for spending [amount].
-  ///
-  /// Async because wallets with an output model have to read which of their
-  /// outputs are frozen, and [selection] because the fee depends on how many
-  /// inputs the transaction will take -- narrowing the selection changes it.
-  /// Wallets without an output model ignore both.
   Future<int> calculateEstimatedFee(
     TransactionPriority priority,
     int? amount, {

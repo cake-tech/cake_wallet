@@ -16,10 +16,6 @@ Future<void> refreshCoins(int accountIndex) => coinsMutex.protect(() async {
       coins = refreshed;
     });
 
-Future<int> countOfCoins() => coinsMutex.protect(() async => coins!.count());
-
-Future<Wallet2CoinsInfo> getCoin(int index) => coinsMutex.protect(() async => coins!.coin(index));
-
 Future<List<Wallet2CoinsInfo>> readAllCoins() => coinsMutex.protect(() async {
       final all = coins!;
       return List.generate(all.count(), all.coin);

@@ -1,7 +1,7 @@
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_core/coin_control/coin_selection.dart';
-import 'package:cw_core/output_info.dart';
-import 'package:cw_core/unspent_coin_type.dart';
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
+import "package:cw_core/output_info.dart";
+import "package:cw_core/unspent_coin_type.dart";
 
 class BitcoinTransactionCredentials {
   BitcoinTransactionCredentials(

@@ -34,22 +34,11 @@ class MoneroFrozenCoinsStore extends FrozenCoinsStore {
   Future<void> setFrozen(String walletId, String id, bool frozen) async {
     final index = _indexes[id];
     if (index == null) {
-      // Nothing to act on in wallet2, so the flag is cached alone and the next
-      // refresh replaces it with whatever the wallet reports.
       printV("MoneroFrozenCoinsStore: no coin index for $id, frozen flag cached only");
       _frozen[id] = frozen;
       return;
     }
 
-    // Awaited rather than fired and forgotten. The index came from the last
-    // walk, so a change still in flight while the coin list is refreshed can
-    // be applied against a different ordering -- the mutex serialises the
-    // calls but cannot tell that an index has gone stale between them.
-    //
-    // Awaiting also puts the cache update after the wallet has taken the
-    // change, so a failure leaves the two agreeing rather than leaving the
-    // cache claiming something wallet2 rejected, and reaches the caller
-    // instead of only the log.
     await (frozen ? _freeze(index) : _thaw(index));
 
     _frozen[id] = frozen;

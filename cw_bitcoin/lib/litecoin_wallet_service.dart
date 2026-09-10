@@ -5,8 +5,6 @@ import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -22,9 +20,8 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     LitecoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  LitecoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  LitecoinWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
   @override

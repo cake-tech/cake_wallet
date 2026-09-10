@@ -265,22 +265,22 @@ CREATE TABLE BalanceCardStyleSettings (
 }
 
 Future<void> _createCoinControlTables(Database db) async {
-  await db.execute('''
+  await db.execute("""
 CREATE TABLE IF NOT EXISTS FrozenCoin (
   walletId TEXT NOT NULL,
   id TEXT NOT NULL,
   frozen INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (walletId, id)
 );
-''');
-  await db.execute('''
+""");
+  await db.execute("""
 CREATE TABLE IF NOT EXISTS CoinNote (
   walletId TEXT NOT NULL,
   id TEXT NOT NULL,
   note TEXT NOT NULL DEFAULT '',
   PRIMARY KEY (walletId, id)
 );
-''');
+""");
 }
 
 Future<void> _createTradeTable(Database db) async {

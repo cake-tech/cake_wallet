@@ -41,9 +41,9 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/coin_control/coin_control_wallet.dart';
-import 'package:cw_core/unspent_transaction_output.dart';
-import 'package:cw_core/coin_control/coin_selection.dart';
+import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/unspent_transaction_output.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
@@ -923,13 +923,6 @@ abstract class ElectrumWalletBase
   int _coinSelectionPriority(BitcoinUnspent utx) => _coinSelectionOrder.putIfAbsent(
       '${utx.hash}:${utx.vout}', () => _coinSelectionRng.nextInt(1 << 32));
 
-  /// Builds the input set for one transaction from [candidates].
-  ///
-  /// The candidates are passed in rather than derived here: they come from
-  /// [spendableCoins], which is the single place the user's selection, frozen
-  /// state and the requested coin type are combined. This method must never
-  /// consult [unspentCoins] itself -- reading that directly is what let a coin
-  /// the user had unselected reach a transaction.
   UtxoDetails _createUTXOS({
     required bool sendAll,
     required bool paysToSilentPayment,
@@ -1166,9 +1159,6 @@ abstract class ElectrumWalletBase
     bool? useUnconfirmed,
     bool hasSilentPayment = false,
     required List<BitcoinUnspent> candidates,
-    // Only for change-address selection; the inputs are already decided by
-    // [candidates]. This is the half of the coin type that cannot fold into a
-    // selection, because Litecoin picks a change address by it.
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
     // Attempting to send less than the dust limit
@@ -2046,22 +2036,16 @@ abstract class ElectrumWalletBase
     return updatedUnspentCoins;
   }
 
-  /// Re-fetches one address' outputs and merges them into the coin list.
-  ///
-  /// Nothing is hydrated onto the coins: they are chain data, and the user's
-  /// frozen state lives in the store keyed by output id.
   @action
   Future<void> updateUnspentsForAddress(BitcoinAddressRecord address) async {
     final fetched = await fetchUnspent(address);
-    if (fetched == null || fetched.isEmpty) {
-      return;
-    }
+    if (fetched == null || fetched.isEmpty) return;
 
-    final byId = {for (final coin in unspentCoins) coin.id: coin};
-    for (final coin in fetched) {
-      byId[coin.id] = coin;
-    }
-    unspentCoins = byId.values.toList();
+    unspentCoins = {
+      // this doubles as deduplication
+      for (final coin in unspentCoins) coin.id: coin,
+      for (final coin in fetched) coin.id: coin,
+    }.values.toList();
   }
 
   @action
@@ -3450,10 +3434,6 @@ abstract class ElectrumWalletBase
     printV(
         'Fetched balances for ${addresses.length} addresses. Batch fetching: $shouldUseBatchFetching');
 
-    // One frozen total, derived by matching stored records against the live
-    // output list. The previous version walked the whole store with no wallet
-    // filter and re-derived the sum in a nested loop, so a second wallet's
-    // records were counted here too.
     var totalFrozen = await frozenBalance();
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;

@@ -88,22 +88,17 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
 
   set note(String value) => noteRaw = value;
 
-  /// Wallet types whose core module owns frozen state, so it is not migrated.
-  ///
-  /// Monero persists the flag inside the wallet file, which is where it is read
-  /// from now, so a row in the FrozenCoin table would be a second source of
-  /// truth for something the wallet already has.
-  static const _typesOwningFrozenState = [WalletType.monero, WalletType.wownero];
-
   static Future<void> migrateAllToSqlite(List<WalletInfo> wallets) async {
     final box = await CakeHive.openBox<UnspentCoinsInfo>(boxName);
-    final walletTypes = {for (final wallet in wallets) wallet.id: wallet.type};
 
     for (final record in box.values.toList()) {
-      final type = walletTypes[record.walletId];
+      final type = wallets
+          .cast<WalletInfo?>()
+          .firstWhere((item) => item!.id == record.walletId, orElse: () => null)
+          ?.type;
+
       if (type == null) {
-        // Left behind by a wallet that has since been deleted.
-        continue;
+        return;
       }
 
       try {
@@ -112,49 +107,26 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
         printV("Error migrating unspent record ${record.walletId}: $e, continuing anyway");
       }
     }
-
-    await box.deleteFromDisk();
   }
 
   Future<void> migrateToSqlite(WalletType walletType) async {
-    // This box held a record for every output the wallet had ever seen, so
-    // only the ones carrying something the user set are worth a row. The new
-    // tables read an absent row as not frozen with no note, which is what all
-    // the rest of these amount to.
-    final shouldMigrateFrozen = isFrozen && !_typesOwningFrozenState.contains(walletType);
-    if (note.isEmpty && !shouldMigrateFrozen) {
-      return;
-    }
-
     final id = _outputId(walletType);
 
     if (note.isNotEmpty) {
       await CoinNotesStore.instance.save(walletId, id, note);
     }
-
-    if (shouldMigrateFrozen) {
-      await FrozenCoinsStore.instance.setFrozen(walletId, id, true);
+    if (walletType != WalletType.monero) {
+      await FrozenCoinsStore.instance.setFrozen(walletId, id, isFrozen);
     }
 
-    // isSending is deliberately dropped: the selection is not durable state,
-    // and persisting it is what let an unselected output be spent after the
-    // sending flow that unselected it had closed.
   }
 
-  /// The id the new tables key on, as the output itself now reports it.
-  ///
-  /// Reproduced from the record rather than asked of the chain module, because
-  /// by the time this runs the record is all that is left -- the outputs it
-  /// describes are not fetched during startup.
+
   String _outputId(WalletType walletType) {
-    final image = keyImage;
-    if (image != null && image.isNotEmpty) {
-      return image;
+    if (keyImage != null && keyImage!.isNotEmpty) {
+      return keyImage!;
     }
 
-    // An MWEB output is identified by its hash alone. The vout on these
-    // records is an index into the wallet's MWEB address list, which shifts as
-    // that list grows, so it was never part of the identity.
     if (walletType == WalletType.litecoin && _isMwebAddress(address)) {
       return hash;
     }

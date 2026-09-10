@@ -37,7 +37,6 @@ import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';

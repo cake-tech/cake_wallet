@@ -268,15 +268,11 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource,
-      Box<PayjoinSession> payjoinSessionSource, bool isDirect) {
-    return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
-  }
+  WalletService createBitcoinWalletService(
+          Box<PayjoinSession> payjoinSessionSource, bool isDirect) =>
+      BitcoinWalletService(payjoinSessionSource, isDirect);
 
-  WalletService createLitecoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return LitecoinWalletService(unspentCoinSource, isDirect);
-  }
+  WalletService createLitecoinWalletService(bool isDirect) => LitecoinWalletService(isDirect);
 
   @override
   TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
@@ -776,10 +772,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<String> getPayjoinEndpoint(Object wallet) async {
+  String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    if (!await isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? "";
   }
 
   @override

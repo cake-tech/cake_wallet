@@ -327,8 +327,7 @@ class CWWownero extends Wownero {
   }
 
   @override
-  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      WowneroWalletService(unspentCoinSource);
+  WalletService createWowneroWalletService() => WowneroWalletService();
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -373,7 +372,7 @@ class CWWownero extends Wownero {
     final wallets = await WalletInfo.selectList('type = ?', [WalletType.wownero.index]);
     final unspentCoinsInfo = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     for (final w in wallets) {
-      final walletService = WowneroWalletService(unspentCoinsInfo);
+      final walletService = WowneroWalletService();
       final flutterSecureStorage = secureStorageShared;
       final keyService = KeyService(flutterSecureStorage);
       final password = await keyService.getWalletPassword(walletName: w.name);

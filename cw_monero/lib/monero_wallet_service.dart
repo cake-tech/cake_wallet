@@ -102,9 +102,8 @@ class MoneroWalletService extends WalletService<
     MoneroRestoreWalletFromSeedCredentials,
     MoneroRestoreWalletFromKeysCredentials,
     MoneroRestoreWalletFromHardwareCredentials> {
-  MoneroWalletService(this.unspentCoinsInfoSource);
+  MoneroWalletService();
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();

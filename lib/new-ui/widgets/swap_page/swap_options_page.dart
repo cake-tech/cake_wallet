@@ -105,9 +105,6 @@ class SwapOptionsPage extends StatelessWidget {
                             keyValue: "coin control",
                             label: "Coin Control",
                             onTap: () async {
-                              // A swap cannot spend MWEB outputs, so the page is
-                              // opened with that constraint and with the
-                              // selection this flow holds.
                               final selection =
                                   await showCupertinoModalBottomSheet<CoinSelection?>(
                                       enableDrag: false,

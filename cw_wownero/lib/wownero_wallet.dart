@@ -15,12 +15,9 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/coin_control/coin_control_wallet.dart';
-import 'package:cw_core/unspent_transaction_output.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/coin_control/coin_selection.dart';
+import "package:cw_core/coin_control/coin_selection.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -41,7 +38,6 @@ import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_unspent.dart';
 import 'package:cw_wownero/wownero_wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/wownero.dart' as wownero;
 
@@ -157,12 +153,6 @@ abstract class WowneroWalletBase
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
   List<WowneroUnspent> unspentCoins;
-
-  @override
-  List<Unspent> get unspents => unspentCoins;
-
-  @override
-  Future<void> refreshUnspents() => updateUnspent();
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -311,14 +301,10 @@ abstract class WowneroWalletBase
 
       final totalAmount = outputs.fold(0, (acc, value) => acc + value.cryptoAmount.amount.toInt());
 
-      final estimatedFee = await calculateEstimatedFee(_credentials.priority, totalAmount);
+      final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
             'You do not have enough WOW to send this amount.');
-      }
-
-      if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
-        throw WowneroTransactionNoInputsException(inputs.length);
       }
 
       final wowneroOutputs = outputs.map((output) {
@@ -346,12 +332,6 @@ abstract class WowneroWalletBase
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      final estimatedFee = await calculateEstimatedFee(_credentials.priority, formattedAmount);
-      if (!spendAllCoins &&
-          ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
-              formattedAmount == null)) {
-        throw WowneroTransactionNoInputsException(inputs.length);
-      }
 
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
@@ -492,7 +472,7 @@ abstract class WowneroWalletBase
     wownero_wallet.setRefreshFromBlockHeight(height: height);
     wownero_wallet.rescanBlockchainAsync();
     await startSync();
-    await _askForUpdateBalance();
+    _askForUpdateBalance();
     walletAddresses.accountList.update();
     await _askForUpdateTransactionHistory();
     await save();
@@ -524,8 +504,6 @@ abstract class WowneroWalletBase
           unspentCoins.add(unspent);
         }
       }
-
-      await _askForUpdateBalance();
     } catch (e, s) {
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
@@ -645,10 +623,10 @@ abstract class WowneroWalletBase
     return nodeHeight - heightDistance;
   }
 
-  Future<void> _askForUpdateBalance() async {
+  void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = _getFullBalance();
-    final frozenBalance = await _getFrozenBalance();
+    final frozenBalance = _getFrozenBalance();
 
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.available != unlockedBalance ||
@@ -667,20 +645,23 @@ abstract class WowneroWalletBase
       wownero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id),
       CryptoCurrency.wow);
 
-  Future<Money> _getFrozenBalance() async =>
-      Money.fromInt(0, CryptoCurrency.wow);
+  Money _getFrozenBalance() {
+    var frozenBalance = 0;
+
+    return Money.fromInt(frozenBalance, CryptoCurrency.wow);
+  }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
-        await _askForUpdateBalance();
+        _askForUpdateBalance();
         walletAddresses.accountList.update();
       }
 
       if (blocksLeft < 100) {
         await _askForUpdateTransactionHistory();
-        await _askForUpdateBalance();
+        _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
 
@@ -703,7 +684,7 @@ abstract class WowneroWalletBase
   void _onNewTransaction() async {
     try {
       await _askForUpdateTransactionHistory();
-      await _askForUpdateBalance();
+      _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
       printV(e.toString());

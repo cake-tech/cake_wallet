@@ -226,9 +226,8 @@ abstract class Bitcoin {
   int formatterStringDoubleToBitcoinAmount(String amount);
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
-  WalletService createBitcoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
-  WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createBitcoinWalletService(Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+  WalletService createLitecoinWalletService(bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -288,7 +287,7 @@ abstract class Bitcoin {
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
-  Future<String> getPayjoinEndpoint(Object wallet);
+  String getPayjoinEndpoint(Object wallet);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
@@ -474,7 +473,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createMoneroWalletService();
   Map<String, String> pendingTransactionInfo(Object transaction);
   Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
@@ -669,7 +668,7 @@ abstract class Wownero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createWowneroWalletService();
   Map<String, String> pendingTransactionInfo(Object transaction);
   String getLegacySeed(Object wallet, String langName);
   Map<String, List<int>> debugCallLength();
@@ -736,8 +735,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
-  WalletService createBitcoinCashWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createBitcoinCashWalletService(bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
@@ -1298,7 +1296,7 @@ abstract class Decred {
       {required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createDecredWalletService(bool isDirect);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDecredTransactionPriorityMedium();
@@ -1354,7 +1352,7 @@ import 'package:cw_dogecoin/cw_dogecoin.dart';
   const dogecoinContent = """
 abstract class DogeCoin {
 
-  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createDogeCoinWalletService(bool isDirect);
 
   WalletCredentials createDogeCoinNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});

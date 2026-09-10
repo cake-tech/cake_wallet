@@ -1,5 +1,4 @@
 import "package:cw_core/balance.dart";
-import "package:cw_core/coin_control/coin_notes_store.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import "package:cw_core/transaction_history.dart";
@@ -17,16 +16,10 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
 
   FrozenCoinsStore get frozenCoinsStore => FrozenCoinsStore.instance;
 
-  CoinNotesStore get coinNotesStore => CoinNotesStore.instance;
-
   Future<Set<String>> frozenIds() => frozenCoinsStore.frozenIds(id);
 
   Future<void> setFrozen(String coinId, bool frozen) =>
       frozenCoinsStore.setFrozen(id, coinId, frozen);
-
-  Future<Map<String, String>> notes() => coinNotesStore.forWallet(id);
-
-  Future<void> saveNote(String coinId, String note) => coinNotesStore.save(id, coinId, note);
 
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) => true;
 
