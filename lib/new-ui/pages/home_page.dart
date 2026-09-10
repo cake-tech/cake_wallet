@@ -1,3 +1,5 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -13,6 +15,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/wallet_info.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
@@ -48,6 +51,24 @@ class _NewHomePageState extends State<NewHomePage> {
         _lightningMode = false;
       });
     });
+
+    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
+      if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
+        if (!context.mounted) {
+          return;
+        }
+        widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed = true;
+        showMaterialModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context) => ZcashMigrationModal(
+            hasContinue: true,
+            balance: widget.dashboardViewModel.wallet.balance.values.first.unavailable
+                .toStringWithSymbol(),
+          ),
+        );
+      }
+    });
   }
 
   void _setAccountViewModel() {
@@ -80,7 +101,11 @@ class _NewHomePageState extends State<NewHomePage> {
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
-                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                    onRefresh: () {
+                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+                      return widget.dashboardViewModel.refreshDashboard();
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(

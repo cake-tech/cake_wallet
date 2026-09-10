@@ -94,6 +94,16 @@ class NoAssociatedTokenAccountException extends CakeException {
       : super("There is no associated token account for this address.");
 }
 
+class NotAnNFTException extends CakeException {
+  NotAnNFTException() : super("Not an NFT.");
+}
+
+class AmbiguousTokenSymbolException extends CakeException {
+  AmbiguousTokenSymbolException(this.symbol) : super("Ambigous token: $symbol");
+
+  final String symbol;
+}
+
 class RestoreFromSeedException extends CakeException {
   RestoreFromSeedException(String message) : super(message);
 }
@@ -104,4 +114,13 @@ class WalletDeprecationException extends CakeException {
 
   WalletDeprecationException({required this.seed, required this.curr})
       : super("Wallet type no longer supported");
+}
+
+class WalletSwitchException implements Exception {
+  WalletSwitchException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
 }

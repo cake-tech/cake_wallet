@@ -1,0 +1,9 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts
+COPY scripts/build_bitbox_flutter.sh /w/scripts/build_bitbox_flutter.sh
+RUN cd /w/scripts && /w/scripts/build_bitbox_flutter.sh
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

@@ -144,6 +144,7 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
             ModalTopBar(
               title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.current.seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Expanded(

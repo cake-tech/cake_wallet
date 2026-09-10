@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -90,14 +91,18 @@ class _NewDashboardState extends State<NewDashboard> {
                   ),
                 ),
               ),
-              SafeArea(
-                bottom: !(Platform.isIOS),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                  child: AbsorbPointer(
-                    absorbing: true,
-                    child: Container(color: Colors.transparent),
+              // Invisible pointer-absorbing strip behind the nav bar: it must not
+              // be reachable by screen-reader traversal either.
+              ExcludeSemantics(
+                child: SafeArea(
+                  bottom: !(Platform.isIOS),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Container(color: Colors.transparent),
+                    ),
                   ),
                 ),
               ),
@@ -108,6 +113,9 @@ class _NewDashboardState extends State<NewDashboard> {
                   setState(() {
                     _selectedPage = index;
                   });
+                  if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                    page.onPageOpen();
+                  }
                 },
               )
             ],

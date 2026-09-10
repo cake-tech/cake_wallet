@@ -71,6 +71,7 @@ class Routes {
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
   static const addressPage = '/address_page';
+  static const newReceivePage = '/new_receive_page';
   static const fullscreenQR = '/fullscreen_qr';
   static const cakePayWelcomePage = '/cake_pay_welcome_page';
   static const cakePayLoginPage = '/cake_pay_login_page';
@@ -114,6 +115,7 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
+  static const nftSendPage = "/nft_send_page";
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
   static const receiveAddresses = "/receive_addresses";
@@ -132,6 +134,7 @@ class Routes {
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const syncKeyImagesDevices = '/device/sync_key_images';
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';

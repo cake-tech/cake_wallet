@@ -203,7 +203,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.decred:
       case WalletType.zcash:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
       case WalletType.ethereum:
@@ -214,15 +214,15 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
       case WalletType.solana:
-        final asset = assetOfTransaction;
+        final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -230,7 +230,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -242,7 +242,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: transaction.amount.toDouble(),
+          cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

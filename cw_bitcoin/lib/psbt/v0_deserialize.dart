@@ -20,6 +20,7 @@ extension PsbtSigner on PsbtV2 {
     setGlobalInputCount(tx.inputs.length);
     setGlobalOutputCount(tx.outputs.length);
     setGlobalTxVersion(Uint8List.fromList(tx.version).readUint32LE(0));
+    setGlobalFallbackLocktime(Uint8List.fromList(tx.locktime).readUint32LE(0));
 
     for (var i = 0; i < getGlobalInputCount(); i++) {
       inputMaps.insert(i, <String, Uint8List>{});

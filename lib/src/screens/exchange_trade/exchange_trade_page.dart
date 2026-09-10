@@ -328,6 +328,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     amount: S.of(bottomSheetContext).send_amount,
                     amountValue: sendVM.amountParsingProxy
                         .getDisplayCryptoAmount(amountValue, sendVM.selectedCryptoCurrency),
+                    explanation: sendVM.pendingTransactionAdditionalCostNotice,
                     fiatAmountValue: fiatAmountValue,
                     fee: isEVMCompatibleChain(sendVM.walletType)
                         ? S.of(bottomSheetContext).send_estimated_fee

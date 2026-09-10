@@ -84,6 +84,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     ModalTopBar(
                       title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                       leadingIcon: Icon(Icons.close),
+                      leadingSemanticLabel: S.of(context).close,
                       // trailingIcon: editEnabled ? Icon(Icons.delete_forever) : null,
                       onLeadingPressed: () => Navigator.of(context).maybePop(),
                       // onTrailingPressed: () {},
@@ -237,8 +238,14 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           height: 48,
                                                           decoration: BoxDecoration(
                                                             borderRadius: BorderRadius.circular(18),
-                                                            color: Theme.of(context)
-                                                                .colorScheme
+                                                            color: Theme.of(context).brightness ==
+                                                                    Brightness.light
+                                                                ? Theme.of(context)
+                                                                    .colorScheme
+                                                                    .onSurfaceVariant
+                                                                    .withAlpha(64)
+                                                                : Theme.of(context)
+                                                                    .colorScheme
                                                                 .surfaceContainerHigh,
                                                             border: Border.all(
                                                               color: isSelected

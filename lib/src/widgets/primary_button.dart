@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -92,35 +93,53 @@ class LoadingPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52.0,
-        child: TextButton(
-          onPressed: (isLoading || isDisabled)
-              ? null
-              : () {
-                  FocusScope.of(context).unfocus();
-                  onPressed.call();
-                },
-          style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-              )),
-          child: isLoading
-              ? CupertinoActivityIndicator(animating: true, color: textColor)
-              : Text(
-                  text,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                        color: isDisabled ? textColor.withOpacity(0.5) : textColor,
-                      ),
-                ),
+    final isEnabled = !isLoading && !isDisabled;
+
+    // The spinner replaces the label while loading, so the name is kept on a single
+    // semantics node that also reports the loading and disabled states.
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      label: text,
+      value: isLoading ? S.of(context).loading : null,
+      onTap: isEnabled
+          ? () {
+              FocusScope.of(context).unfocus();
+              onPressed.call();
+            }
+          : null,
+      excludeSemantics: true,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+        child: SizedBox(
+          width: double.infinity,
+          height: 52.0,
+          child: TextButton(
+            onPressed: (isLoading || isDisabled)
+                ? null
+                : () {
+                    FocusScope.of(context).unfocus();
+                    onPressed.call();
+                  },
+            style: ButtonStyle(
+                backgroundColor:
+                    WidgetStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                  ),
+                )),
+            child: isLoading
+                ? CupertinoActivityIndicator(animating: true, color: textColor)
+                : Text(
+                    text,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w600,
+                          color: isDisabled ? textColor.withOpacity(0.5) : textColor,
+                        ),
+                  ),
+          ),
         ),
       ),
     );

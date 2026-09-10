@@ -146,7 +146,9 @@ void startAuthenticationStateChange(
           ),
         );
       } else {
-        await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+        unawaited(
+          navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+        );
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final linkViewModel = getIt.get<LinkViewModel>();

@@ -372,6 +372,8 @@ abstract class MoneroWalletBase
     };
   }
 
+  bool hasUnknownKeyImages() => currentWallet!.hasUnknownKeyImages();
+
   bool needExportOutputs(Money amount) {
     if (int.tryParse(currentWallet!.secretSpendKey()) != 0) {
       return false;

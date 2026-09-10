@@ -408,6 +408,14 @@ abstract class HomeSettingsViewModelBase with Store {
     return null;
   }
 
+  Future<bool?> checkIfTokenIsVerifiedOnJupiter(String mintAddress) async {
+    if (_balanceViewModel.wallet.type != WalletType.solana) {
+      return null;
+    }
+
+    return solana!.isTokenVerifiedOnJupiter(_balanceViewModel.wallet, mintAddress);
+  }
+
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(CryptoCurrency token) async {

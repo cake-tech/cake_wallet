@@ -1,8 +1,10 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:flutter/cupertino.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -21,6 +23,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
     return Observer(builder: (_) {
       final show = dashboardViewModel.balanceViewModel
           .hasAdditionalBalance(dashboardViewModel.wallet.currency);
+      final isIronwoodMigration = dashboardViewModel.isMigratingToIronwood;
 
       return AnimatedSize(
         duration: const Duration(milliseconds: 300),
@@ -44,13 +47,17 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
+                            final modal = isIronwoodMigration
+                                ? ZcashMigrationModal(
+                                    hasContinue: false, balance: "${balance} ${currency.symbol}")
+                                : UnconfirmedBalanceModal(
+                                    balance: balance.toStringWithSymbol(),
+                              currencyIconPath: currency.iconPath ?? "",
+                            );
                             showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
-                                builder: (context) => UnconfirmedBalanceModal(
-                                      balance: balance.toStringWithSymbol(),
-                                      currencyIconPath: currency.iconPath ?? "",
-                                    ));
+                                builder: (context) => modal);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -63,8 +70,12 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                     SizedBox(
                                       height: 20,
                                       width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                                      child: isIronwoodMigration
+                                          ? CupertinoActivityIndicator(
+                                              color: Theme.of(context).colorScheme.primary,
+                                            )
+                                          : CircularProgressIndicator(
+                                              strokeWidth: 2,
                                         backgroundColor:
                                             Theme.of(context).colorScheme.primary.withAlpha(50),
                                         color: Theme.of(context).colorScheme.primary,
@@ -80,7 +91,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                             color: Theme.of(context).colorScheme.primary,
                                           ),
                                         ),
-                                        Text(S.of(context).confirming),
+                                        Text(isIronwoodMigration ? S.of(context).migrating_to_ironwood : S.of(context).confirming),
                                       ],
                                     )
                                   ],
@@ -125,6 +136,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
             ModalTopBar(
                 title: S.of(context).balance_confirmation,
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -171,3 +183,4 @@ class UnconfirmedBalanceModal extends StatelessWidget {
     );
   }
 }
+

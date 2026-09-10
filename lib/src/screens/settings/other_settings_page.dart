@@ -42,6 +42,7 @@ class OtherSettingsPage extends BasePage {
       topBar: ModalTopBar(
         title: S.of(context).other,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
+        leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
       // header: ModalHeader(
@@ -142,6 +143,7 @@ class OtherSettingsPage extends BasePage {
                 },
               }),
             ),
+          if(_otherSettingsViewModel.hasSignVerify)
           ListItemRegularRow(
               keyValue: "security_backup_page_sign_and_verify",
               label: S.of(context).sign_verify_title,
@@ -151,10 +153,12 @@ class OtherSettingsPage extends BasePage {
         ],
         if (_otherSettingsViewModel.walletType == WalletType.bitcoin)
           "btc_logging": [
+            if(_otherSettingsViewModel.hasLightning)
             ListItemRegularRow(
                 keyValue: "export_lightning_logs",
                 label: S.of(context).export_lightning_logs,
                 onTap: () => onExportLNLog(context)),
+            if(_otherSettingsViewModel.hasPayjoin)
             ListItemRegularRow(
                 keyValue: "export_payjoin_logs",
                 label: S.of(context).export_payjoin_logs,

@@ -199,6 +199,7 @@
             <string>solana-wallet</string>
             <key>CFBundleURLSchemes</key>
             <array>
+                <string>solana</string>
                 <string>solana-wallet</string>
             </array>
         </dict>

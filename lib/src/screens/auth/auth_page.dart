@@ -141,6 +141,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
                         size: 36,
                         icon: Icon(Icons.close),
                         onPressed: Navigator.of(context).pop,
+                        semanticLabel: S.of(context).close,
                         iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : Container(),
                 backgroundColor: Theme.of(context).colorScheme.surface,

@@ -12,13 +12,10 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'wallet_keys_view_model.g.dart';
 
@@ -31,6 +28,7 @@ abstract class WalletKeysViewModelBase with Store {
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         _restoreHeightByTransactions = 0,
         items = ObservableList<StandartListItem>(),
+        silentPaymentItems = ObservableList<StandartListItem>(),
         _title = _getInitialTitle(_appStore.wallet!) {
     _populateKeysItems();
 
@@ -88,6 +86,7 @@ abstract class WalletKeysViewModelBase with Store {
   // this is incomplete, needs legacy seed toggle for XMR
   bool get shouldShowHeightBox => [WalletType.bitcoin, WalletType.zcash].contains(_wallet.type);
   final ObservableList<StandartListItem> items;
+  final ObservableList<StandartListItem> silentPaymentItems;
 
   @observable
   String _title;
@@ -117,7 +116,7 @@ abstract class WalletKeysViewModelBase with Store {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
 
       if (_wallet.type == WalletType.monero) {
-        return (_wallet as MoneroWalletBase).seedLegacy(langName);
+        return monero!.getLegacySeed(_wallet, langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
       }
@@ -151,6 +150,7 @@ abstract class WalletKeysViewModelBase with Store {
 
   void _populateKeysItems() {
     items.clear();
+    silentPaymentItems.clear();
 
     Map<String, String>? keys;
 
@@ -218,6 +218,11 @@ abstract class WalletKeysViewModelBase with Store {
         final electrumKeys = bitcoin!.getWalletKeys(_appStore.wallet!);
 
         items.addAll([
+          if ((electrumKeys['masterFingerprint'] ?? '').isNotEmpty)
+            StandartListItem(
+              title: "Master fingerprint",
+              value: electrumKeys['masterFingerprint']!,
+            ),
           if ((electrumKeys['wif'] ?? '').isNotEmpty)
             StandartListItem(title: "WIF", value: electrumKeys['wif']!),
           if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
@@ -234,7 +239,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
 
     if (keys != null) {
-      items.addAll([
+      final keysList = _wallet.type == WalletType.bitcoin ? silentPaymentItems : items;
+      keysList.addAll([
         if ((keys['primaryAddress'] ?? '').isNotEmpty)
           StandartListItem(
               key: ValueKey('${_walletName}_wallet_primary_address_item_key'),

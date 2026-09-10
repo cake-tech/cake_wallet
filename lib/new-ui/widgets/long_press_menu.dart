@@ -60,31 +60,38 @@ class _LongPressMenuState extends State<LongPressMenu> {
                   final color = item.color ?? Theme.of(context).colorScheme.onSurface;
                   return Material(
                     color: Colors.transparent,
-                    child: InkWell(
-                      onTap: item.onSelected,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          top: 12,
-                          bottom: 12,
-                        ),
-                        child: Container(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            spacing: 8,
-                            children: [
-                              CakeImageWidget(
-                                imageUrl: item.iconPath,
-                                height: 20,
-                                width: 20,
-                                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                    child: MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        child: InkWell(
+                          onTap: item.onSelected,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              top: 12,
+                              bottom: 12,
+                            ),
+                            child: Container(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                spacing: 8,
+                                children: [
+                                  ExcludeSemantics(
+                                    child: CakeImageWidget(
+                                      imageUrl: item.iconPath,
+                                      height: 20,
+                                      width: 20,
+                                      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                                    ),
+                                  ),
+                                  Text(item.label,
+                                      style: TextStyle(
+                                          color: color, fontSize: 14, fontWeight: FontWeight.w500)),
+                                ],
                               ),
-                              Text(item.label,
-                                  style: TextStyle(
-                                      color: color, fontSize: 14, fontWeight: FontWeight.w500)),
-                            ],
+                            ),
                           ),
                         ),
                       ),

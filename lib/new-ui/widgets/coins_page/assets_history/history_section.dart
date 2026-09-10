@@ -22,6 +22,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class HistorySection extends StatelessWidget {
   const HistorySection(
@@ -35,6 +36,15 @@ class HistorySection extends StatelessWidget {
   final bool short;
   final bool roundedTopSection;
   final bool detailsAsPage;
+
+  /// A history row is a single button node: every text inside it (direction,
+  /// date, amounts) merges into one label.
+  Widget _historyRow({required VoidCallback onTap, required Widget child}) => MergeSemantics(
+        child: Semantics(
+          button: true,
+          child: GestureDetector(onTap: onTap, child: child),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +100,7 @@ class HistorySection extends StatelessWidget {
                             else
                               asset = item.assetOfTransaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () {
                                 final page =
                                     getIt.get<TransactionDetailsModal>(param1: transaction);
@@ -98,8 +108,8 @@ class HistorySection extends StatelessWidget {
                                   Navigator.of(context).push(CupertinoPageRoute(
                                       builder: (context) => Material(child: page)));
                                 } else {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
+                                  showMaterialModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
                                       context: context,
                                       builder: (context) =>
                                           FractionallySizedBox(heightFactor: 0.9, child: page));
@@ -125,7 +135,7 @@ class HistorySection extends StatelessWidget {
                             final tradeFrom = trade.from;
                             final tradeTo = trade.to;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
@@ -161,7 +171,7 @@ class HistorySection extends StatelessWidget {
                                     style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant)));
                           } else if (item is OrderListItem) {
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item.order),
                               child: HistoryOrderTile(
@@ -176,7 +186,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is PayjoinTransactionListItem) {
                             final session = item.session;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                 Routes.payjoinDetails,
                                 arguments: [item.sessionId, item.transaction],
@@ -196,7 +206,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is AnonpayTransactionListItem) {
                             final transactionInfo = item.transaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                                 onTap: () => Navigator.of(context).pushNamed(
                                     Routes.anonPayDetailsPage,
                                     arguments: transactionInfo),

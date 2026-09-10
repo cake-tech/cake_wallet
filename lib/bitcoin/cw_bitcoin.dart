@@ -318,6 +318,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool hasSelectedLightning(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.addressPageType is LightningAddressType;
+  }
+
+  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -552,9 +558,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getTrezorHardwareWalletService(
-      trezor.TrezorConnect connect, bool isBitcoin) {
-    if (isBitcoin) return BitcoinTrezorService(connect);
-    return LitecoinTrezorService(connect);
+      trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin) {
+    if (isBitcoin) return BitcoinTrezorService(client!);
+    return LitecoinTrezorService(connect!);
   }
 
   @override

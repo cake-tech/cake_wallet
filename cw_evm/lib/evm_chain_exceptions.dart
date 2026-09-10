@@ -1,5 +1,11 @@
 import 'package:cw_core/crypto_currency.dart';
 
+class EVMChainMnemonicIsIncorrectException implements Exception {
+  @override
+  String toString() =>
+      'EVM mnemonic has incorrect format. Mnemonic should contain 12 or 24 words separated by space.';
+}
+
 class EVMChainTransactionCreationException implements Exception {
   final String exceptionMessage;
 

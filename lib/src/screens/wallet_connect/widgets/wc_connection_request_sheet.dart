@@ -80,6 +80,7 @@ class WCConnectionRequestSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: ConfirmSwiper(
             swiperText: S.of(context).wc_swipe_to_approve,
+            accessibleNavigationModeButtonText: S.of(context).wc_action_approve,
             onConfirmed: () {
               if (Navigator.canPop(context)) {
                 Navigator.of(context).pop(WCBottomSheetResult.one);

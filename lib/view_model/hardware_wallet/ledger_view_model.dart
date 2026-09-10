@@ -63,8 +63,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
         }
       });
 
-      updateBleState();
-
       if (!Platform.isIOS) {
         ledgerPlusUSB = sdk.LedgerInterface.usb();
       }

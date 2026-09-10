@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -131,6 +132,10 @@ class CakePayApi {
       body: body,
     );
 
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
+
     if (response.statusCode == 201) {
       final data = json.decode(response.body) as Map<String, dynamic>;
       return CakePayOrder.fromMap(data);
@@ -170,6 +175,10 @@ class CakePayApi {
       headers: headers,
     );
 
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
+
     if (response.statusCode != 200) {
       throw CakePayResponseException('Unexpected http status: ${response.statusCode}');
     }
@@ -204,6 +213,10 @@ class CakePayApi {
     );
 
     printV('Response: ${response.statusCode}');
+
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
 
     if (response.statusCode != 200) {
       throw CakePayResponseException('Unexpected http status: ${response.statusCode}');

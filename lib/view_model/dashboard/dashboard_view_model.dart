@@ -376,6 +376,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
+  bool get isMigratingToIronwood =>
+      wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
+
+  @computed
   bool get isSyncHeavy {
     if ([
       WalletType.monero,
@@ -611,13 +615,14 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get shouldShowMwebAd {
+    return false;
     if (wallet.type != WalletType.litecoin) return false;
 
     if (mwebEnabled) return false;
 
     if (settingsStore.mwebAdDismissed) return false;
 
-    return Platform.isAndroid || Platform.isIOS;
+    return (Platform.isAndroid || Platform.isIOS) && !wallet.isHardwareWallet;
   }
 
   @action

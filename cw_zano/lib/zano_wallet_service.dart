@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -15,8 +16,14 @@ import 'package:hive/hive.dart';
 import 'package:monero/zano.dart' as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
-  ZanoNewWalletCredentials({required String name, String? password, required String? passphrase})
-      : super(name: name, password: password, passphrase: passphrase);
+  ZanoNewWalletCredentials({
+    required String name,
+    String? password,
+    required String? passphrase,
+    this.mnemonic,
+  }) : super(name: name, password: password, passphrase: passphrase);
+
+  final String? mnemonic;
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -53,7 +60,9 @@ class ZanoWalletService extends WalletService<
     ZanoRestoreWalletFromSeedCredentials,
     ZanoRestoreWalletFromKeysCredentials,
     ZanoNewWalletCredentials> {
-  ZanoWalletService();
+  ZanoWalletService(this.isDirect);
+
+  final bool isDirect;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
@@ -66,7 +75,8 @@ class ZanoWalletService extends WalletService<
   @override
   Future<ZanoWallet> create(WalletCredentials credentials, {bool? isTestnet}) async {
     printV('zanowallet service create isTestnet $isTestnet');
-    return await ZanoWalletBase.create(credentials: credentials);
+    return await ZanoWalletBase.create(
+        credentials: credentials, encryptionFileUtils: encryptionFileUtilsFor(isDirect));
   }
 
   @override
@@ -83,12 +93,21 @@ class ZanoWalletService extends WalletService<
     }
     try {
       final wallet =
-          await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
+          await ZanoWalletBase.open(
+              name: name,
+              password: password,
+              walletInfo: walletInfo,
+              encryptionFileUtils: encryptionFileUtilsFor(isDirect));
       saveBackup(name);
       return wallet;
     } catch (e) {
+      printV('openWallet $name failed: $e');
       await restoreWalletFilesFromBackup(name);
-      return await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
+      return await ZanoWalletBase.open(
+          name: name,
+          password: password,
+          walletInfo: walletInfo,
+          encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     }
   }
 
@@ -116,15 +135,24 @@ class ZanoWalletService extends WalletService<
       throw WalletNotFoundException();
     }
     final currentWallet =
-        ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password);
+        ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
+            encryptionFileUtilsFor(isDirect));
+
+    final oldPath = await pathForWallet(name: currentName, type: getType());
+    final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
+    if (cached != null) {
+      currentWallet.hWallet = cached.walletId;
+      await currentWallet.closeWallet(cached.walletId, force: true);
+    }
 
     await currentWallet.renameWalletFiles(newName);
 
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
+    final newDirPath = await pathForWalletDir(name: newName, type: getType());
+    currentWalletInfo.id = WalletBase.idFor(newName, getType());
+    currentWalletInfo.name = newName;
+    currentWalletInfo.dirPath = newDirPath;
+    currentWalletInfo.path = '$newDirPath/$newName';
+    await currentWalletInfo.save();
   }
 
   @override
@@ -136,7 +164,8 @@ class ZanoWalletService extends WalletService<
   @override
   Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    return ZanoWalletBase.restore(credentials: credentials);
+    return ZanoWalletBase.restore(
+        credentials: credentials, encryptionFileUtils: encryptionFileUtilsFor(isDirect));
   }
 
   @override

@@ -1,17 +1,20 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart';
-import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
-import 'package:cake_wallet/reactions/wallet_utils.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 
 class SingleNetworkCurrencyPicker extends StatefulWidget {
-  const SingleNetworkCurrencyPicker({super.key, required this.args});
+  const SingleNetworkCurrencyPicker({
+    required this.args,
+    super.key,
+  });
 
   final CurrencyPickerArgs args;
 
@@ -41,23 +44,35 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     Navigator.of(context).maybePop();
   }
 
-  double _fiatValueFor(CryptoCurrency c) => _args.balanceByAsset?[c]?.fiatValue ?? 0;
+  CurrencyPickerBalance? _balanceFor(CryptoCurrency c) => balanceForAsset(_args.balanceByAsset, c);
+
+  double _fiatValueFor(CryptoCurrency c) => _balanceFor(c)?.fiatValue ?? 0;
 
   @override
   Widget build(BuildContext context) {
     final native = walletTypeToCryptoCurrency(_network);
     final query = _searchController.text.trim();
-    final tokens =
-        _args.items.where((c) => c != native).where((c) => currencyMatchesQuery(c, query)).toList();
+    final tokens = _args.items
+        .where(
+          (c) =>
+              c != native &&
+              cryptoCurrencyOrTokenToWalletType(c) == _network &&
+              currencyMatchesQuery(c, query),
+        )
+        .toList();
 
     final insertOrder = {for (var i = 0; i < tokens.length; i++) tokens[i]: i};
     tokens.sort((a, b) {
       final av = _fiatValueFor(a);
       final bv = _fiatValueFor(b);
-      if (bv != av) return bv.compareTo(av);
+      if (bv != av) {
+        return bv.compareTo(av);
+      }
       return (insertOrder[a] ?? 0).compareTo(insertOrder[b] ?? 0);
     });
     final nativeMatches = currencyMatchesQuery(native, query);
+
+    final showSectionHeaders = _network != WalletType.bitcoin;
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -66,40 +81,61 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
           child: (nativeMatches || tokens.isNotEmpty)
               ? ListView(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  children: [
-                    if (nativeMatches) ...[
-                      PickerSectionHeader(title: S.of(context).picker_section_gas_token),
-                      CurrencyPickerListContainer(
-                        rows: [
-                          CurrencyPickerRow(
-                            currency: native,
-                            isSelected: _args.selected == native,
-                            trailing: _BalanceTrailing(balance: _args.balanceByAsset?[native]),
-                            onTap: () => _selectCurrency(native),
+                  children: showSectionHeaders
+                      ? [
+                          if (nativeMatches) ...[
+                            PickerSectionHeader(title: S.of(context).picker_section_gas_token),
+                            CurrencyPickerListContainer(
+                              rows: [
+                                CurrencyPickerRow(
+                                  currency: native,
+                                  isSelected: _args.selected == native,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(native)),
+                                  onTap: () => _selectCurrency(native),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          if (tokens.isNotEmpty) ...[
+                            PickerSectionHeader(
+                              title: S
+                                  .of(context)
+                                  .picker_section_tokens_standard(tokenStandardFor(_network)),
+                            ),
+                            CurrencyPickerListContainer(
+                              rows: [
+                                for (final t in tokens)
+                                  CurrencyPickerRow(
+                                    currency: t,
+                                    isSelected: _args.selected == t,
+                                    trailing: _BalanceTrailing(balance: _balanceFor(t)),
+                                    onTap: () => _selectCurrency(t),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ]
+                      : [
+                          CurrencyPickerListContainer(
+                            rows: [
+                              if (nativeMatches)
+                                CurrencyPickerRow(
+                                  currency: native,
+                                  isSelected: _args.selected == native,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(native)),
+                                  onTap: () => _selectCurrency(native),
+                                ),
+                              for (final t in tokens)
+                                CurrencyPickerRow(
+                                  currency: t,
+                                  isSelected: _args.selected == t,
+                                  trailing: _BalanceTrailing(balance: _balanceFor(t)),
+                                  onTap: () => _selectCurrency(t),
+                                ),
+                            ],
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (tokens.isNotEmpty) ...[
-                      PickerSectionHeader(
-                        title: S
-                            .of(context)
-                            .picker_section_tokens_standard(tokenStandardFor(_network)),
-                      ),
-                      CurrencyPickerListContainer(
-                        rows: [
-                          for (final t in tokens)
-                            CurrencyPickerRow(
-                              currency: t,
-                              isSelected: _args.selected == t,
-                              trailing: _BalanceTrailing(balance: _args.balanceByAsset?[t]),
-                              onTap: () => _selectCurrency(t),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
                 )
               : Center(
                   child: Padding(
@@ -131,7 +167,7 @@ class _BalanceTrailing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final amount = balance?.amount ?? '—';
+    final amount = balance?.amount ?? "—";
     final fiat = balance?.fiat;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,

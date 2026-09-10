@@ -90,6 +90,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
               ? "${S.of(context).send_from}..."
               : "${S.of(context).receive_to}...",
           leadingIcon: const Icon(Icons.arrow_back_ios_new),
+          leadingSemanticLabel: S.of(context).seed_alert_back,
           onLeadingPressed: Navigator.of(context).pop,
         ),
         Flexible(

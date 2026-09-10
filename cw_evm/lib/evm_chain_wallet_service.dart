@@ -1,8 +1,10 @@
-import 'dart:io';
+import "dart:io";
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/erc20_token.dart";
+import "package:cw_core/imported_nft.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -12,6 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart' as p;
 import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_client_factory.dart';
+import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
@@ -35,6 +38,9 @@ class EVMChainWalletService extends WalletService<
     return _registry.getRegisteredWalletTypes();
   }
 
+  List<String> get _importedNFTChains =>
+      _registry.getAllChains().map((chain) => chain.shortCode).toList();
+
   Future<WalletInfo?> _findWalletByName(String name) async {
     for (final type in _evmWalletTypes) {
       final walletInfo = await WalletInfo.get(name, type);
@@ -49,8 +55,8 @@ class EVMChainWalletService extends WalletService<
   @override
   WalletType getType() {
     throw UnsupportedError(
-      'EVMChainWalletService is unified and does not have a single type. '
-      'Use walletInfo.type instead.',
+      "EVMChainWalletService is unified and does not have a single type. "
+      "Use walletInfo.type instead.",
     );
   }
 
@@ -125,7 +131,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -146,7 +152,7 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       await saveBackup(name);
       return wallet;
@@ -161,7 +167,7 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      wallet.addInitialTokens();
+      await wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }
@@ -185,6 +191,23 @@ class EVMChainWalletService extends WalletService<
     currentWalletInfo.name = newName;
     await currentWalletInfo.save();
 
+    final oldNameStillUsed = (await _findWalletByName(currentName)) != null;
+    if (oldNameStillUsed) {
+      for (final token in await Erc20Token.selectList("walletName = ?", [currentName])) {
+        final copiedToken = Erc20Token.copyWith(token, walletName: newName);
+        await copiedToken.save();
+      }
+
+      final ownNFTs = (await ImportedNFT.getAllForWallet(currentName))
+          .where((nft) => _importedNFTChains.contains(nft.chain));
+      for (final nft in ownNFTs) {
+        await ImportedNFT.copyWith(nft, walletName: newName).save();
+      }
+    } else {
+      await Erc20Token.renameWallet(currentName, newName);
+      await ImportedNFT.renameWallet(currentName, newName, chains: _importedNFTChains);
+    }
+
     final oldDir = Directory(p.join(await pathForWalletTypeDir(type: type), currentName));
     if (oldDir.existsSync()) {
       try {
@@ -200,6 +223,10 @@ class EVMChainWalletService extends WalletService<
     EVMChainRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
+    if (!bip39.validateMnemonic(credentials.mnemonic)) {
+      throw EVMChainMnemonicIsIncorrectException();
+    }
+
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
@@ -231,7 +258,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -271,7 +298,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -309,7 +336,7 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    wallet.addInitialTokens();
+    await wallet.addInitialTokens();
     await wallet.save();
     return wallet;
   }
@@ -333,6 +360,11 @@ class EVMChainWalletService extends WalletService<
 
     File(await pathForWalletDir(name: wallet, type: walletInfo.type)).delete(recursive: true);
     await WalletInfo.delete(walletInfo);
+    final nameStillUsed = (await _findWalletByName(wallet)) != null;
+    if (!nameStillUsed) {
+      await Erc20Token.deleteAllForWallet(wallet);
+      await ImportedNFT.deleteAllForWallet(wallet, chains: _importedNFTChains);
+    }
   }
 
   EVMChainWallet _createWalletInstance({

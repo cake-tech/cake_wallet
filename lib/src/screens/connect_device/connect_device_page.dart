@@ -120,6 +120,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       }
 
       if (widget.hardwareWalletVM.hasBluetooth) {
+        widget.hardwareWalletVM.updateBleState();
+
         _longWaitTimer = Timer(const Duration(seconds: 10), () {
           if (widget.hardwareWalletVM.isBleEnabled && bleDevices.isEmpty) {
             setState(() => longWait = true);

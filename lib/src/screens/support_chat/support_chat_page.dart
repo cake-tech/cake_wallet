@@ -22,6 +22,7 @@ class SupportChatPage extends StatelessWidget {
                 ModalTopBar(
                     title: S.current.settings_support,
                     leadingIcon: Icon(Icons.arrow_back_ios_new),
+                    leadingSemanticLabel: S.current.seed_alert_back,
                     onLeadingPressed: Navigator.of(context).pop),
                 FutureBuilder<String>(
                   future: getCookie(),

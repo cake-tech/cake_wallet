@@ -11,6 +11,20 @@ import 'package:url_launcher/url_launcher.dart';
 class ScanPageNetworkList extends StatelessWidget {
   const ScanPageNetworkList({super.key});
 
+  /// Same icon the row would render from `trailingIconPath`, but it now carries the
+  /// information that following the row leaves the app.
+  Widget _externalLinkIcon(BuildContext context) => Semantics(
+        label: S.of(context).opens_in_browser,
+        excludeSemantics: true,
+        child: CakeImageWidget(
+          imageUrl: "assets/new-ui/external_link.svg",
+          height: 18,
+          width: 18,
+          colorFilter:
+              ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,6 +36,7 @@ class ScanPageNetworkList extends StatelessWidget {
           ModalTopBar(
             title: S.of(context).compatible_services,
             leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingSemanticLabel: S.of(context).seed_alert_back,
             onLeadingPressed: Navigator.of(context).pop,
           ),
           Padding(
@@ -80,7 +95,7 @@ class ScanPageNetworkList extends StatelessWidget {
                         keyValue: "wc",
                         label: "WalletConnect",
                         subtitle: S.of(context).wc_desc,
-                        trailingIconPath: "assets/new-ui/external_link.svg",
+                        trailingWidget: _externalLinkIcon(context),
                         onTap: () {
                           launchUrl(Uri.https("walletconnect.com"));
                         }),
@@ -89,7 +104,7 @@ class ScanPageNetworkList extends StatelessWidget {
                         keyValue: "ocp",
                         label: "OpenCryptoPay",
                         subtitle: S.of(context).ocp_desc,
-                        trailingIconPath: "assets/new-ui/external_link.svg",
+                        trailingWidget: _externalLinkIcon(context),
                         onTap: () {
                           launchUrl(Uri.https("opencryptopay.io"));
                         })
