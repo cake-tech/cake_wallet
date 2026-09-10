@@ -175,6 +175,243 @@ class WalletInfoAddressMap {
   }
 }
 
+/// A single closed height range, inclusive on both ends.
+class CoverageRange {
+  const CoverageRange(this.startHeight, this.endHeight);
+
+  final int startHeight;
+  final int endHeight;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CoverageRange &&
+      other.startHeight == startHeight &&
+      other.endHeight == endHeight;
+
+  @override
+  int get hashCode => Object.hash(startHeight, endHeight);
+
+  @override
+  String toString() => '[$startHeight, $endHeight]';
+}
+
+/// Sorts and merges overlapping/adjacent ranges. Pure, DB-free — the same
+/// mode-only merge rule `WalletInfoScanCoverage.markCovered` uses when
+/// persisting (ADR-0013: never merge across `historical` modes, only
+/// within one — callers must pre-filter to a single mode before calling
+/// this).
+List<CoverageRange> mergeCoverageRanges(List<CoverageRange> ranges) {
+  if (ranges.isEmpty) return [];
+
+  final sorted = [...ranges]..sort((a, b) => a.startHeight.compareTo(b.startHeight));
+  final merged = <CoverageRange>[sorted.first];
+
+  for (final range in sorted.skip(1)) {
+    final last = merged.last;
+    if (range.startHeight <= last.endHeight + 1) {
+      if (range.endHeight > last.endHeight) {
+        merged[merged.length - 1] = CoverageRange(last.startHeight, range.endHeight);
+      }
+    } else {
+      merged.add(range);
+    }
+  }
+
+  return merged;
+}
+
+/// Whether `[startHeight, endHeight]` is fully covered by (already-merged
+/// or not — this merges internally) [ranges] of a single mode.
+bool isRangeFullyCovered(List<CoverageRange> ranges, int startHeight, int endHeight) {
+  if (startHeight > endHeight) return true;
+
+  return mergeCoverageRanges(ranges)
+      .any((r) => r.startHeight <= startHeight && r.endHeight >= endHeight);
+}
+
+/// The lowest height in `[fromHeight, upToHeight]` not covered by
+/// (already-merged or not) [ranges] of a single mode, or null if the
+/// entire span is covered.
+int? lowestUncoveredHeight(List<CoverageRange> ranges, int fromHeight, int upToHeight) {
+  if (fromHeight > upToHeight) return null;
+
+  var cursor = fromHeight;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.endHeight < cursor) continue;
+    if (range.startHeight > cursor) break;
+    cursor = range.endHeight + 1;
+    if (cursor > upToHeight) return null;
+  }
+
+  return cursor <= upToHeight ? cursor : null;
+}
+
+/// The gaps in `[fromHeight, upToHeight]` not covered by (already-merged
+/// or not) [ranges] of a single mode — the complement of the merged
+/// ranges within that span. Used to partition remaining scan work across
+/// N workers each run (ADR-0009: resume repartitions whatever's left,
+/// independent of worker count — this is that repartitioning's input).
+List<CoverageRange> uncoveredRanges(List<CoverageRange> ranges, int fromHeight, int upToHeight) {
+  if (fromHeight > upToHeight) return [];
+
+  final gaps = <CoverageRange>[];
+  var cursor = fromHeight;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.endHeight < cursor) continue;
+    if (range.startHeight > upToHeight) break;
+    if (range.startHeight > cursor) {
+      gaps.add(CoverageRange(cursor, range.startHeight - 1));
+    }
+    cursor = range.endHeight + 1;
+    if (cursor > upToHeight) return gaps;
+  }
+
+  if (cursor <= upToHeight) gaps.add(CoverageRange(cursor, upToHeight));
+  return gaps;
+}
+
+/// The largest N such that `[floorHeight, N]` is fully, contiguously
+/// covered by (already-merged or not) [ranges] of a single mode — or
+/// `floorHeight - 1` if `floorHeight` itself isn't covered yet (i.e.
+/// nothing usable from the floor). Used to recompute `WalletInfo.
+/// restoreHeight` from the coverage set once N>1 workers can complete
+/// out of order, so it still means "everything below this is scanned"
+/// even though no single worker's progress alone guarantees that anymore.
+int highestContiguouslyCoveredFrom(List<CoverageRange> ranges, int floorHeight) {
+  var highest = floorHeight - 1;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.startHeight > highest + 1) break;
+    if (range.endHeight > highest) highest = range.endHeight;
+  }
+  return highest;
+}
+
+/// Splits [gaps] (as returned by [uncoveredRanges], already disjoint and
+/// height-ordered) into at most [workerCount] chunks, one per worker for
+/// this scan round.
+///
+/// - More gaps than workers: only the first [workerCount] (lowest-height)
+///   gaps get a chunk this round — the rest are picked up on a later round,
+///   since the partition is recomputed fresh from live coverage every round
+///   rather than cached (that's what makes it safe to leave gaps
+///   unassigned here instead of trying to cover everything in one shot).
+/// - Fewer gaps than workers: the largest gap(s) are repeatedly split in
+///   half so every worker gets a chunk, weighted by how many heights are
+///   actually in each gap.
+///
+/// Returned chunks are not necessarily in height order beyond what's
+/// implied by splitting; callers that care about a global "lowest first"
+/// order should sort the result themselves.
+List<CoverageRange> partitionForWorkers(List<CoverageRange> gaps, int workerCount) {
+  if (gaps.isEmpty || workerCount <= 0) return [];
+  if (gaps.length >= workerCount) return gaps.take(workerCount).toList();
+
+  final remaining = List<CoverageRange>.from(gaps);
+  while (remaining.length < workerCount) {
+    remaining.sort((a, b) => (b.endHeight - b.startHeight).compareTo(a.endHeight - a.startHeight));
+    final biggest = remaining.first;
+    final span = biggest.endHeight - biggest.startHeight + 1;
+    if (span <= 1) break; // nothing left worth splitting further
+
+    remaining.removeAt(0);
+    final mid = biggest.startHeight + span ~/ 2;
+    remaining.add(CoverageRange(biggest.startHeight, mid - 1));
+    remaining.add(CoverageRange(mid, biggest.endHeight));
+  }
+
+  remaining.sort((a, b) => a.startHeight.compareTo(b.startHeight));
+  return remaining;
+}
+
+class WalletInfoScanCoverage {
+  WalletInfoScanCoverage({
+    this.id = 0,
+    required this.walletInfoId,
+    required this.startHeight,
+    required this.endHeight,
+    required this.historical,
+  });
+
+  int id;
+  int walletInfoId;
+  int startHeight;
+  int endHeight;
+  bool historical;
+
+  static String get tableName => 'WalletInfoScanCoverage';
+
+  static String get selfIdColumn => 'walletInfoScanCoverageId';
+
+  static Future<List<WalletInfoScanCoverage>> selectList(int walletInfoId, {bool? historical}) async {
+    final where =
+        historical == null ? 'walletInfoId = ?' : 'walletInfoId = ? AND historical = ?';
+    final whereArgs =
+        historical == null ? [walletInfoId] : [walletInfoId, historical ? 1 : 0];
+    final query = await db!.query(tableName, where: where, whereArgs: whereArgs);
+    return List.generate(query.length, (index) => WalletInfoScanCoverage.fromJson(query[index]));
+  }
+
+  static Future<void> deleteByWalletInfoId(int walletInfoId) async {
+    await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+  }
+
+  /// Merges `[startHeight, endHeight]` into the persisted coverage set for
+  /// [walletInfoId] under [historical] mode (ADR-0009/ADR-0011/ADR-0013):
+  /// reads the existing rows of that mode, merges the new range in with
+  /// them (pure [mergeCoverageRanges]), replaces the superseded rows with
+  /// the merged result. Never touches rows of the other mode.
+  static Future<void> markCovered({
+    required int walletInfoId,
+    required bool historical,
+    required int startHeight,
+    required int endHeight,
+  }) async {
+    final existing = await selectList(walletInfoId, historical: historical);
+    final merged = mergeCoverageRanges([
+      ...existing.map((e) => CoverageRange(e.startHeight, e.endHeight)),
+      CoverageRange(startHeight, endHeight),
+    ]);
+
+    if (existing.isNotEmpty) {
+      final ids = existing.map((e) => e.id).toList();
+      await db!.delete(
+        tableName,
+        where: 'walletInfoId = ? AND historical = ? AND $selfIdColumn IN (${List.filled(ids.length, '?').join(',')})',
+        whereArgs: [walletInfoId, historical ? 1 : 0, ...ids],
+      );
+    }
+
+    for (final range in merged) {
+      await db!.insert(tableName, {
+        "walletInfoId": walletInfoId,
+        "startHeight": range.startHeight,
+        "endHeight": range.endHeight,
+        "historical": historical ? 1 : 0,
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      selfIdColumn: id,
+      "walletInfoId": walletInfoId,
+      "startHeight": startHeight,
+      "endHeight": endHeight,
+      "historical": historical ? 1 : 0,
+    };
+  }
+
+  factory WalletInfoScanCoverage.fromJson(Map<String, dynamic> json) {
+    return WalletInfoScanCoverage(
+      id: json[selfIdColumn] as int,
+      walletInfoId: json['walletInfoId'] as int,
+      startHeight: json['startHeight'] as int,
+      endHeight: json['endHeight'] as int,
+      historical: (json['historical'] as int) == 1,
+    );
+  }
+}
+
 class WalletInfoAddress {
   WalletInfoAddress({
     this.id = 0,
@@ -505,6 +742,18 @@ class WalletInfo {
 
   String? addressPageType;
   String? network;
+
+  /// Frozen chain tip a historical Silent Payments backfill job targets
+  /// (ADR-0013's "current job" concept). Null when no backfill is
+  /// currently in progress — either it hasn't started yet, or the coverage
+  /// set (`WalletInfoScanCoverage`) fully covers
+  /// `[<backfill start>, backfillTargetHeight]` under `historical` mode
+  /// and the wallet has moved on to plain non-historical tip-follow
+  /// scanning. Set once when a backfill job starts and left untouched for
+  /// its duration — NOT re-read as "current tip" on every restart, or
+  /// backfill would perpetually chase a moving target and never complete.
+  int? backfillTargetHeight;
+
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -588,6 +837,7 @@ class WalletInfo {
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
         "network": network,
+        "backfillTargetHeight": backfillTargetHeight,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -618,6 +868,7 @@ class WalletInfo {
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null);
     info.network = json['network'] as String?;
+    info.backfillTargetHeight = json['backfillTargetHeight'] as int?;
     return info;
   }
 

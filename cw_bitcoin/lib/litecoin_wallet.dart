@@ -530,6 +530,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     ScanData? scanData,
     bool? doSingleScan,
     bool? usingElectrs,
+    // Not used here - mweb scanning isn't SP-worker-based - but required for
+    // override compatibility with ElectrumWalletBase.rescan.
+    int? workerCountOverride,
+    bool? historicalModeOverride,
+    bool ignoreExistingCoverage = true,
   }) async {
     _syncTimer?.cancel();
     await walletInfo.updateRestoreHeight(height);

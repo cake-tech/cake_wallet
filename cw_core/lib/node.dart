@@ -250,6 +250,14 @@ class Node {
   String? path;
   bool? isElectrs;
   bool? supportsSilentPayments;
+  // Highest `blockchain.tweaks.subscribe` wire-protocol version this node
+  // advertised (via `max_protocol_version` on the RPC result — see
+  // getNodeSupportsSilentPayments). Null = not probed yet or the node
+  // predates version advertisement (treat as 1, JSON-only).
+  //
+  // Session-only, like supportsSilentPayments/isElectrs/supportsMweb below,
+  // re-derived each probe, not persisted in toMap()/fromMap().
+  int? spMaxProtocolVersion;
   bool? supportsMweb;
   bool isEnabledForAutoSwitching;
   bool isOfficial;

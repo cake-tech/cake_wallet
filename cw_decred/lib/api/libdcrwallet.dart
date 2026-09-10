@@ -182,7 +182,7 @@ class Libwallet {
             final cName = name.toCString();
             final cSignReq = signReq.toCString();
             res = executePayloadFn(
-              fn: () => dcrwalletApi.createTransaction(cName, cSignReq),
+              fn: () => dcrwalletApi.createSignedTransaction(cName, cSignReq),
               ptrsToFree: [cName, cSignReq],
             );
             break;

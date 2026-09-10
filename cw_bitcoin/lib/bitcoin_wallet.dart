@@ -423,7 +423,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
 
   @override
-  bool get hasLightningSupport => lightningWallet?.sdk != null;
+  bool get hasLightningSupport => lightningWallet?.isInitialized ?? false;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
