@@ -30,7 +30,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
     bloc:bloc,
   builder: (context, state) => Observer(builder: (_) {
         final currency = bloc.appStore.wallet!.currency;
-        final show = hasAdditionalBalance;
+        final show = hasAdditionalBalance && state is TransactionHistoryLoaded && state.hasConfirmationProgress;
         final isIronwoodMigration = bloc.appStore.wallet!.type == WalletType.zcash &&
             zcash!.hasOrchardMigratableBalance(bloc.appStore.wallet!);
 
@@ -89,9 +89,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                         backgroundColor:
                                             Theme.of(context).colorScheme.primary.withAlpha(50),
                                         color: Theme.of(context).colorScheme.primary,
-                                                  value: state is TransactionHistoryLoaded
-                                                      ? state.confirmationProgress
-                                                      : 0,
+                                                  value: state.confirmationProgress,
                                                 ),
                                     ),
                                     Row(

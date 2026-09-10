@@ -70,4 +70,7 @@ final class TransactionHistoryLoaded extends TransactionHistoryState {
     }
     return received / needed;
   }
+
+  bool get hasConfirmationProgress =>
+      (items.whereType<TransactionInfo>().firstOrNull?.neededConfirmations ?? 0) > 1;
 }
