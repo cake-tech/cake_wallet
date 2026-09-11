@@ -195,7 +195,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
   CakeTor.instance = await CakeTorInstance.getInstance();
 
-  final node = scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001");
+  final node = scanData.node?.uri ?? Uri.parse("tcp://electrs.rafaelxmr.com:50005");
 
   void log(String message, LogLevel level) {
     printV(
