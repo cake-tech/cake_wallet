@@ -17,7 +17,7 @@ bool isCakeWalletWidget(ConstructorName constructorName, String className) {
 
 NamedArgument? namedArgument(ArgumentList argumentList, String name) {
   for (final argument in argumentList.arguments) {
-    if (argument is NamedArgument && argument.name.lexeme == name) {
+    if (argument is NamedArgument && argument.groupName.lexeme == name) {
       return argument;
     }
   }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/widgets/account_tile.dart';
 
 class MoneroAccountListPage extends StatelessWidget {

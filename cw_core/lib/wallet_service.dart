@@ -6,12 +6,10 @@ import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/utils/file.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:path/path.dart" as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
@@ -25,39 +23,33 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<WalletBase> restoreFromKeys(RFK credentials, {bool? isTestnet});
 
-  Future<WalletBase> openWallet(String name, String password);
+  Future<WalletBase> openWallet(WalletInfo walletInfo, String password);
 
-  Future<bool> isWalletExit(String name);
+  Future<bool> isWalletExit(WalletInfo walletInfo) async => File(walletInfo.path).existsSync();
 
-  Future<void> remove(String wallet);
+  Future<void> remove(WalletInfo walletInfo) async {
+    final dir = Directory(walletInfo.dirPath);
 
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) {
+    if (dir.existsSync()) {
+      await dir.delete(recursive: true);
+    }
+
+    await WalletInfo.delete(walletInfo);
+  }
+
+  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
+    if (currentWalletInfo.name == newName) {
       return;
     }
 
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
+    if (!currentWalletInfo.isReady) {
       throw Exception("Wallet not found");
     }
 
-    await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());
-    await saveBackup(newName);
+    await _renameTokenRows(currentWalletInfo.name, newName);
 
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
     currentWalletInfo.name = newName;
     await currentWalletInfo.save();
-
-    await _renameTokenRows(currentName, newName);
-
-    final oldDir = Directory(p.join(await pathForWalletTypeDir(type: getType()), currentName));
-    if (oldDir.existsSync()) {
-      try {
-        await oldDir.delete(recursive: true);
-      } catch (e) {
-        printV('rename: failed to delete old wallet dir "$currentName": $e');
-      }
-    }
   }
 
   Future<void> _renameTokenRows(String currentName, String newName) async {
@@ -75,28 +67,28 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
   }
 
-  Future<void> restoreWalletFilesFromBackup(String name) async {
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: getType());
-    final walletDirPath = await pathForWalletDir(name: name, type: getType());
+  String _backupPathFor(WalletInfo walletInfo) => "${walletInfo.dirPath}/${walletInfo.id}.backup";
 
-    if (File(backupWalletDirPath).existsSync()) {
-      await File(backupWalletDirPath).copy(walletDirPath);
+  Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
+    final backupPath = _backupPathFor(walletInfo);
+
+    if (File(backupPath).existsSync()) {
+      await File(backupPath).copy(walletInfo.path);
     }
   }
 
-  Future<void> saveBackup(String name) async {
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: getType());
-    final walletDirPath = await pathForWalletDir(name: name, type: getType());
+  Future<void> saveBackup(WalletInfo walletInfo) async {
+    final backupPath = _backupPathFor(walletInfo);
 
-    if (File(walletDirPath).existsSync()) {
-      await File(walletDirPath).copy(backupWalletDirPath);
+    if (File(walletInfo.path).existsSync()) {
+      await File(walletInfo.path).copy(backupPath);
     }
   }
 
-  Future<String> getSeeds(String name, String password, WalletType type) async {
+
+  Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
-      final path = await pathForWallet(name: name, type: type);
-      final jsonSource = await read(path: path, password: password);
+      final jsonSource = await read(path: walletInfo.path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
         return data["mnemonic"] as String? ?? "";
@@ -112,5 +104,5 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   /// Check if the Wallet requires a hardware wallet to be connected during
   /// the opening flow. (Currently only the case for Monero)
-  Future<bool> requireHardwareWalletConnection(String name) async => false;
+  Future<bool> requireHardwareWalletConnection(WalletInfo walletInfo) async => false;
 }

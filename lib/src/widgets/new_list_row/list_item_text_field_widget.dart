@@ -13,6 +13,13 @@ class ListItemTextFieldWidget extends StatefulWidget {
     this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.height = 50,
+    this.border = InputBorder.none,
+    this.focusedBorder = InputBorder.none,
+    this.enabledBorder = InputBorder.none,
+    this.disabledBorder = InputBorder.none,
+    this.suffixIcon,
+    this.suffixIconConstraints,
   });
 
   final String keyValue;
@@ -24,6 +31,13 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final double height;
+  final InputBorder border;
+  final InputBorder focusedBorder;
+  final InputBorder enabledBorder;
+  final InputBorder disabledBorder;
+  final Widget? suffixIcon;
+  final BoxConstraints? suffixIconConstraints;
 
   @override
   State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
@@ -31,13 +45,11 @@ class ListItemTextFieldWidget extends StatefulWidget {
 
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
-  Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+  Widget build(BuildContext context) => ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
-        height: 50,
-        builder: (context, textStyle, labelStyle) {
-          return Row(
+        height: widget.height,
+        builder: (context, textStyle, labelStyle) => Row(
             children: [
               Expanded(
                 child: TextFormField(
@@ -50,17 +62,17 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                   decoration: InputDecoration(
                     labelText: widget.label,
                     labelStyle: labelStyle,
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
+                    border: widget.border,
+                    focusedBorder: widget.focusedBorder,
+                    enabledBorder: widget.enabledBorder,
+                    disabledBorder: widget.disabledBorder,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 7),
+                    suffixIcon: widget.suffixIcon,
+                    suffixIconConstraints: widget.suffixIconConstraints,
                   ),
                 ),
               ),
             ],
-          );
-        });
-  }
+          ));
 }

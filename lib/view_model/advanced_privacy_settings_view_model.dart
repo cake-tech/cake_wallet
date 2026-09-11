@@ -14,7 +14,15 @@ class AdvancedPrivacySettingsViewModel = AdvancedPrivacySettingsViewModelBase
     with _$AdvancedPrivacySettingsViewModel;
 
 abstract class AdvancedPrivacySettingsViewModelBase with Store {
-  AdvancedPrivacySettingsViewModelBase(this.type, this._settingsStore) : _addCustomNode = false;
+  AdvancedPrivacySettingsViewModelBase(this.types, this._settingsStore) : _addCustomNode = false;
+
+  final List<WalletType> types;
+
+  final SettingsStore _settingsStore;
+
+  bool get isMultiType => types.length > 1;
+
+  WalletType? get singleType => types.length == 1 ? types.first : null;
 
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
@@ -29,7 +37,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get useBlinkProtection => _settingsStore.useBlinkProtection;
 
   bool get canUseBlinkProtection {
-    if (!isEVMCompatibleChain(type)) return false;
+    final type = singleType;
+    if (type == null || !isEVMCompatibleChain(type)) return false;
 
     // Get the chainId from the wallet type
     final chainId = evm!.getChainIdByWalletType(type);
@@ -40,14 +49,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @observable
   bool _addCustomNode = false;
 
-  final WalletType type;
-
-  final SettingsStore _settingsStore;
-
   @computed
   bool get hasSeedPhraseLengthOption {
-    // convert to switch case so that it give a syntax error when adding a new wallet type
-    // thus we don't forget about it
+    final type = singleType;
+
+    // Omnichain wallet is always BIP39-based, so seed phrase length option is always available.
+    if (type == null) return true;
+
     switch (type) {
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
@@ -79,36 +87,46 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get isMoneroSeedTypeOptionsEnabled => [
-        WalletType.monero,
-        WalletType.wownero,
-      ].contains(type);
+ // Seed type options are only available for single-network wallet creation/restoration.
+  bool get isMoneroSeedTypeOptionsEnabled =>
+      !isMultiType && [WalletType.monero, WalletType.wownero].contains(singleType);
 
-  bool get isBitcoinSeedTypeOptionsEnabled => [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-      ].contains(type);
+  bool get isBitcoinSeedTypeOptionsEnabled =>
+      !isMultiType && [WalletType.bitcoin, WalletType.litecoin].contains(singleType);
 
-  bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
+  bool get isNanoSeedTypeOptionsEnabled => !isMultiType && singleType == WalletType.nano;
 
-  bool get hasPassphraseOption => [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.bitcoinCash,
-        WalletType.ethereum,
-        WalletType.polygon,
-        WalletType.base,
-        WalletType.arbitrum,
-        WalletType.bsc,
-        WalletType.tron,
-        WalletType.solana,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.zano,
-        WalletType.dogecoin,
-        WalletType.zcash,
-        WalletType.decred,
-    ].contains(type);
+  bool get hasPassphraseOption {
+    // Omnichain wallet is always BIP39-based, so passphrase option is always available.
+    if (isMultiType) return true;
+
+    return [
+      WalletType.bitcoin,
+      WalletType.litecoin,
+      WalletType.bitcoinCash,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.base,
+      WalletType.arbitrum,
+      WalletType.bsc,
+      WalletType.tron,
+      WalletType.solana,
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.zano,
+      WalletType.dogecoin,
+      WalletType.zcash,
+      WalletType.decred,
+    ].contains(singleType);
+  }
+
+  // Custom node option is only available for single-network wallet creation/restoration.
+  bool get hasCustomNodeOption => !isMultiType;
+
+  bool get supportsTestnetToggle =>
+      !isMultiType && (singleType == WalletType.bitcoin || singleType == WalletType.decred);
+
+  bool get supportsZcashNetworkOption => !isMultiType && singleType == WalletType.zcash;
 
   @computed
   bool get addCustomNode => _addCustomNode;

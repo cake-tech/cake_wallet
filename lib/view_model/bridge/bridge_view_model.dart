@@ -9,7 +9,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/core/layerzero_scan_service.dart';
@@ -46,7 +46,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   void Function()? onBridgeSuccess;
-  final WalletManager walletManager;
+  final WalletGroupManager walletManager;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
   final BridgeTransfersStore bridgeTransfersStore;

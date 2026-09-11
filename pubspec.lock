@@ -3275,7 +3275,7 @@ packages:
     source: git
     version: "3.1.5"
   uuid:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
       ref: d602950818e4b11d097d26f5408b461f38248130

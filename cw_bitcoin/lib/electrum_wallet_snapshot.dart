@@ -63,9 +63,9 @@ class ElectrumWalletSnapshot {
   DerivationType? derivationType;
   String? derivationPath;
 
-  static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name,
-      WalletType type, String password, BasedUtxoNetwork network) async {
-    final path = await pathForWallet(name: name, type: type);
+  static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils,
+      WalletInfo walletInfo, String password, BasedUtxoNetwork network) async {
+    final path = walletInfo.path;
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
@@ -94,7 +94,7 @@ class ElectrumWalletSnapshot {
     final useLightning = data['useLightning'] as bool? ?? true;
     final cachedLightningAddress = data['cachedLightningAddress'] as String?;
 
-    final currency = walletTypeToCryptoCurrency(type);
+    final currency = walletTypeToCryptoCurrency(walletInfo.type);
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?, currency) ??
         ElectrumBalance(
           confirmed: Money.zero(currency),
@@ -129,8 +129,8 @@ class ElectrumWalletSnapshot {
     }
 
     return ElectrumWalletSnapshot(
-      name: name,
-      type: type,
+      name: walletInfo.name,
+      type: walletInfo.type,
       password: password,
       passphrase: passphrase,
       mnemonic: mnemonic,

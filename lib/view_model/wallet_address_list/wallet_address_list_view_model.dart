@@ -153,10 +153,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     var cryptoCurrency = tokenCurrency ?? wallet.currency;
+
     if (cryptoCurrency == CryptoCurrency.btcln) {
       cryptoCurrency = CryptoCurrency.btc;
     }
-
     if (selectedCurrency is FiatCurrency && _fiatRate != null) {
       return selectedCurrencyFiatAmount;
     }

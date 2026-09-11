@@ -250,7 +250,7 @@ abstract class WowneroWalletBase
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        await resetCache(name);
+        await resetCache(walletInfo);
         _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
@@ -399,7 +399,7 @@ abstract class WowneroWalletBase
     await walletAddresses.updateAddressesInBox();
     await wownero_wallet.store();
     try {
-      await backupWalletFiles(name);
+      await backupWalletFiles(walletInfo);
     } catch (e) {
       printV("¯\\_(ツ)_/¯");
       printV(e);
@@ -408,9 +408,8 @@ abstract class WowneroWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    final currentWalletDirPath = walletInfo.dirPath;
     if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
-      // NOTE: this is realistically only required on windows.
       printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
@@ -422,19 +421,17 @@ abstract class WowneroWalletBase
       printV("wallet closed");
     }
     try {
-      // -- rename the waller folder --
-      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final currentWalletDir = Directory(walletInfo.dirPath);
+      final newWalletDirPath = await pathForWalletDir(id: newWalletName, type: type);
       await currentWalletDir.rename(newWalletDirPath);
 
-      // -- use new waller folder to rename files with old names still --
       final renamedWalletPath = newWalletDirPath + '/$name';
 
       final currentCacheFile = File(renamedWalletPath);
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
 
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(id: newWalletName, type: type);
 
       if (currentCacheFile.existsSync()) {
         await currentCacheFile.rename(newWalletPath);
@@ -446,17 +443,16 @@ abstract class WowneroWalletBase
         await currentAddressListFile.rename('$newWalletPath.address.txt');
       }
 
-      await backupWalletFiles(newWalletName);
+      await backupWalletFiles(walletInfo);
     } catch (e) {
-      final currentWalletPath = await pathForWallet(name: name, type: type);
+      final currentWalletPath = walletInfo.path;
 
       final currentCacheFile = File(currentWalletPath);
       final currentKeysFile = File('$currentWalletPath.keys');
       final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath = await pathForWallet(id: newWalletName, type: type);
 
-      // Copies current wallet files into new wallet name's dir and files
       if (currentCacheFile.existsSync()) {
         await currentCacheFile.copy(newWalletPath);
       }
@@ -467,7 +463,6 @@ abstract class WowneroWalletBase
         await currentAddressListFile.copy('$newWalletPath.address.txt');
       }
 
-      // Delete old name's dir and files
       await Directory(currentWalletDirPath).delete(recursive: true);
     }
   }

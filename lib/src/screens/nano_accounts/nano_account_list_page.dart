@@ -1,6 +1,6 @@
 import 'package:cake_wallet/src/widgets/picker_inner_wrapper_widget.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/nano_account_list/nano_account_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';

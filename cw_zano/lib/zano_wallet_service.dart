@@ -4,14 +4,11 @@ import 'package:collection/collection.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
-import 'package:hive/hive.dart';
 import 'package:monero/zano.dart' as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
@@ -79,17 +76,15 @@ class ZanoWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async {
-    final path = await pathForWallet(name: name, type: getType());
+  Future<bool> isWalletExit(WalletInfo walletInfo) async {
+    final path = walletInfo.path;
     return zano.PlainWallet_isWalletExist(path);
   }
 
   @override
-  Future<ZanoWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<ZanoWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
+
     try {
       final wallet =
           await ZanoWalletBase.open(
@@ -97,11 +92,11 @@ class ZanoWalletService extends WalletService<
               password: password,
               walletInfo: walletInfo,
               encryptionFileUtils: encryptionFileUtilsFor(isDirect));
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (e) {
       printV('openWallet $name failed: $e');
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       return await ZanoWalletBase.open(
           name: name,
           password: password,
@@ -111,48 +106,36 @@ class ZanoWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
+  Future<void> remove(WalletInfo walletInfo) async {
+    await super.remove(walletInfo);
   }
 
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    final currentWallet =
-        ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
-            encryptionFileUtilsFor(isDirect));
-
-    final oldPath = await pathForWallet(name: currentName, type: getType());
-    final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
-    if (cached != null) {
-      currentWallet.hWallet = cached.walletId;
-      await currentWallet.closeWallet(cached.walletId, force: true);
-    }
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newDirPath = await pathForWalletDir(name: newName, type: getType());
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
-    currentWalletInfo.name = newName;
-    currentWalletInfo.dirPath = newDirPath;
-    currentWalletInfo.path = '$newDirPath/$newName';
-    await currentWalletInfo.save();
-  }
+  // @override
+  // Future<void> rename(String currentName, String password, String newName) async {
+  //   final currentWalletInfo = await WalletInfo.get(currentName, getType());
+  //   if (currentWalletInfo == null) {
+  //     throw Exception('Wallet not found');
+  //   }
+  //   final currentWallet =
+  //       ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
+  //           encryptionFileUtilsFor(isDirect));
+  //
+  //   final oldPath = await pathForWallet(name: currentName, type: getType());
+  //   final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
+  //   if (cached != null) {
+  //     currentWallet.hWallet = cached.walletId;
+  //     await currentWallet.closeWallet(cached.walletId, force: true);
+  //   }
+  //
+  //   await currentWallet.renameWalletFiles(newName);
+  //
+  //   final newDirPath = await pathForWalletDir(name: newName, type: getType());
+  //   currentWalletInfo.id = WalletBase.idFor(newName, getType());
+  //   currentWalletInfo.name = newName;
+  //   currentWalletInfo.dirPath = newDirPath;
+  //   currentWalletInfo.path = '$newDirPath/$newName';
+  //   await currentWalletInfo.save();
+  // }
 
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials,

@@ -128,8 +128,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: networkParam ?? network,
@@ -242,15 +244,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
         : BitcoinNetwork.mainnet;
 
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         network,
       );
@@ -268,8 +269,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       );
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );
@@ -612,10 +612,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) => unspentCoins
-      .where((e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
-      .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
-      .toList();
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) =>
+      unspentCoinsForCurrentAccount
+          .where(
+              (e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
+          .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
+          .toList();
 
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
@@ -625,6 +627,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: currentAccountIndex,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.zero(currency),
@@ -683,6 +686,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         btcTx,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.zero(currency),
         fee: Money.zero(currency),

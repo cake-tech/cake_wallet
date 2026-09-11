@@ -1,6 +1,7 @@
 import "dart:async";
 
 import 'package:cake_wallet/core/auth_service.dart';
+import "package:cake_wallet/core/wallet_name_validator.dart";
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -220,7 +221,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
               child: ExpansionTile(
                 title: Text(
-                  groupName,
+                  walletNameToDisplay(groupName),
                   style: Theme.of(context).textTheme.bodyMedium!,
                 ),
                 leading: _buildCurrencyIcon(activeContact),
@@ -280,7 +281,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               child: Padding(
                 padding: EdgeInsets.only(left: 12),
                 child: Text(
-                  contact.name,
+                  walletNameToDisplay(contact.name, showWalletType: true),
                   style: Theme.of(context).textTheme.bodyMedium!,
                 ),
               ),

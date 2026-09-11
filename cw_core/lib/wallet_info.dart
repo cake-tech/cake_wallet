@@ -47,6 +47,27 @@ enum HardwareWalletType {
   trezor;
 }
 
+extension HardwareIconExtension on HardwareWalletType {
+  String? get iconPath {
+    switch (this) {
+      case null:
+        return null;
+      case HardwareWalletType.bitbox:
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
+      case HardwareWalletType.ledger:
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
+      case HardwareWalletType.trezor:
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_5.svg";
+      case HardwareWalletType.cupcake:
+        return "assets/images/cupcake.svg";
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        return "assets/images/hardware_wallet/device_qr.svg";
+    }
+  }
+}
+
 enum WalletInfoAddressType {
   used,
   hidden,
@@ -244,6 +265,98 @@ class WalletInfoAddress {
   }
 }
 
+class WalletInfoAccount {
+  WalletInfoAccount({
+    this.id = 0,
+    required this.walletInfoId,
+    required this.accountIndex,
+    required this.label,
+    this.isSelected = false,
+  });
+
+  int id;
+  int walletInfoId;
+  int accountIndex;
+  String label;
+  bool isSelected;
+
+  static String get tableName => 'walletInfoAccount';
+
+  static String get selfIdColumn => '${tableName}Id';
+
+  static Future<List<WalletInfoAccount>> selectList(int walletInfoId) async {
+    final query = await db!.query(
+      tableName,
+      where: 'walletInfoId = ?',
+      whereArgs: [walletInfoId],
+      orderBy: 'accountIndex ASC',
+    );
+
+    return List.generate(query.length, (index) => WalletInfoAccount.fromJson(query[index]));
+  }
+
+  static Future<int> deleteByWalletInfoId(int walletInfoId) async {
+    return await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+  }
+
+  static Future<int> insertOrUpdate({
+    required int walletInfoId,
+    required int accountIndex,
+    required String label,
+    bool isSelected = false,
+  }) async {
+    return await db!.insert(
+      tableName,
+      {
+        'walletInfoId': walletInfoId,
+        'accountIndex': accountIndex,
+        'label': label,
+        'isSelected': isSelected ? 1 : 0,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<void> setSelected({
+    required int walletInfoId,
+    required int accountIndex,
+  }) async {
+    await db!.update(
+      tableName,
+      {'isSelected': 0},
+      where: 'walletInfoId = ?',
+      whereArgs: [walletInfoId],
+    );
+
+    await db!.update(
+      tableName,
+      {'isSelected': 1},
+      where: 'walletInfoId = ? AND accountIndex = ?',
+      whereArgs: [walletInfoId, accountIndex],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      selfIdColumn: id,
+      'walletInfoId': walletInfoId,
+      'accountIndex': accountIndex,
+      'label': label,
+      'isSelected': isSelected ? 1 : 0,
+    };
+  }
+
+  factory WalletInfoAccount.fromJson(Map<String, dynamic> json) {
+    return WalletInfoAccount(
+      id: json[selfIdColumn] as int,
+      walletInfoId: json['walletInfoId'] as int,
+      accountIndex: json['accountIndex'] as int,
+      label: json['label'] as String,
+      isSelected: (json['isSelected'] as int? ?? 0) == 1,
+    );
+  }
+}
+
 class DerivationInfo {
   DerivationInfo({
     this.id = 0,
@@ -327,77 +440,86 @@ class DerivationInfo {
 
 class WalletInfo {
   WalletInfo(
-      this.internalId,
-      this.id,
-      this.name,
-      this.type,
-      this.isRecovery,
-      this.restoreHeight,
-      this.timestamp,
-      this.dirPath,
-      this.path,
-      this.address,
-      this.yatEid,
-      this.yatLastUsedAddressRaw,
-      this.showIntroCakePayCard,
-      this.derivationInfoId,
-      this.hardwareWalletType,
-      this.parentAddress,
-      this.hashedWalletIdentifier,
-      this.isNonSeedWallet,
-      this.sortOrder,
-      this.addressPageType,
-      this.receiveInfoboxDismissed,
-      this.showCombinedBalance,
-      this.favoriteTokenAddress)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.internalId,
+    this.id,
+    this.name,
+    this.type,
+    this.isRecovery,
+    this.restoreHeight,
+    this.timestamp,
+    this.dirPath,
+    this.path,
+    this.address,
+    this.yatEid,
+    this.yatLastUsedAddressRaw,
+    this.showIntroCakePayCard,
+    this.derivationInfoId,
+    this.hardwareWalletType,
+    this.parentAddress,
+    this.hashedWalletIdentifier,
+    this.isNonSeedWallet,
+    this.sortOrder,
+    this.addressPageType,
+    this.receiveInfoboxDismissed,
+    this.showCombinedBalance,
+    this.favoriteTokenAddress,
+    this.groupId,
+  )   : isReady = true,
+        _yatLastUsedAddressController = StreamController<String>.broadcast();
 
-  factory WalletInfo.external(
-      {required String id,
-      required String name,
-      required WalletType type,
-      required bool isRecovery,
-      required int restoreHeight,
-      required DateTime date,
-      required String dirPath,
-      required String path,
-      required String address,
-      bool? showIntroCakePayCard,
-      String yatEid = '',
-      String yatLastUsedAddressRaw = '',
-      int? derivationInfoId,
-      HardwareWalletType? hardwareWalletType,
-      String? parentAddress,
-      String? hashedWalletIdentifier,
-      bool? isNonSeedWallet,
-      int? sortOrder,
-      bool? receiveInfoboxDismissed,
-      bool? showCombinedBalance,
-      String? favoriteTokenAddress}) {
-    return WalletInfo(
-        0,
-        id,
-        name,
-        type,
-        isRecovery,
-        restoreHeight,
-        date.millisecondsSinceEpoch,
-        dirPath,
-        path,
-        address,
-        yatEid,
-        yatLastUsedAddressRaw,
-        showIntroCakePayCard,
-        derivationInfoId ?? -1,
-        hardwareWalletType,
-        parentAddress,
-        hashedWalletIdentifier,
-        isNonSeedWallet ?? false,
-        sortOrder ?? 0,
-        null,
-        receiveInfoboxDismissed ?? false,
-        showCombinedBalance ?? true,
-        favoriteTokenAddress);
+  factory WalletInfo.external({
+    required String id,
+    required String name,
+    required WalletType type,
+    required bool isRecovery,
+    required int restoreHeight,
+    required DateTime date,
+    required String dirPath,
+    required String path,
+    required String address,
+    bool? showIntroCakePayCard,
+    String yatEid = '',
+    String yatLastUsedAddressRaw = '',
+    int? derivationInfoId,
+    HardwareWalletType? hardwareWalletType,
+    String? parentAddress,
+    String? hashedWalletIdentifier,
+    bool? isNonSeedWallet,
+    int? sortOrder,
+    bool? receiveInfoboxDismissed,
+    bool? showCombinedBalance,
+    String? favoriteTokenAddress,
+    String? groupId,
+    bool? isReady,
+  }) {
+    final wi = WalletInfo(
+      0,
+      id,
+      name,
+      type,
+      isRecovery,
+      restoreHeight,
+      date.millisecondsSinceEpoch,
+      dirPath,
+      path,
+      address,
+      yatEid,
+      yatLastUsedAddressRaw,
+      showIntroCakePayCard,
+      derivationInfoId ?? -1,
+      hardwareWalletType,
+      parentAddress,
+      hashedWalletIdentifier,
+      isNonSeedWallet ?? false,
+      sortOrder ?? 0,
+      null,
+      receiveInfoboxDismissed ?? false,
+      showCombinedBalance ?? true,
+      favoriteTokenAddress,
+      groupId,
+    );
+    wi.isReady = isReady ?? true;
+    return wi;
   }
 
   static String get tableName => 'walletInfo';
@@ -405,6 +527,8 @@ class WalletInfo {
   static String get selfIdColumn => "${tableName}Id";
 
   int internalId;
+
+  int? selectedAccount;
 
   String id;
   String name;
@@ -418,6 +542,8 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  bool isReady;
+  String? groupId;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -501,6 +627,91 @@ class WalletInfo {
 
   Future<void> addAddress(String address, WalletInfoAddressType type) async {
     await WalletInfoAddress.insert(internalId, type, address);
+  }
+
+  Future<List<WalletInfoAccount>> getAccounts() async {
+    final accounts = await WalletInfoAccount.selectList(internalId);
+
+    if (accounts.isEmpty) {
+      const initialAccountsCount = 1;
+
+      for (var accountIndex = 0; accountIndex < initialAccountsCount; accountIndex++) {
+        await WalletInfoAccount.insertOrUpdate(
+          walletInfoId: internalId,
+          accountIndex: accountIndex,
+          label: 'Account $accountIndex',
+          isSelected: accountIndex == 0,
+        );
+      }
+
+      final defaultAccounts = await WalletInfoAccount.selectList(internalId);
+      selectedAccount = defaultAccounts.firstWhere((account) => account.isSelected).accountIndex;
+      return defaultAccounts;
+    }
+
+    final selected = accounts.firstWhere(
+      (account) => account.isSelected,
+      orElse: () => accounts.first,
+    );
+
+    if (!selected.isSelected) {
+      await WalletInfoAccount.setSelected(
+        walletInfoId: internalId,
+        accountIndex: selected.accountIndex,
+      );
+      selected.isSelected = true;
+    }
+
+    selectedAccount = selected.accountIndex;
+    return accounts;
+  }
+
+  Future<void> setSelectedAccount(int accountIndex) async {
+    selectedAccount = accountIndex;
+
+    await WalletInfoAccount.setSelected(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+    );
+  }
+
+  Future<void> setAccounts(List<WalletInfoAccount> accounts) async {
+    await WalletInfoAccount.deleteByWalletInfoId(internalId);
+
+    for (final account in accounts) {
+      await WalletInfoAccount.insertOrUpdate(
+        walletInfoId: internalId,
+        accountIndex: account.accountIndex,
+        label: account.label,
+        isSelected: account.isSelected,
+      );
+    }
+  }
+
+  Future<void> addAccount({
+    required int accountIndex,
+    required String label,
+  }) async {
+    await WalletInfoAccount.insertOrUpdate(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+      label: label,
+    );
+  }
+
+  Future<void> renameAccount({
+    required int accountIndex,
+    required String label,
+  }) async {
+    final accounts = await getAccounts();
+    final account = accounts.firstWhere((account) => account.accountIndex == accountIndex);
+
+    await WalletInfoAccount.insertOrUpdate(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+      label: label,
+      isSelected: account.isSelected,
+    );
   }
 
   String? addressPageType;
@@ -588,6 +799,8 @@ class WalletInfo {
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
         "network": network,
+        "isReady": isReady ? 1 : 0,
+        "groupId": groupId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -616,8 +829,10 @@ class WalletInfo {
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
-        json["favoriteTokenAddress"] as String? ?? null);
+        json["favoriteTokenAddress"] as String? ?? null,
+        json['groupId'] as String?);
     info.network = json['network'] as String?;
+    info.isReady = (json['isReady'] as int? ?? 1) == 1;
     return info;
   }
 
@@ -654,6 +869,14 @@ class WalletInfo {
 
   static Future<WalletInfo?> get(String name, WalletType type) async {
     final list = await selectList('name = ? AND type = ?', [name, type.index]);
+    if (list.isEmpty) {
+      return null;
+    }
+    return list[0];
+  }
+
+  static Future<WalletInfo?> getById(String id) async {
+    final list = await selectList('id = ?', [id]);
     if (list.isEmpty) {
       return null;
     }

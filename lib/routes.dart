@@ -51,6 +51,11 @@ class Routes {
   static const rescan = '/rescan';
   static const faq = '/faq';
   static const newWalletType = '/new_wallet_type';
+  static const walletCreationTypeSelectionPage = "/wallet_creation_type_selection_page";
+  static const walletCreationDetailsPage = "/wallet_creation_details_page";
+  static const walletCreationSuccessPage = "/wallet_creation_success_page";
+  static const walletCreationOpeningPage = "/wallet_creation_opening_page";
+  static const omniChainChangeNetworkPage = '/omni_chain_change_network_page';
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';
@@ -110,6 +115,7 @@ class Routes {
   static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
+  static const walletAccountsPage = '/wallet_accounts_page';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';

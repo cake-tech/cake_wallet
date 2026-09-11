@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -31,7 +31,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   final WalletType type;
   final AppStore _appStore;
-  final WalletManager _walletManager;
+  final WalletGroupManager _walletManager;
   final WalletLoadingService _walletLoadingService;
   final WalletListViewModel walletListViewModel;
 
@@ -57,22 +57,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    WalletListItem walletToUse;
+    final WalletInfo walletInfo;
 
-    bool isGroupSelected = selectedWalletGroup != null;
-
-    if (isGroupSelected) {
-      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
+    if (selectedWalletGroup != null) {
+      walletInfo = selectedWalletGroup!.wallets.first;
     } else {
-      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
+      walletInfo = selectedSingleWallet!;
     }
 
     try {
       isFetchingMnemonic = true;
-      final wallet = await _walletLoadingService.load(
-        walletToUse.type,
-        walletToUse.name,
-      );
+      final wallet = await _walletLoadingService.load(walletInfo);
 
       return wallet.seed;
     } catch (e) {
@@ -162,15 +157,14 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     }
   }
 
-  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
-    return WalletListItem(
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) => WalletListItem(
+      walletInfo: info,
       name: info.name,
       type: info.type,
       key: info.id,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.id == _appStore.wallet?.walletInfo.id,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,
     );
-  }
 }

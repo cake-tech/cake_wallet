@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cw_core/get_height_by_date_zec.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -58,7 +59,7 @@ class YwalletAccountInfo {
   );
 }
 
-Future<void> migrateOldSqliteToZkool2({required final String walletName}) async {
+Future<void> migrateOldSqliteToZkool2({required final WalletInfo walletInfo}) async {
   final dbFile = p.join(await pathForWalletTypeDir(type: WalletType.zcash), "zec.db");
   final migrateDb = await openDatabase(dbFile);
   final outputRaw = await migrateDb.rawQuery(
@@ -66,12 +67,12 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
   );
   final output = outputRaw.map(YwalletAccountInfo.fromJson);
 
-  final walletId = await ZcashWalletBase.getLegacyZcashAccountIdForName(walletName);
+  final walletId = await ZcashWalletBase.getLegacyZcashAccountIdForName(walletInfo);
   for (final ya in output) {
     if (ya.idAccount != walletId) {
       continue;
     }
-    printV("migrating account: ${ya.name} - ${walletName}");
+    printV("migrating account: ${ya.name} - ${walletInfo.name}");
     int birthHeight = await ZcashHeight.getBlockHeightByTime(DateTime(2026, 1, 1));
 
     final accTxs = await migrateDb.rawQuery(
@@ -83,14 +84,14 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
     }
 
     final accountId = await ZcashWalletBase.restoreZcashWalletFromSeed(
-      name: walletName,
+      name: walletInfo.name,
       seed: ya.zkoolSeed.seed,
       passphrase: ya.zkoolSeed.passphrase,
       birthHeight: birthHeight,
     );
-    await ZcashWalletBase.saveAccountId(walletName, accountId);
+    await ZcashWalletBase.saveAccountId(walletInfo, accountId);
     return;
   }
 
-  throw Exception("migration not finished (wallet name: $walletName not found)");
+  throw Exception("migration not finished (wallet name: ${walletInfo.name} not found)");
 }

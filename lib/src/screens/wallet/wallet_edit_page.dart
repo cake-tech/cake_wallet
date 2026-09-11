@@ -46,8 +46,7 @@ class WalletEditPage extends BasePage {
   Flushbar<void>? _progressBar;
 
   @override
-  Widget body(BuildContext context) {
-    return Form(
+  Widget body(BuildContext context) => Form(
       key: _formKey,
       child: Container(
         padding: EdgeInsets.all(24.0),
@@ -93,14 +92,12 @@ class WalletEditPage extends BasePage {
                                       .nameExists(walletEditViewModel.newName)) {
                                 showPopUp<void>(
                                   context: context,
-                                  builder: (_) {
-                                    return AlertWithOneAction(
+                                  builder: (_) => AlertWithOneAction(
                                       alertTitle: '',
                                       alertContent: S.of(context).wallet_name_exists,
                                       buttonText: S.of(context).ok,
                                       buttonAction: () => Navigator.of(context).pop(),
-                                    );
-                                  },
+                                    ),
                                 );
                               } else {
                                 try {
@@ -159,7 +156,6 @@ class WalletEditPage extends BasePage {
         ),
       ),
     );
-  }
 
   Future<void> _removeWallet(BuildContext context) async {
     pageArguments.authService!.authenticateAction(

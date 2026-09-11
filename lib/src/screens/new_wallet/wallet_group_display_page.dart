@@ -69,7 +69,9 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                     Icon(Icons.account_balance_wallet_outlined, size: 28),
                                 borderRadius: BorderRadius.all(Radius.circular(16)),
                                 title: groupName,
-                                childWallets: group.wallets.map((walletInfo) {
+                                childWallets: group.wallets
+                                    .where((walletInfo) => walletInfo.isReady)
+                                    .map((walletInfo) {
                                   return walletGroupsDisplayViewModel
                                       .convertWalletInfoToWalletListItem(walletInfo);
                                 }).toList(),
