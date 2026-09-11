@@ -290,6 +290,7 @@ class BuySellCustomAmountInput extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(18),
               child: NewPrimaryButton(
+                disabled: controller.text.isEmpty,
                 onPressed: onContinuePressed,
                 isLoading: isLoading,
                 text: S.of(context).continue_text,

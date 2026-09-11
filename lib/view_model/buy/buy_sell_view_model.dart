@@ -96,10 +96,21 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   // sets based on the absolute amout (from the fiat/charts api)
   // works even if you have no rates
-  Future<void> setCryptoAmountFromFiat(String fiatAmount) async => changeCryptoAmount(
-        amount: (double.parse(fiatAmount) / (fiatConversionStore.prices[cryptoCurrency] ?? 0))
+  Future<void> setCryptoAmountFromFiat(String fiatAmount) async {
+    if(fiatAmount.isEmpty) {
+      await changeCryptoAmount(amount: "");
+      return;
+    }
+
+    if(fiatConversionStore.prices[cryptoCurrency] == null) {
+      return;
+    }
+
+    await changeCryptoAmount(
+        amount: (double.parse(fiatAmount) / (fiatConversionStore.prices[cryptoCurrency]!))
             .toString(),
       );
+  }
 
   final AppStore _appStore;
 
