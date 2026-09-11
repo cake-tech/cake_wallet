@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:vector_graphics/vector_graphics.dart';
@@ -130,7 +131,10 @@ class CakeImageWidget extends StatelessWidget {
   /// A caller-supplied [loadingWidget] owns its own semantics; the built-in
   /// spinner is purely visual and must not become an unnamed focus stop.
   Widget _buildLoadingWidget() =>
-      loadingWidget ?? const ExcludeSemantics(child: Center(child: CircularProgressIndicator()));
+      loadingWidget ?? ExcludeSemantics(child:SizedBox(
+          height: height,
+          width: width,
+          child: Center(child: CupertinoActivityIndicator())));
 
   Widget _buildErrorWidget(BuildContext context) {
     final Widget placeholder = Container(
