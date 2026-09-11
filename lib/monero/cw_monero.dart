@@ -319,7 +319,9 @@ class CWMonero extends Monero {
 
   @override
   Object createMoneroTransactionCreationCredentials(
-          {required List<Output> outputs, required TransactionPriority priority}) =>
+          {required List<Output> outputs,
+          required TransactionPriority priority,
+          CoinSelection coinSelection = const AllCoinSelection()}) =>
       MoneroTransactionCreationCredentials(
           outputs: outputs
               .map((out) => OutputInfo(
@@ -332,7 +334,8 @@ class CWMonero extends Monero {
                     isParsedAddress: out.isParsedAddress,
                   ))
               .toList(),
-          priority: priority as MoneroTransactionPriority);
+          priority: priority as MoneroTransactionPriority,
+          coinSelection: coinSelection);
 
   @override
   Object createMoneroTransactionCreationCredentialsRaw(
@@ -375,8 +378,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(unspentCoinSource);
+  WalletService createMoneroWalletService() => MoneroWalletService();
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -396,17 +398,7 @@ class CWMonero extends Monero {
     return {'id': ptx.id, 'hex': ptx.hex};
   }
 
-  @override
-  List<Unspent> getUnspents(Object wallet) {
-    final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.unspentCoins;
-  }
 
-  @override
-  Future<void> updateUnspents(Object wallet) async {
-    final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.updateUnspent();
-  }
 
   @override
   Future<int> getCurrentHeight() async {

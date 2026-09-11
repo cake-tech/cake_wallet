@@ -15,9 +15,9 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/coin_control/coin_selection.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -38,7 +38,6 @@ import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_unspent.dart';
 import 'package:cw_wownero/wownero_wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/wownero.dart' as wownero;
 
@@ -56,7 +55,6 @@ abstract class WowneroWalletBase
   WowneroWalletBase(
       {required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
@@ -72,7 +70,6 @@ abstract class WowneroWalletBase
         isEnabledAutoGenerateSubaddress = true,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
-        this.unspentCoinsInfo = unspentCoinsInfo,
         super(walletInfo, derivationInfo) {
     transactionHistory = WowneroTransactionHistory();
     walletAddresses = WowneroWalletAddresses(walletInfo, transactionHistory);
@@ -103,7 +100,6 @@ abstract class WowneroWalletBase
 
   static const int _autoSaveInterval = 30;
 
-  Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   void Function(FlutterErrorDetails)? onError;
 
@@ -295,12 +291,6 @@ abstract class WowneroWalletBase
       await updateUnspent();
     }
 
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        allInputsAmount += utx.value;
-        inputs.add(utx.keyImage!);
-      }
-    }
     final spendAllCoins = inputs.length == unspentCoins.length;
 
     if (hasMultiDestination) {
@@ -315,10 +305,6 @@ abstract class WowneroWalletBase
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
             'You do not have enough WOW to send this amount.');
-      }
-
-      if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
-        throw WowneroTransactionNoInputsException(inputs.length);
       }
 
       final wowneroOutputs = outputs.map((output) {
@@ -346,12 +332,6 @@ abstract class WowneroWalletBase
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      final estimatedFee = calculateEstimatedFee(_credentials.priority, formattedAmount);
-      if (!spendAllCoins &&
-          ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
-              formattedAmount == null)) {
-        throw WowneroTransactionNoInputsException(inputs.length);
-      }
 
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
@@ -365,7 +345,8 @@ abstract class WowneroWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority, int? amount,
+      {CoinSelection selection = const AllCoinSelection()}) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {
@@ -523,33 +504,6 @@ abstract class WowneroWalletBase
           unspentCoins.add(unspent);
         }
       }
-
-      if (unspentCoinsInfo.isEmpty) {
-        unspentCoins.forEach((coin) => _addCoinInfo(coin));
-        return;
-      }
-
-      if (unspentCoins.isNotEmpty) {
-        unspentCoins.forEach((coin) {
-          final coinInfoList = unspentCoinsInfo.values.where((element) =>
-              element.walletId.contains(id) &&
-              element.accountIndex == walletAddresses.account!.id &&
-              element.keyImage!.contains(coin.keyImage!));
-
-          if (coinInfoList.isNotEmpty) {
-            final coinInfo = coinInfoList.first;
-
-            coin.isFrozen = coinInfo.isFrozen;
-            coin.isSending = coinInfo.isSending;
-            coin.note = coinInfo.note;
-          } else {
-            _addCoinInfo(coin);
-          }
-        });
-      }
-
-      await _refreshUnspentCoinsInfo();
-      _askForUpdateBalance();
     } catch (e, s) {
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
@@ -557,48 +511,6 @@ abstract class WowneroWalletBase
         stack: s,
         library: this.runtimeType.toString(),
       ));
-    }
-  }
-
-  Future<void> _addCoinInfo(WowneroUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
-        walletId: id,
-        hash: coin.hash,
-        isFrozen: coin.isFrozen,
-        isSending: coin.isSending,
-        noteRaw: coin.note,
-        address: coin.address,
-        value: coin.value,
-        vout: 0,
-        keyImage: coin.keyImage,
-        isChange: coin.isChange,
-        accountIndex: walletAddresses.account!.id);
-
-    await unspentCoinsInfo.add(newInfo);
-  }
-
-  Future<void> _refreshUnspentCoinsInfo() async {
-    try {
-      final List<dynamic> keys = <dynamic>[];
-      final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) =>
-          element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id);
-
-      if (currentWalletUnspentCoins.isNotEmpty) {
-        currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins =
-              unspentCoins.where((coin) => element.keyImage!.contains(coin.keyImage!));
-
-          if (existUnspentCoins.isEmpty) {
-            keys.add(element.key);
-          }
-        });
-      }
-
-      if (keys.isNotEmpty) {
-        await unspentCoinsInfo.deleteAll(keys);
-      }
-    } catch (e) {
-      printV(e.toString());
     }
   }
 
@@ -735,11 +647,6 @@ abstract class WowneroWalletBase
 
   Money _getFrozenBalance() {
     var frozenBalance = 0;
-
-    for (final coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen) frozenBalance += coin.value;
-    }
 
     return Money.fromInt(frozenBalance, CryptoCurrency.wow);
   }

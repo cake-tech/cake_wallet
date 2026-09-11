@@ -55,7 +55,6 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
@@ -64,6 +63,8 @@ import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/tron_token.dart';
+import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -100,7 +101,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.tradesStore,
     this.sharedPreferences,
     this.contactListViewModel,
-    this.unspentCoinsListViewModel,
     this.feesViewModel,
     this.fiatConversionStore,
   )   : isSendAllEnabled = false,
@@ -128,10 +128,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     const excludeDepositCurrencies = [CryptoCurrency.btt];
     const excludeReceiveCurrencies = [CryptoCurrency.btt];
     _initialPairBasedOnWallet();
-
-    unspentCoinsListViewModel.initialSetup().then((_) {
-      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
-    });
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
@@ -259,8 +255,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     } else {
       final currency = depositCurrency;
-      final sendingBalance = Money.fromInt(
-          await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
+      final sendingBalance = Money.fromInt(await _spendableTotal(), currency);
       final amount = _appStore.amountParsingProxy.asDisplayStringWithSymbol(sendingBalance);
       if (depositCurrency == currency) {
         depositAvailableAmount = amount;
@@ -578,7 +573,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final ContactListViewModel contactListViewModel;
 
-  final UnspentCoinsListViewModel unspentCoinsListViewModel;
+  @observable
+  CoinSelection coinSelection = const AllCoinSelection();
+
+  @action
+  void applyCoinSelection(CoinSelection selection) => coinSelection = selection;
+
+  Future<int> _spendableTotal() async => wallet is CoinControlWallet
+      ? (await (wallet as CoinControlWallet).spendableCoins(selection: coinSelection))
+          .fold<int>(0, (sum, coin) => sum + coin.value)
+      : 0;
 
   final FeesViewModel feesViewModel;
 
@@ -1399,7 +1403,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       changeDepositAmount(amount: amount.toString(), isCanonical: true);
     } else if (wallet.type == WalletType.monero) {
-      final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
+      final amount = await _spendableTotal();
 
       changeDepositAmount(
           amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);

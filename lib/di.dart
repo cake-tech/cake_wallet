@@ -56,7 +56,9 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
+import 'package:cake_wallet/new-ui/viewmodels/coin_control/coin_control_bloc.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
@@ -166,7 +168,6 @@ import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
-import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
@@ -273,9 +274,6 @@ import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -301,6 +299,8 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/coin_control/coin_control_wallet.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -331,7 +331,6 @@ late Box<Template> _templates;
 late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
-late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
@@ -340,7 +339,6 @@ Future<void> setup({
   required Box<ExchangeTemplate> exchangeTemplates,
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
-  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
@@ -351,7 +349,6 @@ Future<void> setup({
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
-  _unspentCoinsInfoSource = unspentCoinsInfoSource;
   _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
@@ -555,7 +552,6 @@ Future<void> setup({
       getIt.get<TradesStore>(),
       getIt.get<SharedPreferences>(),
       getIt.get<ContactListViewModel>(),
-      getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
       getIt.get<FiatConversionStore>(),
     ),
@@ -904,7 +900,6 @@ Future<void> setup({
                 param1: getIt.get<AppStore>().wallet!.hardwareWalletType!)
             : null,
         coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
-        getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
         getIt.get<FeesViewModel>()),
   );
 
@@ -1308,16 +1303,14 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_unspentCoinsInfoSource);
+        return monero!.createMoneroWalletService();
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
-          _unspentCoinsInfoSource,
           _payjoinSessionSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
-          _unspentCoinsInfoSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
@@ -1327,11 +1320,9 @@ Future<void> setup({
       case WalletType.bsc:
         return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
-        return dogecoin!.createDogeCoinWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return dogecoin!.createDogeCoinWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
@@ -1340,12 +1331,11 @@ Future<void> setup({
       case WalletType.tron:
         return tron!.createTronWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
-        return wownero!.createWowneroWalletService(_unspentCoinsInfoSource);
+        return wownero!.createWowneroWalletService();
       case WalletType.zano:
         return zano!.createZanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.decred:
-        return decred!.createDecredWalletService(
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return decred!.createDecredWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:
@@ -1548,43 +1538,31 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactoryParam<UnspentCoinsListViewModel, UnspentCoinType?, void>(
-      (coinTypeToSpendFrom, _) {
-    final wallet = getIt.get<AppStore>().wallet;
-
-    return UnspentCoinsListViewModel(
-      wallet: wallet!,
-      unspentCoinsInfo: _unspentCoinsInfoSource,
-      fiatConversationStore: getIt.get<FiatConversionStore>(),
-      appStore: getIt.get<AppStore>(),
-      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
-    );
-  });
-
-  getIt.registerFactoryParam<UnspentCoinsListPage, UnspentCoinType?, void>(
-      (coinTypeToSpendFrom, _) => UnspentCoinsListPage(
-          unspentCoinsListViewModel:
-              getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
-
-  getIt.registerFactoryParam<NewCoinControlPage, UnspentCoinType?, bool?>(
-      (coinTypeToSpendFrom, canEdit) => NewCoinControlPage(
-            unspentCoinsListViewModel:
-                getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
-            canEdit: canEdit ?? true,
+  getIt.registerFactoryParam<CoinControlBloc, CoinControlPageArgs?, void>(
+      (args, _) => CoinControlBloc(
+            wallet: getIt.get<AppStore>().wallet! as CoinControlWallet,
+            fiatConversionStore: getIt.get<FiatConversionStore>(),
+            constraint: args?.coinTypeToSpendFrom ?? UnspentCoinType.any,
+            initialSelection: args?.initialSelection ?? const AllCoinSelection(),
           ));
 
-  getIt.registerFactoryParam<UnspentCoinsDetailsViewModel, UnspentCoinsItem,
-          UnspentCoinsListViewModel>(
-      (item, model) =>
-          UnspentCoinsDetailsViewModel(unspentCoinsItem: item, unspentCoinsListViewModel: model));
+  getIt.registerFactoryParam<NewCoinControlPage, CoinControlPageArgs?, void>(
+      (args, _) => NewCoinControlPage(
+            bloc: getIt.get<CoinControlBloc>(param1: args),
+            canEdit: args?.canEdit ?? true,
+            fiatConversionStore: getIt.get<FiatConversionStore>(),
+            fiatCurrency: getIt.get<AppStore>().settingsStore.fiatCurrency,
+            isFiatDisabled:
+                getIt.get<AppStore>().settingsStore.fiatApiMode == FiatApiMode.disabled,
+          ));
 
   getIt.registerFactoryParam<UnspentCoinsDetailsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final item = args.first as UnspentCoinsItem;
-    final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
+    final rowId = args.first as String;
+    final bloc = args[1] as CoinControlBloc;
 
     return UnspentCoinsDetailsPage(
-        unspentCoinsDetailsViewModel: getIt.get<UnspentCoinsDetailsViewModel>(
-            param1: item, param2: unspentCoinsListViewModel));
+        rowId: rowId,
+        bloc: bloc);
   });
 
   getIt.registerFactory(() => YatService());

@@ -2,23 +2,22 @@ import 'dart:io';
 
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
+import "package:cw_core/coin_control/coin_notes_store.dart";
+import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_dogecoin/cw_dogecoin.dart';
-import 'package:hive/hive.dart';
 
 class DogeCoinWalletService extends WalletService<
     DogeCoinNewWalletCredentials,
     DogeCoinRestoreWalletFromSeedCredentials,
     DogeCoinRestoreWalletFromWIFCredentials,
     DogeCoinNewWalletCredentials> {
-  DogeCoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  DogeCoinWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
   @override
@@ -37,7 +36,6 @@ class DogeCoinWalletService extends WalletService<
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
     );
@@ -58,7 +56,6 @@ class DogeCoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -70,7 +67,6 @@ class DogeCoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -87,15 +83,8 @@ class DogeCoinWalletService extends WalletService<
     }
     await WalletInfo.delete(walletInfo);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
-
-    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
-
-    if (keysToDelete.isNotEmpty) {
-      await unspentCoinsInfoSource.deleteAll(keysToDelete);
-    }
+    await FrozenCoinsStore.instance.deleteWallet(walletInfo.id);
+    await CoinNotesStore.instance.deleteWallet(walletInfo.id);
   }
 
   @override
@@ -122,7 +111,6 @@ class DogeCoinWalletService extends WalletService<
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
         passphrase: credentials.passphrase);
     await wallet.save();

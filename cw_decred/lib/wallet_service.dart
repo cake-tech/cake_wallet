@@ -13,17 +13,14 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 
 class DecredWalletService extends WalletService<
     DecredNewWalletCredentials,
     DecredRestoreWalletFromSeedCredentials,
     DecredRestoreWalletFromPubkeyCredentials,
     DecredRestoreWalletFromHardwareCredentials> {
-  DecredWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  DecredWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
   final seedRestorePath = "m/44'/42'";
   static final seedRestorePathTestnet = "m/44'/1'";
@@ -265,7 +262,6 @@ class DecredWalletService extends WalletService<
       walletInfo,
       di,
       password,
-      unspentCoinsInfoSource,
       libwallet!,
       closeLibwallet,
       passphrase: passphrase,
