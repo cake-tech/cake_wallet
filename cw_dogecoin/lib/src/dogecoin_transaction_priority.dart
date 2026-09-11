@@ -1,17 +1,16 @@
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:flutter/foundation.dart';
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:flutter/foundation.dart";
 
 class DogecoinTransactionPriority extends BitcoinTransactionPriority {
-  const DogecoinTransactionPriority({required String title, required int raw})
-      : super(title: title, raw: raw);
+  const DogecoinTransactionPriority({required super.title, required super.raw});
 
   static const List<DogecoinTransactionPriority> all = [fast, medium, slow];
   static const DogecoinTransactionPriority slow =
-      DogecoinTransactionPriority(title: 'Slow', raw: 0);
+      DogecoinTransactionPriority(title: "Slow", raw: 0);
   static const DogecoinTransactionPriority medium =
-      DogecoinTransactionPriority(title: 'Medium', raw: 1);
+      DogecoinTransactionPriority(title: "Medium", raw: 1);
   static const DogecoinTransactionPriority fast =
-      DogecoinTransactionPriority(title: 'Fast', raw: 2);
+      DogecoinTransactionPriority(title: "Fast", raw: 2);
 
   static DogecoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -23,28 +22,28 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for DogecoinTransactionPriority deserialize');
+          throw Exception("Unexpected token: $raw for DogecoinTransactionPriority deserialize");
         }
         return medium;
     }
   }
 
   @override
-  String get units => 'koinu';
+  String get units => "koinu";
 
   @override
   String toString() {
-    var label = '';
+    var label = "";
 
     switch (this) {
       case DogecoinTransactionPriority.slow:
-        label = 'Slow'; // S.current.transaction_priority_slow;
+        label = "Slow"; // S.current.transaction_priority_slow;
         break;
       case DogecoinTransactionPriority.medium:
-        label = 'Medium'; // S.current.transaction_priority_medium;
+        label = "Medium"; // S.current.transaction_priority_medium;
         break;
       case DogecoinTransactionPriority.fast:
-        label = 'Fast'; // S.current.transaction_priority_fast;
+        label = "Fast"; // S.current.transaction_priority_fast;
         break;
       default:
         break;

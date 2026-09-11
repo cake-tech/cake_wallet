@@ -1,54 +1,46 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_keys_file.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/bitcoin_address_record.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/electrum_balance.dart";
+import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_bitcoin/electrum_wallet_snapshot.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_keys_file.dart";
+import "package:cw_dogecoin/src/dogecoin_wallet_addresses.dart";
+import "package:flutter/foundation.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
 
-import 'dogecoin_wallet_addresses.dart';
-
-part 'dogecoin_wallet.g.dart';
+part "dogecoin_wallet.g.dart";
 
 class DogeCoinWallet = DogeCoinWalletBase with _$DogeCoinWallet;
 
 abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   DogeCoinWalletBase({
-    required String mnemonic,
-    required String password,
+    required String super.mnemonic,
+    required super.password,
     required WalletInfo walletInfo,
-    required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
-    required EncryptionFileUtils encryptionFileUtils,
-    String? passphrase,
+    required super.derivationInfo,
+    required super.unspentCoinsInfo,
+    required Uint8List super.seedBytes,
+    required super.encryptionFileUtils,
+    super.passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
+    super.initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            derivationInfo: derivationInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: DogecoinNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.doge,
-            encryptionFileUtils: encryptionFileUtils,
-            passphrase: passphrase) {
+          walletInfo: walletInfo,
+          network: DogecoinNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          currency: CryptoCurrency.doge,
+        ) {
     walletAddresses = DogeCoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -62,9 +54,9 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
     );
-    autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
-    });
+    autorun(
+      (_) => walletAddresses.isEnabledAutoGenerateSubaddress = isEnabledAutoGenerateSubaddress,
+    );
   }
 
   @override
@@ -74,43 +66,47 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       inputsCount * 180 + outputsCounts * 34 + 10;
 
   @override
-  int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
-          {int? size}) =>
+  int feeAmountForPriority(
+    TransactionPriority priority,
+    int inputsCount,
+    int outputsCount, {
+    int? size,
+  }) =>
       feeRate(priority) * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
 
   @override
   int feeAmountWithFeeRate(int feeRate, int inputsCount, int outputsCount, {int? size}) =>
       feeRate * (size ?? estimatedDogeCoinTransactionSize(inputsCount, outputsCount));
 
-  static Future<DogeCoinWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
-    return DogeCoinWallet(
-      mnemonic: mnemonic,
-      password: password,
-      walletInfo: walletInfo,
-      derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: initialAddresses,
-      initialBalance: initialBalance,
-      seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
-      encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
-      addressPageType: P2pkhAddressType.p2pkh,
-      passphrase: passphrase,
-    );
-  }
+  static Future<DogeCoinWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) async =>
+      DogeCoinWallet(
+        mnemonic: mnemonic,
+        password: password,
+        walletInfo: walletInfo,
+        derivationInfo: derivationInfo,
+        unspentCoinsInfo: unspentCoinsInfo,
+        initialAddresses: initialAddresses,
+        initialBalance: initialBalance,
+        seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
+        encryptionFileUtils: encryptionFileUtils,
+        initialRegularAddressIndex: initialRegularAddressIndex,
+        initialChangeAddressIndex: initialChangeAddressIndex,
+        addressPageType: P2pkhAddressType.p2pkh,
+        passphrase: passphrase,
+      );
 
   static Future<DogeCoinWallet> open({
     required String name,
@@ -121,7 +117,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
-    ElectrumWalletSnapshot? snp = null;
+    ElectrumWalletSnapshot? snp;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
@@ -132,7 +128,9 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
         DogecoinNetwork.mainnet,
       );
     } catch (e) {
-      if (!hasKeysFile) rethrow;
+      if (!hasKeysFile) {
+        rethrow;
+      }
     }
 
     final WalletKeysData keysData;
@@ -157,7 +155,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
-      seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
+      seedBytes: MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
@@ -167,16 +165,16 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
+  Future<String> signMessage(String message, {String? address}) async {
     int? index;
     try {
       index = address != null
           ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
           : null;
     } catch (_) {}
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
+    final hd = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromWif(
-      WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
+      WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,
     );
     return priv.signMessage(StringUtils.encode(message));
