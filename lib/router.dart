@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
@@ -150,6 +151,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
+import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
@@ -177,7 +179,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -746,9 +747,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buySellPage:
-      final args = settings.arguments as bool?;
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<BuySellPage>(param1: args),
+        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: BuySellPageMode.buy)),
       );
 
     case Routes.buyOptionsPage:

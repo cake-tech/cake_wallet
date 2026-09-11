@@ -12,6 +12,31 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/card_design.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import 'balance_card.dart';
 
 class CardsView extends StatefulWidget {
   const CardsView({
