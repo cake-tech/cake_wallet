@@ -21,6 +21,7 @@ class HistoryTile extends StatelessWidget {
     required this.hasTokens,
     this.chainIconPath,
     this.asset,
+    this.isSilentPayment = false,
   });
 
   final String title;
@@ -35,6 +36,7 @@ class HistoryTile extends StatelessWidget {
   final TransactionDirection direction;
   final bool pending;
   final CryptoCurrency? asset;
+  final bool isSilentPayment;
 
   String _getDirectionIcon() {
     if (pending) {
@@ -126,13 +128,43 @@ class HistoryTile extends StatelessWidget {
       );
     }
 
-    return CakeImageWidget(
+    final directionIcon = CakeImageWidget(
         imageUrl: _getDirectionIcon(),
         colorFilter: ColorFilter.mode(
             direction == TransactionDirection.outgoing
                 ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
                 : Colors.green,
             BlendMode.srcIn));
+
+    if (isSilentPayment) {
+      return Stack(
+        children: [
+          directionIcon,
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                shape: BoxShape.circle,
+              ),
+              padding: const EdgeInsets.all(2),
+              child: CakeImageWidget(
+                imageUrl: "assets/new-ui/address-type-picker-icons/silent.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return directionIcon;
+    }
   }
 
   @override

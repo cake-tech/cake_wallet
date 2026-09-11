@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
+import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -23,10 +26,16 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.isMwebScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
+    this.historicalMode = true,
+    this.toggleHistoricalMode,
     this.bitcoinMempoolAPIEnabled,
     required this.walletType,
     this.blockHeightTextFieldKey,
     this.heightController,
+    this.workerCount = 1,
+    this.maxWorkerCount = 1,
+    this.supportsParallelScanning = false,
+    this.onWorkerCountChanged,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -37,10 +46,19 @@ class BlockchainHeightWidget extends StatefulWidget {
   final bool isMwebScan;
   final TextEditingController? heightController;
   final bool doSingleScan;
+  final bool historicalMode;
+  final Function()? toggleHistoricalMode;
   final Future<bool>? bitcoinMempoolAPIEnabled;
   final Function()? toggleSingleScan;
   final WalletType walletType;
   final Key? blockHeightTextFieldKey;
+  // Rescan-page worker-count slider (Silent Payments only). Locked at 1
+  // (supportsParallelScanning false) until the connected node has
+  // negotiated the v2 wire protocol - see RescanViewModel.supportsParallelScanning.
+  final int workerCount;
+  final int maxWorkerCount;
+  final bool supportsParallelScanning;
+  final ValueChanged<int>? onWorkerCountChanged;
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
 }
@@ -136,7 +154,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               ))
             ],
           ),
-          if (widget.isSilentPaymentsScan)
+          if (widget.isSilentPaymentsScan) ...[
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: Row(
@@ -155,6 +173,97 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                       onTapped: () => widget.toggleSingleScan?.call(),
                     ),
                   )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                S.of(context).silent_payments_scan_one_block_description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+          ],
+          if (widget.isSilentPaymentsScan) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    S.of(context).silent_payments_historical_mode,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: StandardSwitch(
+                      value: widget.historicalMode,
+                      onTapped: () => widget.toggleHistoricalMode?.call(),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text(
+                S.of(context).silent_payments_historical_mode_description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+          ],
+          // Worker-count slider: irrelevant for a single-block scan (that
+          // path always uses exactly one worker on an unpartitioned range
+          // regardless of this value - see ElectrumWalletBase._setListeners),
+          // so hidden rather than shown-but-inert while doSingleScan is on.
+          if (widget.isSilentPaymentsScan && !widget.doSingleScan)
+            Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        S.of(context).silent_payments_scan_worker_count,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                      Text(
+                        '${widget.supportsParallelScanning ? widget.workerCount : 1}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    inactiveColor: context.customColors.toggleColorOffState,
+                    thumbColor: context.customColors.toggleKnobStateColor,
+                    value: (widget.supportsParallelScanning ? widget.workerCount : 1).toDouble(),
+                    min: 1,
+                    max: max(widget.maxWorkerCount, 1).toDouble(),
+                    divisions: max(widget.maxWorkerCount - 1, 1),
+                    onChanged: widget.supportsParallelScanning
+                        ? (v) => widget.onWorkerCountChanged?.call(v.round())
+                        : null,
+                  ),
+                  if (!widget.supportsParallelScanning)
+                    Text(
+                      S.of(context).silent_payments_scan_worker_count_locked,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
                 ],
               ),
             ),

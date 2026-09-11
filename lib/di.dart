@@ -152,7 +152,6 @@ import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
-import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
@@ -1150,8 +1149,6 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => SilentPaymentsSettingsPage(getIt.get<SilentPaymentsSettingsViewModel>()));
-
-  getIt.registerFactory(() => SilentPaymentsLogPage(getIt.get<SilentPaymentsSettingsViewModel>()));
 
   getIt.registerFactory(() => MwebSettingsPage(getIt.get<MwebSettingsViewModel>()));
 
