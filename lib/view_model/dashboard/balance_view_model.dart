@@ -478,7 +478,7 @@ abstract class BalanceViewModelBase with Store {
     return null;
   }
 
-  @computed
+  // This value isn't observable, so don't cache it.
   bool get showCombinedBalance {
     if (wallet.type == WalletType.bitcoin) return false;
     if (balances.values.length == 1) return false;

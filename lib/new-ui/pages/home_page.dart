@@ -122,17 +122,21 @@ class _NewHomePageState extends State<NewHomePage> {
                             _lightningMode = !_lightningMode;
                           });
                         },
-                        onSettingsButtonPress: () {
-                          CupertinoScaffold.showCupertinoModalBottomSheet(
+                        onSettingsButtonPress: () async {
+                          await CupertinoScaffold.showCupertinoModalBottomSheet(
                             context: context,
                             barrierColor: Colors.black.withAlpha(85),
                             builder: (context) => FractionallySizedBox(
-                                child: Material(
-                                    child: NewSettingsPage(
-                              dashboardViewModel: widget.dashboardViewModel,
-                              authService: getIt.get<AuthService>(),
-                            ))),
+                              child: Material(
+                                child: NewSettingsPage(
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  authService: getIt.get<AuthService>(),
+                                ),
+                              ),
+                            ),
                           );
+
+                          await widget.dashboardViewModel.loadCardDesigns();
                         },
                       ),
                       Observer(

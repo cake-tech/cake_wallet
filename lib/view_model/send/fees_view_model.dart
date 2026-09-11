@@ -6,7 +6,6 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -184,40 +183,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void setDefaultTransactionPriority() {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.haven:
-      case WalletType.wownero:
-      case WalletType.zano:
-        _settingsStore.setPriority(wallet.type, monero!.getMoneroTransactionPriorityAutomatic());
-        break;
-      case WalletType.zcash:
-        _settingsStore.setPriority(wallet.type, zcash!.getZcashTransactionPriorityAutomatic());
-        break;
-      case WalletType.bitcoin:
-        _settingsStore.setPriority(wallet.type, bitcoin!.getBitcoinTransactionPriorityMedium());
-        break;
-      case WalletType.litecoin:
-        _settingsStore.setPriority(wallet.type, bitcoin!.getLitecoinTransactionPriorityMedium());
-        break;
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.base:
-      case WalletType.bsc:
-        _settingsStore.setPriority(
-          wallet.type,
-          evm!.getDefaultTransactionPriority(),
-          chainId: wallet.chainId,
-        );
-        break;
-      case WalletType.bitcoinCash:
-        _settingsStore.setPriority(wallet.type, bitcoinCash!.getDefaultTransactionPriority());
-        break;
-      case WalletType.dogecoin:
-        _settingsStore.setPriority(wallet.type, dogecoin!.getDefaultTransactionPriority());
-        break;
-      default:
-        break;
-    }
+    _settingsStore.setDefaultPriorityFor(wallet.type);
   }
 }
