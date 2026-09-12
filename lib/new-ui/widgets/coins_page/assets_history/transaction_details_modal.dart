@@ -79,6 +79,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                           TokenImageWidget(
                             imageUrl:
                                 widget.transactionDetailsViewModel.transactionAsset.iconPath ?? "",
+                            networkImageUrl:
+                                widget.transactionDetailsViewModel.transactionAsset.networkIconUrl,
                             size: 64,
                           ),
                           const SizedBox(height: 10),

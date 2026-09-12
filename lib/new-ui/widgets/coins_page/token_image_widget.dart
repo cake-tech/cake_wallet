@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/store/settings_store.dart";
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/utils/proxy_wrapper.dart";
 import 'package:flutter/material.dart';
 
 enum _IconShape {
@@ -16,12 +19,14 @@ class TokenImageWidget extends StatefulWidget {
     super.key,
     required this.imageUrl,
     required this.size,
+    this.networkImageUrl,
     this.errorWidget,
     this.semanticsLabel,
   });
 
   final String imageUrl;
   final double size;
+  final String? networkImageUrl;
   final Widget? errorWidget;
 
   /// Accessible name for the token artwork. Leave `null` (the default) when the
@@ -37,6 +42,29 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
 
   _IconShape _shape = _IconShape.clipOnly;
 
+  String get _displayUrl {
+    final networkUrl = widget.networkImageUrl;
+
+    if (networkUrl == null || networkUrl.isEmpty) {
+      return widget.imageUrl;
+    }
+
+    if (CakeTor.instance!.enabled) {
+      return widget.imageUrl;
+    }
+
+    if (getIt.get<SettingsStore>().disableTokenImageRefresh) {
+      return widget.imageUrl;
+    }
+
+    return networkUrl;
+  }
+
+  String? get _fallbackImagePath =>
+      _displayUrl != widget.imageUrl && widget.imageUrl.startsWith("assets/")
+          ? widget.imageUrl
+          : null;
+
   @override
   void initState() {
     super.initState();
@@ -46,13 +74,14 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
   @override
   void didUpdateWidget(TokenImageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.imageUrl != widget.imageUrl) {
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.networkImageUrl != widget.networkImageUrl) {
       _resolveShape();
     }
   }
 
   Future<void> _resolveShape() async {
-    final url = widget.imageUrl;
+    final url = _displayUrl;
 
     final cached = _shapeCache[url];
     if (cached != null) {
@@ -131,7 +160,8 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
       width: widget.size,
       height: widget.size,
       child: CakeImageWidget(
-        imageUrl: widget.imageUrl,
+        imageUrl: _displayUrl,
+        fallbackImagePath: _fallbackImagePath,
         width: widget.size,
         height: widget.size,
         fit: BoxFit.cover,
