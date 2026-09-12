@@ -104,6 +104,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import "package:cw_core/account.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -300,6 +301,7 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
+  Future<Account> getCurrentAccount(Object wallet);
   ElectrumBalance balanceForAccount(Object wallet, int accountIndex);
   Map<int, Object> accountBalancesSnapshot(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -125,15 +126,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
 
     if (_wallet.type == WalletType.bitcoin) {
-      final selectedAccountIndex = _wallet.walletInfo.selectedAccount ?? 0;
-      final accounts = await _wallet.walletInfo.getAccounts();
-      final account =
-          accounts.where((account) => account.accountIndex == selectedAccountIndex).firstOrNull;
-
-      return (
-        accountName: account?.label ?? "",
-        accountIndex: selectedAccountIndex,
-      );
+      final account = await bitcoin!.getCurrentAccount(_wallet);
+      return (accountName: account.label, accountIndex: account.id);
     }
 
     return (accountName: "", accountIndex: -1);

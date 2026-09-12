@@ -345,6 +345,16 @@ abstract class ElectrumWalletBase
 
   int? _balanceDisplayedForAccount;
 
+  Future<WalletInfoAccount> loadCurrentAccount() async {
+    final accounts = await walletInfo.getAccounts();
+    final current = accounts.firstWhere(
+          (account) => account.isSelected,
+      orElse: () => accounts.first,
+    );
+
+    return current;
+  }
+
   Future<List<int>> loadAccountIndexes() async {
     if (type != WalletType.bitcoin) return [0];
 

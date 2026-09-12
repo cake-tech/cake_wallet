@@ -942,6 +942,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<Account> getCurrentAccount(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final acc = await electrumWallet.loadCurrentAccount();
+    return Account(
+        id: acc.accountIndex,
+        label: acc.label,
+        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
+  }
+
+  @override
   bool isTransactionForCurrentAccount(Object wallet, Object transaction) {
     final bitcoinWallet = wallet as ElectrumWallet;
     final tx = transaction as ElectrumTransactionInfo;
