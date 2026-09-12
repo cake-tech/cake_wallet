@@ -13,6 +13,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -30,6 +31,7 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
+import "package:shared_preferences/shared_preferences.dart";
 
 part 'tron_wallet.g.dart';
 
@@ -373,8 +375,21 @@ abstract class TronWalletBase
     ]);
   }
 
+  Future<bool> checkIfScanProviderIsEnabled() async {
+    try {
+      return (await SharedPreferences.getInstance()).getBool("use_trongrid") ?? true;
+    } catch (e) {
+      printV("Could not read the TronGrid preference: $e");
+      return false;
+    }
+  }
+
   @override
   Future<Map<String, TronTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return transactionHistory.transactions;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTransactions(address);
@@ -441,6 +456,10 @@ abstract class TronWalletBase
   }
 
   Future<void> fetchTrc20ExcludedTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTrc20ExcludedTransactions(address);
