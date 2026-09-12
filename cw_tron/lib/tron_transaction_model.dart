@@ -1,8 +1,38 @@
-import 'package:blockchain_utils/hex/hex.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:on_chain/on_chain.dart';
+import "package:blockchain_utils/hex/hex.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:on_chain/on_chain.dart";
 
 class TronTRC20TransactionModel extends TronTransactionModel {
+  TronTRC20TransactionModel({
+    this.transactionId,
+    this.tokenSymbol,
+    this.timestamp,
+    this.from,
+    this.to,
+    this.value,
+  });
+
+  TronTRC20TransactionModel.fromJson(Map<String, dynamic> json) {
+    final tokenInfo = json["token_info"] as Map<String, dynamic>?;
+    transactionId = json["transaction_id"] as String?;
+    tokenSymbol = tokenInfo?["symbol"] as String?;
+    decimals = tokenInfo?["decimals"] as int?;
+    timestamp = json["block_timestamp"] as int?;
+    from = json["from"] as String?;
+    to = json["to"] as String?;
+    value = json["value"] as String?;
+  }
+
+  TronTRC20TransactionModel.fromTronScanJson(Map<String, dynamic> json) {
+    final tokenInfo = json["tokenInfo"] as Map<String, dynamic>?;
+    transactionId = json["transaction_id"] as String?;
+    tokenSymbol = tokenInfo?["tokenAbbr"] as String?;
+    decimals = tokenInfo?["tokenDecimal"] as int?;
+    timestamp = json["block_ts"] as int?;
+    from = json["from_address"] as String?;
+    to = json["to_address"] as String?;
+    value = json["quant"] as String?;
+  }
   String? transactionId;
 
   String? tokenSymbol;
@@ -29,32 +59,54 @@ class TronTRC20TransactionModel extends TronTransactionModel {
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp ?? 0);
 
   @override
-  BigInt? get amount => BigInt.parse(value ?? '0');
+  BigInt? get amount => BigInt.parse(value ?? "0");
 
   @override
   int? get fee => 0;
-
-  TronTRC20TransactionModel({
-    this.transactionId,
-    this.tokenSymbol,
-    this.timestamp,
-    this.from,
-    this.to,
-    this.value,
-  });
-
-  TronTRC20TransactionModel.fromJson(Map<String, dynamic> json) {
-    transactionId = json['transaction_id'];
-    tokenSymbol = json['token_info'] != null ? json['token_info']['symbol'] : null;
-    decimals = json['token_info'] != null ? json['token_info']['decimals'] : null;
-    timestamp = json['block_timestamp'];
-    from = json['from'];
-    to = json['to'];
-    value = json['value'];
-  }
 }
 
 class TronTransactionModel {
+  TronTransactionModel({
+    this.ret,
+    this.txID,
+    this.blockTimestamp,
+    this.contracts,
+  });
+
+  TronTransactionModel.fromTronScanJson(Map<String, dynamic> json) {
+    txID = json["hash"] as String?;
+    blockTimestamp = json["timestamp"] as int?;
+    final cost = json["cost"] as Map<String, dynamic>?;
+    ret = [
+      Ret(
+        contractRet: json["contractRet"] as String?,
+        fee: cost?["fee"] as int?,
+      ),
+    ];
+    contracts = [
+      Contract(
+        type: TransactionContractType.findByValue(json["contractType"] as int)?.name,
+        parameter: Parameter(
+          value: Value.fromTronScanJson(json["contractData"] as Map<String, dynamic>),
+        ),
+      ),
+    ];
+  }
+
+  TronTransactionModel.fromJson(Map<String, dynamic> json) {
+    txID = json["txID"] as String?;
+    blockTimestamp = json["block_timestamp"] as int?;
+    if (json["ret"] != null) {
+      ret = (json["ret"] as List<dynamic>)
+          .map((v) => Ret.fromJson(v as Map<String, dynamic>))
+          .toList();
+    }
+    contracts = json["raw_data"] != null
+        ? ((json["raw_data"] as Map<String, dynamic>)["contract"] as List<dynamic>)
+            .map((e) => Contract.fromJson(e as Map<String, dynamic>))
+            .toList()
+        : null;
+  }
   List<Ret>? ret;
   String? txID;
   int? blockTimestamp;
@@ -82,67 +134,75 @@ class TronTransactionModel {
 
   String? get contractAddress => contracts?.first.parameter?.value?.contractAddress;
 
-  TronTransactionModel({
-    this.ret,
-    this.txID,
-    this.blockTimestamp,
-    this.contracts,
-  });
+  bool get isTrc20Transfer {
+    final data = contracts?.first.parameter?.value?.data?.toLowerCase().replaceFirst("0x", "");
 
-  TronTransactionModel.fromJson(Map<String, dynamic> json) {
-    if (json['ret'] != null) {
-      ret = <Ret>[];
-      json['ret'].forEach((v) {
-        ret!.add(Ret.fromJson(v));
-      });
-    }
-    txID = json['txID'];
-    blockTimestamp = json['block_timestamp'];
-    contracts = json['raw_data'] != null
-        ? (json['raw_data']['contract'] as List)
-            .map((e) => Contract.fromJson(e as Map<String, dynamic>))
-            .toList()
-        : null;
+    return data != null && data.length >= 136 && data.startsWith("a9059cbb");
   }
 }
 
 class Ret {
-  String? contractRet;
-  int? fee;
-
   Ret({this.contractRet, this.fee});
 
   Ret.fromJson(Map<String, dynamic> json) {
-    contractRet = json['contractRet'];
-    fee = json['fee'];
+    contractRet = json["contractRet"] as String?;
+    fee = json["fee"] as int?;
   }
+  String? contractRet;
+  int? fee;
 }
 
 class Contract {
-  Parameter? parameter;
-  String? type;
-
   Contract({this.parameter, this.type});
 
   Contract.fromJson(Map<String, dynamic> json) {
-    parameter = json['parameter'] != null ? Parameter.fromJson(json['parameter']) : null;
-    type = json['type'];
+    parameter = json["parameter"] != null
+        ? Parameter.fromJson(json["parameter"] as Map<String, dynamic>)
+        : null;
+    type = json["type"] as String?;
   }
+  Parameter? parameter;
+  String? type;
 }
 
 class Parameter {
-  Value? value;
-  String? typeUrl;
-
   Parameter({this.value, this.typeUrl});
 
   Parameter.fromJson(Map<String, dynamic> json) {
-    value = json['value'] != null ? Value.fromJson(json['value']) : null;
-    typeUrl = json['type_url'];
+    value = json["value"] != null ? Value.fromJson(json["value"] as Map<String, dynamic>) : null;
+    typeUrl = json["type_url"] as String?;
   }
+  Value? value;
+  String? typeUrl;
 }
 
 class Value {
+  Value({
+    this.data,
+    this.ownerAddress,
+    this.contractAddress,
+    this.amount,
+    this.toAddress,
+    this.assetName,
+  });
+
+  Value.fromJson(Map<String, dynamic> json) {
+    data = json["data"] as String?;
+    ownerAddress = json["owner_address"] as String?;
+    contractAddress = json["contract_address"] as String?;
+    amount = json["amount"] as int?;
+    toAddress = json["to_address"] as String?;
+    assetName = json["asset_name"] as String?;
+  }
+
+  Value.fromTronScanJson(Map<String, dynamic> json) {
+    data = json["data"] as String?;
+    ownerAddress = _toHexAddress(json["owner_address"] as String?);
+    contractAddress = _toHexAddress(json["contract_address"] as String?);
+    amount = json["amount"] as int?;
+    toAddress = _toHexAddress(json["to_address"] as String?);
+    assetName = json["asset_name"] as String?;
+  }
   String? data;
   String? ownerAddress;
   String? contractAddress;
@@ -172,28 +232,14 @@ class Value {
     return _decodeAmountInvolvedFromEncodedDataField(data!);
   }
 
-  Value(
-      {this.data,
-      this.ownerAddress,
-      this.contractAddress,
-      this.amount,
-      this.toAddress,
-      this.assetName});
-
-  Value.fromJson(Map<String, dynamic> json) {
-    data = json['data'];
-    ownerAddress = json['owner_address'];
-    contractAddress = json['contract_address'];
-    amount = json['amount'];
-    toAddress = json['to_address'];
-    assetName = json['asset_name'];
-  }
+  static String? _toHexAddress(String? address) =>
+      address == null ? null : TronAddress(address).toHex();
 
   /// To get the address from the encoded data field
   String _decodeAddressFromEncodedDataField(String output) {
     // To get the receiver address from the encoded params
-    output = output.replaceFirst('0x', '').substring(8);
-    final abiCoder = ABICoder.fromType('address');
+    output = output.replaceFirst("0x", "").substring(8);
+    final abiCoder = ABICoder.fromType("address");
     final decoded = abiCoder.decode(AbiParameter.bytes, hex.decode(output));
     final tronAddress = TronAddress.fromEthAddress((decoded.result as ETHAddress).toBytes());
 
@@ -202,8 +248,8 @@ class Value {
 
   /// To get the amount from the encoded data field
   BigInt _decodeAmountInvolvedFromEncodedDataField(String output) {
-    output = output.replaceFirst('0x', '').substring(72);
-    final amountAbiCoder = ABICoder.fromType('uint256');
+    output = output.replaceFirst("0x", "").substring(72);
+    final amountAbiCoder = ABICoder.fromType("uint256");
     final decodedA = amountAbiCoder.decode(AbiParameter.uint256, hex.decode(output));
     final amount = decodedA.result as BigInt;
 

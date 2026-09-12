@@ -1,6 +1,6 @@
 ## cw_tron
 
-TRON wallet module for Cake Wallet. Implements TRX and TRC-20 token support on top of `on_chain` (Tron), with transaction history and fee estimation via TronGrid.
+TRON wallet module for Cake Wallet. Implements TRX and TRC-20 token support on top of `on_chain` (Tron), with transaction history from TronGrid or TronScan and fee estimation through the node.
 
 ### Features
 
@@ -16,11 +16,13 @@ TRON wallet module for Cake Wallet. Implements TRX and TRC-20 token support on t
 
 ### Getting started
 
-Provide a TRON RPC endpoint and a TronGrid API key. Add a secrets file:
+Provide a TRON RPC endpoint and the API keys. Add a secrets file:
 
 ```dart
 // cw_tron/lib/.secrets.g.dart   (DO NOT COMMIT)
 const String tronGridApiKey = 'YOUR_TRONGRID_API_KEY';
+const String tronNowNodesApiKey = 'YOUR_NOWNODES_API_KEY';
+const String tronScanApiKey = 'YOUR_TRONSCAN_API_KEY';
 ```
 
 Basic connect and sync:
@@ -59,5 +61,6 @@ if (usdt != null) {
 
 ### Additional information
 
-- History and token queries use TronGrid; set `tronGridApiKey`.
+- Transaction history is fetched through `TronTransactionsApi`. `TronGridApi` (sends `tronGridApiKey`) and `TronScanApi` (sends `tronScanApiKey` when set) implement it; `TronClient` asks TronGrid and retries a failed request through TronScan.
+- Balances, token metadata and fee estimation go through the connected node.
 - See `lib/` for APIs: `TronClient`, `TronWallet`, `TronWalletService`, and credential types.
