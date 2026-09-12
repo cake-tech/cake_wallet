@@ -54,6 +54,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -882,7 +883,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
             final fromCurrency = trade.from ?? CryptoCurrency.sol;
-            final amount = Money.tryParse(trade.amount, fromCurrency) ?? Money.zero(fromCurrency);
+            final amount = Money.tryParse(
+              trade.amount.sanitized(),
+              fromCurrency,
+              strictParsing: false,
+            ) ?? Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -920,8 +925,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       final bool isTradeTx = trade != null && provider != null;
 
       if (isTradeTx) {
-        final tradeAmountDouble = double.tryParse(trade.amount) ?? 0.0;
-        if (tradeAmountDouble <= 0) throw Exception('Trade amount must be greater than 0');
+        final tradeAmountMoney = Money.tryParse(
+          trade.amount.sanitized(),
+          trade.from ?? selectedCryptoCurrency,
+          strictParsing: false,
+        );
+        if (tradeAmountMoney == null || tradeAmountMoney.sign <= 0) {
+          throw Exception('Trade amount must be greater than 0');
+        }
+        final tradeAmountDouble = double.tryParse(tradeAmountMoney.toString()) ?? 0.0;
 
         if (trade.isSendAll == true) {
           if (provider is NearIntentsExchangeProvider) {
