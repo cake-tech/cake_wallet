@@ -54,11 +54,12 @@ class CsvExportService {
     buf.writeln(_columns.join(','));
 
     final notes = _buildNoteLookup();
+    final primaryAddress = _primaryAddressOf(items);
 
     for (final item in items) {
       if (item is DateSectionItem) continue;
 
-      final row = _buildRow(item, notes);
+      final row = _buildRow(item, notes, primaryAddress);
       if (row != null) buf.writeln(row);
     }
 
@@ -77,14 +78,27 @@ class CsvExportService {
     return notes;
   }
 
-  String _noteFor(TransactionListItem item, Map<String, String> notes) {
+  /// Every item in one export belongs to the same wallet, so the address that
+  /// scopes a note key is identical for every row. Reading it goes to the wallet
+  /// — an FFI call on Monero and Wownero — so it is resolved once per export
+  /// rather than once per row. Returns an empty string when the export holds no
+  /// transaction rows, in which case the value is never used.
+  String _primaryAddressOf(List<ActionListItem> items) {
+    for (final item in items) {
+      if (item is TransactionListItem) {
+        return item.balanceViewModel.wallet.walletAddresses.primaryAddress;
+      }
+    }
+    return '';
+  }
+
+  String _noteFor(TransactionListItem item, Map<String, String> notes, String primaryAddress) {
     final txHash = item.transaction.txHash;
-    final primaryAddress = item.balanceViewModel.wallet.walletAddresses.primaryAddress;
     return notes['${txHash}_$primaryAddress'] ?? notes[txHash] ?? '';
   }
 
-  String? _buildRow(ActionListItem item, Map<String, String> notes) {
-    if (item is TransactionListItem) return _transactionRow(item, notes);
+  String? _buildRow(ActionListItem item, Map<String, String> notes, String primaryAddress) {
+    if (item is TransactionListItem) return _transactionRow(item, notes, primaryAddress);
     if (item is TradeListItem) return _tradeRow(item);
     if (item is OrderListItem) return _orderRow(item);
     if (item is AnonpayTransactionListItem) return _anonpayRow(item);
@@ -92,7 +106,8 @@ class CsvExportService {
     return null;
   }
 
-  String _transactionRow(TransactionListItem item, Map<String, String> notes) {
+  String _transactionRow(
+      TransactionListItem item, Map<String, String> notes, String primaryAddress) {
     final tx = item.transaction;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
@@ -114,7 +129,7 @@ class CsvExportService {
       tx.id,
       address,
       status,
-      _noteFor(item, notes),
+      _noteFor(item, notes, primaryAddress),
       '',
       '',
       '',
