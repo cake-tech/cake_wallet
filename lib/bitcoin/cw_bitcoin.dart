@@ -561,9 +561,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getTrezorHardwareWalletService(
-      trezor.TrezorConnect connect, bool isBitcoin) {
-    if (isBitcoin) return BitcoinTrezorService(connect);
-    return LitecoinTrezorService(connect);
+      trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin) {
+    if (isBitcoin) return BitcoinTrezorService(client!);
+    return LitecoinTrezorService(connect!);
   }
 
   @override

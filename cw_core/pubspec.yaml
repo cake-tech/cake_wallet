@@ -22,8 +22,7 @@ dependencies:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: main
-      version: 1.0.0
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart

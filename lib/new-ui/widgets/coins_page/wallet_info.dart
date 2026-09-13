@@ -12,7 +12,7 @@ class WalletInfoBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final semanticsLabel =
-    hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
+        hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
 
     return Semantics(
       label: semanticsLabel,
@@ -31,18 +31,18 @@ class WalletInfoBar extends StatelessWidget {
               child: hardwareWalletIcon == null
                   ? const SizedBox.shrink(key: ValueKey("empty"))
                   : Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CakeImageWidget(
-                  imageUrl: hardwareWalletIcon!,
-                  key: const ValueKey("hardware_wallet_icon"),
-                  width: 24,
-                  height: 24,
-                  colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurfaceVariant,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
+                      padding: const EdgeInsets.only(right: 8),
+                      child: CakeImageWidget(
+                        imageUrl: hardwareWalletIcon!,
+                        key: const ValueKey("hardware_wallet_icon"),
+                        width: 24,
+                        height: 24,
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),

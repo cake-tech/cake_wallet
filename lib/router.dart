@@ -1,17 +1,21 @@
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import "package:cake_wallet/core/auth_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
+import "package:cake_wallet/new-ui/pages/account_customizer.dart";
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -44,6 +48,7 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
+import "package:cake_wallet/src/screens/dashboard/pages/nft_send_page.dart";
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
@@ -142,7 +147,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
+import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
@@ -361,9 +368,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ConnectDevicePageParams(
               walletType: availableWalletTypes.first,
               hardwareWalletType: hardwareWalletType,
-              onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                  Routes.chooseHardwareWalletAccount,
-                  arguments: [availableWalletTypes.first, hardwareWalletType]),
+              onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                Routes.chooseHardwareWalletAccount,
+                arguments: [availableWalletTypes.first, hardwareWalletType],
+              ),
               isReconnect: false,
             ),
             getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType),
@@ -373,19 +381,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) {
-              if (hardwareWalletType == HardwareWalletType.trezor && type != WalletType.monero) {
-                Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]);
+            onTypeSelected: (context, type) {
+              if (hardwareWalletType == HardwareWalletType.trezor &&
+                  !trezorUseNative.contains(type)) {
+                Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                );
                 return;
               }
 
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,
-                onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                    Routes.chooseHardwareWalletAccount,
-                    arguments: [type, hardwareWalletType]),
+                onConnectDevice: (context, _) => Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                ),
                 isReconnect: false,
               );
 
@@ -698,9 +710,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.buySellPage:
-      final args = settings.arguments as bool?;
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<BuySellPage>(param1: args),
+        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: BuySellPageMode.buy)),
       );
 
     case Routes.buyOptionsPage:
@@ -955,7 +966,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               ));
 
     case Routes.nftDetailsPage:
-      return MaterialPageRoute<void>(
+      return MaterialPageRoute<bool>(
         builder: (_) => NFTDetailsPage(
           arguments: settings.arguments as NFTDetailsPageArguments,
           dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -966,6 +977,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => ImportNFTPage(
           nftViewModel: settings.arguments as NFTViewModel,
+        ),
+      );
+
+    case Routes.nftSendPage:
+      return MaterialPageRoute<bool>(
+        builder: (_) => NFTSendPage(
+          nftSendViewModel: getIt.get<NFTSendViewModel>(),
+          authService: getIt.get<AuthService>(),
+          arguments: settings.arguments as NFTSendPageArguments,
         ),
       );
 

@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
@@ -27,6 +29,7 @@ import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
+
 
 class NewHomePage extends StatefulWidget {
   const NewHomePage({required this.dashboardViewModel, required this.nftViewModel, super.key});
@@ -85,7 +88,11 @@ class _NewHomePageState extends State<NewHomePage> {
                     sliver: CupertinoSliverRefreshControl(
                       refreshTriggerPullDistance: 160,
                       refreshIndicatorExtent: 90,
-                      onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                      onRefresh: () {
+unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+return widget.dashboardViewModel.refreshDashboard();
+},
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -242,6 +249,7 @@ class _NewHomePageState extends State<NewHomePage> {
       lightningMode: widget.dashboardViewModel.lightningMode,
     );
   }
+
 
   Future<void> depositToL2() async {
     PaymentRequest? paymentRequest;
