@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
@@ -66,7 +67,8 @@ class TransactionsPage extends StatelessWidget {
             }),
             HeaderRow(
               dashboardViewModel: dashboardViewModel,
-              onExportCsv: () => CsvExportService().exportToCsv(dashboardViewModel.items, context),
+              onExportCsv: () =>
+                  getIt.get<CsvExportService>().exportToCsv(dashboardViewModel.items, context),
               key: ValueKey('transactions_page_header_row_key'),
             ),
             Expanded(

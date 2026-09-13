@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -16,10 +17,15 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CsvExportService {
+  CsvExportService({required this.transactionDescriptionBox});
+
+  final Box<TransactionDescription> transactionDescriptionBox;
+
   static const _columns = [
     'record_type',
     'date_time',
@@ -47,18 +53,38 @@ class CsvExportService {
     buf.write(_utf8Bom);
     buf.writeln(_columns.join(','));
 
+    final notes = _buildNoteLookup();
+
     for (final item in items) {
       if (item is DateSectionItem) continue;
 
-      final row = _buildRow(item);
+      final row = _buildRow(item, notes);
       if (row != null) buf.writeln(row);
     }
 
     return buf.toString();
   }
 
-  String? _buildRow(ActionListItem item) {
-    if (item is TransactionListItem) return _transactionRow(item);
+  /// Local transaction notes are stored in a Hive box keyed by
+  /// `<txHash>_<primaryAddress>`, with older builds keying by the bare
+  /// `<txHash>`. The whole box is indexed once per export so that looking up a
+  /// note stays O(1) per row instead of rescanning the box for every row.
+  Map<String, String> _buildNoteLookup() {
+    final notes = <String, String>{};
+    for (final description in transactionDescriptionBox.values) {
+      notes.putIfAbsent(description.id, () => description.note);
+    }
+    return notes;
+  }
+
+  String _noteFor(TransactionListItem item, Map<String, String> notes) {
+    final txHash = item.transaction.txHash;
+    final primaryAddress = item.balanceViewModel.wallet.walletAddresses.primaryAddress;
+    return notes['${txHash}_$primaryAddress'] ?? notes[txHash] ?? '';
+  }
+
+  String? _buildRow(ActionListItem item, Map<String, String> notes) {
+    if (item is TransactionListItem) return _transactionRow(item, notes);
     if (item is TradeListItem) return _tradeRow(item);
     if (item is OrderListItem) return _orderRow(item);
     if (item is AnonpayTransactionListItem) return _anonpayRow(item);
@@ -66,7 +92,7 @@ class CsvExportService {
     return null;
   }
 
-  String _transactionRow(TransactionListItem item) {
+  String _transactionRow(TransactionListItem item, Map<String, String> notes) {
     final tx = item.transaction;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
@@ -88,7 +114,7 @@ class CsvExportService {
       tx.id,
       address,
       status,
-      '',
+      _noteFor(item, notes),
       '',
       '',
       '',
