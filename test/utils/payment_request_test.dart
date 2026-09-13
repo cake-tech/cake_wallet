@@ -7,7 +7,8 @@ void main() {
     group("Ethereum URIs", () {
       test("extract address and raw token amount from EIP681 Uri with contract", () {
         final uri = Uri.parse(
-            "ethereum:0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41&uint256=2000000000000000000");
+          "ethereum:0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41&uint256=2000000000000000000",
+        );
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.address, "0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41");
@@ -17,7 +18,8 @@ void main() {
 
       test("extract address and amount from EIP681 Uri", () {
         final uri = Uri.parse(
-            "ethereum:0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41@1?value=2000000000000000000");
+          "ethereum:0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41@1?value=2000000000000000000",
+        );
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.address, "0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41");
@@ -34,7 +36,8 @@ void main() {
 
       test("extract address from EIP681 Uri with contract", () {
         final uri = Uri.parse(
-            "ethereum:0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41");
+          "ethereum:0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41",
+        );
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.address, "0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41");
@@ -43,7 +46,8 @@ void main() {
 
       test("extract address and raw token amount from EIP681 Uri with contract and no chainId", () {
         final uri = Uri.parse(
-            "ethereum:0x1234567890abcdef1234567890abcdef12345678/transfer?address=0xabcdef1234567890abcdef1234567890abcdef12&uint256=1000000000000000000");
+          "ethereum:0x1234567890abcdef1234567890abcdef12345678/transfer?address=0xabcdef1234567890abcdef1234567890abcdef12&uint256=1000000000000000000",
+        );
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.address, "0xabcdef1234567890abcdef1234567890abcdef12");
@@ -76,7 +80,8 @@ void main() {
 
       test("converts the raw uint256 using the token decimals", () {
         final uri = Uri.parse(
-            "ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41&uint256=1000000");
+          "ethereum:0xdAC17F958D2ee523a2206206994597C13D831ec7@1/transfer?address=0xCfc1650da7C961FD82998e7e30ca5f699D0aBf41&uint256=1000000",
+        );
         final paymentRequest = PaymentRequest.fromUri(uri);
 
         expect(paymentRequest.resolveTokenAmount(usdt), "1");
@@ -90,8 +95,14 @@ void main() {
       });
 
       test("falls back to the legacy 18 decimal reading for implausibly large amounts", () {
-        final paymentRequest = PaymentRequest("addr", "", "", "ethereum", null,
-            rawTokenAmount: "50000000000000000000");
+        final paymentRequest = PaymentRequest(
+          "addr",
+          "",
+          "",
+          "ethereum",
+          null,
+          rawTokenAmount: "50000000000000000000",
+        );
 
         expect(paymentRequest.resolveTokenAmount(usdt), "50");
       });

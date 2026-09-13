@@ -238,8 +238,14 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           height: 48,
                                                           decoration: BoxDecoration(
                                                             borderRadius: BorderRadius.circular(18),
-                                                            color: Theme.of(context)
-                                                                .colorScheme
+                                                            color: Theme.of(context).brightness ==
+                                                                    Brightness.light
+                                                                ? Theme.of(context)
+                                                                    .colorScheme
+                                                                    .onSurfaceVariant
+                                                                    .withAlpha(64)
+                                                                : Theme.of(context)
+                                                                    .colorScheme
                                                                 .surfaceContainerHigh,
                                                             border: Border.all(
                                                               color: isSelected

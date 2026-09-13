@@ -160,7 +160,6 @@ assets/images/app_logo.png
 assets/new-ui/**/*.svg.vec
 
 /pubspec.yaml
-/pubspec.lock
 /android/app.properties
 /android/app/src/main/AndroidManifest.xml
 
@@ -228,3 +227,5 @@ scripts/reown_flutter
 
 *.salive
 android/.kotlin
+scripts/.cache
+pubspec.lock

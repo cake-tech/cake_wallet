@@ -160,6 +160,13 @@ foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
     COMPONENT Runtime)
 endforeach(bundled_library)
 
+install(CODE "
+  execute_process(
+    COMMAND \"${CMAKE_COMMAND}\" -E create_symlink
+      libsqlite3_flutter_libs_plugin.so
+      \"${INSTALL_BUNDLE_LIB_DIR}/libsqlite3.so\")
+" COMPONENT Runtime)
+
 # Fully re-copy the assets directory on each build to avoid having stale files
 # from a previous install.
 set(FLUTTER_ASSET_DIR_NAME "flutter_assets")

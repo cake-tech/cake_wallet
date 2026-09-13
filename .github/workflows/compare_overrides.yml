@@ -1,0 +1,55 @@
+name: Check for dependency changes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  compare-overrides:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Compare pubspec overrides
+        id: compare
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch origin "$BASE_REF"
+          base_sha=$(git rev-parse "origin/$BASE_REF")
+          head_sha="${{ github.event.pull_request.head.sha }}"
+
+          ./scripts/compare_overrides.sh "$base_sha" "$head_sha" > /tmp/compare_output.txt
+
+          if [[ ! -s /tmp/compare_output.txt ]]; then
+            echo "has_output=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo '### changes in dependencies'
+            echo
+            echo '```'
+            cat /tmp/compare_output.txt
+            echo '```'
+          } > /tmp/comment_body.md
+
+          echo "has_output=true" >> "$GITHUB_OUTPUT"
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        if: steps.compare.outputs.has_output == 'true'
+        with:
+          header: pubspec-overrides-compare
+          path: /tmp/comment_body.md

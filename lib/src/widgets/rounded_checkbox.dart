@@ -9,7 +9,9 @@ class RoundedCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return value
+    // Unchecked renders nothing at all, so without an explicit `checked` state
+    // the selection is invisible to screen readers.
+    final Widget indicator = value
         ? Container(
             height: 20.0,
             width: 20.0,
@@ -23,5 +25,9 @@ class RoundedCheckbox extends StatelessWidget {
               size: 14.0,
             ))
         : Offstage();
+
+    // Deliberately not a semantics container: the state merges into the
+    // enclosing row/option node instead of adding a second focus stop.
+    return Semantics(checked: value, child: indicator);
   }
 }

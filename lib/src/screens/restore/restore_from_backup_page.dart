@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:file_picker/file_picker.dart';
+import "package:flutter/services.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -180,8 +181,11 @@ class RestoreFromBackupPage extends BasePage {
 
       return;
     }
+
+    FocusManager.instance.primaryFocus?.unfocus();
     try {
       await restoreFromBackupViewModel.import(textEditingController.text);
+      await SystemChannels.textInput.invokeMethod<void>("TextInput.hide");
     } on IncompatibleBackupAppException catch (e) {
       final isConfirmed = await showPopUp<bool>(
         context: context,

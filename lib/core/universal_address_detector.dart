@@ -238,6 +238,12 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.doge,
       ),
 
+      // Zcash (transparent, Sapling shielded, unified)
+      _DetectionPattern(
+        pattern: RegExp("^(?:${AddressValidator.zcashAddressPattern})\$"),
+        currency: CryptoCurrency.zec,
+      ),
+
       // Solana (Base58 format)
       _DetectionPattern(
         pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{43,44}$'),

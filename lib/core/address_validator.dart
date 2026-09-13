@@ -177,13 +177,7 @@ class AddressValidator extends TextValidator {
         if (ZcashNetworkType.isDevNetwork(network)) {
           return null;
         }
-        pattern = '(?:'
-            't1[0-9A-Za-z]{33}'
-            '|t3[0-9A-Za-z]{33}'
-            '|zs[a-z0-9]{76}'
-            '|zxviews[a-z0-9]{278}'
-            '|u1[a-z0-9]{1,300}'
-            ')';
+        pattern = "(?:$zcashAddressPattern|zxviews[a-z0-9]{278})";
       case CryptoCurrency.dcr:
         pattern = '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:
@@ -355,6 +349,8 @@ class AddressValidator extends TextValidator {
   static String get silentPaymentAddressPatternMainnet => 'sp1[0-9a-zA-Z]{113}';
   static String get silentPaymentAddressPatternTestnet => '(tsp|sprt)1[0-9a-zA-Z]{113}';
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
+  static String get zcashAddressPattern =>
+      "t1[0-9A-Za-z]{33}|t3[0-9A-Za-z]{33}|zs[a-z0-9]{76}|u1[a-z0-9]{1,300}";
 
   static const String bolt11InvoiceMatcher = r'^(lightning:)?(lnbc|lntb|lnbs|lnbcrt)[a-z0-9]+$';
   static const String bolt12OfferMatcher = r'^(lightning:)?(lno1)[a-z0-9]+$';
@@ -401,13 +397,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zano:
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.zec:
-        pattern = '(?:'
-            't1[0-9A-Za-z]{33}'
-            '|t3[0-9A-Za-z]{33}'
-            '|zs[a-z0-9]{76}'
-            '|zxviews[a-z0-9]{278}'
-            '|u1[a-z0-9]{1,300}'
-            ')';
+        pattern = "(?:$zcashAddressPattern|zxviews[a-z0-9]{278})";
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';

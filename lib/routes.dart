@@ -32,6 +32,7 @@ class Routes {
   static const login = '/login';
   static const splash = '/splash';
   static const accountCreation = '/account_new';
+  static const accountCustomizer = "/account_customizer";
   static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
@@ -115,6 +116,7 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
+  static const nftSendPage = "/nft_send_page";
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
   static const receiveAddresses = "/receive_addresses";

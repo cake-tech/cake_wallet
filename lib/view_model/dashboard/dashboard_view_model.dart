@@ -55,7 +55,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -96,7 +96,6 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        isMigratingToIronwood = false,
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
@@ -251,8 +250,6 @@ abstract class DashboardViewModelBase with Store {
 
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
 
-    addZcashMigrationReaction();
-
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
@@ -377,21 +374,9 @@ abstract class DashboardViewModelBase with Store {
     );
   }
 
-  @observable
-  ReactionDisposer? zcashMigrationReactionDisposer;
-
-  @action
-  void addZcashMigrationReaction()  {
-    zcashMigrationReactionDisposer?.reaction.dispose();
-    zcashMigrationReactionDisposer = null;
-
-    if (wallet.type == WalletType.zcash) {
-      zcashMigrationReactionDisposer = reaction((_) => wallet.balance.values.first, (_) async {
-        isMigratingToIronwood =
-            wallet.type == WalletType.zcash && await zcash!.hasOrchardMigratableBalance(wallet);
-      });
-    }
-  }
+  @computed
+  bool get isMigratingToIronwood =>
+      wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
   bool get isSyncHeavy {
@@ -629,13 +614,14 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get shouldShowMwebAd {
+    return false;
     if (wallet.type != WalletType.litecoin) return false;
 
     if (mwebEnabled) return false;
 
     if (settingsStore.mwebAdDismissed) return false;
 
-    return Platform.isAndroid || Platform.isIOS;
+    return (Platform.isAndroid || Platform.isIOS) && !wallet.isHardwareWallet;
   }
 
   @action
@@ -1289,8 +1275,6 @@ abstract class DashboardViewModelBase with Store {
     name = wallet.name;
     loadFilterItems();
 
-    addZcashMigrationReaction();
-
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
 
@@ -1502,7 +1486,8 @@ abstract class DashboardViewModelBase with Store {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
           final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-          final jsonSource = await read(path: path, password: password);
+          final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);
+          final jsonSource = await encryption.read(path: path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 
@@ -1571,9 +1556,6 @@ abstract class DashboardViewModelBase with Store {
       return ServicesResponse([], false, '');
     }
   }
-
-  @observable
-  bool isMigratingToIronwood;
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {

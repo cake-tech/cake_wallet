@@ -1,22 +1,18 @@
 [
   {
-    "title": "MONERO + TREZOR",
-    "description": "Secure your XMR with hardware wallet support!"
+    "title": "Trezor natively for Bitcoin",
+    "description": "Pair your device and sign Bitcoin transactions right in the app"
   },
   {
-    "title": "NEW WalletConnect UI",
-    "description": "connecting to Web3 dApps made safer and easier"
+    "title": "Solana and NFTs Improvements",
+    "description": "Send your Solana NFTs, keep imported ones saved, and see at a glance which ones this wallet holds"
   },
   {
-    "title": "UI improvements",
-    "description": "Added some fresh UI elements just for you"
-  },
-  {
-    "title": "Sync enhancements",
-    "description": "Optimized sync for Bitcoin and Litecoin"
+    "title": "Monero sync improvements",
+    "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
   },
   {
     "title": "Bug fixes",
-    "description": "Squashed more bugs"
+    "description": "Contact syncing, node selection, Cake Pay sign-in and more, all squashed"
   }
 ]

@@ -97,6 +97,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           ),
                           FloatingIconButton(
                             iconPath: "assets/new-ui/paste.svg",
+                            semanticLabel: S.of(context).paste,
                             onPressed: () async {
                               final data = await Clipboard.getData(Clipboard.kTextPlain);
                               if (data != null && data.text != null) {
