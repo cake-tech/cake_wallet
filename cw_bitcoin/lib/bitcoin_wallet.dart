@@ -157,10 +157,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
         lightningWallet = null;
+        walletAddresses.lightningWallet = null;
       }
     });
 
@@ -424,6 +426,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   bool get hasLightningSupport => lightningWallet?.sdk != null;
+
+  @override
+  bool get canEnableLightning => LightningWallet.isAvailable && seed != null;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
