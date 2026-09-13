@@ -48,6 +48,10 @@ class CsvExportService {
 
   static const _utf8Bom = '﻿';
 
+  static const _formulaTriggers = {'=', '+', '-', '@', '\t', '\r'};
+
+  static final _plainNumber = RegExp(r'^-?\d+(\.\d+)?$');
+
   String buildCsvContent(List<ActionListItem> items) {
     final buf = StringBuffer();
     buf.write(_utf8Bom);
@@ -241,10 +245,20 @@ class CsvExportService {
   String _row(List<String> fields) => fields.map(escapeField).join(',');
 
   String escapeField(String field) {
-    if (field.contains(',') || field.contains('"') || field.contains('\n')) {
-      return '"${field.replaceAll('"', '""')}"';
+    final value = _neutralizeFormula(field);
+    if (value.contains(',') ||
+        value.contains('"') ||
+        value.contains('\n') ||
+        value.contains('\r')) {
+      return '"${value.replaceAll('"', '""')}"';
     }
-    return field;
+    return value;
+  }
+
+  String _neutralizeFormula(String field) {
+    if (field.isEmpty || !_formulaTriggers.contains(field[0])) return field;
+    if (_plainNumber.hasMatch(field)) return field;
+    return "'$field";
   }
 
   String _isoDate(DateTime dt) => dt.toUtc().toIso8601String();
