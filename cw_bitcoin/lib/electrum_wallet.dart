@@ -595,7 +595,7 @@ abstract class ElectrumWalletBase
   DateTime? _syncBenchmarkStartTime;
   DateTime? _syncStartedAt;
 
-  static const Duration maxSyncDuration = Duration(minutes: 3);
+  static const Duration maxSyncDuration = Duration(minutes: 2);
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
@@ -670,7 +670,7 @@ abstract class ElectrumWalletBase
 
     // `keys` is wallet-level metadata
     final hd =
-        mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? accountHD.childKey(Bip32KeyIndex(0));
+        mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
 
     try {
       wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
