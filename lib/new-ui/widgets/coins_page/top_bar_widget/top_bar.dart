@@ -146,8 +146,7 @@ class _TopBarState extends State<TopBar> {
                     Expanded(
                       child: WalletInfoBar(
                         name: widget.dashboardViewModel.wallet.name,
-                        hardwareWalletType:
-                        widget.dashboardViewModel.wallet.hardwareWalletType,
+                        hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                       ),
                     ),
                     if (widget.dashboardViewModel.isTorEnabled) ...[

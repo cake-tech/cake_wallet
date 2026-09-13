@@ -613,16 +613,17 @@ class WalletInfo {
   }
 
   Future<List<WalletInfoAccount>> getAccounts() async {
-    final accounts = await WalletInfoAccount.selectList(internalId);
+    var accounts = await WalletInfoAccount.selectList(internalId);
 
     if (accounts.isEmpty) {
-        await WalletInfoAccount.insertOrUpdate(
-          walletInfoId: internalId,
-          accountIndex: 0,
-          label: "Primary account",
-          isSelected: true,
-        );
+      await WalletInfoAccount.insertOrUpdate(
+        walletInfoId: internalId,
+        accountIndex: 0,
+        label: "Primary account",
+        isSelected: true,
+      );
 
+      accounts = await WalletInfoAccount.selectList(internalId);
       selectedAccount = accounts.firstWhere((account) => account.isSelected).accountIndex;
       return accounts;
     }

@@ -153,10 +153,6 @@ return widget.dashboardViewModel.refreshDashboard();
                                 });
                               },
                             ),
-                            WalletInfoBar(
-                                hardwareWalletType:
-                                    widget.dashboardViewModel.wallet.hardwareWalletType,
-                                name: widget.dashboardViewModel.wallet.name),
                             Column(
                               children: [
                                 CardsView(

@@ -325,6 +325,7 @@ import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
+import "src/screens/settings/widgets/account_creation_modal.dart";
 
 final getIt = GetIt.instance;
 
@@ -606,17 +607,6 @@ Future<void> setup({
             (displayMode == BitcoinAmountDisplayMode.satoshi ||
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
-
-
-  getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
-      accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
-
-  getIt.registerFactoryParam<AccountCustomizer, DashboardViewModel, void>(
-    (dashboardViewModel, _) => AccountCustomizer(
-      accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
-      dashboardViewModel: dashboardViewModel,
-    ),
-  );
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
