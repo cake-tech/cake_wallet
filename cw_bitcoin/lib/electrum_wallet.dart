@@ -108,7 +108,6 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    _balanceDisplayedForAccount = currentAccountIndex;
     // Probably not needed as init will be called right after creating the wallet.
     _prepareHdForAccount(currentAccountIndex, currency);
   }
@@ -343,8 +342,6 @@ abstract class ElectrumWalletBase
   bool _hasCompleteUnspentSet = false;
   bool _isSyncing = false;
 
-  int? _balanceDisplayedForAccount;
-
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accounts = await walletInfo.getAccounts();
     final current = accounts.firstWhere(
@@ -389,30 +386,27 @@ abstract class ElectrumWalletBase
     }
   }
 
-  ElectrumBalance balanceForAccount(int accountIndex) {
-    final fromUnspents = accountBalances[accountIndex];
-    if (fromUnspents != null) return fromUnspents;
-
-    if (accountIndex == currentAccountIndex && _balanceDisplayedForAccount == accountIndex) {
-      return balance[currency] ?? _zeroBalance(currency);
-    }
-
-    return _zeroBalance(currency);
-  }
+  ElectrumBalance balanceForAccount(int accountIndex) =>
+      accountBalances[accountIndex] ?? _zeroBalance(currency);
 
   void _updateAccountBalancesFromUnspents() {
     if (!_hasCompleteUnspentSet) return;
+
     final newBalances = <int, ElectrumBalance>{};
 
     for (final coin in unspentCoins) {
       final accountIndex = coin.bitcoinAddressRecord.accountIndex;
-
       final current = newBalances[accountIndex] ?? _zeroBalance(currency);
+      final amount = Money.fromInt(coin.value, currency);
+
+      if (coin.isFrozen) {
+        current.frozen += amount;
+      }
 
       if (coin.confirmations != null && coin.confirmations! > 0) {
-        current.confirmed += Money.fromInt(coin.value, currency);
+        current.confirmed += amount;
       } else {
-        current.unconfirmed += Money.fromInt(coin.value, currency);
+        current.unconfirmed += amount;
       }
 
       newBalances[accountIndex] = current;
@@ -423,22 +417,7 @@ abstract class ElectrumWalletBase
     }
 
     accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
-
-    for (final accountIndex in walletAddresses.accountIndexes) {
-      final computed = newBalances[accountIndex];
-      final existing = accountBalances[accountIndex];
-      if (computed != null && existing != null) {
-        final computedIsZero = computed.confirmed == Money.zero(currency) &&
-            computed.unconfirmed == Money.zero(currency);
-        final existingIsNonZero = existing.confirmed != Money.zero(currency) ||
-            existing.unconfirmed != Money.zero(currency);
-        if (computedIsZero && existingIsNonZero) {
-          newBalances[accountIndex] = existing;
-        }
-      }
-    }
-
-    accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
+    _updateCurrentAccountBalance();
   }
 
   void _updateCurrentAccountBalance({int? accountIndex}) {
@@ -455,7 +434,6 @@ abstract class ElectrumWalletBase
     }
 
     balance[currency] = newBalance;
-    _balanceDisplayedForAccount = targetAccountIndex;
   }
 
   Map<int, Set<String>> get addressesSetByAccount {
@@ -2107,10 +2085,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> updateAllUnspents() async {
-    if (type == WalletType.bitcoin && !electrumClient.isConnected) {
-      printV('updateAllUnspents: not connected, keeping existing unspents');
-      return;
-    }
 
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
@@ -2174,7 +2148,6 @@ abstract class ElectrumWalletBase
 
     await updateCoins(unspentCoins);
     _updateAccountBalancesFromUnspents();
-    _updateCurrentAccountBalance();
     await _refreshUnspentCoinsInfo();
   }
 
@@ -4139,34 +4112,15 @@ abstract class ElectrumWalletBase
 
   Future<void> updateBalance() async {
     printV("updateBalance() called!");
+
+    if (!electrumClient.isConnected) {
+      printV("updateBalance: not connected, keeping existing balance");
+      return;
+    }
+
     try {
-      if (type == WalletType.bitcoin) {
-        await fetchBalances();
-
-        if (!electrumClient.isConnected) {
-          printV("updateBalance: not connected, keeping existing balances");
-          return;
-        }
-
-        _updateCurrentAccountBalance();
-        await save();
-        return;
-      }
-
-      final newBalance = await fetchBalances();
-      final currentBalance = balance[currency];
-      final isZeroBalance = newBalance.confirmed == Money.zero(currency) &&
-          newBalance.unconfirmed == Money.zero(currency);
-      final hadPreviousBalance = currentBalance != null &&
-          (currentBalance.confirmed != Money.zero(currency) ||
-              currentBalance.unconfirmed != Money.zero(currency));
-
-      if (!isZeroBalance || !hadPreviousBalance) {
-        balance[currency] = newBalance;
-        await save();
-      } else {
-        printV("updateBalance: skipping zero balance update to preserve existing balance");
-      }
+      balance[currency] = await fetchBalances();
+      await save();
     } catch (e) {
       printV("updateBalance failed: $e");
     }

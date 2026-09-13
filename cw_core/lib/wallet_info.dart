@@ -616,20 +616,15 @@ class WalletInfo {
     final accounts = await WalletInfoAccount.selectList(internalId);
 
     if (accounts.isEmpty) {
-      const initialAccountsCount = 1;
-
-      for (var accountIndex = 0; accountIndex < initialAccountsCount; accountIndex++) {
         await WalletInfoAccount.insertOrUpdate(
           walletInfoId: internalId,
-          accountIndex: accountIndex,
+          accountIndex: 0,
           label: "Primary account",
-          isSelected: accountIndex == 0,
+          isSelected: true,
         );
-      }
 
-      final defaultAccounts = await WalletInfoAccount.selectList(internalId);
-      selectedAccount = defaultAccounts.firstWhere((account) => account.isSelected).accountIndex;
-      return defaultAccounts;
+      selectedAccount = accounts.firstWhere((account) => account.isSelected).accountIndex;
+      return accounts;
     }
 
     final selected = accounts.firstWhere(
@@ -638,10 +633,7 @@ class WalletInfo {
     );
 
     if (!selected.isSelected) {
-      await WalletInfoAccount.setSelected(
-        walletInfoId: internalId,
-        accountIndex: selected.accountIndex,
-      );
+      await setSelectedAccount(selected.accountIndex);
       selected.isSelected = true;
     }
 
