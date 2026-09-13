@@ -158,9 +158,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             cachedAddress: cachedLightningAddress,
           );
           walletAddresses.lightningWallet = lightningWallet;
-          walletAddresses.setLightningAddress(walletInfo.name);
+          walletAddresses
+              .setLightningAddress(walletInfo.name)
+              .then((_) => _subscribeToLightningUpdates());
         }
       } else {
+        lightningWallet?.close().onError((_, __) {});
         lightningWallet = null;
         walletAddresses.lightningWallet = null;
       }
@@ -370,33 +373,38 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  void _subscribeToLightningUpdates() {
+    final lnWallet = lightningWallet;
+    if (!isLightningInitialized || lnWallet == null) return;
+
+    lnWallet.setEventListener(
+      onTransactionEvent: (tx) async {
+        if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
+          transactionHistory.addOne(tx);
+          await transactionHistory.save();
+          await fetchBalances();
+        }
+      },
+      onCreateDepositTransactionEvent: (txs) async {
+        if (txs.isNotEmpty) {
+          transactionHistory.addMany(txs);
+          await transactionHistory.save();
+        }
+      },
+      onUpdateDepositTransactionEvent: (txs) async {
+        if (txs.isNotEmpty) {
+          txs.forEach((tx) => transactionHistory.transactions.remove(tx.id));
+          await transactionHistory.save();
+        }
+      },
+      onBalanceChangedEvent: fetchBalances,
+    );
+  }
+
   @override
   @action
   Future<void> subscribeForUpdates() async {
-    if (isLightningInitialized && lightningWallet != null) {
-      lightningWallet!.setEventListener(
-        onTransactionEvent: (tx) async {
-          if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
-            transactionHistory.addOne(tx);
-            await transactionHistory.save();
-            await fetchBalances();
-          }
-        },
-        onCreateDepositTransactionEvent: (txs) async {
-          if (txs.isNotEmpty) {
-            transactionHistory.addMany(txs);
-            await transactionHistory.save();
-          }
-        },
-        onUpdateDepositTransactionEvent: (txs) async {
-          if (txs.isNotEmpty) {
-            txs.forEach((tx) => transactionHistory.transactions.remove(tx.id));
-            await transactionHistory.save();
-          }
-        },
-        onBalanceChangedEvent: fetchBalances,
-      );
-    }
+    _subscribeToLightningUpdates();
 
     return super.subscribeForUpdates();
   }

@@ -431,6 +431,7 @@ class LightningWallet {
     required Function(Map<String, ElectrumTransactionInfo>) onCreateDepositTransactionEvent,
     required Function(List<ElectrumTransactionInfo>) onUpdateDepositTransactionEvent,
   }) {
+    _eventSubscription?.cancel();
     _eventSubscription = _eventStream?.listen((sdkEvent) {
       if (sdkEvent is SdkEvent_PaymentSucceeded) {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
