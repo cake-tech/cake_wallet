@@ -302,6 +302,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         isBuySellQuotLoaded;
   }
 
+  FiatCurrency? get recommendedFiat =>
+      providerList.whereType<OnRamperBuyProvider>().firstOrNull?.recommendedFiat;
+
   @computed
   bool get isBuySellQuoteFailed => buySellQuotState is BuySellQuotFailed;
 
@@ -325,6 +328,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void changeFiatCurrency({required FiatCurrency currency}) {
     fiatCurrency = currency;
     _onPairChange();
+  }
+
+  @action
+  Future<void> retryWithRecommendedFiat() async {
+    final currency = recommendedFiat;
+    if (currency == null) return;
+
+    fiatCurrency = currency;
+    await _initialize(keepEnteredAmount: true);
   }
 
   @action
@@ -479,10 +491,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void _setProviders() =>
       providerList = mode == BuySellPageMode.buy ? availableBuyProviders : availableSellProviders;
 
-  Future<void> _initialize() async {
+  Future<void> _initialize({bool keepEnteredAmount = false}) async {
     _setProviders();
-    _cryptoAmount = '';
-    fiatAmount = '';
+
+    if (!keepEnteredAmount) {
+      _cryptoAmount = "";
+      fiatAmount = "";
+    } else if (_enteredSide == _AmountSide.fiat) {
+      _cryptoAmount = "";
+    } else {
+      fiatAmount = "";
+    }
+
     cryptoCurrencyAddress = _getInitialCryptoCurrencyAddress();
     paymentMethodState = InitialPaymentMethod();
     buySellQuotState = InitialBuySellQuotState();

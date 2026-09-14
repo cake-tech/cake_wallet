@@ -1,5 +1,6 @@
 import "package:cake_wallet/buy/buy_quote.dart";
 import "package:cake_wallet/buy/sell_buy_states.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
@@ -7,6 +8,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_confirmation_page.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_payment_method_page.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
@@ -52,30 +54,8 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
               Expanded(
                 child: Observer(
                   builder: (_) {
-                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 24,
-                        children: [
-                          const Icon(Icons.warning_amber_outlined, size: 48),
-                          Column(
-                            spacing: 10,
-                            children: [
-                              Text(
-                                S.of(context).could_not_load_quotes,
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                (widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
-                                    .errorMessage,
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    }
-
-                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotLoading) {
+                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotLoading ||
+                        widget.buySellViewModel.buySellQuotState is InitialBuySellQuotState) {
                       return Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -89,6 +69,18 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                             ),
                           ],
                         ),
+                      );
+                    }
+
+                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+                      final recommendedFiat = widget.buySellViewModel.recommendedFiat;
+
+                      return BuySellQuoteFailure(
+                        state: widget.buySellViewModel.buySellQuotState as BuySellQuotFailed,
+                        recommendedFiat: recommendedFiat == widget.buySellViewModel.fiatCurrency
+                            ? null
+                            : recommendedFiat,
+                        onRetryPressed: widget.buySellViewModel.retryWithRecommendedFiat,
                       );
                     }
 
@@ -190,6 +182,57 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           color: Colors.transparent,
           child: page,
         ),
+      ),
+    );
+  }
+}
+
+class BuySellQuoteFailure extends StatelessWidget {
+  const BuySellQuoteFailure({
+    required this.state,
+    required this.onRetryPressed,
+    super.key,
+    this.recommendedFiat,
+  });
+
+  final BuySellQuotFailed state;
+  final FiatCurrency? recommendedFiat;
+  final VoidCallback onRetryPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final recommendedFiat = this.recommendedFiat;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 24,
+        children: [
+          const Icon(Icons.warning_amber_outlined, size: 48),
+          Column(
+            spacing: 10,
+            children: [
+              Text(
+                S.of(context).could_not_load_quotes,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                recommendedFiat == null
+                    ? state.errorMessage
+                    : S.of(context).providers_in_region_use_fiat(recommendedFiat.title),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          if (recommendedFiat != null)
+            NewPrimaryButton(
+              onPressed: onRetryPressed,
+              text: S.of(context).switch_to_fiat(recommendedFiat.title),
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+        ],
       ),
     );
   }
