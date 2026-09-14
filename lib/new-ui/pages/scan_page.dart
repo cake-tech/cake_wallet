@@ -470,7 +470,7 @@ class _ScanPageState extends State<ScanPage> {
         setState(() {
           popped = true;
         });
-        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
+        Navigator.of(context).pop(_barcode!.rawValue);
       }
     }
   }
