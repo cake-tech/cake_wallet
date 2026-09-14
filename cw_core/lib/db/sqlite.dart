@@ -63,7 +63,7 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 11,
+  db = await openDatabase(dbFile.path, version: 12,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
@@ -156,6 +156,11 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     if (oldVersion <= 10) {
       await _createImportedNFTTable(db);
     }
+
+    if (oldVersion <= 11) {
+      await _createCoinControlTables(db);
+    }
+
   }, onCreate: (Database db, int version) async {
     await db.execute('''
 CREATE TABLE WalletInfo (
@@ -255,7 +260,27 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createSplTokenTable(db);
     await _createTronTokenTable(db);
     await _createImportedNFTTable(db);
-  });
+    await _createCoinControlTables(db);
+  },);
+}
+
+Future<void> _createCoinControlTables(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS FrozenCoin (
+  walletId TEXT NOT NULL,
+  id TEXT NOT NULL,
+  frozen INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (walletId, id)
+);
+""");
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS CoinNote (
+  walletId TEXT NOT NULL,
+  id TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY (walletId, id)
+);
+""");
 }
 
 Future<void> _createTradeTable(Database db) async {

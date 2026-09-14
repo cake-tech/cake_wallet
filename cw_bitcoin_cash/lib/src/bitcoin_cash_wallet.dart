@@ -10,11 +10,10 @@ import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
+import "package:cw_core/unspent_transaction_output.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 import 'bitcoin_cash_base.dart';
@@ -29,7 +28,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
@@ -43,7 +41,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             password: password,
             walletInfo: walletInfo,
             derivationInfo: derivationInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
             network: BitcoinCashNetwork.mainnet,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
@@ -73,7 +70,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
       String? addressPageType,
@@ -86,7 +82,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
@@ -101,7 +96,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   static Future<BitcoinCashWallet> open({
     required String name,
     required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
@@ -140,7 +134,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses.map((addr) {
         try {
           BitcoinCashAddress(addr.address);
@@ -178,15 +171,20 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
       );
 
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
+  @override
+  int calculateEstimatedFeeWithFeeRate(
+    int feeRate,
+    int? amount, {
+    required List<Unspent> candidates,
+    int? outputsCount,
+    int? size,
+  }) {
     int inputsCount = 0;
     int totalValue = 0;
 
-    for (final input in unspentCoins) {
-      if (input.isSending) {
-        inputsCount++;
-        totalValue += input.value;
-      }
+    for (final input in candidates) {
+      inputsCount++;
+      totalValue += input.value;
       if (amount != null && totalValue >= amount) {
         break;
       }
@@ -230,4 +228,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     );
     return priv.signMessage(StringUtils.encode(message));
   }
+
+  @override
+  Uri coinControlUrl(String txId) => Uri.https("blockchair.com", "/bitcoin-cash/transaction/${txId}");
 }

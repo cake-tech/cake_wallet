@@ -1,8 +1,31 @@
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/coin_control/coin_notes_store.dart';
+import 'package:cw_core/coin_control/frozen_coins_store.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/unspent_comparable_mixin.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 part 'unspent_coins_info.part.dart';
+
+Future<void> performUnspentCoinsInfoHiveMigration() async {
+  try {
+    if (!CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+      CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
+    }
+
+    if (!await CakeHive.boxExists(UnspentCoinsInfo.boxName)) {
+      return;
+    }
+
+    final wallets = await WalletInfo.getAll();
+    await UnspentCoinsInfo.migrateAllToSqlite(wallets);
+  } catch (e) {
+    printV("Error performing UnspentCoinsInfo Hive migration: $e, continuing anyway");
+  }
+}
 
 // @HiveType(typeId: UnspentCoinsInfo.typeId)
 class UnspentCoinsInfo extends HiveObject with UnspentComparable {
@@ -64,4 +87,54 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
   String get note => noteRaw ?? '';
 
   set note(String value) => noteRaw = value;
+
+  static Future<void> migrateAllToSqlite(List<WalletInfo> wallets) async {
+    final box = await CakeHive.openBox<UnspentCoinsInfo>(boxName);
+
+    for (final record in box.values.toList()) {
+      final type = wallets
+          .cast<WalletInfo?>()
+          .firstWhere((item) => item!.id == record.walletId, orElse: () => null)
+          ?.type;
+
+      if (type == null) {
+        continue;
+      }
+
+      try {
+        await record.migrateToSqlite(type);
+        await record.delete();
+      } catch (e) {
+        printV("Error migrating unspent record ${record.walletId}: $e, continuing anyway");
+      }
+    }
+  }
+
+  Future<void> migrateToSqlite(WalletType walletType) async {
+    final id = _outputId(walletType);
+
+    if (note.isNotEmpty) {
+      await CoinNotesStore.instance.save(walletId, id, note);
+    }
+    if (walletType != WalletType.monero) {
+      await FrozenCoinsStore.instance.setFrozen(walletId, id, isFrozen);
+    }
+
+  }
+
+
+  String _outputId(WalletType walletType) {
+    if (keyImage != null && keyImage!.isNotEmpty) {
+      return keyImage!;
+    }
+
+    if (walletType == WalletType.litecoin && _isMwebAddress(address)) {
+      return hash;
+    }
+
+    return "$hash:$vout";
+  }
+
+  static bool _isMwebAddress(String address) =>
+      address.startsWith("ltcmweb1") || address.startsWith("tmweb1");
 }

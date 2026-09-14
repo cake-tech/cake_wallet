@@ -4,9 +4,10 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import "package:cw_core/coin_control/coin_notes_store.dart";
+import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -21,9 +22,8 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
+  BitcoinWalletService(this.payjoinSessionSource, this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final Box<PayjoinSession> payjoinSessionSource;
   final bool isDirect;
 
@@ -63,7 +63,6 @@ class BitcoinWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -90,7 +89,6 @@ class BitcoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
@@ -103,7 +101,6 @@ class BitcoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
@@ -121,15 +118,8 @@ class BitcoinWalletService extends WalletService<
     }
     await WalletInfo.delete(walletInfo);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
-
-    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
-
-    if (keysToDelete.isNotEmpty) {
-      await unspentCoinsInfoSource.deleteAll(keysToDelete);
-    }
+    await FrozenCoinsStore.instance.deleteWallet(walletInfo.id);
+    await CoinNotesStore.instance.deleteWallet(walletInfo.id);
   }
 
   @override
@@ -148,7 +138,6 @@ class BitcoinWalletService extends WalletService<
       xpub: xpub,
       walletInfo: credentials.walletInfo!,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
@@ -172,7 +161,6 @@ class BitcoinWalletService extends WalletService<
       xpub: xpub,
       walletInfo: credentials.walletInfo!,
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
@@ -199,7 +187,6 @@ class BitcoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),

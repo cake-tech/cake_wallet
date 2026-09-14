@@ -3,22 +3,21 @@ import 'dart:io';
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import "package:cw_core/coin_control/coin_notes_store.dart";
+import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<
     BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials,
     BitcoinCashRestoreWalletFromWIFCredentials,
     BitcoinCashNewWalletCredentials> {
-  BitcoinCashWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  BitcoinCashWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
   @override
@@ -36,7 +35,6 @@ class BitcoinCashWalletService extends WalletService<
       mnemonic: credentials.mnemonic ?? MnemonicBip39.generate(strength: strength),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
     );
@@ -58,7 +56,6 @@ class BitcoinCashWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -70,7 +67,6 @@ class BitcoinCashWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -87,15 +83,8 @@ class BitcoinCashWalletService extends WalletService<
     }
     await WalletInfo.delete(walletInfo);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
-
-    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
-
-    if (keysToDelete.isNotEmpty) {
-      await unspentCoinsInfoSource.deleteAll(keysToDelete);
-    }
+    await FrozenCoinsStore.instance.deleteWallet(walletInfo.id);
+    await CoinNotesStore.instance.deleteWallet(walletInfo.id);
   }
 
   @override
@@ -121,7 +110,6 @@ class BitcoinCashWalletService extends WalletService<
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
         passphrase: credentials.passphrase);
     await wallet.save();
