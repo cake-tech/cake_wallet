@@ -10,6 +10,7 @@ class Erc20Token extends CryptoCurrency {
     required this.decimal,
     bool enabled = true,
     this.iconPath,
+    this.networkIconUrl,
     this.tag,
     this.isPotentialScam = false,
     this.id = 0,
@@ -40,6 +41,7 @@ class Erc20Token extends CryptoCurrency {
         _enabled = enabled ?? other.enabled,
         tag = tag ?? other.tag,
         iconPath = icon ?? other.iconPath,
+        networkIconUrl = other.networkIconUrl,
         isPotentialScam = other.isPotentialScam,
         id = 0,
         walletName = walletName ?? other.walletName,
@@ -61,6 +63,7 @@ class Erc20Token extends CryptoCurrency {
           decimal: (map["decimal"] ?? 0) as int,
           enabled: _getBoolFromDB(map["enabled"], defaultValue: true),
           iconPath: map["iconPath"] as String?,
+          networkIconUrl: map["networkIconUrl"] as String?,
           tag: map["tag"] as String?,
           isPotentialScam: _getBoolFromDB(map["isPotentialScam"]),
           id: (map[selfIdColumn] ?? 0) as int,
@@ -76,6 +79,9 @@ class Erc20Token extends CryptoCurrency {
 
   @override
   String? iconPath;
+
+  @override
+  String? networkIconUrl;
 
   @override
   final String? tag;
@@ -116,6 +122,7 @@ class Erc20Token extends CryptoCurrency {
         "decimal": decimal,
         "enabled": _enabled ? 1 : 0,
         "iconPath": iconPath,
+        "networkIconUrl": networkIconUrl,
         "tag": tag,
         "isPotentialScam": isPotentialScam ? 1 : 0,
       };

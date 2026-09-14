@@ -32,6 +32,7 @@ class PreferencesKey {
   static const disableTradeOption = 'disable_buy';
   static const disableAutomaticExchangeStatusUpdates = 'disable_automatic_exchange_status_updates';
   static const disableBulletinKey = 'disable_bulletin';
+  static const disableTokenImageRefreshKey = "disable_token_image_refresh";
   static const walletListOrder = 'wallet_list_order';
   static const contactListOrder = 'contact_list_order';
   static const walletListAscending = 'wallet_list_ascending';

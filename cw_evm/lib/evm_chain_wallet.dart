@@ -212,6 +212,8 @@ abstract class EVMChainWalletBase
     // Reload ERC20 tokens for the new chain
     await initErc20Tokens();
 
+    _refreshTokenIcons();
+
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
 
@@ -231,7 +233,7 @@ abstract class EVMChainWalletBase
         enabled: existingToken?.enabled ?? token.enabled,
         walletName: walletInfo.name,
         chainId: selectedChainId,
-      );
+      )..networkIconUrl = existingToken?.networkIconUrl;
 
       await newToken.save();
       _upsertCachedToken(newToken);
@@ -306,20 +308,19 @@ abstract class EVMChainWalletBase
     );
   }
 
-  Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath) {
-    return Erc20Token(
-      name: token.name,
-      symbol: token.symbol,
-      contractAddress: token.contractAddress,
-      decimal: token.decimal,
-      enabled: token.enabled,
-      tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(selectedChainId),
-      iconPath: iconPath,
-      isPotentialScam: token.isPotentialScam,
-      walletName: walletInfo.name,
-      chainId: selectedChainId,
-    );
-  }
+  Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath) => Erc20Token(
+        name: token.name,
+        symbol: token.symbol,
+        contractAddress: token.contractAddress,
+        decimal: token.decimal,
+        enabled: token.enabled,
+        tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(selectedChainId),
+        iconPath: iconPath,
+        networkIconUrl: token.networkIconUrl,
+        isPotentialScam: token.isPotentialScam,
+        walletName: walletInfo.name,
+        chainId: selectedChainId,
+      );
 
   EVMChainTransactionHistory setUpTransactionHistory(
     WalletInfo walletInfo,
@@ -373,6 +374,8 @@ abstract class EVMChainWalletBase
 
     // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
     await _checkForExistingScamTokens();
+
+    _refreshTokenIcons();
 
     switch (walletInfo.hardwareWalletType) {
       case HardwareWalletType.ledger:
@@ -510,6 +513,7 @@ abstract class EVMChainWalletBase
       if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
+        token.networkIconUrl = null;
         await token.save();
         continue;
       }
@@ -532,6 +536,67 @@ abstract class EVMChainWalletBase
     }
 
     await prefs.setBool(_scamCheckDoneKey, true);
+  }
+
+  final Set<int> _iconRefreshInFlight = {};
+
+  Future<void> _refreshTokenIcons() async {
+    final chainId = selectedChainId;
+
+    if (_iconRefreshInFlight.contains(chainId)) {
+      return;
+    }
+
+    _iconRefreshInFlight.add(chainId);
+
+    try {
+      final client = _client;
+      final chainName = EVMChainUtils.getDefaultTokenSymbol(chainId).toLowerCase();
+      final prefs = await sharedPrefs.future;
+
+      if (prefs.getBool("disable_token_image_refresh") ?? false) {
+        return;
+      }
+
+      final tokens = erc20Currencies
+        ..sort((a, b) => (b.enabled ? 1 : 0).compareTo(a.enabled ? 1 : 0));
+
+      for (final token in tokens) {
+        if (token.isPotentialScam || !token.hasPlaceholderIcon) {
+          continue;
+        }
+
+        try {
+          final fetchedToken = await client.getErc20TokenFromMoralis(token.contractAddress, chainName);
+
+          final logoUrl = fetchedToken?.iconPath;
+
+          if (logoUrl == null || !logoUrl.startsWith("http")) {
+            continue;
+          }
+
+          final exists =
+              await Erc20Token.getByContract(walletInfo.name, chainId, token.contractAddress);
+
+          if (exists == null) {
+            continue;
+          }
+
+          if (token.isPotentialScam) {
+            continue;
+          }
+
+          token.networkIconUrl = logoUrl;
+          await token.save();
+        } catch (e) {
+          printV("Failed to fetch icon url for ${token.symbol}: $e");
+        }
+      }
+    } catch (e) {
+      printV("Token icon refresh failed: $e");
+    } finally {
+      _iconRefreshInFlight.remove(chainId);
+    }
   }
 
   Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {

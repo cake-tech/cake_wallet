@@ -100,6 +100,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                                   widget.walletAddressListViewModel.currencies.first
                                                       .iconPath ??
                                                   "",
+                                              networkImageUrl: widget
+                                                  .walletAddressListViewModel.tokenCurrency?.networkIconUrl,
                                               size: 32,
                                             ),
                                           ),
