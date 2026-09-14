@@ -70,11 +70,6 @@ class CsvExportService {
     return buf.toString();
   }
 
-  /// Every item in one export belongs to the same wallet, so the address that
-  /// scopes a note key is identical for every row. Reading it goes to the wallet
-  /// — an FFI call on Monero and Wownero — so it is resolved once per export
-  /// rather than once per row. Returns an empty string when the export holds no
-  /// transaction rows, in which case the value is never used.
   String _primaryAddressOf(List<ActionListItem> items) {
     for (final item in items) {
       if (item is TransactionListItem) {
@@ -84,11 +79,6 @@ class CsvExportService {
     return '';
   }
 
-  /// Notes are stored in a Hive box that is appended to with `add`, so entries
-  /// carry auto-incrementing integer keys rather than the description id and
-  /// cannot be fetched with `get`. This mirrors the app's own read path in
-  /// `TransactionDetailsViewModel.note`: the current key is
-  /// `<txHash>_<primaryAddress>`, and older builds keyed by the bare `<txHash>`.
   String _noteFor(TransactionListItem item, String primaryAddress) {
     final txHash = item.transaction.txHash;
     final descriptionKey = '${txHash}_$primaryAddress';
