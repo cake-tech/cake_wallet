@@ -69,7 +69,6 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
-            detailsAsPage: false,
             roundedTopSection: hasAssetsTab || hasNftTab,
             dashboardViewModel: widget.dashboardViewModel,
             short: true,

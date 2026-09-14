@@ -22,7 +22,6 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -33,13 +32,11 @@ class HistorySection extends StatelessWidget {
       {super.key,
       required this.dashboardViewModel,
       required this.short,
-      required this.roundedTopSection,
-      required this.detailsAsPage});
+      required this.roundedTopSection});
 
   final DashboardViewModel dashboardViewModel;
   final bool short;
   final bool roundedTopSection;
-  final bool detailsAsPage;
 
   /// A history row is a single button node: every text inside it (direction,
   /// date, amounts) merges into one label.
@@ -109,16 +106,11 @@ class HistorySection extends StatelessWidget {
                               onTap: () {
                                 final page =
                                     getIt.get<TransactionDetailsModal>(param1: transaction);
-                                if (detailsAsPage) {
-                                  Navigator.of(context).push(CupertinoPageRoute(
-                                      builder: (context) => Material(child: page)));
-                                } else {
-                                  showMaterialModalBottomSheet(
-                                      backgroundColor: Colors.transparent,
-                                      context: context,
-                                      builder: (context) =>
-                                          FractionallySizedBox(heightFactor: 0.9, child: page));
-                                }
+                                showMaterialModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) =>
+                                        FractionallySizedBox(heightFactor: 0.9, child: page));
                               },
                               child: HistoryTile(
                                 title: item.formattedTitle + transactionType,
@@ -204,31 +196,21 @@ class HistorySection extends StatelessWidget {
                             return _historyRow(
                               onTap: () {
                                 if (isComplete && item.transaction != null) {
-                                  final page =
-                                      getIt.get<TransactionDetailsModal>(param1: item.transaction);
-                                  if (detailsAsPage) {
-                                    Navigator.of(context).push(CupertinoPageRoute(
-                                        builder: (context) => Material(child: page)));
-                                  } else {
-                                    showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        context: context,
-                                        builder: (context) =>
-                                            FractionallySizedBox(heightFactor: 0.9, child: page));
-                                  }
+                                  final page = getIt.get<TransactionDetailsModal>(
+                                      param1: item.transaction);
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (context) =>
+                                          FractionallySizedBox(heightFactor: 0.9, child: page));
                                 } else {
                                   final page = getIt.get<PayjoinDetailsModal>(
                                       param1: item.sessionId, param2: item.transaction);
-                                  if (detailsAsPage) {
-                                    Navigator.of(context).push(CupertinoPageRoute(
-                                        builder: (context) => Material(child: page)));
-                                  } else {
-                                    showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        context: context,
-                                        builder: (context) =>
-                                            FractionallySizedBox(heightFactor: 0.9, child: page));
-                                  }
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (context) =>
+                                          FractionallySizedBox(heightFactor: 0.9, child: page));
                                 }
                               },
                               child: PayjoinHistoryTile(
