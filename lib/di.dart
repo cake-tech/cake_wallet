@@ -1514,17 +1514,12 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactoryParam<BuySellViewModel, BuySellPageMode, void>((mode, _) => BuySellViewModel(
-      mode: mode, getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
+  getIt.registerFactoryParam<BuySellViewModel, NewBuySellParams, void>((params, _) => BuySellViewModel(
+      params: params, getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactoryParam<NewBuySellAmountPage, BuySellPageMode, void>((mode, _) =>
-      NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: mode)));
+  getIt.registerFactoryParam<NewBuySellAmountPage, NewBuySellParams, void>((params, _) =>
+      NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: params)));
 
-  getIt.registerFactoryParam<BuySellPage, BuySellPageParams?, void>((params, _) => BuySellPage(
-        getIt.get<BuySellViewModel>(),
-        getIt.get<AddressResolverService>(),
-        params: params,
-      ));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;

@@ -1,6 +1,8 @@
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/chart_header.dart";
@@ -9,6 +11,8 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/buy/buy_sell_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -53,25 +57,23 @@ class ChartModal extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: MediaQuery.of(context).size.width * 0.05,
                   children: [
-                    CoinActionButton(
+                    if(canOpenBuySell)
+...[                    CoinActionButton(
                       icon: CakeImageWidget(
-                        imageUrl: "assets/new-ui/buy.svg",
+                        width: 36, height: 36,
+                        imageUrl: "assets/new-ui/plus.svg",
                         colorFilter: ColorFilter.mode(
                           Theme.of(context).colorScheme.primary,
                           BlendMode.srcIn,
                         ),
                       ),
                       label: S.of(context).buy,
-                      action: () {
-                        Navigator.of(context).pushNamed(
-                          Routes.buySellPage,
-                          arguments:
-                              BuySellPageParams(startWithSell: false, initialCurrency: currency),
-                        );
-                      },
+                      action: () => openBuySellPage(context, BuySellPageMode.buy),
+
                     ),
                     CoinActionButton(
                       icon: CakeImageWidget(
+                        width: 36, height: 36,
                         imageUrl: "assets/new-ui/sell.svg",
                         colorFilter: ColorFilter.mode(
                           Theme.of(context).colorScheme.primary,
@@ -79,14 +81,8 @@ class ChartModal extends StatelessWidget {
                         ),
                       ),
                       label: S.of(context).sell,
-                      action: () {
-                        Navigator.of(context).pushNamed(
-                          Routes.buySellPage,
-                          arguments:
-                              BuySellPageParams(startWithSell: true, initialCurrency: currency),
-                        );
-                      },
-                    ),
+                      action: () => openBuySellPage(context, BuySellPageMode.sell),
+                    ),],
                     CoinActionButton(
                       icon: CakeImageWidget(
                         imageUrl: "assets/new-ui/exchange.svg",
@@ -139,4 +135,20 @@ class ChartModal extends StatelessWidget {
           ),
         ),
       );
+
+  void openBuySellPage(BuildContext context, BuySellPageMode mode) {
+    Navigator.of(context).pop();
+    final page = getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: mode, initialCurrency: currency));
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: navigatorKey.currentContext!,
+      builder: (modalContext) => ModalNavigator(
+        rootPage: page,
+        parentContext: modalContext,
+      ),
+    );
+  }
+
+  bool get canOpenBuySell => getIt.get<AppStore>().wallet!.balance.containsKey(currency);
 }
