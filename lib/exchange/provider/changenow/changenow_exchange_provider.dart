@@ -92,8 +92,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       return ExchangeLimits();
     }
     return ExchangeLimits(
-      min: Money.tryParse(responseData.minAmount, from),
-      max: Money.tryParse(responseData.maxAmount, from),
+      min: Money.trySafeParse(responseData.minAmount, from),
+      max: Money.trySafeParse(responseData.maxAmount, from),
     );
   }
 

@@ -175,7 +175,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         maxLimit = currentMax;
       }
     }
-    return ExchangeLimits(min: Money.tryParse(minLimit, from), max: Money.tryParse(maxLimit, from));
+    return ExchangeLimits(min: Money.trySafeParse(minLimit, from), max: Money.trySafeParse(maxLimit, from));
   }
 
 
