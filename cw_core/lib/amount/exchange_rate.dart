@@ -35,22 +35,21 @@ class ExchangeRate implements Comparable<ExchangeRate> {
       return amount;
     }
 
-    final scale = BigInt.from(10).pow(base.decimals);
-
     if (amount.currency == base) {
-      if (quote.isZero) {
-        return Money.zero(quote.currency);
-      }
+      final scale = BigInt.from(10).pow(amount.decimals);
 
-      return Money(amount.amount * quote.amount ~/ scale, quote.currency);
+      return quote.isZero
+          ? Money.zero(quote.currency)
+          : Money(amount.amount * quote.amount ~/ scale, quote.currency, quote.decimals);
     }
 
     if (amount.currency == quote.currency) {
-      if (quote.isZero) {
-        return Money.zero(base);
-      }
+      if (quote.isZero) return Money.zero(base);
 
-      return Money(amount.amount * scale ~/ quote.amount, base);
+      final numerator = amount.amount * BigInt.from(10).pow(base.decimals + quote.decimals);
+      final denominator = quote.amount * BigInt.from(10).pow(amount.decimals);
+
+      return Money(numerator ~/ denominator, base);
     }
 
     throw ArgumentError(

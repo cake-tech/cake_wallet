@@ -56,7 +56,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
-    } catch (e) {
+    } on Exception catch (e) {
       printV(e);
       error =
           hardwareWalletVM.interpretErrorCode(e.toString()) ?? S.current.ledger_connection_error;

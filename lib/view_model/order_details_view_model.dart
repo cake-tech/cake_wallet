@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
@@ -64,6 +65,9 @@ abstract class OrderDetailsViewModelBase with Store {
   @observable
   ObservableList<StandartListItem> items;
 
+  @observable
+  bool isCakePaySessionExpired = false;
+
   final CakePayService cakePayService;
   final Box<Order> orders;
   OrderProvider? _provider;
@@ -74,7 +78,9 @@ abstract class OrderDetailsViewModelBase with Store {
   @action
   Future<void> _updateOrder() async {
     try {
-      if (_provider == null) return;
+      if (_provider == null || isCakePaySessionExpired) {
+        return;
+      }
 
       final updatedOrderObj = await _provider!.findOrderById(order.id);
       final updatedOrder = updatedOrderObj.$1;
@@ -95,6 +101,9 @@ abstract class OrderDetailsViewModelBase with Store {
       }
 
       _updateItems();
+    } on CakePayUnauthorizedException {
+      timer?.cancel();
+      isCakePaySessionExpired = true;
     } catch (e) {
       printV(e.toString());
     }
