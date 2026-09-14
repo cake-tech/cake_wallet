@@ -149,6 +149,11 @@ Future<PendingTransactionDescription> createTransactionSync(
     List<String> preferredInputs = const []}) async {
   final amt = amount == null ? 0 : currentWallet!.amountFromString(amount);
 
+  if (amount != null && amt == 0) {
+    throw MoneroTransactionCreationException(
+        'Refusing to create a transaction with a zero amount: 0 is the sweep-all ');
+  }
+
   final waddr = currentWallet!.ffiAddress();
 
   // force reconnection in case the os killed the connection?

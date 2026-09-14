@@ -22,6 +22,7 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
+import 'package:cake_wallet/core/csv_export_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -600,6 +601,13 @@ Future<void> setup({
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
       accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
+
+  getIt.registerFactoryParam<AccountCustomizer, DashboardViewModel, void>(
+    (dashboardViewModel, _) => AccountCustomizer(
+      accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
+      dashboardViewModel: dashboardViewModel,
+    ),
+  );
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
@@ -1404,6 +1412,9 @@ Future<void> setup({
           WalletRestoreChooseDerivationPage(getIt.get<WalletRestoreChooseDerivationViewModel>(
             param1: derivations,
           )));
+
+  getIt.registerFactory<CsvExportService>(
+      () => CsvExportService(transactionDescriptionBox: _transactionDescriptionBox));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>((params, _) {
     final transactionInfo = params[0] as TransactionInfo;

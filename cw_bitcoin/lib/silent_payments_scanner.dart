@@ -221,7 +221,8 @@ class SilentPaymentsScanner {
   /// any already-in-flight `setListeners` call rather than racing it.
   Future<void> maybeReverify() async {
     final now = DateTime.now();
-    final shouldForceRescan = _lastSilentPaymentsScan == null ||
+    final shouldForceRescan =
+        _lastSilentPaymentsScan == null ||
         now.difference(_lastSilentPaymentsScan!) >= _silentPaymentsScanDelay;
 
     // Timer prevents server failure and this infinite looping and requesting
@@ -278,8 +279,10 @@ class SilentPaymentsScanner {
 
     _pendingSetListenersCalls++;
     unawaited(
-      setListeners(_wallet.walletInfo.restoreHeight, rescanHeights: rescanHeights)
-          .whenComplete(() => _pendingSetListenersCalls--),
+      setListeners(
+        _wallet.walletInfo.restoreHeight,
+        rescanHeights: rescanHeights,
+      ).whenComplete(() => _pendingSetListenersCalls--),
     );
   }
 
@@ -358,8 +361,8 @@ class SilentPaymentsScanner {
       return;
     }
 
-    final historical = historicalModeOverride ??
-        await _resolveHistoricalMode(height, chainTip, isForcedRescan);
+    final historical =
+        historicalModeOverride ?? await _resolveHistoricalMode(height, chainTip, isForcedRescan);
     if (generation != _scanWorkerGeneration) {
       return;
     }
@@ -438,8 +441,10 @@ class SilentPaymentsScanner {
     if (isForcedRescan || isSingleScan) {
       chunks = [CoverageRange(scanFloor, scanCeiling)];
     } else {
-      final workerCount =
-          _scanWorkerCount(_defaultScanProtocolVersion, override: workerCountOverride);
+      final workerCount = _scanWorkerCount(
+        _defaultScanProtocolVersion,
+        override: workerCountOverride,
+      );
       // ignoreExistingCoverage (rescan()'s own default, true - see its doc
       // comment; the Rescan page keeps that default, "Resume scanning"
       // opts out of it with false): when true, an explicit user-initiated
@@ -461,8 +466,9 @@ class SilentPaymentsScanner {
               _wallet.walletInfo.internalId,
               historical: historical,
             );
-      final gapInputRanges =
-          coverage.map((c) => CoverageRange(c.startHeight, c.endHeight)).toList();
+      final gapInputRanges = coverage
+          .map((c) => CoverageRange(c.startHeight, c.endHeight))
+          .toList();
       // The pre-activation span is unconditionally empty (see
       // _silentPaymentsActivationHeight's doc comment) regardless of
       // ignoreExistingCoverage - it's not "already scanned" progress that a
@@ -594,13 +600,14 @@ class SilentPaymentsScanner {
 
               final newUnspents = tx.unspents!
                   .where(
-                    (unspent) => !(previousUnspents?.any(
-                          (element) =>
-                              element.hash.contains(unspent.hash) &&
-                              element.vout == unspent.vout &&
-                              element.value == unspent.value,
-                        ) ??
-                        false),
+                    (unspent) =>
+                        !(previousUnspents?.any(
+                              (element) =>
+                                  element.hash.contains(unspent.hash) &&
+                                  element.vout == unspent.vout &&
+                                  element.value == unspent.value,
+                            ) ??
+                            false),
                   )
                   .toList();
 
@@ -706,8 +713,10 @@ class SilentPaymentsScanner {
         final worker = _scanWorkers.firstWhereOrNull((w) => w.workerIndex == message.workerIndex);
         if (worker != null) {
           worker.pendingCheckpointHeight = message.height;
-          _checkpointFlushTimer ??=
-              Timer.periodic(_checkpointFlushInterval, (_) => _flushCheckpoint());
+          _checkpointFlushTimer ??= Timer.periodic(
+            _checkpointFlushInterval,
+            (_) => _flushCheckpoint(),
+          );
         }
 
         final allWorkersDone = isWorkerDone && _doneWorkerIndices.length == _scanWorkers.length;
@@ -835,8 +844,7 @@ class SilentPaymentsScanner {
     }
 
     final gaps = uncoveredRanges(ranges, floorHeight, ceilingHeight);
-    final blocksLeft =
-        gaps.fold<int>(0, (sum, gap) => sum + (gap.endHeight - gap.startHeight + 1));
+    final blocksLeft = gaps.fold<int>(0, (sum, gap) => sum + (gap.endHeight - gap.startHeight + 1));
     final totalSpan = ceilingHeight - floorHeight + 1;
     final rawPtc = 1.0 - (blocksLeft / totalSpan);
     final ptc = rawPtc < 0.0 ? 0.0 : (rawPtc > 1.0 ? 1.0 : rawPtc);
@@ -953,8 +961,9 @@ class SilentPaymentsScanner {
       // has actually been verified there yet, so the strict `>` still
       // applies to avoid marking a not-yet-scanned height as covered.
       final workerDone = _doneWorkerIndices.contains(worker.workerIndex);
-      final hasNewCoverage =
-          workerDone ? target >= worker.checkpointBaseline : target > worker.checkpointBaseline;
+      final hasNewCoverage = workerDone
+          ? target >= worker.checkpointBaseline
+          : target > worker.checkpointBaseline;
       if (hasNewCoverage) {
         await WalletInfoScanCoverage.markCovered(
           walletInfoId: _wallet.walletInfo.internalId,
@@ -1076,8 +1085,9 @@ class SilentPaymentsScanner {
     if (_wallet.walletInfo.backfillTargetHeight == null &&
         chainTip > height &&
         _wallet.transactionHistory.transactions.isEmpty) {
-      final existingCoverage =
-          await WalletInfoScanCoverage.selectList(_wallet.walletInfo.internalId);
+      final existingCoverage = await WalletInfoScanCoverage.selectList(
+        _wallet.walletInfo.internalId,
+      );
       if (existingCoverage.isEmpty) {
         _wallet.walletInfo.backfillTargetHeight = chainTip;
         await _wallet.walletInfo.save();
