@@ -90,11 +90,25 @@ abstract class NFTSendViewModelBase with Store {
     }
   }
 
-  @action
-  void markSendStarted() => state = IsExecutingState();
+  /// Re-entrancy latch for the send button, held only while the tap handler is
+  /// inside [AuthService.authenticateAction].
+  ///
+  /// Deliberately not [state]: the auth sheet is pushed closable, and closing it
+  /// pops the route without ever invoking onAuthenticationFinished, so a flag
+  /// that waits on the auth result would never be cleared. The caller clears
+  /// this in a finally instead. Once auth succeeds, createTransaction takes over
+  /// the guard by setting IsExecutingState synchronously.
+  bool _isStartingSend = false;
+
+  bool get isStartingSend => _isStartingSend;
+
+  void markSendStarted() => _isStartingSend = true;
+
+  void markSendSettled() => _isStartingSend = false;
 
   @action
   void reset() {
+    _isStartingSend = false;
     pendingTransaction = null;
     state = InitialExecutionState();
   }
