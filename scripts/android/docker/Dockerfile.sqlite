@@ -1,0 +1,9 @@
+ARG BASE_IMAGE
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+RUN mkdir -p /w/scripts/
+COPY scripts/prepare_sqlite.sh /w/scripts/prepare_sqlite.sh
+RUN /w/scripts/prepare_sqlite.sh
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w/scripts/sqlite/sqlite3.c /w/scripts/sqlite/sqlite3.c
