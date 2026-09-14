@@ -95,45 +95,31 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       raw: 16,
       image: 'assets/new-ui/trade_providers/jupiter.svg',
       isCentralized: false);
+  static const flashnet = ExchangeProviderDescription(title: "Flashnet",
+      raw: 17,
+      image: "assets/new-ui/trade_providers/flashnet.svg",
+      isCentralized: false);
 
-  static ExchangeProviderDescription deserialize({required int raw}) {
-    switch (raw) {
-      case 0:
-        return xmrto;
-      case 1:
-        return changeNow;
-      case 2:
-        return morphToken;
-      case 3:
-        return sideShift;
-      case 4:
-        return simpleSwap;
-      case 5:
-        return trocador;
-      case 6:
-        return exolix;
-      case 7:
-        return all;
-      case 8:
-        return thorChain;
-      case 9:
-        return swapTrade;
-      case 10:
-        return letsExchange;
-      case 11:
-        return stealthEx;
-      case 12:
-        return chainflip;
-      case 13:
-        return xoSwap;
-      case 14:
-        return swapsXyz;
-      case 15:
-        return nearIntents;
-      case 16:
-        return jupiter;
-      default:
-        throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
-    }
-  }
+  static ExchangeProviderDescription deserialize({required int raw}) =>
+      switch (raw) {
+        0 => xmrto,
+        1 => changeNow,
+        2 => morphToken,
+        3 => sideShift,
+        4 => simpleSwap,
+        5 => trocador,
+        6 => exolix,
+        7 => all,
+        8 => thorChain,
+        9 => swapTrade,
+        10 => letsExchange,
+        11 => stealthEx,
+        12 => chainflip,
+        13 => xoSwap,
+        14 => swapsXyz,
+        15 => nearIntents,
+        16 => jupiter,
+        17 => flashnet,
+        _ => throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize')
+      };
 }
