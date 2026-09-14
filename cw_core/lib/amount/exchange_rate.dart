@@ -1,8 +1,21 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/currency.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/currency.dart";
 
-class ExchangeRate {
+class ExchangeRate implements Comparable<ExchangeRate> {
+
   const ExchangeRate({required this.base, required this.quote});
+
+  factory ExchangeRate.fromAmounts(Money from, Money to) {
+    if (from.isZero) {
+      throw ArgumentError(
+        "from has a zero amount, cannot create exchange rate",
+      );
+    }
+
+    final scale = BigInt.from(10).pow(from.currency.decimals);
+
+    return ExchangeRate(base: from.currency, quote: to * scale / from.amount);
+  }
 
   /// The currency being priced (e.g. BTC in a BTC/USD pair).
   final Currency base;
@@ -31,9 +44,7 @@ class ExchangeRate {
     }
 
     if (amount.currency == quote.currency) {
-      if (quote.isZero) {
-        return Money.zero(base);
-      }
+      if (quote.isZero) return Money.zero(base);
 
       final numerator = amount.amount * BigInt.from(10).pow(base.decimals + quote.decimals);
       final denominator = quote.amount * BigInt.from(10).pow(amount.decimals);
@@ -42,7 +53,21 @@ class ExchangeRate {
     }
 
     throw ArgumentError(
-      "Unable to convert ${amount.currency.symbol} in ${base.symbol}/${quote.currency.symbol} pair",
-    );
+        "Unable to convert ${amount.currency.symbol} in ${base.symbol}/${quote.currency.symbol} pair",);
+  }
+
+  @override
+  int compareTo(ExchangeRate other) {
+
+    if(other.base != base) {
+      throw ArgumentError("cannot compare rates for different base currencies");
+    }
+
+    if(other.quote.currency != quote.currency) {
+      throw ArgumentError("cannot compare rates for different quote currencies");
+    }
+
+
+    return quote.compareTo(other.quote);
   }
 }

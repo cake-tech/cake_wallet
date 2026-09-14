@@ -1,0 +1,154 @@
+[
+  {
+    "type": "regular",
+    "ingressAsset": "btc.btc",
+    "ingressAmount": 0.1,
+    "ingressAmountNative": "10000000",
+    "intermediateAsset": "usdc.eth",
+    "intermediateAmount": 6332.705186,
+    "intermediateAmountNative": "6332705186",
+    "egressAsset": "eth.eth",
+    "egressAmount": 3.327151665764943643,
+    "egressAmountNative": "3327151665764943643",
+    "includedFees": [
+      {
+        "type": "ingress",
+        "asset": "btc.btc",
+        "amount": 0.00000234,
+        "amountNative": "234"
+      },
+      {
+        "type": "network",
+        "asset": "usdc.eth",
+        "amount": 6.451953,
+        "amountNative": "6451953"
+      },
+      {
+        "type": "broker",
+        "asset": "usdc.eth",
+        "amount": 112.796276,
+        "amountNative": "112796276"
+      },
+      {
+        "type": "egress",
+        "asset": "eth.eth",
+        "amount": 0.00013680552396,
+        "amountNative": "136805523960000"
+      },
+      {
+        "type": "liquidity",
+        "asset": "btc.btc",
+        "amount": 0,
+        "amountNative": "0"
+      },
+      {
+        "type": "liquidity",
+        "asset": "usdc.eth",
+        "amount": 0,
+        "amountNative": "0"
+      }
+    ],
+    "recommendedSlippageTolerancePercent": 2.5,
+    "lowLiquidityWarning": false,
+    "poolInfo": [
+      {
+        "baseAsset": "btc.btc",
+        "quoteAsset": "usdc.eth",
+        "fee": {
+          "asset": "btc.btc",
+          "amount": 0,
+          "amountNative": "0"
+        }
+      },
+      {
+        "baseAsset": "eth.eth",
+        "quoteAsset": "usdc.eth",
+        "fee": {
+          "asset": "usdc.eth",
+          "amount": 0,
+          "amountNative": "0"
+        }
+      }
+    ],
+    "estimatedDurationSeconds": 1014,
+    "estimatedDurationsSeconds": {
+      "deposit": 906,
+      "swap": 12,
+      "egress": 96
+    },
+    "estimatedPrice": 33.2736633166106451191,
+    "boostQuote": {
+      "ingressAsset": "btc.btc",
+      "ingressAmount": 0.1,
+      "ingressAmountNative": "10000000",
+      "intermediateAsset": "usdc.eth",
+      "intermediateAmount": 6329.53876,
+      "intermediateAmountNative": "6329538760",
+      "egressAsset": "eth.eth",
+      "egressAmount": 3.325487982960274163,
+      "egressAmountNative": "3325487982960274163",
+      "includedFees": [
+        {
+          "type": "boost",
+          "asset": "btc.btc",
+          "amount": 0.00005,
+          "amountNative": "5000"
+        },
+        {
+          "type": "ingress",
+          "asset": "btc.btc",
+          "amount": 0.00000234,
+          "amountNative": "234"
+        },
+        {
+          "type": "network",
+          "asset": "usdc.eth",
+          "amount": 6.448727,
+          "amountNative": "6448727"
+        },
+        {
+          "type": "broker",
+          "asset": "usdc.eth",
+          "amount": 112.739876,
+          "amountNative": "112739876"
+        },
+        {
+          "type": "egress",
+          "asset": "eth.eth",
+          "amount": 0.00013680552396,
+          "amountNative": "136805523960000"
+        }
+      ],
+      "lowLiquidityWarning": false,
+      "poolInfo": [
+        {
+          "baseAsset": "btc.btc",
+          "quoteAsset": "usdc.eth",
+          "fee": {
+            "asset": "btc.btc",
+            "amount": 0,
+            "amountNative": "0"
+          }
+        },
+        {
+          "baseAsset": "eth.eth",
+          "quoteAsset": "usdc.eth",
+          "fee": {
+            "asset": "usdc.eth",
+            "amount": 0,
+            "amountNative": "0"
+          }
+        }
+      ],
+      "estimatedDurationSeconds": 414,
+      "estimatedDurationsSeconds": {
+        "deposit": 306,
+        "swap": 12,
+        "egress": 96
+      },
+      "estimatedBoostFeeBps": 5,
+      "estimatedPrice": 33.27366332022414694851
+    },
+    "platform": "chainflip"
+  }
+]

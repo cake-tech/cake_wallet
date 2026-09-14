@@ -1,30 +1,40 @@
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_options_page.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart';
+import "package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
+import "package:cake_wallet/utils/share_util.dart";
+import "package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SwapOptionsPage extends StatelessWidget {
-  const SwapOptionsPage({super.key, required this.exchangeViewModel});
+  const SwapOptionsPage({required this.bloc, super.key});
 
-  final ExchangeViewModel exchangeViewModel;
+  final SwapBloc bloc;
+
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
+    bloc: bloc,
+  builder: (context, state) => Column(
       children: [
         ModalTopBar(
           title: S.of(context).configure,
-          leadingIcon: Icon(Icons.arrow_back_ios_new),
+          leadingIcon: const Icon(Icons.arrow_back_ios_new),
           leadingSemanticLabel: S.of(context).seed_alert_back,
           onLeadingPressed: Navigator.of(context).pop,
         ),
@@ -45,8 +55,9 @@ class SwapOptionsPage extends StatelessWidget {
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface),
                   ),
+                  if(state is SwapStateWithInputs)
                   Text(
-                    "${exchangeViewModel.depositCurrency.title} → ${exchangeViewModel.receiveCurrency.title}",
+                    "${state.depositAmount.currency.title} → ${state.payoutAmount.currency.title}",
                     style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
@@ -54,81 +65,87 @@ class SwapOptionsPage extends StatelessWidget {
                   )
                 ],
               ),
-              Observer(
-                builder: (_) => NewListSections(
-                    showHeader: true,
-                    getCheckboxValue: (key) => exchangeViewModel.isFixedRateMode,
-                    updateCheckboxValue: (key, val) {},
-                    sections: {
-                      "": [
-                        ListItemToggle(
-                            keyValue: "fixed rate",
-                            label: S.of(context).fixed_rate,
-                            value: exchangeViewModel.isFixedRateMode,
-                            onChanged: (val) {
-                              if (val)
-                                exchangeViewModel.enableFixedRateMode();
-                              else
-                                exchangeViewModel.isFixedRateMode = false;
-                            }),
-                        ListItemRegularRow(
-                            keyValue: "refund",
-                            label: S.of(context).set_refund_address,
-                            onTap: () {
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) {
-                                    return RefundAddressModal(
-                                        selectedCurrency: exchangeViewModel.depositCurrency);
-                                  }).then((val) {
-                                if (val != null && val is String) {
-                                  exchangeViewModel.depositAddress = val;
-                                }
-                              });
-                            })
-                      ],
-                      S.of(context).general: [
-                        ListItemRegularRow(
-                            keyValue: "providers",
-                            label: S.of(context).swap_providers,
-                            onTap: () {
-                              Navigator.of(context).push(CupertinoPageRoute(
-                                  builder: (context) => Material(
-                                      child: ProviderOptionsPage(
-                                          exchangeViewModel: exchangeViewModel))));
-                            }),
-                        ListItemRegularRow(
-                            keyValue: "coin control",
-                            label: "Coin Control",
-                            onTap: () {
-                              showCupertinoModalBottomSheet(
-                                  enableDrag: false,
-                                  useRootNavigator: true,
-                                  isDismissible: false,
-                                  context: context,
-                                  builder: (context) {
-                                    return NewCoinControlPage(
-                                      unspentCoinsListViewModel:
-                                          exchangeViewModel.unspentCoinsListViewModel,
-                                      canEdit: true,
-                                    );
-                                  });
-                            }),
-                        ListItemSelector(
-                            keyValue: "curr",
-                            label: S.of(context).change_fiat_currency,
-                            options: [exchangeViewModel.fiat.name],
-                            onTap: () {
-                              exchangeViewModel.showFiatCurrencyPicker(context);
-                            })
-                      ]
-                    }),
-              )
+              if(state is SwapStateWithInputs)
+              NewListSections(
+                  showHeader: true,
+                  getCheckboxValue: (key) => state.isFixedRate,
+                  updateCheckboxValue: (key, val) {},
+                  sections: {
+                    "": [
+                      ListItemToggle(
+                          keyValue: "fixed rate",
+                          label: S.of(context).fixed_rate,
+                          value: state.isFixedRate,
+                          onChanged: (val) {
+                            bloc.add(FixedRateToggled());
+                          }),
+                      ListItemRegularRow(
+                          keyValue: "refund",
+                          label: S.of(context).set_refund_address,
+                          onTap: () {
+                            showModalBottomSheet(
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => RefundAddressModal(
+                                      selectedCurrency: state.depositAmount.currency)).then((val) {
+                              if (val != null && val is String) {
+                                bloc.add(SourceChanged(ExternalSwapSource(val)));
+                              }
+                            });
+                          })
+                    ],
+                    S.of(context).general: [
+                      ListItemRegularRow(
+                          keyValue: "providers",
+                          label: S.of(context).swap_providers,
+                          onTap: () {
+                            Navigator.of(context).push(CupertinoPageRoute(
+                                builder: (context) => Material(
+                                    child: ProviderOptionsPage(
+                                        bloc: bloc))));
+                          }),
+                      ListItemRegularRow(
+                          keyValue: "coin control",
+                          label: "Coin Control",
+                          onTap: () {
+                            showCupertinoModalBottomSheet(
+                                enableDrag: false,
+                                useRootNavigator: true,
+                                isDismissible: false,
+                                context: context,
+                                builder: (context) => NewCoinControlPage(
+                                    unspentCoinsListViewModel:
+                                        getIt.get<UnspentCoinsListViewModel>(),
+                                    canEdit: true,
+                                  ));
+                          }),
+                      ListItemSelector(
+                          keyValue: "curr",
+                          label: S.of(context).change_fiat_currency,
+                          options: [bloc.fiat.name],
+                          onTap: () {
+                            FiatCurrencyPickerSheet.show(
+                              context: context,
+                              selected: bloc.fiat,
+                              onSelected: (curr) {
+                                bloc.add(FiatCurrencyChanged(curr));
+                              },
+                            );
+
+                          })
+                    ],
+                    //FIXME(malik): remove this after tests
+                    "test": [
+                      ListItemRegularRow(keyValue: "send logs", label: "Send logs", onTap: (){
+                        final logs = ExchangeProviderLogger.getLogsAsText();
+                        ShareUtil.share(text: logs, context: context);
+                      })
+                    ],
+                  })
             ],
           ),
         )
       ],
-    );
-  }
+    ),
+);
 }

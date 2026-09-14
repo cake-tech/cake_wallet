@@ -6,7 +6,6 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/token_selection_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -517,13 +516,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     if (!mounted) return;
 
-    final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
-    await showModalBottomSheet<Trade?>(
-      context: context,
-      isDismissible: true,
-      isScrollControlled: true,
-      builder: (BuildContext context) => bottomSheet,
-    );
   }
 
   @override

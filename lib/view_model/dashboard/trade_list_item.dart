@@ -19,18 +19,14 @@ class TradeListItem extends ActionListItem {
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
-    final from = trade.from;
-    if (from == null) return trade.amountFormatted();
-    return appStore.amountParsingProxy.getDisplayCryptoAmount(trade.amountFormatted(), from);
+    return trade.depositAmount.toStringWithSymbol();
   }
 
   String get tradeFormattedReceiveAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
-    final to = trade.to;
-    if (to == null) return trade.receiveAmountFormatted();
-    return appStore.amountParsingProxy.getDisplayCryptoAmount(trade.receiveAmountFormatted(), to);
+    return trade.payoutAmount.toStringWithSymbol();
   }
 
   @override
