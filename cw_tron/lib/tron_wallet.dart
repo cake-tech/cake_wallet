@@ -13,6 +13,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -82,6 +83,8 @@ abstract class TronWalletBase
   late final TronClient _client;
 
   Timer? _transactionsUpdateTimer;
+
+  bool _isUpdatingTransactions = false;
 
   @override
   WalletAddresses walletAddresses;
@@ -395,6 +398,10 @@ abstract class TronWalletBase
         continue;
       }
 
+      if (transactionModel.contractAddress != null && !transactionModel.isTrc20Transfer) {
+        continue;
+      }
+
       var txCurrency = currency;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
@@ -619,9 +626,22 @@ abstract class TronWalletBase
     }
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
-      _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+      if (_isUpdatingTransactions) {
+        return;
+      }
+
+      _isUpdatingTransactions = true;
+      try {
+        await Future.wait([
+          _updateBalance(),
+          fetchTransactions(),
+          fetchTrc20ExcludedTransactions(),
+        ]);
+      } catch (e) {
+        printV("Tron transaction update failed: $e");
+      } finally {
+        _isUpdatingTransactions = false;
+      }
     });
   }
 
