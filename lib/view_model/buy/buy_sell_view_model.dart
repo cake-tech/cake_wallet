@@ -19,13 +19,14 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
 part 'buy_sell_view_model.g.dart';
 
 enum BuySellPageMode { buy, sell }
+
+enum _AmountSide { fiat, crypto }
 
 class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 
@@ -96,20 +97,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   // sets based on the absolute amout (from the fiat/charts api)
   // works even if you have no rates
-  Future<void> setCryptoAmountFromFiat(String fiatAmount) async {
-    if(fiatAmount.isEmpty) {
-      await changeCryptoAmount(amount: "");
+  @action
+  Future<void> setCryptoAmountFromFiat(String amount) async {
+    final enteredAmount = double.tryParse(amount.replaceAll(',', '.'));
+    final price = fiatConversionStore.prices[cryptoCurrency];
+
+    if (enteredAmount == null || price == null || price <= 0) {
+      await changeCryptoAmount(amount: '');
       return;
     }
 
-    if(fiatConversionStore.prices[cryptoCurrency] == null) {
-      return;
-    }
-
-    await changeCryptoAmount(
-        amount: (double.parse(fiatAmount) / (fiatConversionStore.prices[cryptoCurrency]!))
-            .toString(),
-      );
+    await changeCryptoAmount(amount: (enteredAmount / price).toString());
   }
 
   final AppStore _appStore;
@@ -174,6 +172,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @observable
   bool skipIsReadyToTradeReaction = false;
 
+  _AmountSide _enteredSide = _AmountSide.fiat;
+
   @computed
   String? get maxFiatAmount {
     if ((sortedQuotes.isEmpty && sortedRecommendedQuotes.isEmpty) ||
@@ -191,20 +191,41 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     return maxAmount.toStringAsFixed(2);
   }
 
-  Money? amountForQuote(Quote quote) => Money.trySafeParse(
-      ((double.tryParse(fiatAmount) ?? 0) / quote.rate).toStringAsFixed(min(20, cryptoCurrency.decimals)),
-      cryptoCurrency);
+  double? get _enteredFiatAmount => double.tryParse(fiatAmount.replaceAll(',', '.'));
 
-  Money? fiatAmountForQuote(Quote quote) {
-    if(fiatConversionStore.prices[cryptoCurrency] == null) {
-      return null;
+  double? get _enteredCryptoAmount => double.tryParse(_cryptoAmount.replaceAll(',', '.'));
+
+  Money? amountForQuote(Quote quote) {
+    final double? amount;
+
+    if (mode == BuySellPageMode.sell) {
+      amount = _enteredCryptoAmount;
+    } else {
+      final enteredAmount = _enteredFiatAmount;
+      amount = enteredAmount == null || quote.rate <= 0 ? null : enteredAmount / quote.rate;
     }
 
+    if (amount == null || !amount.isFinite) return null;
+
     return Money.trySafeParse(
-        (fiatConversionStore.prices[cryptoCurrency]! *
-                (double.tryParse(amountForQuote(quote).toString())??0))
-            .toStringAsFixed(2),
-        fiatCurrency);
+        amount.toStringAsFixed(min(20, cryptoCurrency.decimals)), cryptoCurrency);
+  }
+
+  Money? fiatAmountForQuote(Quote quote) {
+    final double? amount;
+
+    if (mode == BuySellPageMode.sell) {
+      final enteredAmount = _enteredCryptoAmount;
+      amount = enteredAmount == null ? null : enteredAmount * quote.rate;
+    } else {
+      final price = fiatConversionStore.prices[cryptoCurrency];
+      final cryptoAmount = double.tryParse(amountForQuote(quote)?.toString() ?? '');
+      amount = price == null || cryptoAmount == null ? null : price * cryptoAmount;
+    }
+
+    if (amount == null || !amount.isFinite) return null;
+
+    return Money.trySafeParse(amount.toStringAsFixed(fiatCurrency.decimals), fiatCurrency);
   }
 
   // based on usd values, should have roughly equal worth (was done with ai though so it's subject to correction)
@@ -324,6 +345,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> changeFiatAmount({required String amount}) async {
+    _enteredSide = _AmountSide.fiat;
     fiatAmount = amount.replaceAll(",", ".");
 
     if (amount.isEmpty) {
@@ -340,20 +362,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    printV(bestRateQuote);
-    if (bestRateQuote != null) {
-      final enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0;
-      final amount = enteredAmount / bestRateQuote!.rate;
-      printV(amount);
-
-      _cryptoAmount = amount.toString().withMaxDecimals(cryptoCurrency.decimals);
-    } else {
+    if (_quoteForAmounts == null) {
       await calculateBestRate();
+      return;
     }
+
+    _recalculateDerivedAmount();
   }
 
   @action
   Future<void> changeCryptoAmount({required String amount}) async {
+    _enteredSide = _AmountSide.crypto;
     _cryptoAmount = _appStore.amountParsingProxy.getCanonicalCryptoAmount(amount, cryptoCurrency);
 
     if (amount.isEmpty) {
@@ -370,14 +389,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    if (bestRateQuote != null) {
-      final enteredAmount = double.tryParse(_cryptoAmount.replaceAll(',', '.')) ?? 0;
-
-      fiatAmount =
-          (enteredAmount * bestRateQuote!.rate).toString().withMaxDecimals(fiatCurrency.decimals);
-    } else {
+    if (_quoteForAmounts == null) {
       await calculateBestRate();
+      return;
     }
+
+    _recalculateDerivedAmount();
   }
 
   @action
@@ -387,6 +404,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       sortedQuotes.forEach((element) => element.setIsSelected = false);
       option.setIsSelected = true;
       selectedQuote = option;
+      _recalculateDerivedAmount();
     } else if (option is PaymentMethod) {
       paymentMethods.forEach((element) => element.isSelected = false);
       option.isSelected = true;
@@ -627,7 +645,28 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       sortedRecommendedQuotes.first.setIsSelected = true;
     }
 
+    _recalculateDerivedAmount();
+
     buySellQuotState = BuySellQuotLoaded();
+  }
+
+  Quote? get _quoteForAmounts => selectedQuote ?? bestRateQuote;
+
+  @action
+  void _recalculateDerivedAmount() {
+    final rate = _quoteForAmounts?.rate;
+    if (rate == null || rate <= 0) return;
+
+    final enteredFiat = _enteredFiatAmount;
+    final enteredCrypto = _enteredCryptoAmount;
+
+    if (_enteredSide == _AmountSide.fiat && enteredFiat != null) {
+      _cryptoAmount = (enteredFiat / rate).toString().withMaxDecimals(cryptoCurrency.decimals);
+    } else if (enteredCrypto != null) {
+      fiatAmount = (enteredCrypto * rate).toString().withMaxDecimals(fiatCurrency.decimals);
+    } else if (enteredFiat != null) {
+      _cryptoAmount = (enteredFiat / rate).toString().withMaxDecimals(cryptoCurrency.decimals);
+    }
   }
 
   @action

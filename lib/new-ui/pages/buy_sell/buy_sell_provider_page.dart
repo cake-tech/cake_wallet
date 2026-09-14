@@ -67,8 +67,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                               ),
                               Text(
                                 (widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
-                                        .errorMessage ??
-                                    S.of(context).please_try_again_later,
+                                    .errorMessage,
                               ),
                             ],
                           ),
