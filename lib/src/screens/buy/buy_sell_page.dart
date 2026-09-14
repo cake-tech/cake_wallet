@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
@@ -36,9 +37,6 @@ class BuySellPageParams {
 class BuySellPage extends BasePage {
   BuySellPage(this.buySellViewModel, this._resolver, {BuySellPageParams? params}) {
     if (params != null) {
-      if (buySellViewModel.isBuyAction && params.startWithSell) {
-        buySellViewModel.changeBuySellAction();
-      }
       if (params.initialCurrency != null) {
         buySellViewModel.changeCryptoCurrency(currency: params.initialCurrency!);
       }
@@ -426,21 +424,9 @@ class BuySellPage extends BasePage {
         currencyButtonColor: Colors.transparent,
         addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
-        onPushPasteButton: (context) async {
-          final domain = cryptoCurrencyKey.currentState!.addressController.text;
-          final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
-          if (parsed.isNotEmpty) {
-            buySellViewModel.cryptoCurrencyAddress = parsed;
-          }
-        },
-        onPushAddressBookButton: (context) async {
-          final domain = cryptoCurrencyKey.currentState!.addressController.text;
-          final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
-          if (parsed.isNotEmpty) {
-            buySellViewModel.cryptoCurrencyAddress = parsed;
-          }
-        },
-        fillColor: buySellViewModel.isBuyAction
+        onPushPasteButton: (context) async {},
+        onPushAddressBookButton: (context) async {},
+        fillColor: buySellViewModel.mode == BuySellPageMode.buy
             ? Theme.of(context).colorScheme.surfaceContainer
             : Theme.of(context).colorScheme.surfaceContainerLow,
       ),
@@ -479,7 +465,7 @@ class BuySellPage extends BasePage {
         addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
         onPushPasteButton: (context) async {},
         onPushAddressBookButton: (context) async {},
-        fillColor: buySellViewModel.isBuyAction
+        fillColor: buySellViewModel.mode == BuySellPageMode.buy
             ? Theme.of(context).colorScheme.surfaceContainerLow
             : Theme.of(context).colorScheme.surfaceContainer,
         useSatoshis: buySellViewModel.useSatoshi,
@@ -489,50 +475,14 @@ class BuySellPage extends BasePage {
     if (responsiveLayoutUtil.shouldRenderMobileUI) {
       return Observer(
         builder: (_) {
-          if (buySellViewModel.isBuyAction) {
-            return MobileExchangeCardsSection(
-              firstExchangeCard: fiatExchangeCard,
-              secondExchangeCard: cryptoExchangeCard,
-              onBuyTap: () => null,
-              onSellTap: () =>
-                  buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
-              isBuySellOption: true,
-            );
-          } else {
-            return MobileExchangeCardsSection(
-              firstExchangeCard: cryptoExchangeCard,
-              secondExchangeCard: fiatExchangeCard,
-              onBuyTap: () =>
-                  !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
-              onSellTap: () => null,
-              isBuySellOption: true,
-            );
-          }
+          return Placeholder();
         },
       );
     }
 
     return Observer(
       builder: (_) {
-        if (buySellViewModel.isBuyAction) {
-          return DesktopExchangeCardsSection(
-            firstExchangeCard: fiatExchangeCard,
-            secondExchangeCard: cryptoExchangeCard,
-            onBuyTap: () => null,
-            onSellTap: () =>
-                buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
-            isBuySellOption: true,
-          );
-        } else {
-          return DesktopExchangeCardsSection(
-            firstExchangeCard: cryptoExchangeCard,
-            secondExchangeCard: fiatExchangeCard,
-            onBuyTap: () =>
-                !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
-            onSellTap: () => null,
-            isBuySellOption: true,
-          );
-        }
+        return Placeholder();
       },
     );
   }

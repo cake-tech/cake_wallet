@@ -23,7 +23,7 @@ abstract final class ChartsStateWithData extends ChartsState {
   final PriceDataSortCriterium sortCriterium;
   final ChartRange range;
 
-  String priceDisplayStringFor(CryptoCurrency curr) => "...";
+  Money? priceFor(CryptoCurrency curr) => null;
 
   String get fiatTicker => "";
 
@@ -89,7 +89,7 @@ final class ChartsLoaded extends ChartsStateWithData {
   }
 
   @override
-  String priceDisplayStringFor(CryptoCurrency curr) => _prices[curr]?.lastOrNull?.quote.toString() ?? "...";
+  Money? priceFor(CryptoCurrency curr) => _prices[curr]?.lastOrNull?.quote;
 
   PriceChangeData changeDataFor(CryptoCurrency curr) {
     final latestPrice = _prices[curr]?.lastOrNull?.quote ?? Money.zero(FiatCurrency.usd);
