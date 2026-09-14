@@ -504,7 +504,6 @@ class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
                             onChanged: (val) => setState(() => _autoConnect = val),
                             keyValue: "autoconnect",
                             label: S.of(context).auto_connect,
-                            subtitle: "description goes here",
                           ),
                         ],
                       "pass": [
