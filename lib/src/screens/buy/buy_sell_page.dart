@@ -28,7 +28,8 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel, this._resolver);
+  BuySellPage(this.buySellViewModel, this._resolver, ) {
+  }
 
   final BuySellViewModel buySellViewModel;
   final AddressResolverService _resolver;

@@ -12,6 +12,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -30,9 +31,10 @@ enum BuySellPageMode { buy, sell }
 class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
-  BuySellViewModelBase(AppStore appStore, {required this.mode, required this.fiatConversionStore})
+  BuySellViewModelBase(AppStore appStore, {required NewBuySellParams params, required this.fiatConversionStore})
       : _cryptoAmount = '',
         fiatAmount = '',
+        mode = params.mode,
         cryptoCurrencyAddress = '',
         isCryptoCurrencyAddressEnabled = false,
         cryptoCurrencies = <CryptoCurrency>[],
@@ -58,6 +60,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _initialize();
 
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
+
+    if(params.initialCurrency != null) {
+      changeCryptoCurrency(currency: params.initialCurrency!);
+    }
   }
 
   late Timer bestRateSync;
