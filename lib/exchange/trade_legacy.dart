@@ -135,7 +135,7 @@ class TradeLegacy extends HiveObject {
         TradeCurrencySnapshot.fromLegacyHive(raw: fromRaw, displayTitleTag: userCurrencyFromRaw)!,
       ),
       payoutAmount: Money.parse(
-        receiveAmount,
+        receiveAmount ?? "",
         TradeCurrencySnapshot.fromLegacyHive(raw: toRaw, displayTitleTag: userCurrencyToRaw)!,
       ),
       state: TradeState.deserialize(raw: stateRaw),

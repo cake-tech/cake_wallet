@@ -108,8 +108,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final coinJson = responseJSON.first;
 
     return ExchangeLimits(
-      min: Money.tryParse(coinJson.minimum, from),
-      max: Money.tryParse(coinJson.maximum, from),
+      min: Money.trySafeParse(coinJson.minimum, from),
+      max: Money.trySafeParse(coinJson.maximum, from),
     );
   }
 

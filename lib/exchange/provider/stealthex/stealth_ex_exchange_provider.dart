@@ -66,8 +66,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final responseData = StealthExRange.fromJson(
         json.decode(response.body) as Map<String, dynamic>);
     return ExchangeLimits(
-      min: Money.tryParse(responseData.minAmount, from),
-      max: Money.tryParse(responseData.maxAmount, from),
+      min: Money.trySafeParse(responseData.minAmount, from),
+      max: Money.trySafeParse(responseData.maxAmount, from),
     );
   }
 

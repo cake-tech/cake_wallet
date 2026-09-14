@@ -194,15 +194,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
         if (match != null) {
           return ExchangeLimits(
-            min: Money.tryParse(match.minAmount, from),
-            max: Money.tryParse(match.maxAmount, from),
+            min: Money.trySafeParse(match.minAmount, from),
+            max: Money.trySafeParse(match.maxAmount, from),
           );
         }
       }
     }
     return ExchangeLimits(
-      min: Money.tryParse(path.amountLimits?.minAmount, from),
-      max: Money.tryParse(path.amountLimits?.maxAmount, from),
+      min: Money.trySafeParse(path.amountLimits?.minAmount, from),
+      max: Money.trySafeParse(path.amountLimits?.maxAmount, from),
     );
   }
 

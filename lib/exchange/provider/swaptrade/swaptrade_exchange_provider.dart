@@ -79,7 +79,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       throw Exception("${from.title} unsupported");
     }
 
-    return ExchangeLimits(min: Money.tryParse(coin.min, from), max: Money.tryParse(coin.max, from));
+    return ExchangeLimits(min: Money.trySafeParse(coin.min, from), max: Money.trySafeParse(coin.max, from));
   }
 
   @override
