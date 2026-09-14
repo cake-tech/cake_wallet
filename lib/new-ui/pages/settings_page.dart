@@ -25,6 +25,8 @@ bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
+bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
+
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
@@ -38,12 +40,14 @@ class SettingsListItem {
     this.use2fa = _falseFunc,
     this.condition = _trueFunc,
     this.routeArgs,
+    this.routeArgsBuilder,
   });
 
   final String iconPath;
   final String title;
   final String route;
   final Object? routeArgs;
+  final Object? Function(DashboardViewModel)? routeArgsBuilder;
   final bool requireAuth;
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
@@ -58,6 +62,13 @@ class SettingsSectionData {
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
+    SettingsListItem(
+      "assets/new-ui/settings_row_icons/accounts.svg",
+      S.current.accounts,
+      Routes.accountCustomizer,
+      condition: _hasAccounts,
+      routeArgsBuilder: (vm) => vm,
+    ),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(
@@ -148,7 +159,11 @@ class SettingsMainPage extends StatelessWidget {
                           conditionToDetermineIfToUse2FA: item.use2fa(dashboardViewModel),
                           route: item.route);
                     } else {
-                      Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                      Navigator.of(context).pushNamed(
+                        item.route,
+                        arguments:
+                            item.routeArgsBuilder?.call(dashboardViewModel) ?? item.routeArgs,
+                      );
                     }
                   }
                 })

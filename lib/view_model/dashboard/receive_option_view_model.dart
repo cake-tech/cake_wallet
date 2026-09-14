@@ -35,7 +35,8 @@ abstract class ReceiveOptionViewModelBase with Store {
   ReceivePageOption selectedReceiveOption;
 
   @computed
-  List<ReceivePageOption> get options => _wallet.walletAddresses.receivePageOptions;
+  List<ReceivePageOption> get options =>
+      _wallet.walletAddresses.receivePageOptions.where(_wallet.receiveOptionAvailable).toList();
 
   String get walletTypeString => walletTypeToString(_wallet.type);
 

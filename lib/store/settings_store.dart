@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
@@ -168,6 +169,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
       TransactionPriority? initialZcashTransactionPriority,
+      TransactionPriority? initialDogecoinTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -273,6 +275,9 @@ abstract class SettingsStoreBase with Store {
     if (initialZcashTransactionPriority != null) {
       priority[WalletType.zcash] = initialZcashTransactionPriority;
     }
+    if (initialDogecoinTransactionPriority != null) {
+      priority[WalletType.dogecoin] = initialDogecoinTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -344,6 +349,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.zcash:
           key = PreferencesKey.zcashTransactionPriority;
+          break;
+        case WalletType.dogecoin:
+          key = PreferencesKey.dogecoinTransactionPriority;
           break;
         default:
           key = null;
@@ -1194,6 +1202,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
     TransactionPriority? zcashTransactionPriority;
+    TransactionPriority? dogecoinTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1241,6 +1250,10 @@ abstract class SettingsStoreBase with Store {
       zcashTransactionPriority = zcash?.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
+      dogecoinTransactionPriority = dogecoin?.deserializeDogeCoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1256,6 +1269,7 @@ abstract class SettingsStoreBase with Store {
     bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
     zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
+    dogecoinTransactionPriority ??= dogecoin?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1364,8 +1378,8 @@ abstract class SettingsStoreBase with Store {
       pinLength = defaultPinLength;
     }
 
-    final savedLanguageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-        await LanguageService.localeDetection();
+    final savedLanguageCode =
+        _offeredLanguageCode(sharedPreferences) ?? await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1744,6 +1758,7 @@ abstract class SettingsStoreBase with Store {
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
       initialZcashTransactionPriority: zcashTransactionPriority,
+      initialDogecoinTransactionPriority: dogecoinTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1847,6 +1862,11 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.zcash] = zcash!.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
+    if (dogecoin != null &&
+        sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
+      priority[WalletType.dogecoin] = dogecoin!.deserializeDogeCoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
+    }
 
     final generateSubaddresses =
         sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
@@ -1918,7 +1938,12 @@ abstract class SettingsStoreBase with Store {
     }
     pinCodeLength = pinLength;
 
-    languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
+    final restoredLanguageCode = _offeredLanguageCode(sharedPreferences);
+    if (restoredLanguageCode == null) {
+      await sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode);
+    } else {
+      languageCode = restoredLanguageCode;
+    }
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
     shouldShowDEuroDisclaimer =
@@ -2293,6 +2318,12 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {
+    final code = sharedPreferences.getString(PreferencesKey.currentLanguageCode);
+
+    return LanguageService.list.containsKey(code) ? code : null;
   }
 
   static Future<String?> _getDeviceName() async {
