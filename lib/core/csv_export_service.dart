@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -58,42 +59,15 @@ class CsvExportService {
     buf.writeln(_columns.join(','));
 
     final primaryAddress = _primaryAddressOf(items);
-    final notes = _buildNoteLookup(items, primaryAddress);
 
     for (final item in items) {
       if (item is DateSectionItem) continue;
 
-      final row = _buildRow(item, notes, primaryAddress);
+      final row = _buildRow(item, primaryAddress);
       if (row != null) buf.writeln(row);
     }
 
     return buf.toString();
-  }
-
-  /// Local transaction notes are stored in a Hive box keyed by
-  /// `<txHash>_<primaryAddress>`, with older builds keying by the bare
-  /// `<txHash>`. That box is shared by every wallet, so indexing all of it
-  /// would retain notes this export can never ask for. The keys the exported
-  /// rows can ask for are collected first and the box is then walked once,
-  /// keeping only matching notes: a lookup stays O(1) per row, while the
-  /// retained map is bounded by the exported rows instead of the box size.
-  Map<String, String> _buildNoteLookup(List<ActionListItem> items, String primaryAddress) {
-    final wantedKeys = <String>{};
-    for (final item in items) {
-      if (item is! TransactionListItem) continue;
-      final txHash = item.transaction.txHash;
-      wantedKeys.add('${txHash}_$primaryAddress');
-      wantedKeys.add(txHash);
-    }
-
-    if (wantedKeys.isEmpty) return const <String, String>{};
-
-    final notes = <String, String>{};
-    for (final description in transactionDescriptionBox.values) {
-      if (!wantedKeys.contains(description.id)) continue;
-      notes.putIfAbsent(description.id, () => description.note);
-    }
-    return notes;
   }
 
   /// Every item in one export belongs to the same wallet, so the address that
@@ -110,13 +84,21 @@ class CsvExportService {
     return '';
   }
 
-  String _noteFor(TransactionListItem item, Map<String, String> notes, String primaryAddress) {
+  /// Notes are stored in a Hive box that is appended to with `add`, so entries
+  /// carry auto-incrementing integer keys rather than the description id and
+  /// cannot be fetched with `get`. This mirrors the app's own read path in
+  /// `TransactionDetailsViewModel.note`: the current key is
+  /// `<txHash>_<primaryAddress>`, and older builds keyed by the bare `<txHash>`.
+  String _noteFor(TransactionListItem item, String primaryAddress) {
     final txHash = item.transaction.txHash;
-    return notes['${txHash}_$primaryAddress'] ?? notes[txHash] ?? '';
+    final descriptionKey = '${txHash}_$primaryAddress';
+    final description = transactionDescriptionBox.values
+        .firstWhereOrNull((val) => val.id == descriptionKey || val.id == txHash);
+    return description?.note ?? '';
   }
 
-  String? _buildRow(ActionListItem item, Map<String, String> notes, String primaryAddress) {
-    if (item is TransactionListItem) return _transactionRow(item, notes, primaryAddress);
+  String? _buildRow(ActionListItem item, String primaryAddress) {
+    if (item is TransactionListItem) return _transactionRow(item, primaryAddress);
     if (item is TradeListItem) return _tradeRow(item);
     if (item is OrderListItem) return _orderRow(item);
     if (item is AnonpayTransactionListItem) return _anonpayRow(item);
@@ -124,8 +106,7 @@ class CsvExportService {
     return null;
   }
 
-  String _transactionRow(
-      TransactionListItem item, Map<String, String> notes, String primaryAddress) {
+  String _transactionRow(TransactionListItem item, String primaryAddress) {
     final tx = item.transaction;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
@@ -147,7 +128,7 @@ class CsvExportService {
       tx.id,
       address,
       status,
-      _noteFor(item, notes, primaryAddress),
+      _noteFor(item, primaryAddress),
       '',
       '',
       '',
