@@ -221,19 +221,23 @@ void main() {
     expect(find.text("1.25 XMR"), findsOneWidget);
     expect(find.text("Empty Accounts"), findsOneWidget);
     expect(find.text("3. Travel"), findsOneWidget);
-    expect(find.text("0 XMR"), findsOneWidget);
+    expect(find.text("0 XMR"), findsNothing);
   });
 
   testWidgets("archived account fiat balance uses the current price and locale", (tester) async {
     final settingsStore = _MockSettingsStore();
 
-    when(() => accountListViewModel.accounts).thenReturn([fundedAccount, activeAccount]);
+    when(() => accountListViewModel.accounts)
+        .thenReturn([fundedAccount, activeAccount, emptyAccount]);
     when(() => balanceViewModel.isFiatDisabled).thenReturn(false);
     when(() => balanceViewModel.price).thenReturn(20);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
     when(() => settingsStore.languageCode).thenReturn("de_DE");
-    await tester.runAsync(() => hideAccount(fundedAccount.id, 0));
+    await tester.runAsync(() async {
+      await hideAccount(fundedAccount.id, 0);
+      await hideAccount(emptyAccount.id, 1);
+    });
 
     await tester.pumpWidget(
       testApp(
@@ -247,6 +251,8 @@ void main() {
 
     expect(find.text("1.25 XMR"), findsOneWidget);
     expect(find.text("25,00 USD"), findsOneWidget);
+    expect(find.text("3. Travel"), findsOneWidget);
+    expect(find.text("0,00 USD"), findsNothing);
   });
 
   testWidgets("AccountCustomizer shows education only until it has been seen", (tester) async {

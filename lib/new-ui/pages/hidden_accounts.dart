@@ -353,6 +353,7 @@ class _ArchivedAccountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final label = account.label.trim();
 
     return Material(
       color: theme.colorScheme.surfaceContainer,
@@ -375,8 +376,18 @@ class _ArchivedAccountRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _accountName(context, account),
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "${account.id + 1}. ",
+                              style: TextStyle(color: theme.colorScheme.primary),
+                            ),
+                            TextSpan(
+                              text: label.isEmpty ? S.of(context).unnamed_account : label,
+                            ),
+                          ],
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium,
@@ -461,32 +472,34 @@ class _AccountBalanceTrailing extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 142),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "${_displayBalance(account)} ${accountListViewModel.currency.title}",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall,
-              ),
-              if (fiatBalance != null) ...[
-                const SizedBox(height: 2),
+        if (_isFunded(account)) ...[
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 142),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
                 Text(
-                  fiatBalance,
+                  "${_displayBalance(account)} ${accountListViewModel.currency.title}",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall,
                 ),
+                if (fiatBalance != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    fiatBalance,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
+          const SizedBox(width: 8),
+        ],
         Icon(
           Icons.arrow_forward_ios_rounded,
           size: 14,
@@ -579,6 +592,7 @@ class _AccountSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final label = account.label.trim();
 
     return Container(
       width: double.infinity,
@@ -597,8 +611,18 @@ class _AccountSummary extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              _accountName(context, account),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "${account.id + 1}. ",
+                    style: TextStyle(color: theme.colorScheme.primary),
+                  ),
+                  TextSpan(
+                    text: label.isEmpty ? S.of(context).unnamed_account : label,
+                  ),
+                ],
+              ),
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
@@ -631,6 +655,7 @@ class _FundsSummary extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer,
         border: Border.all(color: borderColor),
         borderRadius: BorderRadius.circular(18),
       ),
@@ -702,11 +727,6 @@ double? _accountAmount(AccountListItem account) {
     return null;
   }
   return double.tryParse(balance.trim().replaceAll(",", ""));
-}
-
-String _accountName(BuildContext context, AccountListItem account) {
-  final label = account.label.trim();
-  return "${account.id + 1}. ${label.isEmpty ? S.of(context).unnamed_account : label}";
 }
 
 String _displayBalance(AccountListItem account) => account.balance ?? "0";
