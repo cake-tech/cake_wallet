@@ -57,8 +57,8 @@ class CsvExportService {
     buf.write(_utf8Bom);
     buf.writeln(_columns.join(','));
 
-    final notes = _buildNoteLookup();
     final primaryAddress = _primaryAddressOf(items);
+    final notes = _buildNoteLookup(items, primaryAddress);
 
     for (final item in items) {
       if (item is DateSectionItem) continue;
@@ -72,11 +72,25 @@ class CsvExportService {
 
   /// Local transaction notes are stored in a Hive box keyed by
   /// `<txHash>_<primaryAddress>`, with older builds keying by the bare
-  /// `<txHash>`. The whole box is indexed once per export so that looking up a
-  /// note stays O(1) per row instead of rescanning the box for every row.
-  Map<String, String> _buildNoteLookup() {
+  /// `<txHash>`. That box is shared by every wallet, so indexing all of it
+  /// would retain notes this export can never ask for. The keys the exported
+  /// rows can ask for are collected first and the box is then walked once,
+  /// keeping only matching notes: a lookup stays O(1) per row, while the
+  /// retained map is bounded by the exported rows instead of the box size.
+  Map<String, String> _buildNoteLookup(List<ActionListItem> items, String primaryAddress) {
+    final wantedKeys = <String>{};
+    for (final item in items) {
+      if (item is! TransactionListItem) continue;
+      final txHash = item.transaction.txHash;
+      wantedKeys.add('${txHash}_$primaryAddress');
+      wantedKeys.add(txHash);
+    }
+
+    if (wantedKeys.isEmpty) return const <String, String>{};
+
     final notes = <String, String>{};
     for (final description in transactionDescriptionBox.values) {
+      if (!wantedKeys.contains(description.id)) continue;
       notes.putIfAbsent(description.id, () => description.note);
     }
     return notes;
