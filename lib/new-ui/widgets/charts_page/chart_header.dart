@@ -5,6 +5,7 @@ import "package:cake_wallet/new-ui/widgets/charts_page/coin_header.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/price_header.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -60,7 +61,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                         ),
                       ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
                       ChartViewPriceHeader(
-                        price: _viewedPrice ?? s.priceDisplayStringFor(widget.currency),
+                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
                         ticker: s.fiatTicker,
                         highlight: _viewedPrice != null,
                       ),

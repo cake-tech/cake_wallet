@@ -13,6 +13,7 @@ import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart
 import "package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/foundation.dart";
 

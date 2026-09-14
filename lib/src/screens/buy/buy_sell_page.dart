@@ -37,9 +37,6 @@ class BuySellPageParams {
 class BuySellPage extends BasePage {
   BuySellPage(this.buySellViewModel, this._resolver, {BuySellPageParams? params}) {
     if (params != null) {
-      if (buySellViewModel.isBuyAction && params.startWithSell) {
-        buySellViewModel.changeBuySellAction();
-      }
       if (params.initialCurrency != null) {
         buySellViewModel.changeCryptoCurrency(currency: params.initialCurrency!);
       }

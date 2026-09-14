@@ -37,7 +37,7 @@ class ChartsAssetGrid extends StatelessWidget {
                 final curr = currencies[index];
                 return ChartsAssetCard(
                   currency: curr,
-                  price: state.priceDisplayStringFor(curr),
+                  price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
                   ticker: state.fiatTicker,
                   changeData: state is ChartsLoaded ? state.changeDataFor(curr) : null,
                   favorite: curr == state.pinnedCurrency,
