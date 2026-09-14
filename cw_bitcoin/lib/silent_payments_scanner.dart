@@ -91,7 +91,7 @@ class SilentPaymentsScanner {
   //
   // NOTE: this host:port is the current dev/test server - replace with the
   // real production v2 tweaks-scanning endpoint before shipping.
-  static const String _defaultScanServerHost = "192.168.100.89";
+  static const String _defaultScanServerHost = "electrs.rafaelxmr.com";
   static const int _defaultScanServerPort = 50005;
   static final ScanNode _defaultScanNode = ScanNode(
     Uri.parse("tcp://$_defaultScanServerHost:$_defaultScanServerPort"),
