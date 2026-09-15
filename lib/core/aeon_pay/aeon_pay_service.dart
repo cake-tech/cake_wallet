@@ -1,5 +1,6 @@
 import "dart:convert";
 
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import "package:cake_wallet/core/aeon_pay/models.dart";
 import "package:crypto/crypto.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -19,14 +20,12 @@ class AeonPayService {
   final prodUrl = "https://qrpay.aeon.xyz";
 
   Future<AeonPayDecodeQrDTO?> decodeQR(String qrString) async {
-    final payload = {"appId": appId, "qrCode": qrString};
-    payload["sign"] = _signParams(payload, signKey);
+    final payload = {"appId": secrets.aeonPayAppId, "qrCode": qrString};
+    payload["sign"] = _signParams(payload, secrets.aeonPaySignKey);
 
     final response = await ProxyWrapper().post(
       clearnetUri: Uri.parse("$sandUrl/open/api/scanCode"),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: {"Content-Type": "application/json"},
       body: jsonEncode(payload),
     );
 
@@ -41,7 +40,7 @@ class AeonPayService {
     final merchantOrderNo = DateTime.now().millisecondsSinceEpoch.toRadixString(15);
     final payload = {
       "amount": order.amount?.toString() ?? "131500",
-      "appId": appId,
+      "appId": secrets.aeonPayAppId,
       "callbackUrl": "https://cakewallet.com/dont-callback-me-maybe",
       "currency": order.currency,
       "feeType": "INNER_BUCKLE",
@@ -50,14 +49,12 @@ class AeonPayService {
       "userId": "kons",
       "userIp": "8.8.8.8",
     };
-    payload["sign"] = _signParams(payload, signKey);
+    payload["sign"] = _signParams(payload, secrets.aeonPaySignKey);
     payload["email"] = "";
 
     final response = await ProxyWrapper().post(
       clearnetUri: Uri.parse("$sandUrl/open/api/scan/payment"),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: {"Content-Type": "application/json"},
       body: jsonEncode(payload),
     );
 
