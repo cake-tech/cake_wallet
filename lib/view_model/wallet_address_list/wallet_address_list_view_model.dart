@@ -2,7 +2,6 @@ import "dart:core";
 import "dart:developer" as dev;
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
-import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/core/wallet_change_listener_view_model.dart";
