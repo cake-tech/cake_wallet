@@ -7,7 +7,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_confirmation_page.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_payment_method_page.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import "package:flutter/cupertino.dart";

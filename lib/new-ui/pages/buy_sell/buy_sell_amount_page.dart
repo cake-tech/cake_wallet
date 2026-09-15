@@ -12,7 +12,7 @@ import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/token_chain_display.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";

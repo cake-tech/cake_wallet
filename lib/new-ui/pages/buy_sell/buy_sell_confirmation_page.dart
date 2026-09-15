@@ -3,7 +3,7 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_redirecting_page.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
