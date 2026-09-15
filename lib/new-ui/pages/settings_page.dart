@@ -1,19 +1,18 @@
-import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 bool _alwaysVisible(DashboardViewModel _) => true;
 
@@ -27,6 +26,8 @@ bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
 bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
 
+bool _hasCoinControl(DashboardViewModel vm) => vm.wallet.hasCoinControl;
+
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
@@ -36,6 +37,7 @@ class SettingsListItem {
     this.iconPath,
     this.title,
     this.route, {
+    this.isCore = false,
     this.requireAuth = false,
     this.use2fa = _neverUse2fa,
     this.condition = _alwaysVisible,
@@ -48,6 +50,7 @@ class SettingsListItem {
   final String iconPath;
   final String title;
   final String route;
+  final bool isCore;
   final Object? routeArgs;
   final Object? Function(DashboardViewModel)? routeArgsBuilder;
   final bool requireAuth;
@@ -56,262 +59,95 @@ class SettingsListItem {
 }
 
 class SettingsSectionData {
-  const SettingsSectionData(this.title, this.titleIconPath, this.items);
+  const SettingsSectionData(
+    this.title,
+    this.titleIconPath,
+    this.groups, {
+    this.titleColor,
+    this.headerSpacing = 16,
+  });
 
   final String title;
   final String titleIconPath;
-  final List<SettingsListItem> items;
+  final Map<String, List<ListItem>> groups;
+  final Color? titleColor;
+  final double headerSpacing;
 }
 
-/// The network-specific settings that may appear for an active wallet.
-///
-/// Availability that can change at runtime (hardware wallet, platform, wallet
-/// implementation, and feature support) is intentionally handled by each
-/// item's [SettingsListItem.condition], not by this enum.
-enum WalletSettingsItemType {
-  accounts,
-  nodes,
-  coinControl,
-  lightningUsername,
-  silentPayments,
-  mweb,
-  walletConnect,
-  resyncDevice,
-}
-
-extension on WalletSettingsItemType {
-  bool get isCoreSetting => switch (this) {
-        WalletSettingsItemType.accounts ||
-        WalletSettingsItemType.nodes ||
-        WalletSettingsItemType.coinControl =>
-          true,
-        WalletSettingsItemType.lightningUsername ||
-        WalletSettingsItemType.silentPayments ||
-        WalletSettingsItemType.mweb ||
-        WalletSettingsItemType.walletConnect ||
-        WalletSettingsItemType.resyncDevice =>
-          false,
-      };
-}
-
-/// Resolves the nested wallet settings for every [WalletType].
-///
-/// This switch deliberately has no wildcard/default branch. Adding a wallet
-/// type therefore requires an explicit decision about its settings here.
 class WalletSettingsResolver {
   const WalletSettingsResolver();
-
-  List<WalletSettingsItemType> settingsFor(WalletType walletType) => switch (walletType) {
-        WalletType.monero => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-            WalletSettingsItemType.resyncDevice,
-          ],
-        WalletType.bitcoin => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-            WalletSettingsItemType.lightningUsername,
-            WalletSettingsItemType.silentPayments,
-          ],
-        WalletType.litecoin => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-            WalletSettingsItemType.mweb,
-          ],
-        WalletType.ethereum => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.bitcoinCash => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-          ],
-        WalletType.nano => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.banano => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.haven => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.polygon => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.solana => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.tron => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.wownero => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-          ],
-        WalletType.zano => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.decred => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-          ],
-        WalletType.dogecoin => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.coinControl,
-          ],
-        WalletType.base => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.arbitrum => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.zcash => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-        WalletType.bsc => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-            WalletSettingsItemType.walletConnect,
-          ],
-        WalletType.none => const [
-            WalletSettingsItemType.accounts,
-            WalletSettingsItemType.nodes,
-          ],
-      };
 
   String titleFor(WalletType walletType, S strings) =>
       '${walletTypeToString(walletType)} ${strings.settings_title}'.trim();
 
-  String iconPathFor(WalletType walletType) => switch (walletType) {
-        WalletType.none => 'assets/new-ui/wallet-setting.svg',
-        WalletType.wownero ||
-        WalletType.haven ||
-        WalletType.banano =>
-          getCryptoCurrencyIconForWalletListItem(walletType),
-        WalletType.monero ||
-        WalletType.bitcoin ||
-        WalletType.litecoin ||
-        WalletType.ethereum ||
-        WalletType.bitcoinCash ||
-        WalletType.nano ||
-        WalletType.polygon ||
-        WalletType.solana ||
-        WalletType.tron ||
-        WalletType.zano ||
-        WalletType.decred ||
-        WalletType.dogecoin ||
-        WalletType.base ||
-        WalletType.arbitrum ||
-        WalletType.zcash ||
-        WalletType.bsc =>
-          'assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg',
-      };
+  String iconPathFor(WalletType walletType) =>
+      "assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg";
 
-  List<List<SettingsListItem>> resolveSections(S strings, DashboardViewModel viewModel) {
-    final supportedTypes = settingsFor(viewModel.wallet.type);
-    final visibleEntries = supportedTypes
-        .map(
-          (type) => (
-            type: type,
-            item: _buildItem(type, strings, viewModel.wallet.type),
-          ),
-        )
-        .where((entry) => entry.item.condition(viewModel))
-        .toList();
+  List<List<SettingsListItem>> resolveSections(DashboardViewModel viewModel) {
+    final visibleItems = <SettingsListItem>[
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/accounts.svg",
+        viewModel.wallet.type == WalletType.bitcoin ? S.current.accounts_onchain : S.current.accounts,
+        Routes.accountCustomizer,
+        isCore: true,
+        condition: _hasAccounts,
+        routeArgsBuilder: (vm) => vm,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/nodes.svg",
+        S.current.nodes,
+        Routes.manageNodes,
+        isCore: true,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/coin-control.svg",
+        S.current.coin_control_settings,
+        Routes.unspentCoinsList,
+        isCore: true,
+        condition: _hasCoinControl,
+        routeArgs: const CoinControlPageArgs(canEdit: false),
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/lightning_username.svg",
+        "Lightning ${S.current.username}",
+        Routes.lightningUsernamePage,
+        condition: _hasLightning,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/silent-payments.svg",
+        S.current.silent_payments,
+        Routes.silentPaymentsSettings,
+        condition: _hasSilentPayments,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/mweb.svg",
+        S.current.litecoin_mweb,
+        Routes.mwebSettings,
+        condition: _hasMweb,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/wc.svg",
+        S.current.walletConnect,
+        Routes.walletConnectConnectionsListing,
+        condition: _hasWalletConnect,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/sync-balance.svg",
+        S.current.resync_device,
+        Routes.syncKeyImagesDevices,
+        routeArgs: const {"export-outputs": "export-outputs"},
+        condition: _requiresKeyImageSync,
+      ),
+    ].where((item) => item.condition(viewModel)).toList();
 
-    final coreItems = visibleEntries
-        .where((entry) => entry.type.isCoreSetting)
-        .map((entry) => entry.item)
-        .toList();
-    final featureItems = visibleEntries
-        .where((entry) => !entry.type.isCoreSetting)
-        .map((entry) => entry.item)
-        .toList();
+    final coreItems = visibleItems.where((item) => item.isCore).toList();
+    final featureItems = visibleItems.where((item) => !item.isCore).toList();
 
     return [
       if (coreItems.isNotEmpty) coreItems,
       if (featureItems.isNotEmpty) featureItems,
     ];
   }
-
-  SettingsListItem _buildItem(
-    WalletSettingsItemType type,
-    S strings,
-    WalletType walletType,
-  ) =>
-      switch (type) {
-        WalletSettingsItemType.accounts => SettingsListItem(
-            'assets/new-ui/settings_row_icons/accounts.svg',
-            walletType == WalletType.bitcoin ? strings.accounts_onchain : strings.accounts,
-            Routes.accountCustomizer,
-            condition: _hasAccounts,
-            routeArgsBuilder: (vm) => vm,
-          ),
-        WalletSettingsItemType.nodes => SettingsListItem(
-            'assets/new-ui/settings_row_icons/nodes.svg',
-            strings.nodes,
-            Routes.manageNodes,
-          ),
-        WalletSettingsItemType.coinControl => SettingsListItem(
-            'assets/new-ui/settings_row_icons/coin-control.svg',
-            strings.coin_control_settings,
-            Routes.unspentCoinsList,
-            routeArgs: const CoinControlPageArgs(canEdit: false),
-          ),
-        WalletSettingsItemType.lightningUsername => SettingsListItem(
-            'assets/new-ui/settings_row_icons/lightning_username.svg',
-            'Lightning ${strings.username}',
-            Routes.lightningUsernamePage,
-            condition: _hasLightning,
-          ),
-        WalletSettingsItemType.silentPayments => SettingsListItem(
-            'assets/new-ui/settings_row_icons/silent-payments.svg',
-            strings.silent_payments,
-            Routes.silentPaymentsSettings,
-            condition: _hasSilentPayments,
-          ),
-        WalletSettingsItemType.mweb => SettingsListItem(
-            'assets/new-ui/settings_row_icons/mweb.svg',
-            strings.litecoin_mweb,
-            Routes.mwebSettings,
-            condition: _hasMweb,
-          ),
-        WalletSettingsItemType.walletConnect => SettingsListItem(
-            'assets/new-ui/settings_row_icons/wc.svg',
-            strings.walletConnect,
-            Routes.walletConnectConnectionsListing,
-            condition: _hasWalletConnect,
-          ),
-        WalletSettingsItemType.resyncDevice => SettingsListItem(
-            'assets/new-ui/settings_row_icons/sync-balance.svg',
-            strings.resync_device,
-            Routes.syncKeyImagesDevices,
-            routeArgs: const {'export-outputs': 'export-outputs'},
-            condition: _requiresKeyImageSync,
-          ),
-      };
 }
 
 class SettingsPageSectionsResolver {
@@ -338,34 +174,30 @@ class SettingsPageSectionsResolver {
         ),
       ];
 
-  SettingsSectionData appSettings(S strings) => SettingsSectionData(
-        strings.app_settings,
-        'assets/new-ui/cake-setting.svg',
-        [
-          SettingsListItem(
-            'assets/new-ui/settings_row_icons/connections.svg',
-            strings.connections,
-            Routes.connectionSync,
-          ),
-          SettingsListItem(
-            'assets/new-ui/settings_row_icons/display.svg',
-            strings.display,
-            Routes.displaySettingsPage,
-          ),
-          SettingsListItem(
-            'assets/new-ui/settings_row_icons/security.svg',
-            strings.security,
-            Routes.securityBackupPage,
-          ),
-          SettingsListItem(
-            'assets/new-ui/settings_row_icons/backup.svg',
-            strings.backup,
-            Routes.backup,
-            requireAuth: true,
-            use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-          ),
-        ],
-      );
+  List<SettingsListItem> appSettings(S strings) => [
+        SettingsListItem(
+          'assets/new-ui/settings_row_icons/connections.svg',
+          strings.connections,
+          Routes.connectionSync,
+        ),
+        SettingsListItem(
+          'assets/new-ui/settings_row_icons/display.svg',
+          strings.display,
+          Routes.displaySettingsPage,
+        ),
+        SettingsListItem(
+          'assets/new-ui/settings_row_icons/security.svg',
+          strings.security,
+          Routes.securityBackupPage,
+        ),
+        SettingsListItem(
+          'assets/new-ui/settings_row_icons/backup.svg',
+          strings.backup,
+          Routes.backup,
+          requireAuth: true,
+          use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        ),
+      ];
 
   List<SettingsListItem> supportAndAbout(S strings) => [
         SettingsListItem(
@@ -417,83 +249,83 @@ class SettingsMainPage extends StatelessWidget {
   final AuthService authService;
 
   @override
-  Widget build(BuildContext context) {
-    final strings = S.of(context);
-    final wallet = dashboardViewModel.wallet;
-    final walletSettingsTitle = _walletSettingsResolver.titleFor(wallet.type, strings);
-    final appSettings = _sectionsResolver.appSettings(strings);
-
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: strings.settings_title,
-            leadingIcon: const Icon(Icons.close),
-            leadingSemanticLabel: strings.close,
-            onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-          ),
-          Expanded(
-            child: ListView(
-              controller: ModalScrollController.of(context),
-              padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
-              children: [
-                _SettingsSectionHeader(
-                  iconPath: 'assets/new-ui/wallet-setting.svg',
-                  title: wallet.name,
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 20),
-                NewListSections(
-                  sections: {
-                    'wallet_type_settings': [
-                      ListItemRegularRow(
-                        keyValue: 'wallet_type_settings',
-                        label: walletSettingsTitle,
-                        iconPath: _walletSettingsResolver.iconPathFor(wallet.type),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => WalletSettingsPage(
-                              dashboardViewModel: dashboardViewModel,
-                              authService: authService,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  },
-                ),
-                const SizedBox(height: 24),
-                NewListSections(
-                  sections: {
-                    'wallet_general': _buildRows(context, _sectionsResolver.walletGeneral(strings)),
-                  },
-                ),
-                const SizedBox(height: 24),
-                Divider(color: Theme.of(context).colorScheme.surfaceContainerHighest),
-                const SizedBox(height: 24),
-                _SettingsSectionHeader(
-                  iconPath: appSettings.titleIconPath,
-                  title: appSettings.title,
-                ),
-                const SizedBox(height: 16),
-                NewListSections(
-                  sections: {'app_settings': _buildRows(context, appSettings.items)},
-                ),
-                const SizedBox(height: 24),
-                NewListSections(
-                  sections: {
-                    'support_and_about':
-                        _buildRows(context, _sectionsResolver.supportAndAbout(strings)),
-                  },
-                ),
-              ],
+  Widget build(BuildContext context) => Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: S.of(context).settings_title,
+              leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
+              onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            Expanded(
+              child: ListView(
+                controller: ModalScrollController.of(context),
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
+                children: [
+                  for (final (index, section) in _sections(context).indexed) ...[
+                    if (index > 0) ...[
+                      const SizedBox(height: 24),
+                      Divider(color: Theme.of(context).colorScheme.surfaceContainerHighest),
+                      const SizedBox(height: 24),
+                    ],
+                    _SettingsSectionHeader(
+                      iconPath: section.titleIconPath,
+                      title: section.title,
+                      foregroundColor: section.titleColor,
+                    ),
+                    SizedBox(height: section.headerSpacing),
+                    for (final (groupIndex, group) in section.groups.entries.indexed) ...[
+                      if (groupIndex > 0) const SizedBox(height: 24),
+                      NewListSections(sections: {group.key: group.value}),
+                    ],
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+  List<SettingsSectionData> _sections(BuildContext context) => [
+        SettingsSectionData(
+          dashboardViewModel.wallet.name,
+          "assets/new-ui/wallet-setting.svg",
+          {
+            "wallet_type_settings": [
+              ListItemRegularRow(
+                keyValue: "wallet_type_settings",
+                label: _walletSettingsResolver.titleFor(
+                  dashboardViewModel.wallet.type,
+                  S.of(context),
+                ),
+                iconPath: _walletSettingsResolver.iconPathFor(dashboardViewModel.wallet.type),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => WalletSettingsPage(
+                      dashboardViewModel: dashboardViewModel,
+                      authService: authService,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            "wallet_general": _buildRows(context, _sectionsResolver.walletGeneral(S.of(context))),
+          },
+          titleColor: Theme.of(context).colorScheme.primary,
+          headerSpacing: 20,
+        ),
+        SettingsSectionData(
+          S.of(context).app_settings,
+          "assets/new-ui/cake-setting.svg",
+          {
+            "app_settings": _buildRows(context, _sectionsResolver.appSettings(S.of(context))),
+            "support_and_about":
+                _buildRows(context, _sectionsResolver.supportAndAbout(S.of(context))),
+          },
+        ),
+      ];
 
   List<ListItem> _buildRows(BuildContext context, List<SettingsListItem> items) => items
       .where((item) => item.condition(dashboardViewModel))
@@ -538,7 +370,7 @@ class WalletSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = S.of(context);
-    final sections = _resolver.resolveSections(strings, dashboardViewModel);
+    final sections = _resolver.resolveSections(dashboardViewModel);
 
     return Container(
       color: Theme.of(context).colorScheme.surface,

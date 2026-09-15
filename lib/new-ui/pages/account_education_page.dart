@@ -1,32 +1,25 @@
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 class AccountEducationPage extends StatefulWidget {
-  const AccountEducationPage({required this.preferences, super.key});
+  const AccountEducationPage({required this.settingsStore, super.key});
 
-  final SharedPreferences preferences;
+  final SettingsStore settingsStore;
 
-  static bool shouldShow(SharedPreferences preferences) =>
-      !(preferences.getBool(PreferencesKey.accountsEducationSeen) ?? false);
-
-  static Future<void> markSeen(SharedPreferences preferences) async {
-    await preferences.setBool(PreferencesKey.accountsEducationSeen, true);
-  }
-
-  static Future<void> show(BuildContext context, SharedPreferences preferences) async {
+  static Future<void> show(BuildContext context, SettingsStore settingsStore) async {
     await showCupertinoModalBottomSheet<void>(
+      useRootNavigator: true,
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => AccountEducationPage(preferences: preferences),
+      builder: (_) => AccountEducationPage(settingsStore: settingsStore),
     );
-    await markSeen(preferences);
+    settingsStore.accountsEducationSeen = true;
   }
 
   @override
@@ -46,23 +39,19 @@ class _AccountEducationPageState extends State<AccountEducationPage> {
     super.dispose();
   }
 
-  Future<void> _complete() async {
+  void _complete() {
     if (_isCompleting) {
       return;
     }
 
     _isCompleting = true;
-    await AccountEducationPage.markSeen(widget.preferences);
-
-    if (!mounted) {
-      return;
-    }
+    widget.settingsStore.accountsEducationSeen = true;
     Navigator.of(context).pop();
   }
 
   Future<void> _continue() async {
     if (_currentPage == _pageCount - 1) {
-      await _complete();
+      _complete();
       return;
     }
 

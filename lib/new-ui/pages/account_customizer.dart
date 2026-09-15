@@ -86,9 +86,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    final preferences = widget.dashboardViewModel.sharedPreferences;
-    if (_supportsAccountArchival && AccountEducationPage.shouldShow(preferences)) {
-      await AccountEducationPage.show(context, preferences);
+    final settingsStore = widget.dashboardViewModel.settingsStore;
+    if (_supportsAccountArchival && !settingsStore.accountsEducationSeen) {
+      await AccountEducationPage.show(context, settingsStore);
     }
   }
 
@@ -204,7 +204,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                           iconSize: 19,
                           onPressed: () => AccountEducationPage.show(
                             context,
-                            widget.dashboardViewModel.sharedPreferences,
+                            widget.dashboardViewModel.settingsStore,
                           ),
                         ),
                         ModernButton.svg(
@@ -667,13 +667,13 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(18, 32, 18, 24),
                     child: Column(
+                      spacing: 24,
                       children: [
                         const CakeImageWidget(
                           imageUrl: "assets/new-ui/account_education/create_account.svg",
                           width: 125,
                           height: 125,
                         ),
-                        const SizedBox(height: 24),
                         Text(
                           S.of(context).account_creation_description,
                           textAlign: TextAlign.center,
@@ -682,7 +682,6 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 24),
                         Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surfaceContainer,

@@ -1,16 +1,21 @@
 import "package:cake_wallet/di.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:shared_preferences/shared_preferences.dart";
+import "package:mocktail/mocktail.dart";
+
+class _MockSettingsStore extends Mock implements SettingsStore {
+  @override
+  bool accountsEducationSeen = false;
+}
 
 void main() {
   late bool registeredThemeStore;
-  late SharedPreferences preferences;
+  late SettingsStore settingsStore;
 
   setUpAll(() {
     registeredThemeStore = !getIt.isRegistered<ThemeStore>();
@@ -25,15 +30,14 @@ void main() {
     }
   });
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
-    preferences = await SharedPreferences.getInstance();
+  setUp(() {
+    settingsStore = _MockSettingsStore();
   });
 
   Widget educationApp() => MaterialApp(
         localizationsDelegates: localizationDelegates,
         supportedLocales: S.delegate.supportedLocales,
-        home: AccountEducationPage(preferences: preferences),
+        home: AccountEducationPage(settingsStore: settingsStore),
       );
 
   Future<void> continueToNextPage(WidgetTester tester) async {
@@ -62,7 +66,7 @@ void main() {
     );
     expect(find.bySemanticsLabel("Page 1 of 4"), findsOneWidget);
     expect(find.text("Continue"), findsOneWidget);
-    expect(AccountEducationPage.shouldShow(preferences), isTrue);
+    expect(settingsStore.accountsEducationSeen, isFalse);
 
     final title = find.text(
       "Accounts let you organize your funds by acting as separate pockets within one wallet",
@@ -98,7 +102,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.bySemanticsLabel("Page 2 of 4"), findsOneWidget);
-    expect(preferences.containsKey(PreferencesKey.accountsEducationSeen), isFalse);
+    expect(settingsStore.accountsEducationSeen, isFalse);
     semantics.dispose();
   });
 
@@ -169,8 +173,7 @@ void main() {
     await tester.tap(find.text("I understand. Continue"));
     await tester.pumpAndSettle();
 
-    expect(preferences.getBool(PreferencesKey.accountsEducationSeen), isTrue);
-    expect(AccountEducationPage.shouldShow(preferences), isFalse);
+    expect(settingsStore.accountsEducationSeen, isTrue);
   });
 
   testWidgets("closing education also marks it as seen", (tester) async {
@@ -181,8 +184,7 @@ void main() {
     await tester.tap(find.bySemanticsLabel("Close"));
     await tester.pumpAndSettle();
 
-    expect(preferences.getBool(PreferencesKey.accountsEducationSeen), isTrue);
-    expect(AccountEducationPage.shouldShow(preferences), isFalse);
+    expect(settingsStore.accountsEducationSeen, isTrue);
     semantics.dispose();
   });
 }

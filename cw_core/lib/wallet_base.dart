@@ -142,6 +142,16 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get hasLightningSupport => false;
   bool get hasSilentPaymentsScanning => false;
 
+  bool get hasCoinControl => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.decred,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin,
+      ].contains(type);
+
   // hardware wallet - bitbox, ledger, trezor.
   // we also have airgap wallets but those can't sign messages
   bool get canSignMessages => walletInfo.hardwareWalletType == null || walletInfo.isHardwareWallet;

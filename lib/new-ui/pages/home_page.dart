@@ -191,7 +191,7 @@ class _NewHomePageState extends State<NewHomePage> {
                               accountListViewModel != null &&
                               !_lightningMode)
                             AccountsPromo(
-                              preferences: widget.dashboardViewModel.sharedPreferences,
+                              settingsStore: widget.dashboardViewModel.settingsStore,
                               walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
                               onTap: _openAccountsFromPromo,
                             ),
@@ -269,7 +269,7 @@ class _NewHomePageState extends State<NewHomePage> {
 
     await AccountEducationPage.show(
       context,
-      widget.dashboardViewModel.sharedPreferences,
+      widget.dashboardViewModel.settingsStore,
     );
     if (!mounted) {
       return;

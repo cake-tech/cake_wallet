@@ -9,9 +9,9 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/db/sqlite.dart" as sqlite;
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
@@ -63,6 +63,12 @@ void main() {
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
+    when(() => dashboardViewModel.hasLightning).thenReturn(false);
+    when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
+    when(() => dashboardViewModel.hasMweb).thenReturn(false);
+    when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
+    when(() => balanceViewModel.hasAccounts).thenReturn(false);
+    when(() => wallet.hasCoinControl).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
     when(() => wallet.hardwareWalletType).thenReturn(null);
   });
@@ -77,66 +83,65 @@ void main() {
         ),
       );
 
-  test("wallet resolver handles every WalletType and always includes Nodes", () {
+  test("wallet settings follow capabilities rather than wallet type", () {
     const resolver = WalletSettingsResolver();
-
-    for (final type in WalletType.values) {
-      expect(
-        resolver.settingsFor(type),
-        contains(WalletSettingsItemType.nodes),
-        reason: "$type must explicitly expose node settings",
-      );
-    }
+    when(() => wallet.type).thenReturn(WalletType.solana);
+    when(() => wallet.hasCoinControl).thenReturn(true);
+    when(() => dashboardViewModel.hasWalletConnect).thenReturn(true);
 
     expect(
-      resolver.settingsFor(WalletType.bitcoin),
-      containsAll([
-        WalletSettingsItemType.coinControl,
-        WalletSettingsItemType.lightningUsername,
-        WalletSettingsItemType.silentPayments,
-      ]),
+      resolver.resolveSections(dashboardViewModel).map(
+            (section) => section.map((item) => item.route),
+          ),
+      [
+        [Routes.manageNodes, Routes.unspentCoinsList],
+        [Routes.walletConnectConnectionsListing],
+      ],
     );
+
+    when(() => wallet.hasCoinControl).thenReturn(false);
+    when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
+
     expect(
-      resolver.settingsFor(WalletType.litecoin),
-      containsAll([
-        WalletSettingsItemType.coinControl,
-        WalletSettingsItemType.mweb,
-      ]),
-    );
-    expect(
-      resolver.settingsFor(WalletType.monero),
-      containsAll([
-        WalletSettingsItemType.accounts,
-        WalletSettingsItemType.coinControl,
-        WalletSettingsItemType.resyncDevice,
-      ]),
-    );
-    expect(
-      resolver.settingsFor(WalletType.ethereum),
-      contains(WalletSettingsItemType.walletConnect),
+      resolver.resolveSections(dashboardViewModel).single.map((item) => item.route),
+      [Routes.manageNodes],
     );
   });
 
-  test("supplied settings icons are bundled and missing designs keep the existing fallback",
-      () async {
+  test("Monero resync and Litecoin MWEB retain their feature section", () {
     const resolver = WalletSettingsResolver();
-    for (final type in WalletType.values) {
+    when(() => wallet.type).thenReturn(WalletType.monero);
+    when(() => wallet.hardwareWalletType).thenReturn(HardwareWalletType.trezor);
+
+    expect(
+      resolver.resolveSections(dashboardViewModel).last.single.route,
+      Routes.syncKeyImagesDevices,
+    );
+
+    when(() => wallet.type).thenReturn(WalletType.litecoin);
+    when(() => wallet.hardwareWalletType).thenReturn(null);
+    when(() => dashboardViewModel.hasMweb).thenReturn(true);
+
+    expect(
+      resolver.resolveSections(dashboardViewModel).last.single.route,
+      Routes.mwebSettings,
+    );
+  });
+
+  test("settings icons are bundled for available wallet types", () async {
+    const resolver = WalletSettingsResolver();
+    for (final type in availableWalletTypes) {
       final path = resolver.iconPathFor(type);
-      if ([WalletType.wownero, WalletType.haven, WalletType.banano].contains(type)) {
-        expect(path, getCryptoCurrencyIconForWalletListItem(type));
-        continue;
-      }
       final asset = await rootBundle.load("$path.vec");
       expect(asset.lengthInBytes, greaterThan(0), reason: "$type: $path");
     }
   });
 
   test("app settings expose only implemented destinations in the Figma order", () {
-    final section = const SettingsPageSectionsResolver().appSettings(english);
+    final items = const SettingsPageSectionsResolver().appSettings(english);
 
-    expect(section.title, english.app_settings);
     expect(
-      section.items.map((item) => item.route),
+      items.map((item) => item.route),
       [
         Routes.connectionSync,
         Routes.displaySettingsPage,
@@ -148,14 +153,10 @@ void main() {
 
   test("runtime wallet capabilities filter supported Bitcoin settings", () {
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
-    when(() => balanceViewModel.hasAccounts).thenReturn(false);
+    when(() => wallet.hasCoinControl).thenReturn(true);
     when(() => dashboardViewModel.hasLightning).thenReturn(true);
-    when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
 
-    final sections = const WalletSettingsResolver().resolveSections(
-      english,
-      dashboardViewModel,
-    );
+    final sections = const WalletSettingsResolver().resolveSections(dashboardViewModel);
     final routes = sections.expand((section) => section).map((item) => item.route);
 
     expect(routes, contains(Routes.manageNodes));
@@ -167,13 +168,13 @@ void main() {
 
   testWidgets("main Settings shows the active wallet and wallet-general/app groups",
       (tester) async {
-    when(() => wallet.type).thenReturn(WalletType.wownero);
+    when(() => wallet.type).thenReturn(WalletType.monero);
 
     await tester.pumpWidget(settingsApp());
     await tester.pumpAndSettle();
 
     expect(find.text("My Cake Wallet"), findsOneWidget);
-    expect(find.text("Wownero ${english.settings_title}"), findsOneWidget);
+    expect(find.text("Monero ${english.settings_title}"), findsOneWidget);
     expect(find.text(english.privacy), findsOneWidget);
     expect(find.text(english.seed_and_keys), findsOneWidget);
     expect(find.text(english.other), findsOneWidget);
@@ -189,7 +190,7 @@ void main() {
   testWidgets("wallet settings title and rows follow the active Bitcoin capabilities",
       (tester) async {
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
-    when(() => balanceViewModel.hasAccounts).thenReturn(false);
+    when(() => wallet.hasCoinControl).thenReturn(true);
     when(() => dashboardViewModel.hasLightning).thenReturn(true);
     when(() => dashboardViewModel.hasSilentPayments).thenReturn(true);
 
@@ -213,8 +214,6 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     when(() => wallet.type).thenReturn(WalletType.bsc);
-    when(() => balanceViewModel.hasAccounts).thenReturn(false);
-    when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
 
     await tester.pumpWidget(settingsApp(locale: const Locale("pt")));
     await tester.pumpAndSettle();
@@ -236,7 +235,7 @@ void main() {
   });
 
   testWidgets("settings labels rebuild when the locale changes", (tester) async {
-    when(() => wallet.type).thenReturn(WalletType.wownero);
+    when(() => wallet.type).thenReturn(WalletType.monero);
 
     await tester.pumpWidget(settingsApp());
     await tester.pumpAndSettle();
@@ -262,8 +261,8 @@ void main() {
 
     when(() => balanceViewModel.hasAccounts).thenReturn(true);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
-    when(() => wallet.type).thenReturn(WalletType.wownero);
-    when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
+    when(() => wallet.type).thenReturn(WalletType.monero);
+    when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => accountListViewModel.accounts).thenReturn(const []);
@@ -292,7 +291,7 @@ void main() {
       await tester.pumpWidget(settingsApp());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text("Wownero ${english.settings_title}"));
+      await tester.tap(find.text("Monero ${english.settings_title}"));
       await tester.pumpAndSettle();
       await tester.tap(find.text(english.accounts));
       await tester.pumpAndSettle();
@@ -313,11 +312,9 @@ void main() {
   test("Bitcoin account copy is explicitly onchain when the capability is available", () {
     when(() => balanceViewModel.hasAccounts).thenReturn(true);
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
-    when(() => dashboardViewModel.hasLightning).thenReturn(false);
-    when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
 
     final accountItem = const WalletSettingsResolver()
-        .resolveSections(english, dashboardViewModel)
+        .resolveSections(dashboardViewModel)
         .expand((section) => section)
         .singleWhere((item) => item.route == Routes.accountCustomizer);
 

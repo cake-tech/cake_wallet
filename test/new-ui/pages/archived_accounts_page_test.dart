@@ -2,7 +2,6 @@ import "dart:async";
 
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/pages/account_customizer.dart";
@@ -33,7 +32,6 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
-import "package:shared_preferences/shared_preferences.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
@@ -49,7 +47,10 @@ class _MockWalletInfo extends Mock implements WalletInfo {}
 
 class _MockCardCustomizerBloc extends Mock implements CardCustomizerBloc {}
 
-class _MockSettingsStore extends Mock implements SettingsStore {}
+class _MockSettingsStore extends Mock implements SettingsStore {
+  @override
+  bool accountsEducationSeen = false;
+}
 
 Future<void> _waitForArchivePage(WidgetTester tester) async {
   for (var attempt = 0; attempt < 50; attempt++) {
@@ -256,11 +257,10 @@ void main() {
   });
 
   testWidgets("AccountCustomizer shows education only until it has been seen", (tester) async {
-    SharedPreferences.setMockInitialValues(<String, Object>{});
-    final preferences = await SharedPreferences.getInstance();
+    final settingsStore = _MockSettingsStore();
     var cardDesignLoads = 0;
 
-    when(() => dashboardViewModel.sharedPreferences).thenReturn(preferences);
+    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {
       cardDesignLoads++;
     });
@@ -285,7 +285,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(preferences.getBool(PreferencesKey.accountsEducationSeen), isTrue);
+    expect(settingsStore.accountsEducationSeen, isTrue);
 
     final loadsBeforeFirstDispose = cardDesignLoads;
     await tester.pumpWidget(testApp(const SizedBox.shrink()));
@@ -520,10 +520,7 @@ void main() {
     var cardDesignLoads = 0;
     var pauseCardDesignLoad = false;
 
-    SharedPreferences.setMockInitialValues(
-      <String, Object>{PreferencesKey.accountsEducationSeen: true},
-    );
-    final preferences = await SharedPreferences.getInstance();
+    settingsStore.accountsEducationSeen = true;
     var customizerState = CardCustomizerInitial(
       0,
       0,
@@ -550,7 +547,6 @@ void main() {
     when(() => accountListViewModel.select(any())).thenAnswer((invocation) {
       selections.add((invocation.positionalArguments.single as AccountListItem).id);
     });
-    when(() => dashboardViewModel.sharedPreferences).thenReturn(preferences);
     when(() => dashboardViewModel.status).thenReturn(SyncedSyncStatus());
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {
