@@ -1,4 +1,5 @@
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:flutter/material.dart";
 
 class SeedCheckboxRow extends StatelessWidget {
@@ -49,25 +50,7 @@ class SeedCheckboxRow extends StatelessWidget {
                           ),
                     ),
                   ),
-                  ExcludeSemantics(
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isChecked
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                      ),
-                      child: isChecked
-                          ? Icon(
-                              Icons.check,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            )
-                          : null,
-                    ),
-                  ),
+                  NewSimpleCheckbox(value: isChecked, onChanged: onChanged),
                 ],
               ),
             ),
