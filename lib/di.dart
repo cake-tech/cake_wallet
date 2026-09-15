@@ -22,6 +22,7 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
+import 'package:cake_wallet/core/csv_export_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -56,6 +57,9 @@ import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
+import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
+import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
@@ -65,6 +69,7 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
+import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -597,6 +602,13 @@ Future<void> setup({
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
       accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
+
+  getIt.registerFactoryParam<AccountCustomizer, DashboardViewModel, void>(
+    (dashboardViewModel, _) => AccountCustomizer(
+      accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
+      dashboardViewModel: dashboardViewModel,
+    ),
+  );
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
@@ -1404,6 +1416,9 @@ Future<void> setup({
             param1: derivations,
           )));
 
+  getIt.registerFactory<CsvExportService>(
+      () => CsvExportService(transactionDescriptionBox: _transactionDescriptionBox));
+
   getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>((params, _) {
     final transactionInfo = params[0] as TransactionInfo;
     final canReplaceByFee = params[1] as bool? ?? false;
@@ -1489,7 +1504,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
+  getIt.registerFactoryParam<BuySellViewModel, BuySellPageMode, void>((mode, _) => BuySellViewModel(
+      mode: mode, getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
+
+  getIt.registerFactoryParam<NewBuySellAmountPage, BuySellPageMode, void>((mode, _) =>
+      NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: mode)));
 
   getIt.registerFactory(
       () => BuySellPage(getIt.get<BuySellViewModel>(), getIt.get<AddressResolverService>()));
