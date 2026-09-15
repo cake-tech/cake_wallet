@@ -693,6 +693,7 @@ class WalletInfo {
   String? addressPageType;
   String? network;
   int? accountDiscoveryLimit;
+  bool? isMultiAccountsEnabled;
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -777,6 +778,8 @@ class WalletInfo {
         "favoriteTokenAddress": favoriteTokenAddress,
         "network": network,
         "accountDiscoveryLimit": accountDiscoveryLimit,
+        "isMultiAccountsEnabled":
+            isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -808,6 +811,9 @@ class WalletInfo {
         json["favoriteTokenAddress"] as String? ?? null);
     info.network = json['network'] as String?;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
+    final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
+    info.isMultiAccountsEnabled =
+        rawIsMultiAccountsEnabled == null ? null : (rawIsMultiAccountsEnabled as int) == 1;
     return info;
   }
 

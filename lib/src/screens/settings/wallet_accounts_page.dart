@@ -1,42 +1,50 @@
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/utils/show_card_customizer.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
-import 'package:cw_core/balance_card_style_settings.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "dart:async";
+
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
+import "package:cw_core/balance_card_style_settings.dart";
+import "package:cw_core/card_design.dart";
+import "package:cw_core/sync_status.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AccountCustomizerListItem {
+  AccountCustomizerListItem({
+    required this.card,
+    required this.order,
+    required this.accountListItem,
+  });
+
   final BalanceCard card;
   final int order;
   final AccountListItem accountListItem;
-
-  AccountCustomizerListItem(
-      {required this.card, required this.order, required this.accountListItem});
 }
 
 class WalletAccountsPage extends StatefulWidget {
-  const WalletAccountsPage(
-      {super.key,
-        required this.accountListViewModel,
-        required this.accountEditOrCreateViewModel,
-        required this.dashboardViewModel});
+  const WalletAccountsPage({
+    required this.accountListViewModel,
+    required this.accountEditOrCreateViewModel,
+    required this.dashboardViewModel,
+    super.key,
+  });
 
   final WalletAccountListViewModel accountListViewModel;
   final WalletAccountEditOrCreateViewModel accountEditOrCreateViewModel;
@@ -56,15 +64,21 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   WalletAccountListViewModel get accountListViewModel =>
       widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
 
+  bool get _isBitcoinWallet =>
+      widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
+
+  bool get _isMultiAccountsEnabled =>
+      widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled ?? false;
+
   @override
   void initState() {
     super.initState();
 
     _accountsReaction = reaction(
-          (_) => accountListViewModel.accounts
-          .map((account) => '${account.id}:${account.label}')
-          .join(','),
-          (_) {
+      (_) => accountListViewModel.accounts
+          .map((account) => "${account.id}:${account.label}")
+          .join(","),
+      (_) {
         if (!mounted) return;
         loadCards();
       },
@@ -131,91 +145,152 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
           order: index,
           accountListItem: accounts[index]));
     }
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) => Observer(builder: (context) {
-      if (accountListViewModel.accounts.isEmpty) return const SizedBox.shrink();
+        if (accountListViewModel.accounts.isEmpty) return const SizedBox.shrink();
 
-      return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-        child: Column(
-          children: [
-            ModalTopBar(
-              title: S.of(context).wallet_accounts,
-              leadingIcon: Icon(Icons.close),
-              leadingSemanticLabel: S.of(context).close,
-              onLeadingPressed: Navigator.of(context).maybePop,
-              trailingIcon: Icon(Icons.refresh),
-              trailingSemanticLabel: S.of(context).reset,
-              onTrailingPressed: showResetDialog,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Text(
-                S.of(context).account_customizer_desc,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        return Container(
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24))),
+          child: Column(
+            children: [
+              ModalTopBar(
+                title: S.of(context).wallet_accounts,
+                leadingIcon: const Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
+                onLeadingPressed: Navigator.of(context).maybePop,
+                trailingIcon: const Icon(Icons.refresh),
+                trailingSemanticLabel: S.of(context).reset,
+                onTrailingPressed: showResetDialog,
               ),
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    controller: ModalScrollController.of(context),
-                    padding: EdgeInsets.only(bottom: 196),
-                    child: CardsView(
-                      key: ValueKey(
-                          '${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}'),
-                      dashboardViewModel: widget.dashboardViewModel,
-                      lightningMode: widget.dashboardViewModel.lightningMode,
-                      maxVisibleCards: null,
-                      allowCompactMode: false,
-                      enableReorder: true,
-                      onReorder: _onCardsReordered,
-                      onCustomizeTapped: _openCardCustomizer,
-                      onCompactModeBackgroundCardsTapped: _openCardCustomizer,
-                    ),
+              const SizedBox(height: 24),
+              if (_isBitcoinWallet)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: NewListSections(
+                    sections: {
+                      "": [
+                        ListItemToggle(
+                            keyValue: S.of(context).multiple_accounts,
+                            label: S.of(context).multiple_accounts,
+                            value: _isMultiAccountsEnabled,
+                            onChanged: (val) async {
+                              if (!val) {
+                                AccountListItem? primary;
+                                for (final acc in accountListViewModel.accounts) {
+                                  if (acc.id == 0) {
+                                    primary = acc;
+                                    break;
+                                  }
+                                }
+                                if (primary != null &&
+                                    accountListViewModel.selectedAccount?.id != 0) {
+                                  await accountListViewModel.select(primary);
+                                }
+                              }
+
+                              widget.dashboardViewModel.wallet.walletInfo
+                                  .isMultiAccountsEnabled = val;
+                              await widget.dashboardViewModel.wallet.walletInfo.save();
+
+                              final wallet = widget.dashboardViewModel.wallet;
+                              if (val && wallet.type == WalletType.bitcoin) {
+                                unawaited(wallet.startSync());
+                              }
+
+                              if (mounted) setState(() {});
+                            }),
+                      ],
+                    },
                   ),
-                  SafeArea(
-                      child: Padding(
-                          padding: EdgeInsets.only(bottom: 50),
-                          child: Align(
-                              alignment: Alignment.bottomCenter,
+                ),
+              Builder(builder: (_) {
+                if (_isBitcoinWallet && !_isMultiAccountsEnabled) {
+                  return const SizedBox.shrink();
+                }
+                return Expanded(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          S.of(context).account_customizer_desc,
+                          style:
+                              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            SingleChildScrollView(
+                              controller: ModalScrollController.of(context),
+                              padding: const EdgeInsets.only(bottom: 196),
+                              child: CardsView(
+                                key: ValueKey(
+                                    "${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}"),
+                                dashboardViewModel: widget.dashboardViewModel,
+                                lightningMode: widget.dashboardViewModel.lightningMode,
+                                maxVisibleCards: null,
+                                allowCompactMode: false,
+                                enableReorder: true,
+                                onReorder: _onCardsReordered,
+                                onCustomizeTapped: _openCardCustomizer,
+                                onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+                              ),
+                            ),
+                            SafeArea(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: MergeSemantics(
-                                    child: Semantics(
-                                      button: true,
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(999999),
-                                        onTap: _showAddAccountModal,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: Theme.of(context).colorScheme.surfaceContainer,
-                                              borderRadius: BorderRadius.circular(999999)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              spacing: 8,
-                                              children: [
-                                                Icon(
-                                                  Icons.add,
-                                                  size: 28,
-                                                  color: Theme.of(context).colorScheme.primary,
+                                padding: const EdgeInsets.only(bottom: 50),
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: MergeSemantics(
+                                        child: Semantics(
+                                          button: true,
+                                          child: InkWell(
+                                            borderRadius: BorderRadius.circular(999999),
+                                            onTap: _showAddAccountModal,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surfaceContainer,
+                                                borderRadius: BorderRadius.circular(999999),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(vertical: 18),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  spacing: 8,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      size: 28,
+                                                      color:
+                                                          Theme.of(context).colorScheme.primary,
+                                                    ),
+                                                    Text(
+                                                      S.of(context).add_account,
+                                                      style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    )
+                                                  ],
                                                 ),
-                                                Text(
-                                                  S.of(context).add_account,
-                                                  style: TextStyle(
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                      fontWeight: FontWeight.w500),
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -223,14 +298,19 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                                     ),
                                   ),
                                 ),
-                              )))),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      });
 
   bool _checkReadyToManage() {
     if (widget.dashboardViewModel.wallet.type == WalletType.bitcoin) {
@@ -258,19 +338,19 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) => Material(
-          child: AccountCreationModal(
-            state: () => widget.accountEditOrCreateViewModel.state,
-            onPressed: (label) async {
-              widget.accountEditOrCreateViewModel.label = label;
-              await widget.accountEditOrCreateViewModel.save();
-              if (!context.mounted) return;
+              child: AccountCreationModal(
+                state: () => widget.accountEditOrCreateViewModel.state,
+                onPressed: (label) async {
+                  widget.accountEditOrCreateViewModel.label = label;
+                  await widget.accountEditOrCreateViewModel.save();
+                  if (!context.mounted) return;
 
-              if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
-                Navigator.of(context).pop(true);
-              }
-            },
-          ),
-        ));
+                  if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
+                    Navigator.of(context).pop(true);
+                  }
+                },
+              ),
+            ));
 
     if (res != null && res is bool && res == true) {
       await accountListViewModel.reload();
@@ -325,7 +405,6 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     final to = _items.indexWhere((item) => item.accountListItem.id == newAccountId);
     if (from < 0 || to < 0 || from == to) return;
 
-
     final insertIndex = from < to ? to + 1 : to;
     reorder(from, insertIndex);
 
@@ -379,12 +458,12 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       );
 
       await BalanceCardStyleSettings.fromCardDesign(
-          walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
-          accountIndex: item.accountListItem.id,
-          cardOrder: orderIndex,
-          design: item.card.design,
-          iconStyleIndex: existing?.iconStyleIndex ?? 0,
-          gradientIndexOverride: existing?.gradientIndex)
+              walletInfoId: widget.dashboardViewModel.wallet.walletInfo.internalId,
+              accountIndex: item.accountListItem.id,
+              cardOrder: orderIndex,
+              design: item.card.design,
+              iconStyleIndex: existing?.iconStyleIndex ?? 0,
+              gradientIndexOverride: existing?.gradientIndex)
           .insert();
     }
   }

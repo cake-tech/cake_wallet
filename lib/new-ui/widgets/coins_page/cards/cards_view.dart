@@ -398,6 +398,12 @@ class _CardsViewState extends State<CardsView> {
       return 1;
     }
 
+    final wallet = widget.dashboardViewModel.wallet;
+    if (wallet.type == WalletType.bitcoin &&
+        !(wallet.walletInfo.isMultiAccountsEnabled ?? false)) {
+      return 1;
+    }
+
     return widget.dashboardViewModel.accountListViewModel?.accounts.length ??
         widget.dashboardViewModel.cardDesigns.length;
   }
