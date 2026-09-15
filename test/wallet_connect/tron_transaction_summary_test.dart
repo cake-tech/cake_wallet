@@ -16,6 +16,10 @@ final walletTokens = {usdtContract.toAddress(): CryptoCurrency.usdttrc20};
 const transferSelector = "a9059cbb";
 const approveSelector = "095ea7b3";
 final maxUint256 = (BigInt.one << 256) - BigInt.one;
+const sunIoIncreaseApprovalData =
+    "d73dd623000000000000000000000000ef3eca15b7cc5c43e513eed77a60effdf52606f2"
+    "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+final sunIoSpender = TronAddress("TXnDibB9a6wGHJMPxxmXT8mAgQHf4cN3ED");
 
 const referenceRawDataHex =
     "0a02885b2208baa1c278fd0a309f4090c1dbe5e7325aae01081f12a9010a31747970652e676f6f676c65617069"
@@ -62,7 +66,12 @@ List<int> trc20Call(String selector, TronAddress to, BigInt amount) => [
       ...BytesUtils.fromHexString(amount.toRadixString(16).padLeft(64, "0")),
     ];
 
-TransactionRaw rawOf(TronBaseContract contract, {BigInt? feeLimit}) => TransactionRaw(
+TransactionRaw rawOf(
+  TronBaseContract contract, {
+  BigInt? feeLimit,
+  TransactionContractType? type,
+}) =>
+    TransactionRaw(
       refBlockBytes: BytesUtils.fromHexString("885b"),
       refBlockHash: BytesUtils.fromHexString("baa1c278fd0a309f"),
       expiration: BigInt.from(1745849082000),
@@ -70,7 +79,7 @@ TransactionRaw rawOf(TronBaseContract contract, {BigInt? feeLimit}) => Transacti
       feeLimit: feeLimit,
       contract: [
         TransactionContract(
-          type: contract.contractType,
+          type: type ?? contract.contractType,
           parameter: Any(typeUrl: contract.typeURL, value: contract),
         ),
       ],
@@ -119,11 +128,25 @@ void main() {
       expect(summary.text, contains(S.current.wc_unlimited));
     });
 
-    test("approve and transfer do not read the same", () {
-      final transfer = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));
-      final approve = summaryOfCall(approveSelector, spender, BigInt.from(5000000));
+    test("USDT's increaseApproval reads as an approval", () {
+      final summary = TronTransactionSummary.of(
+        rawOf(
+          TriggerSmartContract(
+            ownerAddress: owner,
+            contractAddress: usdtContract,
+            data: BytesUtils.fromHexString(sunIoIncreaseApprovalData),
+          ),
+        ),
+        walletTokens,
+      );
 
-      expect(transfer.text.split("\n").first, isNot(approve.text.split("\n").first));
+      expect(summary.text.split("\n").first, S.current.approve_tokens);
+      expect(summary.text, contains("${S.current.value}: ${S.current.wc_unlimited} USDT"));
+      expect(
+        summary.text,
+        contains("${S.current.wc_approved_address}: ${sunIoSpender.toAddress()}"),
+      );
+      expect(summary.rows.any((row) => row.title == S.current.wc_call_data), isFalse);
     });
 
     test("an allowance below the sentinel keeps its exact amount", () {
@@ -150,7 +173,7 @@ void main() {
           walletTokens,
         );
 
-        expect(summary.text, contains(S.current.wc_call_data));
+        expect(summary.rows.last.title, S.current.wc_call_data);
         expect(summary.text, isNot(contains(recipient.toAddress())));
       }
     });
@@ -165,8 +188,45 @@ void main() {
 
       expect("${S.current.value}:".allMatches(summary.text).length, 1);
       expect(summary.text, contains("${S.current.value}: 1.5 TRX"));
-      expect(summary.text, contains(S.current.wc_call_data));
+      expect(summary.rows.last.title, S.current.wc_call_data);
       expect(summary.text, isNot(contains(S.current.send)));
+    });
+
+    test("call data is the last row, below every amount and the fee cap", () {
+      final summary = summaryOfCall(
+        transferSelector,
+        recipient,
+        BigInt.from(5000000),
+        callValue: BigInt.from(1500000),
+      );
+      final titles = summary.rows.map((row) => row.title).toList();
+
+      expect(summary.text, isNot(contains("0xa9059cbb")));
+      expect(summary.text.split("\n").last, "${S.current.value}: 1.5 TRX");
+      expect(titles, [
+        S.current.token,
+        S.current.contract_address,
+        S.current.wc_max_network_fee,
+        S.current.wc_call_data,
+      ]);
+      expect(summary.rows.last.text, startsWith("0xa9059cbb"));
+    });
+
+    test("a type tag that names a different contract is refused", () {
+      expect(
+        () => TronTransactionSummary.of(
+          rawOf(
+            TriggerSmartContract(
+              ownerAddress: owner,
+              contractAddress: usdtContract,
+              data: trc20Call(transferSelector, recipient, BigInt.from(5000000)),
+            ),
+            type: TransactionContractType.transferContract,
+          ),
+          walletTokens,
+        ),
+        throwsArgumentError,
+      );
     });
   });
 

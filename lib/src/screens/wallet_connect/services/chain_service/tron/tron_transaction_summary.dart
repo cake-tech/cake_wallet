@@ -24,9 +24,14 @@ class TronTransactionSummary {
 
     final contract = rawTransaction.contract.first;
     final value = contract.parameter.value;
+    if (contract.type != value.contractType) {
+      throw ArgumentError("contract type tag does not match the contract");
+    }
+
     final lines = <String>[];
     final rows = <WCConnectionModel>[];
     String? ownerAddress;
+    String? callData;
 
     if (value is TransferContract) {
       ownerAddress = value.ownerAddress.toAddress();
@@ -52,9 +57,7 @@ class TronTransactionSummary {
       } else {
         lines.add("${S.current.from}: $ownerAddress");
         lines.add("${S.current.to}: $contractAddress");
-
-        final callData = BytesUtils.toHexString(value.data ?? const [], prefix: "0x");
-        lines.add("${S.current.wc_call_data}: $callData");
+        callData = BytesUtils.toHexString(value.data ?? const [], prefix: "0x");
       }
 
       if (callValue > BigInt.zero) {
@@ -87,6 +90,10 @@ class TronTransactionSummary {
       rows.add(
         WCConnectionModel(title: S.current.memo, text: utf8.decode(memo, allowMalformed: true)),
       );
+    }
+
+    if (callData != null) {
+      rows.add(WCConnectionModel(title: S.current.wc_call_data, text: callData));
     }
 
     return TronTransactionSummary(
@@ -142,6 +149,7 @@ class _Trc20Call {
 
   static const _transferSelector = "a9059cbb";
   static const _approveSelector = "095ea7b3";
+  static const _increaseApprovalSelector = "d73dd623";
 
   static _Trc20Call? tryDecode(List<int>? data) {
     if (data == null || data.length != 68) {
@@ -149,7 +157,8 @@ class _Trc20Call {
     }
 
     final selector = BytesUtils.toHexString(data.sublist(0, 4));
-    if (selector != _transferSelector && selector != _approveSelector) {
+    final isApprove = selector == _approveSelector || selector == _increaseApprovalSelector;
+    if (!isApprove && selector != _transferSelector) {
       return null;
     }
 
@@ -158,7 +167,7 @@ class _Trc20Call {
     }
 
     return _Trc20Call(
-      isApprove: selector == _approveSelector,
+      isApprove: isApprove,
       address: TronAddress.fromEthAddress(data.sublist(16, 36)).toAddress(),
       amount: BigintUtils.fromBytes(data.sublist(36, 68)),
     );

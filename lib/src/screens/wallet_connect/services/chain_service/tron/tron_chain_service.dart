@@ -38,6 +38,19 @@ class TronChainService {
     }
   }
 
+  static const _signableContractTypes = {
+    TransactionContractType.transferContract,
+    TransactionContractType.triggerSmartContract,
+    TransactionContractType.freezeBalanceV2Contract,
+    TransactionContractType.unfreezeBalanceV2Contract,
+    TransactionContractType.withdrawExpireUnfreezeContract,
+    TransactionContractType.delegateResourceContract,
+    TransactionContractType.unDelegateResourceContract,
+    TransactionContractType.cancelAllUnfreezeV2Contract,
+    TransactionContractType.voteWitnessContract,
+    TransactionContractType.withdrawBalanceContract,
+  };
+
   Map<String, dynamic Function(String, dynamic)> get tronRequestHandlers => {
         TronSupportedMethods.tronSignMessage.name: tronSignMessage,
         TronSupportedMethods.tronSignTransaction.name: tronSignTransaction,
@@ -131,7 +144,7 @@ class TronChainService {
       return;
     }
 
-    printV("tronSignTransaction request for ${rawTransaction.txID}");
+    printV("tronSignTransaction request ${pRequest.id} for ${rawTransaction.txID}");
 
     final ownerAddress = summary.ownerAddress;
     if (ownerAddress == null) {
@@ -141,6 +154,21 @@ class TronChainService {
 
     if (!_isRequestAuthorized(topic, requestAddress: ownerAddress)) {
       await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
+    final contractType = rawTransaction.contract.first.type;
+    if (!_signableContractTypes.contains(contractType)) {
+      printV("tronSignTransaction refused ${contractType.name}");
+      final error = Errors.getSdkError(Errors.UNSUPPORTED_METHODS, context: contractType.name);
+      await _handleResponseForTopic(
+        topic,
+        JsonRpcResponse(
+          id: pRequest.id,
+          jsonrpc: "2.0",
+          error: JsonRpcError(code: error.code, message: error.message),
+        ),
+      );
       return;
     }
 
