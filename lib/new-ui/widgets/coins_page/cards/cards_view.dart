@@ -9,6 +9,7 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -258,8 +259,13 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
-  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
-      responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
+  double get effectiveCardWidth {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (DeviceInfo.instance.isDesktop) {
+      return min(screenWidth * 0.4, 320);
+    }
+    return min(screenWidth * 0.878, responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
+  }
 
   double _getBoxHeight(int numCards, double overlapAmount) {
     return
