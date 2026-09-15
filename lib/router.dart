@@ -17,6 +17,7 @@ import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -666,6 +667,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
 
+
+    case Routes.exchange:
+      return handleRouteWithPlatformAwareness(
+            (context) => Material(
+            child: getIt.get<NewSwapPage>(param1: settings.arguments as PaymentRequest?)),
+        settings: settings,
+      );
 
     case Routes.rescan:
       final page = getIt.get<RescanPage>();
