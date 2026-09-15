@@ -214,7 +214,7 @@ class SendTransactionDetails extends StatelessWidget {
                         sendViewModel.balance, sendViewModel.selectedCryptoCurrency) ??
                     zero;
 
-              return sendViewModel.selectedCryptoCurrency.tryParseAmount(o.cryptoAmount) ?? zero;
+              return o.cryptoAmountMoney;
             }, sendViewModel.selectedCryptoCurrency))
           : sendViewModel.amountParsingProxy.asDisplayString(transaction.amount);
 

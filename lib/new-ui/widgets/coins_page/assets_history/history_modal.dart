@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_filters_page.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
@@ -33,7 +34,7 @@ class HistoryModal extends StatelessWidget {
             ),
             trailingSemanticLabel: S.of(context).export_csv,
             onTrailingPressed: () =>
-                CsvExportService().exportToCsv(dashboardViewModel.items, context),
+                getIt.get<CsvExportService>().exportToCsv(dashboardViewModel.items, context),
           ),
           Expanded(
               child: Stack(

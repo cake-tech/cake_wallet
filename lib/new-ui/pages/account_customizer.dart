@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -24,7 +23,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
@@ -38,13 +36,9 @@ class AccountCustomizerListItem {
 
 class AccountCustomizer extends StatefulWidget {
   const AccountCustomizer(
-      {super.key,
-      required this.accountListViewModel,
-      required this.accountEditOrCreateViewModel,
-      required this.dashboardViewModel});
+      {super.key, required this.accountListViewModel, required this.dashboardViewModel});
 
   final MoneroAccountListViewModel accountListViewModel;
-  final MoneroAccountEditOrCreateViewModel accountEditOrCreateViewModel;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -62,7 +56,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadCards();
-      final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
+      final activeId = widget.accountListViewModel.selected.id;
       for (int i = 0; i < _items.length - 1; i++) {
         if (_items[i].accountListItem.id == activeId) {
           final lastIndex = _items.length - 1;

@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -176,9 +177,11 @@ class SwapTransactionDetails extends StatelessWidget {
                         iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
                         trailingText: exchangeViewModel.amountParsingProxy
-                            .asDisplayStringWithSymbol(exchangeViewModel.depositCurrency
-                                    .tryParseAmount(exchangeTradeViewModel.trade.amount) ??
-                                Money.zero(exchangeViewModel.depositCurrency)),
+                            .asDisplayStringWithSymbol(
+                                exchangeViewModel.depositCurrency.tryParseAmount(
+                                      exchangeTradeViewModel.trade.amount.sanitized(),
+                                    ) ??
+                                    Money.zero(exchangeViewModel.depositCurrency)),
                       ),
                       if (exchangeTradeViewModel.sendViewModel.pendingTransaction != null)
                         ListItemRegularRow(
