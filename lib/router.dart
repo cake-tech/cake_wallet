@@ -35,16 +35,15 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
+import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart";
 import 'package:cake_wallet/src/screens/connect_device/select_device_manufacturer_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
+import "package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import "package:cake_wallet/src/screens/dashboard/pages/nft_send_page.dart";
-import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
@@ -60,7 +59,6 @@ import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
@@ -78,7 +76,6 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
@@ -103,7 +100,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
@@ -422,8 +418,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
               param1: settings.arguments as List<DerivationInfo>));
 
-    case Routes.sweepingWalletPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
@@ -466,9 +460,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
 
-    case Routes.newSubaddress:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -680,8 +671,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final page = getIt.get<RescanPage>();
       return MaterialPageRoute<void>(builder: (_) => page);
 
-    case Routes.faq:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());
@@ -804,12 +793,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());
-
-    case Routes.transactionsPage:
-      return CupertinoPageRoute<void>(
-          settings: settings,
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<TransactionsPage>());
 
     case Routes.setup_2faPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAPage>());
