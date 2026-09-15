@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cw_core/db/sqlite_debug.dart';
@@ -5,6 +6,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqlite3/open.dart';
 import 'package:path/path.dart' as p;
 
 Database? db;
@@ -49,6 +51,20 @@ Future<void> initDb({String? pathOverride}) async {
 
 Future<void> _initDb({String? pathOverride}) async {
   if (Platform.isLinux || Platform.isWindows) {
+    if (Platform.isLinux) {
+      // The Linux bundle only installs the bundled sqlite3 shared object as
+      // libsqlite3_flutter_libs_plugin.so (see linux/CMakeLists.txt); load it
+      // directly instead of relying on a libsqlite3.so symlink, which the
+      // release tarball dereferences into a second copy of the same library
+      // and crashes the process when both copies get mapped.
+      open.overrideFor(OperatingSystem.linux, () {
+        try {
+          return DynamicLibrary.open('libsqlite3_flutter_libs_plugin.so');
+        } catch (_) {
+          return DynamicLibrary.open('libsqlite3.so.0');
+        }
+      });
+    }
     databaseFactory = databaseFactoryFfi;
   }
 

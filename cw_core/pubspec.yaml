@@ -47,6 +47,7 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  sqlite3: 3.5.1
   sqlite3_flutter_libs: 0.5.40
 
 dev_dependencies:
