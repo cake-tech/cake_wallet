@@ -347,8 +347,13 @@ jobs:
           # no retry meant a driver that never attached was reported as a failing test.
           RETRIES=1
 
-          RUN_LOG_SINK=/dev/stdout
-          [[ "${ENCRYPT_LOGS:-}" == "true" ]] && RUN_LOG_SINK=/dev/null
+          # The step log is public, so a run log that gets encrypted below must not print here.
+          # A file descriptor, not /dev/stdout: the emulator action hands the script a socket as
+          # stdout and Linux cannot open /dev/stdout on one (run 34951512819 died on that line)
+          exec 3>&1
+          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
+            exec 3>/dev/null
+          fi
 
           set -o pipefail
           set +e
@@ -360,7 +365,7 @@ jobs:
             RETRY_COUNT=$RETRIES \
             PLATFORM=android \
             SUMMARY_FILE="${TIER}_summary.txt" \
-            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log" > "$RUN_LOG_SINK"
+            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log" >&3
           TEST_EXIT_CODE=$?
           set -e
 
