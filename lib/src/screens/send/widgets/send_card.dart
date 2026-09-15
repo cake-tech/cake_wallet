@@ -497,7 +497,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   /// Apply payment request to current form
   void _applyPaymentRequest(PaymentRequest paymentRequest) {
     if (sendViewModel.usePayjoin) {
-      sendViewModel.payjoinUri = paymentRequest.pjUri;
+      sendViewModel.setPayjoinUri(paymentRequest.pjUri);
     }
     addressController.text = paymentRequest.address;
     if (paymentRequest.amount.isNotEmpty) {

@@ -149,6 +149,7 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    bool shouldSaveRecipientAddress = false,
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
@@ -169,7 +170,8 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+        payjoinUri: payjoinUri,
+        shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override
@@ -816,15 +818,66 @@ class CWBitcoin extends Bitcoin {
   @override
   void resumePayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    final pm = addresses.payjoinManager;
+    pm.initPayjoin().then((_) async {
+      await pm.resumeSessions();
+    });
   }
 
   @override
   void stopPayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
-    (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
+  }
+
+  @override
+  void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) return;
+    _wallet.payjoinManager.configureMailroom(relays: relays, directories: directories);
+  }
+
+  @override
+  bool isSelfSendPayjoinUri(Object wallet, String? pjUriString) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) return false;
+    return _wallet.payjoinManager.isSelfSendPayjoinUri(pjUriString);
+  }
+
+  @override
+  Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
+    final _wallet = wallet as ElectrumWallet;
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    addresses.payjoinEndpoint = null;
+    await addresses.newPayjoinReceiver(shouldSaveRecipientAddress: shouldSaveRecipientAddress);
+  }
+
+  @override
+  void cancelPayjoinSession(Object wallet, String sessionId) {
+    final _wallet = wallet as ElectrumWallet;
+    final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
+    if (sessionId.startsWith('pj_send_')) {
+      final pjUri = sessionId.substring('pj_send_'.length);
+      pm.cancelSender(pjUri);
+    } else if (sessionId.startsWith('pj_recv_')) {
+      final endpoint = sessionId.substring('pj_recv_'.length);
+      pm.cancelReceiver(endpoint);
+    }
+  }
+
+  @override
+  Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId) async {
+    final _wallet = wallet as ElectrumWallet;
+    final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
+    if (sessionId.startsWith('pj_send_')) {
+      final pjUri = sessionId.substring('pj_send_'.length);
+      await pm.fallbackBroadcast(pjUri);
+    } else if (sessionId.startsWith('pj_recv_')) {
+      final endpoint = sessionId.substring('pj_recv_'.length);
+      await pm.fallbackBroadcast(endpoint);
+    }
   }
 
   @override
