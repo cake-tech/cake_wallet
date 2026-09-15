@@ -244,6 +244,113 @@ class WalletInfoAddress {
   }
 }
 
+class WalletInfoAccount {
+  WalletInfoAccount({
+    this.id = 0,
+    required this.walletInfoId,
+    required this.accountIndex,
+    required this.label,
+    this.isSelected = false,
+  });
+
+  int id;
+  int walletInfoId;
+  int accountIndex;
+  String label;
+  bool isSelected;
+
+  static String get tableName => 'walletInfoAccount';
+
+  static String get selfIdColumn => '${tableName}Id';
+
+  static Future<List<WalletInfoAccount>> selectList(int walletInfoId) async {
+    final query = await db!.query(
+      tableName,
+      where: 'walletInfoId = ?',
+      whereArgs: [walletInfoId],
+      orderBy: 'accountIndex ASC',
+    );
+
+    return List.generate(query.length, (index) => WalletInfoAccount.fromJson(query[index]));
+  }
+
+  static Future<int> deleteByWalletInfoId(int walletInfoId) async {
+    return await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+  }
+
+  static Future<int> insertOrUpdate({
+    required int walletInfoId,
+    required int accountIndex,
+    required String label,
+    bool isSelected = false,
+  }) async {
+    return await db!.transaction((txn) async {
+      final updated = await txn.update(
+        tableName,
+        {'label': label, 'isSelected': isSelected ? 1 : 0},
+        where: 'walletInfoId = ? AND accountIndex = ?',
+        whereArgs: [walletInfoId, accountIndex],
+      );
+
+      if (updated > 0) {
+        final row = await txn.query(
+          tableName,
+          where: 'walletInfoId = ? AND accountIndex = ?',
+          whereArgs: [walletInfoId, accountIndex],
+          limit: 1,
+        );
+        return row.first[selfIdColumn] as int;
+      }
+
+      return await txn.insert(tableName, {
+        'walletInfoId': walletInfoId,
+        'accountIndex': accountIndex,
+        'label': label,
+        'isSelected': isSelected ? 1 : 0,
+      });
+    });
+  }
+
+  static Future<void> setSelected({
+    required int walletInfoId,
+    required int accountIndex,
+  }) async {
+    await db!.update(
+      tableName,
+      {'isSelected': 0},
+      where: 'walletInfoId = ?',
+      whereArgs: [walletInfoId],
+    );
+
+    await db!.update(
+      tableName,
+      {'isSelected': 1},
+      where: 'walletInfoId = ? AND accountIndex = ?',
+      whereArgs: [walletInfoId, accountIndex],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      selfIdColumn: id,
+      'walletInfoId': walletInfoId,
+      'accountIndex': accountIndex,
+      'label': label,
+      'isSelected': isSelected ? 1 : 0,
+    };
+  }
+
+  factory WalletInfoAccount.fromJson(Map<String, dynamic> json) {
+    return WalletInfoAccount(
+      id: json[selfIdColumn] as int,
+      walletInfoId: json['walletInfoId'] as int,
+      accountIndex: json['accountIndex'] as int,
+      label: json['label'] as String,
+      isSelected: (json['isSelected'] as int? ?? 0) == 1,
+    );
+  }
+}
+
 class DerivationInfo {
   DerivationInfo({
     this.id = 0,
@@ -408,6 +515,8 @@ class WalletInfo {
 
   int internalId;
 
+  int? selectedAccount;
+
   String id;
   String name;
   WalletType type;
@@ -506,8 +615,88 @@ class WalletInfo {
     await WalletInfoAddress.insert(internalId, type, address);
   }
 
+  Future<List<WalletInfoAccount>> getAccounts() async {
+    var accounts = await WalletInfoAccount.selectList(internalId);
+
+    if (accounts.isEmpty) {
+      await WalletInfoAccount.insertOrUpdate(
+        walletInfoId: internalId,
+        accountIndex: 0,
+        label: "Primary account",
+        isSelected: true,
+      );
+
+      accounts = await WalletInfoAccount.selectList(internalId);
+      selectedAccount = accounts.firstWhere((account) => account.isSelected).accountIndex;
+      return accounts;
+    }
+
+    final selected = accounts.firstWhere(
+      (account) => account.isSelected,
+      orElse: () => accounts.first,
+    );
+
+    if (!selected.isSelected) {
+      await setSelectedAccount(selected.accountIndex);
+      selected.isSelected = true;
+    }
+
+    selectedAccount = selected.accountIndex;
+    return accounts;
+  }
+
+  Future<void> setSelectedAccount(int accountIndex) async {
+    selectedAccount = accountIndex;
+
+    await WalletInfoAccount.setSelected(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+    );
+  }
+
+  Future<void> setAccounts(List<WalletInfoAccount> accounts) async {
+    await WalletInfoAccount.deleteByWalletInfoId(internalId);
+
+    for (final account in accounts) {
+      await WalletInfoAccount.insertOrUpdate(
+        walletInfoId: internalId,
+        accountIndex: account.accountIndex,
+        label: account.label,
+        isSelected: account.isSelected,
+      );
+    }
+  }
+
+  Future<void> addAccount({
+    required int accountIndex,
+    required String label,
+  }) async {
+    await WalletInfoAccount.insertOrUpdate(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+      label: label,
+    );
+  }
+
+  Future<void> renameAccount({
+    required int accountIndex,
+    required String label,
+  }) async {
+    final accounts = await getAccounts();
+    final account = accounts.firstWhere((account) => account.accountIndex == accountIndex);
+
+    await WalletInfoAccount.insertOrUpdate(
+      walletInfoId: internalId,
+      accountIndex: accountIndex,
+      label: label,
+      isSelected: account.isSelected,
+    );
+  }
+
   String? addressPageType;
   String? network;
+  int? accountDiscoveryLimit;
+  bool? isMultiAccountsEnabled;
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -592,6 +781,9 @@ class WalletInfo {
         "favoriteTokenAddress": favoriteTokenAddress,
         "showSeedBackupReminder": showSeedBackupReminder ? 1 : 0,
         "network": network,
+        "accountDiscoveryLimit": accountDiscoveryLimit,
+        "isMultiAccountsEnabled":
+            isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -623,6 +815,10 @@ class WalletInfo {
         json["favoriteTokenAddress"] as String? ?? null,
         json["showSeedBackupReminder"] == 1);
     info.network = json['network'] as String?;
+    info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
+    final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
+    info.isMultiAccountsEnabled =
+        rawIsMultiAccountsEnabled == null ? null : (rawIsMultiAccountsEnabled as int) == 1;
     return info;
   }
 
@@ -667,6 +863,11 @@ class WalletInfo {
 
   Future<void> updateRestoreHeight(int height) async {
     restoreHeight = height;
+    await save();
+  }
+
+  Future<void> setAccountDiscoveryLimit(int limit) async {
+    accountDiscoveryLimit = limit;
     await save();
   }
 

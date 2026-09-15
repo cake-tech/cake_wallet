@@ -25,11 +25,14 @@ bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
-bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
-
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
+
+bool _hasAccounts(DashboardViewModel vm) =>
+    hasAccountsWalletTypes.contains(vm.wallet.type) &&
+    !(vm.wallet.type == WalletType.bitcoin &&
+        vm.wallet.derivationInfo.derivationType == DerivationType.electrum);
 
 class SettingsListItem {
   const SettingsListItem(
@@ -65,9 +68,8 @@ class SettingsSectionData {
     SettingsListItem(
       "assets/new-ui/settings_row_icons/accounts.svg",
       S.current.accounts,
-      Routes.accountCustomizer,
+      Routes.walletAccountsPage,
       condition: _hasAccounts,
-      routeArgsBuilder: (vm) => vm,
     ),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),

@@ -98,6 +98,6 @@ class BalanceCardStyleSettings {
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }
