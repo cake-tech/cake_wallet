@@ -199,6 +199,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
             Navigator.of(context).pop();
           },
           isReconnect: false,
+          reconnectWallet: widget.wallet,
         ),
       );
 

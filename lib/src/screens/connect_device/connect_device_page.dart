@@ -14,6 +14,7 @@ import "package:cake_wallet/themes/core/material_base_theme.dart";
 import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -29,6 +30,7 @@ class ConnectDevicePageParams {
     required this.onConnectDevice,
     this.allowChangeWallet = false,
     this.isReconnect = true,
+    this.reconnectWallet,
   });
 
   final WalletType walletType;
@@ -36,6 +38,12 @@ class ConnectDevicePageParams {
   final bool allowChangeWallet;
   final bool isReconnect;
   final HardwareWalletType hardwareWalletType;
+
+  /// The already existing wallet this connection is for. When set, the view
+  /// model is given the chance to reuse the settings the wallet was set up
+  /// with instead of asking the user again. Leave null when restoring or
+  /// creating a new wallet.
+  final WalletBase? reconnectWallet;
 }
 
 class ConnectDevicePage extends BasePage {
@@ -43,11 +51,13 @@ class ConnectDevicePage extends BasePage {
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
         allowChangeWallet = params.allowChangeWallet || params.isReconnect,
-        isReconnect = params.isReconnect;
+        isReconnect = params.isReconnect,
+        reconnectWallet = params.reconnectWallet;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final bool isReconnect;
+  final WalletBase? reconnectWallet;
   final HardwareWalletViewModel hardwareWalletVM;
 
   @override
@@ -67,6 +77,7 @@ class ConnectDevicePage extends BasePage {
           hardwareWalletVM,
           currentTheme,
           allowChangeWallet: allowChangeWallet,
+          reconnectWallet: reconnectWallet,
         ),
       );
 }
@@ -78,11 +89,13 @@ class ConnectDevicePageBody extends StatefulWidget {
     this.hardwareWalletVM,
     this.currentTheme, {
     this.allowChangeWallet = false,
+    this.reconnectWallet,
   });
 
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final WalletBase? reconnectWallet;
   final HardwareWalletViewModel hardwareWalletVM;
   final MaterialThemeBase currentTheme;
 
@@ -192,6 +205,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
     _isConnectPressed = true;
     try {
+      final reconnectWallet = widget.reconnectWallet;
+      if (reconnectWallet != null) {
+        await widget.hardwareWalletVM.prepareReconnect(reconnectWallet);
+      }
+
       final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
       _isConnectPressed = false;
 

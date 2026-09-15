@@ -219,6 +219,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
                 Navigator.of(context).pop();
               },
+              reconnectWallet: sendVM.wallet,
             ));
       } else {
         sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);

@@ -103,6 +103,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    return walletCreationService.restoreFromHardwareWallet(credentials);
+    final wallet = await walletCreationService.restoreFromHardwareWallet(credentials);
+    await hardwareWalletVM.rememberWalletSettings(wallet);
+    return wallet;
   }
 }

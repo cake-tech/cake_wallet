@@ -444,6 +444,7 @@ class SendPage extends BasePage {
                                                           .initWallet(sendViewModel.wallet);
                                                       Navigator.of(context).pop();
                                                     },
+                                                    reconnectWallet: sendViewModel.wallet,
                                                   ));
                                         } else {
                                           sendViewModel.hardwareWalletViewModel!

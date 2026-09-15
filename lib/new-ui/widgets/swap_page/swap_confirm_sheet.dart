@@ -58,6 +58,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
               Navigator.of(context).pop();
             },
             isReconnect: false,
+            reconnectWallet: sendVM.wallet,
           ),
         );
 

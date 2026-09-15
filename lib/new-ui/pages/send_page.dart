@@ -873,6 +873,7 @@ class _NewSendPageState extends State<NewSendPage> {
               Navigator.of(context).pop();
             },
             isReconnect: false,
+            reconnectWallet: widget.sendViewModel.wallet,
           ),
         );
 

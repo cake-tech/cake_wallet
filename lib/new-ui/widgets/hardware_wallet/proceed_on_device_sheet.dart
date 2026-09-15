@@ -435,7 +435,7 @@ class WalletOptionsScreen extends StatefulWidget {
 class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
   bool _autoConnect = true;
   bool _usePassphrase = false;
-  bool _setPassphraseOnDevice = false;
+  bool _setPassphraseOnDevice = true;
   final _passphraseController  = TextEditingController();
 
   bool get anythingSelected => _autoConnect || _usePassphrase;
