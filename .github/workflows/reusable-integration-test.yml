@@ -37,7 +37,7 @@ on:
       timeout_minutes:
         required: false
         type: number
-        default: 180
+        default: 240
       slack_notify:
         required: false
         type: boolean

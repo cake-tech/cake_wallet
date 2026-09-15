@@ -277,6 +277,10 @@ run_test() {
 
         kill "$watchdog_pid" 2>/dev/null || true
 
+        if (( attempt_status == 0 )) && ! grep -q "All tests passed." "$attempt_log"; then
+            attempt_status=1
+        fi
+
         if (( attempt_status == 0 )); then
             local duration=$(( $(date +%s) - start_time ))
 
