@@ -459,7 +459,7 @@ class _ContactListBodyState extends State<ContactListBody> {
       color: Theme.of(context).colorScheme.onSurface,
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: FeatureFlag.hasNewUi ? 48 : 0),
+      padding: const EdgeInsets.only(bottom: 48),
       child: MergeSemantics(
         child: SizedBox(
           height: 58,

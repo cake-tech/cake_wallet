@@ -2935,7 +2935,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
