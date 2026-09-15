@@ -170,8 +170,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         )),
                     if (widget.exchangeTradeViewModel.trade.extraId != null)
                       CopyWrapper(
-                        data: ClipboardData(
-                            text: widget.exchangeTradeViewModel.trade.extraId!),
+                        data: ClipboardData(text: widget.exchangeTradeViewModel.trade.extraId!),
                         builder: (context, copied) => Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
