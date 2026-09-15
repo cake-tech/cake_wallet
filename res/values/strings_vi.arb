@@ -1014,7 +1014,7 @@
   "seed_alert_title": "Chú ý",
   "seed_alert_yes": "Có, tôi đã",
   "seed_choose": "Chọn ngôn ngữ cụm từ khôi phục",
-  "seed_display_path": "Cài đặt → Cài đặt ví → Khôi phục & Khóa",
+  "seed_display_path": "Cài đặt → Cài đặt ví → Khôi phục & Chìa khóa",
   "seed_hex_form": "Cụm từ khôi phục của ví (dạng hex)",
   "seed_key": "Khóa seed",
   "seed_language": "Ngôn ngữ cụm từ khôi phục",

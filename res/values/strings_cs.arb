@@ -1013,7 +1013,7 @@
   "seed_alert_title": "Pozor",
   "seed_alert_yes": "Ano, mám",
   "seed_choose": "Vyberte jazyk fráze obnovení",
-  "seed_display_path": "Nastavení → Nastavení peněženky → Obnovení a klíče",
+  "seed_display_path": "Nastavení → Nastavení peněženky → Obnova a klíče",
   "seed_hex_form": "Seed peněženky (hex formát)",
   "seed_key": "Seed klíč",
   "seed_language": "Jazyk fráze obnovení",

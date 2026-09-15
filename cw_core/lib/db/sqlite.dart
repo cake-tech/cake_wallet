@@ -152,15 +152,16 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
     }
+
     if (oldVersion <= 10) {
       await _createImportedNFTTable(db);
     }
     if (oldVersion <= 11) {
       await _addColumnIfNotExists(
         db,
-        table: 'WalletInfo',
-        column: 'showSeedBackupReminder',
-        definition: 'BOOLEAN DEFAULT FALSE',
+        table: "WalletInfo",
+        column: "showSeedBackupReminder",
+        definition: "BOOLEAN DEFAULT FALSE",
       );
     }
   }, onCreate: (Database db, int version) async {

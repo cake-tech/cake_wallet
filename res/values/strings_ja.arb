@@ -1014,7 +1014,7 @@
   "seed_alert_title": "注意",
   "seed_alert_yes": "はい、持っています",
   "seed_choose": "リカバリーフレーズの言語を選択してください",
-  "seed_display_path": "設定 → ウォレット設定 → 回復とキー",
+  "seed_display_path": "設定 → ウォレット設定 → リカバリとキー",
   "seed_hex_form": "ウォレットシード（16進形式）",
   "seed_key": "シードキー",
   "seed_language": "リカバリーフレーズの言語",

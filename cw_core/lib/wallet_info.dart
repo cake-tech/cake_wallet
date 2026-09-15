@@ -621,7 +621,7 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
-        json['showSeedBackupReminder'] == 1);
+        json["showSeedBackupReminder"] == 1);
     info.network = json['network'] as String?;
     return info;
   }
