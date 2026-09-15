@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
@@ -199,13 +201,35 @@ abstract class BaseRobot {
     try {
       final binding = tester.binding;
 
-      if (binding is IntegrationTestWidgetsFlutterBinding) {
-        if (!_surfaceConverted) {
-          await binding.convertFlutterSurfaceToImage();
-          _surfaceConverted = true;
-        }
+      if (binding is! IntegrationTestWidgetsFlutterBinding) {
+        return;
+      }
 
-        await binding.takeScreenshot("${name}_${DateTime.now().millisecondsSinceEpoch}");
+      if (!_surfaceConverted) {
+        await binding.convertFlutterSurfaceToImage();
+        _surfaceConverted = true;
+      }
+
+      var finished = false;
+
+      unawaited(
+        binding.takeScreenshot("${name}_${DateTime.now().millisecondsSinceEpoch}").then(
+          (_) => finished = true,
+          onError: (Object error) {
+            finished = true;
+            tester.printToConsole("Screenshot $name failed: $error");
+          },
+        ),
+      );
+
+      final deadline = DateTime.now().add(const Duration(seconds: 10));
+
+      while (!finished && DateTime.now().isBefore(deadline)) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      if (!finished) {
+        tester.printToConsole("Screenshot $name gave up after 10s");
       }
     } catch (e) {
       tester.printToConsole("Screenshot $name failed: $e");

@@ -13,6 +13,7 @@ import "../../robots/new_dashboard_robot.dart";
 import "../../robots/new_settings_page_robot.dart";
 import "../../robots/security_backup_page_robot.dart";
 import "../../robots/setup_pin_code_robot.dart";
+import "../../robots/show_keys_disclaimer_page_robot.dart";
 import "../../robots/wallet_keys_robot.dart";
 
 void main() {
@@ -28,6 +29,7 @@ void main() {
     final securityRobot = SecurityBackupPageRobot(tester);
     final setupPinRobot = SetupPinCodeRobot(tester);
     final walletKeysRobot = WalletKeysAndSeedPageRobot(tester);
+    final disclaimerRobot = ShowKeysDisclaimerPageRobot(tester);
 
     final newPin = [1, 2, 3, 4];
 
@@ -59,7 +61,9 @@ void main() {
     await securityRobot.goBack();
     await settingsRobot.isDisplayed();
 
-    await settingsRobot.openRow(Routes.showKeys);
+    await settingsRobot.openRow(Routes.showKeysDisclaimer);
+    await disclaimerRobot.isDisplayed();
+    await disclaimerRobot.tapShowKeys();
     await authFlows.authenticateWithPin(pin: newPin);
 
     await walletKeysRobot.isDisplayed();

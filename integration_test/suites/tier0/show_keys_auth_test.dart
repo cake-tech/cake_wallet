@@ -10,6 +10,7 @@ import "../../flows/onboarding_flows.dart";
 import "../../robots/home_page_robot.dart";
 import "../../robots/new_dashboard_robot.dart";
 import "../../robots/new_settings_page_robot.dart";
+import "../../robots/show_keys_disclaimer_page_robot.dart";
 import "../../robots/wallet_keys_robot.dart";
 
 void main() {
@@ -24,6 +25,7 @@ void main() {
     final homePageRobot = HomePageRobot(tester);
     final settingsRobot = NewSettingsPageRobot(tester);
     final walletKeysRobot = WalletKeysAndSeedPageRobot(tester);
+    final disclaimerRobot = ShowKeysDisclaimerPageRobot(tester);
 
     final wrongPin = [9, 9, 9, 9];
 
@@ -37,7 +39,9 @@ void main() {
     await homePageRobot.openSettingsSheet();
     await settingsRobot.isDisplayed();
 
-    await settingsRobot.openRow(Routes.showKeys);
+    await settingsRobot.openRow(Routes.showKeysDisclaimer);
+    await disclaimerRobot.isDisplayed();
+    await disclaimerRobot.tapShowKeys();
 
     await authFlows.authenticateWithPin(pin: wrongPin);
 

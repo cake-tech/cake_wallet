@@ -157,6 +157,11 @@ clean_data_directories() {
     fi
 
     if [[ "$PLATFORM" == "android" ]]; then
+        if ! command -v adb > /dev/null 2>&1; then
+            error "adb is not on PATH, every suite would run on whatever data is already installed"
+            exit 1
+        fi
+
         if [[ "$ANDROID_APP_ID" != *".test_"* ]]; then
             error "Refusing to clear $ANDROID_APP_ID, it is not a test build. Rename the app first: printf 'id=com.cakewallet.test_local\\nname=local\\n' > android/app.properties"
             exit 1
