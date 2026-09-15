@@ -82,9 +82,6 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -291,7 +288,6 @@ import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -1088,8 +1084,6 @@ Future<void> setup({
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
-  getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
   getIt.registerFactory<FeesViewModel>(
     () => FeesViewModel(
       getIt.get<AppStore>(),
@@ -1344,24 +1338,6 @@ Future<void> setup({
 
   getIt.registerFactoryParam<NewBuySellAmountPage, BuySellPageMode, void>((mode, _) =>
       NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: mode)));
-
-  getIt.registerFactory(
-      () => BuySellPage(getIt.get<BuySellViewModel>(), getIt.get<AddressResolverService>()));
-
-  getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final items = args.first as List<SelectableItem>;
-    final pickAnOption = args[1] as void Function(SelectableOption option)?;
-    final confirmOption = args[2] as void Function(BuildContext contex)?;
-    return BuyOptionsPage(items: items, pickAnOption: pickAnOption, confirmOption: confirmOption);
-  });
-
-  getIt
-      .registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final items = args.first as List<SelectableOption>;
-    final pickAnOption = args[1] as void Function(SelectableOption option)?;
-
-    return PaymentMethodOptionsPage(items: items, pickAnOption: pickAnOption);
-  });
 
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {

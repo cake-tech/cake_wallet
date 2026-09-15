@@ -33,9 +33,6 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
@@ -155,7 +152,6 @@ import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -678,14 +674,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: BuySellPageMode.buy)),
       );
 
-    case Routes.buyOptionsPage:
-      final args = settings.arguments as List;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
 
-    case Routes.paymentMethodOptionsPage:
-      final args = settings.arguments as List;
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
 
     case Routes.rescan:
       final page = getIt.get<RescanPage>();
@@ -772,13 +761,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayAccountPage>(),
       );
-
-    case Routes.webViewPage:
-      final args = settings.arguments as List;
-      final title = args.first as String;
-      final url = args[1] as Uri;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
 
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
