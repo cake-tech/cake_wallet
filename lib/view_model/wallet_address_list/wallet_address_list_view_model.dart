@@ -46,7 +46,6 @@ class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletA
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required super.appStore,
-    required this.yatStore,
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = appStore.wallet!.currency,
@@ -649,7 +648,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   List<ListItem> _baseItems;
 
-  final YatStore yatStore;
 
   @action
   void setAddress(WalletAddressListItem address) =>

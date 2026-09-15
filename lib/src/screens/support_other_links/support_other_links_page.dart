@@ -36,9 +36,6 @@ class SupportOtherLinksPage extends BasePage {
               itemCounter: (int _) => supportViewModel.items.length,
               itemBuilder: (_, index) {
                 final item = supportViewModel.items[index];
-                if (item is RegularListItem) {
-                  return SettingsCellWithArrow(title: item.title, handler: item.handler);
-                }
                 if (item is LinkListItem) {
                   bool hasLightIcon = false;
                   if (item.lightIcon != null) hasLightIcon = true;

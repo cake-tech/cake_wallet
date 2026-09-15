@@ -427,7 +427,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
+          (context) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden:settings.arguments as bool)));
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
@@ -451,8 +451,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
           settings: settings,
-          builder: (_) =>
-              FeatureFlag.hasNewUi ? getIt.get<NewDashboard>() : getIt.get<DashboardPage>());
+          builder: (_) => getIt.get<NewDashboard>());
 
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
@@ -472,27 +471,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         settings: settings,
       );
 
-    case Routes.sendTemplate:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
-
-    case Routes.receive:
-      return CupertinoPageRoute<void>(
-          builder: (context) => getIt.get<ReceivePage>(), settings: settings);
-
-    case Routes.addressPage:
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
-          settings: settings);
 
     case Routes.newReceivePage:
-      if (FeatureFlag.hasNewUi) {
         return handleRouteWithPlatformAwareness(
           (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
           settings: settings,
         );
-      }
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
-          settings: settings);
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -625,9 +609,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<PrivacyPage>(),
       );
 
-    case Routes.trocadorProvidersPage:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<TrocadorProvidersPage>());
 
     case Routes.domainLookupsPage:
       return CupertinoPageRoute<void>(
@@ -667,22 +648,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(builder: (_) => page);
 
-    case Routes.accountCreation:
-      return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-              param1: settings.arguments as AccountListItem?));
-
     case Routes.accountCustomizer:
       return handleRouteWithPlatformAwareness(
         (_) => getIt.get<AccountCustomizer>(
           param1: settings.arguments! as DashboardViewModel,
         ),
       );
-
-    case Routes.nanoAccountCreation:
-      return CupertinoPageRoute<String>(
-          builder: (_) =>
-              getIt.get<NanoAccountEditOrCreatePage>(param1: settings.arguments as NanoAccount?));
 
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
@@ -695,7 +666,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden: false, popOnSelection: true)));
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(
@@ -711,12 +682,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<ShowKeysDisclaimerPage>(),
       );
-
-    case Routes.exchangeTrade:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTradePage>());
-
-    case Routes.exchangeConfirm:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
       return CupertinoPageRoute<void>(
@@ -741,20 +706,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
 
-    case Routes.buyWebView:
-      final args = settings.arguments as List;
-
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
-
-    case Routes.exchange:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest?),
-      );
-
-    case Routes.exchangeTemplate:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
-
     case Routes.rescan:
       final page = getIt.get<RescanPage>();
       return MaterialPageRoute<void>(builder: (_) => page);
@@ -767,10 +718,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletGroupExistingSeedDescriptionPage:
       return MaterialPageRoute<void>(builder: (_) => WalletGroupExistingSeedDescriptionPage());
-
-    case Routes.transactionSuccessPage:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
 
     case Routes.backup:
       return handleRouteWithPlatformAwareness(
@@ -879,15 +826,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.anonPayInvoicePage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
-
-    case Routes.anonPayReceivePage:
-      final anonReceivePageArgs = settings.arguments as AnonPayReceivePageArgs;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonReceivePageArgs));
-
     case Routes.anonPayDetailsPage:
       final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
       return CupertinoPageRoute<void>(
@@ -900,15 +838,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) =>
               getIt.get<PayjoinDetailsPage>(param1: sessionId, param2: transactionInfo));
-
-    case Routes.desktop_actions:
-      return PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
-      );
-
-    case Routes.desktop_settings_page:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DesktopSettingsPage>());
 
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());
@@ -1030,11 +959,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (_) => getIt.get<SeedVerificationPage>(param1: settings.arguments as bool),
-      );
-
-    case Routes.exchangeTradeExternalSendPage:
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<ExchangeTradeExternalSendPage>(),
       );
 
     case Routes.backgroundSync:

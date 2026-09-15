@@ -85,7 +85,6 @@ abstract class DashboardViewModelBase with Store {
       required this.orderFilterStore,
       required this.transactionFilterStore,
       required this.settingsStore,
-      required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
@@ -1171,7 +1170,6 @@ abstract class DashboardViewModelBase with Store {
 
   SettingsStore settingsStore;
 
-  YatStore yatStore;
 
   TradesStore tradesStore;
 
