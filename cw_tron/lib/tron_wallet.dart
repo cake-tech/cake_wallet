@@ -664,8 +664,6 @@ abstract class TronWalletBase
       fetchTransactions();
       fetchTrc20ExcludedTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 

@@ -1568,8 +1568,6 @@ abstract class EVMChainWalletBase
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 
