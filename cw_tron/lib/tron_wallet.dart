@@ -13,6 +13,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -395,6 +396,10 @@ abstract class TronWalletBase
         continue;
       }
 
+      if (transactionModel.contractAddress != null && !transactionModel.isTrc20Transfer) {
+        continue;
+      }
+
       var txCurrency = currency;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
@@ -419,15 +424,25 @@ abstract class TronWalletBase
         txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
       }
 
+      final BigInt amount;
+      final String? to;
+      try {
+        amount = transactionModel.amount ?? BigInt.zero;
+        to = transactionModel.to;
+      } catch (e) {
+        printV("Tron transaction ${transactionModel.hash} skipped: $e");
+        continue;
+      }
+
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
-        amount: Money(transactionModel.amount ?? BigInt.zero, txCurrency),
+        amount: Money(amount, txCurrency),
         direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
         fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
-        to: transactionModel.to,
+        to: to,
         from: transactionModel.from,
         isPending: false,
       );

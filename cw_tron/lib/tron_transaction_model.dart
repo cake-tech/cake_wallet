@@ -82,6 +82,12 @@ class TronTransactionModel {
 
   String? get contractAddress => contracts?.first.parameter?.value?.contractAddress;
 
+  bool get isTrc20Transfer {
+    final data = contracts?.first.parameter?.value?.data?.toLowerCase().replaceFirst("0x", "");
+
+    return data != null && data.length >= 136 && data.startsWith("a9059cbb");
+  }
+
   TronTransactionModel({
     this.ret,
     this.txID,
