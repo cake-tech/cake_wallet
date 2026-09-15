@@ -8,14 +8,11 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
 
-class _MockSettingsStore extends Mock implements SettingsStore {
-  @override
-  bool accountsEducationSeen = false;
-}
+class _MockSettingsStore extends Mock implements SettingsStore {}
 
 void main() {
   late bool registeredThemeStore;
-  late SettingsStore settingsStore;
+  late _MockSettingsStore settingsStore;
 
   setUpAll(() {
     registeredThemeStore = !getIt.isRegistered<ThemeStore>();
@@ -32,13 +29,27 @@ void main() {
 
   setUp(() {
     settingsStore = _MockSettingsStore();
+    when(() => settingsStore.dismissEducation(any())).thenAnswer((_) async {});
   });
 
-  Widget educationApp() => MaterialApp(
+  Future<void> openEducation(WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
         localizationsDelegates: localizationDelegates,
         supportedLocales: S.delegate.supportedLocales,
-        home: AccountEducationPage(settingsStore: settingsStore),
-      );
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => AccountEducationPage(settingsStore: settingsStore).show(context),
+              child: const Text("Open education"),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text("Open education"));
+    await tester.pumpAndSettle();
+  }
 
   Future<void> continueToNextPage(WidgetTester tester) async {
     await tester.tap(find.text("Continue"));
@@ -49,8 +60,7 @@ void main() {
   testWidgets("first page explains account organization and exposes progress", (tester) async {
     final semantics = tester.ensureSemantics();
 
-    await tester.pumpWidget(educationApp());
-    await tester.pump();
+    await openEducation(tester);
 
     expect(
       find.text(
@@ -64,9 +74,9 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.bySemanticsLabel("Page 1 of 4"), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp("Page 1 of 4")), findsOneWidget);
     expect(find.text("Continue"), findsOneWidget);
-    expect(settingsStore.accountsEducationSeen, isFalse);
+    verifyNever(() => settingsStore.dismissEducation(any()));
 
     final title = find.text(
       "Accounts let you organize your funds by acting as separate pockets within one wallet",
@@ -91,8 +101,7 @@ void main() {
   testWidgets("Continue advances to the recovery education page", (tester) async {
     final semantics = tester.ensureSemantics();
 
-    await tester.pumpWidget(educationApp());
-    await tester.pump();
+    await openEducation(tester);
     await continueToNextPage(tester);
 
     expect(
@@ -101,14 +110,13 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.bySemanticsLabel("Page 2 of 4"), findsOneWidget);
-    expect(settingsStore.accountsEducationSeen, isFalse);
+    expect(find.bySemanticsLabel(RegExp("Page 2 of 4")), findsOneWidget);
+    verifyNever(() => settingsStore.dismissEducation(any()));
     semantics.dispose();
   });
 
   testWidgets("account-order education follows the Figma content sequence", (tester) async {
-    await tester.pumpWidget(educationApp());
-    await tester.pump();
+    await openEducation(tester);
     await continueToNextPage(tester);
     await continueToNextPage(tester);
 
@@ -151,8 +159,7 @@ void main() {
   });
 
   testWidgets("final acknowledgement marks education as seen", (tester) async {
-    await tester.pumpWidget(educationApp());
-    await tester.pump();
+    await openEducation(tester);
 
     await continueToNextPage(tester);
     await continueToNextPage(tester);
@@ -173,18 +180,27 @@ void main() {
     await tester.tap(find.text("I understand. Continue"));
     await tester.pumpAndSettle();
 
-    expect(settingsStore.accountsEducationSeen, isTrue);
+    verify(() => settingsStore.dismissEducation("accounts")).called(1);
   });
 
   testWidgets("closing education also marks it as seen", (tester) async {
     final semantics = tester.ensureSemantics();
 
-    await tester.pumpWidget(educationApp());
-    await tester.pump();
+    await openEducation(tester);
     await tester.tap(find.bySemanticsLabel("Close"));
     await tester.pumpAndSettle();
 
-    expect(settingsStore.accountsEducationSeen, isTrue);
+    verify(() => settingsStore.dismissEducation("accounts")).called(1);
     semantics.dispose();
+  });
+
+  testWidgets("dismissing the modal without completing education marks it as seen", (tester) async {
+    await openEducation(tester);
+
+    Navigator.of(tester.element(find.byType(AccountEducationPage))).pop();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AccountEducationPage), findsNothing);
+    verify(() => settingsStore.dismissEducation("accounts")).called(1);
   });
 }

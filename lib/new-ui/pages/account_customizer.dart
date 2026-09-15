@@ -86,9 +86,11 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       return;
     }
 
-    final settingsStore = widget.dashboardViewModel.settingsStore;
-    if (_supportsAccountArchival && !settingsStore.accountsEducationSeen) {
-      await AccountEducationPage.show(context, settingsStore);
+    final educationPage = AccountEducationPage(
+      settingsStore: widget.dashboardViewModel.settingsStore,
+    );
+    if (_supportsAccountArchival && !educationPage.isDismissed) {
+      await educationPage.show(context);
     }
   }
 
@@ -202,10 +204,9 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                           icon: const Icon(Icons.question_mark),
                           size: 36,
                           iconSize: 19,
-                          onPressed: () => AccountEducationPage.show(
-                            context,
-                            widget.dashboardViewModel.settingsStore,
-                          ),
+                          onPressed: () => AccountEducationPage(
+                            settingsStore: widget.dashboardViewModel.settingsStore,
+                          ).show(context),
                         ),
                         ModernButton.svg(
                           semanticLabel: S.of(context).archived_accounts,

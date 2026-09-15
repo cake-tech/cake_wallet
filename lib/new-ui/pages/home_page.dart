@@ -267,10 +267,9 @@ class _NewHomePageState extends State<NewHomePage> {
       return;
     }
 
-    await AccountEducationPage.show(
-      context,
-      widget.dashboardViewModel.settingsStore,
-    );
+    await AccountEducationPage(
+      settingsStore: widget.dashboardViewModel.settingsStore,
+    ).show(context);
     if (!mounted) {
       return;
     }

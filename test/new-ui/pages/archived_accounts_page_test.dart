@@ -47,10 +47,7 @@ class _MockWalletInfo extends Mock implements WalletInfo {}
 
 class _MockCardCustomizerBloc extends Mock implements CardCustomizerBloc {}
 
-class _MockSettingsStore extends Mock implements SettingsStore {
-  @override
-  bool accountsEducationSeen = false;
-}
+class _MockSettingsStore extends Mock implements SettingsStore {}
 
 Future<void> _waitForArchivePage(WidgetTester tester) async {
   for (var attempt = 0; attempt < 50; attempt++) {
@@ -257,10 +254,17 @@ void main() {
   });
 
   testWidgets("AccountCustomizer shows education only until it has been seen", (tester) async {
-    final settingsStore = _MockSettingsStore();
     var cardDesignLoads = 0;
+    var educationDismissed = false;
+    final settingsStore = _MockSettingsStore();
 
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+    when(() => settingsStore.isEducationDismissed("accounts"))
+        .thenAnswer((_) => educationDismissed);
+    when(() => settingsStore.dismissEducation("accounts")).thenAnswer((_) async {
+      educationDismissed = true;
+    });
+
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {
       cardDesignLoads++;
     });
@@ -285,7 +289,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(settingsStore.accountsEducationSeen, isTrue);
+    expect(settingsStore.isEducationDismissed("accounts"), isTrue);
 
     final loadsBeforeFirstDispose = cardDesignLoads;
     await tester.pumpWidget(testApp(const SizedBox.shrink()));
@@ -520,7 +524,7 @@ void main() {
     var cardDesignLoads = 0;
     var pauseCardDesignLoad = false;
 
-    settingsStore.accountsEducationSeen = true;
+    when(() => settingsStore.isEducationDismissed("accounts")).thenReturn(true);
     var customizerState = CardCustomizerInitial(
       0,
       0,

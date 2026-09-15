@@ -152,7 +152,6 @@ abstract class SettingsStoreBase with Store {
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
       required this.accountsHomePromoDismissed,
-      required this.accountsEducationSeen,
       required this.balanceHideCounter,
         required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
@@ -314,11 +313,6 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => accountsHomePromoDismissed,
         (val) => sharedPreferences.setBool(PreferencesKey.accountsHomePromoDismissed, val));
-
-    reaction(
-      (_) => accountsEducationSeen,
-      (val) => sharedPreferences.setBool(PreferencesKey.accountsEducationSeen, val),
-    );
 
     priority.observe((change) {
       final String? key;
@@ -1101,9 +1095,6 @@ abstract class SettingsStoreBase with Store {
   bool accountsHomePromoDismissed;
 
   @observable
-  bool accountsEducationSeen;
-
-  @observable
   bool zcashMigrationModalViewed;
 
   final SecureStorage _secureStorage;
@@ -1186,6 +1177,12 @@ abstract class SettingsStoreBase with Store {
 
   Future<void> setShouldShowReceiveWarning(bool value) async =>
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
+  bool isEducationDismissed(String educationId) =>
+      _sharedPreferences.getBool(PreferencesKey.educationDismissed(educationId)) ?? false;
+
+  Future<void> dismissEducation(String educationId) =>
+      _sharedPreferences.setBool(PreferencesKey.educationDismissed(educationId), true);
 
   static Future<SettingsStore> load(
       {required bool isBitcoinBuyEnabled,
@@ -1682,9 +1679,6 @@ abstract class SettingsStoreBase with Store {
     final accountsHomePromoDismissed =
         sharedPreferences.getBool(PreferencesKey.accountsHomePromoDismissed) ?? false;
 
-    final accountsEducationSeen =
-        sharedPreferences.getBool(PreferencesKey.accountsEducationSeen) ?? false;
-
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
@@ -1807,7 +1801,6 @@ abstract class SettingsStoreBase with Store {
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
       accountsHomePromoDismissed: accountsHomePromoDismissed,
-      accountsEducationSeen: accountsEducationSeen,
       balanceHideCounter: balanceHideCounter,
       zcashMigrationModalViewed: zcashMigrationModalViewed
     );
