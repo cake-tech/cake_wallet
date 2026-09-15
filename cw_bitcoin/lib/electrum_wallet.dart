@@ -566,7 +566,7 @@ abstract class ElectrumWalletBase
   bool get isInitialBitcoinAccountsSync =>
       type == WalletType.bitcoin &&
           derivationInfo.derivationType == DerivationType.bip39 &&
-          walletInfo.isRecovery &&
+          (walletInfo.isMultiAccountsEnabled ?? false) &&
           (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override
@@ -4110,6 +4110,13 @@ abstract class ElectrumWalletBase
 
     try {
       balance[currency] = await fetchBalances();
+
+      // For Bitcoin wallets, we also update the current account balance after fetching the overall balance.
+      // because fetchBalances() only updates the overall wallet balance, not the individual account balances.
+      if (type == WalletType.bitcoin) {
+        _updateCurrentAccountBalance();
+      }
+
       await save();
     } catch (e) {
       printV("updateBalance failed: $e");
