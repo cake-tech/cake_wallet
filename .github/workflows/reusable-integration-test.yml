@@ -187,6 +187,10 @@ jobs:
             sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null
           fi
 
+          if ! command -v protoc > /dev/null; then
+            sudo apt-get install -y --no-install-recommends protobuf-compiler > /dev/null
+          fi
+
           pushd cw_mweb
             flutter pub get
             dart run ffigen --config ffigen_config.yaml

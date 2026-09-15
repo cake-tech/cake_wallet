@@ -61,15 +61,20 @@ Prerequisites, one time:
    app throws "Unable to load asset" on the welcome screen and the first suite fails.
 5. Native libs in `android/app/src/main/jniLibs/` for monero, wownero and zano
    (prebuilts from the pinned monero_c release).
-6. `~/.cargo/bin` on PATH so gradle can build the breez rust crate.
+6. `~/.cargo/bin` on PATH so gradle can build the breez rust crates, and `protoc` installed
+   (`brew install protobuf`), the spark crate generates its protobuf bindings at build time.
 
 If the build sits at 0% CPU for minutes, close Android Studio or stop its Gradle daemon,
 two daemons on this project deadlock on the same locks.
 
-Re-run steps 2 to 4 after every merge from dev. The chain proxies in `lib/<chain>/<chain>.dart`
-are generated and gitignored, so a merge that adds a call like `bitcoin!.hasSelectedLightning`
-leaves them behind and the build fails on a method that looks like it should exist. Step 2
-also rewrites `android/app.properties` with the real app id, so redo step 3 alongside it.
+Re-run steps 2 to 4 after every merge from dev, then `flutter pub get` at the root and the
+codegen for `lib/`. The chain proxies in `lib/<chain>/<chain>.dart` are generated and
+gitignored, so a merge that adds a call like `bitcoin!.hasSelectedLightning` leaves them
+behind and the build fails on a method that looks like it should exist. Step 2 also
+rewrites `android/app.properties` with the real app id, so redo step 3 alongside it, and it
+finishes by rewriting `pubspec.yaml` after its own last pub get, which is why the root pub
+get has to come after it. Skipping step 4 shows up as "Unable to load asset" on whichever
+screen dev added an icon to, one suite in, rather than at build time.
 
 Run one suite against a booted emulator:
 
