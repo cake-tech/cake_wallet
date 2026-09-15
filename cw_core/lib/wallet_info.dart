@@ -456,7 +456,8 @@ class WalletInfo {
       this.addressPageType,
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
-      this.favoriteTokenAddress)
+      this.favoriteTokenAddress,
+      this.showSeedBackupReminder)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -504,7 +505,8 @@ class WalletInfo {
         null,
         receiveInfoboxDismissed ?? false,
         showCombinedBalance ?? true,
-        favoriteTokenAddress);
+        favoriteTokenAddress,
+        false);
   }
 
   static String get tableName => 'walletInfo';
@@ -527,6 +529,7 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  bool showSeedBackupReminder;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -776,6 +779,7 @@ class WalletInfo {
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
         "favoriteTokenAddress": favoriteTokenAddress,
+        "showSeedBackupReminder": showSeedBackupReminder ? 1 : 0,
         "network": network,
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
@@ -808,7 +812,8 @@ class WalletInfo {
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
-        json["favoriteTokenAddress"] as String? ?? null);
+        json["favoriteTokenAddress"] as String? ?? null,
+        json["showSeedBackupReminder"] == 1);
     info.network = json['network'] as String?;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
@@ -860,8 +865,21 @@ class WalletInfo {
     restoreHeight = height;
     await save();
   }
+
   Future<void> setAccountDiscoveryLimit(int limit) async {
     accountDiscoveryLimit = limit;
     await save();
+  }
+
+  Future<void> clearSeedBackupReminder() async {
+    final previous = showSeedBackupReminder;
+    showSeedBackupReminder = false;
+
+    try {
+      await save();
+    } catch (e) {
+      showSeedBackupReminder = previous;
+      printV("Failed to save the seed backup reminder flag: $e");
+    }
   }
 }
