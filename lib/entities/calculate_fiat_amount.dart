@@ -8,8 +8,9 @@ String calculateFiatAmount({double? price, String? cryptoAmount, bool raw = fals
   cryptoAmount = cryptoAmount.sanitized();
 
   final _amount = double.tryParse(cryptoAmount);
-  if (_amount == null || _amount.isNaN) return '0.00';
+  if (_amount == null || !_amount.isFinite) return '0.00';
   final _result = price * _amount;
+  if (!_result.isFinite) return '0.00';
   final result = _result < 0 ? _result * -1 : _result;
 
   if (result == 0.0) {

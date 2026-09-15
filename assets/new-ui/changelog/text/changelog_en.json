@@ -1,14 +1,18 @@
 [
   {
-    "title": "AnyPay Improvements",
-    "description": "Now pasting or scanning an address from any wallet will point you correctly to either swapping or sending from the correct wallet, and much more improvements"
+    "title": "Trezor natively for Bitcoin",
+    "description": "Pair your device and sign Bitcoin transactions right in the app"
   },
   {
-    "title": "UI improvements",
-    "description": "Added some fresh UI elements just for you"
+    "title": "Solana and NFTs Improvements",
+    "description": "Send your Solana NFTs, keep imported ones saved, and see at a glance which ones this wallet holds"
+  },
+  {
+    "title": "Monero sync improvements",
+    "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
   },
   {
     "title": "Bug fixes",
-    "description": "Squashed more bugs"
+    "description": "Contact syncing, node selection, Cake Pay sign-in and more, all squashed"
   }
 ]

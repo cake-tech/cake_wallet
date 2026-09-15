@@ -98,6 +98,8 @@ class NewListSections extends StatelessWidget {
         iconPath: item.iconPath,
         badgeIconPath: item.badgeIconPath,
         trailingIconPath: item.trailingIconPath,
+        secondaryLabel: item.secondaryLabel,
+        subtitleColor: item.subtitleColor,
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
         isFirstInSection: isFirst,
         isLastInSection: isLast,

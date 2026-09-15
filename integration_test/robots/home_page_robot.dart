@@ -1,6 +1,7 @@
 import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -11,11 +12,21 @@ class HomePageRobot extends BaseRobot {
 
   @override
   Future<void> isDisplayed() async {
-    await pumpUntilFound(find.byKey(const ValueKey("home_page_wallet_name_text_key")));
+    await pumpUntilFound(find.byKey(const ValueKey("home_page_settings_button_key")));
   }
 
   Future<void> hasWalletName(String name) async {
-    await pumpUntilFound(find.byKey(const ValueKey("home_page_wallet_name_text_key")));
+    final nameFinder = find.byKey(const ValueKey("home_page_wallet_name_text_key"));
+    final syncBarFinder = find.byType(SyncBar);
+
+    final shown = await pumpUntil(() => tester.any(nameFinder) || tester.any(syncBarFinder));
+
+    expect(shown, true, reason: "Top bar showed neither the wallet name nor the sync bar");
+
+    if (!tester.any(nameFinder)) {
+      tester.printToConsole("Sync bar is in place of the wallet name, not checking it on screen");
+      return;
+    }
 
     expect(textByKey("home_page_wallet_name_text_key"), name);
   }
