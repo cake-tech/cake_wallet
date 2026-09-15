@@ -18,10 +18,20 @@ on:
           - swap
         default: all
       chains:
-        description: "auto discovers every funded chain, or a comma separated list of wallet type names"
+        description: "Chains the send suites run on. auto discovers every funded chain, or a comma separated list of wallet type names"
         required: true
         type: string
         default: auto
+      swap_from:
+        description: "Wallet type the swap deposits from. Empty takes the first funded chain"
+        required: false
+        type: string
+        default: ""
+      swap_to:
+        description: "Currency the swap receives, for example eth or btc. Empty leaves the swap page's own pairing"
+        required: false
+        type: string
+        default: ""
       spend:
         description: "Actually broadcast and create trades. Off runs the dry runs only"
         required: true
@@ -49,6 +59,6 @@ jobs:
       record_screen: ${{ inputs.record_screen }}
       timeout_minutes: 120
       slack_notify: true
-      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }};SPEND=${{ inputs.spend }}"
+      extra_dart_defines: "FLOWS=${{ inputs.flows }};CHAINS=${{ inputs.chains }};SPEND=${{ inputs.spend }};SWAP_FROM=${{ inputs.swap_from }};SWAP_RECEIVE=${{ inputs.swap_to }}"
     secrets: inherit
 

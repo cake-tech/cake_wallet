@@ -118,10 +118,15 @@ class OnboardingFlows {
     await _newWalletPageRobot.isDisplayed();
   }
 
-  Future<void> restoreFirstWalletFromSeed(WalletType type, {String? seed, List<int>? pin}) async {
+  Future<void> restoreFirstWalletFromSeed(
+    WalletType type, {
+    String? seed,
+    String passphrase = "",
+    List<int>? pin,
+  }) async {
     await startRestoringFirstWallet(type, pin: pin);
 
-    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type), passphrase);
   }
 
   Future<void> startRestoringFirstWallet(WalletType type, {List<int>? pin}) async {
@@ -141,7 +146,11 @@ class OnboardingFlows {
     await _restoreFromSeedOrKeysPageRobot.isDisplayed();
   }
 
-  Future<void> restoreAdditionalWalletFromWalletList(WalletType type, {String? seed}) async {
+  Future<void> restoreAdditionalWalletFromWalletList(
+    WalletType type, {
+    String? seed,
+    String passphrase = "",
+  }) async {
     tester.printToConsole("Restoring ${type.name} wallet");
 
     await _walletListPageRobot.navigateToRestoreWalletOptionsPage();
@@ -152,12 +161,16 @@ class OnboardingFlows {
 
     await _selectWalletType(type);
 
-    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type));
+    await _restoreFromSeed(type, seed ?? TestWallets.seedFor(type), passphrase);
   }
 
-  Future<void> _restoreFromSeed(WalletType type, String seed) async {
+  Future<void> _restoreFromSeed(WalletType type, String seed, String passphrase) async {
     await _restoreFromSeedOrKeysPageRobot.selectWalletNameFromAvailableOptions();
     await _restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(seed);
+
+    if (passphrase.isNotEmpty) {
+      await _restoreFromSeedOrKeysPageRobot.enablePassphrase();
+    }
 
     // 25 word monero seeds are legacy seeds and need their restore block height entered.
     if (seed.split(" ").length == 25 && type == WalletType.monero) {
@@ -179,6 +192,10 @@ class OnboardingFlows {
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
+
+    if (passphrase.isNotEmpty) {
+      await _restoreFromSeedOrKeysPageRobot.enterPassphrase(passphrase);
+    }
   }
 
   Future<void> setupPinCode(List<int> pin) async {

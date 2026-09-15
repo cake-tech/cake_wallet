@@ -39,6 +39,13 @@ class TestConfig {
 
   static const String _spend = String.fromEnvironment("SPEND", defaultValue: "false");
 
+  static const String _swapFrom = String.fromEnvironment("SWAP_FROM");
+
+  static const String swapReceive = String.fromEnvironment("SWAP_RECEIVE");
+
+  static WalletType swapDepositType(List<WalletType> funded) =>
+      _swapFrom.isEmpty ? funded.first : _walletTypeByName(_swapFrom);
+
   static bool shouldRunFundsFlow(String flow) => _fundsFlows == "all" || _fundsFlows == flow;
 
   static bool shouldDryRun(String flow) => shouldRunFundsFlow(flow);
@@ -58,7 +65,7 @@ class TestConfig {
     return _fundedChainsOverride
         .split(",")
         .map(_walletTypeByName)
-        .where((type) => TestWallets.fundedSeedFor(type).isNotEmpty)
+        .where((type) => TestWallets.fundedWalletsFor(type).isNotEmpty)
         .toList();
   }
 

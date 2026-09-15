@@ -45,6 +45,6 @@ void main() {
       reason: "Wallet never started syncing, last status: ${appStore.wallet?.syncStatus}",
     );
 
-    await homePageRobot.confirmSyncIndicatorShown(appStore.wallet!.syncStatus.runtimeType);
+    await homePageRobot.confirmSyncIndicatorShown();
   });
 }

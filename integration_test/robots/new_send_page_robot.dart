@@ -28,8 +28,6 @@ class NewSendPageRobot extends BaseRobot {
 
   String enteredAddress() => _textInInput("send_page_address_input_key");
 
-  String enteredAmount() => _textInInput("send_page_amount_input_key");
-
   Future<void> pickContactFromAddressBook(String contactName) async {
     await tapByKey("send_page_address_book_button_key");
 
@@ -75,6 +73,8 @@ class NewSendPageRobot extends BaseRobot {
 
     await pumpUntilFound(finder, timeout: timeout);
 
+    await settle(max: const Duration(seconds: 2));
+
     final width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
     await tester.drag(finder.first, Offset(width, 0));
 
@@ -113,16 +113,6 @@ class NewSendPageRobot extends BaseRobot {
       false,
       reason:
           "The send screen showed the swiper, wanting to broadcast a transaction it should have refused",
-    );
-  }
-
-  Future<void> expectSendFailed({Duration timeout = const Duration(seconds: 90)}) async {
-    await pumpUntilFound(find.byType(TransactionErrorActions), timeout: timeout);
-
-    expect(
-      find.byType(ConfirmSwiper),
-      findsNothing,
-      reason: "The send failed but the confirm swiper still showed, wanting to broadcast the tx",
     );
   }
 

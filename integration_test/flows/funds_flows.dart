@@ -28,10 +28,12 @@ class FundsFlows {
   bool _hasRestoredAnyWallet = false;
 
   Future<bool> openFundedWallet(WalletType type) async {
-    final seeds = TestWallets.fundedSeedsFor(type);
+    final wallets = TestWallets.fundedWalletsFor(type);
 
-    for (int index = 0; index < seeds.length; index++) {
-      tester.printToConsole("Trying funded wallet ${index + 1}/${seeds.length} for ${type.name}");
+    for (int index = 0; index < wallets.length; index++) {
+      final wallet = wallets[index];
+
+      tester.printToConsole("Trying funded wallet ${index + 1}/${wallets.length} for ${type.name}");
 
       if (_hasRestoredAnyWallet) {
         await _dashboardRobot.openWalletsTab();
@@ -49,9 +51,17 @@ class FundsFlows {
               "Currently have: ${_dashboardRobot.describeScreen()} on screen",
         );
 
-        await _onboardingFlows.restoreAdditionalWalletFromWalletList(type, seed: seeds[index]);
+        await _onboardingFlows.restoreAdditionalWalletFromWalletList(
+          type,
+          seed: wallet.seed,
+          passphrase: wallet.passphrase,
+        );
       } else {
-        await _onboardingFlows.restoreFirstWalletFromSeed(type, seed: seeds[index]);
+        await _onboardingFlows.restoreFirstWalletFromSeed(
+          type,
+          seed: wallet.seed,
+          passphrase: wallet.passphrase,
+        );
       }
 
       _hasRestoredAnyWallet = true;
@@ -89,9 +99,7 @@ class FundsFlows {
     return _isHomeInFront;
   }
 
-  bool get _isHomeInFront =>
-      tester.any(find.byKey(const ValueKey("home_page_wallet_name_text_key"))) &&
-      !_sendRobot.isSendFlowOpen;
+  bool get _isHomeInFront => _homePageRobot.isInFront && !_sendRobot.isSendFlowOpen;
 
   Future<bool> _hasSpendableBalance({Duration timeout = TestConfig.walletSyncBudget}) async {
     final appStore = getIt.get<AppStore>();

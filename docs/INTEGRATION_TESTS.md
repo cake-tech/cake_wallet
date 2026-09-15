@@ -25,9 +25,6 @@ Supporting pieces:
 
 - `test_driver/integration_test.dart` is the standard flutter drive driver.
 - `integration_test_runner.sh` discovers and runs suites, see Running locally.
-- `integration_test_runner_test.sh` pins the runner's data wipe guards, which decide
-  whether a local run clears a test package or the wallet you actually use. Run it after
-  touching `clean_data_directories`, it needs no device and takes a second.
 - `.github/workflows/integration_tests.yml` is the PR gate,
   `reusable-integration-test.yml` holds the shared build and emulator pipeline.
 
@@ -225,14 +222,25 @@ environment under Settings, Environments, or a dispatch still starts without an 
 
 Funded seeds live in the `FUNDS_SECRETS_FILE` secret, a base64 encoded replacement for
 `integration_test/core/funded_wallets.dart` mapping wallet type names to that chain's
-funded seed phrases, at least two wallets per chain:
+funded wallets, at least two per chain. A wallet with a passphrase carries it and the restore
+flow ticks the passphrase box and enters it. A wallet without one leaves it out:
 
 ```dart
-const Map<String, List<String>> fundedWalletSeeds = {
-  "solana": ["first wallet seed words ...", "second wallet seed words ..."],
-  "ethereum": ["first wallet seed words ...", "second wallet seed words ..."],
+import "funded_wallet.dart";
+
+const Map<String, List<FundedWallet>> fundedWallets = {
+  "solana": [
+    FundedWallet(seed: "first wallet seed words ...", passphrase: "first passphrase"),
+    FundedWallet(seed: "second wallet seed words ...", passphrase: "second passphrase"),
+  ],
+  "ethereum": [
+    FundedWallet(seed: "seed words ..."),
+  ],
 };
 ```
+
+A wrong passphrase restores an empty derivation, so it shows up the same way a drained
+wallet does, as "no spendable balance".
 
 The suites restore a chain's funded wallets one by one and use the first that shows a
 spendable balance, a wallet that finishes syncing while still empty counts as drained.
@@ -242,10 +250,14 @@ The checked in default is an empty map and must stay empty. Only the funds workf
 on `write_funds_secrets`, and that input is the one thing keeping funded seeds out of a PR
 build now that no environment scopes the secret. In auto mode the suites discover every
 chain present in the map, so funding a new chain only means adding its entry to the
-secret. The dispatch inputs narrow a run to specific flows or chains, and per chain send
-amounts are tuned in `TestConfig._fundsSendAmounts`. The swap suite enters an amount just
-above the provider minimum, the first funded chain's balance has to cover that minimum
-plus fees.
+secret. The dispatch inputs narrow a run: `flows` picks send, swap or both, `chains` lists
+the chains the send suites run on, `swap_from` picks the wallet type the swap deposits from
+(empty takes the first funded chain) and `swap_to` the currency it receives (empty leaves
+the swap page's own pairing, which is XMR for everything but a monero wallet). Whatever
+`swap_to` names must have a fixture address in `TestWallets.receiveAddressFor`, that is
+where the payout goes. Per chain send amounts are tuned in `TestConfig._fundsSendAmounts`.
+The swap suite enters an amount just above the provider minimum, the deposit wallet's
+balance has to cover that minimum plus fees.
 
 ## How CI runs them
 
@@ -262,7 +274,7 @@ Every run posts to slack. The message names each tier's counts, its duration and
 that failed, and the full list of what passed goes in a reply on the same message so the
 channel keeps the short version. A suite that failed because the driver never attached is
 labelled as such rather than reported as a failing test, since in that case the suite never
-ran at all. It needs `SLACK_APP_TOKEN` and `SLACK_TESTS_CHANNEL`, and
+ran at all. It needs `SLACK_TESTS_TOKEN` and `SLACK_TESTS_CHANNEL`, and
 without either the step logs a notice and skips rather than failing the gate. Cancelled
 runs stay quiet, since superseded runs are cancelled on purpose. The report is built from
 the `SUMMARY_FILE` each tier writes, so anything the runner counts is available to it.
@@ -277,7 +289,9 @@ file and regenerates the bindings itself. And `assets/images` svgs need compilin
 
 - A timeout in `pumpUntilFound` throws with the finder description. Diagnose through the
   `integration-test-logs` artifact in CI, it holds the run log and a final logcat dump.
-  Screenshots do not work on Android without surface conversion, do not rely on them.
+  The timeout also takes a screenshot, it lands in `build/integration_test_screenshots/`
+  on the machine that ran the suite, named after the robot and the helper that timed out.
+  CI does not upload them.
 - The app's own error handling ignores missing `.svg.vec` assets by design, the harness
   filters those too. Any other FlutterError fails the test, that is intentional.
 - Monero and wownero load native libraries on first open, give their steps generous

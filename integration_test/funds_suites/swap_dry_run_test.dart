@@ -1,5 +1,6 @@
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
@@ -33,7 +34,13 @@ void main() {
 
     final appStore = getIt.get<AppStore>();
 
-    final type = walletTypes.first;
+    final type = TestConfig.swapDepositType(walletTypes);
+
+    expect(
+      walletTypes,
+      contains(type),
+      reason: "SWAP_FROM=${type.name} is not among the funded wallets under test",
+    );
 
     final opened = await fundsFlows.openFundedWallet(type);
 
@@ -43,12 +50,18 @@ void main() {
     await homePageRobot.openSwapSheet();
     await swapRobot.isDisplayed();
 
+    if (TestConfig.swapReceive.isNotEmpty) {
+      await swapRobot.chooseReceiveCurrency(CryptoCurrency.fromString(TestConfig.swapReceive));
+    }
+
     await swapRobot.enterMinimumViableDepositAmount();
+    await swapRobot.enterTestReceiveAddress();
 
     await swapRobot.confirmQuoteReceived();
+    await swapRobot.confirmSwapButtonEnabled();
 
-    tester.printToConsole("${type.name} received a quote, no trade created");
-    FundsOutcome.ok(tester, type.name, "quoted by a provider, no trade created");
+    tester.printToConsole("${type.name} got a quote and the swap button enabled, no trade created");
+    FundsOutcome.ok(tester, type.name, "quoted, swap button enabled, no trade created");
 
     await swapRobot.dismissModal();
     await homePageRobot.isDisplayed();

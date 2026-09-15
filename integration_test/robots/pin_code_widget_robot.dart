@@ -14,21 +14,6 @@ class PinCodeWidgetRobot extends BaseRobot {
     expect(pinCodeWidget, findsOneWidget);
   }
 
-  void hasNumberButtonsVisible() {
-    for (var i = 1; i < 10; i++) {
-      hasValueKey("pin_code_button_${i}_key");
-    }
-    hasValueKey("pin_code_button_0_key");
-  }
-
-  Future<void> enterPassword(String password) async {
-    await enterTextByKey("enter_wallet_password", password);
-    await settle();
-
-    await tapByKey("unlock");
-    await settle();
-  }
-
   Future<void> enterPinCode(List<int> pinCode) async {
     for (final pin in pinCode) {
       await tapByKey("pin_code_button_${pin}_key");

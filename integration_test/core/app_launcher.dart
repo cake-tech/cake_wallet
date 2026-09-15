@@ -10,7 +10,7 @@ void integrationTest(String description, Future<void> Function(WidgetTester test
   testWidgets(description, (tester) async {
     final completer = Completer<void>();
 
-    await runZonedGuarded(() async {
+    final run = runZonedGuarded(() async {
       try {
         await body(tester);
 
@@ -23,8 +23,22 @@ void integrationTest(String description, Future<void> Function(WidgetTester test
         }
       }
     }, (error, stack) {
-      debugPrint("Ignoring background async error: $error");
+      final kind = benignErrorKind(error.toString());
+
+      if (kind != null) {
+        debugPrint("Ignoring benign $kind background error: $error");
+        return;
+      }
+
+      if (completer.isCompleted) {
+        debugPrint("Background error after the test finished: $error");
+        return;
+      }
+
+      completer.completeError(error, stack);
     });
+
+    unawaited(run);
 
     await completer.future;
   });

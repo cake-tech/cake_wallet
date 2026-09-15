@@ -45,4 +45,7 @@ const List<String> _toleratedNetworkNoise = [
   "Operation timed out",
   "Network is unreachable",
   "No route to host",
+  "Broken pipe",
+  "Software caused connection abort",
+  "Connection closed before full header",
 ];

@@ -105,35 +105,6 @@ abstract class BaseRobot {
     await tester.pump(const Duration(milliseconds: 300));
   }
 
-  Future<void> scrollUntilVisibleByKey(
-    String itemKey,
-    String scrollableKey, {
-    double scrollStep = 300,
-  }) async {
-    final itemFinder = find.byKey(ValueKey(itemKey));
-
-    // The item can already be on screen, no scrolling needed
-    if (tester.any(itemFinder)) {
-      return;
-    }
-
-    final scrollableFinder = find.descendant(
-      of: find.byKey(ValueKey(scrollableKey)),
-      matching: find.byType(Scrollable),
-    );
-
-    await pumpUntilFound(scrollableFinder.first);
-
-    await tester.scrollUntilVisible(
-      itemFinder,
-      scrollStep,
-      scrollable: scrollableFinder.first,
-      maxScrolls: 50,
-    );
-
-    await tester.pump(const Duration(milliseconds: 300));
-  }
-
   Future<bool> pumpUntil(
     bool Function() condition, {
     Duration timeout = const Duration(seconds: 30),
@@ -187,17 +158,7 @@ abstract class BaseRobot {
     hasType<T>();
   }
 
-  Future<void> swipePage({bool swipeRight = true}) async {
-    await tester.drag(find.byType(PageView), Offset(swipeRight ? -300 : 300, 0));
-
-    await settle();
-  }
-
   bool isKeyPresent(String key) => tester.any(find.byKey(ValueKey(key)));
-
-  void hasValueKey(String key) {
-    expect(find.byKey(ValueKey(key)), findsOneWidget);
-  }
 
   String describeScreen() {
     final names = tester.allWidgets
@@ -214,12 +175,12 @@ abstract class BaseRobot {
     expect(find.byType(T), findsOneWidget);
   }
 
-  void hasText(String text, {bool isVisible = true}) {
-    expect(find.text(text), isVisible ? findsOneWidget : findsNothing);
+  void hasText(String text) {
+    expect(find.text(text), findsOneWidget);
   }
 
-  void hasTextAtLeastOnce(String text, {bool isVisible = true}) {
-    expect(find.text(text), isVisible ? findsAny : findsNothing);
+  void hasTextAtLeastOnce(String text) {
+    expect(find.text(text), findsAny);
   }
 
   String? textByKey(String key) {
@@ -232,12 +193,19 @@ abstract class BaseRobot {
     return tester.widget<Text>(finder.first).data;
   }
 
+  static bool _surfaceConverted = false;
+
   Future<void> takeScreenshot(String name) async {
     try {
       final binding = tester.binding;
 
       if (binding is IntegrationTestWidgetsFlutterBinding) {
-        await binding.takeScreenshot(name);
+        if (!_surfaceConverted) {
+          await binding.convertFlutterSurfaceToImage();
+          _surfaceConverted = true;
+        }
+
+        await binding.takeScreenshot("${name}_${DateTime.now().millisecondsSinceEpoch}");
       }
     } catch (e) {
       tester.printToConsole("Screenshot $name failed: $e");

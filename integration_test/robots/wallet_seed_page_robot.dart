@@ -16,10 +16,6 @@ class WalletSeedPageRobot extends BaseRobot {
     await tapByKey("wallet_seed_page_verify_seed_button_key");
   }
 
-  Future<void> onSaveSeedButtonPressed() async {
-    await tapByKey("wallet_seed_page_save_seeds_button_key");
-  }
-
   void confirmWalletDetailsDisplayCorrectly() {
     final walletSeedPage = tester.widget<WalletSeedPage>(find.byType(WalletSeedPage));
 
@@ -35,13 +31,5 @@ class WalletSeedPageRobot extends BaseRobot {
 
   void confirmWalletSeedReminderDisplays() {
     hasText(S.current.cake_seeds_save_disclaimer);
-  }
-
-  Future<void> onSaveSeedsButtonPressed() async {
-    await tapByKey("wallet_seed_page_save_seeds_button_key");
-  }
-
-  Future<void> onCopySeedsButtonPressed() async {
-    await tapByKey("wallet_seed_page_copy_seeds_button_key");
   }
 }

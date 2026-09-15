@@ -1,4 +1,3 @@
-import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/new_wallet/wallet_group_description_page.dart";
 
 import "../core/base_robot.dart";
@@ -9,10 +8,6 @@ class WalletGroupDescriptionPageRobot extends BaseRobot {
   @override
   Future<void> isDisplayed() async {
     await isSpecificPage<WalletGroupDescriptionPage>();
-  }
-
-  void hasTitle() {
-    hasText(S.current.wallet_group);
   }
 
   bool hasNewSingleSeedButton() =>

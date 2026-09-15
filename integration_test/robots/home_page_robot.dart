@@ -2,7 +2,9 @@ import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
+import "package:cw_core/sync_status.dart";
 import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
@@ -12,7 +14,22 @@ class HomePageRobot extends BaseRobot {
 
   @override
   Future<void> isDisplayed() async {
-    await pumpUntilFound(find.byKey(const ValueKey("home_page_settings_button_key")));
+    final shown = await pumpUntil(() => isInFront);
+
+    expect(shown, true, reason: "The home tab never came to the front");
+  }
+
+  bool get isInFront {
+    final stackFinder = find.byType(IndexedStack);
+
+    if (!tester.any(stackFinder)) {
+      return false;
+    }
+
+    final stack = tester.widget<IndexedStack>(stackFinder.first);
+    final index = stack.children.indexWhere((child) => child is NewHomePage);
+
+    return index >= 0 && stack.index == index;
   }
 
   Future<void> hasWalletName(String name) async {
@@ -148,18 +165,53 @@ class HomePageRobot extends BaseRobot {
         matching: find.byType(HistoryTile),
       );
 
-  Future<void> confirmSyncIndicatorShown(Type statusType) async {
-    final shown = await pumpUntil(
-      () =>
-          tester.any(find.byKey(ValueKey(statusType))) ||
-          tester.any(find.byType(CupertinoActivityIndicator)),
-    );
+  Future<void> confirmSyncIndicatorShown() async {
+    final syncBar = find.byType(SyncBar);
+    final dot = find.descendant(of: syncBar, matching: find.byType(CupertinoActivityIndicator));
+    final tick = find.descendant(of: syncBar, matching: find.byIcon(Icons.check));
+
+    SyncStatus? lastStatus;
+    bool? syncedFromTheStart;
+
+    final shown = await pumpUntil(() {
+      lastStatus = _dashboardStatus();
+
+      if (lastStatus == null) {
+        return false;
+      }
+
+      final synced = lastStatus.runtimeType == SyncedSyncStatus;
+      syncedFromTheStart ??= synced;
+
+      if (!synced) {
+        final fullBar =
+            find.descendant(of: syncBar, matching: find.byKey(ValueKey(lastStatus.runtimeType)));
+
+        return tester.any(fullBar) || tester.any(dot);
+      }
+
+      return tester.any(tick) || (syncedFromTheStart! && !tester.any(dot));
+    });
+
+    if (syncedFromTheStart == true) {
+      tester.printToConsole("Already synced when checked, the sync bar itself was not observed");
+    }
 
     expect(
       shown,
       true,
-      reason: "Sync bar showed nothing while the wallet reported $statusType",
+      reason: "Sync bar showed nothing while the wallet reported ${lastStatus.runtimeType}",
     );
+  }
+
+  SyncStatus? _dashboardStatus() {
+    final finder = find.byType(NewHomePage);
+
+    if (!tester.any(finder)) {
+      return null;
+    }
+
+    return tester.widget<NewHomePage>(finder.first).dashboardViewModel.status;
   }
 
   int _dashboardTransactionCount() {

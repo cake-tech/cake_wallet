@@ -25,7 +25,7 @@ void main() {
     const languageCode = "de";
     const languageName = "Deutsch (German)";
 
-    await appLauncher.launchApp(testKey: "fiat_currency_test_app_key");
+    await appLauncher.launchApp(testKey: "language_test_app_key");
 
     await onboardingFlows.createFirstWallet(WalletType.solana);
 

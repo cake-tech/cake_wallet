@@ -2,20 +2,15 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/wallet_type.dart";
 
+import "funded_wallet.dart";
 import "funded_wallets.dart";
 
 class TestWallets {
   static List<WalletType> get fundedWalletTypes =>
-      availableWalletTypes.where((type) => fundedSeedFor(type).isNotEmpty).toList();
+      availableWalletTypes.where((type) => fundedWalletsFor(type).isNotEmpty).toList();
 
-  static List<String> fundedSeedsFor(WalletType type) =>
-      (fundedWalletSeeds[type.name] ?? []).where((seed) => seed.trim().isNotEmpty).toList();
-
-  static String fundedSeedFor(WalletType type) {
-    final seeds = fundedSeedsFor(type);
-
-    return seeds.isEmpty ? "" : seeds.first;
-  }
+  static List<FundedWallet> fundedWalletsFor(WalletType type) =>
+      (fundedWallets[type.name] ?? []).where((wallet) => wallet.seed.trim().isNotEmpty).toList();
 
   static String seedFor(WalletType type) {
     switch (type) {
@@ -88,7 +83,13 @@ class TestWallets {
         return secrets.nanoTestWalletReceiveAddress;
       case WalletType.wownero:
         return secrets.wowneroTestWalletReceiveAddress;
-      default:
+      case WalletType.zano:
+      case WalletType.decred:
+      case WalletType.dogecoin:
+      case WalletType.zcash:
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.banano:
         return "";
     }
   }

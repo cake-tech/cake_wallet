@@ -187,8 +187,9 @@ jobs:
             sudo apt-get install -y --no-install-recommends libclang-dev > /dev/null
           fi
 
-          if ! command -v protoc > /dev/null; then
-            sudo apt-get install -y --no-install-recommends protobuf-compiler > /dev/null
+          if ! command -v protoc > /dev/null ||
+             [[ ! -f /usr/include/google/protobuf/descriptor.proto ]]; then
+            sudo apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev > /dev/null
           fi
 
           pushd cw_mweb
@@ -346,6 +347,9 @@ jobs:
           # no retry meant a driver that never attached was reported as a failing test.
           RETRIES=1
 
+          RUN_LOG_SINK=/dev/stdout
+          [[ "${ENCRYPT_LOGS:-}" == "true" ]] && RUN_LOG_SINK=/dev/null
+
           set -o pipefail
           set +e
           env \
@@ -356,7 +360,7 @@ jobs:
             RETRY_COUNT=$RETRIES \
             PLATFORM=android \
             SUMMARY_FILE="${TIER}_summary.txt" \
-            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log"
+            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log" > "$RUN_LOG_SINK"
           TEST_EXIT_CODE=$?
           set -e
 

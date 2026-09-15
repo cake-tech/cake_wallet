@@ -1,5 +1,6 @@
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
@@ -33,7 +34,13 @@ void main() {
 
     expect(walletTypes.isNotEmpty, true, reason: "No funded wallet seeds configured");
 
-    final type = walletTypes.first;
+    final type = TestConfig.swapDepositType(walletTypes);
+
+    expect(
+      walletTypes,
+      contains(type),
+      reason: "SWAP_FROM=${type.name} is not among the funded wallets under test",
+    );
 
     await appLauncher.launchApp(testKey: "swap_funds_test_app_key");
 
@@ -42,7 +49,7 @@ void main() {
     expect(
       opened,
       true,
-      reason: "${type.name}: none of the ${TestWallets.fundedSeedsFor(type).length} funded "
+      reason: "${type.name}: none of the ${TestWallets.fundedWalletsFor(type).length} funded "
           "wallets has a spendable balance, top them up before the next run",
     );
 
@@ -52,19 +59,25 @@ void main() {
     await homePageRobot.openSwapSheet();
     await swapRobot.isDisplayed();
 
+    if (TestConfig.swapReceive.isNotEmpty) {
+      await swapRobot.chooseReceiveCurrency(CryptoCurrency.fromString(TestConfig.swapReceive));
+    }
+
     await swapRobot.enterMinimumViableDepositAmount();
+    final payoutAddress = await swapRobot.enterTestReceiveAddress();
     await swapRobot.confirmQuoteReceived();
+    await swapRobot.confirmSwapButtonEnabled();
 
     await swapRobot.tapSwapButton();
 
     await authFlows.authenticateWithPin(required: false);
 
     await swapRobot.confirmTradeCreated();
+    swapRobot.confirmPayoutAddress(payoutAddress);
 
     await sendRobot.swipeToConfirm();
     await swapRobot.confirmDepositCommitted();
 
-    await swapRobot.dismissModal();
     await homePageRobot.isDisplayed();
 
     tester.printToConsole("FUNDS_SWAP_OK: ${type.name}");
