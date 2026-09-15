@@ -49,10 +49,6 @@ class NewHomePage extends StatefulWidget {
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
   bool _lightningMode = false;
 
-  // Only this piece stays local — DashboardViewModel already exposes a
-  // properly wallet-type-routed `accountListViewModel` (see
-  // onSettingsButtonPress below, which already reloads it), but it has no
-  // equivalent for the edit-or-create view model AccountCustomizer needs.
   WalletAccountEditOrCreateViewModel? accountEditOrCreateViewModel;
 
   late final ReactionDisposer _walletReaction;

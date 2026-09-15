@@ -177,8 +177,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                     sections: {
                       "": [
                         ListItemToggle(
-                            keyValue: S.of(context).multiple_accounts,
-                            label: S.of(context).multiple_accounts,
+                            keyValue: "Multiple Accounts",
+                            label: "Multiple Accounts",
                             value: _isMultiAccountsEnabled,
                             onChanged: (val) async {
                               if (!val) {

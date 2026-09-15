@@ -207,7 +207,7 @@ CREATE TABLE WalletInfo (
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
-  isMultiAccountsEnabled INTEGER DEFAULT NULL
+  isMultiAccountsEnabled INTEGER DEFAULT NULL,
   showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
