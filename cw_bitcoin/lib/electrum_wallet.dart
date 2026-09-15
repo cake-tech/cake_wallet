@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -280,7 +281,6 @@ abstract class ElectrumWalletBase
   static const int batchTestHashesCount = 2;
   static const bool useBatchForHistory = true;
 
-  static const List<BitcoinAddressType> accountProbeAddressTypes = [SegwitAddresType.p2wpkh];
   static const int maxProbAccounts = 3;
 
   static ElectrumBalance _zeroBalance(CryptoCurrency currency) => ElectrumBalance(
@@ -360,7 +360,9 @@ abstract class ElectrumWalletBase
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
-    final supportedTypes = supportedAddressTypes(walletInfo.type);
+    // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
+    final supportedTypes =
+    accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
@@ -513,8 +515,19 @@ abstract class ElectrumWalletBase
 
     walletAddresses.currentAccountIndex = accountIndex;
 
+
+    final currentPageType = walletAddresses.addressPageType;
+    if (currentPageType is! LightningAddressType &&
+        currentPageType != SilentPaymentsAddresType.p2sp) {
+      await walletAddresses.setAddressType(currentPageType);
+    }
+
+    // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
     if (isNewAccount) {
-      await walletAddresses.prepareAccountAddresses(accountIndex);
+      await walletAddresses.prepareAccountAddresses(
+        accountIndex,
+        types: accountIndex == 0 ? null : EXTRA_ACCOUNT_ADDRESS_TYPES,
+      );
     }
 
     walletAddresses.updateAddressesByMatch();
@@ -3308,11 +3321,11 @@ abstract class ElectrumWalletBase
         walletAddresses.accountIndexes.add(accountIndex);
         await walletAddresses.prepareAccountAddresses(
           accountIndex,
-          types: isAccountProbe ? accountProbeAddressTypes : null,
+          types: isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : null,
         );
       }
 
-      final probeTypes = isAccountProbe ? accountProbeAddressTypes : BITCOIN_ADDRESS_TYPES;
+      final probeTypes = isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : BITCOIN_ADDRESS_TYPES;
 
       for (final addressType in probeTypes) {
         if (shouldUseBatchFetching) {
@@ -3344,33 +3357,6 @@ abstract class ElectrumWalletBase
           walletAddresses.removeAddressesForAccount(accountIndex);
         }
         break;
-      }
-
-      // The probe only generated and scanned accountProbeAddressTypes.
-      // The account is real, so fill in the remaining types.
-      if (isAccountProbe) {
-        printV('[ACCOUNT_DISCOVERY] account $accountIndex, '
-            'probe=${isAccountProbe}, types=${probeTypes.length}');
-        await walletAddresses.prepareAccountAddresses(accountIndex);
-
-        final remainingTypes =
-        BITCOIN_ADDRESS_TYPES.where((t) => !accountProbeAddressTypes.contains(t));
-
-        for (final addressType in remainingTypes) {
-          if (shouldUseBatchFetching) {
-            await fetchTransactionsForAddressTypeBatch(
-              historiesWithDetails,
-              addressType,
-              accountIndex: accountIndex,
-            );
-          } else {
-            await fetchTransactionsForAddressType(
-              historiesWithDetails,
-              addressType,
-              accountIndex: accountIndex,
-            );
-          }
-        }
       }
 
       // If the account has history, add it to the wallet (if it's not the first account).

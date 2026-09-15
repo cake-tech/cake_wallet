@@ -14,6 +14,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
@@ -40,6 +41,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -728,6 +730,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if(option == BitcoinReceivePageOption.silent_payments) {
       return hasSilentPaymentsScanning;
+    }
+
+    // Restrict extra Bitcoin accounts (accountIndex > 0) to the address types
+    if (type == WalletType.bitcoin && currentAccountIndex > 0) {
+      if (option is BitcoinReceivePageOption) {
+        final addressType = option.toType();
+        if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
+          return false;
+        }
+      }
     }
 
     return true;
