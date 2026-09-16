@@ -1266,11 +1266,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: frb_dart
-      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
-      resolved-ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      ref: "62b9330ed2f900535e34d8443ff82dc54070579a"
+      resolved-ref: "62b9330ed2f900535e34d8443ff82dc54070579a"
       url: "https://github.com/fzyzcjy/flutter_rust_bridge"
     source: git
-    version: "2.11.1"
+    version: "2.12.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -3484,12 +3484,10 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "."
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
-    source: git
-    version: "6.24.0"
+      path: "../zkool2-ledger"
+      relative: true
+    source: path
+    version: "6.30.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.19.0"

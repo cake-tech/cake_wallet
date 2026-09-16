@@ -8,6 +8,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -55,7 +56,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       final accounts = await service.getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
-      _nextIndex += limit;
+      // Advance by what came back rather than by the request: a Zcash
+      // Ledger exports one account per on-device approval, so a page holds
+      // one account and the next request must ask for the next index.
+      _nextIndex += accounts.isEmpty ? limit : accounts.length;
     } on Exception catch (e) {
       printV(e);
       error =
@@ -91,6 +95,18 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           height: _options['height'] as int? ?? 0,
           passphrase: _options['passphrase'] as String?,
         );
+        break;
+      case WalletType.zcash:
+        // The viewing key is exported while restoring (the device asks the
+        // user to approve it), so only the connection and the birth height
+        // are collected here.
+        credentials = zcash!.createZcashHardwareWalletCredentials(
+          name: name,
+          hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
+          height: _options['height'] as int?,
+          accountIndex: _options['accountIndex'] as int? ?? 0,
+        );
+        break;
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

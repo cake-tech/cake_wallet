@@ -19,21 +19,28 @@ import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 
 class MoneroHardwareWalletOptionsPage extends BasePage {
-  MoneroHardwareWalletOptionsPage(this._walletHardwareRestoreVM);
+  MoneroHardwareWalletOptionsPage(this._walletHardwareRestoreVM,
+      {this.walletType = WalletType.monero});
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
+
+  /// Which chain the height picker converts dates for; Zcash shares this
+  /// page since it also restores from a birth height.
+  final WalletType walletType;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
+  Widget body(BuildContext context) =>
+      _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM, walletType);
 }
 
 class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
-  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
+  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM, this.walletType);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
+  final WalletType walletType;
 
   @override
   _MoneroHardwareWalletOptionsFormState createState() =>
@@ -125,7 +132,7 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                       focusNode: _blockHeightFocusNode,
                       key: _blockchainHeightKey,
                       hasDatePicker: true,
-                      walletType: WalletType.monero,
+                      walletType: widget.walletType,
                     ),
                   ),
                 ],

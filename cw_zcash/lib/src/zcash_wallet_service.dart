@@ -19,7 +19,7 @@ class ZcashWalletService
           ZcashNewWalletCredentials,
           ZcashFromSeedWalletCredentials,
           ZcashFromKeysWalletCredentials,
-          ZcashNewWalletCredentials
+          ZcashRestoreWalletFromHardware
         > {
   ZcashWalletService();
 
@@ -186,9 +186,17 @@ class ZcashWalletService
   }
 
   @override
-  Future<ZcashWallet> restoreFromHardwareWallet(final ZcashNewWalletCredentials credentials) {
-    throw UnimplementedError(
-      "Restoring a Zcash wallet from a hardware wallet is not yet supported!",
-    );
+  Future<ZcashWallet> restoreFromHardwareWallet(
+    final ZcashRestoreWalletFromHardware credentials,
+  ) {
+    return ZcashWalletBase.restoreFromLedger(credentials);
+  }
+
+  /// A Ledger wallet holds no spending key, so the device has to be reachable
+  /// before it can send; the app asks to reconnect when this is true.
+  @override
+  Future<bool> requireHardwareWalletConnection(final String name) async {
+    final walletInfo = await WalletInfo.get(name, getType());
+    return walletInfo?.hardwareWalletType == HardwareWalletType.ledger;
   }
 }

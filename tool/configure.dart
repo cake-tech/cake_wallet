@@ -1746,6 +1746,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 
 """;
   const zcashCWHeaders = """
@@ -1774,6 +1776,14 @@ abstract class Zcash {
       int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
+  WalletCredentials createZcashHardwareWalletCredentials(
+      {required String name,
+      required HardwareWalletService hardwareWalletService,
+      required int? height,
+      int accountIndex = 0,
+      WalletInfo? walletInfo});
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);

@@ -1,3 +1,5 @@
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_zcash/src/zcash_ledger_service.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -62,6 +64,15 @@ abstract class ZcashWalletBase
   }
 
   int accountId;
+
+  /// Set while a Ledger is connected. A wallet paired with one holds no
+  /// spending key, so every transaction is signed through this service.
+  HardwareWalletService? hardwareWalletService;
+
+  bool get isLedgerWallet => walletInfo.hardwareWalletType == HardwareWalletType.ledger;
+
+  /// `accounts.hw` code the backend uses for the Official Ledger app.
+  static const int zkoolHwOfficialLedger = 2;
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
@@ -434,6 +445,15 @@ abstract class ZcashWalletBase
     }
   }
 
+  /// Pools a send may draw from: the newest shielded pool, plus transparent
+  /// for a Ledger wallet. Its transparent funds are never auto-shielded (that
+  /// would need the device from a background sync), so they are spent
+  /// directly instead of sitting unusable; the Official app signs them.
+  int _sourcePools(final bool ironwood) {
+    final shielded = ironwood ? 8 : 4;
+    return isLedgerWallet ? shielded | 1 : shielded;
+  }
+
   @override
   Future<PendingTransaction> createTransaction(final Object credentials) =>
       _createTransaction(credentials);
@@ -487,11 +507,10 @@ abstract class ZcashWalletBase
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: ironwood ? 8 : 4,
+              srcPools: _sourcePools(ironwood),
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
-              mode: 0,
-            ),
+              ),
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
@@ -1260,6 +1279,12 @@ abstract class ZcashWalletBase
     if (syncStatus is! SyncedSyncStatus) {
       return;
     }
+    // Shielding signs locally. A Ledger wallet has no spending key, and a
+    // background sync is no place to prompt on the device, so its transparent
+    // funds are left alone and spent directly (see _sourcePools).
+    if (isHardwareWallet) {
+      return;
+    }
     final txId = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1282,7 +1307,6 @@ abstract class ZcashWalletBase
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -1326,6 +1350,11 @@ abstract class ZcashWalletBase
 
   Future<void> _$ironwoodMigrate() async {
     if (syncStatus is! SyncedSyncStatus) {
+      return;
+    }
+    // Same as shielding: migrating needs the device, and a Ledger account only
+    // ever holds transparent and Ironwood funds anyway.
+    if (isHardwareWallet) {
       return;
     }
     final event = await runWithCoin(
@@ -1659,6 +1688,9 @@ abstract class ZcashWalletBase
     if (credentials is ZcashFromKeysWalletCredentials) {
       return ZcashNetwork.fromIndex(credentials.network);
     }
+    if (credentials is ZcashRestoreWalletFromHardware) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
     return ZcashNetwork.mainnet;
   }
 
@@ -1698,11 +1730,17 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+  /// Loads the native library without opening a database, for callers that
+  /// only need pure key or device operations before any wallet exists.
+  static Future<void> ensureRustLib() async {
     if (!_rustInitialized) {
       await zkool_frb.RustLib.init();
       _rustInitialized = true;
     }
+  }
+
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    await ensureRustLib();
     if (_initialized && _activeNetwork == network) {
       return;
     }
@@ -1741,23 +1779,84 @@ abstract class ZcashWalletBase
     required final int height,
     required final String seed,
     required final String passphrase,
+    final int hw = 0,
+    final int aindex = 0,
+    final int? pools,
   }) async {
     final id = await zkool_account.newAccount(
       na: zkool_account.NewAccount(
         name: name,
         restore: true,
         passphrase: passphrase,
+        // For a hardware account this is the unified viewing key the device
+        // exported; the backend stores it as a watch-only account.
         key: seed,
-        aindex: 0,
+        // The device derives its keys at this ZIP-32 index and refuses to
+        // sign for any other, so it is carried through verbatim.
+        aindex: aindex,
         birth: height,
         folder: '',
         useInternal: true,
         internal: false,
-        ledger: false,
+        pools: pools,
+        hw: hw,
       ),
       c: c,
     );
     return id;
+  }
+
+  /// Pairs a Ledger running the Official Zcash app as a watch-only wallet.
+  ///
+  /// The unified viewing key is exported by the device here, approved on its
+  /// screen, then stored as an Official Ledger account: the backend tracks
+  /// transparent and Ironwood funds and builds transactions from it, while
+  /// signing goes back to the device.
+  static Future<ZcashWallet> restoreFromLedger(
+    final ZcashRestoreWalletFromHardware credentials,
+  ) async {
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
+
+    final service = credentials.hardwareWalletService;
+    if (service is! ZcashLedgerService) {
+      throw Exception("A Ledger connection is required to restore a Zcash hardware wallet");
+    }
+    final accounts = await service.getAvailableAccounts(
+      index: credentials.accountIndex,
+      limit: 1,
+    );
+    final ufvk = accounts.firstOrNull?.xpub;
+    if (ufvk == null || ufvk.isEmpty) {
+      throw Exception("The Ledger did not return a viewing key");
+    }
+
+    // Without a date from the user, start at Sapling activation: nothing a
+    // Ledger account can hold predates it, and Ledger Live has held
+    // transparent ZEC since then.
+    final height = (credentials.height ?? 0) > 0
+        ? credentials.height!
+        : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+
+    final accountId = await newAccount(
+      name: credentials.name,
+      height: height,
+      seed: ufvk,
+      passphrase: '',
+      hw: zkoolHwOfficialLedger,
+      aindex: credentials.accountIndex,
+    );
+    await saveAccountId(credentials.name, accountId);
+    final wallet = await open(
+      name: credentials.name,
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+    );
+    wallet.hardwareWalletService = service;
+    await wallet.init();
+    printV("ledger account $accountId paired from height $height");
+    return wallet;
   }
 
   static final runWithCoinMutex = Mutex();
@@ -1781,7 +1880,8 @@ abstract class ZcashWalletBase
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
     newC = await newC.setLwd(serverType: c.serverType, url: c.url);
-    newC = await newC.setUseTor(useTor: c.useTor);
+    // Same route to the server as the shared coin (direct, Tor, proxy).
+    newC = newC.setTransport(transport: c.transport).setProxy(proxy: c.proxy);
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");
