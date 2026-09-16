@@ -6,22 +6,22 @@ class FrozenCoinsStore {
 
   static const tableName = "FrozenCoin";
 
-  Future<Set<String>> frozenIds(String walletId) async {
+  Future<Set<String>> frozenIds(int walletInfoId) async {
     final rows = await db!.query(
       tableName,
       columns: ["id"],
-      where: "walletId = ? AND frozen = 1",
-      whereArgs: [walletId],
+      where: "walletInfoId = ? AND frozen = 1",
+      whereArgs: [walletInfoId],
     );
     return rows.map((row) => row["id"]! as String).toSet();
   }
 
-  Future<void> setFrozen(String walletId, String id, bool frozen) => db!.insert(
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) => db!.insert(
         tableName,
-        {"walletId": walletId, "id": id, "frozen": frozen ? 1 : 0},
+        {"walletInfoId": walletInfoId, "id": id, "frozen": frozen ? 1 : 0},
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
-  Future<void> deleteWallet(String walletId) =>
-      db!.delete(tableName, where: "walletId = ?", whereArgs: [walletId]);
+  Future<void> deleteWallet(int walletInfoId) =>
+      db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
 }

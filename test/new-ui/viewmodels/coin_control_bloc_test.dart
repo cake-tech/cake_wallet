@@ -50,7 +50,9 @@ class _FakeWallet extends WalletBase<Balance, _History, TransactionInfo>
             address: "",
           ),
           DerivationInfo(),
-        );
+        ) {
+    walletInfo.internalId = 1;
+  }
 
   @override
   List<Unspent> unspents;
@@ -182,7 +184,7 @@ class _FakeWallet extends WalletBase<Balance, _History, TransactionInfo>
 /// Notes are read and written through the global store rather than the wallet,
 /// so the Bloc is given an in-memory one.
 class _FakeNotesStore extends CoinNotesStore {
-  final Map<String, Map<String, String>> _byWallet = {};
+  final Map<int, Map<String, String>> _byWallet = {};
 
   /// What was written, in the order it landed.
   final List<String> writes = [];
@@ -190,21 +192,21 @@ class _FakeNotesStore extends CoinNotesStore {
   Duration writeDelay = Duration.zero;
   bool failWrites = false;
 
-  Map<String, String> records(String walletId) => _byWallet.putIfAbsent(walletId, () => {});
+  Map<String, String> records(int walletInfoId) => _byWallet.putIfAbsent(walletInfoId, () => {});
 
   @override
-  Future<Map<String, String>> forWallet(String walletId) async => Map.of(records(walletId));
+  Future<Map<String, String>> forWallet(int walletInfoId) async => Map.of(records(walletInfoId));
 
   @override
-  Future<void> save(String walletId, String id, String note) async {
+  Future<void> save(int walletInfoId, String id, String note) async {
     if (failWrites) throw Exception("database is locked");
     if (writeDelay > Duration.zero) await Future<void>.delayed(writeDelay);
-    records(walletId)[id] = note;
+    records(walletInfoId)[id] = note;
     writes.add(note);
   }
 
   @override
-  Future<void> deleteWallet(String walletId) async => _byWallet.remove(walletId);
+  Future<void> deleteWallet(int walletInfoId) async => _byWallet.remove(walletInfoId);
 }
 
 void main() {
@@ -288,7 +290,7 @@ void main() {
     });
 
     test("carries notes onto the rows", () async {
-      notes.records(wallet.id)[a.id] = "rent";
+      notes.records(wallet.walletInfo.internalId)[a.id] = "rent";
 
       final state = await loaded(build());
       expect(state.rowFor(a.id)!.note, "rent");
@@ -348,7 +350,7 @@ void main() {
 
       // The whole difference between unselecting and freezing.
       expect(wallet.frozenRecords, isEmpty);
-      expect(notes.records(wallet.id), isEmpty);
+      expect(notes.records(wallet.walletInfo.internalId), isEmpty);
       await bloc.close();
     });
 
@@ -481,7 +483,7 @@ void main() {
       await bloc.stream.take(2).last;
 
       expect(wallet.frozenRecords[b.id], isTrue);
-      expect(notes.records(wallet.id)[b.id], "cold");
+      expect(notes.records(wallet.walletInfo.internalId)[b.id], "cold");
 
       // The row that ends up emitted can be missing one of the two: each
       // handler rebuilds it from the state its own write started with, so
@@ -590,7 +592,7 @@ void main() {
       final state = await loaded(bloc);
 
       expect(state.rowFor(a.id)!.note, "cold storage");
-      expect(notes.records(wallet.id)[a.id], "cold storage");
+      expect(notes.records(wallet.walletInfo.internalId)[a.id], "cold storage");
       await bloc.close();
     });
 
@@ -616,7 +618,7 @@ void main() {
       final state = await loaded(bloc);
 
       expect(state.rowFor(a.id)!.note, isEmpty);
-      expect(notes.records(wallet.id).length, 1);
+      expect(notes.records(wallet.walletInfo.internalId).length, 1);
       await bloc.close();
     });
   });

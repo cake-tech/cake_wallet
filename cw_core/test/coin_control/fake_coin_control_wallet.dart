@@ -31,6 +31,7 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
     required this.unspents,
     required this.frozenCoinsStore,
     this.coinTypeOf,
+    int internalId = 1,
     WalletType type = WalletType.bitcoin,
   }) : super(
           WalletInfo.external(
@@ -45,7 +46,10 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
             address: "",
           ),
           DerivationInfo(),
-        );
+        ) {
+    // WalletInfo.external cannot take one, as sqlite assigns it on first save.
+    walletInfo.internalId = internalId;
+  }
 
   @override
   List<Unspent> unspents;

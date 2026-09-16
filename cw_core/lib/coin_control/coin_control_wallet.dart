@@ -16,10 +16,10 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
 
   FrozenCoinsStore get frozenCoinsStore => FrozenCoinsStore.instance;
 
-  Future<Set<String>> frozenIds() => frozenCoinsStore.frozenIds(id);
+  Future<Set<String>> frozenIds() => frozenCoinsStore.frozenIds(walletInfo.internalId);
 
   Future<void> setFrozen(String coinId, bool frozen) async {
-    await frozenCoinsStore.setFrozen(id, coinId, frozen);
+    await frozenCoinsStore.setFrozen(walletInfo.internalId, coinId, frozen);
     await refreshBalanceAfterFreeze();
   }
 
@@ -27,8 +27,8 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
 
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) => true;
 
-  Future<List<Unspent>> spendableCoins(
-     {CoinSelection selection = const AllCoinSelection(),
+  Future<List<Unspent>> spendableCoins({
+    CoinSelection selection = const AllCoinSelection(),
     UnspentCoinType coinType = UnspentCoinType.any,
   }) async {
     final frozen = await frozenIds();
@@ -48,7 +48,5 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
         .fold<int>(0, (sum, coin) => sum + coin.value);
   }
 
-
   Uri? coinControlUrl(String txId) => null;
-
 }

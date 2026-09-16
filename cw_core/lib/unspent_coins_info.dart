@@ -92,17 +92,16 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
     final box = await CakeHive.openBox<UnspentCoinsInfo>(boxName);
 
     for (final record in box.values.toList()) {
-      final type = wallets
+      final wallet = wallets
           .cast<WalletInfo?>()
-          .firstWhere((item) => item!.id == record.walletId, orElse: () => null)
-          ?.type;
+          .firstWhere((item) => item!.id == record.walletId, orElse: () => null);
 
-      if (type == null) {
+      if (wallet == null) {
         continue;
       }
 
       try {
-        await record.migrateToSqlite(type);
+        await record.migrateToSqlite(wallet);
         await record.delete();
       } catch (e) {
         printV("Error migrating unspent record ${record.walletId}: $e, continuing anyway");
@@ -110,18 +109,16 @@ class UnspentCoinsInfo extends HiveObject with UnspentComparable {
     }
   }
 
-  Future<void> migrateToSqlite(WalletType walletType) async {
-    final id = _outputId(walletType);
+  Future<void> migrateToSqlite(WalletInfo wallet) async {
+    final id = _outputId(wallet.type);
 
     if (note.isNotEmpty) {
-      await CoinNotesStore.instance.save(walletId, id, note);
+      await CoinNotesStore.instance.save(wallet.internalId, id, note);
     }
-    if (walletType != WalletType.monero) {
-      await FrozenCoinsStore.instance.setFrozen(walletId, id, isFrozen);
+    if (wallet.type != WalletType.monero) {
+      await FrozenCoinsStore.instance.setFrozen(wallet.internalId, id, isFrozen);
     }
-
   }
-
 
   String _outputId(WalletType walletType) {
     if (keyImage != null && keyImage!.isNotEmpty) {

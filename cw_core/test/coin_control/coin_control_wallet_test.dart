@@ -83,7 +83,7 @@ void main() {
     });
 
     test("another wallet's frozen record does not affect this one", () async {
-      await store.setFrozen("wallet-b", b.id, true);
+      await store.setFrozen(otherWalletId, b.id, true);
 
       final spendable = await wallet.spendableCoins();
       expect(spendable, hasLength(3));
@@ -228,11 +228,14 @@ void main() {
     });
 
     test("ignores another wallet's frozen records", () async {
-      await store.setFrozen("wallet-b", a.id, true);
+      await store.setFrozen(otherWalletId, a.id, true);
       expect(await wallet.frozenBalance(), 0);
     });
   });
 }
+
+/// A second wallet's rows, which must never reach the wallet under test.
+const otherWalletId = 2;
 
 class _CountingStore implements FrozenCoinsStore {
   _CountingStore(this._inner);
@@ -241,28 +244,28 @@ class _CountingStore implements FrozenCoinsStore {
   int frozenIdsCalls = 0;
 
   @override
-  Future<Set<String>> frozenIds(String walletId) {
+  Future<Set<String>> frozenIds(int walletInfoId) {
     frozenIdsCalls++;
-    return _inner.frozenIds(walletId);
+    return _inner.frozenIds(walletInfoId);
   }
 
   @override
-  Future<void> setFrozen(String walletId, String id, bool frozen) =>
-      _inner.setFrozen(walletId, id, frozen);
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) =>
+      _inner.setFrozen(walletInfoId, id, frozen);
 
   @override
-  Future<void> deleteWallet(String walletId) => _inner.deleteWallet(walletId);
+  Future<void> deleteWallet(int walletInfoId) => _inner.deleteWallet(walletInfoId);
 }
 
 /// Fails every write, to prove the balance is only republished once one lands.
 class _FailingStore implements FrozenCoinsStore {
   @override
-  Future<Set<String>> frozenIds(String walletId) async => {};
+  Future<Set<String>> frozenIds(int walletInfoId) async => {};
 
   @override
-  Future<void> setFrozen(String walletId, String id, bool frozen) async =>
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) async =>
       throw Exception("database is locked");
 
   @override
-  Future<void> deleteWallet(String walletId) async {}
+  Future<void> deleteWallet(int walletInfoId) async {}
 }
