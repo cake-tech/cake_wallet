@@ -121,6 +121,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadConnectedDevices();
+
       _bleStateTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) => widget.hardwareWalletVM.updateBleState(),
@@ -169,10 +171,36 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       if (usbDevices.length != dev.length) {
         setState(() => usbDevices = dev);
       }
-    } catch(e) {
+    } catch (e) {
       printV(e);
     }
     _isRefreshingUsb = false;
+  }
+
+  /// Devices that already hold a live connection never show up in a BLE scan
+  /// (a connected peripheral stops advertising), so list them up front.
+  Future<void> _loadConnectedDevices() async {
+    try {
+      final connected = await widget.hardwareWalletVM.getConnectedDevices();
+      if (!mounted || connected.isEmpty) return;
+      setState(() {
+        for (final device in connected) {
+          _addBleDevice(device);
+        }
+        longWait = false;
+      });
+    } catch (e) {
+      printV(e);
+    }
+  }
+
+  void _addBleDevice(HardwareWalletDevice device) {
+    final alreadyListed = bleDevices.any(
+      (d) => d.name == device.name && d.connectionType == device.connectionType,
+    );
+    if (!alreadyListed) {
+      bleDevices.add(device);
+    }
   }
 
   Future<void> _refreshBleDevices() async {
@@ -180,7 +208,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       if (widget.hardwareWalletVM.isBleEnabled) {
         _bleRefresh = widget.hardwareWalletVM.scanForBleDevices().listen(
               (device) => setState(() {
-                bleDevices.add(device);
+                _addBleDevice(device);
                 if (longWait) {
                   longWait = false;
                 }

@@ -206,7 +206,11 @@ class NewSendPage extends StatefulWidget {
 }
 
 class _NewSendPageState extends State<NewSendPage> {
-  int _selectedOutput = 0;
+  // Observable so the per-output reactions below re-track the currently
+  // selected recipient instead of staying bound to the first one.
+  final Observable<int> _selectedOutputIndex = Observable(0);
+
+  int get _selectedOutput => _selectedOutputIndex.value;
 
   final _amountControllers = <TextEditingController>[];
   final _addressControllers = <TextEditingController>[];
@@ -568,9 +572,14 @@ class _NewSendPageState extends State<NewSendPage> {
                                             fiatCurrencySymbol:
                                                 widget.sendViewModel.fiatCurrency.symbol,
                                             onAllButtonPressed: () async {
+                                              final index = _selectedOutput;
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,
                                               );
+                                              // Populate directly as well; the
+                                              // reaction only fires on a change.
+                                              output.isFiatEntry = false;
+                                              _amountControllers[index].text = S.current.all;
                                               await output.calculateEstimatedFee();
                                             },
                                           ),
@@ -743,7 +752,7 @@ class _NewSendPageState extends State<NewSendPage> {
 
   void _setOutput(int index) {
     setState(() {
-      _selectedOutput = index;
+      runInAction(() => _selectedOutputIndex.value = index);
     });
     // final output = widget.sendViewModel.outputs[index];
     // _amountController.text = _fiatInputMode ? output.fiatAmount : output.cryptoAmount;
@@ -1081,7 +1090,7 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (_selectedOutput != 0) {
-      setState(() => _selectedOutput = 0);
+      _setOutput(0);
     }
 
     final request = await widget.sendViewModel.getOpenCryptoPayRequest(input);

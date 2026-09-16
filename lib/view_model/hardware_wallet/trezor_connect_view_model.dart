@@ -6,6 +6,7 @@ import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/secure_storage.dart";
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart";
@@ -139,6 +140,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   Completer<String?>? _pinCompleter;
   Completer<TrezorDeviceSettings>? _settingsCompleter;
+  Completer<bool>? _retryCompleter;
+  bool _isPairingCancelled = false;
 
   /// Settings to apply on the next [connectDevice] instead of asking the user.
   /// Set by [prepareReconnect] and consumed by [connectDevice].
@@ -151,17 +154,43 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @observable
   TrezorParingState paringState = TrezorParingState.initial;
 
-  void setParingPin(String pin) => _pinCompleter?.complete(pin);
+  void setParingPin(String pin) => _complete(_pinCompleter, pin);
 
-  void setDeviceSettings(TrezorDeviceSettings settings) => _settingsCompleter?.complete(settings);
+  void setDeviceSettings(TrezorDeviceSettings settings) => _complete(_settingsCompleter, settings);
+
+  /// Called by the pairing sheet when the user taps "Try again" after a failed
+  /// attempt. The pending [connectDevice] call runs another attempt and reports
+  /// the final outcome to its caller, so the caller never loses track of a
+  /// connection that only succeeded on a retry.
+  void retryPairing() => _complete(_retryCompleter, true);
+
+  /// Called by the pairing sheet when the user exits it. Unblocks whatever the
+  /// pending [connectDevice] call is waiting on (pairing code, settings, retry
+  /// or an on-device prompt) so it can clean up and return false instead of
+  /// hanging with [isConnecting] stuck at true.
+  Future<void> cancelPairing() async {
+    _isPairingCancelled = true;
+    _complete(_pinCompleter, null);
+    _complete(_retryCompleter, false);
+    if (!(_settingsCompleter?.isCompleted ?? true)) {
+      _settingsCompleter!.completeError(const _PairingCancelledException());
+    }
+    try {
+      await _client?.cancel();
+    } catch (e) {
+      printV(e);
+    }
+  }
+
+  static void _complete<T>(Completer<T>? completer, T value) {
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(value);
+    }
+  }
 
   @override
   @action
-  Future<bool> connectDevice(
-    HardwareWalletDevice device,
-    WalletType type, [
-    bool isRetry = false,
-  ]) async {
+  Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
     if (device is! TrezorHardwareWalletDevice) {
       return false;
     }
@@ -169,6 +198,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       return false;
     }
     isConnecting = true;
+    _isPairingCancelled = false;
     paringState = TrezorParingState.initial;
 
     // A reconnect for a wallet we already know reuses the settings it was set
@@ -178,100 +208,151 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     final preset = _presetSettings;
     _presetSettings = null;
 
+    unawaited(
+      showModalBottomSheet(
+        context: navigatorKey.currentContext!,
+        isScrollControlled: true,
+        isDismissible: false,
+        enableDrag: false,
+        useSafeArea: true,
+        builder: (_) => HardwareWalletProceedOnDeviceSheet(
+          hardwareWalletType: hardwareWalletType,
+          trezorConnectVM: this,
+        ),
+      ),
+    );
+
     try {
-      final trezorInterface =
-          device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
-      final connection = await trezorInterface.connect(device.device);
+      while (true) {
+        try {
+          await _connect(device, preset);
+          paringState = TrezorParingState.success;
+          return true;
+        } catch (e) {
+          await _resetClient();
+          if (_isPairingCancelled || e is _PairingCancelledException) {
+            return false;
+          }
+          printV(e);
+          paringState = TrezorParingState.fail(e.toString());
 
-      if (!isRetry) {
-        unawaited(
-          showModalBottomSheet(
-            context: navigatorKey.currentContext!,
-            isScrollControlled: true,
-            isDismissible: false,
-            enableDrag: false,
-            useSafeArea: true,
-            builder: (_) => HardwareWalletProceedOnDeviceSheet(
-              hardwareWalletType: hardwareWalletType,
-              trezorConnectVM: this,
-              onRetry: () => connectDevice(device, type, true),
-            ),
-          ),
-        );
-      }
-
-      Future<String> onPinCode() async {
-        _pinCompleter = Completer<String?>();
-        paringState = TrezorParingState.enterPin;
-
-        final res = await _pinCompleter!.future;
-        paringState = TrezorParingState.verifyingPin;
-        if (res == null) {
-          throw Exception();
-        }
-        return res;
-      }
-
-      final deviceInfo = await _deviceName;
-
-      _state ??= await _getState();
-      _client = sdk.TrezorClient.getClientForConnection(
-        connection,
-        _state!,
-        "Cake Wallet",
-        deviceInfo,
-        onPinCode,
-      );
-
-      await _client!.createChannel();
-
-      final hasAutoPairingCredentials =
-          _state!.pairingCredentials.any((c) => c.autoconnect == true);
-      final isAutoPairingAvailable = _client is sdk.TrezorClientV2 && !hasAutoPairingCredentials;
-
-      final TrezorDeviceSettings settings;
-      if (preset != null) {
-        settings = preset;
-      } else {
-        paringState =
-            TrezorParingState.awaitingSettings(isAutoPairingAvailable: isAutoPairingAvailable);
-        _settingsCompleter = Completer<TrezorDeviceSettings>();
-        settings = await _settingsCompleter!.future;
-      }
-
-      paringState = TrezorParingState.awaitingPassphrase;
-      if (settings.enableAutoParing && isAutoPairingAvailable) {
-        if (_client case final sdk.TrezorClientV2 clientV2) {
-          try {
-            final auto = await clientV2.getAutoPairingCredentials();
-            _state!.setPairingCredentials([auto]);
-            await _saveState();
-          } catch (_) {}
+          // Keep the sheet (and this call) alive until the user decides to
+          // retry or to give up, so a retry's success reaches our caller.
+          _retryCompleter = Completer<bool>();
+          if (!await _retryCompleter!.future) {
+            return false;
+          }
+          paringState = TrezorParingState.initial;
         }
       }
-
-      if ((settings.passphrase ?? "").isNotEmpty || settings.passphraseOnDevice) {
-        final passphrase = settings.passphraseOnDevice
-            ? const sdk.TrezorPassphrase.onDevice()
-            : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
-        await _client!.createSession(passphrase);
-      }
-
-      _sessionSettings = settings;
-      paringState = TrezorParingState.success;
-      return true;
-    } catch (e) {
-      await _client?.connection.disconnect();
-      _client = null;
-      _sessionSettings = null;
-      _state = sdk.ThpState();
-      // rethrow;
-      paringState = TrezorParingState.fail(e.toString());
-      printV(e);
-      return false;
     } finally {
       isConnecting = false;
+      _retryCompleter = null;
+      _pinCompleter = null;
+      _settingsCompleter = null;
     }
+  }
+
+  /// One connection attempt. Throws on any failure; the caller decides whether
+  /// to retry.
+  Future<void> _connect(TrezorHardwareWalletDevice device, TrezorDeviceSettings? preset) async {
+    final trezorInterface =
+        device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
+    final connection = await trezorInterface.connect(device.device);
+
+    Future<String> onPinCode() async {
+      _pinCompleter = Completer<String?>();
+      paringState = TrezorParingState.enterPin;
+
+      final res = await _pinCompleter!.future;
+      if (res == null) {
+        throw const _PairingCancelledException();
+      }
+      paringState = TrezorParingState.verifyingPin;
+      return res;
+    }
+
+    // Every attempt starts from a fresh THP channel built on the persisted
+    // pairing credentials. Reusing the in-memory state of an earlier session
+    // would skip the handshake and talk on a channel the device may have
+    // dropped in the meantime, which the device rejects with
+    // ThpUnallocatedChannel.
+    final state = await _loadState();
+    _state = state;
+    _client = sdk.TrezorClient.getClientForConnection(
+      connection,
+      state,
+      "Cake Wallet",
+      await _deviceName,
+      onPinCode,
+    );
+
+    final client = _client!;
+    await client.createChannel();
+
+    final hasAutoPairingCredentials = state.pairingCredentials.any((c) => c.autoconnect == true);
+    final isAutoPairingAvailable = client is sdk.TrezorClientV2 && !hasAutoPairingCredentials;
+
+    // With "passphrase always on device" enabled the device already asked for
+    // the passphrase while the channel (and its initial session) was created,
+    // so the session is bound to what the user entered there. Asking in the
+    // app or creating a second session would only prompt them a second time.
+    final passphraseAlwaysOnDevice = client.passphraseAlwaysOnDevice;
+
+    final TrezorDeviceSettings settings;
+    if (preset != null) {
+      settings = preset;
+    } else if (!isAutoPairingAvailable && passphraseAlwaysOnDevice) {
+      // Nothing left for the user to decide.
+      settings = const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true);
+    } else {
+      paringState = TrezorParingState.awaitingSettings(
+        isAutoPairingAvailable: isAutoPairingAvailable,
+        passphraseAlwaysOnDevice: passphraseAlwaysOnDevice,
+      );
+      _settingsCompleter = Completer<TrezorDeviceSettings>();
+      settings = await _settingsCompleter!.future;
+    }
+
+    if (settings.enableAutoParing && isAutoPairingAvailable) {
+      if (client case final sdk.TrezorClientV2 clientV2) {
+        try {
+          final auto = await clientV2.getAutoPairingCredentials();
+          state.setPairingCredentials([auto]);
+          await _saveState();
+        } catch (e) {
+          printV(e);
+        }
+      }
+    }
+
+    final usesPassphrase = settings.passphraseOnDevice || (settings.passphrase ?? "").isNotEmpty;
+    if (usesPassphrase && !passphraseAlwaysOnDevice) {
+      paringState = TrezorParingState.awaitingPassphrase;
+      final passphrase = settings.passphraseOnDevice
+          ? const sdk.TrezorPassphrase.onDevice()
+          : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
+      await client.createSession(passphrase);
+    } else {
+      paringState = TrezorParingState.initial;
+    }
+
+    _sessionSettings = passphraseAlwaysOnDevice
+        ? TrezorDeviceSettings(
+            enableAutoParing: settings.enableAutoParing,
+            passphraseOnDevice: true,
+          )
+        : settings;
+  }
+
+  Future<void> _resetClient() async {
+    try {
+      await _client?.connection.disconnect();
+    } catch (e) {
+      printV(e);
+    }
+    _client = null;
+    _sessionSettings = null;
   }
 
   Future<String> get _deviceName async {
@@ -289,6 +370,38 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   bool isConnected(WalletType type) => trezorUseNative.contains(type)
       ? _client != null && _client?.connection.isDisconnected == false
       : true;
+
+  @override
+  Future<List<HardwareWalletDevice>> getConnectedDevices() async {
+    final devices = <HardwareWalletDevice>[];
+    try {
+      // A Trezor with a live BLE link stops advertising, so a scan never lists
+      // it; the SDK's connection manager still knows about it.
+      if (_bleIsInitialized) {
+        devices.addAll((await trezorBLE.devices).map(TrezorHardwareWalletDevice.new));
+      }
+    } catch (e) {
+      printV(e);
+    }
+    return devices;
+  }
+
+  /// Trezor errors carry their own description, so surface it instead of
+  /// letting callers fall back to a generic (Ledger) connection error and
+  /// silently bail out of the flow.
+  @override
+  String? interpretErrorCode(String error) {
+    if (error.contains("ThpDeviceLocked")) {
+      return S.current.trezor_error_device_locked;
+    }
+    if (error.contains("ThpUnallocatedChannel") || error.contains("ThpDecryptionFailed")) {
+      return S.current.trezor_error_channel_lost;
+    }
+    if (error.contains("DeviceNotConnectedException") || error.contains("isDisconnected")) {
+      return S.current.trezor_error_disconnected;
+    }
+    return error;
+  }
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
@@ -408,23 +521,26 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   Future<String> get _thpJsonFile async => "${(await getAppDir()).path}/thp_state.json.enc";
 
-  Future<sdk.ThpState> _getState() async {
-    final password = await _secureStorage.read(key: _secureStorageKey);
-    if (password == null) {
-      return _saveState();
-    }
+  /// Builds a fresh [sdk.ThpState] (no channel, handshake phase) carrying the
+  /// persisted pairing credentials, or an empty one when nothing is persisted.
+  Future<sdk.ThpState> _loadState() async {
     try {
+      final password = await _secureStorage.read(key: _secureStorageKey);
+      if (password == null) {
+        return sdk.ThpState();
+      }
       final state = await _encryptionFileUtils.read(path: await _thpJsonFile, password: password);
       return sdk.ThpState.fromJson(state);
-    } catch (_) {
-      return _saveState();
+    } catch (e) {
+      printV(e);
+      return sdk.ThpState();
     }
   }
 
-  Future<sdk.ThpState> _saveState() async {
+  Future<void> _saveState() async {
     try {
-      final password = generateKey();
-      await _secureStorage.write(key: _secureStorageKey, value: password);
+      final password =
+          await _secureStorage.read(key: _secureStorageKey) ?? await _createStatePassword();
 
       final file = File(await _thpJsonFile);
       if (!file.existsSync()) {
@@ -437,11 +553,15 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         password: password,
         data: jsonEncode(state.toMap()),
       );
-      _state = state;
-      return state;
     } catch (_) {
       throw Exception("Unable to save Trezor State");
     }
+  }
+
+  Future<String> _createStatePassword() async {
+    final password = generateKey();
+    await _secureStorage.write(key: _secureStorageKey, value: password);
+    return password;
   }
 
   Future<bool> syncKeyImages(WalletBase wallet) async {
@@ -463,8 +583,14 @@ abstract class TrezorParingState {
   static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
   static TrezorParingState awaitingPassphrase = AwaitingPassphraseTrezorParingState();
 
-  static TrezorParingState awaitingSettings({required bool isAutoPairingAvailable}) =>
-      AwaitingSettingsTrezorParingState(isAutoPairingAvailable: isAutoPairingAvailable);
+  static TrezorParingState awaitingSettings({
+    required bool isAutoPairingAvailable,
+    required bool passphraseAlwaysOnDevice,
+  }) =>
+      AwaitingSettingsTrezorParingState(
+        isAutoPairingAvailable: isAutoPairingAvailable,
+        passphraseAlwaysOnDevice: passphraseAlwaysOnDevice,
+      );
 
   static TrezorParingState fail(String message) => FailTrezorParingState(message);
 }
@@ -476,9 +602,21 @@ class EnterPinTrezorParingState extends TrezorParingState {}
 class VerifyingPinTrezorParingState extends TrezorParingState {}
 
 class AwaitingSettingsTrezorParingState extends TrezorParingState {
-  AwaitingSettingsTrezorParingState({required this.isAutoPairingAvailable});
+  AwaitingSettingsTrezorParingState({
+    required this.isAutoPairingAvailable,
+    required this.passphraseAlwaysOnDevice,
+  });
 
   final bool isAutoPairingAvailable;
+
+  /// The device is configured to always ask for the passphrase on its own
+  /// screen, so there is nothing to configure about it in the app.
+  final bool passphraseAlwaysOnDevice;
+}
+
+/// Thrown inside a connection attempt when the user exits the pairing sheet.
+class _PairingCancelledException implements Exception {
+  const _PairingCancelledException();
 }
 
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}

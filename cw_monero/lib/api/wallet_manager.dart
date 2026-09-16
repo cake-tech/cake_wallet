@@ -217,6 +217,14 @@ void restoreWalletFromKeys(
 
   currentWallet = newW;
 
+  // Pin the refresh height explicitly, as the seed restore does. Relying on the
+  // height passed at creation left hardware (view-only) wallets to wallet2's
+  // date-based estimate, which sits weeks below the requested height.
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
+
   openedWalletsByPath[path] = currentWallet!;
 }
 
@@ -332,6 +340,9 @@ Future<void> restoreWalletFromHardwareWallet(
   }
 
   currentWallet = newW;
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+  }
   currentWallet!.store(path: path);
   openedWalletsByPath[path] = currentWallet!;
 }

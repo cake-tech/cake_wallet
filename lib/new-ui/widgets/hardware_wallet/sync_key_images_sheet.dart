@@ -6,8 +6,10 @@ import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart"
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cw_core/wallet_base.dart";
@@ -33,6 +35,20 @@ class SyncKeyImagesSheet extends StatefulWidget {
 
 class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet> {
   _KeyImageSyncState _state = _KeyImageSyncState.initial;
+  bool _dontShowAgain = false;
+
+  SettingsStore get settingsStore => widget.appStore.settingsStore;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (!settingsStore.shouldShowTrezorResyncInfo) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onContinuePressed();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
@@ -156,6 +172,32 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _dontShowAgain = !_dontShowAgain),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
+                children: [
+                  NewSimpleCheckbox(
+                    value: _dontShowAgain,
+                    onChanged: (value) => setState(() => _dontShowAgain = value),
+                  ),
+                  Flexible(
+                    child: Text(
+                      S.of(context).do_not_show_me,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       );
 
@@ -186,6 +228,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
   );
 
   Future<void> _onContinuePressed() async {
+    if (_dontShowAgain) settingsStore.shouldShowTrezorResyncInfo = false;
+
     setState(() => _state = _KeyImageSyncState.syncing);
 
     if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {

@@ -174,7 +174,9 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
       ),
     );
 
-    final options = <String, dynamic>{"height": _blockchainHeightKey.currentState?.height ?? -1};
+    // 0 means "unknown"; a negative sentinel would cross the FFI boundary as a
+    // huge unsigned restore height.
+    final options = <String, dynamic>{"height": _blockchainHeightKey.currentState?.height ?? 0};
 
     if (_walletHardwareRestoreVM.passphraseAvailable && _passphraseController.text.isNotEmpty) {
       options["passphrase"] = _passphraseController.text;
@@ -191,20 +193,22 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
 
     reaction((_) => _walletHardwareRestoreVM.error, (error) {
       if (error != null) {
-        if (error == S.current.ledger_connection_error) {
-          Navigator.of(context).pop();
-        }
+        // See SelectHardwareWalletAccountPage: show the reason first, then
+        // leave the page on a lost connection.
+        final isConnectionError = error == S.current.ledger_connection_error;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
           showPopUp<void>(
             context: context,
-            builder: (context) => AlertWithOneAction(
-              alertTitle: S.of(context).error,
+            builder: (dialogContext) => AlertWithOneAction(
+              alertTitle: S.of(dialogContext).error,
               alertContent: error,
-              buttonText: S.of(context).ok,
+              buttonText: S.of(dialogContext).ok,
               buttonAction: () {
                 _walletHardwareRestoreVM.error = null;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
+                if (isConnectionError && context.mounted) Navigator.of(context).pop();
               },
             ),
           );

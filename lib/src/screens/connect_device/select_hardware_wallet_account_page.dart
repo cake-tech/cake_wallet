@@ -216,19 +216,24 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
 
     reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
       if (error != null) {
-        if (error == S.current.ledger_connection_error) Navigator.of(context).pop();
+        // A lost connection sends the user back to the connect page, but only
+        // after they have seen why; popping first would show the alert on a
+        // disposed context and silently drop them back.
+        final isConnectionError = error == S.current.ledger_connection_error;
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
           showPopUp<void>(
               context: context,
-              builder: (BuildContext context) {
+              builder: (BuildContext dialogContext) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
+                    alertTitle: S.of(dialogContext).error,
                     alertContent: error,
-                    buttonText: S.of(context).ok,
+                    buttonText: S.of(dialogContext).ok,
                     buttonAction: () {
                       _walletHardwareRestoreVM.error = null;
-                      Navigator.of(context).pop();
+                      Navigator.of(dialogContext).pop();
+                      if (isConnectionError && context.mounted) Navigator.of(context).pop();
                     });
               });
         });

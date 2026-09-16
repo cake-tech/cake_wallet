@@ -392,6 +392,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 return;
               }
 
+              // A device that is already connected (e.g. it was just used for
+              // another wallet) does not advertise and would never show up in
+              // the connect page's scan, so go straight to the accounts.
+              final hardwareWalletVM =
+                  getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType);
+              if (hardwareWalletVM.isConnected(type)) {
+                Navigator.of(context).pushNamed(
+                  Routes.chooseHardwareWalletAccount,
+                  arguments: [type, hardwareWalletType],
+                );
+                return;
+              }
+
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,
