@@ -161,11 +161,8 @@ class SettingsPageSectionsResolver {
         ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/seed.svg',
-          strings.seed_and_keys,
-          Routes.showKeys,
-          routeArgs: true,
-          requireAuth: true,
-          use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          strings.recovery_and_keys,
+          Routes.showKeysDisclaimer,
         ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/other.svg',

@@ -13,6 +13,7 @@ class ModalTopBar extends StatelessWidget {
       this.leadingIcon,
       this.trailingIcon,
       this.padding,
+      this.bottomText,
       this.leadingWidget,
       this.trailingWidget,
       this.titleLeadingWidget,
@@ -28,6 +29,7 @@ class ModalTopBar extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final String? bottomText;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
@@ -52,45 +54,59 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleSwitcher = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      child: Semantics(
-        key: ValueKey(title),
-        header: title.isNotEmpty,
-        // Android reads the heading from headingLevel since the
-        // Flutter 3.41 engine; header: alone only covers iOS.
-        headingLevel: title.isNotEmpty ? 1 : null,
-        child: titleLeadingWidget == null
-            ? Text(
-                title,
-                style: Theme.of(context).textTheme.headlineMedium,
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 12,
-                children: [
-                  ExcludeSemantics(child: titleLeadingWidget),
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
+    final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
+    final titleContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Semantics(
+            key: ValueKey(title),
+            header: title.isNotEmpty,
+            // Android reads the heading from headingLevel since the
+            // Flutter 3.41 engine; header: alone only covers iOS.
+            headingLevel: title.isNotEmpty ? 1 : null,
+            child: titleLeadingWidget == null
+                ? Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontSize: hasBottomText ? 16 : 18,
+                        ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      ExcludeSemantics(child: titleLeadingWidget),
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontSize: hasBottomText ? 16 : 18,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-      ),
+          ),
+        ),
+        if (hasBottomText)
+          Text(
+            bottomText!,
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+      ],
     );
-
     return Padding(
       padding: padding ?? EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           Positioned(
-            top: 6,
+            top: hasBottomText ? -4 : 6,
             left: titleLeadingWidget == null ? null : buttonSize + 8,
             right: titleLeadingWidget == null ? null : buttonSize + 8,
             child: Row(
@@ -98,7 +114,7 @@ class ModalTopBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                if (titleLeadingWidget == null) titleSwitcher else Expanded(child: titleSwitcher),
+                if (titleLeadingWidget == null) titleContent else Expanded(child: titleContent),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(subtitle!,
                       style: Theme.of(context)

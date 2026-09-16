@@ -53,7 +53,7 @@ class LightningSwitcher extends StatelessWidget {
                       transitionBuilder: (child, animation) =>
                           FadeTransition(opacity: animation, child: child),
                       child: CakeImageWidget(
-                        imageUrl: 'assets/new-ui/switcher-bitcoin.svg',
+                        imageUrl: "assets/new-ui/switcher-bitcoin.svg",
                         key: ValueKey(lightningMode),
                         width: 27,
                         height: 27,
@@ -70,7 +70,7 @@ class LightningSwitcher extends StatelessWidget {
                       transitionBuilder: (child, animation) =>
                           FadeTransition(opacity: animation, child: child),
                       child: CakeImageWidget(
-                        imageUrl: 'assets/new-ui/switcher-lightning.svg',
+                        imageUrl: "assets/new-ui/switcher-lightning.svg",
                         key: ValueKey(lightningMode),
                         width: 27,
                         height: 27,

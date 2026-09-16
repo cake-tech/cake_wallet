@@ -85,7 +85,7 @@ dependencies:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: 3aba867dcab6737f6707782f5db15d71f303db38
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
   shared_preferences_android: ^2.4.8
@@ -128,6 +128,11 @@ dependencies:
     git:
       url: https://github.com/cake-tech/trezor_connect
       ref: d1242cea90f84b00200e7bcab914a5af750e23fb
+  trezor_flutter:
+    git:
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      path: trezor-flutter
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
@@ -243,7 +248,7 @@ dev_dependencies:
 #   cake_backup:
 #     git:
 #       url: https://github.com/cake-tech/cake_backup.git
-#       ref: 3aba867dcab6737f6707782f5db15d71f303db38
+#       ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -310,6 +315,7 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/buy_payment_methods/
 
   fonts:
     - family: Lato

@@ -291,27 +291,6 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  bool get replacesWalletName => replacesWalletNameForStatus(
-        dashboardViewModel.status.runtimeType,
-        isSyncHeavy: isSyncHeavy,
-        showSyncedMessage: _isShowingSyncedMessage,
-      );
-
-  static bool replacesWalletNameForStatus(
-    Type status, {
-    required bool isSyncHeavy,
-    required bool showSyncedMessage,
-  }) {
-    if (status == SyncedSyncStatus) {
-      return showSyncedMessage;
-    }
-
-    return isSyncHeavy || progressStatuses.contains(status) || failStatuses.contains(status);
-  }
-
-  bool get hasCompactContent =>
-      dashboardViewModel.isTorEnabled || _showDot() || _showLightSyncCheck();
-
   bool get _showFullBar {
     if (dashboardViewModel.status.runtimeType == SyncedSyncStatus) {
       return isSyncHeavy && _isShowingSyncedMessage;

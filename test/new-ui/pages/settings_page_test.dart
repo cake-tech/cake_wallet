@@ -176,7 +176,7 @@ void main() {
     expect(find.text("My Cake Wallet"), findsOneWidget);
     expect(find.text("Monero ${english.settings_title}"), findsOneWidget);
     expect(find.text(english.privacy), findsOneWidget);
-    expect(find.text(english.seed_and_keys), findsOneWidget);
+    expect(find.text(english.recovery_and_keys), findsOneWidget);
     expect(find.text(english.other), findsOneWidget);
     expect(find.text(english.app_settings), findsOneWidget);
     expect(find.text(english.connections), findsOneWidget);

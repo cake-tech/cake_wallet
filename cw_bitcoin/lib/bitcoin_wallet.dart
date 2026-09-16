@@ -430,7 +430,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       .isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
@@ -447,15 +447,48 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
-        utxo: utxo.utxo,
-        rawTx: rawTx,
-        ownerDetails: utxo.ownerDetails,
-        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint: masterFingerprint,
-        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
-      ));
+      psbtReadyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
     }
+
+    final psbtReadyOutputs = outputs.map((o) {
+      final cwOutput = cwOutputs
+          .where(
+            (e) => [e.address, e.extractedAddress]
+                .map((e) => e?.toLowerCase())
+                .contains(o.address.toAddress().toLowerCase()),
+          )
+          .firstOrNull;
+
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+          outputInfo: cwOutput,
+        );
+      }
+      return PSBTReadyBitcoinOutput(
+        address: o.address,
+        value: o.value,
+        isSilentPayment: o.isSilentPayment,
+        isChange: o.isChange,
+        outputInfo: cwOutput,
+      );
+    }).toList();
 
     final locktime = antiFeeSnipingLocktime(
       chainTip: await getCurrentChainTip(),
@@ -463,17 +496,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs,
-            outputs: outputs,
-            enableRBF: enableRBF,
-            cwOutputs: cwOutputs,
-            locktime: locktime)
-        .psbt;
+      inputs: psbtReadyInputs,
+      outputs: psbtReadyOutputs,
+      enableRBF: enableRBF,
+      locktime: locktime,
+    ).psbt;
   }
 
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,

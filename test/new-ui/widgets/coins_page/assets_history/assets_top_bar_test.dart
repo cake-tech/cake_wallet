@@ -8,7 +8,7 @@ import "package:mocktail/mocktail.dart";
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
 void main() {
-  testWidgets("uses the larger assets gap only for EVM wallets", (tester) async {
+  testWidgets("uses the same assets gap for EVM and non-EVM wallets", (tester) async {
     final dashboardViewModel = _MockDashboardViewModel();
     const tabs = [AssetsHistorySectionTab("Assets", SizedBox.shrink(), null)];
 
@@ -43,7 +43,7 @@ void main() {
 
     expect(
       await pumpTopBar(isEVMWallet: true),
-      const EdgeInsets.only(top: 24, left: 12, right: 18),
+      const EdgeInsets.only(top: 20, left: 12, right: 18),
     );
     expect(
       await pumpTopBar(isEVMWallet: false),

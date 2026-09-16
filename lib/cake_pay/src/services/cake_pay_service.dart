@@ -1,4 +1,5 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -95,29 +96,51 @@ class CakePayService {
     required bool confirmsTermsAgreed,
   }) async {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
-    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
-    return await cakePayApi.createOrder(
-      apiKey: cakePayApiKey,
-      cardId: cardId,
-      price: price,
-      quantity: quantity,
-      token: token,
-      userEmail: userEmail,
-      confirmsNoVpn: confirmsNoVpn,
-      confirmsVoidedRefund: confirmsVoidedRefund,
-      confirmsTermsAgreed: confirmsTermsAgreed,
+    return _withUserToken(
+      (token) => cakePayApi.createOrder(
+        apiKey: cakePayApiKey,
+        cardId: cardId,
+        price: price,
+        quantity: quantity,
+        token: token,
+        userEmail: userEmail,
+        confirmsNoVpn: confirmsNoVpn,
+        confirmsVoidedRefund: confirmsVoidedRefund,
+        confirmsTermsAgreed: confirmsTermsAgreed,
+      ),
     );
   }
 
-  Future<CakePayOrder> findOrderById({required String orderId}) async {
-    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
-    return await cakePayApi.getOrderById(orderId: orderId, token: token);
-  }
+  Future<CakePayOrder> findOrderById({required String orderId}) => _withUserToken(
+        (token) => cakePayApi.getOrderById(
+          orderId: orderId,
+          token: token,
+        ),
+      );
 
   ///Simulate Purchase Gift Card
-  Future<String> simulatePayment({required String orderId}) async {
-    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
-    return await cakePayApi.simulatePayment(
-        CSRFToken: CSRFToken, authorization: authorization, token: token, orderId: orderId);
+  Future<String> simulatePayment({required String orderId}) => _withUserToken(
+        (token) => cakePayApi.simulatePayment(
+          CSRFToken: CSRFToken,
+          authorization: authorization,
+          token: token,
+          orderId: orderId,
+        ),
+      );
+
+  /// Wrapper for requests with user token
+  Future<T> _withUserToken<T>(Future<T> Function(String token) request) async {
+    try {
+      final token = await secureStorage.read(key: cakePayUserTokenKey) ?? '';
+
+      if (token.isEmpty) {
+        throw const CakePayUnauthorizedException();
+      }
+
+      return await request(token);
+    } on CakePayUnauthorizedException {
+      await logout();
+      rethrow;
+    }
   }
 }

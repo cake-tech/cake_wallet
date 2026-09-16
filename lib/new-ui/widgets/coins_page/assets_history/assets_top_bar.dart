@@ -26,8 +26,8 @@ class AssetsTopBar extends StatelessWidget {
 
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.only(
-          top: dashboardViewModel.isEVMWallet ? 24 : 20,
+        padding: const EdgeInsets.only(
+          top: 20,
           bottom: 0,
           left: 12,
           right: 18,

@@ -39,6 +39,7 @@ class Routes {
   static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
+  static const showKeysDisclaimer = "/show_keys_disclaimer";
   static const exchangeConfirm = '/exchange_confirm';
   static const tradeHistory = '/trade_history';
   static const tradeDetails = '/trade_details';
@@ -116,6 +117,7 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
+  static const nftSendPage = "/nft_send_page";
   static const backgroundSync = '/background_sync';
   static const startTor = '/start_tor';
   static const receiveAddresses = "/receive_addresses";

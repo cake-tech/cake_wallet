@@ -35,7 +35,7 @@ class WalletInfoBar extends StatelessWidget {
                   : Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: CakeImageWidget(
-                        imageUrl: hardwareWalletIcon,
+                        imageUrl: hardwareWalletIcon!,
                         key: const ValueKey("hardware_wallet_icon"),
                         width: 24,
                         height: 24,

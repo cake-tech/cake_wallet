@@ -172,6 +172,7 @@ void main() {
     when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => walletInfo.internalId).thenReturn(42);
+    when(() => walletInfo.showSeedBackupReminder).thenReturn(false);
     when(() => wallet.transactionHistory).thenReturn(transactionHistory);
     when(() => transactionHistory.transactions)
         .thenReturn(ObservableMap<String, TransactionInfo>());

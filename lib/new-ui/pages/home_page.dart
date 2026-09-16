@@ -1,10 +1,14 @@
+import "dart:async";
+
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/main.dart";
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/account_education_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
+import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
 import 'package:cake_wallet/new-ui/pages/settings_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
@@ -12,6 +16,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
@@ -38,22 +43,24 @@ class NewHomePage extends StatefulWidget {
   State<NewHomePage> createState() => _NewHomePageState();
 }
 
-class _NewHomePageState extends State<NewHomePage> {
+class _NewHomePageState extends State<NewHomePage> with RouteAware {
   MoneroAccountListViewModel? accountListViewModel;
   bool _lightningMode = false;
+  late final ReactionDisposer _walletReaction;
+  late final ReactionDisposer _migrationReaction;
 
   @override
   void initState() {
     super.initState();
     _setAccountViewModel();
-    reaction((_) => widget.dashboardViewModel.wallet, (_) {
+    _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
       _setAccountViewModel();
       setState(() {
         _lightningMode = false;
       });
     });
 
-    reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
+    _migrationReaction = reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
         if (!context.mounted) {
           return;
@@ -72,6 +79,23 @@ class _NewHomePageState extends State<NewHomePage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    _walletReaction();
+    _migrationReaction();
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
+
   void _setAccountViewModel() {
     accountListViewModel = widget.dashboardViewModel.balanceViewModel.hasAccounts
         ? getIt.get<MoneroAccountListViewModel>()
@@ -80,8 +104,6 @@ class _NewHomePageState extends State<NewHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isEVMWallet = widget.dashboardViewModel.isEVMWallet;
-
     return Container(
       height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
@@ -104,14 +126,18 @@ class _NewHomePageState extends State<NewHomePage> {
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
-                    onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                    onRefresh: () {
+                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+
+                      return widget.dashboardViewModel.refreshDashboard();
+                    },
                   ),
                 ),
                 SliverToBoxAdapter(
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: isEVMWallet ? 36.0 : 24.0,
+                    spacing: 24.0,
                     children: [
                       TopBar(
                         key: ValueKey(widget.dashboardViewModel.wallet.id),
@@ -145,7 +171,7 @@ class _NewHomePageState extends State<NewHomePage> {
                         },
                       ),
                       Column(
-                        spacing: isEVMWallet ? 24 : 20,
+                        spacing: 20,
                         children: [
                           Column(
                             children: [
@@ -207,6 +233,10 @@ class _NewHomePageState extends State<NewHomePage> {
                                   MwebAd(
                                     dashboardViewModel: widget.dashboardViewModel,
                                   ),
+                                  SeedBackupReminderCard(
+                                    dashboardViewModel: widget.dashboardViewModel,
+                                    onTap: openSeedBackupReminder,
+                                  ),
                                 ],
                               );
                             },
@@ -245,6 +275,17 @@ class _NewHomePageState extends State<NewHomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void openSeedBackupReminder() {
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => SeedBackupReminderPage(
+          dashboardViewModel: widget.dashboardViewModel,
+          authService: getIt.get<AuthService>(),
+        ),
       ),
     );
   }
