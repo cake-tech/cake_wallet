@@ -53,76 +53,82 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
   @override
   Widget build(BuildContext context) => PopScope(
         canPop: false,
-        child: SafeArea(
-          bottom: false,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: Column(
-                  children: [
-                    ModalTopBar(
-                      title: S.of(context).resync_device,
-                      leadingIcon: Icon(
-                        Icons.close,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      onLeadingPressed: () => showPopUp(
-                        context: context,
-                        builder: (context) => AlertWithTwoActions(
-                          alertTitle: S.of(context).are_you_sure_exit,
-                          alertContent: S.of(context).resync_device_cancel_warning_desc,
-                          leftButtonText: S.of(context).cancel,
-                          rightButtonText: S.of(context).yes_exit,
-                          rightAlertButtonStyle: AlertButtonStyle.error(context),
-                          actionLeftButton: Navigator.of(context).pop,
-                          actionRightButton: () {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                          },
+        // This is pushed as a plain route (no Scaffold), so provide the
+        // Material ancestor ourselves or every Text without an explicit colour
+        // renders in Flutter's red/yellow "no Material" fallback style.
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(
+            bottom: false,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      ModalTopBar(
+                        title: S.of(context).resync_device,
+                        leadingIcon: Icon(
+                          Icons.close,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        onLeadingPressed: () => showPopUp(
+                          context: context,
+                          builder: (context) => AlertWithTwoActions(
+                            alertTitle: S.of(context).are_you_sure_exit,
+                            alertContent: S.of(context).resync_device_cancel_warning_desc,
+                            leftButtonText: S.of(context).cancel,
+                            rightButtonText: S.of(context).yes_exit,
+                            rightAlertButtonStyle: AlertButtonStyle.error(context),
+                            actionLeftButton: Navigator.of(context).pop,
+                            actionRightButton: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        spacing: 12,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CakeImageWidget(
-                            imageUrl: hardwareWalletIcon,
-                            width: 100,
-                            colorFilter: ColorFilter.mode(
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                              BlendMode.srcIn,
+                      Expanded(
+                        child: Column(
+                          spacing: 12,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: hardwareWalletIcon,
+                              width: 100,
+                              colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          DirectionalAnimatedSwitcher(
-                            duration: const Duration(milliseconds: 400),
-                            child: content,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: AnimatedOpacity(
-                        curve: Curves.easeOutQuad,
-                        opacity: _state == _KeyImageSyncState.initial ? 1 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: PrimaryButton(
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary,
-                          onPressed: _onContinuePressed,
+                            DirectionalAnimatedSwitcher(
+                              duration: const Duration(milliseconds: 400),
+                              child: content,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: AnimatedOpacity(
+                          curve: Curves.easeOutQuad,
+                          opacity: _state == _KeyImageSyncState.initial ? 1 : 0,
+                          duration: const Duration(milliseconds: 300),
+                          child: PrimaryButton(
+                            text: S.of(context).continue_text,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            onPressed: _onContinuePressed,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -202,30 +208,30 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
       );
 
   Widget _syncingKeyImages() => Column(
-    key: const ValueKey(1),
-    spacing: 12,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        S.of(context).proceed_on_device,
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text(
-          S.of(context).proceed_on_device_description,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        key: const ValueKey(1),
+        spacing: 12,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            S.of(context).proceed_on_device,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            ),
           ),
-        ),
-      )
-    ],
-  );
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              S.of(context).proceed_on_device_description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        ],
+      );
 
   Future<void> _onContinuePressed() async {
     if (_dontShowAgain) settingsStore.shouldShowTrezorResyncInfo = false;

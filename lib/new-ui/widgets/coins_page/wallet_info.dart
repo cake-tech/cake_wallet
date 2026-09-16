@@ -13,7 +13,9 @@ class WalletInfoBar extends StatelessWidget {
   final String name;
   final HardwareWalletType? hardwareWalletType;
 
-  static const double _iconSize = 20;
+  // Roughly the cap height of titleMedium, so the icon reads as part of the
+  // name rather than towering over it.
+  static const double _iconSize = 16;
 
   @override
   Widget build(BuildContext context) {
@@ -23,55 +25,41 @@ class WalletInfoBar extends StatelessWidget {
     return Semantics(
       label: semanticsLabel,
       child: ExcludeSemantics(
-        child: Row(
-          // Align the icon to the text baseline rather than to the centre of
-          // the text's line box: the glyphs sit low in that box, so a centred
-          // icon (especially the full-height Trezor glyph) floats above them.
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              transitionBuilder: (child, animation) => SizeTransition(
-                axis: Axis.horizontal,
-                sizeFactor: animation,
-                child: FadeTransition(opacity: animation, child: child),
-              ),
-              child: hardwareWalletIcon == null
-                  ? const SizedBox.shrink(key: ValueKey("empty"))
-                  : Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: Baseline(
-                        // Icon bottom lands 1pt below the text baseline, so
-                        // the glyph is centred on the cap height.
-                        baseline: _iconSize - 1,
-                        baselineType: TextBaseline.alphabetic,
-                        child: CakeImageWidget(
-                          imageUrl: hardwareWalletIcon!,
-                          key: const ValueKey("hardware_wallet_icon"),
-                          width: _iconSize,
-                          height: _iconSize,
-                          colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.onSurfaceVariant,
-                            BlendMode.srcIn,
-                          ),
-                        ),
+        // The icon is laid out inline with the text so the font metrics, not
+        // the line box, decide its vertical position: it is centred on the
+        // middle of the glyphs, which is what the eye compares it against.
+        child: Text.rich(
+          TextSpan(
+            children: [
+              if (hardwareWalletIcon != null)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    // The text "middle" is the em-box middle, a touch above the
+                    // cap centre; the top padding nudges the icon down onto it.
+                    padding: const EdgeInsets.only(right: 6, top: 3),
+                    child: CakeImageWidget(
+                      imageUrl: hardwareWalletIcon!,
+                      key: const ValueKey("hardware_wallet_icon"),
+                      width: _iconSize,
+                      height: _iconSize,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn,
                       ),
                     ),
-            ),
-            Expanded(
-              child: Text(
-                name,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-              ),
-            ),
-          ],
+                  ),
+                ),
+              TextSpan(text: name),
+            ],
+          ),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     );
