@@ -106,7 +106,6 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
       try {
         await CoinNotesStore.instance.save(wallet.walletInfo.internalId, event.id, event.note);
 
-        print(s);
         emit(
           s.withRow(
             s.rowFor(event.id)!.copyWith(
