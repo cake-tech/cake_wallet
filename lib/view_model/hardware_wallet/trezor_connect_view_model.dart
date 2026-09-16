@@ -394,7 +394,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
     _throwIfCancelled();
 
-    _sessionSettings = passphraseAlwaysOnDevice
+    // Remember what the wallet was set up with. A settings object that already
+    // carries a passphrase choice (on-device, or an app-side value) is kept as
+    // is even when the device currently forces on-device entry, so a stored
+    // app-side passphrase is not silently discarded and still applies if that
+    // device option is turned off later. Only when there was nothing to choose
+    // (options hidden) do we record "device" mode, which is the safe default.
+    _sessionSettings = passphraseAlwaysOnDevice && !usesPassphrase
         ? TrezorDeviceSettings(
             enableAutoParing: settings.enableAutoParing,
             passphraseOnDevice: true,

@@ -68,6 +68,14 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
   @override
   void dispose() {
     paringStateReaction?.reaction.dispose();
+    // The sheet can be removed without its own buttons (e.g. the app locks and
+    // the unlock navigation clears the route stack). A connect attempt that is
+    // still pending must not stay parked forever behind a sheet that no
+    // longer exists.
+    final vm = widget.trezorConnectVM;
+    if (vm.isConnecting && vm.paringState is! SuccessTrezorParingState) {
+      unawaited(vm.cancelPairing());
+    }
     super.dispose();
   }
 

@@ -195,7 +195,7 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
       if (error != null) {
         // See SelectHardwareWalletAccountPage: show the reason first, then
         // leave the page on a lost connection.
-        final isConnectionError = error == S.current.ledger_connection_error;
+        final isConnectionError = isHardwareWalletConnectionError(error);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;

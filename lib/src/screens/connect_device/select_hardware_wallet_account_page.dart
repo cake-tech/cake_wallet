@@ -219,7 +219,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
         // A lost connection sends the user back to the connect page, but only
         // after they have seen why; popping first would show the alert on a
         // disposed context and silently drop them back.
-        final isConnectionError = error == S.current.ledger_connection_error;
+        final isConnectionError = isHardwareWalletConnectionError(error);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
