@@ -446,25 +446,30 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       isScrollControlled: true,
       builder: (_) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
-        steps: [
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step1_power.svg",
-            S.of(context).connect_hw_info_step_1,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step2_connect.svg",
-            S.of(context).connect_hw_info_step_2,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step3_unlock.svg",
-            S.of(context).connect_hw_info_step_3,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step4_select.svg",
-            S.of(context).connect_hw_info_step_4,
-          ),
-        ],
+        steps: _howToConnectSteps(context),
       ),
     );
+  }
+
+  List<InfoStep> _howToConnectSteps(BuildContext context) {
+    const icons = "assets/images/wallet_connect_step_icons";
+
+    // Trezor pairs from its own menu rather than from the phone's Bluetooth
+    // settings, so its steps differ from the Ledger flow.
+    if (widget.hardwareWalletVM.hardwareWalletType == HardwareWalletType.trezor) {
+      return [
+        InfoStep("$icons/step1_power.svg", S.of(context).connect_trezor_info_step_1),
+        InfoStep("$icons/step2_connect.svg", S.of(context).connect_trezor_info_step_2),
+        InfoStep("$icons/step3_unlock.svg", S.of(context).connect_trezor_info_step_3),
+        InfoStep("$icons/step4_select.svg", S.of(context).connect_trezor_info_step_4),
+      ];
+    }
+
+    return [
+      InfoStep("$icons/step1_power.svg", S.of(context).connect_hw_info_step_1),
+      InfoStep("$icons/step2_connect.svg", S.of(context).connect_hw_info_step_2),
+      InfoStep("$icons/step3_unlock.svg", S.of(context).connect_hw_info_step_3),
+      InfoStep("$icons/step4_select.svg", S.of(context).connect_hw_info_step_4),
+    ];
   }
 }

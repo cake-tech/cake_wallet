@@ -27,6 +27,13 @@ abstract class HardwareWalletViewModel {
 
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type);
 
+  /// Called instead of [connectDevice] when a new wallet is being restored on a
+  /// device that is already connected. Gives the view model a chance to ask for
+  /// per-wallet session settings (e.g. a passphrase) and rebind the session.
+  /// Returns whether the device is ready for the new wallet. Defaults to
+  /// "already ready".
+  Future<bool> prepareNewWalletSession(WalletType type) async => true;
+
   HardwareWalletService getHardwareWalletService(WalletType type);
 
   Future<void> initWallet(WalletBase wallet);

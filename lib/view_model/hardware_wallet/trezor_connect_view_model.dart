@@ -250,6 +250,78 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     final preset = _presetSettings;
     _presetSettings = null;
 
+    return _runWithPairingSheet(
+      attempt: () => _connect(device, preset),
+      onFailure: _resetClient,
+    );
+  }
+
+  /// Re-runs the session setup on an already connected device so a new wallet
+  /// can be restored with its own passphrase choice. Skips the device scan but
+  /// still asks (or lets the device ask) for the passphrase, then binds a fresh
+  /// session; a "no passphrase" choice explicitly rebinds the empty passphrase
+  /// so a previous passphrase wallet is not silently reused.
+  @override
+  @action
+  Future<bool> prepareNewWalletSession(WalletType type) async {
+    final client = _client;
+    if (!trezorUseNative.contains(type) || client == null || client.connection.isDisconnected) {
+      return isConnected(type);
+    }
+    if (isConnecting) {
+      return false;
+    }
+    isConnecting = true;
+    _cancelCompleter = Completer<void>();
+    paringState = TrezorParingState.initial;
+
+    return _runWithPairingSheet(
+      attempt: () async {
+        final passphraseAlwaysOnDevice = client.passphraseAlwaysOnDevice;
+
+        final TrezorDeviceSettings settings;
+        if (passphraseAlwaysOnDevice) {
+          // The device asks on its own screen; nothing to choose here.
+          settings = const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true);
+        } else {
+          paringState = TrezorParingState.awaitingSettings(
+            isAutoPairingAvailable: false,
+            passphraseAlwaysOnDevice: false,
+          );
+          _settingsCompleter = Completer<TrezorDeviceSettings>();
+          settings = await _untilCancelled(_settingsCompleter!.future);
+        }
+        _throwIfCancelled();
+
+        final usesPassphrase =
+            settings.passphraseOnDevice || (settings.passphrase ?? "").isNotEmpty;
+        paringState =
+            usesPassphrase ? TrezorParingState.awaitingPassphrase : TrezorParingState.initial;
+        final passphrase = settings.passphraseOnDevice
+            ? const sdk.TrezorPassphrase.onDevice()
+            : usesPassphrase
+                ? sdk.TrezorPassphrase.value(settings.passphrase ?? "")
+                : const sdk.TrezorPassphrase.empty();
+        await _untilCancelled(client.createSession(passphrase));
+        _throwIfCancelled();
+
+        _sessionSettings = passphraseAlwaysOnDevice && !usesPassphrase
+            ? const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true)
+            : settings;
+      },
+      // The link itself is fine; only the session attempt failed.
+      onFailure: () async {},
+    );
+  }
+
+  /// Shows the pairing sheet and runs [attempt] until it succeeds, the user
+  /// gives up, or the user exits the sheet. The result reaches the caller even
+  /// when success only comes on a retry. Expects [isConnecting] and
+  /// [_cancelCompleter] to be set by the caller.
+  Future<bool> _runWithPairingSheet({
+    required Future<void> Function() attempt,
+    required Future<void> Function() onFailure,
+  }) async {
     unawaited(
       showModalBottomSheet(
         context: navigatorKey.currentContext!,
@@ -267,11 +339,11 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     try {
       while (true) {
         try {
-          await _connect(device, preset);
+          await attempt();
           paringState = TrezorParingState.success;
           return true;
         } catch (e) {
-          await _resetClient();
+          await onFailure();
           if (_isPairingCancelled || e is _PairingCancelledException) {
             return false;
           }

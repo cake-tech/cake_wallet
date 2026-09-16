@@ -51,7 +51,14 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(() {
+      setState(() {});
+      // A complete pairing code is submitted as soon as the last digit is
+      // typed; the arrow button stays as a fallback.
+      if (hasFullPin && !_pinSubmitted) {
+        _submitPin();
+      }
+    });
 
     _paringState = widget.trezorConnectVM.paringState;
     paringStateReaction = reaction((_) => widget.trezorConnectVM.paringState, (paringState) {
@@ -60,6 +67,11 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
           Navigator.of(context).pop();
         }
         return;
+      }
+      if (paringState is EnterPinTrezorParingState) {
+        // A fresh code request (e.g. after a retry) needs a fresh submission.
+        _pinSubmitted = false;
+        _controller.text = "";
       }
       setState(() => _paringState = paringState);
     });
@@ -80,6 +92,13 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
   }
 
   bool get _isAwaitingPin => _paringState == TrezorParingState.enterPin;
+
+  bool _pinSubmitted = false;
+
+  void _submitPin() {
+    _pinSubmitted = true;
+    widget.trezorConnectVM.setParingPin(_controller.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
@@ -160,8 +179,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                               size: 36,
                               icon: const Icon(Icons.arrow_forward),
                               semanticLabel: S.of(context).confirm,
-                              onPressed: () =>
-                                  widget.trezorConnectVM.setParingPin(_controller.text.trim()),
+                              onPressed: _submitPin,
                             ),
                           ),
                         ],
