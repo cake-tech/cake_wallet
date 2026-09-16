@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "Veza s vašim Trezorom je poništena. Molimo pokušajte ponovo.",
   "trezor_error_device_locked": "Vaš Trezor je zaključan. Otključajte ga i pokušajte ponovno.",
   "trezor_error_disconnected": "Vaš Trezor je isključen. Ponovno ga spojite i pokušajte ponovno.",
+  "trezor_error_session_mismatch": "Povezana Trezor sesija pripada drugom novčaniku i ne može se prebaciti. Reconnect your Trezor and try again.",
   "trocador_desc": "je agregator mjenjačnica koji koristi više mjenjačnica kako bi pronašao konkurentne tečajeve.",
   "trocador_desc_kyc": "Uz naziv pružatelja usluga prikazuje se KYC ocjena. To je postavio Trocador i temelji se na njihovim vlastitim kriterijima.",
   "trongrid_history": "Povijest TronGrid-a",

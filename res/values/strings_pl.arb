@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "Połączenie z Twoim Trezorem zostało zresetowane. Spróbuj ponownie.",
   "trezor_error_device_locked": "Twój Trezor jest zablokowany. Odblokuj i spróbuj ponownie.",
   "trezor_error_disconnected": "Twój Trezor został odłączony. Podłącz go ponownie i spróbuj ponownie.",
+  "trezor_error_session_mismatch": "Połączona sesja Trezora należy do innego portfela i nie można jej przełączyć. Podłącz ponownie Trezor i spróbuj ponownie.",
   "trocador_desc": "to agregator giełd, który wykorzystuje wiele bazowych platform wymiany, aby znaleźć konkurencyjne kursy.",
   "trocador_desc_kyc": "Obok nazwy dostawcy wyświetlana jest ocena KYC. Jest ona ustalana przez Trocador i opiera się na jego własnych kryteriach.",
   "trongrid_history": "Historia TronGrid",

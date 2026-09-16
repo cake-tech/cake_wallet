@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "与您的 Trezor 的连接已重置。请再试一次。",
   "trezor_error_device_locked": "您的 Trezor 已锁定。解锁并重试。",
   "trezor_error_disconnected": "您的 Trezor 已断开连接。重新连接并重试。",
+  "trezor_error_session_mismatch": "连接的 Trezor 会话属于另一个钱包，无法切换。重新连接您的 Trezor 并重试。",
   "trocador_desc": "是一个交易所聚合器，利用多个底层交易所来寻找有竞争力的汇率。",
   "trocador_desc_kyc": "在提供商名称旁边会显示 KYC 评级。该评级由 Trocador 设定，并基于其自身的评估标准。",
   "trongrid_history": "TronGrid 历史",

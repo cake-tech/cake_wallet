@@ -1382,6 +1382,7 @@
   "trezor_error_channel_lost": "A conexão com o seu Trezor foi redefinida. Por favor, tente novamente.",
   "trezor_error_device_locked": "Seu Trezor está bloqueado. Desbloqueie-o e tente novamente.",
   "trezor_error_disconnected": "Seu Trezor foi desconectado. Reconecte-o e tente novamente.",
+  "trezor_error_session_mismatch": "A sessão do Trezor conectado pertence a outra carteira e não pôde ser alterada. Reconecte seu Trezor e tente novamente.",
   "trocador_desc": "é um agregador de corretoras que utiliza múltiplas plataformas subjacentes para encontrar taxas competitivas.",
   "trocador_desc_kyc": "Ao lado do nome do provedor, uma classificação de KYC é exibida. Ela é definida pelo Trocador e baseada em seus próprios critérios.",
   "trongrid_history": "Histórico do TronGrid",

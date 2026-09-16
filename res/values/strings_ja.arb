@@ -1385,6 +1385,7 @@
   "trezor_error_channel_lost": "Trezor への接続がリセットされました。もう一度試してください。",
   "trezor_error_device_locked": "Trezor はロックされています。ロックを解除して、もう一度お試しください。",
   "trezor_error_disconnected": "Trezor が切断されました。再接続してもう一度お試しください。",
+  "trezor_error_session_mismatch": "接続された Trezor セッションは別のウォレットに属しているため、切り替えることができませんでした。 Trezor を再接続して、もう一度試してください。",
   "trocador_desc": "は、複数の取引所を活用して競争力のあるレートを見つける交換アグリゲーターです。",
   "trocador_desc_kyc": "プロバイダー名とともに、KYC評価が表示されます。これはTrocadorによって設定され、独自の基準に基づいています。",
   "trongrid_history": "TronGrid 履歴",

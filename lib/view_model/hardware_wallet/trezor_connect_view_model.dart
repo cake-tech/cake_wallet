@@ -3,6 +3,7 @@ import "dart:convert";
 import "dart:io";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/hardware_wallet/trezor_wallet_settings_storage.dart";
 import "package:cake_wallet/core/secure_storage.dart";
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -28,6 +29,9 @@ import "package:permission_handler/permission_handler.dart";
 import "package:trezor_connect/trezor_connect.dart" as connect_sdk;
 import "package:trezor_flutter/trezor_flutter.dart" as sdk;
 
+export "package:cake_wallet/core/hardware_wallet/trezor_wallet_settings_storage.dart"
+    show TrezorDeviceSettings;
+
 part "trezor_connect_view_model.g.dart";
 
 const trezorUseNative = [WalletType.bitcoin, WalletType.monero];
@@ -35,7 +39,7 @@ const trezorUseNative = [WalletType.bitcoin, WalletType.monero];
 class TrezorConnectViewModel = TrezorConnectViewModelBase with _$TrezorConnectViewModel;
 
 abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with Store {
-  TrezorConnectViewModelBase(this.trezorConnect, this._secureStorage) {
+  TrezorConnectViewModelBase(this.trezorConnect, this._secureStorage, this._walletSettings) {
     if (_doesSupportHardwareWallets) {
       reaction((_) => isBleEnabled, (_) {
         if (isBleEnabled) {
@@ -51,6 +55,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   final connect_sdk.TrezorConnect trezorConnect;
   final SecureStorage _secureStorage;
+  final TrezorWalletSettingsStorage _walletSettings;
 
   late final sdk.TrezorInterface trezorBLE;
   late final sdk.TrezorInterface trezorUSB;
@@ -153,9 +158,18 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   /// Set by [prepareReconnect] and consumed by [connectDevice].
   TrezorDeviceSettings? _presetSettings;
 
+  /// Wallet (see [_walletKey]) the preset in [_presetSettings] was loaded for.
+  String? _presetWalletKey;
+
   /// Settings the live session was created with, persisted per wallet once the
   /// wallet is known (see [initWallet] and [rememberWalletSettings]).
   TrezorDeviceSettings? _sessionSettings;
+
+  /// Wallet the live session is bound to, or null while the session is not yet
+  /// attributed (fresh restore). A session must never be used, nor its
+  /// settings persisted, for a different wallet: with one device and several
+  /// Cake wallets it may be bound to another wallet's passphrase.
+  String? _sessionWalletKey;
 
   @observable
   TrezorParingState paringState = TrezorParingState.initial;
@@ -233,6 +247,16 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
+    // A reconnect for a wallet we already know reuses the settings it was set
+    // up with, so the user is not asked for the passphrase in the app again.
+    // Consumed before any early return so neither a failed nor a rejected
+    // attempt can leak them into a later, unrelated connect (e.g. restoring a
+    // different wallet).
+    final preset = _presetSettings;
+    final presetWalletKey = _presetWalletKey;
+    _presetSettings = null;
+    _presetWalletKey = null;
+
     if (device is! TrezorHardwareWalletDevice) {
       return false;
     }
@@ -243,15 +267,12 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     _cancelCompleter = Completer<void>();
     paringState = TrezorParingState.initial;
 
-    // A reconnect for a wallet we already know reuses the settings it was set
-    // up with, so the user is not asked for the passphrase in the app again.
-    // Consumed up front so a failed attempt can never leak them into a later,
-    // unrelated connect (e.g. restoring a different wallet).
-    final preset = _presetSettings;
-    _presetSettings = null;
-
     return _runWithPairingSheet(
-      attempt: () => _connect(device, preset),
+      attempt: () async {
+        await _connect(device, preset);
+        // Known wallet (reconnect) or not yet attributed (restore).
+        _sessionWalletKey = presetWalletKey;
+      },
       onFailure: _resetClient,
     );
   }
@@ -264,9 +285,29 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   @action
   Future<bool> prepareNewWalletSession(WalletType type) async {
-    final client = _client;
-    if (!trezorUseNative.contains(type) || client == null || client.connection.isDisconnected) {
+    if (!trezorUseNative.contains(type)) {
       return isConnected(type);
+    }
+    // Whatever was prepared for a reconnect must not shape a new wallet.
+    _presetSettings = null;
+    _presetWalletKey = null;
+
+    final ok = await _rebindSession(null);
+    if (ok) {
+      // Attributed to the new wallet once it has been restored
+      // (see [rememberWalletSettings]).
+      _sessionWalletKey = null;
+    }
+    return ok;
+  }
+
+  /// Binds a fresh session on the live client. With [preset] nothing is asked
+  /// in the app (device mode: the device asks; app mode: silent; none: the
+  /// empty passphrase is bound explicitly). Without, the settings sheet asks.
+  Future<bool> _rebindSession(TrezorDeviceSettings? preset) async {
+    final client = _client;
+    if (client == null || client.connection.isDisconnected) {
+      return false;
     }
     if (isConnecting) {
       return false;
@@ -280,7 +321,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         final passphraseAlwaysOnDevice = client.passphraseAlwaysOnDevice;
 
         final TrezorDeviceSettings settings;
-        if (passphraseAlwaysOnDevice) {
+        if (preset != null) {
+          settings = preset;
+        } else if (passphraseAlwaysOnDevice) {
           // The device asks on its own screen; nothing to choose here.
           settings = const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true);
         } else {
@@ -293,10 +336,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         }
         _throwIfCancelled();
 
-        final usesPassphrase =
-            settings.passphraseOnDevice || (settings.passphrase ?? "").isNotEmpty;
-        paringState =
-            usesPassphrase ? TrezorParingState.awaitingPassphrase : TrezorParingState.initial;
+        final usesPassphrase = settings.usesPassphrase;
+        paringState = usesPassphrase || passphraseAlwaysOnDevice
+            ? TrezorParingState.awaitingPassphrase
+            : TrezorParingState.initial;
         final passphrase = settings.passphraseOnDevice
             ? const sdk.TrezorPassphrase.onDevice()
             : usesPassphrase
@@ -488,6 +531,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
     _client = null;
     _sessionSettings = null;
+    _sessionWalletKey = null;
   }
 
   Future<String> get _deviceName async {
@@ -559,7 +603,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   Future<void> prepareReconnect(WalletBase wallet) async {
     if (!_usesPersistedSettings(wallet)) return;
 
-    _presetSettings = await _loadWalletSettings(wallet);
+    _presetSettings = await _walletSettings.load(wallet.type, wallet.name);
+    _presetWalletKey = _walletKey(wallet);
   }
 
   @override
@@ -567,75 +612,43 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     final settings = _sessionSettings;
     if (settings == null || !_usesPersistedSettings(wallet)) return;
 
-    await _saveWalletSettings(wallet, settings);
+    final key = _walletKey(wallet);
+    // Never persist a session that belongs to a different wallet.
+    if (_sessionWalletKey != null && _sessionWalletKey != key) return;
+
+    _sessionWalletKey = key;
+    await _walletSettings.save(wallet.type, wallet.name, settings);
+  }
+
+  /// Makes sure the live session belongs to [wallet] before it is used for
+  /// signing or key-image sync. A session opened for another wallet is rebound
+  /// with this wallet's own settings: silently when they are stored, otherwise
+  /// the settings sheet asks.
+  Future<void> _ensureSessionFor(WalletBase wallet) async {
+    if (!_usesPersistedSettings(wallet)) return;
+
+    final key = _walletKey(wallet);
+    if (_sessionWalletKey != null && _sessionWalletKey != key) {
+      final stored = await _walletSettings.load(wallet.type, wallet.name);
+      final ok = await _rebindSession(stored);
+      if (!ok) {
+        throw TrezorSessionMismatchException(wallet.name);
+      }
+      _sessionWalletKey = null;
+    }
+    await rememberWalletSettings(wallet);
   }
 
   bool _usesPersistedSettings(WalletBase wallet) =>
       trezorUseNative.contains(wallet.type) &&
       wallet.hardwareWalletType == HardwareWalletType.trezor;
 
-  static const String _passphraseModeKeyPrefix = "com.cakewallet.trezor/passphrase_mode/";
-  static const String _passphraseKeyPrefix = "com.cakewallet.trezor/passphrase/";
-  static const String _passphraseModeDevice = "device";
-  static const String _passphraseModeApp = "app";
-  static const String _passphraseModeNone = "none";
-
-  String _walletKey(WalletBase wallet) => "${walletTypeToString(wallet.type)}_${wallet.name}";
-
-  Future<TrezorDeviceSettings?> _loadWalletSettings(WalletBase wallet) async {
-    try {
-      final key = _walletKey(wallet);
-      final mode = await _secureStorage.read(key: _passphraseModeKeyPrefix + key);
-
-      switch (mode) {
-        case _passphraseModeDevice:
-          return const TrezorDeviceSettings(enableAutoParing: true, passphraseOnDevice: true);
-        case _passphraseModeApp:
-          final passphrase = await _secureStorage.read(key: _passphraseKeyPrefix + key);
-          // Without the stored secret the session cannot be rebuilt silently,
-          // so fall back to asking.
-          if (passphrase == null || passphrase.isEmpty) return null;
-
-          return TrezorDeviceSettings(
-            enableAutoParing: true,
-            passphraseOnDevice: false,
-            passphrase: passphrase,
-          );
-        case _passphraseModeNone:
-          return const TrezorDeviceSettings(enableAutoParing: true, passphraseOnDevice: false);
-        default:
-          return null;
-      }
-    } catch (e) {
-      printV(e);
-      return null;
-    }
-  }
-
-  Future<void> _saveWalletSettings(WalletBase wallet, TrezorDeviceSettings settings) async {
-    try {
-      final key = _walletKey(wallet);
-      final passphrase = settings.passphrase ?? "";
-      final mode = settings.passphraseOnDevice
-          ? _passphraseModeDevice
-          : passphrase.isNotEmpty
-              ? _passphraseModeApp
-              : _passphraseModeNone;
-
-      await _secureStorage.write(key: _passphraseModeKeyPrefix + key, value: mode);
-      if (mode == _passphraseModeApp) {
-        await _secureStorage.write(key: _passphraseKeyPrefix + key, value: passphrase);
-      } else {
-        await _secureStorage.delete(key: _passphraseKeyPrefix + key);
-      }
-    } catch (e) {
-      printV(e);
-    }
-  }
+  String _walletKey(WalletBase wallet) =>
+      TrezorWalletSettingsStorage.walletKey(wallet.type, wallet.name);
 
   @override
   Future<void> initWallet(WalletBase wallet) async {
-    await rememberWalletSettings(wallet);
+    await _ensureSessionFor(wallet);
 
     switch (wallet.type) {
       case WalletType.monero:
@@ -754,6 +767,17 @@ class _PairingCancelledException implements Exception {
   const _PairingCancelledException();
 }
 
+/// The live Trezor session belongs to another wallet and could not be rebound
+/// to [walletName] (the user cancelled or the device rejected it).
+class TrezorSessionMismatchException implements Exception {
+  TrezorSessionMismatchException(this.walletName);
+
+  final String walletName;
+
+  @override
+  String toString() => S.current.trezor_error_session_mismatch;
+}
+
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
 
 class SuccessTrezorParingState extends TrezorParingState {}
@@ -762,16 +786,4 @@ class FailTrezorParingState extends TrezorParingState {
   FailTrezorParingState(this.message);
 
   final String message;
-}
-
-class TrezorDeviceSettings {
-  const TrezorDeviceSettings({
-    required this.enableAutoParing,
-    required this.passphraseOnDevice,
-    this.passphrase,
-  });
-
-  final bool enableAutoParing;
-  final bool passphraseOnDevice;
-  final String? passphrase;
 }

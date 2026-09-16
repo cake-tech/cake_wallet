@@ -1385,6 +1385,7 @@
   "trezor_error_channel_lost": "Kết nối tới Trezor của bạn đã được đặt lại. Vui lòng thử lại.",
   "trezor_error_device_locked": "Trezor của bạn đã bị khóa. Hãy mở khóa và thử lại.",
   "trezor_error_disconnected": "Trezor của bạn đã bị ngắt kết nối. Hãy kết nối lại và thử lại.",
+  "trezor_error_session_mismatch": "Phiên Trezor được kết nối thuộc về một ví khác và không thể chuyển đổi được. Kết nối lại Trezor của bạn và thử lại.",
   "trocador_desc": "là một công cụ tổng hợp trao đổi, tận dụng nhiều sàn giao dịch khác nhau để tìm ra tỷ giá cạnh tranh.",
   "trocador_desc_kyc": "Bên cạnh tên nhà cung cấp, Xếp hạng KYC sẽ được hiển thị. Xếp hạng này do Trocador thiết lập và dựa trên các tiêu chí riêng của họ.",
   "trongrid_history": "Lịch sử TronGrid",

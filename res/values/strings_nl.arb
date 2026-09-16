@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "De verbinding met uw Trezor is gereset. Probeer het opnieuw.",
   "trezor_error_device_locked": "Je Trezor is vergrendeld. Ontgrendel het en probeer het opnieuw.",
   "trezor_error_disconnected": "De verbinding met uw Trezor is verbroken. Sluit hem opnieuw aan en probeer het opnieuw.",
+  "trezor_error_session_mismatch": "De verbonden Trezor-sessie hoort bij een andere portemonnee en kan niet worden gewisseld. Sluit uw Trezor opnieuw aan en probeer het opnieuw.",
   "trocador_desc": "is een exchange-aggregator die meerdere onderliggende exchanges gebruikt om concurrerende tarieven te vinden.",
   "trocador_desc_kyc": "Naast de naam van de provider wordt een KYC-rating weergegeven. Deze wordt ingesteld door Trocador en is gebaseerd op hun eigen criteria.",
   "trongrid_history": "TronGrid-geschiedenis",

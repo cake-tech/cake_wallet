@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "Spojení s vaším Trezorem bylo resetováno. Zkuste to prosím znovu.",
   "trezor_error_device_locked": "Váš Trezor je zamčený. Odemkněte jej a zkuste to znovu.",
   "trezor_error_disconnected": "Váš Trezor byl odpojen. Znovu jej připojte a zkuste to znovu.",
+  "trezor_error_session_mismatch": "Připojená relace Trezor patří do jiné peněženky a nelze ji přepnout. Znovu připojte Trezor a zkuste to znovu.",
   "trocador_desc": "je agregátor směnáren, který využívá více podkladových směnáren k nalezení konkurenceschopných kurzů.",
   "trocador_desc_kyc": "Vedle názvu poskytovatele se zobrazuje hodnocení KYC. Toto hodnocení nastavuje Trocador a je založeno na jejich vlastních kritériích.",
   "trongrid_history": "Historie TronGrid",

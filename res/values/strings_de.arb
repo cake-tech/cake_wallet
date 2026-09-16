@@ -1385,6 +1385,7 @@
   "trezor_error_channel_lost": "Die Verbindung zu Ihrem Trezor wurde zurückgesetzt. Bitte versuchen Sie es erneut.",
   "trezor_error_device_locked": "Ihr Trezor ist gesperrt. Entsperren Sie es und versuchen Sie es erneut.",
   "trezor_error_disconnected": "Ihr Trezor wurde getrennt. Schließen Sie es erneut an und versuchen Sie es erneut.",
+  "trezor_error_session_mismatch": "Die verbundene Trezor-Sitzung gehört zu einem anderen Wallet und konnte nicht gewechselt werden. Schließen Sie Ihren Trezor erneut an und versuchen Sie es erneut.",
   "trocador_desc": "ist ein Swap-Aggregator, der mehrere zugrunde liegende Swap-Dienste nutzt, um wettbewerbsfähige Kurse zu finden.",
   "trocador_desc_kyc": "Neben dem Anbieternamen wird ein KYC-Rating angezeigt. Dieses wird von Trocador festgelegt und basiert auf deren eigenen Kriterien.",
   "trongrid_history": "TronGrid-Verlauf",

@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "تمت إعادة تعيين الاتصال بـ Trezor الخاص بك. يرجى المحاولة مرة أخرى.",
   "trezor_error_device_locked": "تريزور الخاص بك مقفل. افتحه وحاول مرة أخرى.",
   "trezor_error_disconnected": "تم قطع اتصال جهاز Trezor الخاص بك. أعد توصيله وحاول مرة أخرى.",
+  "trezor_error_session_mismatch": "تنتمي جلسة Trezor المتصلة إلى محفظة أخرى ولا يمكن تبديلها. أعد توصيل جهاز Trezor وحاول مرة أخرى.",
   "trocador_desc": "هو مُجمِّع تبادل يستفيد من عدة منصات تداول أساسية للعثور على أسعار تنافسية.",
   "trocador_desc_kyc": "إلى جانب اسم المزوّد، يظهر تصنيف KYC. يتم تحديده بواسطة Trocador وهو يعتمد على معاييرهم الخاصة.",
   "trongrid_history": "سجل TronGrid",

@@ -1386,6 +1386,7 @@
   "trezor_error_channel_lost": "The connection to your Trezor was reset. Please try again.",
   "trezor_error_device_locked": "Your Trezor is locked. Unlock it and try again.",
   "trezor_error_disconnected": "Your Trezor was disconnected. Reconnect it and try again.",
+  "trezor_error_session_mismatch": "The connected Trezor session belongs to another wallet and could not be switched. Reconnect your Trezor and try again.",
   "trocador_desc": "is an exchange aggregator that leverages multiple underlying exchanges to find competitive rates.",
   "trocador_desc_kyc": "Alongside the provider name, a KYC Rating is shown. This is set by Trocador and it's based on their own criteria.",
   "trongrid_history": "TronGrid history",

@@ -1386,6 +1386,7 @@
   "trezor_error_channel_lost": "An sake saita haɗin kai zuwa Trezor. Da fatan za a sake gwadawa.",
   "trezor_error_device_locked": "Trezor naku yana kulle. Buɗe shi kuma sake gwadawa.",
   "trezor_error_disconnected": "An katse Trezor naku. Sake haɗa shi kuma a sake gwadawa.",
+  "trezor_error_session_mismatch": "Zaman Trezor da aka haɗa na wani walat ne kuma ba za a iya canzawa ba. Sake haɗa Trezor ɗin ku kuma sake gwadawa.",
   "trocador_desc": "mai tara musayar kuɗaɗen dijital ne wanda ke amfani da musayar kuɗaɗe da yawa a ƙarƙashinsa don nemo farashi masu gasa.",
   "trocador_desc_kyc": "Tare da sunan mai ba da sabis, ana nuna ƙimar KYC. Trocador ne ya saita wannan, kuma yana dogara ne da nasu ƙa’idoji.",
   "trongrid_history": "Tarihin TronGrid",

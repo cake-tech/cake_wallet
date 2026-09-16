@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "Na-reset ang koneksyon sa iyong Trezor. Pakisubukang muli.",
   "trezor_error_device_locked": "Naka-lock ang iyong Trezor. I-unlock ito at subukang muli.",
   "trezor_error_disconnected": "Nadiskonekta ang iyong Trezor. Ikonekta itong muli at subukang muli.",
+  "trezor_error_session_mismatch": "Ang nakakonektang Trezor session ay kabilang sa isa pang wallet at hindi maaaring ilipat. Ikonekta muli ang iyong Trezor at subukang muli.",
   "trocador_desc": "ay isang exchange aggregator na gumagamit ng maraming pinagbabatayang exchange upang makahanap ng mapagkumpitensyang mga rate.",
   "trocador_desc_kyc": "Kasama ng pangalan ng provider, ipinapakita ang isang KYC Rating. Itinakda ito ng Trocador at nakabatay sa sarili nilang pamantayan.",
   "trongrid_history": "Kasaysayan ng TronGrid",

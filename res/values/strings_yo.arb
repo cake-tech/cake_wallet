@@ -1385,6 +1385,7 @@
   "trezor_error_channel_lost": "Atunto asopọ si Trezor rẹ. Jọwọ gbiyanju lẹẹkansi.",
   "trezor_error_device_locked": "Trezor rẹ ti wa ni titiipa. Ṣii silẹ ki o gbiyanju lẹẹkansi.",
   "trezor_error_disconnected": "Trezor rẹ ti ge asopọ. Tun pada ki o si gbiyanju lẹẹkansi.",
+  "trezor_error_session_mismatch": "Akoko Trezor ti a ti sopọ jẹ ti apamọwọ miiran ati pe ko le yipada. Tun Trezor rẹ so pọ ki o tun gbiyanju lẹẹkansi.",
   "trocador_desc": "jẹ olùkójọ paṣipaarọ tí ó ń lo ọ̀pọ̀ paṣipaarọ abẹ́lẹ̀ láti rí àwọn oṣuwọn tí ó dára jù lọ.",
   "trocador_desc_kyc": "Lẹgbẹẹ orúkọ olupese, ìdíwọ̀n KYC kan máa hàn. Trocador ló ń ṣètò èyí, ó sì dá lórí àwọn àdéhùn wọn fúnra wọn.",
   "trongrid_history": "Itan TronGrid",

@@ -1384,6 +1384,7 @@
   "trezor_error_channel_lost": "Trezor'unuzla bağlantı sıfırlandı. Lütfen tekrar deneyin.",
   "trezor_error_device_locked": "Trezor'unuz kilitlendi. Kilidini açın ve tekrar deneyin.",
   "trezor_error_disconnected": "Trezor'unuzun bağlantısı kesildi. Tekrar bağlayın ve tekrar deneyin.",
+  "trezor_error_session_mismatch": "Bağlanan Trezor oturumu başka bir cüzdana ait ve değiştirilemedi. Trezor'unuzu yeniden bağlayın ve tekrar deneyin.",
   "trocador_desc": "rekabetçi oranlar bulmak için birden fazla altta yatan borsadan yararlanan bir borsa toplayıcısıdır.",
   "trocador_desc_kyc": "Sağlayıcı adının yanında bir KYC Derecelendirmesi gösterilir. Bu, Trocador tarafından belirlenir ve kendi kriterlerine dayanır.",
   "trongrid_history": "TronGrid geçmişi",

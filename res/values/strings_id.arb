@@ -1387,6 +1387,7 @@
   "trezor_error_channel_lost": "Koneksi ke Trezor Anda telah disetel ulang. Silakan coba lagi.",
   "trezor_error_device_locked": "Trezor Anda terkunci. Buka kuncinya dan coba lagi.",
   "trezor_error_disconnected": "Trezor Anda terputus. Hubungkan kembali dan coba lagi.",
+  "trezor_error_session_mismatch": "Sesi Trezor yang terhubung adalah milik dompet lain dan tidak dapat dialihkan. Hubungkan kembali Trezor Anda dan coba lagi.",
   "trocador_desc": "adalah agregator pertukaran yang memanfaatkan berbagai pertukaran yang mendasarinya untuk menemukan kurs yang kompetitif.",
   "trocador_desc_kyc": "Di samping nama penyedia, Peringkat KYC ditampilkan. Ini ditetapkan oleh Trocador dan didasarkan pada kriteria mereka sendiri.",
   "trongrid_history": "Riwayat TronGrid",

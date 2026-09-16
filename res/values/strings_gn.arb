@@ -1390,6 +1390,7 @@
   "trezor_error_channel_lost": "Pe joaju nde Trezor-pe oñembohekojey. Eñeha’ã jey.",
   "trezor_error_device_locked": "Nde Trezor oñemboty. Emboguejy ha eñeha’ã jey.",
   "trezor_error_disconnected": "Nde Trezor ojedesconecta va’ekue. Embojoaju jey ha eñeha’ã jey.",
+  "trezor_error_session_mismatch": "Pe sesión Trezor oñembojoajúva haꞌehína ambue billetera mbaꞌe ha ndaikatúi oñemoambue. Embojoaju jey nde Trezor ha eñeha’ã jey.",
   "trocador_desc": "ha'e peteĩ agregador de intercambio oiporúva heta intercambio subyacente ojuhú hag̃ua tasa competitiva.",
   "trocador_desc_kyc": "Pe proveedor réra ykére, ojehechauka peteĩ calificación KYC rehegua. Péva omoĩ Trocador ha oñemopyenda ijehegui hag̃uaichaite hag̃ua.",
   "trongrid_history": "TronGrid rembiasakue",
