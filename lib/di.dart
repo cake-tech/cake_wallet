@@ -87,7 +87,6 @@ import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
@@ -98,7 +97,6 @@ import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
-import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
@@ -135,7 +133,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
@@ -740,9 +737,6 @@ Future<void> setup({
         nftViewModel: getIt.get<NFTViewModel>(),
       ));
 
-  getIt.registerFactory<TransactionsPage>(
-      () => TransactionsPage(dashboardViewModel: getIt.get<DashboardViewModel>()));
-
   getIt.registerFactory<Setup2FAInfoPage>(() => Setup2FAInfoPage());
 
   getIt.registerFactory<Setup2FAPage>(
@@ -769,10 +763,6 @@ Future<void> setup({
       (WalletAddressListItem? item, _) =>
           WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
 
-  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
-      AddressEditOrCreatePage(
-          addressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
       AddressLabelInputPopup(
@@ -1223,8 +1213,6 @@ Future<void> setup({
   getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
-
-  getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, Map<String, dynamic>?>(
       (type, additionalParams) {
