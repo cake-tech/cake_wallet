@@ -15,6 +15,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_hist
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
+import 'package:cake_wallet/new-ui/widgets/coins_page/zcash_shield_prompt.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
@@ -204,6 +205,9 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 );
                               }),
                               UnconfirmedBalanceWidget(
+                                dashboardViewModel: widget.dashboardViewModel,
+                              ),
+                              ZcashShieldPrompt(
                                 dashboardViewModel: widget.dashboardViewModel,
                               ),
                             ],

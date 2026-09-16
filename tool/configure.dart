@@ -1747,6 +1747,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 
 """;
@@ -1784,6 +1785,13 @@ abstract class Zcash {
       WalletInfo? walletInfo});
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+
+  /// Transparent funds a hardware wallet holds but cannot shield unattended.
+  Future<BigInt> shieldableBalance(WalletBase wallet);
+
+  /// Builds (and, on a Ledger, signs) a sweep of those funds into the
+  /// shielded pool; commit it to broadcast.
+  Future<PendingTransaction> createShieldTransaction(WalletBase wallet);
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);

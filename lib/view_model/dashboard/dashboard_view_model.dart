@@ -212,7 +212,11 @@ abstract class DashboardViewModelBase with Store {
 
       tradeMonitor.stopTradeMonitoring();
       tradeMonitor.monitorActiveTrades(wallet!.id);
+      _watchZcashShieldable();
     });
+    // The reaction above only fires when the wallet changes, so a wallet
+    // that was already open when this view model was built is asked here.
+    _watchZcashShieldable();
 
     _transactionDisposer?.reaction.dispose();
     _transactionDisposer = reaction((_) {
@@ -824,6 +828,59 @@ abstract class DashboardViewModelBase with Store {
     ];
     return errors;
   }
+
+  /// Transparent funds a hardware Zcash wallet is holding but cannot sweep
+  /// unattended: every transaction is a device review, so shielding is
+  /// offered as a card the user taps instead of happening during sync.
+  /// Without it the funds would sit unspendable, since sends draw from the
+  /// shielded pools only.
+  @observable
+  BigInt zcashShieldableBalance = BigInt.zero;
+
+  ReactionDisposer? _zcashShieldReactionDisposer;
+
+  /// Re-reads the shieldable balance now and whenever the wallet balance
+  /// moves, which is the signal that fires right after a shield broadcasts.
+  void _watchZcashShieldable() {
+    _zcashShieldReactionDisposer?.reaction.dispose();
+    _zcashShieldReactionDisposer = null;
+    // ignore: unawaited_futures
+    refreshZcashShieldable();
+    if (wallet.type != WalletType.zcash || wallet.hardwareWalletType == null) {
+      return;
+    }
+    _zcashShieldReactionDisposer = reaction(
+      (_) => wallet.balance.values.first,
+      (_) => refreshZcashShieldable(),
+    );
+  }
+
+  @action
+  Future<void> refreshZcashShieldable() async {
+    // Not `isHardwareWallet`: that whitelist excludes airgapped devices, and
+    // this card is for every wallet that has no local spending key.
+    if (wallet.type != WalletType.zcash || wallet.hardwareWalletType == null) {
+      zcashShieldableBalance = BigInt.zero;
+      return;
+    }
+    try {
+      zcashShieldableBalance = await zcash!.shieldableBalance(wallet);
+    } catch (_) {
+      // A balance we cannot read is one we should not advertise.
+      zcashShieldableBalance = BigInt.zero;
+    }
+  }
+
+  /// Hides the shield card the moment a shield is broadcast. The spent
+  /// transparent notes can still read as sweepable until the spend confirms,
+  /// so zero the balance now and let the next sync reconcile.
+  @action
+  void markZcashShielded() {
+    zcashShieldableBalance = BigInt.zero;
+  }
+
+  @computed
+  bool get showZcashShieldCard => zcashShieldableBalance > BigInt.zero;
 
   @computed
   bool get showZcashMissingFundsCard {
@@ -1599,5 +1656,8 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> refreshDashboard() async {
     reconnect();
+    // Funds only become shieldable once their transaction confirms, so a
+    // pull to refresh re-asks rather than trusting what was read at load.
+    await refreshZcashShieldable();
   }
 }

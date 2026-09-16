@@ -12,9 +12,15 @@ class PendingZcashTransaction with PendingTransaction {
     required this.credentials,
     required this.txPlan,
     this.signedPackage,
+    this.isShield = false,
     required this.fee,
     required this.availableBalance,
   });
+
+  /// Whether this sweeps transparent funds into the shielded pool, which the
+  /// wallet records so history shows a shield rather than a transfer whose
+  /// value is only the fee.
+  final bool isShield;
 
   final ZcashWallet zcashWallet;
   final ZcashTransactionCredentials credentials;
@@ -68,7 +74,13 @@ class PendingZcashTransaction with PendingTransaction {
           throw TransactionCommitFailed(errorMessage: result);
         }
         _txId = txId;
-        zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        if (isShield) {
+          // A self-transfer: nothing leaves the wallet, so no outgoing amount
+          // is pended; the swept notes are hidden through the shield mark.
+          await zcashWallet.markShieldBroadcast(txId);
+        } else {
+          zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        }
       },
     );
     await zcashWallet.updateTransactions();

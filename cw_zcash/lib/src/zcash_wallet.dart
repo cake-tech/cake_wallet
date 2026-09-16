@@ -11,6 +11,7 @@ import 'package:cw_core/get_height_by_date_zec.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -74,6 +75,15 @@ abstract class ZcashWalletBase
 
   /// `accounts.hw` code the backend uses for the Official Ledger app.
   static const int zkoolHwOfficialLedger = 2;
+
+  /// Floor under which a manual shield is not offered, same as auto-shield.
+  static const int _manualShieldMinSweep = _autoShieldMinSweep;
+
+  /// Set once a manual shield is broadcast: the swept notes still read as
+  /// unspent until it confirms, so the balance and the shield card stop
+  /// counting them meanwhile.
+  bool _shieldSweepPending = false;
+  String? _pendingShieldTxId;
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
@@ -475,15 +485,6 @@ abstract class ZcashWalletBase
     return signed;
   }
 
-  /// Pools a send may draw from: the newest shielded pool, plus transparent
-  /// for a Ledger wallet. Its transparent funds are never auto-shielded (that
-  /// would need the device from a background sync), so they are spent
-  /// directly instead of sitting unusable; the Official app signs them.
-  int _sourcePools(final bool ironwood) {
-    final shielded = ironwood ? 8 : 4;
-    return isLedgerWallet ? shielded | 1 : shielded;
-  }
-
   @override
   Future<PendingTransaction> createTransaction(final Object credentials) =>
       _createTransaction(credentials);
@@ -537,7 +538,7 @@ abstract class ZcashWalletBase
           final txPlan = await zkool_pay.prepare(
             recipients: recipients,
             options: zkool_pay.PaymentOptions(
-              srcPools: _sourcePools(ironwood),
+              srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
               ),
@@ -929,6 +930,13 @@ abstract class ZcashWalletBase
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
       _pendingOutgoingAmounts.remove(ZcashWalletService.normalizeTxId(tx.txHash));
+      if (_pendingShieldTxId != null &&
+          tx.height > 0 &&
+          ZcashWalletService.normalizeTxId(tx.txHash) ==
+              ZcashWalletService.normalizeTxId(_pendingShieldTxId!)) {
+        _shieldSweepPending = false;
+        _pendingShieldTxId = null;
+      }
       if (tx.height > 0) {
         ZcashMempoolService.instance.removeTx(tx.txHash);
       }
@@ -1269,6 +1277,95 @@ abstract class ZcashWalletBase
   static DateTime? _lastAutoShieldAt;
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
+  /// Transparent funds a hardware wallet holds but cannot sweep unattended;
+  /// zero while a shield it broadcast is still confirming.
+  Future<BigInt> shieldableBalance() async {
+    if (_shieldSweepPending) {
+      return BigInt.zero;
+    }
+    return runWithCoin(
+      accountId: accountId,
+      func: (final coin) async {
+        final sweepable = await _sweepableTotal(coin);
+        if (sweepable <= BigInt.from(_manualShieldMinSweep)) {
+          return BigInt.zero;
+        }
+        return sweepable;
+      },
+    );
+  }
+
+  /// Builds a transaction sweeping transparent funds into the shielded pool,
+  /// for a wallet that cannot sign it unattended.
+  ///
+  /// Shielding normally happens during sync, which a hardware wallet cannot
+  /// do: every transaction is a device review. A Ledger reviews and signs the
+  /// sweep right here, so the returned transaction only has to be broadcast.
+  Future<PendingTransaction> createShieldTransaction() async {
+    return runWithCoin(
+      accountId: accountId,
+      func: (final coin) async {
+        final sweepable = await _sweepableTotal(coin);
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
+        if (sweepable <= BigInt.from(_manualShieldMinSweep)) {
+          throw Exception('There is nothing to shield.');
+        }
+        final destination = walletAddresses.orchardAddress!;
+        final txPlan = await zkool_pay.prepare(
+          recipients: [
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: destination,
+              amount: sweepable,
+              pools: ironwood ? ironwoodPoolMask : null,
+            ),
+          ],
+          options: zkool_pay.PaymentOptions(
+            srcPools: 3,
+            recipientPaysFee: true,
+            smartTransparent: false,
+          ),
+          c: coin,
+        );
+        final signed = isLedgerWallet ? await signOnLedger(txPlan, coin) : null;
+        return PendingZcashTransaction(
+          zcashWallet: this as ZcashWallet,
+          isShield: true,
+          credentials: ZcashTransactionCredentials(
+            // Describes the sweep for the confirmation screens: every
+            // sweepable note, less the fee.
+            outputs: [
+              OutputInfo(
+                address: destination,
+                sendAll: true,
+                isParsedAddress: false,
+                cryptoAmount: Money(sweepable, currency),
+              ),
+            ],
+            priority: MoneroTransactionPriority.automatic,
+            currency: currency,
+          ),
+          txPlan: txPlan,
+          signedPackage: signed,
+          fee: _feeFromTxPlan(txPlan, MoneroTransactionPriority.automatic, 0, coin: coin),
+          availableBalance: Money(sweepable, currency),
+        );
+      },
+    );
+  }
+
+  /// Records a manual shield that was just broadcast.
+  ///
+  /// History splits a shield into the transparent spend and the shielded
+  /// receipt; without the mark it reads as a transfer whose value is only the
+  /// fee. The swept notes also still read as unspent until this confirms, so
+  /// the balance and the shield card stop counting them until then.
+  Future<void> markShieldBroadcast(final String txId) async {
+    await ZcashWalletService.addShieldedTx(txId);
+    _shieldSweepPending = true;
+    _pendingShieldTxId = txId;
+  }
+
   Future<void> _autoShield() async {
     if (_lastAutoShieldAt != null &&
         _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
@@ -1495,21 +1592,24 @@ abstract class ZcashWalletBase
       // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
       final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
       final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
+      // A just-broadcast shield has already swept these notes; do not keep
+      // showing them as awaiting shielding.
+      final sweepableEff = _shieldSweepPending ? BigInt.zero : sweepable;
 
       // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
       // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
       if (ironwoodActive == true && orchard > BigInt.zero) {
-        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
+        final sweepableUnavailable = sweepableEff <= BigInt.from(_ironwoodMigrateMinNote)
             ? BigInt.zero
-            : sweepable;
+            : sweepableEff;
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
         final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
         availableAmount = orchard + ironwood;
-        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
+        unavailableAmount = sweepableEff <= BigInt.from(minSweep) ? BigInt.zero : sweepableEff;
       }
 
       runInAction(() {

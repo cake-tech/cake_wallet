@@ -58,6 +58,14 @@ class CWZcash extends Zcash {
       ZcashLedgerService(connection);
 
   @override
+  Future<BigInt> shieldableBalance(WalletBase wallet) =>
+      (wallet as ZcashWallet).shieldableBalance();
+
+  @override
+  Future<PendingTransaction> createShieldTransaction(WalletBase wallet) =>
+      (wallet as ZcashWallet).createShieldTransaction();
+
+  @override
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,
