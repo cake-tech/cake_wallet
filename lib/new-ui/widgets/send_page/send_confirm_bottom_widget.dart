@@ -61,7 +61,9 @@ class SendConfirmBottomWidget extends StatelessWidget {
         );
       case IsAwaitingDeviceResponseState:
         return HardwareWalletProceedOnDeviceMessage(
-            hardwareWalletType: sendViewModel.wallet.hardwareWalletType!);
+          hardwareWalletType: sendViewModel.wallet.hardwareWalletType!,
+          stage: sendViewModel.deviceStage,
+        );
       case TransactionCommitting:
         return LoadingBottomWidget(
           text: "${S.of(context).sending}...",

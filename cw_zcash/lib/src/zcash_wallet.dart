@@ -1,4 +1,5 @@
 import 'package:cw_core/hardware/device_not_connected_exception.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_zcash/src/zcash_ledger_service.dart';
 import 'dart:async';
@@ -456,6 +457,23 @@ abstract class ZcashWalletBase
     }
   }
 
+  final _ledgerStages = StreamController<HardwareSigningStage>.broadcast();
+
+  /// Where a Ledger send or shield is, from planning through finalizing.
+  ///
+  /// Emits from the start of [createTransaction] or [createShieldTransaction]
+  /// on a Ledger wallet until they return. The device shows its review only
+  /// at [HardwareSigningStage.awaitingDevice]; the earlier stages are the
+  /// phone's own work, so a screen can say what is being waited on instead
+  /// of pointing at a device that has nothing to show yet.
+  Stream<HardwareSigningStage> get ledgerSigningStages => _ledgerStages.stream;
+
+  void _ledgerStage(final HardwareSigningStage stage) {
+    if (isLedgerWallet && !_ledgerStages.isClosed) {
+      _ledgerStages.add(stage);
+    }
+  }
+
   /// Signs on the Ledger without holding the shared coin lock.
   ///
   /// The device review waits on the user, for minutes if they step away, and
@@ -491,6 +509,15 @@ abstract class ZcashWalletBase
       switch (event) {
         case zkool_pay.SigningEvent_Progress(:final field0):
           printV("ledger: $field0");
+          // The signer reports each step; the screen only needs to know
+          // when the device is waiting on the user and when it is past that.
+          if (field0 == "Confirm on your Ledger") {
+            _ledgerStage(HardwareSigningStage.awaitingDevice);
+          } else if (field0.startsWith("Signing")) {
+            _ledgerStage(HardwareSigningStage.signing);
+          } else if (field0 == "Finalizing transaction") {
+            _ledgerStage(HardwareSigningStage.finalizing);
+          }
         case zkool_pay.SigningEvent_Result(:final field0):
           signed = field0;
       }
@@ -510,6 +537,7 @@ abstract class ZcashWalletBase
     final int tryReduceFeeAmount = 0,
   }) async {
     final creds = credentials as ZcashTransactionCredentials;
+    _ledgerStage(HardwareSigningStage.preparing);
     await updateBalance();
 
     final zcashBalance = balance[CryptoCurrency.zec];
@@ -568,6 +596,7 @@ abstract class ZcashWalletBase
       // prepared, so the confirmation sheet that follows shows a signed
       // transaction and the slide only broadcasts it: the same order as the
       // other hardware wallets, and what the user expects.
+      _ledgerStage(HardwareSigningStage.sendingToDevice);
       final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
       return PendingZcashTransaction(
         zcashWallet: this as ZcashWallet,
@@ -1319,6 +1348,7 @@ abstract class ZcashWalletBase
   /// do: every transaction is a device review. A Ledger reviews and signs the
   /// sweep right here, so the returned transaction only has to be broadcast.
   Future<PendingTransaction> createShieldTransaction() async {
+    _ledgerStage(HardwareSigningStage.preparing);
     final destination = walletAddresses.orchardAddress!;
     final (txPlan, sweepable, fee) = await runWithCoin(
       accountId: accountId,
@@ -1348,6 +1378,7 @@ abstract class ZcashWalletBase
         return (txPlan, sweepable, fee);
       },
     );
+    _ledgerStage(HardwareSigningStage.sendingToDevice);
     final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
     return PendingZcashTransaction(
       zcashWallet: this as ZcashWallet,

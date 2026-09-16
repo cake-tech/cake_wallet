@@ -66,6 +66,10 @@ class CWZcash extends Zcash {
       (wallet as ZcashWallet).createShieldTransaction();
 
   @override
+  Stream<HardwareSigningStage> ledgerSigningStages(WalletBase wallet) =>
+      (wallet as ZcashWallet).ledgerSigningStages;
+
+  @override
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,

@@ -9,6 +9,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -65,24 +67,35 @@ class ZcashShieldPrompt extends StatelessWidget {
     }
     if (!context.mounted) return;
 
-    // The device review happens while the sweep is prepared; keep a
-    // "proceed on your device" notice up until that returns.
+    // The device review happens while the sweep is prepared; keep a notice
+    // up until that returns. It says what is being waited on: the device only
+    // shows its review once the whole sweep has reached it.
     var noticeOpen = true;
+    final stage = ValueNotifier<HardwareSigningStage?>(HardwareSigningStage.preparing);
+    final stages = zcash!
+        .ledgerSigningStages(dashboardViewModel.wallet)
+        .listen((s) => stage.value = s);
     // ignore: unawaited_futures
     showPopUp<void>(
       context: context,
-      builder: (BuildContext ctx) => AlertWithOneAction(
-        alertTitle: S.of(ctx).proceed_on_device,
-        alertContent: S.of(ctx).proceed_on_device_description,
-        buttonText: S.of(ctx).cancel,
-        alertBarrierDismissible: false,
-        buttonAction: () {
-          noticeOpen = false;
-          Navigator.of(ctx).pop();
-        },
+      builder: (BuildContext ctx) => ValueListenableBuilder<HardwareSigningStage?>(
+        valueListenable: stage,
+        builder: (ctx, current, _) => AlertWithOneAction(
+          alertTitle: HardwareWalletProceedOnDeviceMessage.textFor(ctx, current),
+          alertContent: current == HardwareSigningStage.awaitingDevice
+              ? S.of(ctx).proceed_on_device_description
+              : S.of(ctx).please_wait,
+          buttonText: S.of(ctx).cancel,
+          alertBarrierDismissible: false,
+          buttonAction: () {
+            noticeOpen = false;
+            Navigator.of(ctx).pop();
+          },
+        ),
       ),
     );
     void closeNotice() {
+      stages.cancel();
       if (noticeOpen && context.mounted) {
         noticeOpen = false;
         Navigator.of(context).pop();
