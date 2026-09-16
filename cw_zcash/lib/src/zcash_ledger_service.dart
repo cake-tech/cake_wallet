@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_zcash/src/zcash_network.dart';
 import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
@@ -40,7 +41,11 @@ class ZcashLedgerService extends HardwareWalletService {
   /// and must reach the user as such).
   Future<Uint8List> exchange(final Uint8List apdu) async {
     try {
-      return await connection.sendOperation<Uint8List>(_ApduOperation(apdu));
+      final reply = await connection.sendOperation<Uint8List>(_ApduOperation(apdu));
+      // A cause recorded for an earlier exchange no longer explains a later
+      // failure.
+      lastTransportError = null;
+      return reply;
     } on LedgerDeviceException catch (e) {
       printV("ledger: status ${e.errorCode.toRadixString(16)} for ins ${apdu[1].toRadixString(16)}");
       return Uint8List.fromList([(e.errorCode >> 8) & 0xff, e.errorCode & 0xff]);
@@ -66,7 +71,11 @@ class ZcashLedgerService extends HardwareWalletService {
     }
     final parts = version.split('.').map(int.tryParse).toList();
     if (parts.length < 3 || parts.any((final p) => p == null)) {
-      return;
+      // Never skip the minimum-version check on a version we cannot read.
+      throw Exception(
+        "Could not read the Zcash app version on the Ledger ($version); "
+        "update the app in Ledger Live",
+      );
     }
     final (major, minor, patch) = minAppVersion;
     final current = (parts[0]!, parts[1]!, parts[2]!);
@@ -87,15 +96,20 @@ class ZcashLedgerService extends HardwareWalletService {
   /// account regardless of [limit]: the picker's "load more" asks for the
   /// next index, one approval at a time. [HardwareAccountData.xpub] carries
   /// the unified full viewing key the wallet is created from.
+  ///
+  /// [network] selects the viewing key's network (mainnet unless the wallet
+  /// being restored says otherwise); it decides the coin type in the
+  /// derivation path the device exports from.
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({
     final int index = 0,
     final int limit = 5,
+    final ZcashNetwork network = ZcashNetwork.mainnet,
   }) async {
     await ZcashWalletBase.ensureRustLib();
     await ensureZcashApp();
     // Only the network is read from this, never the database.
-    final coin = zkool_coin.Coin();
+    final coin = zkool_coin.Coin(defaultCoin: network.networkIndex);
     final ufvk = await _guard(
       () => zkool_ledger.ledgerGetUfvk(aindex: index, c: coin, exchange: exchange),
     );
@@ -104,7 +118,7 @@ class ZcashLedgerService extends HardwareWalletService {
       HardwareAccountData(
         address: address,
         accountIndex: index,
-        derivationPath: "m/32'/133'/$index'",
+        derivationPath: "m/32'/${network == ZcashNetwork.mainnet ? 133 : 1}'/$index'",
         xpub: ufvk,
       ),
     ];

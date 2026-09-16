@@ -456,6 +456,22 @@ abstract class ZcashWalletBase
     }
   }
 
+  /// Signs on the Ledger without holding the shared coin lock.
+  ///
+  /// The device review waits on the user, for minutes if they step away, and
+  /// sync, balance and history refreshes all queue behind that lock. The
+  /// signer only reads this account's keys and addresses from the database,
+  /// so it runs on its own handle once the transaction has been planned under
+  /// the lock.
+  Future<zkool_pay.PcztPackage> _signOnLedgerOutsideCoinLock(
+    final zkool_pay.PcztPackage txPlan,
+  ) async {
+    var coin = zkool_coin.Coin();
+    coin = await coin.openDatabase(dbFilepath: c.dbFilepath);
+    coin = await coin.setAccount(account: accountId);
+    return signOnLedger(txPlan, coin);
+  }
+
   /// Has the Ledger review and sign a transaction plan: the device returns
   /// the spend authorizations, then the backend proves and finalizes the
   /// transaction, ready for [PendingZcashTransaction.commit] to broadcast.
@@ -531,7 +547,7 @@ abstract class ZcashWalletBase
     // pools parameter: bitmask for which pools to use for sending
     // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
-      return await runWithCoin(
+      final (txPlan, txFee) = await runWithCoin(
         accountId: accountId,
         func: (coin) async {
           final ironwood = await zkool_network.isIronwoodActive(c: coin);
@@ -545,20 +561,21 @@ abstract class ZcashWalletBase
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
-          // A Ledger reviews and signs here, while the transaction is being
-          // prepared, so the confirmation sheet that follows shows a signed
-          // transaction and the slide only broadcasts it: the same order as
-          // the other hardware wallets, and what the user expects.
-          final signed = isLedgerWallet ? await signOnLedger(txPlan, coin) : null;
-          return PendingZcashTransaction(
-            zcashWallet: this as ZcashWallet,
-            credentials: creds,
-            txPlan: txPlan,
-            signedPackage: signed,
-            fee: txFee,
-            availableBalance: availableBalance,
-          );
+          return (txPlan, txFee);
         },
+      );
+      // A Ledger reviews and signs here, while the transaction is being
+      // prepared, so the confirmation sheet that follows shows a signed
+      // transaction and the slide only broadcasts it: the same order as the
+      // other hardware wallets, and what the user expects.
+      final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
+      return PendingZcashTransaction(
+        zcashWallet: this as ZcashWallet,
+        credentials: creds,
+        txPlan: txPlan,
+        signedPackage: signed,
+        fee: txFee,
+        availableBalance: availableBalance,
       );
     } catch (e) {
       if (tryReduceFeeAmount != 0) rethrow;
@@ -1302,7 +1319,8 @@ abstract class ZcashWalletBase
   /// do: every transaction is a device review. A Ledger reviews and signs the
   /// sweep right here, so the returned transaction only has to be broadcast.
   Future<PendingTransaction> createShieldTransaction() async {
-    return runWithCoin(
+    final destination = walletAddresses.orchardAddress!;
+    final (txPlan, sweepable, fee) = await runWithCoin(
       accountId: accountId,
       func: (final coin) async {
         final sweepable = await _sweepableTotal(coin);
@@ -1310,7 +1328,6 @@ abstract class ZcashWalletBase
         if (sweepable <= BigInt.from(_manualShieldMinSweep)) {
           throw Exception('There is nothing to shield.');
         }
-        final destination = walletAddresses.orchardAddress!;
         final txPlan = await zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
@@ -1327,30 +1344,32 @@ abstract class ZcashWalletBase
           ),
           c: coin,
         );
-        final signed = isLedgerWallet ? await signOnLedger(txPlan, coin) : null;
-        return PendingZcashTransaction(
-          zcashWallet: this as ZcashWallet,
-          isShield: true,
-          credentials: ZcashTransactionCredentials(
-            // Describes the sweep for the confirmation screens: every
-            // sweepable note, less the fee.
-            outputs: [
-              OutputInfo(
-                address: destination,
-                sendAll: true,
-                isParsedAddress: false,
-                cryptoAmount: Money(sweepable, currency),
-              ),
-            ],
-            priority: MoneroTransactionPriority.automatic,
-            currency: currency,
-          ),
-          txPlan: txPlan,
-          signedPackage: signed,
-          fee: _feeFromTxPlan(txPlan, MoneroTransactionPriority.automatic, 0, coin: coin),
-          availableBalance: Money(sweepable, currency),
-        );
+        final fee = _feeFromTxPlan(txPlan, MoneroTransactionPriority.automatic, 0, coin: coin);
+        return (txPlan, sweepable, fee);
       },
+    );
+    final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
+    return PendingZcashTransaction(
+      zcashWallet: this as ZcashWallet,
+      isShield: true,
+      credentials: ZcashTransactionCredentials(
+        // Describes the sweep for the confirmation screens: every sweepable
+        // note, less the fee.
+        outputs: [
+          OutputInfo(
+            address: destination,
+            sendAll: true,
+            isParsedAddress: false,
+            cryptoAmount: Money(sweepable, currency),
+          ),
+        ],
+        priority: MoneroTransactionPriority.automatic,
+        currency: currency,
+      ),
+      txPlan: txPlan,
+      signedPackage: signed,
+      fee: fee,
+      availableBalance: Money(sweepable, currency),
     );
   }
 
@@ -1972,6 +1991,7 @@ abstract class ZcashWalletBase
     final accounts = await service.getAvailableAccounts(
       index: credentials.accountIndex,
       limit: 1,
+      network: network,
     );
     final ufvk = accounts.firstOrNull?.xpub;
     if (ufvk == null || ufvk.isEmpty) {
