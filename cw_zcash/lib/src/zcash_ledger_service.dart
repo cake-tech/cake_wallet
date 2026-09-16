@@ -115,9 +115,14 @@ class ZcashLedgerService extends HardwareWalletService {
   Stream<zkool_pay.SigningEvent> sign(
     final zkool_pay.PcztPackage package,
     final zkool_coin.Coin coin,
-  ) {
+  ) async* {
+    // The connection may have been made minutes ago with any app open on the
+    // device; make sure it is the Zcash app before the transaction is sent,
+    // so a wrong app is reported as such rather than as a rejected header.
+    await ZcashWalletBase.ensureRustLib();
+    await ensureZcashApp();
     lastTransportError = null;
-    return zkool_ledger
+    yield* zkool_ledger
         .ledgerSignTransaction(package: package, c: coin, exchange: exchange)
         .handleError((final Object e) => throw _withTransportCause(e));
   }

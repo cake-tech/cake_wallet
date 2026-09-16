@@ -192,11 +192,11 @@ class ZcashWalletService
     return ZcashWalletBase.restoreFromLedger(credentials);
   }
 
-  /// A Ledger wallet holds no spending key, so the device has to be reachable
-  /// before it can send; the app asks to reconnect when this is true.
+  /// A Ledger wallet opens and syncs from its stored viewing key; the device
+  /// is only needed to sign, and the send screen connects it on demand (the
+  /// same as Bitcoin). Demanding a connection here would route through the
+  /// app's startup reconnect flow, which is written for Monero and cannot
+  /// hand a Zcash wallet its connection.
   @override
-  Future<bool> requireHardwareWalletConnection(final String name) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    return walletInfo?.hardwareWalletType == HardwareWalletType.ledger;
-  }
+  Future<bool> requireHardwareWalletConnection(final String name) async => false;
 }
