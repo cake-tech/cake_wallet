@@ -83,7 +83,7 @@ void main() {
     });
 
     test("another wallet's frozen record does not affect this one", () async {
-      await store.setFrozen("wallet-b", b.id, true);
+      await store.setFrozen(otherWalletId, b.id, true);
 
       final spendable = await wallet.spendableCoins();
       expect(spendable, hasLength(3));
@@ -153,6 +153,52 @@ void main() {
     });
   });
 
+  group("republishing the balance", () {
+    test("freezing republishes it", () async {
+      await wallet.setFrozen(a.id, true);
+
+      // Without this the dashboard keeps the total it last computed, and the
+      // change only appears once something else triggers a balance update.
+      expect(wallet.balanceRefreshCount, 1);
+    });
+
+    test("thawing republishes it too", () async {
+      await wallet.setFrozen(a.id, true);
+      await wallet.setFrozen(a.id, false);
+
+      expect(wallet.balanceRefreshCount, 2);
+    });
+
+    test("it happens after the write, so the new total is already visible", () async {
+      await wallet.setFrozen(a.id, true);
+
+      expect(wallet.frozenAtRefresh, [
+        {a.id}
+      ]);
+    });
+
+    test("a failed write does not republish", () async {
+      final failing = FakeCoinControlWallet(
+        id: "wallet-a",
+        unspents: [a],
+        frozenCoinsStore: _FailingStore(),
+      );
+
+      await expectLater(failing.setFrozen(a.id, true), throwsException);
+
+      // The balance still matches what is stored, which is what it should show.
+      expect(failing.balanceRefreshCount, 0);
+    });
+
+    test("nothing else republishes it", () async {
+      await wallet.spendableCoins();
+      await wallet.frozenBalance();
+      await wallet.refreshUnspents();
+
+      expect(wallet.balanceRefreshCount, 0);
+    });
+  });
+
   group("frozenBalance", () {
     test("is zero when nothing is frozen", () async {
       expect(await wallet.frozenBalance(), 0);
@@ -182,11 +228,14 @@ void main() {
     });
 
     test("ignores another wallet's frozen records", () async {
-      await store.setFrozen("wallet-b", a.id, true);
+      await store.setFrozen(otherWalletId, a.id, true);
       expect(await wallet.frozenBalance(), 0);
     });
   });
 }
+
+/// A second wallet's rows, which must never reach the wallet under test.
+const otherWalletId = 2;
 
 class _CountingStore implements FrozenCoinsStore {
   _CountingStore(this._inner);
@@ -195,15 +244,28 @@ class _CountingStore implements FrozenCoinsStore {
   int frozenIdsCalls = 0;
 
   @override
-  Future<Set<String>> frozenIds(String walletId) {
+  Future<Set<String>> frozenIds(int walletInfoId) {
     frozenIdsCalls++;
-    return _inner.frozenIds(walletId);
+    return _inner.frozenIds(walletInfoId);
   }
 
   @override
-  Future<void> setFrozen(String walletId, String id, bool frozen) =>
-      _inner.setFrozen(walletId, id, frozen);
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) =>
+      _inner.setFrozen(walletInfoId, id, frozen);
 
   @override
-  Future<void> deleteWallet(String walletId) => _inner.deleteWallet(walletId);
+  Future<void> deleteWallet(int walletInfoId) => _inner.deleteWallet(walletInfoId);
+}
+
+/// Fails every write, to prove the balance is only republished once one lands.
+class _FailingStore implements FrozenCoinsStore {
+  @override
+  Future<Set<String>> frozenIds(int walletInfoId) async => {};
+
+  @override
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) async =>
+      throw Exception("database is locked");
+
+  @override
+  Future<void> deleteWallet(int walletInfoId) async {}
 }

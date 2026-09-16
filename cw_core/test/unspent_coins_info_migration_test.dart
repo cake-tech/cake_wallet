@@ -31,12 +31,17 @@ Future<void> main() async {
   final frozen = FrozenCoinsStore();
   final notes = CoinNotesStore();
 
-  String walletId(String name, WalletType type) =>
+  late _Wallet btc;
+  late _Wallet ltc;
+  late _Wallet xmr;
+  late _Wallet dcr;
+
+  String legacyWalletId(String name, WalletType type) =>
       "${walletTypeToString(type).toLowerCase()}_$name";
 
-  Future<void> insertWalletInfoRow(String name, WalletType type) async {
-    await db!.insert("WalletInfo", {
-      "id": walletId(name, type),
+  Future<_Wallet> insertWalletInfoRow(String name, WalletType type) async {
+    final internalId = await db!.insert("WalletInfo", {
+      "id": legacyWalletId(name, type),
       "name": name,
       "type": type.index,
       "isRecovery": 0,
@@ -52,6 +57,8 @@ Future<void> main() async {
       "receiveInfoboxDismissed": 0,
       "showCombinedBalance": 1,
     });
+
+    return _Wallet(legacyWalletId(name, type), internalId);
   }
 
   UnspentCoinsInfo record({
@@ -109,10 +116,10 @@ Future<void> main() async {
       CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
-    await insertWalletInfoRow("btc", WalletType.bitcoin);
-    await insertWalletInfoRow("ltc", WalletType.litecoin);
-    await insertWalletInfoRow("xmr", WalletType.monero);
-    await insertWalletInfoRow("dcr", WalletType.decred);
+    btc = await insertWalletInfoRow("btc", WalletType.bitcoin);
+    ltc = await insertWalletInfoRow("ltc", WalletType.litecoin);
+    xmr = await insertWalletInfoRow("xmr", WalletType.monero);
+    dcr = await insertWalletInfoRow("dcr", WalletType.decred);
   });
 
   tearDownAll(() async {
@@ -128,13 +135,7 @@ Future<void> main() async {
     // skipped stays, so the box is emptied here to keep the tests isolated.
     await CakeHive.deleteBoxFromDisk(UnspentCoinsInfo.boxName);
 
-    for (final id in [
-      walletId("btc", WalletType.bitcoin),
-      walletId("ltc", WalletType.litecoin),
-      walletId("xmr", WalletType.monero),
-      walletId("dcr", WalletType.decred),
-      "bitcoin_deleted",
-    ]) {
+    for (final id in [btc.internalId, ltc.internalId, xmr.internalId, dcr.internalId, _deletedId]) {
       await frozen.deleteWallet(id);
       await notes.deleteWallet(id);
     }
@@ -142,25 +143,22 @@ Future<void> main() async {
 
   group("unspent coins info migration", () {
     test("a frozen bitcoin output keeps its freeze, keyed by hash and index", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", vout: 2, isFrozen: true)]);
+      await migrate([record(walletId: btc.id, hash: "aabb", vout: 2, isFrozen: true)]);
 
-      expect(await frozen.frozenIds(btc), {"aabb:2"});
+      expect(await frozen.frozenIds(btc.internalId), {"aabb:2"});
     });
 
     test("a note is carried over", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", note: "rent")]);
+      await migrate([record(walletId: btc.id, hash: "aabb", note: "rent")]);
 
-      expect((await notes.forWallet(btc))["aabb:0"], "rent");
+      expect((await notes.forWallet(btc.internalId))["aabb:0"], "rent");
     });
 
     test("a record carrying both keeps both", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", isFrozen: true, note: "cold")]);
+      await migrate([record(walletId: btc.id, hash: "aabb", isFrozen: true, note: "cold")]);
 
-      expect(await frozen.frozenIds(btc), {"aabb:0"});
-      expect((await notes.forWallet(btc))["aabb:0"], "cold");
+      expect(await frozen.frozenIds(btc.internalId), {"aabb:0"});
+      expect((await notes.forWallet(btc.internalId))["aabb:0"], "cold");
     });
 
     test("an untouched output gets a row holding the default", () async {
@@ -169,20 +167,19 @@ Future<void> main() async {
       // absent one -- so the outcome is right, and the cost is one row per
       // output the wallet had ever seen rather than one per output the user
       // touched.
-      final btc = walletId("btc", WalletType.bitcoin);
       await migrate([
-        record(walletId: btc, hash: "aa"),
-        record(walletId: btc, hash: "bb", vout: 1),
-        record(walletId: btc, hash: "cc", isFrozen: true),
+        record(walletId: btc.id, hash: "aa"),
+        record(walletId: btc.id, hash: "bb", vout: 1),
+        record(walletId: btc.id, hash: "cc", isFrozen: true),
       ]);
 
-      expect(await frozen.frozenIds(btc), {"cc:0"});
-      expect(await notes.forWallet(btc), isEmpty, reason: "an empty note is not stored");
+      expect(await frozen.frozenIds(btc.internalId), {"cc:0"});
+      expect(await notes.forWallet(btc.internalId), isEmpty, reason: "an empty note is not stored");
 
       final rows = await db!.query(
         FrozenCoinsStore.tableName,
-        where: "walletId = ?",
-        whereArgs: [btc],
+        where: "walletInfoId = ?",
+        whereArgs: [btc.internalId],
       );
       expect(rows, hasLength(3));
       expect(rows.where((row) => row["frozen"] == 1), hasLength(1));
@@ -191,20 +188,18 @@ Future<void> main() async {
     test("an unselected output does not become a frozen one", () async {
       // isSending was the selection, which is not durable state. Treating it as
       // frozen would silently freeze outputs the user had merely unticked.
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", isSending: false)]);
+      await migrate([record(walletId: btc.id, hash: "aabb", isSending: false)]);
 
-      expect(await frozen.frozenIds(btc), isEmpty);
-      expect(await notes.forWallet(btc), isEmpty);
+      expect(await frozen.frozenIds(btc.internalId), isEmpty);
+      expect(await notes.forWallet(btc.internalId), isEmpty);
     });
 
     test("a Monero output keeps its note but not its freeze", () async {
       // wallet2 persists the freeze itself, so a row here would be a second
       // source of truth for it. The note has no equivalent in the wallet file.
-      final xmr = walletId("xmr", WalletType.monero);
       await migrate([
         record(
-          walletId: xmr,
+          walletId: xmr.id,
           hash: "xmrhash",
           isFrozen: true,
           note: "savings",
@@ -212,26 +207,24 @@ Future<void> main() async {
         ),
       ]);
 
-      expect(await frozen.frozenIds(xmr), isEmpty);
-      expect((await notes.forWallet(xmr))["ki-1"], "savings",
+      expect(await frozen.frozenIds(xmr.internalId), isEmpty);
+      expect((await notes.forWallet(xmr.internalId))["ki-1"], "savings",
           reason: "Monero outputs are keyed by key image");
     });
 
     test("a frozen-only Monero output produces nothing", () async {
-      final xmr = walletId("xmr", WalletType.monero);
-      await migrate([record(walletId: xmr, hash: "h", isFrozen: true, keyImage: "ki-2")]);
+      await migrate([record(walletId: xmr.id, hash: "h", isFrozen: true, keyImage: "ki-2")]);
 
-      expect(await frozen.frozenIds(xmr), isEmpty);
-      expect(await notes.forWallet(xmr), isEmpty);
+      expect(await frozen.frozenIds(xmr.internalId), isEmpty);
+      expect(await notes.forWallet(xmr.internalId), isEmpty);
     });
 
     test("an MWEB output is keyed by hash alone", () async {
       // Its vout is an index into the wallet's MWEB address list, which shifts
       // as that list grows, so it cannot be part of the identity.
-      final ltc = walletId("ltc", WalletType.litecoin);
       await migrate([
         record(
-          walletId: ltc,
+          walletId: ltc.id,
           hash: "mwebhash",
           vout: 7,
           isFrozen: true,
@@ -239,14 +232,13 @@ Future<void> main() async {
         ),
       ]);
 
-      expect(await frozen.frozenIds(ltc), {"mwebhash"});
+      expect(await frozen.frozenIds(ltc.internalId), {"mwebhash"});
     });
 
     test("a regular Litecoin output still uses hash and index", () async {
-      final ltc = walletId("ltc", WalletType.litecoin);
       await migrate([
         record(
-          walletId: ltc,
+          walletId: ltc.id,
           hash: "ltchash",
           vout: 3,
           isFrozen: true,
@@ -254,58 +246,52 @@ Future<void> main() async {
         ),
       ]);
 
-      expect(await frozen.frozenIds(ltc), {"ltchash:3"});
+      expect(await frozen.frozenIds(ltc.internalId), {"ltchash:3"});
     });
 
     test("a Decred output uses hash and index, as it has no key image", () async {
-      final dcr = walletId("dcr", WalletType.decred);
-      await migrate([record(walletId: dcr, hash: "dcrhash", vout: 1, isFrozen: true)]);
+      await migrate([record(walletId: dcr.id, hash: "dcrhash", vout: 1, isFrozen: true)]);
 
-      expect(await frozen.frozenIds(dcr), {"dcrhash:1"});
+      expect(await frozen.frozenIds(dcr.internalId), {"dcrhash:1"});
     });
 
     test("a record for a wallet that no longer exists contributes nothing", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: "bitcoin_deleted", hash: "aa", isFrozen: true, note: "n")]);
+      await migrate([record(walletId: _deletedLegacyId, hash: "aa", isFrozen: true, note: "n")]);
 
       final rows = await db!.query(FrozenCoinsStore.tableName);
-      expect(rows.where((row) => row["walletId"] == "bitcoin_deleted"), isEmpty);
-      expect(await notes.forWallet("bitcoin_deleted"), isEmpty);
-      expect(await frozen.frozenIds(btc), isEmpty);
+      expect(rows.where((row) => row["walletInfoId"] == _deletedId), isEmpty);
+      expect(await notes.forWallet(_deletedId), isEmpty);
+      expect(await frozen.frozenIds(btc.internalId), isEmpty);
     });
 
     test("a stale record does not stop the ones after it", () async {
       // It is skipped rather than treated as the end of the box, so one leftover
       // from a deleted wallet cannot silently drop every later record.
-      final btc = walletId("btc", WalletType.bitcoin);
       await migrate([
-        record(walletId: "bitcoin_deleted", hash: "stale", isFrozen: true),
-        record(walletId: btc, hash: "mine", isFrozen: true, note: "kept"),
+        record(walletId: _deletedLegacyId, hash: "stale", isFrozen: true),
+        record(walletId: btc.id, hash: "mine", isFrozen: true, note: "kept"),
       ]);
 
-      expect(await frozen.frozenIds(btc), {"mine:0"});
-      expect((await notes.forWallet(btc))["mine:0"], "kept");
+      expect(await frozen.frozenIds(btc.internalId), {"mine:0"});
+      expect((await notes.forWallet(btc.internalId))["mine:0"], "kept");
     });
 
     test("the same output id in two wallets stays separate", () async {
       // Two wallets restored from the same seed see the same ids, which is why
       // the wallet is part of the key in both new tables.
-      final btc = walletId("btc", WalletType.bitcoin);
-      final dcr = walletId("dcr", WalletType.decred);
       await migrate([
-        record(walletId: btc, hash: "shared", isFrozen: true),
-        record(walletId: dcr, hash: "shared", note: "theirs"),
+        record(walletId: btc.id, hash: "shared", isFrozen: true),
+        record(walletId: dcr.id, hash: "shared", note: "theirs"),
       ]);
 
-      expect(await frozen.frozenIds(btc), {"shared:0"});
-      expect(await frozen.frozenIds(dcr), isEmpty);
-      expect(await notes.forWallet(btc), isEmpty);
-      expect((await notes.forWallet(dcr))["shared:0"], "theirs");
+      expect(await frozen.frozenIds(btc.internalId), {"shared:0"});
+      expect(await frozen.frozenIds(dcr.internalId), isEmpty);
+      expect(await notes.forWallet(btc.internalId), isEmpty);
+      expect((await notes.forWallet(dcr.internalId))["shared:0"], "theirs");
     });
 
     test("a migrated record is removed from the box", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", isFrozen: true, note: "n")]);
+      await migrate([record(walletId: btc.id, hash: "aabb", isFrozen: true, note: "n")]);
 
       final box = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
       expect(box.values, isEmpty);
@@ -314,7 +300,7 @@ Future<void> main() async {
     test("a record it skipped is left in the box", () async {
       // Only what actually reached the new tables is removed. A wallet list
       // that came back short for any reason must not cost the user a freeze.
-      await migrate([record(walletId: "bitcoin_deleted", hash: "aa", isFrozen: true)]);
+      await migrate([record(walletId: _deletedLegacyId, hash: "aa", isFrozen: true)]);
 
       final box = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
       expect(box.values, hasLength(1));
@@ -324,22 +310,20 @@ Future<void> main() async {
       // The reason the records are removed rather than re-read: the box still
       // says frozen, so a second pass over it would resurrect a freeze the user
       // had cleared in the app.
-      final btc = walletId("btc", WalletType.bitcoin);
-      await migrate([record(walletId: btc, hash: "aabb", isFrozen: true)]);
-      expect(await frozen.frozenIds(btc), {"aabb:0"});
+      await migrate([record(walletId: btc.id, hash: "aabb", isFrozen: true)]);
+      expect(await frozen.frozenIds(btc.internalId), {"aabb:0"});
 
-      await frozen.setFrozen(btc, "aabb:0", false);
+      await frozen.setFrozen(btc.internalId, "aabb:0", false);
       await performUnspentCoinsInfoHiveMigration();
 
-      expect(await frozen.frozenIds(btc), isEmpty);
+      expect(await frozen.frozenIds(btc.internalId), isEmpty);
     });
 
     test("a record whose write fails is kept for the next launch", () async {
-      final btc = walletId("btc", WalletType.bitcoin);
       CoinNotesStore.instance = _FailingNotesStore();
       addTearDown(() => CoinNotesStore.instance = CoinNotesStore());
 
-      await migrate([record(walletId: btc, hash: "aabb", isFrozen: true, note: "n")]);
+      await migrate([record(walletId: btc.id, hash: "aabb", isFrozen: true, note: "n")]);
 
       final box = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
       expect(box.values, hasLength(1), reason: "still there to retry");
@@ -360,6 +344,21 @@ Future<void> main() async {
 /// Fails every note write, to prove a record is only dropped once it landed.
 class _FailingNotesStore extends CoinNotesStore {
   @override
-  Future<void> save(String walletId, String id, String note) async =>
+  Future<void> save(int walletInfoId, String id, String note) async =>
       throw Exception("database is locked");
 }
+
+/// A wallet under test, by both of the ids that matter here.
+class _Wallet {
+  _Wallet(this.id, this.internalId);
+
+  /// What the legacy records carry, derived from the wallet name.
+  final String id;
+
+  /// What the new tables key on, stable across a rename.
+  final int internalId;
+}
+
+/// A wallet that no longer exists, so nothing resolves it.
+const _deletedLegacyId = "bitcoin_deleted";
+const _deletedId = 99;

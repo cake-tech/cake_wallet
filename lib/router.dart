@@ -793,8 +793,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.unspentCoinsList:
       final args = settings.arguments as CoinControlPageArgs?;
+      final page = getIt.get<NewCoinControlPage>(param1: args);
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewCoinControlPage>(param1: args));
+          (context) => page);
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;

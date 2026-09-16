@@ -6,19 +6,19 @@ class CoinNotesStore {
 
   static const tableName = "CoinNote";
 
-  Future<Map<String, String>> forWallet(String walletId) async {
-    final rows = await db!.query(tableName, where: "walletId = ?", whereArgs: [walletId]);
+  Future<Map<String, String>> forWallet(int walletInfoId) async {
+    final rows = await db!.query(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
     return {
       for (final row in rows) row["id"]! as String: row["note"] as String? ?? "",
     };
   }
 
-  Future<void> save(String walletId, String id, String note) => db!.insert(
+  Future<void> save(int walletInfoId, String id, String note) => db!.insert(
         tableName,
-        {"walletId": walletId, "id": id, "note": note},
+        {"walletInfoId": walletInfoId, "id": id, "note": note},
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
-  Future<void> deleteWallet(String walletId) =>
-      db!.delete(tableName, where: "walletId = ?", whereArgs: [walletId]);
+  Future<void> deleteWallet(int walletInfoId) =>
+      db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
 }

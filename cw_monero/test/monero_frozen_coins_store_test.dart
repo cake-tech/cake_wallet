@@ -49,7 +49,9 @@ class _FakeWallet2 {
 }
 
 void main() {
-  const wallet = "monero_test";
+  // The tables key on WalletInfo.internalId; this store never writes to them,
+  // which is what the database assertions below prove.
+  const wallet = 1;
   final dataRoot = Directory("./test/data/monero_frozen_coins_store");
 
   late MoneroFrozenCoinsStore store;
@@ -133,7 +135,7 @@ void main() {
 
       final rows = await db!.query(
         FrozenCoinsStore.tableName,
-        where: "walletId = ?",
+        where: "walletInfoId = ?",
         whereArgs: [wallet],
       );
       expect(rows, isEmpty);

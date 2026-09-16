@@ -27,11 +27,11 @@ class MoneroFrozenCoinsStore extends FrozenCoinsStore {
   }
 
   @override
-  Future<Set<String>> frozenIds(String walletId) async =>
+  Future<Set<String>> frozenIds(int walletInfoId) async =>
       _frozen.entries.where((entry) => entry.value).map((entry) => entry.key).toSet();
 
   @override
-  Future<void> setFrozen(String walletId, String id, bool frozen) async {
+  Future<void> setFrozen(int walletInfoId, String id, bool frozen) async {
     final index = _indexes[id];
     if (index == null) {
       printV("MoneroFrozenCoinsStore: no coin index for $id, frozen flag cached only");
@@ -45,5 +45,5 @@ class MoneroFrozenCoinsStore extends FrozenCoinsStore {
   }
 
   @override
-  Future<void> deleteWallet(String walletId) async => beginRefresh();
+  Future<void> deleteWallet(int walletInfoId) async => beginRefresh();
 }

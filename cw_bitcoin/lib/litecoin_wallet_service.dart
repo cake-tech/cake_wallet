@@ -123,8 +123,8 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    await FrozenCoinsStore.instance.deleteWallet(walletInfo.id);
-    await CoinNotesStore.instance.deleteWallet(walletInfo.id);
+    await FrozenCoinsStore.instance.deleteWallet(walletInfo.internalId);
+    await CoinNotesStore.instance.deleteWallet(walletInfo.internalId);
   }
 
   @override

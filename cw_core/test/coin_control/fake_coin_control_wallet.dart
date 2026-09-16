@@ -31,6 +31,7 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
     required this.unspents,
     required this.frozenCoinsStore,
     this.coinTypeOf,
+    int internalId = 1,
     WalletType type = WalletType.bitcoin,
   }) : super(
           WalletInfo.external(
@@ -45,7 +46,10 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
             address: "",
           ),
           DerivationInfo(),
-        );
+        ) {
+    // WalletInfo.external cannot take one, as sqlite assigns it on first save.
+    walletInfo.internalId = internalId;
+  }
 
   @override
   List<Unspent> unspents;
@@ -58,8 +62,19 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
 
   int refreshCount = 0;
 
+  /// How many times the balance was republished, and what the frozen total was
+  /// each time, so the ordering against the write can be asserted.
+  int balanceRefreshCount = 0;
+  final List<Set<String>> frozenAtRefresh = [];
+
   @override
   Future<void> refreshUnspents() async => refreshCount++;
+
+  @override
+  Future<void> refreshBalanceAfterFreeze() async {
+    balanceRefreshCount++;
+    frozenAtRefresh.add(await frozenIds());
+  }
 
   @override
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) {

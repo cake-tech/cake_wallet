@@ -42,7 +42,7 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
       await wallet.refreshUnspents();
 
       final frozen = await wallet.frozenIds();
-      final notes = await CoinNotesStore.instance.forWallet(wallet.id);
+      final notes = await CoinNotesStore.instance.forWallet(wallet.walletInfo.internalId);
 
       final rows = <CoinRow>[];
       for (final coin in wallet.unspents) {
@@ -76,17 +76,14 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   }
 
   void _onSelectionChanged(SelectionChanged event, Emitter<CoinControlState> emit) {
-    final current = state;
-    if (current is! CoinControlLoaded) {
-      return;
-    }
+    if(state case final CoinControlLoaded s) {
+      final row = s.rowFor(event.id);
+      if (row == null || row.isFrozen) {
+        return;
+      }
 
-    final row = current.rowFor(event.id);
-    if (row == null || row.isFrozen) {
-      return;
+      emit(s.withRow(row.copyWith(isSelected: event.value)));
     }
-
-    emit(current.withRow(row.copyWith(isSelected: event.value)));
   }
 
   void _onSelectAllChanged(SelectAllChanged event, Emitter<CoinControlState> emit) {
@@ -107,8 +104,9 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   Future<void> _onNoteChanged(NoteChanged event, Emitter<CoinControlState> emit) async {
     if (state case final CoinControlLoaded s) {
       try {
-        await CoinNotesStore.instance.save(wallet.id, event.id, event.note);
+        await CoinNotesStore.instance.save(wallet.walletInfo.internalId, event.id, event.note);
 
+        print(s);
         emit(
           s.withRow(
             s.rowFor(event.id)!.copyWith(
