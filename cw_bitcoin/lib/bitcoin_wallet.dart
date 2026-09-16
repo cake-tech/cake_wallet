@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import "package:cw_bitcoin/bitcoin_receive_page_option.dart";
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -14,6 +15,7 @@ import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -31,6 +33,8 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -415,12 +419,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   late final PayjoinManager payjoinManager;
 
+  @override
+  bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
+
+  @override
+  bool get hasLightningSupport => lightningWallet?.sdk != null;
+
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
       .isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
@@ -437,24 +447,65 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
-        utxo: utxo.utxo,
-        rawTx: rawTx,
-        ownerDetails: utxo.ownerDetails,
-        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint: masterFingerprint,
-        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
-      ));
+      psbtReadyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
     }
 
+    final psbtReadyOutputs = outputs.map((o) {
+      final cwOutput = cwOutputs
+          .where(
+            (e) => [e.address, e.extractedAddress]
+                .map((e) => e?.toLowerCase())
+                .contains(o.address.toAddress().toLowerCase()),
+          )
+          .firstOrNull;
+
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+          outputInfo: cwOutput,
+        );
+      }
+      return PSBTReadyBitcoinOutput(
+        address: o.address,
+        value: o.value,
+        isSilentPayment: o.isSilentPayment,
+        isChange: o.isChange,
+        outputInfo: cwOutput,
+      );
+    }).toList();
+
+    final locktime = antiFeeSnipingLocktime(
+      chainTip: await getCurrentChainTip(),
+      synced: syncStatus is SyncedSyncStatus,
+    );
+
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF, cwOutputs: cwOutputs)
-        .psbt;
+      inputs: psbtReadyInputs,
+      outputs: psbtReadyOutputs,
+      enableRBF: enableRBF,
+      locktime: locktime,
+    ).psbt;
   }
 
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -661,5 +712,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return super.signMessage(message, address: address);
+  }
+
+  @override
+  bool receiveOptionAvailable(ReceivePageOption option) {
+    if(option == BitcoinReceivePageOption.lightning) {
+      return hasLightningSupport;
+    }
+
+    if(option == BitcoinReceivePageOption.silent_payments) {
+      return hasSilentPaymentsScanning;
+    }
+
+    return true;
   }
 }

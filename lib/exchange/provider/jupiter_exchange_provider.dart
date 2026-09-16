@@ -138,6 +138,10 @@ class JupiterExchangeProvider extends ExchangeProvider {
       if (!_isSolanaCurrency(from) || !_isSolanaCurrency(to)) {
         return 0.0;
       }
+
+      if (amount <= 0) {
+        return 0.0;
+      }
       final inputMint = _getTokenMint(from);
       final outputMint = _getTokenMint(to);
 

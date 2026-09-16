@@ -116,9 +116,13 @@ We have excellent user guides, which are also open-source and open for contribut
 
 # Build Instructions
 
-More instructions to follow
+Building Cake Wallet for each platform is covered in the platform-specific guides under `docs/builds/`:
 
-For instructions on how to build for Android: please view file `howto-build-android.md`
+- [Building for Android](docs/builds/ANDROID.md)
+- [Building for iOS](docs/builds/IOS.md)
+- [Building for Linux](docs/builds/LINUX.md)
+- [Building for macOS](docs/builds/MACOS.md)
+- [Building for Windows](docs/builds/WINDOWS.md)
 
 # Contributing
 
@@ -186,4 +190,4 @@ The only parts to be translated, if needed, are the values m and s after the var
 
 ---
 
-Copyright (C) 2018-2023 Cake Labs LLC
+Copyright (C) 2018-2025 Cake Labs LLC

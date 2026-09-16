@@ -295,6 +295,9 @@ class PayjoinManager {
                 await _wallet.updateAllUnspents();
                 utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
               }
+              // Candidates arrive in wallet scan order (address, then age), which is
+              // predictable; shuffle so the receiver's input choice can't mirror it.
+              utxos.shuffle(Random.secure());
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': utxos,
