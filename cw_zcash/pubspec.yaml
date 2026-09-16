@@ -19,14 +19,9 @@ dependencies:
   flat_buffers: any
   ledger_flutter_plus: ^1.4.1
   zkool:
-    # Local branch ledger-official: upstream zkool 6.30.0 (Official Ledger app,
-    # Ironwood/v6 PCZT signing) plus the Cake and Keystone patches, with a
-    # Flutter-driven APDU transport. Push the branch and restore a git ref
-    # before merging.
-    path: ../../zkool2-ledger
-    # git:
-    #   url: https://github.com/cake-tech/zkool2.git
-    #   ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+    git:
+      url: https://github.com/macsrock/zkool2.git
+      ref: 2e6291d40b81730e12aacd4b8c997f45108726f7
 
   path_provider: any
   sqflite_common_ffi: any

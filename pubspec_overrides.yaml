@@ -861,9 +861,11 @@ dependency_overrides:
       ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
       path: ./packages/ledger-ethereum
   ledger_flutter_plus:
+    # cake-tech/ledger-flutter-plus master (eaf49764) plus the BLE frame-length
+    # fix; see the companion pull request.
     git:
-      url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      url: https://github.com/macsrock/ledger-flutter-plus
+      ref: a0f14e5d4e44bf735ff3ed9be3891cb2ea78417f
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -1240,8 +1242,8 @@ dependency_overrides:
       path: ./packages/riverpod_annotation
   rlz:
     git:
-      url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      url: https://github.com/macsrock/zkool2.git
+      ref: 2e6291d40b81730e12aacd4b8c997f45108726f7
       path: ./rust_builder
   rxdart:
     git:
@@ -1681,7 +1683,9 @@ dependency_overrides:
       ref: 119a499068a903222fbbefdea18ea59efdd417b9
       path: ./pkgs/yaml_edit
   zkool:
-    # Local branch ledger-official (upstream zkool 6.30.0 + Cake/Keystone
-    # patches + Flutter-driven Ledger transport); restore a git ref once
-    # pushed.
-    path: /Users/vikrantsharma/Developer/zkool2-ledger
+    # upstream zkool 6.30.0 (Official Ledger app signer) plus the Cake and
+    # Keystone patches and the Flutter-driven Ledger transport; see the
+    # companion pull request.
+    git:
+      url: https://github.com/macsrock/zkool2.git
+      ref: 2e6291d40b81730e12aacd4b8c997f45108726f7

@@ -1853,9 +1853,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      resolved-ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      url: "https://github.com/cake-tech/ledger-flutter-plus"
+      ref: a0f14e5d4e44bf735ff3ed9be3891cb2ea78417f
+      resolved-ref: a0f14e5d4e44bf735ff3ed9be3891cb2ea78417f
+      url: "https://github.com/macsrock/ledger-flutter-plus"
     source: git
     version: "1.6.0+1"
   ledger_litecoin:
@@ -2627,9 +2627,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: rust_builder
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
+      ref: "2e6291d40b81730e12aacd4b8c997f45108726f7"
+      resolved-ref: "2e6291d40b81730e12aacd4b8c997f45108726f7"
+      url: "https://github.com/macsrock/zkool2.git"
     source: git
     version: "0.0.1"
   rxdart:
@@ -3484,9 +3484,11 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "../zkool2-ledger"
-      relative: true
-    source: path
+      path: "."
+      ref: "2e6291d40b81730e12aacd4b8c997f45108726f7"
+      resolved-ref: "2e6291d40b81730e12aacd4b8c997f45108726f7"
+      url: "https://github.com/macsrock/zkool2.git"
+    source: git
     version: "6.30.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
