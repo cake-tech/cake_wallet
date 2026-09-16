@@ -27,13 +27,10 @@ import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/generate_name.dart";
 import "package:cw_core/sync_status.dart";
-import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-
-bool supportsAccountEducationAndArchival(WalletType walletType) => walletType == WalletType.monero;
 
 class AccountCustomizerListItem {
   const AccountCustomizerListItem({
@@ -62,17 +59,12 @@ class AccountCustomizer extends StatefulWidget {
 }
 
 class _AccountCustomizerState extends State<AccountCustomizer> {
-  static const double _kStackVisibleFactor = 0.2;
-
   final List<AccountCustomizerListItem> _items = [];
   bool _hasArchivedAccounts = false;
   int? _accountBeingArchivedId;
   bool _loading = true;
 
   double get cardWidth => min(MediaQuery.sizeOf(context).width * 0.9, 768);
-
-  bool get _supportsAccountArchival =>
-      supportsAccountEducationAndArchival(widget.dashboardViewModel.wallet.type);
 
   @override
   void initState() {
@@ -89,7 +81,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     final educationPage = AccountEducationPage(
       settingsStore: widget.dashboardViewModel.settingsStore,
     );
-    if (_supportsAccountArchival && !educationPage.isDismissed) {
+    if (!educationPage.isDismissed) {
       await educationPage.show(context);
     }
   }
@@ -194,34 +186,32 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).maybePop,
-              trailingWidget: _supportsAccountArchival
-                  ? Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 8,
-                      children: [
-                        ModernButton(
-                          semanticLabel: S.of(context).accounts_help,
-                          icon: const Icon(Icons.question_mark),
-                          size: 36,
-                          iconSize: 19,
-                          onPressed: () => AccountEducationPage(
-                            settingsStore: widget.dashboardViewModel.settingsStore,
-                          ).show(context),
-                        ),
-                        ModernButton.svg(
-                          semanticLabel: S.of(context).archived_accounts,
-                          svgPath: "assets/new-ui/archived.svg",
-                          size: 36,
-                          iconSize: 19,
-                          backgroundColor:
-                              _hasArchivedAccounts ? Theme.of(context).colorScheme.primary : null,
-                          iconColor:
-                              _hasArchivedAccounts ? Theme.of(context).colorScheme.onPrimary : null,
-                          onPressed: _openArchivedAccounts,
-                        ),
-                      ],
-                    )
-                  : null,
+              trailingWidget: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  ModernButton(
+                    semanticLabel: S.of(context).accounts_help,
+                    icon: const Icon(Icons.question_mark),
+                    size: 36,
+                    iconSize: 19,
+                    onPressed: () => AccountEducationPage(
+                      settingsStore: widget.dashboardViewModel.settingsStore,
+                    ).show(context),
+                  ),
+                  ModernButton.svg(
+                    semanticLabel: S.of(context).archived_accounts,
+                    svgPath: "assets/new-ui/archived.svg",
+                    size: 36,
+                    iconSize: 19,
+                    backgroundColor:
+                        _hasArchivedAccounts ? Theme.of(context).colorScheme.primary : null,
+                    iconColor:
+                        _hasArchivedAccounts ? Theme.of(context).colorScheme.onPrimary : null,
+                    onPressed: _openArchivedAccounts,
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
@@ -231,127 +221,21 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
-            Expanded(child: _buildBody()),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CupertinoActivityIndicator())
+                  : _items.isEmpty
+                      ? const SizedBox.shrink()
+                      : _AccountCards(
+                          items: _items,
+                          cardWidth: cardWidth,
+                          onReorder: reorder,
+                          onAddAccount: _showAddAccountModal,
+                        ),
+            ),
           ],
         ),
       );
-
-  Widget _buildBody() {
-    if (_loading) {
-      return const Center(child: CupertinoActivityIndicator());
-    }
-    if (_items.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Stack(
-      children: [
-        ReorderableListView.builder(
-          padding: const EdgeInsets.only(bottom: 196),
-          scrollController: ModalScrollController.of(context),
-          onReorder: reorder,
-          proxyDecorator: (child, index, animation) => AnimatedBuilder(
-            animation: animation,
-            builder: (context, _) {
-              final animValue = Curves.easeOutCubic.transform(animation.value);
-              final scale = lerpDouble(1, 1.05, animValue)!;
-
-              return Opacity(
-                opacity: 1 - animValue.clamp(0.0, 0.1),
-                child: Center(
-                  child: SizedBox(
-                    width: cardWidth,
-                    child: Transform.scale(
-                      scale: scale,
-                      child: child,
-                    ),
-                  ),
-                ),
-              );
-            },
-            child: _items[index].card,
-          ),
-          itemCount: _items.length,
-          itemBuilder: (context, index) {
-            final card = _items[index].card;
-            final selectedItemIndex = _items.length - 1;
-
-            return Container(
-              key: ValueKey(_items[index].accountListItem.id),
-              child: Semantics(
-                button: true,
-                selected: selectedItemIndex == index,
-                label: "${_items[index].accountListItem.id + 1}. "
-                    "${_items[index].accountListItem.label.trim().isEmpty ? S.of(context).unnamed_account : _items[index].accountListItem.label}",
-                onTap: () => reorder(index, _items.length),
-                child: GestureDetector(
-                  excludeFromSemantics: true,
-                  onTap: () {
-                    reorder(index, _items.length);
-                  },
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    heightFactor: _kStackVisibleFactor,
-                    child: card,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 50),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Material(
-                  color: Colors.transparent,
-                  child: MergeSemantics(
-                    child: Semantics(
-                      button: true,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(999999),
-                        onTap: _showAddAccountModal,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(999999),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 8,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  size: 28,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                Text(
-                                  S.of(context).add_account,
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   bool _checkReadyToManage() {
     if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
@@ -421,7 +305,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
       param1: CardCustomizerBlocParams(
         lightningMode: false,
         amountDisplayMode: null,
-        canHide: _supportsAccountArchival && _items.length > 1,
+        canHide: _items.length > 1,
       ),
     );
 
@@ -434,27 +318,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
               cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
                   widget.dashboardViewModel.wallet.currency.name,
               cryptoName: widget.dashboardViewModel.wallet.currency.name,
-              accountNumber: account.id + 1,
-              balance: account.balance ?? "0.00",
+              dashboardViewModel: widget.dashboardViewModel,
+              account: account,
+              accountListViewModel: widget.accountListViewModel,
               fiatBalance: _fiatBalance(account),
-              onArchive: _supportsAccountArchival
-                  ? () {
-                      final latestAccount = widget.accountListViewModel.accounts
-                              .firstWhereOrNull((item) => item.id == account.id) ??
-                          account;
-                      return confirmAccountArchival(
-                        context,
-                        account: AccountListItem(
-                          id: latestAccount.id,
-                          label: bloc.state.accountName,
-                          balance: latestAccount.balance,
-                          isSelected: latestAccount.isSelected,
-                        ),
-                        accountListViewModel: widget.accountListViewModel,
-                        dashboardViewModel: widget.dashboardViewModel,
-                      );
-                    }
-                  : null,
             ),
           ),
         ),
@@ -463,16 +330,13 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
 
     final hideRequested = result == true;
     _accountBeingArchivedId = hideRequested ? account.id : null;
-    if (hideRequested) {
-      // Persist edits made on this screen before AccountHidden stores the hidden state.
-      // AccountHidden intentionally owns only hidden state.
-      bloc.add(DesignSaved());
-      await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-      bloc.add(AccountHidden());
-    } else {
-      bloc.add(DesignSaved());
-    }
+    // Save edits before AccountHidden writes the hidden state.
+    bloc.add(DesignSaved());
     await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
+    if (hideRequested) {
+      bloc.add(AccountHidden());
+      await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
+    }
     if (hideRequested && _items.length > 1) {
       final nextAccount = _items[_items.length - 2].accountListItem;
       widget.accountListViewModel.select(
@@ -570,6 +434,130 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     ).withLocalSeperator(widget.dashboardViewModel.settingsStore.languageCode);
     return "$fiat $value";
   }
+}
+
+class _AccountCards extends StatelessWidget {
+  const _AccountCards({
+    required this.items,
+    required this.cardWidth,
+    required this.onReorder,
+    required this.onAddAccount,
+  });
+
+  static const double _kStackVisibleFactor = 0.2;
+
+  final List<AccountCustomizerListItem> items;
+  final double cardWidth;
+  final ReorderCallback onReorder;
+  final VoidCallback onAddAccount;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+        children: [
+          ReorderableListView.builder(
+            padding: const EdgeInsets.only(bottom: 196),
+            scrollController: ModalScrollController.of(context),
+            onReorder: onReorder,
+            proxyDecorator: (child, index, animation) => AnimatedBuilder(
+              animation: animation,
+              builder: (context, _) {
+                final animValue = Curves.easeOutCubic.transform(animation.value);
+                final scale = lerpDouble(1, 1.05, animValue)!;
+
+                return Opacity(
+                  opacity: 1 - animValue.clamp(0.0, 0.1),
+                  child: Center(
+                    child: SizedBox(
+                      width: cardWidth,
+                      child: Transform.scale(
+                        scale: scale,
+                        child: child,
+                      ),
+                    ),
+                  ),
+                );
+              },
+              child: items[index].card,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final selectedItemIndex = items.length - 1;
+
+              return Container(
+                key: ValueKey(items[index].accountListItem.id),
+                child: Semantics(
+                  button: true,
+                  selected: selectedItemIndex == index,
+                  label: "${items[index].accountListItem.id + 1}. "
+                      "${items[index].accountListItem.label.trim().isEmpty ? S.of(context).unnamed_account : items[index].accountListItem.label}",
+                  onTap: () => onReorder(index, items.length),
+                  child: GestureDetector(
+                    excludeFromSemantics: true,
+                    onTap: () {
+                      onReorder(index, items.length);
+                    },
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      heightFactor: _kStackVisibleFactor,
+                      child: items[index].card,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: MergeSemantics(
+                      child: Semantics(
+                        button: true,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(999999),
+                          onTap: onAddAccount,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              borderRadius: BorderRadius.circular(999999),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                spacing: 8,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    size: 28,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  Text(
+                                    S.of(context).add_account,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
 }
 
 class AccountCreationModal extends StatefulWidget {

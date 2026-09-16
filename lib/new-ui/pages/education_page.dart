@@ -69,7 +69,6 @@ class _EducationPageState extends State<EducationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final strings = S.of(context);
     final pages = widget.slides;
 
     return Material(
@@ -99,7 +98,7 @@ class _EducationPageState extends State<EducationPage> {
                     ModernButton(
                       size: 36,
                       icon: const Icon(Icons.close),
-                      semanticLabel: strings.close,
+                      semanticLabel: S.of(context).close,
                       onPressed: _complete,
                     ),
                   ],
@@ -143,7 +142,7 @@ class _EducationPageState extends State<EducationPage> {
                   onPressed: () => _continue(pages.length),
                   text: _currentPage == pages.length - 1
                       ? widget.completionLabel
-                      : strings.continue_text,
+                      : S.of(context).continue_text,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
@@ -212,15 +211,14 @@ class EducationText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.bodyLarge?.copyWith(
+    final style = Theme.of(context).textTheme.bodyLarge?.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: warning
           ? context.customColors.warningOutlineColor
           : secondary
-              ? theme.colorScheme.onSurfaceVariant
-              : theme.colorScheme.onSurface,
+              ? Theme.of(context).colorScheme.onSurfaceVariant
+              : Theme.of(context).colorScheme.onSurface,
     );
     final highlight = highlightedText;
     final highlightStart = highlight == null ? -1 : text.indexOf(highlight);
@@ -237,7 +235,7 @@ class EducationText extends StatelessWidget {
           TextSpan(text: text.substring(0, highlightStart)),
           TextSpan(
             text: text.substring(highlightStart, highlightEnd),
-            style: TextStyle(color: theme.colorScheme.primary),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
           TextSpan(text: text.substring(highlightEnd)),
         ],

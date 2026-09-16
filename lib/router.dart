@@ -661,11 +661,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param1: settings.arguments as AccountListItem?));
 
     case Routes.accountCustomizer:
-      return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<AccountCustomizer>(
-          param1: settings.arguments! as DashboardViewModel,
-        ),
+      final page = getIt.get<AccountCustomizer>(
+        param1: settings.arguments! as DashboardViewModel,
       );
+      return handleRouteWithPlatformAwareness((_) => page);
 
     case Routes.nanoAccountCreation:
       return CupertinoPageRoute<String>(

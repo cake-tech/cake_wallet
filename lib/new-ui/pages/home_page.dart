@@ -325,6 +325,7 @@ class _NewHomePageState extends State<NewHomePage> {
                 cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
                     widget.dashboardViewModel.wallet.currency.name,
                 cryptoName: widget.dashboardViewModel.wallet.currency.name,
+                dashboardViewModel: widget.dashboardViewModel,
               )),
             ));
       },

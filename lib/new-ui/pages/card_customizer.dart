@@ -1,10 +1,19 @@
 import "dart:math";
 
+import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/card_design.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -13,19 +22,19 @@ class CardCustomizer extends StatefulWidget {
   const CardCustomizer({
     required this.cryptoTitle,
     required this.cryptoName,
-    this.accountNumber,
-    this.balance = "0.00",
+    required this.dashboardViewModel,
+    this.account,
+    this.accountListViewModel,
     this.fiatBalance = "",
-    this.onArchive,
     super.key,
   });
 
   final String cryptoTitle;
   final String cryptoName;
-  final int? accountNumber;
-  final String balance;
+  final DashboardViewModel dashboardViewModel;
+  final AccountListItem? account;
+  final MoneroAccountListViewModel? accountListViewModel;
   final String fiatBalance;
-  final Future<bool> Function()? onArchive;
 
   @override
   State<CardCustomizer> createState() => _CardCustomizerState();
@@ -35,7 +44,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
   final accountNameController = TextEditingController();
   late final CardCustomizerBloc bloc;
 
-  bool get _isAccount => widget.accountNumber != null;
+  bool get _isAccount => widget.account != null;
 
   @override
   void initState() {
@@ -64,7 +73,39 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   Future<void> _requestArchive() async {
-    if (await widget.onArchive?.call() != true || !mounted) {
+    final latestAccount = widget.accountListViewModel!.accounts
+            .firstWhereOrNull((item) => item.id == widget.account!.id) ??
+        widget.account!;
+    final account = AccountListItem(
+      id: latestAccount.id,
+      label: bloc.state.accountName,
+      balance: latestAccount.balance,
+      isSelected: latestAccount.isSelected,
+    );
+    final isFunded = isAccountFunded(account);
+    final confirmed = await showPopUp<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: isFunded
+            ? S.of(dialogContext).archive_account_confirmation_title
+            : S.of(dialogContext).archive_account_title,
+        alertContent: "",
+        alertContentTextWidget: ArchiveConfirmationContent(
+          account: account,
+          accountListViewModel: widget.accountListViewModel!,
+          dashboardViewModel: widget.dashboardViewModel,
+          isFunded: isFunded,
+        ),
+        leftButtonText: S.of(dialogContext).cancel,
+        rightButtonText: S.of(dialogContext).continue_text,
+        leftAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
+        rightAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
+        actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+        actionRightButton: () => Navigator.of(dialogContext).pop(true),
+      ),
+    );
+    if (confirmed != true || !mounted) {
       return;
     }
     Navigator.of(context).pop(true);
@@ -98,7 +139,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     children: [
                       ModalTopBar(
                         title: _isAccount ? S.of(context).edit_account : S.of(context).edit_card,
-                        subtitle: _isAccount ? "#${widget.accountNumber}" : null,
+                        subtitle: _isAccount ? "#${widget.account!.id + 1}" : null,
                         leadingIcon:
                             Icon(_isAccount ? Icons.arrow_back_ios_new : Icons.close, size: 18),
                         leadingSemanticLabel:
@@ -109,13 +150,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
                         width: min(MediaQuery.of(context).size.width * 0.87, 768),
                         selected: true,
                         designSwitchDuration: const Duration(milliseconds: 300),
-                        accountIndex: widget.accountNumber,
-                        accountName: widget.accountNumber == null
+                        accountIndex: _isAccount ? widget.account!.id + 1 : null,
+                        accountName: !_isAccount
                             ? ""
                             : state.accountName.trim().isEmpty
                                 ? S.of(context).unnamed_account
                                 : state.accountName,
-                        balance: widget.balance,
+                        balance: widget.account?.balance ?? "0.00",
                         fiatBalance: widget.fiatBalance,
                         assetName: state.displaySats ? "sats" : widget.cryptoName,
                         capitalizeAssetName: !state.displaySats,
@@ -368,50 +409,65 @@ class _CardCustomizerState extends State<CardCustomizer> {
                           ),
                         ),
                       ),
-                      if (bloc.canHide && widget.onArchive != null)
+                      if (bloc.canHide)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
-                          child: Material(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(18),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(18),
-                              onTap: _requestArchive,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(2.5),
-                                      child: CakeImageWidget(
-                                        imageUrl: "assets/new-ui/archived.svg",
-                                        width: 19,
-                                        height: 19,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      ),
+                          child: ListItemStyleWrapper(
+                            isFirstInSection: true,
+                            isLastInSection: true,
+                            onTap: _requestArchive,
+                            builder: (context, textStyle, labelStyle) => ConstrainedBox(
+                              constraints: const BoxConstraints(minHeight: 40),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(2.5),
+                                    child: CakeImageWidget(
+                                      imageUrl: "assets/new-ui/archived.svg",
+                                      width: 19,
+                                      height: 19,
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(S.of(context).archive_account),
-                                          Text(
-                                            S.of(context).archive_account_reversible,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      spacing: 4,
+                                      children: [
+                                        Text(
+                                          S.of(context).archive_account,
+                                          style: textStyle.copyWith(
+                                            height: 18 / 14,
+                                            letterSpacing: -0.07,
                                           ),
-                                        ],
+                                        ),
+                                        Text(
+                                          S.of(context).archive_account_reversible,
+                                          style: labelStyle.copyWith(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            height: 15 / 12,
+                                            letterSpacing: -0.06,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  SizedBox.square(
+                                    dimension: 16,
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/arrow_right.svg",
+                                        width: 7,
+                                        height: 12,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
-                                    Icon(
-                                      Icons.chevron_right,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

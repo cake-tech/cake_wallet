@@ -174,25 +174,25 @@ class SettingsPageSectionsResolver {
         ),
       ];
 
-  List<SettingsListItem> appSettings(S strings) => [
+  List<SettingsListItem> appSettings() => [
         SettingsListItem(
-          'assets/new-ui/settings_row_icons/connections.svg',
-          strings.connections,
+          "assets/new-ui/settings_row_icons/connections.svg",
+          S.current.connections,
           Routes.connectionSync,
         ),
         SettingsListItem(
-          'assets/new-ui/settings_row_icons/display.svg',
-          strings.display,
+          "assets/new-ui/settings_row_icons/display.svg",
+          S.current.display,
           Routes.displaySettingsPage,
         ),
         SettingsListItem(
-          'assets/new-ui/settings_row_icons/security.svg',
-          strings.security,
+          "assets/new-ui/settings_row_icons/security.svg",
+          S.current.security,
           Routes.securityBackupPage,
         ),
         SettingsListItem(
-          'assets/new-ui/settings_row_icons/backup.svg',
-          strings.backup,
+          "assets/new-ui/settings_row_icons/backup.svg",
+          S.current.backup,
           Routes.backup,
           requireAuth: true,
           use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
@@ -320,7 +320,7 @@ class SettingsMainPage extends StatelessWidget {
           S.of(context).app_settings,
           "assets/new-ui/cake-setting.svg",
           {
-            "app_settings": _buildRows(context, _sectionsResolver.appSettings(S.of(context))),
+            "app_settings": _buildRows(context, _sectionsResolver.appSettings()),
             "support_and_about":
                 _buildRows(context, _sectionsResolver.supportAndAbout(S.of(context))),
           },

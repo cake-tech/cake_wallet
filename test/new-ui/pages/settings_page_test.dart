@@ -138,7 +138,7 @@ void main() {
   });
 
   test("app settings expose only implemented destinations in the Figma order", () {
-    final items = const SettingsPageSectionsResolver().appSettings(english);
+    final items = const SettingsPageSectionsResolver().appSettings();
 
     expect(
       items.map((item) => item.route),

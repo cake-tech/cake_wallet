@@ -1,106 +1,20 @@
 import "dart:async";
 
 import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
-
-Future<bool> confirmAccountArchival(
-  BuildContext context, {
-  required AccountListItem account,
-  required MoneroAccountListViewModel accountListViewModel,
-  required DashboardViewModel dashboardViewModel,
-}) async {
-  final strings = S.of(context);
-  final isFunded = _isFunded(account);
-
-  final result = await showPopUp<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => AlertWithTwoActions(
-      alertTitle:
-          isFunded ? strings.archive_account_confirmation_title : strings.archive_account_title,
-      alertContent: "",
-      alertContentTextWidget: _ArchiveConfirmationContent(
-        account: account,
-        accountListViewModel: accountListViewModel,
-        dashboardViewModel: dashboardViewModel,
-        isFunded: isFunded,
-      ),
-      leftButtonText: strings.cancel,
-      rightButtonText: strings.continue_text,
-      leftAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
-      rightAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
-      actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-      actionRightButton: () => Navigator.of(dialogContext).pop(true),
-    ),
-  );
-
-  return result ?? false;
-}
-
-Future<bool> confirmAccountUnarchival(
-  BuildContext context, {
-  required AccountListItem account,
-  required MoneroAccountListViewModel accountListViewModel,
-  required DashboardViewModel dashboardViewModel,
-}) async {
-  final strings = S.of(context);
-  final isFunded = _isFunded(account);
-
-  final result = await showPopUp<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => AlertWithTwoActions(
-      alertTitle: strings.unarchive_account_title,
-      alertContent: "",
-      alertContentTextWidget: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _AccountSummary(account: account),
-          const SizedBox(height: 20),
-          Text(
-            isFunded
-                ? strings.unarchive_account_funds_description
-                : strings.unarchive_account_description,
-            textAlign: TextAlign.center,
-            style: Theme.of(dialogContext).textTheme.bodyMedium,
-          ),
-          if (isFunded) ...[
-            const SizedBox(height: 20),
-            _FundsSummary(
-              account: account,
-              accountListViewModel: accountListViewModel,
-              dashboardViewModel: dashboardViewModel,
-              borderColor: Theme.of(dialogContext).colorScheme.primary,
-            ),
-          ],
-        ],
-      ),
-      leftButtonText: strings.cancel,
-      rightButtonText: strings.continue_text,
-      leftAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
-      rightAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
-      actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-      actionRightButton: () => Navigator.of(dialogContext).pop(true),
-    ),
-  );
-
-  return result ?? false;
-}
 
 class HiddenAccountsPage extends StatefulWidget {
   const HiddenAccountsPage({
@@ -157,16 +71,55 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
     });
   }
 
+  Future<bool> _confirmUnarchival(AccountListItem account) async {
+    final isFunded = isAccountFunded(account);
+
+    final result = await showPopUp<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(dialogContext).unarchive_account_title,
+        alertContent: "",
+        alertContentTextWidget: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AccountSummary(account: account),
+            const SizedBox(height: 20),
+            Text(
+              isFunded
+                  ? S.of(dialogContext).unarchive_account_funds_description
+                  : S.of(dialogContext).unarchive_account_description,
+              textAlign: TextAlign.center,
+              style: Theme.of(dialogContext).textTheme.bodyMedium,
+            ),
+            if (isFunded) ...[
+              const SizedBox(height: 20),
+              AccountFundsSummary(
+                account: account,
+                accountListViewModel: widget.accountListViewModel,
+                dashboardViewModel: widget.dashboardViewModel,
+                borderColor: Theme.of(dialogContext).colorScheme.primary,
+              ),
+            ],
+          ],
+        ),
+        leftButtonText: S.of(dialogContext).cancel,
+        rightButtonText: S.of(dialogContext).continue_text,
+        leftAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
+        rightAlertButtonStyle: AlertButtonStyle.primary(dialogContext),
+        actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+        actionRightButton: () => Navigator.of(dialogContext).pop(true),
+      ),
+    );
+
+    return result ?? false;
+  }
+
   Future<void> _unarchive(AccountListItem account) async {
     final accountForConfirmation =
         widget.accountListViewModel.accounts.firstWhereOrNull((item) => item.id == account.id) ??
             account;
-    final confirmed = await confirmAccountUnarchival(
-      context,
-      account: accountForConfirmation,
-      accountListViewModel: widget.accountListViewModel,
-      dashboardViewModel: widget.dashboardViewModel,
-    );
+    final confirmed = await _confirmUnarchival(accountForConfirmation);
     if (!confirmed || !mounted) {
       return;
     }
@@ -269,8 +222,9 @@ class _PopulatedArchiveView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final fundedAccounts = accounts.where(_isFunded).toList(growable: false);
-    final emptyAccounts = accounts.where((account) => !_isFunded(account)).toList(growable: false);
+    final fundedAccounts = accounts.where(isAccountFunded).toList(growable: false);
+    final emptyAccounts =
+        accounts.where((account) => !isAccountFunded(account)).toList(growable: false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -468,18 +422,18 @@ class _AccountBalanceTrailing extends StatelessWidget {
       );
     }
 
-    final fiatBalance = _fiatBalance(account, dashboardViewModel);
+    final fiatBalance = accountFiatBalance(account, dashboardViewModel);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_isFunded(account)) ...[
+        if (isAccountFunded(account)) ...[
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 142),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "${_displayBalance(account)} ${accountListViewModel.currency.title}",
+                  "${account.balance ?? "0"} ${accountListViewModel.currency.title}",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall,
@@ -510,190 +464,6 @@ class _AccountBalanceTrailing extends StatelessWidget {
   }
 }
 
-class _ArchiveConfirmationContent extends StatelessWidget {
-  const _ArchiveConfirmationContent({
-    required this.account,
-    required this.accountListViewModel,
-    required this.dashboardViewModel,
-    required this.isFunded,
-  });
-
-  final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
-  final DashboardViewModel dashboardViewModel;
-  final bool isFunded;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = S.of(context);
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (isFunded) ...[
-          Text(
-            strings.archive_account_funds_title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: context.customColors.warningOutlineColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          _FundsSummary(
-            account: account,
-            accountListViewModel: accountListViewModel,
-            dashboardViewModel: dashboardViewModel,
-            borderColor: context.customColors.warningOutlineColor,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            strings.archive_account_move_funds,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: context.customColors.warningOutlineColor,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            strings.archive_account_funded_disclaimer,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ] else ...[
-          _AccountSummary(account: account),
-          const SizedBox(height: 24),
-          Text(
-            strings.archive_account_empty_disclaimer,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            strings.archive_account_restore_hint,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _AccountSummary extends StatelessWidget {
-  const _AccountSummary({required this.account});
-
-  final AccountListItem account;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final label = account.label.trim();
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          CakeImageWidget(
-            imageUrl: "assets/new-ui/account.svg",
-            width: 24,
-            height: 24,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "${account.id + 1}. ",
-                    style: TextStyle(color: theme.colorScheme.primary),
-                  ),
-                  TextSpan(
-                    text: label.isEmpty ? S.of(context).unnamed_account : label,
-                  ),
-                ],
-              ),
-              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FundsSummary extends StatelessWidget {
-  const _FundsSummary({
-    required this.account,
-    required this.accountListViewModel,
-    required this.dashboardViewModel,
-    required this.borderColor,
-  });
-
-  final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
-  final DashboardViewModel dashboardViewModel;
-  final Color borderColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final currency = accountListViewModel.currency;
-    final fiatBalance = _fiatBalance(account, dashboardViewModel);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          CakeImageWidget(
-            imageUrl: currency.iconPath ??
-                "assets/new-ui/crypto_full_icons/${currency.name.toLowerCase()}.svg",
-            width: 24,
-            height: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${_displayBalance(account)} ${currency.title}",
-                  style: theme.textTheme.bodyMedium,
-                ),
-                if (fiatBalance != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    fiatBalance,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ArchiveIcon extends StatelessWidget {
   const _ArchiveIcon({required this.size, required this.color});
 
@@ -712,43 +482,4 @@ class _ArchiveIcon extends StatelessWidget {
           ),
         ),
       );
-}
-
-bool _isFunded(AccountListItem account) {
-  if (account.balance?.contains("●") ?? false) {
-    return true;
-  }
-  return (_accountAmount(account) ?? 0) > 0;
-}
-
-double? _accountAmount(AccountListItem account) {
-  final balance = account.balance;
-  if (balance == null) {
-    return null;
-  }
-  return double.tryParse(balance.trim().replaceAll(",", ""));
-}
-
-String _displayBalance(AccountListItem account) => account.balance ?? "0";
-
-String? _fiatBalance(AccountListItem account, DashboardViewModel dashboardViewModel) {
-  if (dashboardViewModel.balanceViewModel.isFiatDisabled) {
-    return null;
-  }
-
-  final fiat = dashboardViewModel.settingsStore.fiatCurrency.title;
-  if (account.balance?.contains("●") ?? false) {
-    return "●●●●● $fiat";
-  }
-
-  final amount = _accountAmount(account);
-  if (amount == null) {
-    return null;
-  }
-
-  final value = calculateFiatAmount(
-    price: dashboardViewModel.balanceViewModel.price,
-    cryptoAmount: amount.toString(),
-  ).withLocalSeperator(dashboardViewModel.settingsStore.languageCode);
-  return "$value $fiat";
 }

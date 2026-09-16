@@ -331,128 +331,6 @@ void main() {
     expect(find.text("5. Unnamed Account"), findsOneWidget);
   });
 
-  testWidgets("funded archival warning returns false on Cancel", (tester) async {
-    bool? result;
-
-    await tester.pumpWidget(
-      testApp(
-        Builder(
-          builder: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () async {
-                result = await confirmAccountArchival(
-                  context,
-                  account: fundedAccount,
-                  accountListViewModel: accountListViewModel,
-                  dashboardViewModel: dashboardViewModel,
-                );
-              },
-              child: const Text("Open archive warning"),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text("Open archive warning"));
-    await tester.pumpAndSettle();
-
-    expect(find.text("Are you sure you want to Archive this account?"), findsOneWidget);
-    expect(find.text("This account has the following funds:"), findsOneWidget);
-    expect(
-      find.text("Before proceeding, it is recommended you move them to an account you will use"),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        "Archiving an account does not delete any funds or activity. You can reverse this action",
-      ),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.text("Cancel"));
-    await tester.pumpAndSettle();
-    expect(result, isFalse);
-  });
-
-  testWidgets("empty archival disclaimer returns true on Continue", (tester) async {
-    bool? result;
-
-    await tester.pumpWidget(
-      testApp(
-        Builder(
-          builder: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () async {
-                result = await confirmAccountArchival(
-                  context,
-                  account: emptyAccount,
-                  accountListViewModel: accountListViewModel,
-                  dashboardViewModel: dashboardViewModel,
-                );
-              },
-              child: const Text("Open archive warning"),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text("Open archive warning"));
-    await tester.pumpAndSettle();
-
-    expect(find.text("Archive Account"), findsOneWidget);
-    expect(find.text("3. Travel"), findsOneWidget);
-    expect(
-      find.text(
-        "This action won’t delete the account or its past activity, but only hide it inside Cake Wallet",
-      ),
-      findsOneWidget,
-    );
-    expect(find.text("You can reverse this action from Accounts settings"), findsOneWidget);
-
-    await tester.tap(find.text("Continue"));
-    await tester.pumpAndSettle();
-    expect(result, isTrue);
-  });
-
-  testWidgets("unarchive helper uses funded copy and returns true", (tester) async {
-    bool? result;
-
-    await tester.pumpWidget(
-      testApp(
-        Builder(
-          builder: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () async {
-                result = await confirmAccountUnarchival(
-                  context,
-                  account: fundedAccount,
-                  accountListViewModel: accountListViewModel,
-                  dashboardViewModel: dashboardViewModel,
-                );
-              },
-              child: const Text("Open unarchive warning"),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text("Open unarchive warning"));
-    await tester.pumpAndSettle();
-
-    expect(find.text("Unarchive this account?"), findsOneWidget);
-    expect(
-      find.text("This account will show up again on your wallet, letting you access your funds"),
-      findsOneWidget,
-    );
-
-    await tester.tap(find.text("Continue"));
-    await tester.pumpAndSettle();
-    expect(result, isTrue);
-  });
-
   testWidgets("unarchiving uses the latest account state for confirmation and selection",
       (tester) async {
     when(() => accountListViewModel.accounts).thenReturn([emptyAccount, activeAccount]);
@@ -474,6 +352,7 @@ void main() {
     await tester.tap(find.text("3. Travel"));
     await tester.pumpAndSettle();
 
+    expect(find.text("Unarchive this account?"), findsOneWidget);
     expect(
       find.text("This account will show up again on your wallet, letting you access your funds"),
       findsOneWidget,

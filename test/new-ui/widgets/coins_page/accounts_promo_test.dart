@@ -1,6 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/pages/account_customizer.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/wallet_type.dart";
@@ -40,12 +39,10 @@ void main() {
         ),
       );
 
-  test("Bitcoin promo eligibility is separate from Monero education and archival", () {
+  test("accounts promo is only eligible for Bitcoin", () {
     expect(AccountsPromo.supportsWallet(WalletType.bitcoin), isTrue);
     expect(AccountsPromo.supportsWallet(WalletType.monero), isFalse);
     expect(AccountsPromo.supportsWallet(WalletType.wownero), isFalse);
-    expect(supportsAccountEducationAndArchival(WalletType.monero), isTrue);
-    expect(supportsAccountEducationAndArchival(WalletType.wownero), isFalse);
   });
 
   testWidgets("shows generic current-wallet copy and opens Accounts", (tester) async {
