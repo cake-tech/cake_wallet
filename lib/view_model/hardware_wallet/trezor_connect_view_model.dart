@@ -194,17 +194,34 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
+  /// Cleanup left behind by an attempt that was cancelled while its transport
+  /// connect was still in flight. The SDK disconnects by device id through a
+  /// shared connection manager, so that late disconnect must finish before a
+  /// new attempt brings up its own link, or it would tear the new one down.
+  Future<void>? _pendingCleanup;
+
   /// Awaits [future] unless the pairing is cancelled first, in which case a
   /// [_PairingCancelledException] is thrown and the late result is handed to
-  /// [onLateResult] (e.g. to close a connection nobody is going to use).
-  Future<T> _untilCancelled<T>(Future<T> future, {void Function(T)? onLateResult}) {
+  /// [onLateResult]; that cleanup is awaited by the next attempt.
+  Future<T> _untilCancelled<T>(Future<T> future, {Future<void> Function(T)? onLateResult}) {
     final cancel = _cancelCompleter!.future.then<T>((_) {
       if (onLateResult != null) {
-        unawaited(future.then(onLateResult, onError: (Object e) => printV(e)));
+        final previous = _pendingCleanup ?? Future<void>.value();
+        _pendingCleanup =
+            previous.then((_) => future.then(onLateResult)).catchError((Object e) => printV(e));
       }
       throw const _PairingCancelledException();
     });
     return Future.any<T>([future, cancel]);
+  }
+
+  Future<void> _awaitPendingCleanup() async {
+    final pending = _pendingCleanup;
+    if (pending == null) return;
+    await _untilCancelled(pending);
+    if (identical(_pendingCleanup, pending)) {
+      _pendingCleanup = null;
+    }
   }
 
   void _throwIfCancelled() {
@@ -284,10 +301,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   Future<void> _connect(TrezorHardwareWalletDevice device, TrezorDeviceSettings? preset) async {
     final trezorInterface =
         device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
+
+    // Serialise behind a previous attempt that was cancelled mid-connect.
+    await _awaitPendingCleanup();
+
     final connection = await _untilCancelled(
       trezorInterface.connect(device.device),
       // A link that comes up after the user gave up must not linger.
-      onLateResult: (late) => unawaited(late.disconnect()),
+      onLateResult: (late) => late.disconnect(),
     );
 
     Future<String> onPinCode() async {
