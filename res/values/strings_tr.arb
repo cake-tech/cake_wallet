@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Zcash Ağ Yükseltmesi",
   "zcash_network_upgrade_desc_1": "Zcash, Ironwood adında, fonların harcanmadan önce taşınmasını gerektiren bir ağ yükseltmesinden geçti. Bu geçiş otomatiktir, gizliliği korur ve Zcash cüzdanınızı açar açmaz başlar.",
   "zcash_network_upgrade_desc_2": "Geçiş tamamlandığında Kullanılabilir Bakiyeniz normale dönecek ve her zamanki gibi Zcash gönderip almaya devam edebileceksiniz.",
-  "zcash_network_upgrade_desc_3": "Lütfen Zcash cüzdanınızın senkronizasyonu bitirmesine izin verin ve ardından bakiyeye bağlı olarak birkaç dakika sürebilecek taşıma işlemi bitene kadar uygulamayı açık bırakın."
+  "zcash_network_upgrade_desc_3": "Lütfen Zcash cüzdanınızın senkronizasyonu bitirmesine izin verin ve ardından bakiyeye bağlı olarak birkaç dakika sürebilecek taşıma işlemi bitene kadar uygulamayı açık bırakın.",
+  "zcash_shield_transparent_funds_ledger": "Şeffaf fonları koruyun. Defterinizde onaylayın."
 }

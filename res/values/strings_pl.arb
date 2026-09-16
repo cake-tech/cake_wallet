@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Aktualizacja sieci Zcash",
   "zcash_network_upgrade_desc_1": "Zcash przeszedł modernizację sieci o nazwie Ironwood, która wymaga migracji środków, zanim będzie można je wydać. Ta migracja jest automatyczna, chroni prywatność i rozpoczyna się natychmiast po otwarciu portfela Zcash.",
   "zcash_network_upgrade_desc_2": "Po zakończeniu migracji Twoje dostępne saldo powróci do normy i będziesz mógł nadal wysyłać i odbierać Zcash jak zwykle.",
-  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda."
+  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda.",
+  "zcash_shield_transparent_funds_ledger": "Chroń przejrzyste fundusze. Potwierdź w swojej księdze głównej."
 }

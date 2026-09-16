@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Zcash-Netzwerk-Upgrade",
   "zcash_network_upgrade_desc_1": "Das Zcash-Netzwerk wurde auf Ironwood aktualisiert. Damit Ihr Guthaben wieder ausgegeben werden kann, muss es migriert werden. Die Migration erfolgt automatisch und unter Wahrung Ihrer Privatsphäre. Sie beginnt, sobald Sie Ihre Zcash-Wallet öffnen.",
   "zcash_network_upgrade_desc_2": "Nach Abschluss der Migration wird Ihr verfügbares Guthaben wieder wie gewohnt angezeigt und Sie können Zcash wieder normal senden und empfangen.",
-  "zcash_network_upgrade_desc_3": "Bitte lassen Sie Ihre Zcash-Wallet vollständig synchronisieren und anschließend die App geöffnet, bis die Migration abgeschlossen ist. Dies kann je nach Guthaben einige Minuten dauern."
+  "zcash_network_upgrade_desc_3": "Bitte lassen Sie Ihre Zcash-Wallet vollständig synchronisieren und anschließend die App geöffnet, bis die Migration abgeschlossen ist. Dies kann je nach Guthaben einige Minuten dauern.",
+  "zcash_shield_transparent_funds_ledger": "Schützen Sie transparente Fonds. Bestätigen Sie dies in Ihrem Hauptbuch."
 }

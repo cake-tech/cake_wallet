@@ -264,8 +264,8 @@
   "connect_your_hardware_wallet_ble": "Connect your hardware wallet using Bluetooth",
   "connect_your_hardware_wallet_usb": "Connect your hardware wallet using USB",
   "connected": "Connected",
-  "connection_sync": "Connection and sync",
   "connecting_you_to": "Connecting you to",
+  "connection_sync": "Connection and sync",
   "connections": "Connections",
   "connections_desc": "Manage connections to services and third party APIs.",
   "connectWalletPrompt": "Connect your wallet with WalletConnect to make transactions",
@@ -865,8 +865,8 @@
   "privacy_settings": "Privacy settings",
   "private_key": "Private key",
   "private_memo_optional": "Private Memo (optional)",
-  "proceed_after_one_minute": "If the screen doesn’t proceed after 1 minute, check your email.",
   "proceed": "Proceed",
+  "proceed_after_one_minute": "If the screen doesn’t proceed after 1 minute, check your email.",
   "proceed_on_device": "Proceed on your device",
   "proceed_on_device_description": "Please follow the instructions prompted on your hardware wallet",
   "processing": "Processing",
@@ -1416,9 +1416,9 @@
   "unsupported_asset": "We don't support this action for this asset. Please create or switch to a wallet of a supported asset type.",
   "unsupported_network_requested": "This payment request is for a network we don't support (chain ID ${chainId}).",
   "unsupported_token_requested": "This payment request is for a token we couldn't identify on the selected network.",
+  "up_to": "Up to",
   "uptime": "Uptime",
   "upto": "up to ${value}",
-  "up_to": "Up to",
   "usb": "USB",
   "use": "Switch to ",
   "use_blink_protection": "Use Blink Protection",
@@ -1571,5 +1571,6 @@
   "zcash_network_upgrade": "Zcash Network Upgrade",
   "zcash_network_upgrade_desc_1": "Zcash has undergone a network upgrade called Ironwood that requires migration of funds before they can be spent. This migration is automatic, privacy-preserving, and starts as soon as you open your Zcash wallet.",
   "zcash_network_upgrade_desc_2": "When the migration finishes, your Available Balance will return to normal, and you can continue to send and receive Zcash as usual.",
-  "zcash_network_upgrade_desc_3": "Please allow your Zcash wallet to finishing syncing, and then leave the app open until migration finishes which can take a few minutes depending on the balance."
+  "zcash_network_upgrade_desc_3": "Please allow your Zcash wallet to finishing syncing, and then leave the app open until migration finishes which can take a few minutes depending on the balance.",
+  "zcash_shield_transparent_funds_ledger": "Shield transparent funds. Confirm on your Ledger."
 }

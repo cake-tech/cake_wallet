@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Pag-upgrade ng Zcash Network",
   "zcash_network_upgrade_desc_1": "Sumailalim ang Zcash sa isang network upgrade na tinatawag na Ironwood na nangangailangan ng paglipat ng mga pondo bago sila magastos. Ang paglipat na ito ay awtomatiko, pinapanatili ang privacy, at magsisimula sa sandaling mabuksan mo ang iyong Zcash wallet.",
   "zcash_network_upgrade_desc_2": "Kapag natapos na ang paglipat, babalik sa normal ang iyong Available na Balanse, at maaari kang magpatuloy sa pagpapadala at pagtanggap ng Zcash gaya ng dati.",
-  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay iwanang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse."
+  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay iwanang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse.",
+  "zcash_shield_transparent_funds_ledger": "Shield transparent na pondo. Kumpirmahin sa iyong Ledger."
 }

@@ -158,7 +158,7 @@ class ZcashShieldPrompt extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
                           child: Text(
-                            'Shield transparent funds - confirm on your Ledger',
+                            S.of(context).zcash_shield_transparent_funds_ledger,
                             softWrap: true,
                             style: const TextStyle(fontSize: 12),
                           ),

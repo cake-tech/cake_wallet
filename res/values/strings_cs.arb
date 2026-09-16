@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Upgrade sítě Zcash",
   "zcash_network_upgrade_desc_1": "Zcash prošel upgradem sítě nazvaným Ironwood, který vyžaduje migraci finančních prostředků, než je lze utratit. Tato migrace je automatická, zachovává soukromí a začíná, jakmile otevřete peněženku Zcash.",
   "zcash_network_upgrade_desc_2": "Po dokončení migrace se váš disponibilní zůstatek vrátí do normálu a můžete nadále odesílat a přijímat Zcash jako obvykle.",
-  "zcash_network_upgrade_desc_3": "Nechte prosím dokončit synchronizaci vaší peněženky Zcash a poté nechte aplikaci otevřenou, dokud nebude migrace dokončena, což může trvat několik minut v závislosti na zůstatku."
+  "zcash_network_upgrade_desc_3": "Nechte prosím dokončit synchronizaci vaší peněženky Zcash a poté nechte aplikaci otevřenou, dokud nebude migrace dokončena, což může trvat několik minut v závislosti na zůstatku.",
+  "zcash_shield_transparent_funds_ledger": "Chránit transparentní fondy. Potvrďte ve své účetní knize."
 }

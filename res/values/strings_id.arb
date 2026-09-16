@@ -1573,5 +1573,6 @@
   "zcash_network_upgrade": "Peningkatan Jaringan Zcash",
   "zcash_network_upgrade_desc_1": "Zcash telah mengalami peningkatan jaringan yang disebut Ironwood yang memerlukan migrasi dana sebelum dapat dibelanjakan. Migrasi ini bersifat otomatis, menjaga privasi, dan dimulai segera setelah Anda membuka dompet Zcash Anda.",
   "zcash_network_upgrade_desc_2": "Ketika migrasi selesai, Saldo Tersedia Anda akan kembali normal, dan Anda dapat terus mengirim dan menerima Zcash seperti biasa.",
-  "zcash_network_upgrade_desc_3": "Harap izinkan dompet Zcash Anda menyelesaikan sinkronisasi, lalu biarkan aplikasi terbuka hingga migrasi selesai yang dapat memakan waktu beberapa menit tergantung pada saldo."
+  "zcash_network_upgrade_desc_3": "Harap izinkan dompet Zcash Anda menyelesaikan sinkronisasi, lalu biarkan aplikasi terbuka hingga migrasi selesai yang dapat memakan waktu beberapa menit tergantung pada saldo.",
+  "zcash_shield_transparent_funds_ledger": "Lindungi dana yang transparan. Konfirmasikan pada Buku Besar Anda."
 }

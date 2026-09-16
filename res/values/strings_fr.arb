@@ -1570,5 +1570,6 @@
   "zcash_network_upgrade": "Mise à niveau du réseau Zcash",
   "zcash_network_upgrade_desc_1": "Zcash a fait l'objet d'une mise à niveau du réseau appelée Ironwood qui nécessite la migration des fonds avant de pouvoir les dépenser. Cette migration est automatique, préserve la confidentialité et démarre dès que vous ouvrez votre portefeuille Zcash.",
   "zcash_network_upgrade_desc_2": "Une fois la migration terminée, votre solde disponible reviendra à la normale et vous pourrez continuer à envoyer et recevoir du Zcash comme d'habitude.",
-  "zcash_network_upgrade_desc_3": "Veuillez laisser votre portefeuille Zcash terminer la synchronisation, puis laisser l'application ouverte jusqu'à la fin de la migration, ce qui peut prendre quelques minutes en fonction du solde."
+  "zcash_network_upgrade_desc_3": "Veuillez laisser votre portefeuille Zcash terminer la synchronisation, puis laisser l'application ouverte jusqu'à la fin de la migration, ce qui peut prendre quelques minutes en fonction du solde.",
+  "zcash_shield_transparent_funds_ledger": "Protégez les fonds transparents. Confirmez sur votre Ledger."
 }
