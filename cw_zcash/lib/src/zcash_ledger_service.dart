@@ -65,9 +65,13 @@ class ZcashLedgerService extends HardwareWalletService {
     try {
       version = await appVersion();
     } catch (e) {
-      // Any other app answers the version probe with an error status word;
-      // the wrong-app code is what the UI already knows how to explain.
-      throw Exception("Open the Zcash app on your Ledger (0x6e01): $e");
+      // A locked device or another app answers the version probe with a
+      // status word; say which, rather than showing the raw error.
+      throw Exception(
+        statusWordOf(e) == null
+            ? "Open the Zcash app on your Ledger, then try again (${firstLine(e)})"
+            : describe(e),
+      );
     }
     final parts = version.split('.').map(int.tryParse).toList();
     if (parts.length < 3 || parts.any((final p) => p == null)) {
@@ -153,9 +157,60 @@ class ZcashLedgerService extends HardwareWalletService {
   Object _withTransportCause(final Object error) {
     final cause = lastTransportError;
     if (cause == null) {
-      return error;
+      return statusWordOf(error) == null ? error : Exception(describe(error));
     }
-    return Exception("Ledger connection failed: $cause ($error)");
+    return Exception("Ledger connection failed: $cause (${firstLine(error)})");
+  }
+
+  /// The status word in an error the Rust signer raised for an APDU the
+  /// device answered with a failure, or null if the error is something else.
+  /// The signer reports these as "Error Executing Instruction <ins>: <sw>",
+  /// both in decimal.
+  static int? statusWordOf(final Object error) {
+    final m = RegExp(r"Error Executing Instruction \d+: (\d+)").firstMatch(error.toString());
+    return m == null ? null : int.tryParse(m.group(1)!);
+  }
+
+  /// What a Ledger status word means to the person holding the device.
+  static String describe(final Object error) {
+    final sw = statusWordOf(error);
+    switch (sw) {
+      case 0x5515:
+        return "Your Ledger is locked. Unlock it and open the Zcash app, then try again.";
+      case 0x6e00:
+      case 0x6e01:
+      case 0x6d00:
+      case 0x6d02:
+        return "Open the Zcash app on your Ledger, then try again.";
+      case 0x6985:
+      case 0x6986:
+        return "The transaction was rejected on the Ledger.";
+      case 0x6a80:
+      case 0x6a86:
+      case 0x6a87:
+        return "The Ledger could not read the transaction. Update the Zcash app in Ledger Live and try again.";
+      case 0x6f00:
+      case 0x6f01:
+        return "The Zcash app on the Ledger ran into an internal error. Close and reopen the app, then try again.";
+      case null:
+        return firstLine(error);
+      default:
+        return "The Ledger returned an error (0x${sw.toRadixString(16).padLeft(4, '0')}). "
+            "Make sure the Zcash app is open and up to date, then try again.";
+    }
+  }
+
+  /// An error's message without the Rust backtrace the signer appends.
+  static String firstLine(final Object error) {
+    var text = error.toString();
+    if (text.startsWith("Exception: ")) {
+      text = text.substring("Exception: ".length);
+    }
+    final cut = text.indexOf("\n\nStack backtrace");
+    if (cut != -1) {
+      text = text.substring(0, cut);
+    }
+    return text.trim().replaceFirst(RegExp(r"^AnyhowException\("), "").replaceFirst(RegExp(r"\)$"), "");
   }
 }
 
