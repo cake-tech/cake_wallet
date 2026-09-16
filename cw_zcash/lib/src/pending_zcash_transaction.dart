@@ -1,10 +1,8 @@
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/exceptions.dart';
-import 'package:cw_core/hardware/device_not_connected_exception.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zcash/cw_zcash.dart';
-import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
 import 'package:zkool/src/rust/api/network.dart' as zkool_network;
 
@@ -13,6 +11,7 @@ class PendingZcashTransaction with PendingTransaction {
     required this.zcashWallet,
     required this.credentials,
     required this.txPlan,
+    this.signedPackage,
     required this.fee,
     required this.availableBalance,
   });
@@ -20,6 +19,10 @@ class PendingZcashTransaction with PendingTransaction {
   final ZcashWallet zcashWallet;
   final ZcashTransactionCredentials credentials;
   final zkool_pay.PcztPackage txPlan;
+
+  /// The plan already signed, proven and finalized by a hardware wallet
+  /// while the transaction was prepared; [commit] then only broadcasts it.
+  final zkool_pay.PcztPackage? signedPackage;
   String? _txId;
   final Money availableBalance;
 
@@ -51,9 +54,7 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = zcashWallet.isLedgerWallet
-            ? await _signOnLedger(coin)
-            : await zkool_pay.signTransaction(pczt: txPlan, c: coin);
+        final signTx = signedPackage ?? await zkool_pay.signTransaction(pczt: txPlan, c: coin);
         final txBytes = await zkool_pay.extractTransaction(package: signTx);
         final currentHeight = await zkool_network.getCurrentHeight(c: coin);
         final result = await zkool_pay.broadcastTransaction(
@@ -72,31 +73,6 @@ class PendingZcashTransaction with PendingTransaction {
     );
     await zcashWallet.updateTransactions();
     await zcashWallet.updateBalance();
-  }
-
-  /// Signs on the Ledger: the device reviews the outputs and returns the
-  /// spend authorizations, then the backend proves and finalizes the
-  /// transaction. The device has to be connected; the send page prompts for
-  /// that before it gets here, and a lost connection surfaces as
-  /// [DeviceNotConnectedException] so the app can ask to reconnect.
-  Future<zkool_pay.PcztPackage> _signOnLedger(final zkool_coin.Coin coin) async {
-    final service = zcashWallet.hardwareWalletService;
-    if (service is! ZcashLedgerService) {
-      throw DeviceNotConnectedException();
-    }
-    zkool_pay.PcztPackage? signed;
-    await for (final event in service.sign(txPlan, coin)) {
-      switch (event) {
-        case zkool_pay.SigningEvent_Progress(:final field0):
-          printV("ledger: $field0");
-        case zkool_pay.SigningEvent_Result(:final field0):
-          signed = field0;
-      }
-    }
-    if (signed == null) {
-      throw TransactionCommitFailed(errorMessage: "The Ledger returned no signed transaction");
-    }
-    return signed;
   }
 
   @override

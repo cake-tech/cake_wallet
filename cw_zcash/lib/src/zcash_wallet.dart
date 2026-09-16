@@ -1,3 +1,4 @@
+import 'package:cw_core/hardware/device_not_connected_exception.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_zcash/src/zcash_ledger_service.dart';
 import 'dart:async';
@@ -445,6 +446,35 @@ abstract class ZcashWalletBase
     }
   }
 
+  /// Has the Ledger review and sign a transaction plan: the device returns
+  /// the spend authorizations, then the backend proves and finalizes the
+  /// transaction, ready for [PendingZcashTransaction.commit] to broadcast.
+  /// The device has to be connected; the send page prompts for that first,
+  /// and a lost connection surfaces as [DeviceNotConnectedException] so the
+  /// app can ask to reconnect.
+  Future<zkool_pay.PcztPackage> signOnLedger(
+    final zkool_pay.PcztPackage txPlan,
+    final zkool_coin.Coin coin,
+  ) async {
+    final service = hardwareWalletService;
+    if (service is! ZcashLedgerService) {
+      throw DeviceNotConnectedException();
+    }
+    zkool_pay.PcztPackage? signed;
+    await for (final event in service.sign(txPlan, coin)) {
+      switch (event) {
+        case zkool_pay.SigningEvent_Progress(:final field0):
+          printV("ledger: $field0");
+        case zkool_pay.SigningEvent_Result(:final field0):
+          signed = field0;
+      }
+    }
+    if (signed == null) {
+      throw Exception("The Ledger returned no signed transaction");
+    }
+    return signed;
+  }
+
   /// Pools a send may draw from: the newest shielded pool, plus transparent
   /// for a Ledger wallet. Its transparent funds are never auto-shielded (that
   /// would need the device from a background sync), so they are spent
@@ -514,10 +544,16 @@ abstract class ZcashWalletBase
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
+          // A Ledger reviews and signs here, while the transaction is being
+          // prepared, so the confirmation sheet that follows shows a signed
+          // transaction and the slide only broadcasts it: the same order as
+          // the other hardware wallets, and what the user expects.
+          final signed = isLedgerWallet ? await signOnLedger(txPlan, coin) : null;
           return PendingZcashTransaction(
             zcashWallet: this as ZcashWallet,
             credentials: creds,
             txPlan: txPlan,
+            signedPackage: signed,
             fee: txFee,
             availableBalance: availableBalance,
           );
