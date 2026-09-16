@@ -63,7 +63,7 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 12,
+  db = await openDatabase(dbFile.path, version: 13,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
@@ -159,6 +159,10 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
     if (oldVersion <= 11) {
       await _createCoinControlTables(db);
+    }
+
+    if(oldVersion<=12) {
+      await _createMwebUtxoTable(db);
     }
 
   }, onCreate: (Database db, int version) async {
@@ -261,6 +265,7 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createTronTokenTable(db);
     await _createImportedNFTTable(db);
     await _createCoinControlTables(db);
+    await _createMwebUtxoTable(db);
   },);
 }
 
@@ -513,4 +518,19 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
+}
+
+Future<void> _createMwebUtxoTable(Database db) async {
+  await db.execute("""
+CREATE TABLE MwebUtxo(
+walletInfoId INTEGER NOT NULL,
+height INTEGER NOT NULL,
+value INTEGER NOT NULL,
+address TEXT NOT NULL,
+outputId TEXT NOT NULL,
+blockTime INTEGER NOT NULL,
+spent BOOLEAN DEFAULT FALSE,
+PRIMARY KEY (walletInfoId, outputId)
+);
+""");
 }
