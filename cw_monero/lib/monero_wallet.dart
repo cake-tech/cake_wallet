@@ -190,6 +190,14 @@ abstract class MoneroWalletBase
   @override
   Future<void>? updateBalance() => null;
 
+  // updateBalance is a no-op here: this wallet publishes its balance from sync
+  // callbacks instead. _askForUpdateBalance reads wallet2 in memory, so it is
+  // cheap enough to run on a toggle, and re-reading the whole balance rather
+  // than patching the frozen total is what keeps available correct -- wallet2
+  // excludes frozen outputs from the unlocked balance itself.
+  @override
+  Future<void> refreshBalanceAfterFreeze() => _askForUpdateBalance();
+
   @override
   Future<bool> checkNodeHealth() async {
     try {

@@ -76,17 +76,14 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
   }
 
   void _onSelectionChanged(SelectionChanged event, Emitter<CoinControlState> emit) {
-    final current = state;
-    if (current is! CoinControlLoaded) {
-      return;
-    }
+    if(state case final CoinControlLoaded s) {
+      final row = s.rowFor(event.id);
+      if (row == null || row.isFrozen) {
+        return;
+      }
 
-    final row = current.rowFor(event.id);
-    if (row == null || row.isFrozen) {
-      return;
+      emit(s.withRow(row.copyWith(isSelected: event.value)));
     }
-
-    emit(current.withRow(row.copyWith(isSelected: event.value)));
   }
 
   void _onSelectAllChanged(SelectAllChanged event, Emitter<CoinControlState> emit) {
@@ -109,6 +106,7 @@ class CoinControlBloc extends Bloc<CoinControlEvent, CoinControlState> {
       try {
         await CoinNotesStore.instance.save(wallet.id, event.id, event.note);
 
+        print(s);
         emit(
           s.withRow(
             s.rowFor(event.id)!.copyWith(

@@ -153,6 +153,52 @@ void main() {
     });
   });
 
+  group("republishing the balance", () {
+    test("freezing republishes it", () async {
+      await wallet.setFrozen(a.id, true);
+
+      // Without this the dashboard keeps the total it last computed, and the
+      // change only appears once something else triggers a balance update.
+      expect(wallet.balanceRefreshCount, 1);
+    });
+
+    test("thawing republishes it too", () async {
+      await wallet.setFrozen(a.id, true);
+      await wallet.setFrozen(a.id, false);
+
+      expect(wallet.balanceRefreshCount, 2);
+    });
+
+    test("it happens after the write, so the new total is already visible", () async {
+      await wallet.setFrozen(a.id, true);
+
+      expect(wallet.frozenAtRefresh, [
+        {a.id}
+      ]);
+    });
+
+    test("a failed write does not republish", () async {
+      final failing = FakeCoinControlWallet(
+        id: "wallet-a",
+        unspents: [a],
+        frozenCoinsStore: _FailingStore(),
+      );
+
+      await expectLater(failing.setFrozen(a.id, true), throwsException);
+
+      // The balance still matches what is stored, which is what it should show.
+      expect(failing.balanceRefreshCount, 0);
+    });
+
+    test("nothing else republishes it", () async {
+      await wallet.spendableCoins();
+      await wallet.frozenBalance();
+      await wallet.refreshUnspents();
+
+      expect(wallet.balanceRefreshCount, 0);
+    });
+  });
+
   group("frozenBalance", () {
     test("is zero when nothing is frozen", () async {
       expect(await wallet.frozenBalance(), 0);
@@ -206,4 +252,17 @@ class _CountingStore implements FrozenCoinsStore {
 
   @override
   Future<void> deleteWallet(String walletId) => _inner.deleteWallet(walletId);
+}
+
+/// Fails every write, to prove the balance is only republished once one lands.
+class _FailingStore implements FrozenCoinsStore {
+  @override
+  Future<Set<String>> frozenIds(String walletId) async => {};
+
+  @override
+  Future<void> setFrozen(String walletId, String id, bool frozen) async =>
+      throw Exception("database is locked");
+
+  @override
+  Future<void> deleteWallet(String walletId) async {}
 }

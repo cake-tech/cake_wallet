@@ -32,7 +32,7 @@ class UnspentCoinsDetailsPage extends BasePage {
 
           return Column(
           children: [
-            _row(context, S.of(context).transaction_details_amount, row.amount.toString()),
+            _row(context, S.of(context).transaction_details_amount, "${row.amount.toString()} ${bloc.wallet.currency.symbol}"),
             _row(context, S.of(context).transaction_details_transaction_id, row.txHash),
             _row(context, S.of(context).widgets_address, row.address),
             TextFieldListRow(

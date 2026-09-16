@@ -28,6 +28,14 @@ class ElectrumBalance extends Balance {
   @override
   Money frozen;
 
+  ElectrumBalance copyWith({Money? frozen}) => ElectrumBalance(
+        confirmed: confirmed,
+        unconfirmed: unconfirmed,
+        frozen: frozen ?? this.frozen,
+        secondConfirmed: secondConfirmed,
+        secondUnconfirmed: secondUnconfirmed,
+      );
+
   static ElectrumBalance? fromJSON(String? jsonSource, Currency currency) {
     if (jsonSource == null) return null;
 

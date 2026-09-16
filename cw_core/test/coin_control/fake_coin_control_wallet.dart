@@ -58,8 +58,19 @@ class FakeCoinControlWallet extends WalletBase<Balance, _History, TransactionInf
 
   int refreshCount = 0;
 
+  /// How many times the balance was republished, and what the frozen total was
+  /// each time, so the ordering against the write can be asserted.
+  int balanceRefreshCount = 0;
+  final List<Set<String>> frozenAtRefresh = [];
+
   @override
   Future<void> refreshUnspents() async => refreshCount++;
+
+  @override
+  Future<void> refreshBalanceAfterFreeze() async {
+    balanceRefreshCount++;
+    frozenAtRefresh.add(await frozenIds());
+  }
 
   @override
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) {

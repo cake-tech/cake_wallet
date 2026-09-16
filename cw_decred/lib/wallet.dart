@@ -594,6 +594,9 @@ abstract class DecredWalletBase
   }
 
   @override
+  Future<void> refreshBalanceAfterFreeze() => updateBalance();
+
+  @override
   Future<bool> checkNodeHealth() async => await checkSync();
 
   @override

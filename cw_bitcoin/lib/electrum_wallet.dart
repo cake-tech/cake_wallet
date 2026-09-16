@@ -3493,6 +3493,12 @@ abstract class ElectrumWalletBase
   }
 
   @override
+  Future<void> refreshBalanceAfterFreeze() async {
+    balance[currency] =
+        balance[currency]!.copyWith(frozen: Money.fromInt(await frozenBalance(), currency));
+  }
+
+  @override
   Future<bool> checkNodeHealth() async {
     try {
       final addresses = walletAddresses.allAddresses

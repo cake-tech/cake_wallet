@@ -18,8 +18,12 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
 
   Future<Set<String>> frozenIds() => frozenCoinsStore.frozenIds(id);
 
-  Future<void> setFrozen(String coinId, bool frozen) =>
-      frozenCoinsStore.setFrozen(id, coinId, frozen);
+  Future<void> setFrozen(String coinId, bool frozen) async {
+    await frozenCoinsStore.setFrozen(id, coinId, frozen);
+    await refreshBalanceAfterFreeze();
+  }
+
+  Future<void> refreshBalanceAfterFreeze();
 
   bool allowsCoinType(Unspent coin, UnspentCoinType coinType) => true;
 

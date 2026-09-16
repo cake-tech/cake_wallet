@@ -105,6 +105,11 @@ class _FakeWallet extends WalletBase<Balance, _History, TransactionInfo>
     frozenWrites.add(frozen);
   }
 
+  // setFrozen is overridden above and never calls through, so the balance hook
+  // the mixin would have run is not reached from here.
+  @override
+  Future<void> refreshBalanceAfterFreeze() => throw UnimplementedError();
+
   // WalletBase's remaining surface, none of which coin control touches.
 
   @override
