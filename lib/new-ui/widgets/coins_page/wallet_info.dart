@@ -13,6 +13,8 @@ class WalletInfoBar extends StatelessWidget {
   final String name;
   final HardwareWalletType? hardwareWalletType;
 
+  static const double _iconSize = 20;
+
   @override
   Widget build(BuildContext context) {
     final semanticsLabel =
@@ -22,6 +24,11 @@ class WalletInfoBar extends StatelessWidget {
       label: semanticsLabel,
       child: ExcludeSemantics(
         child: Row(
+          // Align the icon to the text baseline rather than to the centre of
+          // the text's line box: the glyphs sit low in that box, so a centred
+          // icon (especially the full-height Trezor glyph) floats above them.
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -33,15 +40,21 @@ class WalletInfoBar extends StatelessWidget {
               child: hardwareWalletIcon == null
                   ? const SizedBox.shrink(key: ValueKey("empty"))
                   : Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: CakeImageWidget(
-                        imageUrl: hardwareWalletIcon!,
-                        key: const ValueKey("hardware_wallet_icon"),
-                        width: 24,
-                        height: 24,
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.onSurfaceVariant,
-                          BlendMode.srcIn,
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Baseline(
+                        // Icon bottom lands 1pt below the text baseline, so
+                        // the glyph is centred on the cap height.
+                        baseline: _iconSize - 1,
+                        baselineType: TextBaseline.alphabetic,
+                        child: CakeImageWidget(
+                          imageUrl: hardwareWalletIcon!,
+                          key: const ValueKey("hardware_wallet_icon"),
+                          width: _iconSize,
+                          height: _iconSize,
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.onSurfaceVariant,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),
