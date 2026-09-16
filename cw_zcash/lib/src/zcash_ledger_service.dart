@@ -19,6 +19,20 @@ import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
 /// transparent signing -- and hands every command to [exchange], which sends
 /// it over the BLE or USB connection that ledger_flutter_plus owns. Proofs and
 /// the binding signature are computed by the backend afterwards.
+/// A Ledger problem in the words of the person holding the device. Shown as
+/// is, without an "Exception:" prefix or the signer's backtrace.
+class ZcashLedgerException implements Exception {
+  ZcashLedgerException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
+const _notConnected =
+    "The Ledger is not connected. Make sure it is unlocked and nearby, then try again.";
+
 class ZcashLedgerService extends HardwareWalletService {
   ZcashLedgerService(this.connection);
 
@@ -64,21 +78,20 @@ class ZcashLedgerService extends HardwareWalletService {
     final String version;
     try {
       version = await appVersion();
+    } on ZcashLedgerException {
+      // Already in the user's words: locked, wrong app, not connected.
+      rethrow;
     } catch (e) {
-      // A locked device or another app answers the version probe with a
-      // status word; say which, rather than showing the raw error.
-      throw Exception(
-        statusWordOf(e) == null
-            ? "Open the Zcash app on your Ledger, then try again (${firstLine(e)})"
-            : describe(e),
+      throw ZcashLedgerException(
+        "Open the Zcash app on your Ledger, then try again (${firstLine(e)})",
       );
     }
     final parts = version.split('.').map(int.tryParse).toList();
     if (parts.length < 3 || parts.any((final p) => p == null)) {
       // Never skip the minimum-version check on a version we cannot read.
-      throw Exception(
+      throw ZcashLedgerException(
         "Could not read the Zcash app version on the Ledger ($version); "
-        "update the app in Ledger Live",
+        "update the app in Ledger Live.",
       );
     }
     final (major, minor, patch) = minAppVersion;
@@ -87,9 +100,9 @@ class ZcashLedgerService extends HardwareWalletService {
         (current.$1 == major && current.$2 < minor) ||
         (current.$1 == major && current.$2 == minor && current.$3 < patch);
     if (tooOld) {
-      throw Exception(
+      throw ZcashLedgerException(
         "Zcash app $version on the Ledger is too old for shielded transactions; "
-        "update it to $major.$minor.$patch or newer in Ledger Live",
+        "update it to $major.$minor.$patch or newer in Ledger Live.",
       );
     }
   }
@@ -139,6 +152,9 @@ class ZcashLedgerService extends HardwareWalletService {
     // so a wrong app is reported as such rather than as a rejected header.
     await ZcashWalletBase.ensureRustLib();
     await ensureZcashApp();
+    if (connection.isDisconnected) {
+      throw ZcashLedgerException(_notConnected);
+    }
     lastTransportError = null;
     yield* zkool_ledger
         .ledgerSignTransaction(package: package, c: coin, exchange: exchange)
@@ -146,6 +162,9 @@ class ZcashLedgerService extends HardwareWalletService {
   }
 
   Future<T> _guard<T>(final Future<T> Function() call) async {
+    if (connection.isDisconnected) {
+      throw ZcashLedgerException(_notConnected);
+    }
     lastTransportError = null;
     try {
       return await call();
@@ -155,11 +174,17 @@ class ZcashLedgerService extends HardwareWalletService {
   }
 
   Object _withTransportCause(final Object error) {
-    final cause = lastTransportError;
-    if (cause == null) {
-      return statusWordOf(error) == null ? error : Exception(describe(error));
+    if (error is ZcashLedgerException) {
+      return error;
     }
-    return Exception("Ledger connection failed: $cause (${firstLine(error)})");
+    final cause = lastTransportError;
+    if (cause != null) {
+      // The exchange itself failed: the device went away, out of range, or
+      // was locked long enough to drop the link. The cause stays in the log.
+      printV("ledger transport failure: $cause");
+      return ZcashLedgerException(_notConnected);
+    }
+    return statusWordOf(error) == null ? error : ZcashLedgerException(describe(error));
   }
 
   /// The status word in an error the Rust signer raised for an APDU the

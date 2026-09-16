@@ -1,4 +1,3 @@
-import 'package:cw_core/hardware/device_not_connected_exception.dart';
 import 'package:cw_core/hardware/hardware_signing_stage.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_zcash/src/zcash_ledger_service.dart';
@@ -494,7 +493,7 @@ abstract class ZcashWalletBase
   /// the spend authorizations, then the backend proves and finalizes the
   /// transaction, ready for [PendingZcashTransaction.commit] to broadcast.
   /// The device has to be connected; the send page prompts for that first,
-  /// and a lost connection surfaces as [DeviceNotConnectedException] so the
+  /// and a lost connection surfaces as a plain "not connected" message so the
   /// app can ask to reconnect.
   Future<zkool_pay.PcztPackage> signOnLedger(
     final zkool_pay.PcztPackage txPlan,
@@ -502,7 +501,9 @@ abstract class ZcashWalletBase
   ) async {
     final service = hardwareWalletService;
     if (service is! ZcashLedgerService) {
-      throw DeviceNotConnectedException();
+      throw ZcashLedgerException(
+        "The Ledger is not connected. Connect it and try again.",
+      );
     }
     zkool_pay.PcztPackage? signed;
     await for (final event in service.sign(txPlan, coin)) {
