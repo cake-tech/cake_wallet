@@ -562,6 +562,16 @@ abstract class ZcashWalletBase
     } catch (e) {
       if (tryReduceFeeAmount != 0) rethrow;
       final estr = e.toString();
+      // The planner found no spendable notes at all. Right after a send this
+      // means the change is still unconfirmed and not yet recorded, which
+      // deserves a sentence rather than a Rust backtrace.
+      if (estr.contains("No feasible note selection found")) {
+        throw Exception(
+          "No confirmed funds are available to spend yet. If you just sent a "
+          "transaction, its change becomes spendable once the network picks "
+          "it up, usually within a minute or two.",
+        );
+      }
       const prefix = "Not enough funds, ";
       const suffix = " more ZEC required";
       if (estr.contains(prefix) && estr.contains(suffix)) {
