@@ -512,7 +512,9 @@ abstract class ZcashWalletBase
           printV("ledger: $field0");
           // The signer reports each step; the screen only needs to know
           // when the device is waiting on the user and when it is past that.
-          if (field0 == "Confirm on your Ledger") {
+          if (field0 == "Sending to Ledger") {
+            _ledgerStage(HardwareSigningStage.sendingToDevice);
+          } else if (field0 == "Confirm on your Ledger") {
             _ledgerStage(HardwareSigningStage.awaitingDevice);
           } else if (field0.startsWith("Signing")) {
             _ledgerStage(HardwareSigningStage.signing);

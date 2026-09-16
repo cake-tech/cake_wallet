@@ -1243,7 +1243,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/macsrock/zkool2.git
-      ref: 2c792005e1eee0abf910292bd357b84cfc1cc7f2
+      ref: aeb698d0e55d81f5ebfc870e1ec1d19f76c1f075
       path: ./rust_builder
   rxdart:
     git:
@@ -1688,4 +1688,4 @@ dependency_overrides:
     # companion pull request.
     git:
       url: https://github.com/macsrock/zkool2.git
-      ref: 2c792005e1eee0abf910292bd357b84cfc1cc7f2
+      ref: aeb698d0e55d81f5ebfc870e1ec1d19f76c1f075
