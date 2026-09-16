@@ -141,7 +141,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   Completer<String?>? _pinCompleter;
   Completer<TrezorDeviceSettings>? _settingsCompleter;
   Completer<bool>? _retryCompleter;
-  bool _isPairingCancelled = false;
+
+  /// Completes when the user exits the pairing sheet. Independent of the
+  /// stage-specific completers so a cancel can interrupt any awaited stage,
+  /// including the BLE connect that runs before any of them exist.
+  Completer<void>? _cancelCompleter;
+
+  bool get _isPairingCancelled => _cancelCompleter?.isCompleted ?? false;
 
   /// Settings to apply on the next [connectDevice] instead of asking the user.
   /// Set by [prepareReconnect] and consumed by [connectDevice].
@@ -169,7 +175,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   /// or an on-device prompt) so it can clean up and return false instead of
   /// hanging with [isConnecting] stuck at true.
   Future<void> cancelPairing() async {
-    _isPairingCancelled = true;
+    _complete(_cancelCompleter, null);
     _complete(_pinCompleter, null);
     _complete(_retryCompleter, false);
     if (!(_settingsCompleter?.isCompleted ?? true)) {
@@ -188,6 +194,25 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
+  /// Awaits [future] unless the pairing is cancelled first, in which case a
+  /// [_PairingCancelledException] is thrown and the late result is handed to
+  /// [onLateResult] (e.g. to close a connection nobody is going to use).
+  Future<T> _untilCancelled<T>(Future<T> future, {void Function(T)? onLateResult}) {
+    final cancel = _cancelCompleter!.future.then<T>((_) {
+      if (onLateResult != null) {
+        unawaited(future.then(onLateResult, onError: (Object e) => printV(e)));
+      }
+      throw const _PairingCancelledException();
+    });
+    return Future.any<T>([future, cancel]);
+  }
+
+  void _throwIfCancelled() {
+    if (_isPairingCancelled) {
+      throw const _PairingCancelledException();
+    }
+  }
+
   @override
   @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
@@ -198,7 +223,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       return false;
     }
     isConnecting = true;
-    _isPairingCancelled = false;
+    _cancelCompleter = Completer<void>();
     paringState = TrezorParingState.initial;
 
     // A reconnect for a wallet we already know reuses the settings it was set
@@ -250,6 +275,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       _retryCompleter = null;
       _pinCompleter = null;
       _settingsCompleter = null;
+      _cancelCompleter = null;
     }
   }
 
@@ -258,7 +284,11 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   Future<void> _connect(TrezorHardwareWalletDevice device, TrezorDeviceSettings? preset) async {
     final trezorInterface =
         device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
-    final connection = await trezorInterface.connect(device.device);
+    final connection = await _untilCancelled(
+      trezorInterface.connect(device.device),
+      // A link that comes up after the user gave up must not linger.
+      onLateResult: (late) => unawaited(late.disconnect()),
+    );
 
     Future<String> onPinCode() async {
       _pinCompleter = Completer<String?>();
@@ -288,7 +318,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     );
 
     final client = _client!;
-    await client.createChannel();
+    await _untilCancelled(client.createChannel());
 
     final hasAutoPairingCredentials = state.pairingCredentials.any((c) => c.autoconnect == true);
     final isAutoPairingAvailable = client is sdk.TrezorClientV2 && !hasAutoPairingCredentials;
@@ -311,20 +341,25 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         passphraseAlwaysOnDevice: passphraseAlwaysOnDevice,
       );
       _settingsCompleter = Completer<TrezorDeviceSettings>();
-      settings = await _settingsCompleter!.future;
+      settings = await _untilCancelled(_settingsCompleter!.future);
     }
+    _throwIfCancelled();
 
     if (settings.enableAutoParing && isAutoPairingAvailable) {
       if (client case final sdk.TrezorClientV2 clientV2) {
         try {
-          final auto = await clientV2.getAutoPairingCredentials();
+          final auto = await _untilCancelled(clientV2.getAutoPairingCredentials());
           state.setPairingCredentials([auto]);
           await _saveState();
+        } on _PairingCancelledException {
+          rethrow;
         } catch (e) {
+          // Auto-pairing is a convenience; the connection is still usable.
           printV(e);
         }
       }
     }
+    _throwIfCancelled();
 
     final usesPassphrase = settings.passphraseOnDevice || (settings.passphrase ?? "").isNotEmpty;
     if (usesPassphrase && !passphraseAlwaysOnDevice) {
@@ -332,10 +367,11 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       final passphrase = settings.passphraseOnDevice
           ? const sdk.TrezorPassphrase.onDevice()
           : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
-      await client.createSession(passphrase);
+      await _untilCancelled(client.createSession(passphrase));
     } else {
       paringState = TrezorParingState.initial;
     }
+    _throwIfCancelled();
 
     _sessionSettings = passphraseAlwaysOnDevice
         ? TrezorDeviceSettings(

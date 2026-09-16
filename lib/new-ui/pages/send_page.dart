@@ -572,10 +572,17 @@ class _NewSendPageState extends State<NewSendPage> {
                                             fiatCurrencySymbol:
                                                 widget.sendViewModel.fiatCurrency.symbol,
                                             onAllButtonPressed: () async {
-                                              final index = _selectedOutput;
-                                              output.setSendAll(
-                                                await widget.sendViewModel.sendingBalance,
-                                              );
+                                              final balance =
+                                                  await widget.sendViewModel.sendingBalance;
+                                              // The recipient may have been removed
+                                              // or re-indexed while awaiting.
+                                              if (!mounted) return;
+                                              final index =
+                                                  widget.sendViewModel.outputs.indexOf(output);
+                                              if (index < 0 || index >= _amountControllers.length) {
+                                                return;
+                                              }
+                                              output.setSendAll(balance);
                                               // Populate directly as well; the
                                               // reaction only fires on a change.
                                               output.isFiatEntry = false;

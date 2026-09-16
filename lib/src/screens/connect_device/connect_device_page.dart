@@ -195,9 +195,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   void _addBleDevice(HardwareWalletDevice device) {
-    final alreadyListed = bleDevices.any(
-      (d) => d.name == device.name && d.connectionType == device.connectionType,
-    );
+    final alreadyListed = bleDevices.any((d) => d.id == device.id);
     if (!alreadyListed) {
       bleDevices.add(device);
     }
