@@ -868,6 +868,8 @@
   "proceed": "Procedere",
   "proceed_after_one_minute": "Se la schermata non prosegue dopo 1 minuto, controlla la tua email.",
   "proceed_on_device": "Procedi sul tuo dispositivo",
+  "ledger_verify_address": "Verifica l'indirizzo sul tuo Ledger",
+  "ledger_verify_address_description": "Approva sul Ledger solo se mostra questo indirizzo:",
   "proceed_on_device_description": "Segui le istruzioni visualizzate sul tuo hardware wallet",
   "processing": "Elaborazione",
   "processing_signed_tx": "Elaborazione della transazione firmata",

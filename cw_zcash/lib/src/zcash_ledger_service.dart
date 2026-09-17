@@ -107,6 +107,24 @@ class ZcashLedgerService extends HardwareWalletService {
     }
   }
 
+  /// Has the device show the account's default unified address on its own
+  /// screen and returns it once the user approves there.
+  ///
+  /// The screen is the one part of the path a tampered link cannot alter, so
+  /// the caller shows the address it derived from the imported viewing key
+  /// at the same time and the user compares the two.
+  Future<String> showAddressOnDevice({
+    required final int aindex,
+    final ZcashNetwork network = ZcashNetwork.mainnet,
+  }) async {
+    await ZcashWalletBase.ensureRustLib();
+    await ensureZcashApp();
+    final coin = zkool_coin.Coin(defaultCoin: network.networkIndex);
+    return _guard(
+      () => zkool_ledger.ledgerShowAddress(aindex: aindex, c: coin, exchange: exchange),
+    );
+  }
+
   /// Exports the viewing key of one ZIP-32 account.
   ///
   /// Every export is approved on the device screen, so this returns a single

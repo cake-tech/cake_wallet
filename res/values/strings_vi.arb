@@ -868,6 +868,8 @@
   "proceed": "Tiếp tục",
   "proceed_after_one_minute": "Nếu màn hình không chuyển tiếp sau 1 phút, hãy kiểm tra email của bạn.",
   "proceed_on_device": "Tiếp tục trên thiết bị của bạn",
+  "ledger_verify_address": "Xác minh địa chỉ trên Ledger của bạn",
+  "ledger_verify_address_description": "Chỉ phê duyệt trên Ledger nếu nó hiển thị địa chỉ này:",
   "proceed_on_device_description": "Vui lòng làm theo các hướng dẫn hiển thị trên ví phần cứng của bạn",
   "processing": "Đang xử lý",
   "processing_signed_tx": "Đang xử lý giao dịch đã ký",

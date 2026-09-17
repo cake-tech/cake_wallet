@@ -869,6 +869,8 @@
   "proceed": "Ci gaba",
   "proceed_after_one_minute": "Idan allon bai ci gaba ba bayan minti 1, duba imel ɗinka.",
   "proceed_on_device": "Ci gaba a kan na'urarka",
+  "ledger_verify_address": "Tabbatar da adireshin a kan Ledger ɗinka",
+  "ledger_verify_address_description": "Amince a kan Ledger kawai idan ya nuna wannan adireshin:",
   "proceed_on_device_description": "Da fatan za a bi umarnin da aka nuna a kan walat ɗin kayan aiki",
   "processing": "Ana sarrafawa",
   "processing_signed_tx": "Ana sarrafa ma'amala da aka sa hannu",

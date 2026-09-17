@@ -868,6 +868,8 @@
   "proceed": "Tesiwaju",
   "proceed_after_one_minute": "Tí iboju kò bá tẹ̀síwájú lẹ́yìn ìṣẹ́jú kan, ẹ ṣàyẹ̀wò ímeèlì yín.",
   "proceed_on_device": "Tẹ̀síwájú lórí ẹ̀rọ rẹ",
+  "ledger_verify_address": "Ṣàyẹ̀wò àdírẹ́sì náà lórí Ledger rẹ",
+  "ledger_verify_address_description": "Fọwọ́ sí i lórí Ledger nìkan tí ó bá fi àdírẹ́sì yìí hàn:",
   "proceed_on_device_description": "Jọwọ tẹle àwọn ìtọ́nisọ́nà tí a fi hàn lórí apamọwọ hardware rẹ",
   "processing": "Ń ṣiṣẹ́",
   "processing_signed_tx": "Nṣiṣẹ́ lórí ìdúnàdúrà tí a ti fọwọ́ sí",

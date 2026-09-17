@@ -867,6 +867,8 @@
   "proceed": "Pokračovat",
   "proceed_after_one_minute": "Pokud obrazovka nepokročí ani po 1 minutě, zkontrolujte svůj e-mail.",
   "proceed_on_device": "Pokračujte na svém zařízení",
+  "ledger_verify_address": "Ověřte adresu na svém Ledgeru",
+  "ledger_verify_address_description": "Na Ledgeru potvrďte pouze pokud zobrazuje tuto adresu:",
   "proceed_on_device_description": "Postupujte podle pokynů zobrazených na vaší hardwarové peněžence",
   "processing": "Zpracovává se",
   "processing_signed_tx": "Zpracování podepsané transakce",

@@ -867,6 +867,8 @@
   "proceed": "Doorgaan",
   "proceed_after_one_minute": "Als het scherm na 1 minuut niet verder gaat, controleer dan je e-mail.",
   "proceed_on_device": "Ga verder met je apparaat",
+  "ledger_verify_address": "Controleer het adres op uw Ledger",
+  "ledger_verify_address_description": "Keur alleen goed op de Ledger als deze dit adres toont:",
   "proceed_on_device_description": "Volg de instructies die worden weergegeven op je hardware-wallet",
   "processing": "Verwerking",
   "processing_signed_tx": "Verwerking ondertekende transactie",

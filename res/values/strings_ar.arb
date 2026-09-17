@@ -867,6 +867,8 @@
   "proceed": "يتابع",
   "proceed_after_one_minute": "إذا لم تنتقل الشاشة إلى الخطوة التالية بعد دقيقة واحدة، فتحقّق من بريدك الإلكتروني.",
   "proceed_on_device": "تابع على جهازك",
+  "ledger_verify_address": "تحقق من العنوان على جهاز Ledger",
+  "ledger_verify_address_description": "وافق على Ledger فقط إذا كان يعرض هذا العنوان:",
   "proceed_on_device_description": "يرجى اتباع التعليمات التي تظهر على محفظتك المادية",
   "processing": "جارٍ المعالجة",
   "processing_signed_tx": "جارٍ معالجة المعاملة الموقَّعة",

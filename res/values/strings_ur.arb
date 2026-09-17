@@ -869,6 +869,8 @@
   "proceed": "آگے بڑھیں۔",
   "proceed_after_one_minute": "اگر اسکرین 1 منٹ کے بعد آگے نہیں بڑھتی تو اپنا ای میل چیک کریں۔",
   "proceed_on_device": "اپنے ڈیوائس پر آگے بڑھیں",
+  "ledger_verify_address": "اپنے Ledger پر ایڈریس کی تصدیق کریں",
+  "ledger_verify_address_description": "Ledger پر صرف اسی صورت میں منظوری دیں جب وہ یہ ایڈریس دکھائے:",
   "proceed_on_device_description": "براہ کرم اپنے ہارڈ ویئر والیٹ پر ظاہر ہونے والی ہدایات پر عمل کریں",
   "processing": "پروسیسنگ جاری ہے",
   "processing_signed_tx": "دستخط شدہ ٹرانزیکشن پر کارروائی ہو رہی ہے",

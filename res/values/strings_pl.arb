@@ -867,6 +867,8 @@
   "proceed": "Przystępować",
   "proceed_after_one_minute": "Jeśli po 1 minucie ekran nie przejdzie dalej, sprawdź swoją pocztę e-mail.",
   "proceed_on_device": "Kontynuuj na swoim urządzeniu",
+  "ledger_verify_address": "Zweryfikuj adres na swoim Ledgerze",
+  "ledger_verify_address_description": "Zatwierdź na Ledgerze tylko, jeśli pokazuje ten adres:",
   "proceed_on_device_description": "Postępuj zgodnie z instrukcjami wyświetlanymi na Twoim portfelu sprzętowym",
   "processing": "Przetwarzanie",
   "processing_signed_tx": "Przetwarzanie podpisanej transakcji",

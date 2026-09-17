@@ -870,6 +870,8 @@
   "proceed": "Jehove",
   "proceed_after_one_minute": "Pe pantalla ndohoiramo tenonde 1 aravo’i rire, ehecha nde correo.",
   "proceed_on_device": "Eku’ejey nde mba’e’okápe.",
+  "ledger_verify_address": "Ehechajey pe dirección nde Ledger-pe",
+  "ledger_verify_address_description": "Emoneĩ Ledger-pe ohechauka ramo añoite ko dirección:",
   "proceed_on_device_description": "Eikuaa hag̃ua, ejapo umi mba’e he’íva nde hardware wallet-pe",
   "processing": "Oñeprocesahína",
   "processing_signed_tx": "Oñeprocesahína transacción oñemboheraguapýva",

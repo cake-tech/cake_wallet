@@ -2032,6 +2032,24 @@ abstract class ZcashWalletBase
       throw Exception("The Ledger did not return a viewing key");
     }
 
+    // The key crossed the link unauthenticated. The device now shows the
+    // address it derives itself, and the user compares that screen with the
+    // address the app derived from the key it received: a substituted key
+    // gives a different address. The device's reply is checked too, which
+    // catches an honest mismatch (a different account or path) outright.
+    final expected = accounts.first.address;
+    credentials.onVerifyAddress?.call(expected);
+    final shown = await service.showAddressOnDevice(
+      aindex: credentials.accountIndex,
+      network: network,
+    );
+    if (shown != expected) {
+      throw ZcashLedgerException(
+        "The address the Ledger shows is not the one derived from the viewing key it "
+        "exported. Do not use this wallet; check the device and connection and pair again.",
+      );
+    }
+
     // Without a date from the user, start at Sapling activation: nothing a
     // Ledger account can hold predates it, and Ledger Live has held
     // transparent ZEC since then.

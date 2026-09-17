@@ -867,6 +867,8 @@
   "proceed": "Procéder",
   "proceed_after_one_minute": "Si l'écran ne passe pas à l'étape suivante après 1 minute, vérifiez vos e-mails.",
   "proceed_on_device": "Continuez sur votre appareil",
+  "ledger_verify_address": "Vérifiez l'adresse sur votre Ledger",
+  "ledger_verify_address_description": "N'approuvez sur le Ledger que s'il affiche cette adresse :",
   "proceed_on_device_description": "Veuillez suivre les instructions affichées sur votre portefeuille matériel.",
   "processing": "Traitement en cours",
   "processing_signed_tx": "Traitement de la transaction signée",

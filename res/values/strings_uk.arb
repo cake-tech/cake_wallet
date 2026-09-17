@@ -867,6 +867,8 @@
   "proceed": "Продовжуйте",
   "proceed_after_one_minute": "Якщо через 1 хвилину екран не перейде далі, перевірте свою електронну пошту.",
   "proceed_on_device": "Продовжуйте на своєму пристрої",
+  "ledger_verify_address": "Перевірте адресу на вашому Ledger",
+  "ledger_verify_address_description": "Підтверджуйте на Ledger лише якщо він показує цю адресу:",
   "proceed_on_device_description": "Будь ласка, дотримуйтесь інструкцій, що відображаються на вашому апаратному гаманці",
   "processing": "Обробка",
   "processing_signed_tx": "Обробка підписаної транзакції",

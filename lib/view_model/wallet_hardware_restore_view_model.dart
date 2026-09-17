@@ -105,6 +105,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
           height: _options['height'] as int?,
           accountIndex: _options['accountIndex'] as int? ?? 0,
+          onVerifyAddress: _options['onVerifyAddress'] as void Function(String)?,
         );
         break;
       default:

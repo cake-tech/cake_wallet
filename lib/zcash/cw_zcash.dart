@@ -38,13 +38,15 @@ class CWZcash extends Zcash {
       required HardwareWalletService hardwareWalletService,
       required int? height,
       int accountIndex = 0,
-      WalletInfo? walletInfo}) {
+      WalletInfo? walletInfo,
+      void Function(String address)? onVerifyAddress}) {
     return ZcashRestoreWalletFromHardware(
       name: name,
       hardwareWalletService: hardwareWalletService,
       height: height,
       accountIndex: accountIndex,
       walletInfo: walletInfo,
+      onVerifyAddress: onVerifyAddress,
     );
   }
 

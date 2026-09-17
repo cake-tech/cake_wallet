@@ -867,6 +867,8 @@
   "proceed": "继续",
   "proceed_after_one_minute": "如果 1 分钟后仍未跳转，请检查您的电子邮件。",
   "proceed_on_device": "请在您的设备上继续操作",
+  "ledger_verify_address": "在您的 Ledger 上验证地址",
+  "ledger_verify_address_description": "仅当 Ledger 显示此地址时才批准:",
   "proceed_on_device_description": "请按照硬件钱包上显示的提示进行操作",
   "processing": "处理中",
   "processing_signed_tx": "正在处理已签名交易",

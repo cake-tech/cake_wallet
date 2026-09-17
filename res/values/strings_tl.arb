@@ -867,6 +867,8 @@
   "proceed": "Magpatuloy",
   "proceed_after_one_minute": "Kung hindi magpatuloy ang screen pagkalipas ng 1 minuto, tingnan ang iyong email.",
   "proceed_on_device": "Magpatuloy sa iyong device",
+  "ledger_verify_address": "I-verify ang address sa iyong Ledger",
+  "ledger_verify_address_description": "Aprubahan sa Ledger kung ipinapakita lamang nito ang address na ito:",
   "proceed_on_device_description": "Mangyaring sundin ang mga tagubiling ipinapakita sa iyong hardware wallet",
   "processing": "Pinoproseso",
   "processing_signed_tx": "Pinoproseso ang nilagdaang transaksyon",

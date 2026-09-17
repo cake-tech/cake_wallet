@@ -61,9 +61,15 @@ class ZcashRestoreWalletFromHardware extends WalletCredentials {
     this.accountIndex = 0,
     final WalletInfo? walletInfo,
     this.network = 0,
+    this.onVerifyAddress,
   }) : super(name: name, height: height, walletInfo: walletInfo);
 
   final HardwareWalletService hardwareWalletService;
+
+  /// Called with the address derived from the exported viewing key while the
+  /// device shows its own on screen, so the screen can ask the user to
+  /// compare the two before approving on the device.
+  final void Function(String address)? onVerifyAddress;
 
   /// ZIP-32 account index on the device (m/32'/133'/index').
   final int accountIndex;

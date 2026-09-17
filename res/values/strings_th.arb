@@ -867,6 +867,8 @@
   "proceed": "ดำเนินการ",
   "proceed_after_one_minute": "หากหน้าจอไม่ไปต่อหลังจาก 1 นาที โปรดตรวจสอบอีเมลของคุณ",
   "proceed_on_device": "ดำเนินการต่อบนอุปกรณ์ของคุณ",
+  "ledger_verify_address": "ตรวจสอบที่อยู่บน Ledger ของคุณ",
+  "ledger_verify_address_description": "อนุมัติบน Ledger เฉพาะเมื่อแสดงที่อยู่นี้เท่านั้น:",
   "proceed_on_device_description": "โปรดทำตามคำแนะนำที่แสดงบนกระเป๋าเงินฮาร์ดแวร์ของคุณ",
   "processing": "กำลังประมวลผล",
   "processing_signed_tx": "กำลังประมวลผลธุรกรรมที่ลงนามแล้ว",

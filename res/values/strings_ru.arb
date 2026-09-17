@@ -868,6 +868,8 @@
   "proceed": "Продолжить",
   "proceed_after_one_minute": "Если через 1 минуту ничего не происходит, проверьте свою электронную почту.",
   "proceed_on_device": "Продолжите на своем устройстве",
+  "ledger_verify_address": "Проверьте адрес на вашем Ledger",
+  "ledger_verify_address_description": "Подтверждайте на Ledger только если он показывает этот адрес:",
   "proceed_on_device_description": "Пожалуйста, следуйте инструкциям, отображаемым на вашем аппаратном кошельке",
   "processing": "Обработка",
   "processing_signed_tx": "Обработка подписанной транзакции",

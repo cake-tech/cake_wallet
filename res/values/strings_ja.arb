@@ -868,6 +868,8 @@
   "proceed": "進む",
   "proceed_after_one_minute": "1分経っても画面が進まない場合は、メールを確認してください。",
   "proceed_on_device": "デバイスで続行してください",
+  "ledger_verify_address": "Ledger でアドレスを確認してください",
+  "ledger_verify_address_description": "Ledger にこのアドレスが表示されている場合のみ承認してください:",
   "proceed_on_device_description": "ハードウェアウォレットに表示される指示に従ってください",
   "processing": "処理中",
   "processing_signed_tx": "署名済みトランザクションを処理しています",

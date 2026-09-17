@@ -867,6 +867,8 @@
   "proceed": "Nastavi",
   "proceed_after_one_minute": "Ako se zaslon ne nastavi nakon 1 minute, provjerite svoju e-poštu.",
   "proceed_on_device": "Nastavite na svom uređaju",
+  "ledger_verify_address": "Provjerite adresu na svom Ledgeru",
+  "ledger_verify_address_description": "Odobrite na Ledgeru samo ako prikazuje ovu adresu:",
   "proceed_on_device_description": "Molimo slijedite upute prikazane na vašem hardverskom novčaniku",
   "processing": "Obrada",
   "processing_signed_tx": "Obrada potpisane transakcije",

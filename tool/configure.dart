@@ -1783,7 +1783,8 @@ abstract class Zcash {
       required HardwareWalletService hardwareWalletService,
       required int? height,
       int accountIndex = 0,
-      WalletInfo? walletInfo});
+      WalletInfo? walletInfo,
+      void Function(String address)? onVerifyAddress});
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 

@@ -867,6 +867,8 @@
   "proceed": "Շարունակել",
   "proceed_after_one_minute": "Եթե էկրանը 1 րոպե անց չի շարունակվում, ստուգեք ձեր էլեկտրոնային փոստը։",
   "proceed_on_device": "Շարունակեք ձեր սարքում",
+  "ledger_verify_address": "Ստուգեք հասցեն ձեր Ledger-ի վրա",
+  "ledger_verify_address_description": "Հաստատեք Ledger-ի վրա միայն եթե այն ցույց է տալիս այս հասցեն՝",
   "proceed_on_device_description": "Խնդրում ենք հետևել ձեր ապարատային դրամապանակի վրա ցուցադրվող հրահանգներին",
   "processing": "Մշակվում է",
   "processing_signed_tx": "Ստորագրված գործարքի մշակում",

@@ -869,6 +869,8 @@
   "proceed": "Melanjutkan",
   "proceed_after_one_minute": "Jika layar tidak berlanjut setelah 1 menit, periksa email Anda.",
   "proceed_on_device": "Lanjutkan di perangkat Anda",
+  "ledger_verify_address": "Verifikasi alamat di Ledger Anda",
+  "ledger_verify_address_description": "Setujui di Ledger hanya jika menampilkan alamat ini:",
   "proceed_on_device_description": "Silakan ikuti instruksi yang ditampilkan di hardware wallet Anda",
   "processing": "Memproses",
   "processing_signed_tx": "Memproses transaksi yang sudah ditandatangani",

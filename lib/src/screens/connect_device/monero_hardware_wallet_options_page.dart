@@ -184,20 +184,34 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
   }
 
   Future<void> _confirmForm() async {
+    // For Zcash the device first asks to approve the viewing-key export,
+    // then shows the account address on its screen; the notice switches to
+    // that address so the user can compare the two before approving.
+    final addressToVerify = ValueNotifier<String?>(null);
     unawaited(
       showPopUp<void>(
         context: context,
-        builder: (context) => AlertWithOneAction(
-          alertTitle: S.of(context).proceed_on_device,
-          alertContent: S.of(context).proceed_on_device_description,
-          buttonText: S.of(context).cancel,
-          alertBarrierDismissible: false,
-          buttonAction: () => Navigator.of(context).pop(),
+        builder: (context) => ValueListenableBuilder<String?>(
+          valueListenable: addressToVerify,
+          builder: (context, address, _) => AlertWithOneAction(
+            alertTitle: address == null
+                ? S.of(context).proceed_on_device
+                : S.of(context).ledger_verify_address,
+            alertContent: address == null
+                ? S.of(context).proceed_on_device_description
+                : "${S.of(context).ledger_verify_address_description}\n\n$address",
+            buttonText: S.of(context).cancel,
+            alertBarrierDismissible: false,
+            buttonAction: () => Navigator.of(context).pop(),
+          ),
         ),
       ),
     );
 
-    final options = <String, dynamic>{"height": _blockchainHeightKey.currentState?.height ?? -1};
+    final options = <String, dynamic>{
+      "height": _blockchainHeightKey.currentState?.height ?? -1,
+      "onVerifyAddress": (String address) => addressToVerify.value = address,
+    };
 
     if (_walletHardwareRestoreVM.passphraseAvailable && _passphraseController.text.isNotEmpty) {
       options["passphrase"] = _passphraseController.text;

@@ -867,6 +867,8 @@
   "proceed": "ادامه دهید",
   "proceed_after_one_minute": "اگر صفحه بعد از ۱ دقیقه ادامه پیدا نکرد، ایمیل خود را بررسی کنید.",
   "proceed_on_device": "در دستگاه خود ادامه دهید",
+  "ledger_verify_address": "آدرس را روی Ledger خود بررسی کنید",
+  "ledger_verify_address_description": "فقط در صورتی روی Ledger تأیید کنید که این آدرس را نشان دهد:",
   "proceed_on_device_description": "لطفاً دستورالعمل‌هایی را که روی کیف پول سخت‌افزاری شما نمایش داده می‌شود دنبال کنید",
   "processing": "در حال پردازش",
   "processing_signed_tx": "در حال پردازش تراکنش امضاشده",

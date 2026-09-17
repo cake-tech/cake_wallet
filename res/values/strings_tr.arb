@@ -867,6 +867,8 @@
   "proceed": "İlerlemek",
   "proceed_after_one_minute": "Ekran 1 dakika içinde ilerlemezse e-postanızı kontrol edin.",
   "proceed_on_device": "Cihazınızda devam edin",
+  "ledger_verify_address": "Adresi Ledger'ınızda doğrulayın",
+  "ledger_verify_address_description": "Ledger'da yalnızca bu adresi gösteriyorsa onaylayın:",
   "proceed_on_device_description": "Lütfen donanım cüzdanınızda görüntülenen talimatları izleyin",
   "processing": "İşleniyor",
   "processing_signed_tx": "İmzalı işlem işleniyor",

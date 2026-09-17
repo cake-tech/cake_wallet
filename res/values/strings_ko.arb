@@ -867,6 +867,8 @@
   "proceed": "진행하다",
   "proceed_after_one_minute": "1분이 지나도 화면이 넘어가지 않으면 이메일을 확인하세요.",
   "proceed_on_device": "기기에서 계속 진행하세요",
+  "ledger_verify_address": "Ledger에서 주소를 확인하세요",
+  "ledger_verify_address_description": "Ledger에 이 주소가 표시될 때만 승인하세요:",
   "proceed_on_device_description": "하드웨어 지갑에 표시되는 안내에 따라 주세요.",
   "processing": "처리 중",
   "processing_signed_tx": "서명된 트랜잭션 처리 중",
