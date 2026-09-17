@@ -178,6 +178,12 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         column: "isMultiAccountsEnabled",
         definition: "INTEGER DEFAULT NULL",
       );
+      await _addColumnIfNotExists(
+        db,
+        table: "WalletInfo",
+        column: "currentAccountIndex",
+        definition: "INTEGER NOT NULL DEFAULT 0",
+      );
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -203,6 +209,7 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
+  currentAccountIndex INTEGER NOT NULL DEFAULT 0,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
@@ -356,7 +363,6 @@ CREATE TABLE IF NOT EXISTS WalletInfoAccount (
   walletInfoId INTEGER NOT NULL,
   accountIndex INTEGER NOT NULL,
   label TEXT NOT NULL,
-  isSelected INTEGER DEFAULT 0 NOT NULL,
   CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId),
   UNIQUE(walletInfoId, accountIndex)
 );

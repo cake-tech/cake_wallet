@@ -246,29 +246,24 @@ class WalletInfoAddress {
 
 class WalletInfoAccount {
   WalletInfoAccount({
-    this.id = 0,
-    required this.walletInfoId,
-    required this.accountIndex,
-    required this.label,
-    this.isSelected = false,
+    required this.walletInfoId, required this.accountIndex, required this.label, this.id = 0,
   });
 
   int id;
   int walletInfoId;
   int accountIndex;
   String label;
-  bool isSelected;
 
-  static String get tableName => 'walletInfoAccount';
+  static String get tableName => "walletInfoAccount";
 
-  static String get selfIdColumn => '${tableName}Id';
+  static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAccount>> selectList(int walletInfoId) async {
     final query = await db!.query(
       tableName,
-      where: 'walletInfoId = ?',
+      where: "walletInfoId = ?",
       whereArgs: [walletInfoId],
-      orderBy: 'accountIndex ASC',
+      orderBy: "accountIndex ASC",
     );
 
     return List.generate(query.length, (index) => WalletInfoAccount.fromJson(query[index]));
@@ -282,12 +277,11 @@ class WalletInfoAccount {
     required int walletInfoId,
     required int accountIndex,
     required String label,
-    bool isSelected = false,
   }) async {
     return await db!.transaction((txn) async {
       final updated = await txn.update(
         tableName,
-        {'label': label, 'isSelected': isSelected ? 1 : 0},
+        {'label': label},
         where: 'walletInfoId = ? AND accountIndex = ?',
         whereArgs: [walletInfoId, accountIndex],
       );
@@ -306,28 +300,8 @@ class WalletInfoAccount {
         'walletInfoId': walletInfoId,
         'accountIndex': accountIndex,
         'label': label,
-        'isSelected': isSelected ? 1 : 0,
       });
     });
-  }
-
-  static Future<void> setSelected({
-    required int walletInfoId,
-    required int accountIndex,
-  }) async {
-    await db!.update(
-      tableName,
-      {'isSelected': 0},
-      where: 'walletInfoId = ?',
-      whereArgs: [walletInfoId],
-    );
-
-    await db!.update(
-      tableName,
-      {'isSelected': 1},
-      where: 'walletInfoId = ? AND accountIndex = ?',
-      whereArgs: [walletInfoId, accountIndex],
-    );
   }
 
   Map<String, dynamic> toJson() {
@@ -336,7 +310,6 @@ class WalletInfoAccount {
       'walletInfoId': walletInfoId,
       'accountIndex': accountIndex,
       'label': label,
-      'isSelected': isSelected ? 1 : 0,
     };
   }
 
@@ -346,7 +319,6 @@ class WalletInfoAccount {
       walletInfoId: json['walletInfoId'] as int,
       accountIndex: json['accountIndex'] as int,
       label: json['label'] as String,
-      isSelected: (json['isSelected'] as int? ?? 0) == 1,
     );
   }
 }
@@ -453,6 +425,7 @@ class WalletInfo {
       this.hashedWalletIdentifier,
       this.isNonSeedWallet,
       this.sortOrder,
+      this.currentAccountIndex,
       this.addressPageType,
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
@@ -479,6 +452,7 @@ class WalletInfo {
       String? hashedWalletIdentifier,
       bool? isNonSeedWallet,
       int? sortOrder,
+      int currentAccountIndex = 0,
       bool? receiveInfoboxDismissed,
       bool? showCombinedBalance,
       String? favoriteTokenAddress}) {
@@ -502,6 +476,7 @@ class WalletInfo {
         hashedWalletIdentifier,
         isNonSeedWallet ?? false,
         sortOrder ?? 0,
+        currentAccountIndex,
         null,
         receiveInfoboxDismissed ?? false,
         showCombinedBalance ?? true,
@@ -515,7 +490,7 @@ class WalletInfo {
 
   int internalId;
 
-  int? selectedAccount;
+  int currentAccountIndex;
 
   String id;
   String name;
@@ -623,35 +598,22 @@ class WalletInfo {
         walletInfoId: internalId,
         accountIndex: 0,
         label: "Primary account",
-        isSelected: true,
       );
 
       accounts = await WalletInfoAccount.selectList(internalId);
-      selectedAccount = accounts.firstWhere((account) => account.isSelected).accountIndex;
-      return accounts;
     }
 
-    final selected = accounts.firstWhere(
-      (account) => account.isSelected,
-      orElse: () => accounts.first,
-    );
-
-    if (!selected.isSelected) {
-      await setSelectedAccount(selected.accountIndex);
-      selected.isSelected = true;
+    if (!accounts.any((a) => a.accountIndex == currentAccountIndex)) {
+      currentAccountIndex = accounts.first.accountIndex;
+      await save();
     }
 
-    selectedAccount = selected.accountIndex;
     return accounts;
   }
 
   Future<void> setSelectedAccount(int accountIndex) async {
-    selectedAccount = accountIndex;
-
-    await WalletInfoAccount.setSelected(
-      walletInfoId: internalId,
-      accountIndex: accountIndex,
-    );
+    currentAccountIndex = accountIndex;
+    await save();
   }
 
   Future<void> setAccounts(List<WalletInfoAccount> accounts) async {
@@ -662,8 +624,13 @@ class WalletInfo {
         walletInfoId: internalId,
         accountIndex: account.accountIndex,
         label: account.label,
-        isSelected: account.isSelected,
       );
+    }
+
+    if (accounts.isNotEmpty &&
+        !accounts.any((a) => a.accountIndex == currentAccountIndex)) {
+      currentAccountIndex = accounts.first.accountIndex;
+      await save();
     }
   }
 
@@ -682,14 +649,10 @@ class WalletInfo {
     required int accountIndex,
     required String label,
   }) async {
-    final accounts = await getAccounts();
-    final account = accounts.firstWhere((account) => account.accountIndex == accountIndex);
-
     await WalletInfoAccount.insertOrUpdate(
       walletInfoId: internalId,
       accountIndex: accountIndex,
       label: label,
-      isSelected: account.isSelected,
     );
   }
 
@@ -775,6 +738,7 @@ class WalletInfo {
         "hashedWalletIdentifier": hashedWalletIdentifier,
         "isNonSeedWallet": isNonSeedWallet ? 1 : 0,
         "sortOrder": sortOrder,
+        "currentAccountIndex": currentAccountIndex,
         "addressPageType": addressPageType,
         "receiveInfoboxDismissed": receiveInfoboxDismissed ? 1 : 0,
         "showCombinedBalance": showCombinedBalance ? 1 : 0,
@@ -809,6 +773,7 @@ class WalletInfo {
         json['hashedWalletIdentifier'] as String?,
         (json['isNonSeedWallet'] as int) == 1,
         json['sortOrder'] as int? ?? 0,
+        json['currentAccountIndex'] as int? ?? 0,
         json['addressPageType'] as String? ?? null,
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,

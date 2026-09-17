@@ -345,7 +345,7 @@ abstract class ElectrumWalletBase
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accounts = await walletInfo.getAccounts();
     final current = accounts.firstWhere(
-          (account) => account.isSelected,
+          (account) => account.accountIndex == currentAccountIndex,
       orElse: () => accounts.first,
     );
 
@@ -497,7 +497,7 @@ abstract class ElectrumWalletBase
 
   String get xpub => accountHD.publicKey.toExtended;
 
-  int get currentAccountIndex => walletInfo.selectedAccount ?? 0;
+  int get currentAccountIndex => walletInfo.currentAccountIndex;
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {

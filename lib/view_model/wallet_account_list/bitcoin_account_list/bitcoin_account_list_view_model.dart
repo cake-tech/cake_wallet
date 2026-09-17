@@ -94,12 +94,13 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     final storedAccounts = await fetch();
     _cachedStoredAccounts = storedAccounts;
 
+    final currentAccountIndex = _wallet.walletInfo.currentAccountIndex;
     final items = storedAccounts
         .map((account) => AccountListItem(
               id: account.accountIndex,
               label: account.label,
               balance: _balanceForAccount(account.accountIndex),
-              isSelected: account.isSelected,
+              isSelected: account.accountIndex == currentAccountIndex,
             ))
         .toList();
 
