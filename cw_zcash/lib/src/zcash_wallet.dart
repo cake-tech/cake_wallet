@@ -1017,12 +1017,24 @@ abstract class ZcashWalletBase
         );
         continue;
       }
+      // A shield whose shielded note is not attached yet (unconfirmed)
+      // cannot be split; show what it sweeps rather than its net, the fee.
+      final shieldHash = ZcashWalletService.normalizeTxId(tx.txHash);
+      if (tx.height > 0) {
+        _pendingShieldAmounts.remove(shieldHash);
+      }
+      final BigInt? sweptAmount = !isShield
+          ? null
+          : (_pendingShieldAmounts[shieldHash] ??
+              (tx.transparentOrSaplingSpent > BigInt.zero ? tx.transparentOrSaplingSpent : null));
       _offerTx(
         byHash,
         _zcashInfoFromZkoolTx(
           tx,
           currentHeight,
           isShieldAction: isShield,
+          directionOverride: sweptAmount != null ? TransactionDirection.outgoing : null,
+          amountOverride: sweptAmount,
           ownedAddresses: ownedAddresses,
         ),
       );
@@ -1417,8 +1429,19 @@ abstract class ZcashWalletBase
   /// receipt; without the mark it reads as a transfer whose value is only the
   /// fee. The swept notes also still read as unspent until this confirms, so
   /// the balance and the shield card stop counting them until then.
-  Future<void> markShieldBroadcast(final String txId) async {
+  /// What each shield that has not confirmed yet swept. Until the network
+  /// confirms it the wallet only knows the transaction's net effect, which
+  /// is the fee, and showing that alone reads as the funds having vanished.
+  final Map<String, BigInt> _pendingShieldAmounts = {};
+
+  Future<void> markShieldBroadcast(final String txId, {final BigInt? swept}) async {
     await ZcashWalletService.addShieldedTx(txId);
+    if (swept != null && swept > BigInt.zero) {
+      final hash = ZcashWalletService.normalizeTxId(txId);
+      _pendingShieldAmounts[hash] = swept;
+      // The mempool entry reads its amount from here.
+      _pendingOutgoingAmounts[hash] = swept;
+    }
     _shieldSweepPending = true;
     _pendingShieldTxId = txId;
   }

@@ -75,9 +75,9 @@ class PendingZcashTransaction with PendingTransaction {
         }
         _txId = txId;
         if (isShield) {
-          // A self-transfer: nothing leaves the wallet, so no outgoing amount
-          // is pended; the swept notes are hidden through the shield mark.
-          await zcashWallet.markShieldBroadcast(txId);
+          // A self-transfer: nothing leaves the wallet. The swept amount is
+          // recorded so the entry shows it while unconfirmed, not just the fee.
+          await zcashWallet.markShieldBroadcast(txId, swept: availableBalance.amount);
         } else {
           zcashWallet.rememberPendingOutgoingAmount(txId, amount);
         }
