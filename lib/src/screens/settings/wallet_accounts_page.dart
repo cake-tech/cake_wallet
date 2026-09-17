@@ -67,6 +67,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   bool get _isBitcoinWallet =>
       widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
 
+  bool get _isMoneroWallet =>
+      widget.dashboardViewModel.wallet.type == WalletType.monero;
+
   bool get _isMultiAccountsEnabled =>
       widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled ?? false;
 
@@ -154,6 +157,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   Widget build(BuildContext context) => Observer(builder: (context) {
         if (accountListViewModel.accounts.isEmpty) return const SizedBox.shrink();
 
+        final showResetButton = (_isMultiAccountsEnabled && _items.length > 1) || (_isMoneroWallet && _items.length > 1);
+
+
         return Container(
           decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
@@ -165,7 +171,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).maybePop,
-                trailingIcon: const Icon(Icons.refresh),
+                trailingIcon: showResetButton ? const Icon(Icons.refresh) : null,
                 trailingSemanticLabel: S.of(context).reset,
                 onTrailingPressed: showResetDialog,
               ),
@@ -489,7 +495,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     _items.clear();
 
     final accounts = accountListViewModel.accounts;
-    for (int i = 0; i < accountListViewModel.accounts.length; i++) {
+    for (int i = 0; i < accounts.length; i++) {
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
             accountName: accounts[i].label,
@@ -497,7 +503,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             balance: accounts[i].balance ?? "0.00",
             accountBalance: accounts[i].balance ?? "0.00",
             assetName: accountListViewModel.currency.title,
-            selected: true,
+            selected: i == accounts.length - 1,
             designSwitchDuration: const Duration(milliseconds: 200),
             width: cardWidth,
             design: i >= widget.dashboardViewModel.cardDesigns.length
@@ -508,7 +514,13 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
           accountListItem: accounts[i]));
     }
 
-    saveCardOrder();
-    setState(() {});
+    await saveCardOrder();
+
+    if (accounts.isNotEmpty) {
+      await accountListViewModel.select(accounts.last);
+    }
+
+    await widget.dashboardViewModel.loadCardDesigns();
+    if (mounted) setState(() {});
   }
 }
