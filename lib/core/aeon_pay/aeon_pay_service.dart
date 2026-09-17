@@ -11,10 +11,11 @@ import "package:cw_core/wallet_type.dart";
 import "package:eth_sig_util/util/utils.dart";
 
 class AeonPayService {
-  static bool isAeonPaySQR(String value) =>
-      RegExp(r"^.*704.*VN.*$").hasMatch(value) ||
-      RegExp(r"^.*608.*PH.*$").hasMatch(value) ||
-      RegExp(r"^0002.*986.*BR.*$").hasMatch(value);
+  static bool isAeonPayQR(String value) =>
+      RegExp(r"^0002.*704.*VN.*$").hasMatch(value) ||
+      RegExp(r"^0002.*608.*PH.*$").hasMatch(value) ||
+      RegExp(r"^0002.*986.*BR.*$").hasMatch(value) ||
+      RegExp(r"^0002.*58.*PE.*$").hasMatch(value);
 
   final sandUrl = "https://qrpay-sbx.aeon.xyz";
   final prodUrl = "https://qrpay.aeon.xyz";
