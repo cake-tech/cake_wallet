@@ -713,16 +713,22 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             }
           });
         } else {
-          state = IsAwaitingDeviceResponseState();
           if (walletType == WalletType.zcash) {
             // The device has nothing to show until the whole transaction has
             // reached it; until then the sheet says what the phone is doing.
+            // The stage is set before the state so the sheet never opens
+            // without one, and only ever moves forward, so a late or
+            // repeated event cannot flash an earlier message.
             deviceStage = HardwareSigningStage.preparing;
             _deviceStageSubscription?.cancel();
-            _deviceStageSubscription = zcash!
-                .ledgerSigningStages(wallet)
-                .listen((stage) => deviceStage = stage);
+            _deviceStageSubscription = zcash!.ledgerSigningStages(wallet).listen((stage) {
+              final current = deviceStage;
+              if (current == null || stage.index > current.index) {
+                deviceStage = stage;
+              }
+            });
           }
+          state = IsAwaitingDeviceResponseState();
         }
       }
 
@@ -1004,7 +1010,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void _stopWatchingDeviceStage() {
     _deviceStageSubscription?.cancel();
     _deviceStageSubscription = null;
-    deviceStage = null;
+    // The stage is left as it is: the sheet is about to change state, and
+    // clearing it first would show "proceed on your device" for a frame.
   }
 
   @action

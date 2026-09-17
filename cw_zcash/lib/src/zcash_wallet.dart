@@ -516,7 +516,8 @@ abstract class ZcashWalletBase
             _ledgerStage(HardwareSigningStage.sendingToDevice);
           } else if (field0 == "Confirm on your Ledger") {
             _ledgerStage(HardwareSigningStage.awaitingDevice);
-          } else if (field0.startsWith("Signing")) {
+          } else if (field0.startsWith("Signed")) {
+            // Reported after a signature comes back, so the user has approved.
             _ledgerStage(HardwareSigningStage.signing);
           } else if (field0 == "Finalizing transaction") {
             _ledgerStage(HardwareSigningStage.finalizing);
