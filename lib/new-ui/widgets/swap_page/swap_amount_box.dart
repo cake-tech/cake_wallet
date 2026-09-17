@@ -598,18 +598,20 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     await CurrencyPickerSheet.show(
       context: context,
-      args: CurrencyPickerArgs(
-        items: items,
-        selected: selected,
-        filterByNetwork: widget.filteredNetwork,
-        balanceByAsset: widget.balanceByAsset,
-        useSingleNetworkLayout: widget.useSingleNetworkLayout,
-        recentsSource: RecentsSource.trades,
-        onSelected: widget.onCurrencySelected,
-        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
-        walletName: widget.walletName,
-        otherAssets: otherAssets,
-      ),
+      args: otherAssets != null && widget.exchangeViewModel.isSendFromExternal
+          ? otherAssets
+          : CurrencyPickerArgs(
+              items: items,
+              selected: selected,
+              filterByNetwork: widget.filteredNetwork,
+              balanceByAsset: widget.balanceByAsset,
+              useSingleNetworkLayout: widget.useSingleNetworkLayout,
+              recentsSource: RecentsSource.trades,
+              onSelected: widget.onCurrencySelected,
+              symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+              walletName: widget.walletName,
+              otherAssets: otherAssets,
+            ),
     );
 
     if (otherAsset == null || !mounted) {
