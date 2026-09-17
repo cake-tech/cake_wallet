@@ -348,24 +348,25 @@ jobs:
           RETRIES=1
 
           # The step log is public, so a run log that gets encrypted below must not print here.
-          # A file descriptor, not /dev/stdout: the emulator action hands the script a socket as
-          # stdout and Linux cannot open /dev/stdout on one (run 34951512819 died on that line)
-          exec 3>&1
-          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
-            exec 3>/dev/null
-          fi
+          run_suites() {
+            env \
+              SUITE_DIR="$SUITE_DIR_INPUT" \
+              TEST_TIER="$TIER" \
+              EXTRA_DART_DEFINES="$EXTRA_DART_DEFINES_INPUT" \
+              TEST_TIMEOUT=600 \
+              RETRY_COUNT=$RETRIES \
+              PLATFORM=android \
+              SUMMARY_FILE="${TIER}_summary.txt" \
+              ./integration_test_runner.sh 2>&1
+          }
 
           set -o pipefail
           set +e
-          env \
-            SUITE_DIR="$SUITE_DIR_INPUT" \
-            TEST_TIER="$TIER" \
-            EXTRA_DART_DEFINES="$EXTRA_DART_DEFINES_INPUT" \
-            TEST_TIMEOUT=600 \
-            RETRY_COUNT=$RETRIES \
-            PLATFORM=android \
-            SUMMARY_FILE="${TIER}_summary.txt" \
-            ./integration_test_runner.sh 2>&1 | tee "${TIER}_run.log" >&3
+          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
+            run_suites > "${TIER}_run.log"
+          else
+            run_suites | tee "${TIER}_run.log"
+          fi
           TEST_EXIT_CODE=$?
           set -e
 
@@ -401,9 +402,6 @@ jobs:
               encrypt_and_drop "$f"
             done
           fi
-
-          adb emu kill > /dev/null 2>&1 || true
-          pkill -9 -f qemu-system > /dev/null 2>&1 || true
 
           exit $TEST_EXIT_CODE
           EOF
