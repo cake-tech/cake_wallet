@@ -791,7 +791,7 @@ abstract class ZcashWalletBase
     if (tx.transparentOrSaplingSpent <= BigInt.zero) {
       return false;
     }
-    if (tx.orchardReceived <= BigInt.zero) {
+    if (tx.shieldedReceived <= BigInt.zero) {
       return false;
     }
     for (final dest in tx.outputAddresses) {
@@ -799,7 +799,7 @@ abstract class ZcashWalletBase
         return true;
       }
     }
-    return tx.orchardReceived > BigInt.zero;
+    return tx.shieldedReceived > BigInt.zero;
   }
 
   bool _shouldSplitAutoshieldTx(
@@ -812,7 +812,10 @@ abstract class ZcashWalletBase
     }
     if (ZcashWalletService.isAutoshieldTx(tx.txHash) ||
         _isPayToSelfAutoshield(tx, ownedAddresses)) {
-      return tx.transparentOrSaplingSpent > BigInt.zero && tx.orchardReceived > BigInt.zero;
+      // Shown as two entries, what left the transparent side and what
+      // arrived shielded, so the history never reads as "only a fee went
+      // out". The shielded side is Ironwood once that pool is active.
+      return tx.transparentOrSaplingSpent > BigInt.zero && tx.shieldedReceived > BigInt.zero;
     }
     return false;
   }
@@ -1009,7 +1012,7 @@ abstract class ZcashWalletBase
           tx,
           currentHeight,
           directionOverride: TransactionDirection.incoming,
-          amountOverride: tx.orchardReceived,
+          amountOverride: tx.shieldedReceived,
           ownedAddresses: ownedAddresses,
         );
         continue;
