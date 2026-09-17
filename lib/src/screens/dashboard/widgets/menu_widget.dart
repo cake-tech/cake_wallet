@@ -2,7 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter_svg/svg.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,7 +37,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.baseIcon = Image.asset('assets/new-ui/crypto_full_icons/base.svg'),
         this.arbitrumIcon = Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg'),
         this.bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg'),
-        this.robinhoodIcon = SvgPicture.asset('assets/new-ui/crypto_full_icons/robinhood.svg'),
+        this.robinhoodIcon = SvgPicture.asset("assets/new-ui/crypto_full_icons/robinhood.svg"),
         this.solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg'),
         this.tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg'),
         this.wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg'),

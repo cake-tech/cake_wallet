@@ -323,7 +323,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.bsc:
         return 'bsc-wallet';
       case WalletType.robinhood:
-        return 'robinhood-wallet';
+        return "robinhood-wallet";
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:

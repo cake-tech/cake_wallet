@@ -143,6 +143,8 @@ String? symbolIconPathForWalletType(WalletType type) {
       return "$prefix/bch-symbol.svg";
     case WalletType.polygon:
       return "$prefix/pol-symbol.svg";
+    case WalletType.robinhood:
+      return "$prefix/rob-symbol.svg";
     case WalletType.solana:
       return "$prefix/sol-symbol.svg";
     case WalletType.tron:

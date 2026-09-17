@@ -35,7 +35,7 @@ class WalletRestoreFromQRCode {
     'base-wallet': WalletType.base,
     'arbitrum-wallet': WalletType.arbitrum,
     'bsc-wallet': WalletType.bsc,
-    'robinhood-wallet': WalletType.robinhood,
+    "robinhood-wallet": WalletType.robinhood,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,

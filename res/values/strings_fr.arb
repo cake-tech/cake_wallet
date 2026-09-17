@@ -980,6 +980,7 @@
   "return_address_desc": "Dans le cas rare d'un swap échoué, nos partenaires peuvent automatiquement rembourser votre paiement à l'adresse de remboursement fournie.",
   "return_address_desc_external": "Puisque vous avez choisi Envoyer depuis une source externe, veuillez définir manuellement une adresse de remboursement ci-dessous.",
   "robinhood_option_description": "Achetez et transférez instantanément avec votre carte de débit, votre compte bancaire ou votre solde Robinhood. Réservé aux États-Unis.",
+  "robinhoodscan_history": "Histoire de Robinhood",
   "rotate_address": "Obtenir une nouvelle adresse",
   "router_no_route": "Aucune route définie pour ${name}",
   "salary": "Salaire",

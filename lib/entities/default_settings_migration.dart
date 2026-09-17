@@ -54,7 +54,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
-const robinhoodDefaultNodeUri = 'rpc.mainnet.chain.robinhood.com';
+const robinhoodDefaultNodeUri = "rpc.mainnet.chain.robinhood.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(

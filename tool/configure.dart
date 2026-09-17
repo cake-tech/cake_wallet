@@ -35,7 +35,7 @@ Future<void> main(List<String> args) async {
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
-  final hasRobinhood = args.contains('${prefix}robinhood');
+  final hasRobinhood = args.contains("${prefix}robinhood");
   final hasZcash = args.contains('${prefix}zcash');
   final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc || hasRobinhood;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
@@ -2045,7 +2045,7 @@ Future<void> generateWalletTypes({
   }
 
   if (hasRobinhood) {
-    outputContent += '\tWalletType.robinhood,\n';
+    outputContent += "\tWalletType.robinhood,\n";
   }
 
   if (hasSolana) {

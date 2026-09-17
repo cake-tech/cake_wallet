@@ -478,7 +478,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
   String _shortChainLabel(CryptoCurrency c) {
     if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.bsc) return 'BSC';
-    if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.robinhood) return 'ROB';
+    if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.robinhood) return "ROB";
     return chainNameForCurrency(c);
   }
 

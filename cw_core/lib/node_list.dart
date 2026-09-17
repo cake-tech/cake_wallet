@@ -62,7 +62,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       path = 'assets/bsc_node_list.yml';
       break;
     case WalletType.robinhood:
-      path = 'assets/robinhood_node_list.yml';
+      path = "assets/robinhood_node_list.yml";
       break;
     case WalletType.banano:
     case WalletType.none:

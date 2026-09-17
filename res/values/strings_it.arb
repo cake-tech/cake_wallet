@@ -981,6 +981,7 @@
   "return_address_desc": "Nel raro caso di uno swap non riuscito, i nostri partner possono rimborsare automaticamente il pagamento all'indirizzo di rimborso fornito.",
   "return_address_desc_external": "Poiché hai scelto Invia da esterno, imposta manualmente un indirizzo di rimborso qui sotto.",
   "robinhood_option_description": "Acquista e trasferisci istantaneamente utilizzando la tua carta di debito, il tuo conto bancario o il saldo Robinhood. Solo negli USA.",
+  "robinhoodscan_history": "Storia di Robinhood",
   "rotate_address": "Ottieni un nuovo indirizzo",
   "router_no_route": "Nessuna rotta definita per ${name}",
   "salary": "Stipendio",

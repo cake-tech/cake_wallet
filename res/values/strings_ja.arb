@@ -981,6 +981,7 @@
   "return_address_desc": "まれにスワップが失敗した場合、当社のパートナーは指定された返金先アドレスへお支払いを自動的に返金できます。",
   "return_address_desc_external": "「外部から送信」を選択したため、以下で返金先アドレスを手動で設定してください。",
   "robinhood_option_description": "デビットカード、銀行口座、またはRobinhood残高を使用して、即座に購入して送金できます。米国のみ。",
+  "robinhoodscan_history": "ロビンフッドの歴史",
   "rotate_address": "新しい住所を取得する",
   "router_no_route": "${name} のルートが定義されていません",
   "salary": "給与",

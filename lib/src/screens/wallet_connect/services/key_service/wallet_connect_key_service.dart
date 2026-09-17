@@ -54,7 +54,7 @@ class KeyServiceImpl implements WalletConnectKeyService {
             'eip155:137',
             'eip155:8453',
             'eip155:42161',
-            'eip155:4663',
+            "eip155:4663",
           ],
           privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),

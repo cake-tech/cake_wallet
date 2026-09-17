@@ -1,6 +1,6 @@
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_groups.dart';
-import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_groups.dart";
+import "package:cw_core/erc20_token.dart";
 
 class RobinhoodTokens {
   static List<Erc20Token> get tokens {
@@ -401,7 +401,7 @@ class RobinhoodTokens {
         iconPath = token.iconPath;
       }
 
-      return Erc20Token.copyWith(token, icon: iconPath, tag: 'ROB');
+      return Erc20Token.copyWith(token, icon: iconPath, tag: "ROB");
     }).toList();
   }
 }

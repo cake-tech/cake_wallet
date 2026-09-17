@@ -981,6 +981,7 @@
   "return_address_desc": "Nínú ọ̀ràn tí ó ṣọ̀wọ́n tí swap bá kùnà, àwọn alábàáṣiṣẹ́pọ̀ wa lè dá ìsanwó rẹ padà laifọwọ́yì sí àdírẹ́sì agbapada tí a pèsè.",
   "return_address_desc_external": "Nítorí pé o ti yan Firanṣẹ Látì Ita, jọwọ ṣètò àdírẹ́sì ìpadà owó pẹ̀lú ọwọ́ ní isalẹ.",
   "robinhood_option_description": "Ra ki o gbe lọ lẹsẹkẹsẹ ní lílo kaadi débítì rẹ, àkàǹtì banki, tàbí ìwọ̀ntúnwọ̀nsì Robinhood. USA nìkan.",
+  "robinhoodscan_history": "Robinhood History",
   "rotate_address": "Gba adirẹsi titun",
   "router_no_route": "Kò sí ọ̀nà tí a ṣàlàyé fún ${name}",
   "salary": "Owo-oṣù",

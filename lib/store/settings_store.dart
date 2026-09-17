@@ -119,6 +119,7 @@ abstract class SettingsStoreBase with Store {
       required this.useBaseScan,
       required this.useArbiScan,
       required this.useBscScan,
+      required this.useRobinhoodScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -526,6 +527,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => useBscScan,
         (bool useBscScan) => _sharedPreferences.setBool(PreferencesKey.useBscScan, useBscScan));
+
+    reaction(
+        (_) => useRobinhoodScan,
+        (bool useRobinhoodScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useRobinhoodScan, useRobinhoodScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -970,6 +976,9 @@ abstract class SettingsStoreBase with Store {
   bool useBscScan;
 
   @observable
+  bool useRobinhoodScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -1330,6 +1339,7 @@ abstract class SettingsStoreBase with Store {
     final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
+    final useRobinhoodScan = sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
@@ -1723,6 +1733,7 @@ abstract class SettingsStoreBase with Store {
       useBaseScan: useBaseScan,
       useArbiScan: useArbiScan,
       useBscScan: useBscScan,
+      useRobinhoodScan: useRobinhoodScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
@@ -1968,6 +1979,7 @@ abstract class SettingsStoreBase with Store {
     useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
+    useRobinhoodScan = sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;

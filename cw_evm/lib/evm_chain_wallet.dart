@@ -549,7 +549,10 @@ abstract class EVMChainWalletBase
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
-      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+      final chainName = EVMChainUtils.getMoralisChainName(selectedChainId);
+      if (chainName == null) {
+        return MoralisDiscoveryResult.empty;
+      }
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
@@ -1461,7 +1464,7 @@ abstract class EVMChainWalletBase
     await transactionHistory.save();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String? chainName) async {
     try {
       return await _client.getErc20Token(contractAddress, chainName);
     } catch (e) {

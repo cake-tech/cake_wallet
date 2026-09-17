@@ -50,7 +50,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg', height: 24, width: 24);
   final bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg', height: 24, width: 24);
   final robinhoodIcon =
-      SvgPicture.asset('assets/new-ui/crypto_full_icons/robinhood.svg', height: 24, width: 24);
+      SvgPicture.asset("assets/new-ui/crypto_full_icons/robinhood.svg", height: 24, width: 24);
   final nanoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/new-ui/crypto_full_icons/nano.svg', height: 24, width: 24);
   final solanaIcon =

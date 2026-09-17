@@ -980,6 +980,7 @@
   "return_address_desc": "Im seltenen Fall eines fehlgeschlagenen Swaps können unsere Partner Ihre Zahlung automatisch an die angegebene Rückerstattungsadresse erstatten.",
   "return_address_desc_external": "Da Sie „Von extern senden“ ausgewählt haben, legen Sie bitte unten manuell eine Erstattungsadresse fest.",
   "robinhood_option_description": "Kaufen und übertragen Sie sofort mit Ihrer Debitkarte, Ihrem Bankkonto oder Ihrem Robinhood-Guthaben. Nur USA.",
+  "robinhoodscan_history": "Robinhood-Geschichte",
   "rotate_address": "Neue Adresse abrufen",
   "router_no_route": "Keine Route für ${name} definiert",
   "salary": "Gehalt",

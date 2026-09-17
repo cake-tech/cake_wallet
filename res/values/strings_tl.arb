@@ -980,6 +980,7 @@
   "return_address_desc": "Sa bihirang pagkakataon ng nabigong swap, maaaring awtomatikong i-refund ng aming mga kasosyo ang iyong bayad sa ibinigay na refund address.",
   "return_address_desc_external": "Dahil pinili mo ang Send From External, pakitakda nang manu-mano ang refund address sa ibaba.",
   "robinhood_option_description": "Bumili at maglipat kaagad gamit ang iyong debit card, bank account, o balanse sa Robinhood. USA lang.",
+  "robinhoodscan_history": "Kasaysayan ng Robinhood",
   "rotate_address": "Kumuha ng bagong address",
   "router_no_route": "Walang rutang tinukoy para sa ${name}",
   "salary": "Suweldo",

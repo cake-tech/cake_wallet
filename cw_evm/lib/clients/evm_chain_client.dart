@@ -57,8 +57,58 @@ class EVMChainClient {
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        return parseTransactions(jsonResponse['result'] as List, address,
-            contractAddress: contractAddress);
+        final res = jsonResponse["result"] as List;
+        res.removeWhere((e) => e['value'] == '0');
+
+        // Filter out spam native transactions below 0.00001 ETH (10000000000000 wei)
+        if (contractAddress == null) {
+          final spamThresholdWei = BigInt.from(10000000000000);
+          res.removeWhere((e) {
+            try {
+              final value = BigInt.parse(e['value'] ?? '0');
+              final isIncoming = e['to']?.toLowerCase() == address.toLowerCase() &&
+                  e['from']?.toLowerCase() != address.toLowerCase();
+              return isIncoming && value < spamThresholdWei;
+            } catch (_) {
+              return false;
+            }
+          });
+        }
+
+        // Merge split transfers (same hash + same token)
+        final Map<String, Map<String, dynamic>> mergedMap = {};
+        for (var tx in res) {
+          final hash = tx['hash'];
+          final key = '${hash}_${tx['contractAddress'] ?? ''}';
+
+          if (mergedMap.containsKey(key)) {
+            try {
+              final currentNet = getNetFlow(mergedMap[key]!, address);
+              final newNet = getNetFlow(tx, address);
+              final totalNet = currentNet + newNet;
+
+              mergedMap[key]!['value'] = totalNet.abs().toString();
+              if (totalNet < BigInt.zero) {
+                mergedMap[key]!['from'] = address;
+              } else {
+                mergedMap[key]!['to'] = address;
+                mergedMap[key]!['from'] = '';
+              }
+            } catch (e) {
+              printV('Error merging transaction values: $e');
+            }
+          } else {
+            mergedMap[key] = Map<String, dynamic>.from(tx);
+          }
+        }
+
+        final mergedList = mergedMap.values.toList();
+
+        final symbol = EVMChainUtils.getFeeCurrency(chainId);
+
+        return mergedList
+            .map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId))
+            .toList();
       }
 
       return [];
@@ -66,59 +116,6 @@ class EVMChainClient {
       log(e.toString());
       return [];
     }
-  }
-
-  List<EVMChainTransactionModel> parseTransactions(List<dynamic> res, String address,
-      {String? contractAddress}) {
-    res.removeWhere((e) => e['value'] == '0');
-
-    // Filter out spam native transactions below 0.00001 ETH (10000000000000 wei)
-    if (contractAddress == null) {
-      final spamThresholdWei = BigInt.from(10000000000000);
-      res.removeWhere((e) {
-        try {
-          final value = BigInt.parse(e['value'] ?? '0');
-          final isIncoming = e['to']?.toLowerCase() == address.toLowerCase() &&
-              e['from']?.toLowerCase() != address.toLowerCase();
-          return isIncoming && value < spamThresholdWei;
-        } catch (_) {
-          return false;
-        }
-      });
-    }
-
-    // Merge split transfers (same hash + same token)
-    final Map<String, Map<String, dynamic>> mergedMap = {};
-    for (var tx in res) {
-      final hash = tx['hash'];
-      final key = '${hash}_${tx['contractAddress'] ?? ''}';
-
-      if (mergedMap.containsKey(key)) {
-        try {
-          final currentNet = getNetFlow(mergedMap[key]!, address);
-          final newNet = getNetFlow(tx, address);
-          final totalNet = currentNet + newNet;
-
-          mergedMap[key]!['value'] = totalNet.abs().toString();
-          if (totalNet < BigInt.zero) {
-            mergedMap[key]!['from'] = address;
-          } else {
-            mergedMap[key]!['to'] = address;
-            mergedMap[key]!['from'] = '';
-          }
-        } catch (e) {
-          printV('Error merging transaction values: $e');
-        }
-      } else {
-        mergedMap[key] = Map<String, dynamic>.from(tx);
-      }
-    }
-
-    final mergedList = mergedMap.values.toList();
-
-    final symbol = EVMChainUtils.getFeeCurrency(chainId);
-
-    return mergedList.map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId)).toList();
   }
 
   BigInt getNetFlow(Map<String, dynamic> txData, String address) {
@@ -178,8 +175,9 @@ class EVMChainClient {
     try {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
+      final nodeHost = Uri.parse("https://${node.uriRaw}").host;
 
-      if (node.uriRaw.contains('nownodes.io')) {
+      if (nodeHost.endsWith(".nownodes.io")) {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
@@ -189,16 +187,17 @@ class EVMChainClient {
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
-      } else if (node.uriRaw.contains('alchemy')) {
+      } else if (nodeHost.endsWith(".g.alchemy.com")) {
         isModifiedNodeUri = true;
         String alchemyApiKey = secrets.alchemyApiKey;
 
         if (alchemyApiKey.isEmpty) {
-          printV('Alchemy API key is empty, cannot connect to ${node.uriRaw}');
+          printV("Alchemy API key is empty, cannot connect to ${node.uriRaw}");
           return false;
         }
 
-        rpcUri = Uri.https(node.uriRaw, '${node.path}/$alchemyApiKey');
+        final alchemyPath = node.path ?? "";
+        rpcUri = Uri.https(node.uriRaw, "$alchemyPath/$alchemyApiKey");
       }
 
       _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
@@ -555,18 +554,20 @@ class EVMChainClient {
     }
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String? chainName) async {
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
+      if (chainName != null) {
+        final token = await getErc20TokenFromMoralis(contractAddress, chainName);
 
-      if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        if (token != null && token.name.isNotEmpty && token.symbol.isNotEmpty) {
+          return token;
+        }
       }
 
-      return token;
+      return await getErcTokenInfoFromNode(contractAddress);
     } catch (e) {
       try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       } catch (e) {
         return null;
       }
@@ -613,7 +614,7 @@ class EVMChainClient {
     );
   }
 
-  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final name = await erc20.name();
     final symbol = await erc20.symbol();

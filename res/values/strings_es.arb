@@ -981,6 +981,7 @@
   "return_address_desc": "En el caso poco frecuente de que un intercambio falle, nuestros socios pueden reembolsar automáticamente su pago a la dirección de reembolso proporcionada.",
   "return_address_desc_external": "Como elegiste Enviar desde externo, establece manualmente una dirección de reembolso a continuación.",
   "robinhood_option_description": "Compra y transfiere al instante con tu tarjeta de débito, cuenta bancaria o saldo de Robinhood. Solo en EE. UU.",
+  "robinhoodscan_history": "Historia de Robinhood",
   "rotate_address": "Obtener nueva dirección",
   "router_no_route": "No se ha definido ninguna ruta para ${name}",
   "salary": "Salario",

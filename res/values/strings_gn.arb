@@ -983,6 +983,7 @@
   "return_address_desc": "Pe káso sa’ietéva peteĩ swap ojavy hag̃uarã, ore irũnguéra ikatu ombojevy hag̃ua automáticamente nde pago pe dirección de reembolso oñeme’ẽvape.",
   "return_address_desc_external": "Reiporavo rupi Enviar de Externo, ikatúpiko emoĩ peteĩ dirección de reembolso pópe ko’ápe.",
   "robinhood_option_description": "Ejogua ha embohasa pyaʼe reipuruvo nde tarjeta débito, nde cuenta bancaria térã nde saldo Robinhood. Estados Unidos-pe añoite.",
+  "robinhoodscan_history": "Robinhood Tembiasakue",
   "rotate_address": "Ehupyty dirección pyahu",
   "router_no_route": "Ndaipóri tape jeiporavo hag̃ua ${name} hag̃ua",
   "salary": "Tembiapo repy",

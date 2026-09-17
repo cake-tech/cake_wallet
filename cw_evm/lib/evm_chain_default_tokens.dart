@@ -9,18 +9,20 @@ import "package:cw_evm/tokens/robinhood_tokens.dart";
 /// Default ERC20 tokens for each EVM chain and utility methods for interacting with them
 class EVMChainDefaultTokens {
   static List<Erc20Token> getDefaultTokensByChainId(int chainId) => switch (chainId) {
-      1 => EthereumTokens.tokens,
-      137 => PolygonTokens.tokens,
-      8453 => BaseTokens.tokens,
-      42161 => ArbitrumTokens.tokens,
-      56 => BSCTokens.tokens,
-      4663 => RobinhoodTokens.tokens,
-      _ => [],
-    };
+        1 => EthereumTokens.tokens,
+        137 => PolygonTokens.tokens,
+        8453 => BaseTokens.tokens,
+        42161 => ArbitrumTokens.tokens,
+        56 => BSCTokens.tokens,
+        4663 => RobinhoodTokens.tokens,
+        _ => [],
+      };
 
-  static List<String> getDefaultTokenAddresses(int chainId) => getDefaultTokensByChainId(chainId).map((token) => token.contractAddress).toList();
+  static List<String> getDefaultTokenAddresses(int chainId) =>
+      getDefaultTokensByChainId(chainId).map((token) => token.contractAddress).toList();
 
-  static List<String> getDefaultTokenSymbols(int chainId) => getDefaultTokensByChainId(chainId).map((token) => token.symbol.toUpperCase()).toList();
+  static List<String> getDefaultTokenSymbols(int chainId) =>
+      getDefaultTokensByChainId(chainId).map((token) => token.symbol.toUpperCase()).toList();
 
   static final Map<int, Map<String, String>> _iconPathsByAddress = {};
 

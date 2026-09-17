@@ -368,7 +368,7 @@ class CardDesign {
     CryptoCurrency.arbEth: _CurrencyIconNames(ticker: 'arb', longName: 'arbitrum'),
     CryptoCurrency.baseEth:
         _CurrencyIconNames(ticker: 'base', longName: 'base', chainFile: 'base_icon'),
-    CryptoCurrency.robEth: _CurrencyIconNames(ticker: 'rob', longName: 'robinhood'),
+    CryptoCurrency.robEth: _CurrencyIconNames(ticker: "rob", longName: "robinhood"),
     CryptoCurrency.bch:
         _CurrencyIconNames(ticker: 'bch', longName: 'bitcoin_cash', chainFile: 'bitcoin-cash'),
     CryptoCurrency.btc: _CurrencyIconNames(ticker: 'btc', longName: 'bitcoin', outlineFile: 'BTC'),

@@ -195,9 +195,9 @@ class EvmChainRegistry {
     _registerChain(
       const ChainConfig(
         chainId: 4663,
-        name: 'Robinhood Chain',
-        shortCode: 'robinhood',
-        caip2: 'eip155:4663',
+        name: "Robinhood Chain",
+        shortCode: "robinhood",
+        caip2: "eip155:4663",
         nativeCurrency: CryptoCurrency.robEth,
         capabilities: ChainCapabilities(
           supportsERC20: true,
@@ -207,10 +207,10 @@ class EvmChainRegistry {
           supportsENS: false,
         ),
         defaultRpcEndpoints: [
-          'rpc.mainnet.chain.robinhood.com',
+          "rpc.mainnet.chain.robinhood.com",
         ],
         explorerUrls: [
-          'https://robinhoodchain.blockscout.com',
+          "https://robinhoodchain.blockscout.com",
         ],
         feeModel: FeeModel(
           type: FeeType.eip1559,
@@ -218,7 +218,7 @@ class EvmChainRegistry {
         ),
       ),
       WalletType.robinhood,
-      'ROB',
+      "ROB",
     );
   }
 

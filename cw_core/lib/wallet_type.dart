@@ -244,7 +244,7 @@ String walletTypeToString(WalletType type) {
     case WalletType.bsc:
       return 'BNB Smart Chain';
     case WalletType.robinhood:
-      return 'Robinhood Chain';
+      return "Robinhood Chain";
     case WalletType.none:
       return '';
   }
@@ -270,7 +270,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.arbitrum => 'Arbitrum',
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
-      WalletType.robinhood => 'Robinhood Chain',
+      WalletType.robinhood => "Robinhood Chain",
       WalletType.none => ''
     };
 
@@ -290,11 +290,11 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.zano => 'ZANO',
       WalletType.decred => 'DCR',
       WalletType.dogecoin => 'DOGE',
-      WalletType.base => '',
+      WalletType.base => "BASE",
       WalletType.arbitrum => 'ARB',
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
-      WalletType.robinhood => '',
+      WalletType.robinhood => "ROB",
       WalletType.none => ''
     };
 
