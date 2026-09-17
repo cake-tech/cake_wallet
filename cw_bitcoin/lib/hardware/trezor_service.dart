@@ -25,6 +25,18 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
     return fingerprintBuffer.buffer.asUint8List();
   }
 
+  /// Whether the device's current session derives the same account as
+  /// [xpub] at [derivationPath]. A different passphrase (or a different
+  /// device) yields a different account; keys are compared rather than the
+  /// serialised strings so xpub/zpub version bytes do not matter.
+  Future<bool> matchesAccount({required String derivationPath, required String xpub}) async {
+    final deviceXpub =
+        await _trezorBitcoin.getPublicKey(derivationPath: derivationPath, ignoreXpubMagic: true);
+    final deviceKey = Bip32Slip10Secp256k1.fromExtendedKey(deviceXpub.$1).publicKey.compressed;
+    final walletKey = Bip32Slip10Secp256k1.fromExtendedKey(xpub).publicKey.compressed;
+    return listEquals(deviceKey, walletKey);
+  }
+
   @override
   Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final accounts = <HardwareAccountData>[];

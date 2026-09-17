@@ -564,6 +564,17 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<bool> trezorSessionMatchesWallet(Object wallet, trezor.TrezorClient client) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final derivationPath = electrumWallet.derivationInfo.derivationPath;
+    // Without a known account path there is nothing to compare against.
+    if (derivationPath == null || derivationPath.isEmpty) return true;
+
+    return BitcoinTrezorService(client)
+        .matchesAccount(derivationPath: derivationPath, xpub: electrumWallet.xpub);
+  }
+
+  @override
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses

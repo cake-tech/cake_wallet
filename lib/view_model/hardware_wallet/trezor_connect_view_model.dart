@@ -628,15 +628,48 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (!_usesPersistedSettings(wallet)) return;
 
     final key = _walletKey(wallet);
-    if (_sessionWalletKey != null && _sessionWalletKey != key) {
+    // A session that is not attributed to this wallet (another wallet's, or
+    // one left over from an abandoned restore) must be rebound first.
+    if (_sessionWalletKey != key) {
       final stored = await _walletSettings.load(wallet.type, wallet.name);
-      final ok = await _rebindSession(stored);
-      if (!ok) {
+      if (!await _rebindSession(stored)) {
         throw TrezorSessionMismatchException(wallet.name);
       }
       _sessionWalletKey = null;
     }
+
+    // Stored settings can be wrong (e.g. recorded as "no passphrase" for a
+    // passphrase wallet). Check the session actually derives this wallet's
+    // keys; if not, ask for the passphrase once and check again, rather than
+    // failing later with a script/pubkey mismatch at signing time.
+    if (!await _sessionMatchesWallet(wallet)) {
+      _sessionWalletKey = null;
+      if (!await _rebindSession(null) || !await _sessionMatchesWallet(wallet)) {
+        throw TrezorSessionMismatchException(wallet.name);
+      }
+    }
+
     await rememberWalletSettings(wallet);
+  }
+
+  Future<bool> _sessionMatchesWallet(WalletBase wallet) async {
+    final client = _client;
+    if (client == null) return false;
+    try {
+      switch (wallet.type) {
+        case WalletType.bitcoin:
+          return await bitcoin!.trezorSessionMatchesWallet(wallet, client);
+        case WalletType.monero:
+          return await monero!.trezorSessionMatchesWallet(wallet, client);
+        default:
+          return true;
+      }
+    } catch (e) {
+      // A failed query is reported as a mismatch so the user gets a prompt
+      // instead of a silent wrong-wallet operation.
+      printV(e);
+      return false;
+    }
   }
 
   bool _usesPersistedSettings(WalletBase wallet) =>
