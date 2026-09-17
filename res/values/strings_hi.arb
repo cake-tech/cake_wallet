@@ -1504,6 +1504,7 @@
   "wc_connect_request_title": "कनेक्ट अनुरोध",
   "wc_connected_to": "${name} से कनेक्टेड",
   "wc_desc": "DApps से आसानी से कनेक्ट करें",
+  "wc_increase_allowance": "टोकन अनुमोदन बढ़ाएँ",
   "wc_max_network_fee": "अधिकतम नेटवर्क शुल्क",
   "wc_message_to_sign": "हस्ताक्षर करने के लिए संदेश",
   "wc_network_fee": "नेटवर्क शुल्क",

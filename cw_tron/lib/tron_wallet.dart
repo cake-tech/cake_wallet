@@ -411,6 +411,22 @@ abstract class TronWalletBase
       }
 
       if (transactionModel.contractAddress != null && !transactionModel.isTrc20Transfer) {
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (saved != null && saved.amount.currency.symbol != currency.symbol) {
+          result[transactionModel.hash] = saved;
+          continue;
+        }
+
+        result[transactionModel.hash] = TronTransactionInfo(
+          id: transactionModel.hash,
+          amount: Money(transactionModel.callValue ?? BigInt.zero, currency),
+          direction: TransactionDirection.outgoing,
+          blockTime: transactionModel.date,
+          fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+          to: TronAddress(transactionModel.contractAddress!).toAddress(),
+          from: transactionModel.from,
+          isPending: false,
+        );
         continue;
       }
 
@@ -440,9 +456,11 @@ abstract class TronWalletBase
 
       final BigInt amount;
       final String? to;
+      final String from;
       try {
         amount = transactionModel.amount ?? BigInt.zero;
         to = transactionModel.to;
+        from = TronAddress(transactionModel.from!, visible: false).toAddress();
       } catch (e) {
         printV("Tron transaction ${transactionModel.hash} skipped: $e");
         continue;
@@ -451,9 +469,7 @@ abstract class TronWalletBase
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
         amount: Money(amount, txCurrency),
-        direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
+        direction: from == address ? TransactionDirection.outgoing : TransactionDirection.incoming,
         blockTime: transactionModel.date,
         fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
         to: to,
@@ -481,7 +497,8 @@ abstract class TronWalletBase
     final Map<String, TronTransactionInfo> result = {};
 
     for (final transactionModel in transactions) {
-      if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
+      final saved = transactionHistory.transactions[transactionModel.hash];
+      if (saved != null && saved.amount.currency.symbol != currency.symbol) {
         continue;
       }
 
@@ -492,7 +509,9 @@ abstract class TronWalletBase
             ? TransactionDirection.outgoing
             : TransactionDirection.incoming,
         blockTime: transactionModel.date,
-        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+        fee: transactionModel.fee != null
+            ? Money.fromInt(transactionModel.fee!, currency)
+            : saved?.fee,
         to: transactionModel.to,
         from: transactionModel.from,
         isPending: false,

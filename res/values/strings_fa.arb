@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "درخواست اتصال",
   "wc_connected_to": "متصل به ${name}",
   "wc_desc": "به‌راحتی به dAppها متصل شوید",
+  "wc_increase_allowance": "تایید رمز را افزایش دهید",
   "wc_max_network_fee": "حداکثر هزینه شبکه",
   "wc_message_to_sign": "برای امضا پیام دهید",
   "wc_network_fee": "هزینه شبکه",

@@ -1508,6 +1508,7 @@
   "wc_connect_request_title": "Ombojoaju mba’ejerure",
   "wc_connected_to": "Oñembojoaju ${name} ndive.",
   "wc_desc": "Embojoaju hasy'ỹre DApp-kuérandi",
+  "wc_increase_allowance": "Ombohetave token aprobación",
   "wc_max_network_fee": "Max cuota red rehegua",
   "wc_message_to_sign": "Marandu ofirma haguã",
   "wc_network_fee": "Cuota de red rehegua",

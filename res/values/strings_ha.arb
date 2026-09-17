@@ -1504,6 +1504,7 @@
   "wc_connect_request_title": "Buƙatar haɗin kai",
   "wc_connected_to": "An haɗa zuwa ${name}",
   "wc_desc": "Haɗa da DApps cikin sauƙi",
+  "wc_increase_allowance": "Ƙara yarda da alamar alama",
   "wc_max_network_fee": "Matsakaicin kuɗin hanyar sadarwa",
   "wc_message_to_sign": "Saƙo don sa hannu",
   "wc_network_fee": "Kudin hanyar sadarwa",

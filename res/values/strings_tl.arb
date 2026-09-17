@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Kahilingan sa pagkonekta",
   "wc_connected_to": "Nakakonekta sa ${name}",
   "wc_desc": "Madaling kumonekta sa mga DApp",
+  "wc_increase_allowance": "Dagdagan ang pag-apruba ng token",
   "wc_max_network_fee": "Pinakamataas na bayad sa network",
   "wc_message_to_sign": "Mensahe para pirmahan",
   "wc_network_fee": "Bayad sa network",

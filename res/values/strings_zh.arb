@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "连接请求",
   "wc_connected_to": "连接到${name}",
   "wc_desc": "轻松连接到 DApp",
+  "wc_increase_allowance": "增加代币授权",
   "wc_max_network_fee": "最高网络费用",
   "wc_message_to_sign": "要签名的消息",
   "wc_network_fee": "网络费",

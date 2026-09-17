@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Demande de connexion",
   "wc_connected_to": "Connecté à ${name}",
   "wc_desc": "Connectez-vous facilement aux dApps",
+  "wc_increase_allowance": "Augmenter l'approbation des tokens",
   "wc_max_network_fee": "Frais de réseau maximum",
   "wc_message_to_sign": "Message à signer",
   "wc_network_fee": "Frais de réseau",

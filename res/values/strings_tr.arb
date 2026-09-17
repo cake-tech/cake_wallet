@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Bağlantı isteği",
   "wc_connected_to": "${name} ile bağlantı kuruldu",
   "wc_desc": "DApp'lere kolayca bağlanın",
+  "wc_increase_allowance": "Token onayını artırın",
   "wc_max_network_fee": "Maksimum ağ ücreti",
   "wc_message_to_sign": "İmzalanacak mesaj",
   "wc_network_fee": "Ağ ücreti",

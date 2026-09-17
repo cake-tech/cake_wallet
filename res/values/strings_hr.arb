@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Zahtjev za povezivanje",
   "wc_connected_to": "Povezan s ${name}",
   "wc_desc": "Jednostavno se povežite s DApp-ovima",
+  "wc_increase_allowance": "Povećajte odobrenje tokena",
   "wc_max_network_fee": "Maksimalna mrežna naknada",
   "wc_message_to_sign": "Poruka za potpisivanje",
   "wc_network_fee": "Mrežna naknada",

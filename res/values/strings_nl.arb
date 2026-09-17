@@ -1503,6 +1503,7 @@
   "wc_connect_request_title": "Verbind verzoek",
   "wc_connected_to": "Verbonden met ${name}",
   "wc_desc": "Maak eenvoudig verbinding met dApps",
+  "wc_increase_allowance": "Verhoog de tokengoedkeuring",
   "wc_max_network_fee": "Maximale netwerkkosten",
   "wc_message_to_sign": "Bericht om te ondertekenen",
   "wc_network_fee": "Netwerk vergoeding",

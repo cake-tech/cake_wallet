@@ -1503,6 +1503,7 @@
   "wc_connect_request_title": "Solicitud de conexión",
   "wc_connected_to": "Conectado a ${name}",
   "wc_desc": "Conéctate fácilmente a dApps",
+  "wc_increase_allowance": "Aumentar la aprobación de tokens",
   "wc_max_network_fee": "Tarifa máxima de red",
   "wc_message_to_sign": "Mensaje para firmar",
   "wc_network_fee": "Tarifa de red",

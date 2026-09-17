@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Žádost o připojení",
   "wc_connected_to": "Připojeno k ${name}",
   "wc_desc": "Snadno se připojte k dApps",
+  "wc_increase_allowance": "Zvýšit schválení tokenu",
   "wc_max_network_fee": "Max síťový poplatek",
   "wc_message_to_sign": "Zpráva k podpisu",
   "wc_network_fee": "Síťový poplatek",

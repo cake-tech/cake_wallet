@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Verbindungsanfrage",
   "wc_connected_to": "Verbunden mit ${name}",
   "wc_desc": "Einfach mit DApps verbinden",
+  "wc_increase_allowance": "Token-Genehmigung erhöhen",
   "wc_max_network_fee": "Maximale Netzwerkgebühr",
   "wc_message_to_sign": "Zu signierende Nachricht",
   "wc_network_fee": "Netzwerkgebühr",

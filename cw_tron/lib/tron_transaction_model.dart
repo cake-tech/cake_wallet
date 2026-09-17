@@ -82,6 +82,12 @@ class TronTransactionModel {
 
   String? get contractAddress => contracts?.first.parameter?.value?.contractAddress;
 
+  BigInt? get callValue {
+    final callValue = contracts?.first.parameter?.value?.callValue;
+
+    return callValue == null ? null : BigInt.from(callValue);
+  }
+
   bool get isTrc20Transfer {
     final data = contracts?.first.parameter?.value?.data?.toLowerCase().replaceFirst("0x", "");
 
@@ -153,6 +159,7 @@ class Value {
   String? ownerAddress;
   String? contractAddress;
   int? amount;
+  int? callValue;
   String? toAddress;
   String? assetName;
 
@@ -183,6 +190,7 @@ class Value {
       this.ownerAddress,
       this.contractAddress,
       this.amount,
+      this.callValue,
       this.toAddress,
       this.assetName});
 
@@ -191,6 +199,7 @@ class Value {
     ownerAddress = json['owner_address'];
     contractAddress = json['contract_address'];
     amount = json['amount'];
+    callValue = json["call_value"] as int?;
     toAddress = json['to_address'];
     assetName = json['asset_name'];
   }

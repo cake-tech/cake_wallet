@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "တောင်းဆိုချက်ကို ချိတ်ဆက်ပါ။",
   "wc_connected_to": "${name} သို့ ချိတ်ဆက်ထားသည်",
   "wc_desc": "dApp များသို့ လွယ်ကူစွာ ချိတ်ဆက်ပါ",
+  "wc_increase_allowance": "တိုကင်အတည်ပြုချက်ကို တိုးမြှင့်ပါ။",
   "wc_max_network_fee": "အများဆုံးကွန်ရက်အခကြေးငွေ",
   "wc_message_to_sign": "လက်မှတ်ထိုးရန် မက်ဆေ့ချ်",
   "wc_network_fee": "ကွန်ရက်ကြေး",

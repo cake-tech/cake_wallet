@@ -49,7 +49,15 @@ class TronTransactionSummary {
           : _Trc20Call.tryDecode(value.data);
 
       if (call != null) {
-        lines.add(call.isApprove ? S.current.approve_tokens : S.current.send);
+        final String operation;
+        if (call.isIncrease) {
+          operation = S.current.wc_increase_allowance;
+        } else if (call.isApprove) {
+          operation = S.current.approve_tokens;
+        } else {
+          operation = S.current.send;
+        }
+        lines.add(operation);
         lines.add("${S.current.value}: ${_tokenAmount(call.amount, token, call.isApprove)}");
         lines.add("${S.current.from}: $ownerAddress");
         final counterparty = call.isApprove ? S.current.wc_approved_address : S.current.to;
@@ -141,9 +149,15 @@ class TronTransactionSummary {
 }
 
 class _Trc20Call {
-  const _Trc20Call({required this.isApprove, required this.address, required this.amount});
+  const _Trc20Call({
+    required this.isApprove,
+    required this.isIncrease,
+    required this.address,
+    required this.amount,
+  });
 
   final bool isApprove;
+  final bool isIncrease;
   final String address;
   final BigInt amount;
 
@@ -168,6 +182,7 @@ class _Trc20Call {
 
     return _Trc20Call(
       isApprove: isApprove,
+      isIncrease: selector == _increaseApprovalSelector,
       address: TronAddress.fromEthAddress(data.sublist(16, 36)).toAddress(),
       amount: BigintUtils.fromBytes(data.sublist(36, 68)),
     );

@@ -1502,6 +1502,7 @@
   "wc_connect_request_title": "Заявка за свързване",
   "wc_connected_to": "Свързан с ${name}",
   "wc_desc": "Свържете се лесно с dApps",
+  "wc_increase_allowance": "Увеличете одобрението на токена",
   "wc_max_network_fee": "Максимална мрежова такса",
   "wc_message_to_sign": "Съобщение за подпис",
   "wc_network_fee": "Мрежова такса",

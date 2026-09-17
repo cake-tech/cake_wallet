@@ -1503,6 +1503,7 @@
   "wc_connect_request_title": "Запит на підключення",
   "wc_connected_to": "Підключено до ${name}",
   "wc_desc": "Легко підключайтеся до dApp",
+  "wc_increase_allowance": "Збільшити схвалення токенів",
   "wc_max_network_fee": "Максимальна мережева плата",
   "wc_message_to_sign": "Повідомлення для підпису",
   "wc_network_fee": "Плата за мережу",

@@ -128,7 +128,7 @@ void main() {
       expect(summary.text, contains(S.current.wc_unlimited));
     });
 
-    test("USDT's increaseApproval reads as an approval", () {
+    test("USDT's increaseApproval names itself as an increase", () {
       final summary = TronTransactionSummary.of(
         rawOf(
           TriggerSmartContract(
@@ -140,7 +140,8 @@ void main() {
         walletTokens,
       );
 
-      expect(summary.text.split("\n").first, S.current.approve_tokens);
+      expect(summary.text.split("\n").first, S.current.wc_increase_allowance);
+      expect(summary.text, isNot(contains(S.current.approve_tokens)));
       expect(summary.text, contains("${S.current.value}: ${S.current.wc_unlimited} USDT"));
       expect(
         summary.text,

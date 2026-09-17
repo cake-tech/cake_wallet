@@ -1503,6 +1503,7 @@
   "wc_connect_request_title": "接続リクエスト",
   "wc_connected_to": "${name} に接続しました",
   "wc_desc": "dApp に簡単に接続",
+  "wc_increase_allowance": "トークンの承認を増やす",
   "wc_max_network_fee": "最大ネットワーク料金",
   "wc_message_to_sign": "署名するメッセージ",
   "wc_network_fee": "ネットワーク料金",

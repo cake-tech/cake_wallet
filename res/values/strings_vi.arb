@@ -1503,6 +1503,7 @@
   "wc_connect_request_title": "Yêu cầu kết nối",
   "wc_connected_to": "Đã kết nối với ${name}",
   "wc_desc": "Dễ dàng kết nối với các dApp",
+  "wc_increase_allowance": "Tăng phê duyệt token",
   "wc_max_network_fee": "Phí mạng tối đa",
   "wc_message_to_sign": "Tin nhắn để ký",
   "wc_network_fee": "Phí mạng",

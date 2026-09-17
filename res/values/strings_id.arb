@@ -1505,6 +1505,7 @@
   "wc_connect_request_title": "Hubungkan permintaan",
   "wc_connected_to": "Terhubung ke ${name}",
   "wc_desc": "Hubungkan dengan mudah ke DApps",
+  "wc_increase_allowance": "Tingkatkan persetujuan token",
   "wc_max_network_fee": "Biaya jaringan maksimal",
   "wc_message_to_sign": "Pesan untuk ditandatangani",
   "wc_network_fee": "Biaya jaringan",
