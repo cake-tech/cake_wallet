@@ -47,7 +47,8 @@ class SendConfirmBottomWidget extends StatelessWidget {
             onConfirmed: () {
               sendViewModel.commitTransaction(context);
             },
-            swiperText: "${S.of(context).swipe_to_send}");
+            swiperText: "${S.of(context).swipe_to_send}",
+            accessibleNavigationModeButtonText: S.of(context).send);
       case IsExecutingState:
         return LoadingBottomWidget(
           text: "${S.of(context).generating_transaction}...",
@@ -80,18 +81,25 @@ class LoadingBottomWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 12,
-      children: [
-        CupertinoActivityIndicator(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-        Text(
-          text,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        )
-      ],
+    // One node per state so each step of the send is announced exactly once.
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: text,
+      excludeSemantics: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 12,
+        children: [
+          CupertinoActivityIndicator(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          Text(
+            text,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          )
+        ],
+      ),
     );
   }
 }
@@ -106,45 +114,51 @@ class TransactionErrorActions extends StatelessWidget {
     return Column(
       spacing: 12,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer.withAlpha(64),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              spacing: 12,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 8,
-                  children: [
-                    CakeImageWidget(
-                      imageUrl: "assets/new-ui/warning.svg",
-                      height: 24,
-                      width: 24,
-                      colorFilter:
-                          ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
-                    ),
-                    Text(
-                      S.of(context).transaction_error,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.error),
-                    )
-                  ],
-                ),
-                Text(
-                  errorText,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+        Semantics(
+          container: true,
+          liveRegion: true,
+          label: "${S.of(context).transaction_error}\n$errorText",
+          excludeSemantics: true,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer.withAlpha(64),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                spacing: 12,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/warning.svg",
+                        height: 24,
+                        width: 24,
+                        colorFilter:
+                            ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
+                      ),
+                      Text(
+                        S.of(context).transaction_error,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.error),
+                      )
+                    ],
+                  ),
+                  Text(
+                    errorText,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.error),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

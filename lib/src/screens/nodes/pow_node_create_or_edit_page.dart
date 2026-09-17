@@ -75,6 +75,7 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
             ModalTopBar(
               title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.current.seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
               trailingIcon: CakeImageWidget(
                 imageUrl: "assets/new-ui/scan.svg",
@@ -83,6 +84,7 @@ class _PowNodeCreateOrEditPageState extends State<PowNodeCreateOrEditPage> {
                 colorFilter:
                     ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
+              trailingSemanticLabel: S.current.scan,
               onTrailingPressed: () =>
                   widget.nodeCreateOrEditViewModel.scanQRCodeForNewNode(context),
             ),

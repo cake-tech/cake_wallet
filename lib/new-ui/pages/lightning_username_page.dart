@@ -68,6 +68,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                     ModalTopBar(
                       title: "Lightning ${S.of(context).username}",
                       leadingIcon: Icon(Icons.arrow_back_ios_new),
+                      leadingSemanticLabel: S.of(context).seed_alert_back,
                       onLeadingPressed: Navigator.of(context).pop,
                     ),
                     Expanded(

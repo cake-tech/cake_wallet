@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -179,32 +180,44 @@ class _RecipientDotState extends State<RecipientDot> {
             curve: Curves.easeOutCubic,
             top: _created ? 0 : widget.size,
             child: Material(
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 150),
-                child: GestureDetector(
-                  key: ValueKey(widget.selected),
+              // Dots scaled all the way down are not visible, so they must not be
+              // reachable by a screen reader either.
+              child: ExcludeSemantics(
+                excluding: widget.textOpacity <= 0,
+                child: Semantics(
+                  button: true,
+                  selected: widget.selected,
+                  label: S.of(context).recipient_number("${widget.index + 1}"),
                   onTap: widget.onTap,
-                  child: Container(
-                    width: widget.size,
-                    height: widget.size,
-                    margin: EdgeInsets.symmetric(horizontal: widget.spacing / 2),
-                    decoration: BoxDecoration(
-                      color: widget.selected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surfaceContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Opacity(
-                      opacity: widget.textOpacity,
-                      child: Text(
-                        (widget.index + 1).toString(),
-                        style: TextStyle(
-                            color: widget.selected
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.onSurface,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
+                  excludeSemantics: true,
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 150),
+                    child: GestureDetector(
+                      key: ValueKey(widget.selected),
+                      onTap: widget.onTap,
+                      child: Container(
+                        width: widget.size,
+                        height: widget.size,
+                        margin: EdgeInsets.symmetric(horizontal: widget.spacing / 2),
+                        decoration: BoxDecoration(
+                          color: widget.selected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.surfaceContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Opacity(
+                          opacity: widget.textOpacity,
+                          child: Text(
+                            (widget.index + 1).toString(),
+                            style: TextStyle(
+                                color: widget.selected
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.onSurface,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
                       ),
                     ),
                   ),

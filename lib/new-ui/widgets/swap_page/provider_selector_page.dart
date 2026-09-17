@@ -24,6 +24,7 @@ class ProviderSelectorPage extends StatelessWidget {
         ModalTopBar(
           title: S.of(context).change_provider,
           leadingIcon: Icon(Icons.arrow_back_ios_new),
+          leadingSemanticLabel: S.of(context).seed_alert_back,
           onLeadingPressed: Navigator.of(context).maybePop,
         ),
         Expanded(

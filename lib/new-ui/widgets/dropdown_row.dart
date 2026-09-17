@@ -11,38 +11,45 @@ class DropdownRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(18),
-          bottom: expanded ? Radius.zero : Radius.circular(18),
+    return Semantics(
+      button: true,
+      expanded: expanded,
+      label: text,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(18),
+            bottom: expanded ? Radius.zero : Radius.circular(18),
+          ),
         ),
-      ),
-      height: 48,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  text,
-                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
-                ),
-                AnimatedRotation(
-                    duration: Duration(milliseconds: 300),
-                    turns: expanded ? 0.0 : 0.5,
-                    curve: Curves.easeOut,
-                    child: CakeImageWidget(
-                      imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                      colorFilter:
-                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                    ))
-              ],
+        height: 48,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    text,
+                    style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                  ),
+                  AnimatedRotation(
+                      duration: Duration(milliseconds: 300),
+                      turns: expanded ? 0.0 : 0.5,
+                      curve: Curves.easeOut,
+                      child: CakeImageWidget(
+                        imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                        colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                      ))
+                ],
+              ),
             ),
           ),
         ),

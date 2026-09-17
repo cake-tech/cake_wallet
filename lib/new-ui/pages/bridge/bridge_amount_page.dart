@@ -116,8 +116,10 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
             ModalTopBar(
               title: S.of(context).enter_amount,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
               trailingIcon: Icon(Icons.history),
+              trailingSemanticLabel: S.of(context).history,
               onTrailingPressed: () {
                 Navigator.pushNamed(context, Routes.bridgeHistoryPage,
                     arguments: widget.bridgeHistoryViewModel);
@@ -274,6 +276,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                                   backgroundColor: theme.colorScheme.primary,
                                   iconColor: theme.colorScheme.onPrimary,
                                   icon: Icon(Icons.arrow_forward, size: 20),
+                                  semanticLabel: S.of(context).continue_text,
                                   onPressed: () {
                                     Navigator.pushNamed(
                                       context,

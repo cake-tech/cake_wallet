@@ -370,6 +370,8 @@ abstract class MoneroWalletBase
     };
   }
 
+  bool hasUnknownKeyImages() => currentWallet!.hasUnknownKeyImages();
+
   bool needExportOutputs(Money amount) {
     if (int.tryParse(currentWallet!.secretSpendKey()) != 0) {
       return false;
@@ -474,6 +476,11 @@ abstract class MoneroWalletBase
     } else {
       final output = outputs.first;
       final address = output.isParsedAddress ? output.extractedAddress : output.address;
+
+      if (!output.sendAll && output.cryptoAmount.amount <= BigInt.zero) {
+        throw MoneroTransactionCreationException('Amount must be greater than 0.');
+      }
+
       final amount = output.sendAll ? null : output.cryptoAmount.toString();
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||

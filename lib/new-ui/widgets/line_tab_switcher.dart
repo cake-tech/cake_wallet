@@ -93,33 +93,42 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
                 children: widget.tabs.map((item) {
               final index = widget.tabs.indexOf(item);
 
-              return GestureDetector(
-                onTap: () {
-                  widget.onTabChange(index);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: Duration(milliseconds: 150),
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                            inherit: true,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: widget.selectedTab == index
-                                ? Theme.of(context).colorScheme.onSurface
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+              // One tab = one node: the visible label merges into a button node
+              // that also carries the selected state of this tab.
+              return MergeSemantics(
+                child: Semantics(
+                  button: true,
+                  selected: widget.selectedTab == index,
+                  inMutuallyExclusiveGroup: true,
+                  child: GestureDetector(
+                    onTap: () {
+                      widget.onTabChange(index);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: Duration(milliseconds: 150),
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                                inherit: true,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: widget.selectedTab == index
+                                    ? Theme.of(context).colorScheme.onSurface
+                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: itemPadding / 2),
+                            child: Text(
+                              item,
+                              key: textWidgetKeys[index],
+                            ),
                           ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: itemPadding / 2),
-                        child: Text(
-                          item,
-                          key: textWidgetKeys[index],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             }).toList())),

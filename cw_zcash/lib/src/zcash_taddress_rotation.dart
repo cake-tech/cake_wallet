@@ -34,7 +34,7 @@ class ZcashTaddressRotation {
   static bool _isStarted = false;
   static zkool_coin.Coin get c => ZcashWalletBase.c;
   static const int _sweepThreshold = 30000;
-  static const int _minSpendableNote = 5000;
+  static const int minSpendableNote = 5000;
   static const int _lookahead = 5;
   // Matches transparentLimit in ZcashWalletBase._oneshotSync.
   static const int _transparentSyncLimit = 100;
@@ -415,7 +415,7 @@ class ZcashTaddressRotation {
           if (note.pool != NotePool.transparent.index || note.locked) {
             continue;
           }
-          if (note.value < BigInt.from(_minSpendableNote)) {
+          if (note.value < BigInt.from(minSpendableNote)) {
             continue;
           }
           if (note.height > height) {

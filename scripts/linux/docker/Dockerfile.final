@@ -1,0 +1,23 @@
+ARG BASE_IMAGE
+ARG TORCH_IMAGE
+ARG REOWN_IMAGE
+ARG BITBOX_IMAGE
+ARG MONERO_IMAGE
+ARG MWEBD_IMAGE
+ARG ZCASH_IMAGE
+
+FROM --platform=linux/amd64 ${TORCH_IMAGE}  AS torch_src
+FROM --platform=linux/amd64 ${REOWN_IMAGE}  AS reown_src
+FROM --platform=linux/amd64 ${BITBOX_IMAGE} AS bitbox_src
+FROM --platform=linux/amd64 ${MONERO_IMAGE} AS monero_src
+FROM --platform=linux/amd64 ${MWEBD_IMAGE}  AS mwebd_src
+FROM --platform=linux/amd64 ${ZCASH_IMAGE}  AS zcash_src
+
+FROM --platform=linux/amd64 alpine
+
+COPY --from=torch_src   /w /w.top
+COPY --from=reown_src   /w /w.top
+COPY --from=bitbox_src  /w /w.top
+COPY --from=monero_src  /w /w.top
+COPY --from=mwebd_src   /w /w.top
+COPY --from=zcash_src   /w /w.top

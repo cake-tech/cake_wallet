@@ -93,8 +93,10 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
             ModalTopBar(
               title: widget.editingNode != null ? S.current.edit_node : S.current.node_new,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.current.seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
               trailingIcon: Icon(Icons.check),
+              trailingSemanticLabel: S.current.save,
               onTrailingPressed: () async {
                 if (_nodeFormKey.currentState != null && !_nodeFormKey.currentState!.validate()) {
                   return;

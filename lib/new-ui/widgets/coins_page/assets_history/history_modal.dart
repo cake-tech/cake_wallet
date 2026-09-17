@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_filters_page.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
@@ -25,19 +26,23 @@ class HistoryModal extends StatelessWidget {
           ModalTopBar(
             title: S.of(context).history,
             leadingIcon: Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: CakeImageWidget(
               imageUrl: "assets/new-ui/tx_export.svg",
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
             ),
+            trailingSemanticLabel: S.of(context).export_csv,
             onTrailingPressed: () =>
-                CsvExportService().exportToCsv(dashboardViewModel.items, context),
+                getIt.get<CsvExportService>().exportToCsv(dashboardViewModel.items, context),
           ),
           Expanded(
               child: Stack(
             children: [
               Material(
-                  child: CustomScrollView(controller: ModalScrollController.of(context), slivers: [
+                  child: CustomScrollView(physics: ClampingScrollPhysics(),
+                      controller: ModalScrollController.of(context),
+                      slivers: [
                 HistorySection(
                     detailsAsPage: true,
                     dashboardViewModel: dashboardViewModel,

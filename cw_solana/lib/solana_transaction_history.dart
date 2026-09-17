@@ -88,9 +88,14 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
       txs.entries.forEach((entry) {
         final val = entry.value;
 
-        if (val is Map<String, dynamic>) {
-          final tx = SolanaTransactionInfo.fromJson(val);
-          _update(tx);
+        if (val is! Map<String, dynamic>) {
+          return;
+        }
+
+        try {
+          _update(SolanaTransactionInfo.fromJson(val));
+        } catch (e) {
+          printV("Skipping unreadable solana transaction ${entry.key}: ${e.toString()}");
         }
       });
     } catch (e) {

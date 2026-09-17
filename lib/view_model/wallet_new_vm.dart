@@ -140,6 +140,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.zcash:
         return zcash!.createZcashNewWalletCredentials(
@@ -150,7 +151,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           network: zcashNetwork,
         );
       case WalletType.decred:
-        return decred!.createDecredNewWalletCredentials(name: name);
+        return decred!.createDecredNewWalletCredentials(
+            name: name,
+            password: walletPassword,
+            passphrase: passphrase,
+            mnemonic: newWalletArguments!.mnemonic);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');
@@ -160,6 +165,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
+    credentials.walletInfo!.showSeedBackupReminder = newWalletArguments!.mnemonic == null;
     return walletCreationService.create(credentials, isTestnet: useTestnet);
   }
 }

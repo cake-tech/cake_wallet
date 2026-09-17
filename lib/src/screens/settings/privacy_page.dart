@@ -26,6 +26,7 @@ class PrivacyPage extends BasePage {
       topBar: ModalTopBar(
         title: "",
         leadingIcon: Icon(Icons.arrow_back_ios_new),
+        leadingSemanticLabel: S.of(context).seed_alert_back,
         onLeadingPressed: () => Navigator.of(context).pop(),
       ),
       header: ModalHeader(
@@ -75,7 +76,7 @@ class PrivacyPage extends BasePage {
                           }),
                   ],
                   "": [
-                    if (_privacySettingsViewModel.isBitcoin)
+                    if (_privacySettingsViewModel.hasSilentPaymentsScanning)
                       ListItemRegularRow(
                           iconPath: "assets/new-ui/settings_row_icons/silent-payments.svg",
                           keyValue: "silent_payments",

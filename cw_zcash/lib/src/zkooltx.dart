@@ -33,10 +33,13 @@ class ZkoolTx {
 
   DateTime get time {
     final ts = max(_tx.time, _txAccount.time) * 1000;
-    if (ts == 0) {
-      return ZcashHeight.getTimeByBlockHeight(height);
+    if (ts != 0) {
+      return DateTime.fromMillisecondsSinceEpoch(ts);
     }
-    return DateTime.fromMillisecondsSinceEpoch(ts);
+    if (height == 0) {
+      return DateTime.now();
+    }
+    return ZcashHeight.getTimeByBlockHeight(height);
   }
 
   String? get to => _txAccount.outputs.firstOrNull?.address;
@@ -96,7 +99,8 @@ class ZkoolTx {
 
   BigInt get value => _value.abs();
 
-  BigInt get fee => value - _calcValue;
+  BigInt get fee => BigInt.from(_tx.fee);
+
 
   BigInt get _value {
     if (_tx.value != 0) {
@@ -166,6 +170,7 @@ class ZkoolTx {
       "height": _tx.height,
       "time": _tx.time,
       "value": value.toInt(),
+      
       "tpe": _tx.tpe,
       "zsaValue": _tx.zsaValue,
       "assetDisplay": _tx.assetDisplay,
@@ -277,6 +282,7 @@ class ZkoolTx {
         height: _asInt(txJson["height"]),
         time: _asInt(txJson["time"]),
         value: _asInt(txJson["value"]),
+        fee: _asInt(txJson["fee"]),
         tpe: txJson["tpe"] == null ? null : _asInt(txJson["tpe"]),
         zsaValue: _asInt(txJson["zsaValue"]),
         assetDisplay: txJson["assetDisplay"] as String? ?? "",

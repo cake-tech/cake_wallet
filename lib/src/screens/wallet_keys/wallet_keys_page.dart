@@ -78,7 +78,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
 
     showKeyTab = widget.walletKeysViewModel.items.isNotEmpty;
     showSilentPaymentsTab =
-        widget.walletKeysViewModel.isBitcoin && widget.walletKeysViewModel.items.length > 4;
+        widget.walletKeysViewModel.isBitcoin && widget.walletKeysViewModel.silentPaymentItems.isNotEmpty;
     showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
     isLegacySeedOnly = widget.walletKeysViewModel.isLegacySeedOnly;
 
@@ -157,16 +157,12 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(
-                        context,
-                        showSilentPaymentsTab
-                            ? widget.walletKeysViewModel.items.sublist(0, 4)
-                            : widget.walletKeysViewModel.items),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.items),
                   ),
                 if (showSilentPaymentsTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context, widget.walletKeysViewModel.items.sublist(4)),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.silentPaymentItems),
                   ),
                 if (showLegacySeedTab)
                   Padding(
@@ -300,6 +296,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
@@ -313,21 +310,25 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           const SizedBox(width: 6),
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Observer(
-                  builder: (BuildContext context) {
-                    return Text(
-                      (widget.walletKeysViewModel.obscurePassphrase)
-                          ? "*****"
-                          : widget.walletKeysViewModel.passphrase,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    );
-                  },
+                Expanded(
+                  child: Observer(
+                    builder: (BuildContext context) {
+                      return Text(
+                        (widget.walletKeysViewModel.obscurePassphrase)
+                            ? "*****"
+                            : widget.walletKeysViewModel.passphrase,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      );
+                    },
+                  ),
                 ),
+                const SizedBox(width: 6),
                 Observer(
                   builder: (BuildContext context) {
                     return GestureDetector(

@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
 import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -24,7 +23,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class AccountCustomizerListItem {
@@ -38,13 +36,9 @@ class AccountCustomizerListItem {
 
 class AccountCustomizer extends StatefulWidget {
   const AccountCustomizer(
-      {super.key,
-      required this.accountListViewModel,
-      required this.accountEditOrCreateViewModel,
-      required this.dashboardViewModel});
+      {super.key, required this.accountListViewModel, required this.dashboardViewModel});
 
   final MoneroAccountListViewModel accountListViewModel;
-  final MoneroAccountEditOrCreateViewModel accountEditOrCreateViewModel;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -62,7 +56,7 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadCards();
-      final activeId = monero!.getCurrentAccount(widget.dashboardViewModel.wallet).id;
+      final activeId = widget.accountListViewModel.selected.id;
       for (int i = 0; i < _items.length - 1; i++) {
         if (_items[i].accountListItem.id == activeId) {
           final lastIndex = _items.length - 1;
@@ -128,8 +122,10 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
           ModalTopBar(
             title: S.of(context).wallet_accounts,
             leadingIcon: Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: Navigator.of(context).maybePop,
             trailingIcon: Icon(Icons.refresh),
+            trailingSemanticLabel: S.of(context).reset,
             onTrailingPressed: showResetDialog,
           ),
           Padding(
@@ -172,17 +168,29 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                   itemCount: _items.length,
                   itemBuilder: (BuildContext context, int index) {
                     final card = _items[index].card;
+                    // The stack is ordered bottom to top, so the last item
+                    // is the account currently in front — the selected one.
+                    final selectedItemIndex = _items.length - 1;
 
                     return Container(
                       key: ValueKey(index),
-                      child: GestureDetector(
-                        onTap: () {
-                          reorder(index, _items.length);
-                        },
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          heightFactor: _kStackVisibleFactor,
-                          child: card,
+                      // One labeled, selectable node per account; the card's own
+                      // texts stay reachable underneath it.
+                      child: Semantics(
+                        button: true,
+                        selected: selectedItemIndex == index,
+                        label: _items[index].accountListItem.label,
+                        onTap: () => reorder(index, _items.length),
+                        child: GestureDetector(
+                          excludeFromSemantics: true,
+                          onTap: () {
+                            reorder(index, _items.length);
+                          },
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            heightFactor: _kStackVisibleFactor,
+                            child: card,
+                          ),
                         ),
                       ),
                     );
@@ -197,31 +205,36 @@ class _AccountCustomizerState extends State<AccountCustomizer> {
                               padding: const EdgeInsets.symmetric(horizontal: 24.0),
                               child: Material(
                                 color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(999999),
-                                  onTap: _showAddAccountModal,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(999999)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 18.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        spacing: 8,
-                                        children: [
-                                          Icon(
-                                            Icons.add,
-                                            size: 28,
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
-                                          Text(
-                                            S.of(context).add_account,
-                                            style: TextStyle(
+                                child: MergeSemantics(
+                                  child: Semantics(
+                                    button: true,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(999999),
+                                      onTap: _showAddAccountModal,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.surfaceContainer,
+                                            borderRadius: BorderRadius.circular(999999)),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            spacing: 8,
+                                            children: [
+                                              Icon(
+                                                Icons.add,
+                                                size: 28,
                                                 color: Theme.of(context).colorScheme.primary,
-                                                fontWeight: FontWeight.w500),
-                                          )
-                                        ],
+                                              ),
+                                              Text(
+                                                S.of(context).add_account,
+                                                style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    fontWeight: FontWeight.w500),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -404,6 +417,8 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   final TextEditingController _controller = TextEditingController();
   bool _loading = false;
 
+  Future<void> _generateAccountName() async => _controller.text = await generateName();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -439,18 +454,23 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: GestureDetector(
-                                onTap: () async {
-                                  _controller.text = await generateName();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                                      borderRadius: BorderRadius.circular(5)),
-                                  child: CakeImageWidget(
-                                    imageUrl: "assets/new-ui/randomize.svg",
-                                    colorFilter: ColorFilter.mode(
-                                        Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                              child: Semantics(
+                                button: true,
+                                label: S.of(context).generate_name,
+                                onTap: _generateAccountName,
+                                child: ExcludeSemantics(
+                                  child: GestureDetector(
+                                    onTap: _generateAccountName,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                          borderRadius: BorderRadius.circular(5)),
+                                      child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/randomize.svg",
+                                        colorFilter: ColorFilter.mode(
+                                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

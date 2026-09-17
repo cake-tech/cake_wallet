@@ -44,6 +44,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
           ModalTopBar(
             title: S.of(context).set_refund_address,
             trailingIcon: Icon(Icons.close),
+            trailingSemanticLabel: S.of(context).close,
             onTrailingPressed: Navigator.of(context).pop,
           ),
           SafeArea(

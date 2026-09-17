@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
@@ -151,6 +152,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
       required this.balanceHideCounter,
+        required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -167,6 +169,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
       TransactionPriority? initialZcashTransactionPriority,
+      TransactionPriority? initialDogecoinTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -272,6 +275,9 @@ abstract class SettingsStoreBase with Store {
     if (initialZcashTransactionPriority != null) {
       priority[WalletType.zcash] = initialZcashTransactionPriority;
     }
+    if (initialDogecoinTransactionPriority != null) {
+      priority[WalletType.dogecoin] = initialDogecoinTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -343,6 +349,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.zcash:
           key = PreferencesKey.zcashTransactionPriority;
+          break;
+        case WalletType.dogecoin:
+          key = PreferencesKey.dogecoinTransactionPriority;
           break;
         default:
           key = null;
@@ -766,6 +775,9 @@ abstract class SettingsStoreBase with Store {
         (int balanceHideCounter) =>
             _sharedPreferences.setInt(PreferencesKey.balanceHideCounter, balanceHideCounter));
 
+    reaction((_) => zcashMigrationModalViewed,
+        (val) => _sharedPreferences.setBool(PreferencesKey.zcashMigrationModalViewed, val));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -1075,6 +1087,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool mwebAdDismissed;
 
+  @observable
+  bool zcashMigrationModalViewed;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1189,6 +1204,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
     TransactionPriority? zcashTransactionPriority;
+    TransactionPriority? dogecoinTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1236,6 +1252,10 @@ abstract class SettingsStoreBase with Store {
       zcashTransactionPriority = zcash?.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
+      dogecoinTransactionPriority = dogecoin?.deserializeDogeCoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1251,6 +1271,7 @@ abstract class SettingsStoreBase with Store {
     bscTransactionPriority ??= evm?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
     zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
+    dogecoinTransactionPriority ??= dogecoin?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1352,14 +1373,15 @@ abstract class SettingsStoreBase with Store {
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
     final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
+    final zcashMigrationModalViewed = sharedPreferences.getBool(PreferencesKey.zcashMigrationModalViewed) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
     }
 
-    final savedLanguageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-        await LanguageService.localeDetection();
+    final savedLanguageCode =
+        _offeredLanguageCode(sharedPreferences) ?? await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1745,6 +1767,7 @@ abstract class SettingsStoreBase with Store {
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
       initialZcashTransactionPriority: zcashTransactionPriority,
+      initialDogecoinTransactionPriority: dogecoinTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1771,18 +1794,23 @@ abstract class SettingsStoreBase with Store {
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
       balanceHideCounter: balanceHideCounter,
+      zcashMigrationModalViewed: zcashMigrationModalViewed
     );
   }
 
   Future<void> reload() async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
 
-    fiatCurrency = FiatCurrency.deserialize(
-        raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+    final savedFiatCurrency = sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey);
+    if (savedFiatCurrency != null) {
+      fiatCurrency = FiatCurrency.deserialize(raw: savedFiatCurrency);
+    }
 
-    priority[WalletType.monero] = monero?.deserializeMoneroTransactionPriority(
-            raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
-        priority[WalletType.monero]!;
+    if (monero != null &&
+        sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority) != null) {
+      priority[WalletType.monero] = monero!.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
+    }
 
     if (wownero != null &&
         sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
@@ -1842,6 +1870,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority) != null) {
       priority[WalletType.zcash] = zcash!.deserializeZcashTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zcashTransactionPriority)!);
+    }
+    if (dogecoin != null &&
+        sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
+      priority[WalletType.dogecoin] = dogecoin!.deserializeDogeCoinTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1914,7 +1947,12 @@ abstract class SettingsStoreBase with Store {
     }
     pinCodeLength = pinLength;
 
-    languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
+    final restoredLanguageCode = _offeredLanguageCode(sharedPreferences);
+    if (restoredLanguageCode == null) {
+      await sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode);
+    } else {
+      languageCode = restoredLanguageCode;
+    }
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
     shouldShowDEuroDisclaimer =
@@ -2296,6 +2334,12 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {
+    final code = sharedPreferences.getString(PreferencesKey.currentLanguageCode);
+
+    return LanguageService.list.containsKey(code) ? code : null;
   }
 
   static Future<String?> _getDeviceName() async {

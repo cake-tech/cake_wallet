@@ -59,6 +59,7 @@ class _SignPageState extends State<SignPage> {
             ModalTopBar(
               title: S.current.sign_verify_title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.current.seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Expanded(

@@ -254,6 +254,8 @@ class ERC681URI extends PaymentURI {
     required super.address,
     required super.amount,
     required this.contractAddress,
+    this.tokenDecimals = 18,
+    this.rawTokenAmount,
   });
 
   factory ERC681URI.fromUri(Uri uri) {
@@ -261,15 +263,31 @@ class ERC681URI extends PaymentURI {
     final chainId = _getChainID(uri.path);
 
     final address = isContract ? uri.queryParameters["address"] ?? "" : targetAddress;
-    final amountParam = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
 
     var formatedAmount = "";
+    String? rawTokenAmount;
 
-    if (amountParam != null) {
-      final normalized = _normalizeToIntegerWei(amountParam);
-      formatedAmount = formatFixed(BigInt.parse(normalized), 18);
-    } else {
+    if (isContract) {
       formatedAmount = uri.queryParameters["amount"] ?? "";
+      final uint256Param = uri.queryParameters["uint256"];
+      if (uint256Param != null) {
+        final raw = uint256Param.replaceAll(",", ".").trim();
+        if (!_scientificPattern.hasMatch(raw) && raw.contains(".")) {
+          if (formatedAmount.isEmpty) {
+            formatedAmount = raw;
+          }
+        } else {
+          rawTokenAmount = _normalizeToIntegerWei(raw);
+        }
+      }
+    } else {
+      final valueParam = uri.queryParameters["value"];
+      if (valueParam != null) {
+        final normalized = BigInt.tryParse(_normalizeToIntegerWei(valueParam));
+        formatedAmount = normalized != null ? formatFixed(normalized, 18) : "";
+      } else {
+        formatedAmount = uri.queryParameters["amount"] ?? "";
+      }
     }
 
     return ERC681URI(
@@ -277,11 +295,16 @@ class ERC681URI extends PaymentURI {
       address: address,
       amount: formatedAmount,
       contractAddress: isContract ? targetAddress : null,
+      rawTokenAmount: rawTokenAmount,
     );
   }
 
   final int chainId;
   final String? contractAddress;
+  final int tokenDecimals;
+  final String? rawTokenAmount;
+
+  static final RegExp _scientificPattern = RegExp(r"^[+-]?(\d+\.?\d*|\d*\.?\d+)[eE][+-]?\d+$");
 
   @override
   String toString() {
@@ -290,9 +313,7 @@ class ERC681URI extends PaymentURI {
     final targetAddress = contractAddress ?? address;
     uri += targetAddress;
 
-    if (chainId != 1) {
-      uri += "@$chainId";
-    }
+    uri += "@$chainId";
 
     if (contractAddress != null) {
       uri += "/transfer";
@@ -302,8 +323,17 @@ class ERC681URI extends PaymentURI {
 
     if (contractAddress != null) {
       params["address"] = address;
+      // only emit an atomic uint256 when it is unambiguous, either stored raw or 18 decimals,
+      // old app versions divide any uint256 by 1e18 so other tokens rely on the amount param
+      final uint256 = rawTokenAmount ??
+          (tokenDecimals == 18 && amount.isNotEmpty
+              ? _expandDecimal(amount.replaceAll(",", "."), 18)
+              : null);
+      if (uint256 != null && uint256.isNotEmpty) {
+        params["uint256"] = uint256;
+      }
       if (amount.isNotEmpty) {
-        params["uint256"] = _formatAmountForERC20(amount);
+        params["amount"] = amount.replaceAll(",", ".");
       }
     } else {
       if (amount.isNotEmpty) {
@@ -316,19 +346,6 @@ class ERC681URI extends PaymentURI {
     }
 
     return uri;
-  }
-
-  /// Formats amount for ERC-20 token transfers (in atomic units)
-  String _formatAmountForERC20(String amount) {
-    try {
-      // Convert decimal amount to BigInt (assuming 18 decimals)
-      final amountDouble = double.parse(amount.replaceAll(",", "."));
-      final amountBigInt = BigInt.from(amountDouble * 1e18);
-      return amountBigInt.toString();
-    } catch (e) {
-      // Fallback to original amount if parsing fails
-      return amount.replaceAll(",", ".");
-    }
   }
 
   /// Formats amount for native ETH payments (in wei using scientific notation)
@@ -345,14 +362,18 @@ class ERC681URI extends PaymentURI {
     }
   }
 
-  static int _getChainID(String path) => int.parse(
+  static int _getChainID(String path) =>
+      int.tryParse(
         RegExp(r"@\d*").firstMatch(path)?.group(0)?.replaceAll("@", "") ?? "1",
-      );
+      ) ??
+      1;
 
   static (bool, String) _getTargetAddress(String path) {
-    final targetAddress =
-        RegExp(r"^(0x)?[0-9a-f]{40}", caseSensitive: false).firstMatch(path)!.group(0)!;
-    return (path.contains("/"), targetAddress);
+    // I saw in the schema (thanks Konsti) that EIP-681 allows an optional "pay-" prefix before the target address, so adding a check for it here
+    final cleaned = path.startsWith("pay-") ? path.substring(4) : path;
+    final match = RegExp(r"^(0x)?[0-9a-f]{40}", caseSensitive: false).firstMatch(cleaned);
+    final targetAddress = match?.group(0) ?? cleaned.split("@").first.split("/").first;
+    return (cleaned.contains("/"), targetAddress);
   }
 
   /// Normalize an input amount into an integer wei string.
@@ -374,8 +395,7 @@ class ERC681URI extends PaymentURI {
       }
 
       // Then we check if it's a scientific notation
-      final sci = RegExp(r"^[+-]?(\d+\.?\d*|\d*\.?\d+)[eE][+-]?\d+$");
-      if (sci.hasMatch(raw)) {
+      if (_scientificPattern.hasMatch(raw)) {
         final mantissaStr = raw.toLowerCase().split("e")[0];
         final exp = int.parse(raw.toLowerCase().split("e")[1]);
         return _expandDecimal(mantissaStr, exp);

@@ -20,6 +20,7 @@ class AddPassphraseBottomSheet extends StatefulWidget {
 class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
   late final TextEditingController passphraseController;
   late final TextEditingController confirmPassphraseController;
+  final _passphraseFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -112,51 +113,60 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
               ),
             ),
             SizedBox(height: 24),
-            BaseTextFormField(
-              key: ValueKey('add_passphrase_bottom_sheet_widget_passphrase_textfield_key'),
-              controller: passphraseController,
-              obscureText: obscurePassphrase,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12),
-              hintText: S.of(context).required_passphrase,
-              suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    obscurePassphrase = !obscurePassphrase;
-                  });
-                },
-                child: Icon(
-                  obscurePassphrase ? Icons.visibility_off : Icons.visibility,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            BaseTextFormField(
-              key: ValueKey('add_passphrase_bottom_sheet_widget_confirm_passphrase_textfield_key'),
-              controller: confirmPassphraseController,
-              obscureText: obscurePassphrase,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12),
-              hintText: S.of(context).confirm_passphrase,
-              suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    obscurePassphrase = !obscurePassphrase;
-                  });
-                },
-                child: Icon(
-                  obscurePassphrase ? Icons.visibility_off : Icons.visibility,
-                  size: 24,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-              validator: (text) {
-                if (text == passphraseController.text) {
-                  return null;
-                }
+            Form(
+              key: _passphraseFormKey,
+              child: Column(
+                children: [
+                  BaseTextFormField(
+                    key: ValueKey('add_passphrase_bottom_sheet_widget_passphrase_textfield_key'),
+                    controller: passphraseController,
+                    obscureText: obscurePassphrase,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                    hintText: S.of(context).required_passphrase,
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          obscurePassphrase = !obscurePassphrase;
+                        });
+                      },
+                      child: Icon(
+                        obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  BaseTextFormField(
+                    key: ValueKey(
+                      'add_passphrase_bottom_sheet_widget_confirm_passphrase_textfield_key',
+                    ),
+                    controller: confirmPassphraseController,
+                    obscureText: obscurePassphrase,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                    hintText: S.of(context).confirm_passphrase,
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          obscurePassphrase = !obscurePassphrase;
+                        });
+                      },
+                      child: Icon(
+                        obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                    validator: (text) {
+                      if (text == passphraseController.text) {
+                        return null;
+                      }
 
-                return S.of(context).passphrases_doesnt_match;
-              },
+                      return S.of(context).passphrases_doesnt_match;
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 16),
             Padding(
@@ -184,6 +194,11 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                       child: PrimaryButton(
                         key: ValueKey('add_passphrase_bottom_sheet_widget_restore_button_key'),
                         onPressed: () {
+                          if (_passphraseFormKey.currentState != null &&
+                              !_passphraseFormKey.currentState!.validate()) {
+                            return;
+                          }
+
                           Navigator.pop(context);
                           widget.onRestoreButtonPressed(passphraseController.text);
                         },
