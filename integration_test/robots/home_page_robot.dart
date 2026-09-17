@@ -184,10 +184,10 @@ class HomePageRobot extends BaseRobot {
       syncedFromTheStart ??= synced;
 
       if (!synced) {
-        final fullBar =
+        final reported =
             find.descendant(of: syncBar, matching: find.byKey(ValueKey(lastStatus.runtimeType)));
 
-        return tester.any(fullBar) || tester.any(dot);
+        return tester.any(reported);
       }
 
       return tester.any(tick) || (syncedFromTheStart! && !tester.any(dot));
