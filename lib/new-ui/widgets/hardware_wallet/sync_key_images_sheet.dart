@@ -3,6 +3,7 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -263,9 +264,25 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
     }
 
     final result = await widget.trezorConnectVM.syncKeyImages(widget.wallet);
-    if (result && context.mounted) {
+    if (!context.mounted) return;
+    if (result) {
       Navigator.of(context).pop();
+      return;
     }
+
+    // Leave the sheet usable instead of stuck on the syncing state: back to
+    // the explanation with the Continue button, and say what happened.
+    setState(() => _state = _KeyImageSyncState.initial);
+    await showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithOneAction(
+        alertTitle: S.of(dialogContext).error,
+        alertContent:
+            widget.trezorConnectVM.lastSyncError ?? S.of(dialogContext).trezor_error_disconnected,
+        buttonText: S.of(dialogContext).ok,
+        buttonAction: () => Navigator.of(dialogContext).pop(),
+      ),
+    );
   }
 }
 

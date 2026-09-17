@@ -784,11 +784,22 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     return password;
   }
 
+  /// Human-readable reason of the last failed [syncKeyImages], if any.
+  String? lastSyncError;
+
   Future<bool> syncKeyImages(WalletBase wallet) async {
+    lastSyncError = null;
     if (wallet.type == WalletType.monero) {
       try {
         await monero!.syncTrezor(wallet);
-      } catch (_) {
+      } catch (e) {
+        printV(e);
+        lastSyncError = interpretErrorCode(e.toString());
+        // A failed device round-trip usually means the link is gone; make the
+        // next attempt reconnect cleanly instead of reusing a dead client.
+        if (_client?.connection.isDisconnected ?? true) {
+          await _resetClient();
+        }
         return false;
       }
     }
