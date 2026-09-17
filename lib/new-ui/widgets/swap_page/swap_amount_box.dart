@@ -263,6 +263,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               ),
                             ),
                             GestureDetector(
+                              key: ValueKey(widget.isReceiverCard
+                                  ? "swap_amount_box_receive_currency_button_key"
+                                  : "swap_amount_box_deposit_currency_button_key"),
                               onTap: _presentCurrencyPicker,
                               child: Container(
                                 decoration: BoxDecoration(

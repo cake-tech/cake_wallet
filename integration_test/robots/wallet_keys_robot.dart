@@ -47,10 +47,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
     if (walletType == WalletType.bitcoin ||
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
-      final seedWords = appStore.wallet!.seed!.split(" ");
-      for (final seedWord in seedWords) {
-        hasTextAtLeastOnce(seedWord);
-      }
+      _showsSeedWords(appStore.wallet!.seed!);
       _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
@@ -59,16 +56,13 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
         walletType == WalletType.solana ||
         walletType == WalletType.tron) {
       if (hasSeed) {
-        final seedWords = appStore.wallet!.seed!.split(" ");
-        for (final seedWord in seedWords) {
-          hasTextAtLeastOnce(seedWord);
-        }
+        _showsSeedWords(appStore.wallet!.seed!);
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasPrivateKey) {
         await _openKeysTab();
-        hasText(appStore.wallet!.privateKey!);
+        _showsCredential(appStore.wallet!.privateKey!, "private key");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }
@@ -76,22 +70,19 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
 
     if (walletType == WalletType.nano || walletType == WalletType.banano) {
       if (hasSeed) {
-        final seedWords = appStore.wallet!.seed!.split(" ");
-        for (final seedWord in seedWords) {
-          hasTextAtLeastOnce(seedWord);
-        }
+        _showsSeedWords(appStore.wallet!.seed!);
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has seeds properly displayed");
       }
       if (hasHexSeed) {
         await _openKeysTab();
-        hasText(appStore.wallet!.hexSeed!);
+        _showsCredential(appStore.wallet!.hexSeed!, "hex seed");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has hexSeed properly displayed");
       }
       if (hasPrivateKey) {
         await _openKeysTab();
-        hasText(appStore.wallet!.privateKey!);
+        _showsCredential(appStore.wallet!.privateKey!, "private key");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }
@@ -115,8 +106,30 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
     await settle();
   }
 
-  void _hasKeyRow(String value) {
-    expect(find.text(value, skipOffstage: false), findsOneWidget);
+  void _showsCredential(String value, String label) {
+    expect(
+      tester.any(find.text(value, skipOffstage: false)),
+      true,
+      reason: "The keys page did not show the wallet's $label",
+    );
+  }
+
+  void _showsCredentialOnce(String value, String label) {
+    final rows = tester.widgetList(find.text(value, skipOffstage: false)).length;
+
+    expect(
+      rows,
+      1,
+      reason: "The keys page showed $rows rows for the wallet's $label, expected one",
+    );
+  }
+
+  void _showsSeedWords(String seed) {
+    final words = seed.split(" ");
+
+    for (var index = 0; index < words.length; index++) {
+      _showsCredential(words[index], "seed word ${index + 1}");
+    }
   }
 
   Future<void> _confirmMoneroWalletCredentials(
@@ -131,19 +144,19 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
 
     await _openKeysTab();
 
-    _hasKeyRow(keys.publicSpendKey);
+    _showsCredentialOnce(keys.publicSpendKey, "public spend key");
     _verifiedCredentials++;
     tester.printToConsole("$walletName wallet has public spend key properly displayed");
 
-    _hasKeyRow(keys.privateSpendKey);
+    _showsCredentialOnce(keys.privateSpendKey, "private spend key");
     _verifiedCredentials++;
     tester.printToConsole("$walletName wallet has private spend key properly displayed");
 
-    _hasKeyRow(keys.publicViewKey);
+    _showsCredentialOnce(keys.publicViewKey, "public view key");
     _verifiedCredentials++;
     tester.printToConsole("$walletName wallet has public view key properly displayed");
 
-    _hasKeyRow(keys.privateViewKey);
+    _showsCredentialOnce(keys.privateViewKey, "private view key");
     _verifiedCredentials++;
     tester.printToConsole("$walletName wallet has private view key properly displayed");
 
@@ -151,10 +164,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       await tapByKey("wallet_keys_page_seed");
       await settle();
 
-      final seedWords = seed.split(" ");
-      for (final seedWord in seedWords) {
-        hasTextAtLeastOnce(seedWord);
-      }
+      _showsSeedWords(seed);
       _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has seeds properly displayed");
     }
@@ -162,10 +172,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       await tapByKey("wallet_keys_page_seed_legacy");
       await settle();
 
-      final seedWords = legacySeed.split(" ");
-      for (final seedWord in seedWords) {
-        hasTextAtLeastOnce(seedWord);
-      }
+      _showsSeedWords(legacySeed);
       _verifiedCredentials++;
       tester.printToConsole("$walletName wallet has legacy seeds properly displayed");
     }

@@ -25,8 +25,12 @@ class FundsOutcome {
 
   static bool needsFurtherReview(String detail) => statusFor(detail) == "failed";
 
-  static bool _isChainTooSlowToSync(String detail) =>
-      detail.toLowerCase().contains("never became ready to send");
+  static bool _isChainTooSlowToSync(String detail) {
+    final wording = detail.toLowerCase();
+
+    return wording.contains("never became ready to send") ||
+        wording.contains("new_dashboard_page_key");
+  }
 
   // Low wallet balance is not a failure, we just need to add fundsss
   static bool _isWalletBalanceLow(String detail) {

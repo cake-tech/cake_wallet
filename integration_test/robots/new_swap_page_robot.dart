@@ -1,6 +1,8 @@
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/exchange/limits_state.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
@@ -27,12 +29,41 @@ class NewSwapPageRobot extends BaseRobot {
   }
 
   Future<void> chooseReceiveCurrency(CryptoCurrency currency) async {
-    final exchangeViewModel =
-        tester.widget<NewSwapPage>(find.byType(NewSwapPage)).exchangeViewModel;
+    await tapByKey("swap_amount_box_receive_currency_button_key");
 
-    exchangeViewModel.changeReceiveCurrency(currency: currency);
-    await settle();
+    final search = find.descendant(
+      of: find.byType(CurrencyPickerSearchField),
+      matching: find.byType(EditableText),
+    );
+
+    await pumpUntilFound(search);
+
+    await tester.enterText(search.first, currency.title);
+    await settle(max: const Duration(seconds: 2));
+
+    await tapWhenVisible(
+      find.byWidgetPredicate(
+        (widget) => widget is CurrencyPickerRow && _isSameCurrency(widget.currency, currency),
+      ),
+    );
+
+    final chosen = await pumpUntil(
+      () => _isSameCurrency(
+        tester.widget<NewSwapPage>(find.byType(NewSwapPage)).exchangeViewModel.receiveCurrency,
+        currency,
+      ),
+    );
+
+    expect(
+      chosen,
+      true,
+      reason: "The picker did not switch the receive currency to ${currency.title}",
+    );
   }
+
+  static bool _isSameCurrency(CryptoCurrency one, CryptoCurrency other) =>
+      one.title.toLowerCase() == other.title.toLowerCase() &&
+      (one.tag ?? "").toLowerCase() == (other.tag ?? "").toLowerCase();
 
   Future<void> confirmQuoteReceived({Duration timeout = const Duration(seconds: 90)}) async {
     final received = await pumpUntil(() => _bestRate() > 0, timeout: timeout);

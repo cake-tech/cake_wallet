@@ -44,7 +44,7 @@ class TestConfig {
   static const String swapReceive = String.fromEnvironment("SWAP_RECEIVE");
 
   static WalletType swapDepositType(List<WalletType> funded) =>
-      _swapFrom.isEmpty ? funded.first : _walletTypeByName(_swapFrom);
+      _swapFrom.isEmpty ? funded.first : _walletTypeByName(_swapFrom, "SWAP_FROM");
 
   static bool shouldRunFundsFlow(String flow) => _fundsFlows == "all" || _fundsFlows == flow;
 
@@ -64,7 +64,7 @@ class TestConfig {
 
     return _fundedChainsOverride
         .split(",")
-        .map(_walletTypeByName)
+        .map((name) => _walletTypeByName(name, "CHAINS"))
         .where((type) => TestWallets.fundedWalletsFor(type).isNotEmpty)
         .toList();
   }
@@ -95,14 +95,14 @@ class TestConfig {
   // also, this would only affect the funded tests which need actual funds to test
   static const Duration walletSyncBudget = Duration(hours: 2);
 
-  static WalletType _walletTypeByName(String name) {
+  static WalletType _walletTypeByName(String name, String input) {
     final trimmed = name.trim();
 
     final type = WalletType.values.where((value) => value.name == trimmed).toList();
 
     if (type.isEmpty) {
       throw ArgumentError(
-        'Unknown wallet type "$trimmed" in CHAINS, '
+        'Unknown wallet type "$trimmed" in $input, '
         "valid names: ${WalletType.values.map((value) => value.name).join(", ")}",
       );
     }

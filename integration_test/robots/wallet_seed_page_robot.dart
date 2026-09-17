@@ -24,8 +24,13 @@ class WalletSeedPageRobot extends BaseRobot {
     final walletName = walletSeedViewModel.name;
     final walletSeeds = walletSeedViewModel.seedSplit;
     hasText(walletName);
-    for (final seed in walletSeeds) {
-      hasTextAtLeastOnce(seed);
+
+    for (var index = 0; index < walletSeeds.length; index++) {
+      expect(
+        tester.any(find.text(walletSeeds[index])),
+        true,
+        reason: "The seed page did not show seed word ${index + 1}",
+      );
     }
   }
 

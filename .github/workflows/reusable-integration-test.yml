@@ -402,6 +402,9 @@ jobs:
             done
           fi
 
+          adb emu kill > /dev/null 2>&1 || true
+          pkill -9 -f qemu-system > /dev/null 2>&1 || true
+
           exit $TEST_EXIT_CODE
           EOF
 
