@@ -6,6 +6,8 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -61,7 +63,14 @@ class SendConfirmBottomWidget extends StatelessWidget {
         );
       case IsAwaitingDeviceResponseState:
         return HardwareWalletProceedOnDeviceMessage(
-            hardwareWalletType: sendViewModel.wallet.hardwareWalletType!);
+          hardwareWalletType: sendViewModel.wallet.hardwareWalletType!,
+          // A wallet that reports stages never shows "proceed" before the
+          // device has its review up; one that does not gets the plain message.
+          stage: sendViewModel.deviceStage ??
+              (sendViewModel.walletType == WalletType.zcash
+                  ? HardwareSigningStage.preparing
+                  : null),
+        );
       case TransactionCommitting:
         return LoadingBottomWidget(
           text: "${S.of(context).sending}...",

@@ -867,6 +867,8 @@
   "proceed": "Procéder",
   "proceed_after_one_minute": "Si l'écran ne passe pas à l'étape suivante après 1 minute, vérifiez vos e-mails.",
   "proceed_on_device": "Continuez sur votre appareil",
+  "ledger_verify_address": "Vérifiez l'adresse sur votre Ledger",
+  "ledger_verify_address_description": "N'approuvez sur le Ledger que s'il affiche cette adresse :",
   "proceed_on_device_description": "Veuillez suivre les instructions affichées sur votre portefeuille matériel.",
   "processing": "Traitement en cours",
   "processing_signed_tx": "Traitement de la transaction signée",
@@ -1175,6 +1177,9 @@
   "signature": "Signature",
   "signature_invalid_error": "La signature n'est pas valide pour le message fourni",
   "signing_transaction": "Signature de la transaction",
+  "finalizing_transaction": "Finalisation de la transaction",
+  "sending_to_device": "Envoi vers votre appareil",
+  "preparing_transaction": "Préparation de la transaction",
   "signTransaction": "Signer la transaction",
   "signup_for_card_accept_terms": "Inscrivez-vous à la carte et acceptez les conditions.",
   "silent_address_desc": "Adresse statique respectueuse de la confidentialité",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Mise à niveau du réseau Zcash",
   "zcash_network_upgrade_desc_1": "Zcash a fait l'objet d'une mise à niveau du réseau appelée Ironwood qui nécessite la migration des fonds avant de pouvoir les dépenser. Cette migration est automatique, préserve la confidentialité et démarre dès que vous ouvrez votre portefeuille Zcash.",
   "zcash_network_upgrade_desc_2": "Une fois la migration terminée, votre solde disponible reviendra à la normale et vous pourrez continuer à envoyer et recevoir du Zcash comme d'habitude.",
-  "zcash_network_upgrade_desc_3": "Veuillez laisser votre portefeuille Zcash terminer la synchronisation, puis laisser l'application ouverte jusqu'à la fin de la migration, ce qui peut prendre quelques minutes en fonction du solde."
+  "zcash_network_upgrade_desc_3": "Veuillez laisser votre portefeuille Zcash terminer la synchronisation, puis laisser l'application ouverte jusqu'à la fin de la migration, ce qui peut prendre quelques minutes en fonction du solde.",
+  "zcash_shield_transparent_funds_ledger": "Protégez les fonds transparents. Confirmez sur votre Ledger."
 }

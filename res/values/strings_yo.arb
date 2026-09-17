@@ -868,6 +868,8 @@
   "proceed": "Tesiwaju",
   "proceed_after_one_minute": "Tí iboju kò bá tẹ̀síwájú lẹ́yìn ìṣẹ́jú kan, ẹ ṣàyẹ̀wò ímeèlì yín.",
   "proceed_on_device": "Tẹ̀síwájú lórí ẹ̀rọ rẹ",
+  "ledger_verify_address": "Ṣàyẹ̀wò àdírẹ́sì náà lórí Ledger rẹ",
+  "ledger_verify_address_description": "Fọwọ́ sí i lórí Ledger nìkan tí ó bá fi àdírẹ́sì yìí hàn:",
   "proceed_on_device_description": "Jọwọ tẹle àwọn ìtọ́nisọ́nà tí a fi hàn lórí apamọwọ hardware rẹ",
   "processing": "Ń ṣiṣẹ́",
   "processing_signed_tx": "Nṣiṣẹ́ lórí ìdúnàdúrà tí a ti fọwọ́ sí",
@@ -1176,6 +1178,9 @@
   "signature": "Ibuwọlu",
   "signature_invalid_error": "Ibuwọlu naa ko wulo fun ifiranṣẹ ti a fun",
   "signing_transaction": "N fọwọ́ sí ìdúnàdúrà",
+  "finalizing_transaction": "Ń parí ìdúnàádúrà",
+  "sending_to_device": "Ń fi ránṣẹ́ sí ẹ̀rọ rẹ",
+  "preparing_transaction": "Ń múra ìdúnàádúrà sílẹ̀",
   "signTransaction": "Fọwọ́sí Ìdúnàdúrà",
   "signup_for_card_accept_terms": "Forúkọ sílẹ̀ fún káàdì náà, kí o sì gba àwọn àdéhùn náà.",
   "silent_address_desc": "Adirẹsi aimi tó ń dáàbò bo ìpamọ́",
@@ -1571,5 +1576,6 @@
   "zcash_network_upgrade": "Zcash Network Igbesoke",
   "zcash_network_upgrade_desc_1": "Zcash ti ṣe iṣagbega nẹtiwọọki kan ti a pe ni Ironwood ti o nilo ijira awọn owo ṣaaju ki wọn to le lo. Iṣilọ yii jẹ aifọwọyi, ipamọ-aṣiri, o si bẹrẹ ni kete ti o ṣii apamọwọ Zcash rẹ.",
   "zcash_network_upgrade_desc_2": "Nigbati ijira ba pari, Iwontunws.funfun Wa rẹ yoo pada si deede, ati pe o le tẹsiwaju lati firanṣẹ ati gba Zcash bi igbagbogbo.",
-  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi."
+  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi.",
+  "zcash_shield_transparent_funds_ledger": "Shield sihin owo. Jẹrisi lori Ledger rẹ."
 }

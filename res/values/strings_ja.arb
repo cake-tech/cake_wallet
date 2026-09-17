@@ -868,6 +868,8 @@
   "proceed": "進む",
   "proceed_after_one_minute": "1分経っても画面が進まない場合は、メールを確認してください。",
   "proceed_on_device": "デバイスで続行してください",
+  "ledger_verify_address": "Ledger でアドレスを確認してください",
+  "ledger_verify_address_description": "Ledger にこのアドレスが表示されている場合のみ承認してください:",
   "proceed_on_device_description": "ハードウェアウォレットに表示される指示に従ってください",
   "processing": "処理中",
   "processing_signed_tx": "署名済みトランザクションを処理しています",
@@ -1176,6 +1178,9 @@
   "signature": "署名",
   "signature_invalid_error": "この署名は、指定されたメッセージに対して有効ではありません",
   "signing_transaction": "トランザクションに署名中",
+  "finalizing_transaction": "トランザクションを確定中",
+  "sending_to_device": "デバイスに送信中",
+  "preparing_transaction": "トランザクションを準備中",
   "signTransaction": "トランザクションに署名",
   "signup_for_card_accept_terms": "カードに登録し、利用規約に同意してください。",
   "silent_address_desc": "プライバシーを保護する静的アドレス",
@@ -1571,5 +1576,6 @@
   "zcash_network_upgrade": "Zcash ネットワークのアップグレード",
   "zcash_network_upgrade_desc_1": "Zcash は、Ironwood と呼ばれるネットワーク アップグレードを受けており、資金を使用する前に資金の移行が必要です。この移行は自動的に行われ、プライバシーが保護され、Zcash ウォレットを開くとすぐに開始されます。",
   "zcash_network_upgrade_desc_2": "移行が完了すると、利用可能残高は通常の状態に戻り、引き続き通常どおり Zcash を送受信できます。",
-  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。"
+  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。",
+  "zcash_shield_transparent_funds_ledger": "透明性のある資金を保護します。台帳で確認してください。"
 }

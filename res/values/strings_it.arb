@@ -868,6 +868,8 @@
   "proceed": "Procedere",
   "proceed_after_one_minute": "Se la schermata non prosegue dopo 1 minuto, controlla la tua email.",
   "proceed_on_device": "Procedi sul tuo dispositivo",
+  "ledger_verify_address": "Verifica l'indirizzo sul tuo Ledger",
+  "ledger_verify_address_description": "Approva sul Ledger solo se mostra questo indirizzo:",
   "proceed_on_device_description": "Segui le istruzioni visualizzate sul tuo hardware wallet",
   "processing": "Elaborazione",
   "processing_signed_tx": "Elaborazione della transazione firmata",
@@ -1176,6 +1178,9 @@
   "signature": "Firma",
   "signature_invalid_error": "La firma non è valida per il messaggio fornito",
   "signing_transaction": "Firma della transazione",
+  "finalizing_transaction": "Finalizzazione della transazione",
+  "sending_to_device": "Invio al tuo dispositivo",
+  "preparing_transaction": "Preparazione della transazione",
   "signTransaction": "Firma transazione",
   "signup_for_card_accept_terms": "Registrati per la carta e accetta i termini.",
   "silent_address_desc": "Indirizzo statico che preserva la privacy",
@@ -1573,5 +1578,6 @@
   "zcash_network_upgrade": "Aggiornamento della rete Zcash",
   "zcash_network_upgrade_desc_1": "Zcash ha subito un aggiornamento della rete chiamato Ironwood che richiede la migrazione dei fondi prima che possano essere spesi. Questa migrazione è automatica, rispetta la privacy e inizia non appena apri il tuo portafoglio Zcash.",
   "zcash_network_upgrade_desc_2": "Al termine della migrazione, il tuo saldo disponibile tornerà alla normalità e potrai continuare a inviare e ricevere Zcash come al solito.",
-  "zcash_network_upgrade_desc_3": "Consenti al tuo portafoglio Zcash di completare la sincronizzazione, quindi lascia l'app aperta fino al termine della migrazione, che può richiedere alcuni minuti a seconda del saldo."
+  "zcash_network_upgrade_desc_3": "Consenti al tuo portafoglio Zcash di completare la sincronizzazione, quindi lascia l'app aperta fino al termine della migrazione, che può richiedere alcuni minuti a seconda del saldo.",
+  "zcash_shield_transparent_funds_ledger": "Scudo fondi trasparenti. Conferma sul tuo registro."
 }

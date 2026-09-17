@@ -867,6 +867,8 @@
   "proceed": "Pokračovat",
   "proceed_after_one_minute": "Pokud obrazovka nepokročí ani po 1 minutě, zkontrolujte svůj e-mail.",
   "proceed_on_device": "Pokračujte na svém zařízení",
+  "ledger_verify_address": "Ověřte adresu na svém Ledgeru",
+  "ledger_verify_address_description": "Na Ledgeru potvrďte pouze pokud zobrazuje tuto adresu:",
   "proceed_on_device_description": "Postupujte podle pokynů zobrazených na vaší hardwarové peněžence",
   "processing": "Zpracovává se",
   "processing_signed_tx": "Zpracování podepsané transakce",
@@ -1175,6 +1177,9 @@
   "signature": "Podpis",
   "signature_invalid_error": "Podpis není pro danou zprávu platný",
   "signing_transaction": "Podepisování transakce",
+  "finalizing_transaction": "Dokončování transakce",
+  "sending_to_device": "Odesílání do vašeho zařízení",
+  "preparing_transaction": "Příprava transakce",
   "signTransaction": "Podepsat transakci",
   "signup_for_card_accept_terms": "Zaregistrujte se k kartě a přijměte podmínky.",
   "silent_address_desc": "Statická adresa chránící soukromí",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Upgrade sítě Zcash",
   "zcash_network_upgrade_desc_1": "Zcash prošel upgradem sítě nazvaným Ironwood, který vyžaduje migraci finančních prostředků, než je lze utratit. Tato migrace je automatická, zachovává soukromí a začíná, jakmile otevřete peněženku Zcash.",
   "zcash_network_upgrade_desc_2": "Po dokončení migrace se váš disponibilní zůstatek vrátí do normálu a můžete nadále odesílat a přijímat Zcash jako obvykle.",
-  "zcash_network_upgrade_desc_3": "Nechte prosím dokončit synchronizaci vaší peněženky Zcash a poté nechte aplikaci otevřenou, dokud nebude migrace dokončena, což může trvat několik minut v závislosti na zůstatku."
+  "zcash_network_upgrade_desc_3": "Nechte prosím dokončit synchronizaci vaší peněženky Zcash a poté nechte aplikaci otevřenou, dokud nebude migrace dokončena, což může trvat několik minut v závislosti na zůstatku.",
+  "zcash_shield_transparent_funds_ledger": "Chránit transparentní fondy. Potvrďte ve své účetní knize."
 }

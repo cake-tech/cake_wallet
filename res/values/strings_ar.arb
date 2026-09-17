@@ -867,6 +867,8 @@
   "proceed": "يتابع",
   "proceed_after_one_minute": "إذا لم تنتقل الشاشة إلى الخطوة التالية بعد دقيقة واحدة، فتحقّق من بريدك الإلكتروني.",
   "proceed_on_device": "تابع على جهازك",
+  "ledger_verify_address": "تحقق من العنوان على جهاز Ledger",
+  "ledger_verify_address_description": "وافق على Ledger فقط إذا كان يعرض هذا العنوان:",
   "proceed_on_device_description": "يرجى اتباع التعليمات التي تظهر على محفظتك المادية",
   "processing": "جارٍ المعالجة",
   "processing_signed_tx": "جارٍ معالجة المعاملة الموقَّعة",
@@ -1175,6 +1177,9 @@
   "signature": "التوقيع",
   "signature_invalid_error": "التوقيع غير صالح للرسالة المحددة",
   "signing_transaction": "جارٍ توقيع المعاملة",
+  "finalizing_transaction": "جارٍ إنهاء المعاملة",
+  "sending_to_device": "جارٍ الإرسال إلى جهازك",
+  "preparing_transaction": "جارٍ تحضير المعاملة",
   "signTransaction": "توقيع المعاملة",
   "signup_for_card_accept_terms": "سجّل للحصول على البطاقة واقبل الشروط.",
   "silent_address_desc": "عنوان ثابت يحافظ على الخصوصية",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "ترقية شبكة Zcash",
   "zcash_network_upgrade_desc_1": "خضعت Zcash لترقية شبكة تسمى Ironwood والتي تتطلب ترحيل الأموال قبل أن يتم إنفاقها. هذا الترحيل تلقائي، ويحافظ على الخصوصية، ويبدأ بمجرد فتح محفظة Zcash الخاصة بك.",
   "zcash_network_upgrade_desc_2": "عند انتهاء عملية الترحيل، سيعود رصيدك المتاح إلى وضعه الطبيعي، ويمكنك الاستمرار في إرسال واستقبال Zcash كالمعتاد.",
-  "zcash_network_upgrade_desc_3": "يرجى السماح لمحفظة Zcash الخاصة بك بإنهاء المزامنة، ثم اترك التطبيق مفتوحًا حتى انتهاء الترحيل، الأمر الذي قد يستغرق بضع دقائق حسب الرصيد."
+  "zcash_network_upgrade_desc_3": "يرجى السماح لمحفظة Zcash الخاصة بك بإنهاء المزامنة، ثم اترك التطبيق مفتوحًا حتى انتهاء الترحيل، الأمر الذي قد يستغرق بضع دقائق حسب الرصيد.",
+  "zcash_shield_transparent_funds_ledger": "حماية الأموال الشفافة. تأكيد على دفتر الأستاذ الخاص بك."
 }

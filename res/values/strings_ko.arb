@@ -867,6 +867,8 @@
   "proceed": "진행하다",
   "proceed_after_one_minute": "1분이 지나도 화면이 넘어가지 않으면 이메일을 확인하세요.",
   "proceed_on_device": "기기에서 계속 진행하세요",
+  "ledger_verify_address": "Ledger에서 주소를 확인하세요",
+  "ledger_verify_address_description": "Ledger에 이 주소가 표시될 때만 승인하세요:",
   "proceed_on_device_description": "하드웨어 지갑에 표시되는 안내에 따라 주세요.",
   "processing": "처리 중",
   "processing_signed_tx": "서명된 트랜잭션 처리 중",
@@ -1175,6 +1177,9 @@
   "signature": "서명",
   "signature_invalid_error": "주어진 메시지에 대한 서명이 유효하지 않습니다",
   "signing_transaction": "트랜잭션 서명 중",
+  "finalizing_transaction": "거래 마무리 중",
+  "sending_to_device": "기기로 전송 중",
+  "preparing_transaction": "거래 준비 중",
   "signTransaction": "트랜잭션 서명",
   "signup_for_card_accept_terms": "카드를 신청하고 약관에 동의하세요.",
   "silent_address_desc": "프라이버시를 보호하는 고정 주소",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Zcash 네트워크 업그레이드",
   "zcash_network_upgrade_desc_1": "Zcash는 자금을 사용하기 전에 자금을 이전해야 하는 Ironwood라는 네트워크 업그레이드를 거쳤습니다. 이 마이그레이션은 자동으로 이루어지며 개인 정보가 보호되며 Zcash 지갑을 열자마자 시작됩니다.",
   "zcash_network_upgrade_desc_2": "마이그레이션이 완료되면 사용 가능한 잔액이 정상으로 돌아가고 평소처럼 Zcash를 계속 보내고 받을 수 있습니다.",
-  "zcash_network_upgrade_desc_3": "Zcash 지갑 동기화가 완료될 때까지 기다린 후 마이그레이션이 완료될 때까지 앱을 열어두세요. 마이그레이션은 잔액에 따라 몇 분 정도 걸릴 수 있습니다."
+  "zcash_network_upgrade_desc_3": "Zcash 지갑 동기화가 완료될 때까지 기다린 후 마이그레이션이 완료될 때까지 앱을 열어두세요. 마이그레이션은 잔액에 따라 몇 분 정도 걸릴 수 있습니다.",
+  "zcash_shield_transparent_funds_ledger": "투명한 자금을 보호하세요. 원장에서 확인하세요."
 }

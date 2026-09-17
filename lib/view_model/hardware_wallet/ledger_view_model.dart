@@ -12,6 +12,7 @@ import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart"
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
+import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/hardware/device_connection_type.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -217,6 +218,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+      case WalletType.zcash:
+        return zcash!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
         throw Exception("Unexpected wallet type: ${wallet.type} for ledger");
     }
@@ -234,6 +237,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getLedgerHardwareWalletService(connection);
+      case WalletType.zcash:
+        return zcash!.getLedgerHardwareWalletService(connection);
       default:
         throw UnimplementedError();
     }

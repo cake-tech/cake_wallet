@@ -17,11 +17,11 @@ dependencies:
 
   path: any
   flat_buffers: any
+  ledger_flutter_plus: ^1.4.1
   zkool:
-    # path: ../../zkool2
     git:
-      url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      url: https://github.com/macsrock/zkool2.git
+      ref: 8083636a44957d05a53c9b63f027f205714edea9
 
   path_provider: any
   sqflite_common_ffi: any

@@ -35,7 +35,9 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -753,17 +755,23 @@ class SendPage extends BasePage {
               isDismissible: false,
               builder: (context) {
                 dialogContext = context;
-                return InfoBottomSheet(
-                  footerType: FooterType.singleActionButton,
-                  titleText: S.of(context).proceed_on_device,
-                  contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-                  contentImageColor: Theme.of(context).colorScheme.onSurface,
-                  content: S.of(context).proceed_on_device_description,
-                  singleActionButtonText: S.of(context).cancel,
-                  onSingleActionButtonPressed: () {
-                    sendViewModel.state = InitialExecutionState();
-                    Navigator.of(context).pop();
-                  },
+                return Observer(
+                  builder: (_) => InfoBottomSheet(
+                    footerType: FooterType.singleActionButton,
+                    titleText: HardwareWalletProceedOnDeviceMessage.textFor(
+                        context, sendViewModel.deviceStage),
+                    contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
+                    contentImageColor: Theme.of(context).colorScheme.onSurface,
+                    content: sendViewModel.deviceStage == null ||
+                            sendViewModel.deviceStage == HardwareSigningStage.awaitingDevice
+                        ? S.of(context).proceed_on_device_description
+                        : S.of(context).please_wait,
+                    singleActionButtonText: S.of(context).cancel,
+                    onSingleActionButtonPressed: () {
+                      sendViewModel.state = InitialExecutionState();
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 );
               });
         });

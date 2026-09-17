@@ -11,13 +11,24 @@ class PendingZcashTransaction with PendingTransaction {
     required this.zcashWallet,
     required this.credentials,
     required this.txPlan,
+    this.signedPackage,
+    this.isShield = false,
     required this.fee,
     required this.availableBalance,
   });
 
+  /// Whether this sweeps transparent funds into the shielded pool, which the
+  /// wallet records so history shows a shield rather than a transfer whose
+  /// value is only the fee.
+  final bool isShield;
+
   final ZcashWallet zcashWallet;
   final ZcashTransactionCredentials credentials;
   final zkool_pay.PcztPackage txPlan;
+
+  /// The plan already signed, proven and finalized by a hardware wallet
+  /// while the transaction was prepared; [commit] then only broadcasts it.
+  final zkool_pay.PcztPackage? signedPackage;
   String? _txId;
   final Money availableBalance;
 
@@ -49,7 +60,7 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
+        final signTx = signedPackage ?? await zkool_pay.signTransaction(pczt: txPlan, c: coin);
         final txBytes = await zkool_pay.extractTransaction(package: signTx);
         final currentHeight = await zkool_network.getCurrentHeight(c: coin);
         final result = await zkool_pay.broadcastTransaction(
@@ -63,7 +74,13 @@ class PendingZcashTransaction with PendingTransaction {
           throw TransactionCommitFailed(errorMessage: result);
         }
         _txId = txId;
-        zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        if (isShield) {
+          // A self-transfer: nothing leaves the wallet. The swept amount is
+          // recorded so the entry shows it while unconfirmed, not just the fee.
+          await zcashWallet.markShieldBroadcast(txId, swept: availableBalance.amount);
+        } else {
+          zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        }
       },
     );
     await zcashWallet.updateTransactions();

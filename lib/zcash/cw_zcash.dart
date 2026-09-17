@@ -33,6 +33,45 @@ class CWZcash extends Zcash {
   }
 
   @override
+  WalletCredentials createZcashHardwareWalletCredentials(
+      {required String name,
+      required HardwareWalletService hardwareWalletService,
+      required int? height,
+      int accountIndex = 0,
+      WalletInfo? walletInfo,
+      void Function(String address)? onVerifyAddress}) {
+    return ZcashRestoreWalletFromHardware(
+      name: name,
+      hardwareWalletService: hardwareWalletService,
+      height: height,
+      accountIndex: accountIndex,
+      walletInfo: walletInfo,
+      onVerifyAddress: onVerifyAddress,
+    );
+  }
+
+  @override
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
+    (wallet as ZcashWallet).hardwareWalletService = service;
+  }
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      ZcashLedgerService(connection);
+
+  @override
+  Future<BigInt> shieldableBalance(WalletBase wallet) =>
+      (wallet as ZcashWallet).shieldableBalance();
+
+  @override
+  Future<PendingTransaction> createShieldTransaction(WalletBase wallet) =>
+      (wallet as ZcashWallet).createShieldTransaction();
+
+  @override
+  Stream<HardwareSigningStage> ledgerSigningStages(WalletBase wallet) =>
+      (wallet as ZcashWallet).ledgerSigningStages;
+
+  @override
   WalletCredentials createZcashRestoreWalletFromSeedCredentials(
       {required String name,
       required String mnemonic,

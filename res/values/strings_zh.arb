@@ -867,6 +867,8 @@
   "proceed": "继续",
   "proceed_after_one_minute": "如果 1 分钟后仍未跳转，请检查您的电子邮件。",
   "proceed_on_device": "请在您的设备上继续操作",
+  "ledger_verify_address": "在您的 Ledger 上验证地址",
+  "ledger_verify_address_description": "仅当 Ledger 显示此地址时才批准:",
   "proceed_on_device_description": "请按照硬件钱包上显示的提示进行操作",
   "processing": "处理中",
   "processing_signed_tx": "正在处理已签名交易",
@@ -1175,6 +1177,9 @@
   "signature": "签名",
   "signature_invalid_error": "该签名对所给消息无效",
   "signing_transaction": "正在签名交易",
+  "finalizing_transaction": "正在完成交易",
+  "sending_to_device": "正在发送到您的设备",
+  "preparing_transaction": "正在准备交易",
   "signTransaction": "签名交易",
   "signup_for_card_accept_terms": "注册卡片并接受条款。",
   "silent_address_desc": "保护隐私的静态地址",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Zcash 网络升级",
   "zcash_network_upgrade_desc_1": "Zcash 进行了名为 Ironwood 的网络升级，需要先迁移资金才能使用。此迁移是自动的、保护隐私的，并且在您打开 Zcash 钱包时立即开始。",
   "zcash_network_upgrade_desc_2": "迁移完成后，您的可用余额将恢复正常，您可以继续照常发送和接收 Zcash。",
-  "zcash_network_upgrade_desc_3": "请让您的 Zcash 钱包完成同步，然后让应用程序保持打开状态，直到迁移完成，这可能需要几分钟的时间，具体取决于余额。"
+  "zcash_network_upgrade_desc_3": "请让您的 Zcash 钱包完成同步，然后让应用程序保持打开状态，直到迁移完成，这可能需要几分钟的时间，具体取决于余额。",
+  "zcash_shield_transparent_funds_ledger": "保护资金透明。在您的分类帐上确认。"
 }

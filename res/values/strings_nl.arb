@@ -867,6 +867,8 @@
   "proceed": "Doorgaan",
   "proceed_after_one_minute": "Als het scherm na 1 minuut niet verder gaat, controleer dan je e-mail.",
   "proceed_on_device": "Ga verder met je apparaat",
+  "ledger_verify_address": "Controleer het adres op uw Ledger",
+  "ledger_verify_address_description": "Keur alleen goed op de Ledger als deze dit adres toont:",
   "proceed_on_device_description": "Volg de instructies die worden weergegeven op je hardware-wallet",
   "processing": "Verwerking",
   "processing_signed_tx": "Verwerking ondertekende transactie",
@@ -1175,6 +1177,9 @@
   "signature": "Handtekening",
   "signature_invalid_error": "De handtekening is niet geldig voor het opgegeven bericht",
   "signing_transaction": "Transactie ondertekenen",
+  "finalizing_transaction": "Transactie afronden",
+  "sending_to_device": "Verzenden naar uw apparaat",
+  "preparing_transaction": "Transactie voorbereiden",
   "signTransaction": "Transactie ondertekenen",
   "signup_for_card_accept_terms": "Registreer voor de kaart en accepteer de voorwaarden.",
   "silent_address_desc": "Privacybeschermend statisch adres",
@@ -1571,5 +1576,6 @@
   "zcash_network_upgrade": "Zcash-netwerkupgrade",
   "zcash_network_upgrade_desc_1": "Zcash heeft een netwerkupgrade ondergaan genaamd Ironwood, die migratie van fondsen vereist voordat ze kunnen worden uitgegeven. Deze migratie is automatisch, behoud van de privacy en begint zodra u uw Zcash-portemonnee opent.",
   "zcash_network_upgrade_desc_2": "Wanneer de migratie is voltooid, wordt uw beschikbare saldo weer normaal en kunt u zoals gewoonlijk Zcash blijven verzenden en ontvangen.",
-  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo."
+  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo.",
+  "zcash_shield_transparent_funds_ledger": "Bescherm transparante fondsen. Bevestig op uw grootboek."
 }

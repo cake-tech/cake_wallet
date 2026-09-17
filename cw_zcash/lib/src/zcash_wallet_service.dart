@@ -19,7 +19,7 @@ class ZcashWalletService
           ZcashNewWalletCredentials,
           ZcashFromSeedWalletCredentials,
           ZcashFromKeysWalletCredentials,
-          ZcashNewWalletCredentials
+          ZcashRestoreWalletFromHardware
         > {
   ZcashWalletService();
 
@@ -186,9 +186,17 @@ class ZcashWalletService
   }
 
   @override
-  Future<ZcashWallet> restoreFromHardwareWallet(final ZcashNewWalletCredentials credentials) {
-    throw UnimplementedError(
-      "Restoring a Zcash wallet from a hardware wallet is not yet supported!",
-    );
+  Future<ZcashWallet> restoreFromHardwareWallet(
+    final ZcashRestoreWalletFromHardware credentials,
+  ) {
+    return ZcashWalletBase.restoreFromLedger(credentials);
   }
+
+  /// A Ledger wallet opens and syncs from its stored viewing key; the device
+  /// is only needed to sign, and the send screen connects it on demand (the
+  /// same as Bitcoin). Demanding a connection here would route through the
+  /// app's startup reconnect flow, which is written for Monero and cannot
+  /// hand a Zcash wallet its connection.
+  @override
+  Future<bool> requireHardwareWalletConnection(final String name) async => false;
 }

@@ -869,6 +869,8 @@
   "proceed": "Melanjutkan",
   "proceed_after_one_minute": "Jika layar tidak berlanjut setelah 1 menit, periksa email Anda.",
   "proceed_on_device": "Lanjutkan di perangkat Anda",
+  "ledger_verify_address": "Verifikasi alamat di Ledger Anda",
+  "ledger_verify_address_description": "Setujui di Ledger hanya jika menampilkan alamat ini:",
   "proceed_on_device_description": "Silakan ikuti instruksi yang ditampilkan di hardware wallet Anda",
   "processing": "Memproses",
   "processing_signed_tx": "Memproses transaksi yang sudah ditandatangani",
@@ -1178,6 +1180,9 @@
   "signature": "Tanda tangan",
   "signature_invalid_error": "Tanda tangan tidak valid untuk pesan yang diberikan",
   "signing_transaction": "Menandatangani transaksi",
+  "finalizing_transaction": "Menyelesaikan transaksi",
+  "sending_to_device": "Mengirim ke perangkat Anda",
+  "preparing_transaction": "Menyiapkan transaksi",
   "signTransaction": "Tandatangani Transaksi",
   "signup_for_card_accept_terms": "Daftar untuk kartu dan setujui ketentuannya.",
   "silent_address_desc": "Alamat statis yang menjaga privasi",
@@ -1573,5 +1578,6 @@
   "zcash_network_upgrade": "Peningkatan Jaringan Zcash",
   "zcash_network_upgrade_desc_1": "Zcash telah mengalami peningkatan jaringan yang disebut Ironwood yang memerlukan migrasi dana sebelum dapat dibelanjakan. Migrasi ini bersifat otomatis, menjaga privasi, dan dimulai segera setelah Anda membuka dompet Zcash Anda.",
   "zcash_network_upgrade_desc_2": "Ketika migrasi selesai, Saldo Tersedia Anda akan kembali normal, dan Anda dapat terus mengirim dan menerima Zcash seperti biasa.",
-  "zcash_network_upgrade_desc_3": "Harap izinkan dompet Zcash Anda menyelesaikan sinkronisasi, lalu biarkan aplikasi terbuka hingga migrasi selesai yang dapat memakan waktu beberapa menit tergantung pada saldo."
+  "zcash_network_upgrade_desc_3": "Harap izinkan dompet Zcash Anda menyelesaikan sinkronisasi, lalu biarkan aplikasi terbuka hingga migrasi selesai yang dapat memakan waktu beberapa menit tergantung pada saldo.",
+  "zcash_shield_transparent_funds_ledger": "Lindungi dana yang transparan. Konfirmasikan pada Buku Besar Anda."
 }

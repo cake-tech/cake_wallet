@@ -870,6 +870,8 @@
   "proceed": "Jehove",
   "proceed_after_one_minute": "Pe pantalla ndohoiramo tenonde 1 aravo’i rire, ehecha nde correo.",
   "proceed_on_device": "Eku’ejey nde mba’e’okápe.",
+  "ledger_verify_address": "Ehechajey pe dirección nde Ledger-pe",
+  "ledger_verify_address_description": "Emoneĩ Ledger-pe ohechauka ramo añoite ko dirección:",
   "proceed_on_device_description": "Eikuaa hag̃ua, ejapo umi mba’e he’íva nde hardware wallet-pe",
   "processing": "Oñeprocesahína",
   "processing_signed_tx": "Oñeprocesahína transacción oñemboheraguapýva",
@@ -1180,6 +1182,9 @@
   "signature": "Firma",
   "signature_invalid_error": "Pe ñemboheraguapy ndoikói pe marandu oñeme’ẽvape",
   "signing_transaction": "Oñemboheraguapy transacción",
+  "finalizing_transaction": "Oñemohu'ã transacción",
+  "sending_to_device": "Oñemondo nde dispositivo-pe",
+  "preparing_transaction": "Oñembosako'i transacción",
   "signTransaction": "Emoheraguapy Transacción",
   "signup_for_card_accept_terms": "Eñemboheraguapy hag̃ua pe tarjeta ha emoneĩ umi término.",
   "silent_address_desc": "Dirección estática omomba’eporãva tekoñemi hag̃ua",
@@ -1578,5 +1583,6 @@
   "zcash_network_upgrade": "Zcash Red Ñembopyahu",
   "zcash_network_upgrade_desc_1": "Zcash ohasa peteî actualización red hérava Ironwood oikotevêva migración de fondos ikatu mboyve ojegasta. Ko migración ha’e automática, oñongatúva privacidad ha oñepyrũ eipe’a riremínte nde billetera Zcash.",
   "zcash_network_upgrade_desc_2": "Opa vove pe migración, nde Saldo Disponible ohojeýta normal-pe, ha ikatu esegi emondo ha eguerahauka Zcash jepiveguáicha.",
-  "zcash_network_upgrade_desc_3": "Eheja ne billetera Zcash omohu’ã sincronización, ha upéi eheja pe app ojepe’a opa peve migración ikatúva ogueraha mbovymi minuto odependéva saldo rehe."
+  "zcash_network_upgrade_desc_3": "Eheja ne billetera Zcash omohu’ã sincronización, ha upéi eheja pe app ojepe’a opa peve migración ikatúva ogueraha mbovymi minuto odependéva saldo rehe.",
+  "zcash_shield_transparent_funds_ledger": "Escudo umi fondo transparente rehegua. Emoañete nde Libro Mayor-pe."
 }

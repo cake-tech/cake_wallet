@@ -867,6 +867,8 @@
   "proceed": "Fortfahren",
   "proceed_after_one_minute": "Wenn der Bildschirm nach 1 Minute nicht fortfährt, überprüfen Sie bitte Ihre E-Mail.",
   "proceed_on_device": "Fahren Sie auf Ihrem Gerät fort",
+  "ledger_verify_address": "Überprüfen Sie die Adresse auf Ihrem Ledger",
+  "ledger_verify_address_description": "Bestätigen Sie auf dem Ledger nur, wenn er diese Adresse anzeigt:",
   "proceed_on_device_description": "Bitte folgen Sie den Anweisungen, die auf Ihrer Hardware-Wallet angezeigt werden",
   "processing": "Wird verarbeitet",
   "processing_signed_tx": "Signierte Transaktion wird verarbeitet",
@@ -1175,6 +1177,9 @@
   "signature": "Signatur",
   "signature_invalid_error": "Die Signatur ist für die angegebene Nachricht ungültig",
   "signing_transaction": "Transaktion wird signiert",
+  "finalizing_transaction": "Transaktion wird abgeschlossen",
+  "sending_to_device": "Wird an Ihr Gerät gesendet",
+  "preparing_transaction": "Transaktion wird vorbereitet",
   "signTransaction": "Transaktion signieren",
   "signup_for_card_accept_terms": "Registrieren Sie sich für die Karte und akzeptieren Sie die Bedingungen.",
   "silent_address_desc": "Datenschutzwahrende statische Adresse",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Zcash-Netzwerk-Upgrade",
   "zcash_network_upgrade_desc_1": "Das Zcash-Netzwerk wurde auf Ironwood aktualisiert. Damit Ihr Guthaben wieder ausgegeben werden kann, muss es migriert werden. Die Migration erfolgt automatisch und unter Wahrung Ihrer Privatsphäre. Sie beginnt, sobald Sie Ihre Zcash-Wallet öffnen.",
   "zcash_network_upgrade_desc_2": "Nach Abschluss der Migration wird Ihr verfügbares Guthaben wieder wie gewohnt angezeigt und Sie können Zcash wieder normal senden und empfangen.",
-  "zcash_network_upgrade_desc_3": "Bitte lassen Sie Ihre Zcash-Wallet vollständig synchronisieren und anschließend die App geöffnet, bis die Migration abgeschlossen ist. Dies kann je nach Guthaben einige Minuten dauern."
+  "zcash_network_upgrade_desc_3": "Bitte lassen Sie Ihre Zcash-Wallet vollständig synchronisieren und anschließend die App geöffnet, bis die Migration abgeschlossen ist. Dies kann je nach Guthaben einige Minuten dauern.",
+  "zcash_shield_transparent_funds_ledger": "Schützen Sie transparente Fonds. Bestätigen Sie dies in Ihrem Hauptbuch."
 }

@@ -867,6 +867,8 @@
   "proceed": "Przystępować",
   "proceed_after_one_minute": "Jeśli po 1 minucie ekran nie przejdzie dalej, sprawdź swoją pocztę e-mail.",
   "proceed_on_device": "Kontynuuj na swoim urządzeniu",
+  "ledger_verify_address": "Zweryfikuj adres na swoim Ledgerze",
+  "ledger_verify_address_description": "Zatwierdź na Ledgerze tylko, jeśli pokazuje ten adres:",
   "proceed_on_device_description": "Postępuj zgodnie z instrukcjami wyświetlanymi na Twoim portfelu sprzętowym",
   "processing": "Przetwarzanie",
   "processing_signed_tx": "Przetwarzanie podpisanej transakcji",
@@ -1175,6 +1177,9 @@
   "signature": "Podpis",
   "signature_invalid_error": "Podpis nie jest prawidłowy dla podanej wiadomości",
   "signing_transaction": "Podpisywanie transakcji",
+  "finalizing_transaction": "Finalizowanie transakcji",
+  "sending_to_device": "Wysyłanie do urządzenia",
+  "preparing_transaction": "Przygotowywanie transakcji",
   "signTransaction": "Podpisz transakcję",
   "signup_for_card_accept_terms": "Zarejestruj się, aby otrzymać kartę, i zaakceptuj warunki.",
   "silent_address_desc": "Statyczny adres chroniący prywatność",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Aktualizacja sieci Zcash",
   "zcash_network_upgrade_desc_1": "Zcash przeszedł modernizację sieci o nazwie Ironwood, która wymaga migracji środków, zanim będzie można je wydać. Ta migracja jest automatyczna, chroni prywatność i rozpoczyna się natychmiast po otwarciu portfela Zcash.",
   "zcash_network_upgrade_desc_2": "Po zakończeniu migracji Twoje dostępne saldo powróci do normy i będziesz mógł nadal wysyłać i odbierać Zcash jak zwykle.",
-  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda."
+  "zcash_network_upgrade_desc_3": "Poczekaj, aż Twój portfel Zcash dokończy synchronizację, a następnie pozostaw aplikację otwartą do czasu zakończenia migracji, co może zająć kilka minut, w zależności od salda.",
+  "zcash_shield_transparent_funds_ledger": "Chroń przejrzyste fundusze. Potwierdź w swojej księdze głównej."
 }

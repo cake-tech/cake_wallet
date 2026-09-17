@@ -57,6 +57,7 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
@@ -154,6 +155,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   ExecutionState state;
+
+  /// Where a hardware-wallet signing is, for wallets that report it (Zcash on
+  /// Ledger). Null when the wallet does not, or nothing is being signed.
+  @observable
+  HardwareSigningStage? deviceStage;
+
+  StreamSubscription<HardwareSigningStage>? _deviceStageSubscription;
 
   ObservableList<Output> outputs;
 
@@ -705,6 +713,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             }
           });
         } else {
+          if (walletType == WalletType.zcash) {
+            // The device has nothing to show until the whole transaction has
+            // reached it; until then the sheet says what the phone is doing.
+            // The stage is set before the state so the sheet never opens
+            // without one, and only ever moves forward, so a late or
+            // repeated event cannot flash an earlier message.
+            deviceStage = HardwareSigningStage.preparing;
+            _deviceStageSubscription?.cancel();
+            _deviceStageSubscription = zcash!.ledgerSigningStages(wallet).listen((stage) {
+              final current = deviceStage;
+              if (current == null || stage.index > current.index) {
+                deviceStage = stage;
+              }
+            });
+          }
           state = IsAwaitingDeviceResponseState();
         }
       }
@@ -964,10 +987,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      _stopWatchingDeviceStage();
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
       _ledgerTxStateTimer?.cancel();
+      _stopWatchingDeviceStage();
       // if (e is LedgerException) {
       //   final errorCode = e.errorCode.toRadixString(16);
       //   final fallbackMsg =
@@ -980,6 +1005,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // }
     }
     return null;
+  }
+
+  void _stopWatchingDeviceStage() {
+    _deviceStageSubscription?.cancel();
+    _deviceStageSubscription = null;
+    // The stage is left as it is: the sheet is about to change state, and
+    // clearing it first would show "proceed on your device" for a frame.
   }
 
   @action

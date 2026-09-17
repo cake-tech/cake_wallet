@@ -869,6 +869,8 @@
   "proceed": "Prosseguir",
   "proceed_after_one_minute": "Se a tela não avançar após 1 minuto, verifique seu e-mail.",
   "proceed_on_device": "Prossiga no seu dispositivo",
+  "ledger_verify_address": "Verifique o endereço no seu Ledger",
+  "ledger_verify_address_description": "Aprove no Ledger apenas se ele mostrar este endereço:",
   "proceed_on_device_description": "Siga as instruções exibidas na sua carteira de hardware",
   "processing": "Processando",
   "processing_signed_tx": "Processando transação assinada",
@@ -1177,6 +1179,9 @@
   "signature": "Assinatura",
   "signature_invalid_error": "A assinatura não é válida para a mensagem fornecida",
   "signing_transaction": "Assinando transação",
+  "finalizing_transaction": "A finalizar a transação",
+  "sending_to_device": "A enviar para o seu dispositivo",
+  "preparing_transaction": "A preparar a transação",
   "signTransaction": "Assinar transação",
   "signup_for_card_accept_terms": "Inscreva-se no cartão e aceite os termos.",
   "silent_address_desc": "Endereço estático que preserva a privacidade",
@@ -1573,5 +1578,6 @@
   "zcash_network_upgrade": "Atualização da rede Zcash",
   "zcash_network_upgrade_desc_1": "Zcash passou por uma atualização de rede chamada Ironwood que requer migração de fundos antes que possam ser gastos. Esta migração é automática, preserva a privacidade e começa assim que você abre sua carteira Zcash.",
   "zcash_network_upgrade_desc_2": "Quando a migração terminar, o seu Saldo Disponível voltará ao normal e você poderá continuar a enviar e receber Zcash normalmente.",
-  "zcash_network_upgrade_desc_3": "Aguarde a sincronização da sua carteira Zcash e deixe o aplicativo aberto até a migração terminar, o que pode levar alguns minutos dependendo do saldo."
+  "zcash_network_upgrade_desc_3": "Aguarde a sincronização da sua carteira Zcash e deixe o aplicativo aberto até a migração terminar, o que pode levar alguns minutos dependendo do saldo.",
+  "zcash_shield_transparent_funds_ledger": "Proteja fundos transparentes. Confirme no seu livro-razão."
 }

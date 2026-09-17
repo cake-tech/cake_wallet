@@ -868,6 +868,8 @@
   "proceed": "Proceder",
   "proceed_after_one_minute": "Si la pantalla no continúa después de 1 minuto, revisa tu correo electrónico.",
   "proceed_on_device": "Continúa en tu dispositivo",
+  "ledger_verify_address": "Verifique la dirección en su Ledger",
+  "ledger_verify_address_description": "Apruebe en el Ledger solo si muestra esta dirección:",
   "proceed_on_device_description": "Por favor, sigue las instrucciones que se muestran en tu billetera de hardware",
   "processing": "Procesando",
   "processing_signed_tx": "Procesando transacción firmada",
@@ -1176,6 +1178,9 @@
   "signature": "Firma",
   "signature_invalid_error": "La firma no es válida para el mensaje proporcionado",
   "signing_transaction": "Firmando transacción",
+  "finalizing_transaction": "Finalizando transacción",
+  "sending_to_device": "Enviando a su dispositivo",
+  "preparing_transaction": "Preparando transacción",
   "signTransaction": "Firmar transacción",
   "signup_for_card_accept_terms": "Regístrate para obtener la tarjeta y acepta los términos.",
   "silent_address_desc": "Dirección estática que preserva la privacidad",
@@ -1572,5 +1577,6 @@
   "zcash_network_upgrade": "Actualización de la red Zcash",
   "zcash_network_upgrade_desc_1": "Zcash ha experimentado una actualización de red llamada Ironwood que requiere la migración de fondos antes de que puedan gastarse. Esta migración es automática, preserva la privacidad y comienza tan pronto como abre su billetera Zcash.",
   "zcash_network_upgrade_desc_2": "Cuando finalice la migración, su Saldo disponible volverá a la normalidad y podrá continuar enviando y recibiendo Zcash como de costumbre.",
-  "zcash_network_upgrade_desc_3": "Permita que su billetera Zcash termine de sincronizarse y luego deje la aplicación abierta hasta que finalice la migración, lo que puede demorar unos minutos dependiendo del saldo."
+  "zcash_network_upgrade_desc_3": "Permita que su billetera Zcash termine de sincronizarse y luego deje la aplicación abierta hasta que finalice la migración, lo que puede demorar unos minutos dependiendo del saldo.",
+  "zcash_shield_transparent_funds_ledger": "Proteger fondos transparentes. Confirme en su libro mayor."
 }

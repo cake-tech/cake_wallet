@@ -1746,6 +1746,10 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 
 """;
   const zcashCWHeaders = """
@@ -1774,6 +1778,25 @@ abstract class Zcash {
       int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
+  WalletCredentials createZcashHardwareWalletCredentials(
+      {required String name,
+      required HardwareWalletService hardwareWalletService,
+      required int? height,
+      int accountIndex = 0,
+      WalletInfo? walletInfo,
+      void Function(String address)? onVerifyAddress});
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
+
+  /// Transparent funds a hardware wallet holds but cannot shield unattended.
+  Future<BigInt> shieldableBalance(WalletBase wallet);
+
+  /// Builds (and, on a Ledger, signs) a sweep of those funds into the
+  /// shielded pool; commit it to broadcast.
+  Future<PendingTransaction> createShieldTransaction(WalletBase wallet);
+
+  /// Progress of a Ledger send or shield, for the screen waiting on it.
+  Stream<HardwareSigningStage> ledgerSigningStages(WalletBase wallet);
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);

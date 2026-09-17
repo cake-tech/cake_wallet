@@ -87,6 +87,10 @@ class ZkoolTx {
         .fold(BigInt.zero, (final a, final o) => a + o.value);
   }
 
+  /// What this transaction put into the account's shielded pools. A shield
+  /// lands in Orchard before Ironwood activates and in Ironwood after.
+  BigInt get shieldedReceived => orchardReceived + ironwoodReceived;
+
   BigInt get orchardSpent => _txAccount.spends
       .where((final s) => s.pool == NotePool.orchard.index)
       .fold(BigInt.zero, (final a, final s) => a + s.value);

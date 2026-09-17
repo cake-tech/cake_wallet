@@ -1,3 +1,6 @@
+import 'package:cw_core/hardware/hardware_signing_stage.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_zcash/src/zcash_ledger_service.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -8,6 +11,7 @@ import 'package:cw_core/get_height_by_date_zec.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -62,6 +66,24 @@ abstract class ZcashWalletBase
   }
 
   int accountId;
+
+  /// Set while a Ledger is connected. A wallet paired with one holds no
+  /// spending key, so every transaction is signed through this service.
+  HardwareWalletService? hardwareWalletService;
+
+  bool get isLedgerWallet => walletInfo.hardwareWalletType == HardwareWalletType.ledger;
+
+  /// `accounts.hw` code the backend uses for the Official Ledger app.
+  static const int zkoolHwOfficialLedger = 2;
+
+  /// Floor under which a manual shield is not offered, same as auto-shield.
+  static const int _manualShieldMinSweep = _autoShieldMinSweep;
+
+  /// Set once a manual shield is broadcast: the swept notes still read as
+  /// unspent until it confirms, so the balance and the shield card stop
+  /// counting them meanwhile.
+  bool _shieldSweepPending = false;
+  String? _pendingShieldTxId;
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
@@ -434,6 +456,82 @@ abstract class ZcashWalletBase
     }
   }
 
+  final _ledgerStages = StreamController<HardwareSigningStage>.broadcast();
+
+  /// Where a Ledger send or shield is, from planning through finalizing.
+  ///
+  /// Emits from the start of [createTransaction] or [createShieldTransaction]
+  /// on a Ledger wallet until they return. The device shows its review only
+  /// at [HardwareSigningStage.awaitingDevice]; the earlier stages are the
+  /// phone's own work, so a screen can say what is being waited on instead
+  /// of pointing at a device that has nothing to show yet.
+  Stream<HardwareSigningStage> get ledgerSigningStages => _ledgerStages.stream;
+
+  void _ledgerStage(final HardwareSigningStage stage) {
+    if (isLedgerWallet && !_ledgerStages.isClosed) {
+      _ledgerStages.add(stage);
+    }
+  }
+
+  /// Signs on the Ledger without holding the shared coin lock.
+  ///
+  /// The device review waits on the user, for minutes if they step away, and
+  /// sync, balance and history refreshes all queue behind that lock. The
+  /// signer only reads this account's keys and addresses from the database,
+  /// so it runs on its own handle once the transaction has been planned under
+  /// the lock.
+  Future<zkool_pay.PcztPackage> _signOnLedgerOutsideCoinLock(
+    final zkool_pay.PcztPackage txPlan,
+  ) async {
+    var coin = zkool_coin.Coin();
+    coin = await coin.openDatabase(dbFilepath: c.dbFilepath);
+    coin = await coin.setAccount(account: accountId);
+    return signOnLedger(txPlan, coin);
+  }
+
+  /// Has the Ledger review and sign a transaction plan: the device returns
+  /// the spend authorizations, then the backend proves and finalizes the
+  /// transaction, ready for [PendingZcashTransaction.commit] to broadcast.
+  /// The device has to be connected; the send page prompts for that first,
+  /// and a lost connection surfaces as a plain "not connected" message so the
+  /// app can ask to reconnect.
+  Future<zkool_pay.PcztPackage> signOnLedger(
+    final zkool_pay.PcztPackage txPlan,
+    final zkool_coin.Coin coin,
+  ) async {
+    final service = hardwareWalletService;
+    if (service is! ZcashLedgerService) {
+      throw ZcashLedgerException(
+        "The Ledger is not connected. Connect it and try again.",
+      );
+    }
+    zkool_pay.PcztPackage? signed;
+    await for (final event in service.sign(txPlan, coin)) {
+      switch (event) {
+        case zkool_pay.SigningEvent_Progress(:final field0):
+          printV("ledger: $field0");
+          // The signer reports each step; the screen only needs to know
+          // when the device is waiting on the user and when it is past that.
+          if (field0 == "Sending to Ledger") {
+            _ledgerStage(HardwareSigningStage.sendingToDevice);
+          } else if (field0 == "Confirm on your Ledger") {
+            _ledgerStage(HardwareSigningStage.awaitingDevice);
+          } else if (field0.startsWith("Signed")) {
+            // Reported after a signature comes back, so the user has approved.
+            _ledgerStage(HardwareSigningStage.signing);
+          } else if (field0 == "Finalizing transaction") {
+            _ledgerStage(HardwareSigningStage.finalizing);
+          }
+        case zkool_pay.SigningEvent_Result(:final field0):
+          signed = field0;
+      }
+    }
+    if (signed == null) {
+      throw Exception("The Ledger returned no signed transaction");
+    }
+    return signed;
+  }
+
   @override
   Future<PendingTransaction> createTransaction(final Object credentials) =>
       _createTransaction(credentials);
@@ -443,6 +541,7 @@ abstract class ZcashWalletBase
     final int tryReduceFeeAmount = 0,
   }) async {
     final creds = credentials as ZcashTransactionCredentials;
+    _ledgerStage(HardwareSigningStage.preparing);
     await updateBalance();
 
     final zcashBalance = balance[CryptoCurrency.zec];
@@ -480,7 +579,7 @@ abstract class ZcashWalletBase
     // pools parameter: bitmask for which pools to use for sending
     // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
-      return await runWithCoin(
+      final (txPlan, txFee) = await runWithCoin(
         accountId: accountId,
         func: (coin) async {
           final ironwood = await zkool_network.isIronwoodActive(c: coin);
@@ -490,23 +589,40 @@ abstract class ZcashWalletBase
               srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
-              mode: 0,
-            ),
+              ),
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
-          return PendingZcashTransaction(
-            zcashWallet: this as ZcashWallet,
-            credentials: creds,
-            txPlan: txPlan,
-            fee: txFee,
-            availableBalance: availableBalance,
-          );
+          return (txPlan, txFee);
         },
+      );
+      // A Ledger reviews and signs here, while the transaction is being
+      // prepared, so the confirmation sheet that follows shows a signed
+      // transaction and the slide only broadcasts it: the same order as the
+      // other hardware wallets, and what the user expects.
+      _ledgerStage(HardwareSigningStage.sendingToDevice);
+      final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
+      return PendingZcashTransaction(
+        zcashWallet: this as ZcashWallet,
+        credentials: creds,
+        txPlan: txPlan,
+        signedPackage: signed,
+        fee: txFee,
+        availableBalance: availableBalance,
       );
     } catch (e) {
       if (tryReduceFeeAmount != 0) rethrow;
       final estr = e.toString();
+      // The planner found no spendable notes at all. Right after a send this
+      // means the change is still unconfirmed and not yet recorded, which
+      // deserves a sentence rather than a Rust backtrace.
+      if (estr.contains("No feasible note selection found")) {
+        throw Exception(
+          "No confirmed funds are available to spend yet. If you just sent a "
+          "transaction, its change becomes spendable once the network picks "
+          "it up, usually within a minute or two.",
+        );
+      }
       const prefix = "Not enough funds, ";
       const suffix = " more ZEC required";
       if (estr.contains(prefix) && estr.contains(suffix)) {
@@ -675,7 +791,7 @@ abstract class ZcashWalletBase
     if (tx.transparentOrSaplingSpent <= BigInt.zero) {
       return false;
     }
-    if (tx.orchardReceived <= BigInt.zero) {
+    if (tx.shieldedReceived <= BigInt.zero) {
       return false;
     }
     for (final dest in tx.outputAddresses) {
@@ -683,7 +799,7 @@ abstract class ZcashWalletBase
         return true;
       }
     }
-    return tx.orchardReceived > BigInt.zero;
+    return tx.shieldedReceived > BigInt.zero;
   }
 
   bool _shouldSplitAutoshieldTx(
@@ -696,7 +812,10 @@ abstract class ZcashWalletBase
     }
     if (ZcashWalletService.isAutoshieldTx(tx.txHash) ||
         _isPayToSelfAutoshield(tx, ownedAddresses)) {
-      return tx.transparentOrSaplingSpent > BigInt.zero && tx.orchardReceived > BigInt.zero;
+      // Shown as two entries, what left the transparent side and what
+      // arrived shielded, so the history never reads as "only a fee went
+      // out". The shielded side is Ironwood once that pool is active.
+      return tx.transparentOrSaplingSpent > BigInt.zero && tx.shieldedReceived > BigInt.zero;
     }
     return false;
   }
@@ -864,6 +983,13 @@ abstract class ZcashWalletBase
     final Map<String, ZcashTransactionInfo> splitEntries = {};
     for (final tx in txs) {
       _pendingOutgoingAmounts.remove(ZcashWalletService.normalizeTxId(tx.txHash));
+      if (_pendingShieldTxId != null &&
+          tx.height > 0 &&
+          ZcashWalletService.normalizeTxId(tx.txHash) ==
+              ZcashWalletService.normalizeTxId(_pendingShieldTxId!)) {
+        _shieldSweepPending = false;
+        _pendingShieldTxId = null;
+      }
       if (tx.height > 0) {
         ZcashMempoolService.instance.removeTx(tx.txHash);
       }
@@ -886,17 +1012,29 @@ abstract class ZcashWalletBase
           tx,
           currentHeight,
           directionOverride: TransactionDirection.incoming,
-          amountOverride: tx.orchardReceived,
+          amountOverride: tx.shieldedReceived,
           ownedAddresses: ownedAddresses,
         );
         continue;
       }
+      // A shield whose shielded note is not attached yet (unconfirmed)
+      // cannot be split; show what it sweeps rather than its net, the fee.
+      final shieldHash = ZcashWalletService.normalizeTxId(tx.txHash);
+      if (tx.height > 0) {
+        _pendingShieldAmounts.remove(shieldHash);
+      }
+      final BigInt? sweptAmount = !isShield
+          ? null
+          : (_pendingShieldAmounts[shieldHash] ??
+              (tx.transparentOrSaplingSpent > BigInt.zero ? tx.transparentOrSaplingSpent : null));
       _offerTx(
         byHash,
         _zcashInfoFromZkoolTx(
           tx,
           currentHeight,
           isShieldAction: isShield,
+          directionOverride: sweptAmount != null ? TransactionDirection.outgoing : null,
+          amountOverride: sweptAmount,
           ownedAddresses: ownedAddresses,
         ),
       );
@@ -1204,6 +1342,110 @@ abstract class ZcashWalletBase
   static DateTime? _lastAutoShieldAt;
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
+  /// Transparent funds a hardware wallet holds but cannot sweep unattended;
+  /// zero while a shield it broadcast is still confirming.
+  Future<BigInt> shieldableBalance() async {
+    if (_shieldSweepPending) {
+      return BigInt.zero;
+    }
+    return runWithCoin(
+      accountId: accountId,
+      func: (final coin) async {
+        final sweepable = await _sweepableTotal(coin);
+        if (sweepable <= BigInt.from(_manualShieldMinSweep)) {
+          return BigInt.zero;
+        }
+        return sweepable;
+      },
+    );
+  }
+
+  /// Builds a transaction sweeping transparent funds into the shielded pool,
+  /// for a wallet that cannot sign it unattended.
+  ///
+  /// Shielding normally happens during sync, which a hardware wallet cannot
+  /// do: every transaction is a device review. A Ledger reviews and signs the
+  /// sweep right here, so the returned transaction only has to be broadcast.
+  Future<PendingTransaction> createShieldTransaction() async {
+    _ledgerStage(HardwareSigningStage.preparing);
+    final destination = walletAddresses.orchardAddress!;
+    final (txPlan, sweepable, fee) = await runWithCoin(
+      accountId: accountId,
+      func: (final coin) async {
+        final sweepable = await _sweepableTotal(coin);
+        final ironwood = await zkool_network.isIronwoodActive(c: coin);
+        if (sweepable <= BigInt.from(_manualShieldMinSweep)) {
+          throw Exception('There is nothing to shield.');
+        }
+        final txPlan = await zkool_pay.prepare(
+          recipients: [
+            zkool_paydart.Recipient(
+              assetBase: zecBase,
+              address: destination,
+              amount: sweepable,
+              pools: ironwood ? ironwoodPoolMask : null,
+            ),
+          ],
+          options: zkool_pay.PaymentOptions(
+            srcPools: 3,
+            recipientPaysFee: true,
+            smartTransparent: false,
+          ),
+          c: coin,
+        );
+        final fee = _feeFromTxPlan(txPlan, MoneroTransactionPriority.automatic, 0, coin: coin);
+        return (txPlan, sweepable, fee);
+      },
+    );
+    _ledgerStage(HardwareSigningStage.sendingToDevice);
+    final signed = isLedgerWallet ? await _signOnLedgerOutsideCoinLock(txPlan) : null;
+    return PendingZcashTransaction(
+      zcashWallet: this as ZcashWallet,
+      isShield: true,
+      credentials: ZcashTransactionCredentials(
+        // Describes the sweep for the confirmation screens: every sweepable
+        // note, less the fee.
+        outputs: [
+          OutputInfo(
+            address: destination,
+            sendAll: true,
+            isParsedAddress: false,
+            cryptoAmount: Money(sweepable, currency),
+          ),
+        ],
+        priority: MoneroTransactionPriority.automatic,
+        currency: currency,
+      ),
+      txPlan: txPlan,
+      signedPackage: signed,
+      fee: fee,
+      availableBalance: Money(sweepable, currency),
+    );
+  }
+
+  /// Records a manual shield that was just broadcast.
+  ///
+  /// History splits a shield into the transparent spend and the shielded
+  /// receipt; without the mark it reads as a transfer whose value is only the
+  /// fee. The swept notes also still read as unspent until this confirms, so
+  /// the balance and the shield card stop counting them until then.
+  /// What each shield that has not confirmed yet swept. Until the network
+  /// confirms it the wallet only knows the transaction's net effect, which
+  /// is the fee, and showing that alone reads as the funds having vanished.
+  final Map<String, BigInt> _pendingShieldAmounts = {};
+
+  Future<void> markShieldBroadcast(final String txId, {final BigInt? swept}) async {
+    await ZcashWalletService.addShieldedTx(txId);
+    if (swept != null && swept > BigInt.zero) {
+      final hash = ZcashWalletService.normalizeTxId(txId);
+      _pendingShieldAmounts[hash] = swept;
+      // The mempool entry reads its amount from here.
+      _pendingOutgoingAmounts[hash] = swept;
+    }
+    _shieldSweepPending = true;
+    _pendingShieldTxId = txId;
+  }
+
   Future<void> _autoShield() async {
     if (_lastAutoShieldAt != null &&
         _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
@@ -1260,6 +1502,12 @@ abstract class ZcashWalletBase
     if (syncStatus is! SyncedSyncStatus) {
       return;
     }
+    // Shielding signs locally. A Ledger wallet has no spending key, and a
+    // background sync is no place to prompt on the device, so its transparent
+    // funds are left alone and spent directly (see _sourcePools).
+    if (isHardwareWallet) {
+      return;
+    }
     final txId = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1282,7 +1530,6 @@ abstract class ZcashWalletBase
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -1326,6 +1573,11 @@ abstract class ZcashWalletBase
 
   Future<void> _$ironwoodMigrate() async {
     if (syncStatus is! SyncedSyncStatus) {
+      return;
+    }
+    // Same as shielding: migrating needs the device, and a Ledger account only
+    // ever holds transparent and Ironwood funds anyway.
+    if (isHardwareWallet) {
       return;
     }
     final event = await runWithCoin(
@@ -1420,21 +1672,24 @@ abstract class ZcashWalletBase
       // 0 - transparent, 1 - sapling, 2 - orchard, 3 - ironwood
       final orchard = bal.field0.length > 2 ? bal.field0[2] : BigInt.zero;
       final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
+      // A just-broadcast shield has already swept these notes; do not keep
+      // showing them as awaiting shielding.
+      final sweepableEff = _shieldSweepPending ? BigInt.zero : sweepable;
 
       // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
       // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
       if (ironwoodActive == true && orchard > BigInt.zero) {
-        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
+        final sweepableUnavailable = sweepableEff <= BigInt.from(_ironwoodMigrateMinNote)
             ? BigInt.zero
-            : sweepable;
+            : sweepableEff;
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
         final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
         availableAmount = orchard + ironwood;
-        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
+        unavailableAmount = sweepableEff <= BigInt.from(minSweep) ? BigInt.zero : sweepableEff;
       }
 
       runInAction(() {
@@ -1659,6 +1914,9 @@ abstract class ZcashWalletBase
     if (credentials is ZcashFromKeysWalletCredentials) {
       return ZcashNetwork.fromIndex(credentials.network);
     }
+    if (credentials is ZcashRestoreWalletFromHardware) {
+      return ZcashNetwork.fromIndex(credentials.network);
+    }
     return ZcashNetwork.mainnet;
   }
 
@@ -1698,11 +1956,17 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+  /// Loads the native library without opening a database, for callers that
+  /// only need pure key or device operations before any wallet exists.
+  static Future<void> ensureRustLib() async {
     if (!_rustInitialized) {
       await zkool_frb.RustLib.init();
       _rustInitialized = true;
     }
+  }
+
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    await ensureRustLib();
     if (_initialized && _activeNetwork == network) {
       return;
     }
@@ -1741,23 +2005,103 @@ abstract class ZcashWalletBase
     required final int height,
     required final String seed,
     required final String passphrase,
+    final int hw = 0,
+    final int aindex = 0,
+    final int? pools,
   }) async {
     final id = await zkool_account.newAccount(
       na: zkool_account.NewAccount(
         name: name,
         restore: true,
         passphrase: passphrase,
+        // For a hardware account this is the unified viewing key the device
+        // exported; the backend stores it as a watch-only account.
         key: seed,
-        aindex: 0,
+        // The device derives its keys at this ZIP-32 index and refuses to
+        // sign for any other, so it is carried through verbatim.
+        aindex: aindex,
         birth: height,
         folder: '',
         useInternal: true,
         internal: false,
-        ledger: false,
+        pools: pools,
+        hw: hw,
       ),
       c: c,
     );
     return id;
+  }
+
+  /// Pairs a Ledger running the Official Zcash app as a watch-only wallet.
+  ///
+  /// The unified viewing key is exported by the device here, approved on its
+  /// screen, then stored as an Official Ledger account: the backend tracks
+  /// transparent and Ironwood funds and builds transactions from it, while
+  /// signing goes back to the device.
+  static Future<ZcashWallet> restoreFromLedger(
+    final ZcashRestoreWalletFromHardware credentials,
+  ) async {
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
+
+    final service = credentials.hardwareWalletService;
+    if (service is! ZcashLedgerService) {
+      throw Exception("A Ledger connection is required to restore a Zcash hardware wallet");
+    }
+    final accounts = await service.getAvailableAccounts(
+      index: credentials.accountIndex,
+      limit: 1,
+      network: network,
+    );
+    final ufvk = accounts.firstOrNull?.xpub;
+    if (ufvk == null || ufvk.isEmpty) {
+      throw Exception("The Ledger did not return a viewing key");
+    }
+
+    // The key crossed the link unauthenticated. The device now shows the
+    // address it derives itself, and the user compares that screen with the
+    // address the app derived from the key it received: a substituted key
+    // gives a different address. The device's reply is checked too, which
+    // catches an honest mismatch (a different account or path) outright.
+    final expected = accounts.first.address;
+    credentials.onVerifyAddress?.call(expected);
+    final shown = await service.showAddressOnDevice(
+      aindex: credentials.accountIndex,
+      network: network,
+    );
+    if (shown != expected) {
+      throw ZcashLedgerException(
+        "The address the Ledger shows is not the one derived from the viewing key it "
+        "exported. Do not use this wallet; check the device and connection and pair again.",
+      );
+    }
+
+    // Without a date from the user, start at Sapling activation: nothing a
+    // Ledger account can hold predates it, and Ledger Live has held
+    // transparent ZEC since then.
+    final height = (credentials.height ?? 0) > 0
+        ? credentials.height!
+        : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+
+    final accountId = await newAccount(
+      name: credentials.name,
+      height: height,
+      seed: ufvk,
+      passphrase: '',
+      hw: zkoolHwOfficialLedger,
+      aindex: credentials.accountIndex,
+    );
+    await saveAccountId(credentials.name, accountId);
+    final wallet = await open(
+      name: credentials.name,
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+    );
+    wallet.hardwareWalletService = service;
+    await wallet.init();
+    printV("ledger account $accountId paired from height $height");
+    return wallet;
   }
 
   static final runWithCoinMutex = Mutex();
@@ -1781,7 +2125,8 @@ abstract class ZcashWalletBase
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
     newC = await newC.setLwd(serverType: c.serverType, url: c.url);
-    newC = await newC.setUseTor(useTor: c.useTor);
+    // Same route to the server as the shared coin (direct, Tor, proxy).
+    newC = newC.setTransport(transport: c.transport).setProxy(proxy: c.proxy);
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");

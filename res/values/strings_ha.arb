@@ -869,6 +869,8 @@
   "proceed": "Ci gaba",
   "proceed_after_one_minute": "Idan allon bai ci gaba ba bayan minti 1, duba imel ɗinka.",
   "proceed_on_device": "Ci gaba a kan na'urarka",
+  "ledger_verify_address": "Tabbatar da adireshin a kan Ledger ɗinka",
+  "ledger_verify_address_description": "Amince a kan Ledger kawai idan ya nuna wannan adireshin:",
   "proceed_on_device_description": "Da fatan za a bi umarnin da aka nuna a kan walat ɗin kayan aiki",
   "processing": "Ana sarrafawa",
   "processing_signed_tx": "Ana sarrafa ma'amala da aka sa hannu",
@@ -1177,6 +1179,9 @@
   "signature": "Sa hannu",
   "signature_invalid_error": "Sa hannun ba shi da inganci ga saƙon da aka bayar",
   "signing_transaction": "Ana sa hannu kan ma'amala",
+  "finalizing_transaction": "Ana kammala ma'amala",
+  "sending_to_device": "Ana aikawa zuwa na'urarka",
+  "preparing_transaction": "Ana shirya ma'amala",
   "signTransaction": "Sa hannu kan Ma'amala",
   "signup_for_card_accept_terms": "Yi rajista don katin kuma amince da sharuɗɗan.",
   "silent_address_desc": "Adireshi na tsaye mai kiyaye sirri",
@@ -1573,5 +1578,6 @@
   "zcash_network_upgrade": "Haɓaka hanyar sadarwa ta Zcash",
   "zcash_network_upgrade_desc_1": "Zcash ya sami haɓaka hanyar sadarwa mai suna Ironwood wanda ke buƙatar ƙaura na kuɗi kafin a kashe su. Wannan ƙaura ta atomatik ce, tana kiyaye sirri, kuma tana farawa da zaran ka buɗe jakar kuɗin Zcash.",
   "zcash_network_upgrade_desc_2": "Lokacin da ƙaura ta ƙare, Ma'aunin Ma'aunin ku na samuwa zai dawo daidai, kuma za ku iya ci gaba da aikawa da karɓar Zcash kamar yadda kuka saba.",
-  "zcash_network_upgrade_desc_3": "Da fatan za a ba da izinin walat ɗin ku na Zcash don gama daidaitawa, sannan ku bar app ɗin a buɗe har sai ƙaura ta ƙare wanda zai iya ɗaukar ƴan mintuna ya danganta da ma'auni."
+  "zcash_network_upgrade_desc_3": "Da fatan za a ba da izinin walat ɗin ku na Zcash don gama daidaitawa, sannan ku bar app ɗin a buɗe har sai ƙaura ta ƙare wanda zai iya ɗaukar ƴan mintuna ya danganta da ma'auni.",
+  "zcash_shield_transparent_funds_ledger": "Garkuwa m kudade. Tabbatar da Ledger ɗin ku."
 }

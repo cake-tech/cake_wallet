@@ -278,8 +278,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(
           param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
-      if (type == WalletType.monero)
-        return handleRouteWithPlatformAwareness((_) => MoneroHardwareWalletOptionsPage(walletVM));
+      // Monero and Zcash restore from a birth height rather than an account
+      // list; Zcash exports its viewing key on the device while restoring.
+      if (type == WalletType.monero || type == WalletType.zcash)
+        return handleRouteWithPlatformAwareness(
+            (_) => MoneroHardwareWalletOptionsPage(walletVM, walletType: type));
 
       return handleRouteWithPlatformAwareness((_) => SelectHardwareWalletAccountPage(walletVM));
 

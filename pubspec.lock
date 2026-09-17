@@ -1266,11 +1266,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: frb_dart
-      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
-      resolved-ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      ref: "62b9330ed2f900535e34d8443ff82dc54070579a"
+      resolved-ref: "62b9330ed2f900535e34d8443ff82dc54070579a"
       url: "https://github.com/fzyzcjy/flutter_rust_bridge"
     source: git
-    version: "2.11.1"
+    version: "2.12.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -1853,9 +1853,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      resolved-ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      url: "https://github.com/cake-tech/ledger-flutter-plus"
+      ref: a0f14e5d4e44bf735ff3ed9be3891cb2ea78417f
+      resolved-ref: a0f14e5d4e44bf735ff3ed9be3891cb2ea78417f
+      url: "https://github.com/macsrock/ledger-flutter-plus"
     source: git
     version: "1.6.0+1"
   ledger_litecoin:
@@ -2627,9 +2627,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: rust_builder
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
+      ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      resolved-ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      url: "https://github.com/macsrock/zkool2.git"
     source: git
     version: "0.0.1"
   rxdart:
@@ -3485,11 +3485,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
+      ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      resolved-ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      url: "https://github.com/macsrock/zkool2.git"
     source: git
-    version: "6.24.0"
+    version: "6.30.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.19.0"

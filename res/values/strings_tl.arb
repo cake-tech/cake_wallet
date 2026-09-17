@@ -867,6 +867,8 @@
   "proceed": "Magpatuloy",
   "proceed_after_one_minute": "Kung hindi magpatuloy ang screen pagkalipas ng 1 minuto, tingnan ang iyong email.",
   "proceed_on_device": "Magpatuloy sa iyong device",
+  "ledger_verify_address": "I-verify ang address sa iyong Ledger",
+  "ledger_verify_address_description": "Aprubahan sa Ledger kung ipinapakita lamang nito ang address na ito:",
   "proceed_on_device_description": "Mangyaring sundin ang mga tagubiling ipinapakita sa iyong hardware wallet",
   "processing": "Pinoproseso",
   "processing_signed_tx": "Pinoproseso ang nilagdaang transaksyon",
@@ -1175,6 +1177,9 @@
   "signature": "Lagda",
   "signature_invalid_error": "Hindi wasto ang lagda para sa ibinigay na mensahe",
   "signing_transaction": "Pinipirmahan ang transaksyon",
+  "finalizing_transaction": "Tinatapos ang transaksyon",
+  "sending_to_device": "Ipinapadala sa iyong device",
+  "preparing_transaction": "Inihahanda ang transaksyon",
   "signTransaction": "Lagdaan ang Transaksyon",
   "signup_for_card_accept_terms": "Mag-sign up para sa card at tanggapin ang mga tuntunin.",
   "silent_address_desc": "Static na address na pinoprotektahan ang privacy",
@@ -1570,5 +1575,6 @@
   "zcash_network_upgrade": "Pag-upgrade ng Zcash Network",
   "zcash_network_upgrade_desc_1": "Sumailalim ang Zcash sa isang network upgrade na tinatawag na Ironwood na nangangailangan ng paglipat ng mga pondo bago sila magastos. Ang paglipat na ito ay awtomatiko, pinapanatili ang privacy, at magsisimula sa sandaling mabuksan mo ang iyong Zcash wallet.",
   "zcash_network_upgrade_desc_2": "Kapag natapos na ang paglipat, babalik sa normal ang iyong Available na Balanse, at maaari kang magpatuloy sa pagpapadala at pagtanggap ng Zcash gaya ng dati.",
-  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay iwanang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse."
+  "zcash_network_upgrade_desc_3": "Mangyaring payagan ang iyong Zcash wallet na matapos ang pag-sync, at pagkatapos ay iwanang bukas ang app hanggang sa matapos ang paglipat na maaaring tumagal ng ilang minuto depende sa balanse.",
+  "zcash_shield_transparent_funds_ledger": "Shield transparent na pondo. Kumpirmahin sa iyong Ledger."
 }
