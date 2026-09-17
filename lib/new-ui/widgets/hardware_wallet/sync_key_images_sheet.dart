@@ -222,7 +222,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              S.of(context).proceed_on_device_description,
+              S.of(context).trezor_step_key_image_sync,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -244,8 +244,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
         arguments: ConnectDevicePageParams(
           walletType: widget.wallet.type,
           hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
-          onConnectDevice: (_, __) {
-            widget.trezorConnectVM.initWallet(widget.wallet);
+          onConnectDevice: (_, __) async {
+            await widget.trezorConnectVM.initWallet(widget.wallet);
             Navigator.of(context).pop();
           },
           isReconnect: false,

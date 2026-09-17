@@ -224,14 +224,49 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             key: const ValueKey(3),
           ),
         AwaitingPassphraseTrezorParingState() => PinEntryWidget(
-            title: S.of(context).proceed_on_device,
-            description: S.of(context).proceed_on_device_description,
+            title: S.of(context).passphrase_raw,
+            description: S.of(context).trezor_step_passphrase_on_device,
             pinOpenDuration: pinOpenDuration,
             pinLength: pinLength,
             isAwaitingPin: false,
             controller: _controller,
             iconPath: hardwareWalletIcon ?? "",
             key: const ValueKey(4),
+          ),
+        AwaitingAppPassphraseTrezorParingState() => AppPassphraseEntryWidget(
+            trezorConnectVM: widget.trezorConnectVM,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(6),
+          ),
+        AwaitingAutoConnectConfirmTrezorParingState() => PinEntryWidget(
+            title: S.of(context).auto_connect,
+            description: S.of(context).trezor_step_autoconnect,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(7),
+          ),
+        PairingOnDeviceTrezorParingState() => PinEntryWidget(
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).trezor_step_pairing,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(8),
+          ),
+        ConnectingTrezorParingState() => PinEntryWidget(
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).trezor_step_connecting,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(9),
           ),
         _ => const SizedBox.shrink(
             key: ValueKey(5),
@@ -256,8 +291,18 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
       return S.of(context).other_device_settings;
     }
 
-    if (_paringState is AwaitingPassphraseTrezorParingState) {
+    if (_paringState is AwaitingPassphraseTrezorParingState ||
+        _paringState is AwaitingAppPassphraseTrezorParingState) {
       return S.of(context).passphrase_entry;
+    }
+
+    if (_paringState is AwaitingAutoConnectConfirmTrezorParingState) {
+      return S.of(context).auto_connect;
+    }
+
+    if (_paringState is PairingOnDeviceTrezorParingState ||
+        _paringState is ConnectingTrezorParingState) {
+      return S.of(context).device_confirmation;
     }
 
     return "";
@@ -447,6 +492,86 @@ class PinEntryWidget extends StatelessWidget {
                   ),
           ),
         ],
+      );
+}
+
+/// Passphrase field for a wallet set up with an app-side passphrase. The
+/// value goes straight to the view model for this session and is not kept.
+class AppPassphraseEntryWidget extends StatefulWidget {
+  const AppPassphraseEntryWidget({
+    required this.trezorConnectVM,
+    required this.iconPath,
+    super.key,
+  });
+
+  final TrezorConnectViewModelBase trezorConnectVM;
+  final String iconPath;
+
+  @override
+  State<AppPassphraseEntryWidget> createState() => _AppPassphraseEntryWidgetState();
+}
+
+class _AppPassphraseEntryWidgetState extends State<AppPassphraseEntryWidget> {
+  final _controller = TextEditingController();
+  bool _obscure = true;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => widget.trezorConnectVM.setPassphrase(_controller.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16,
+          children: [
+            CakeImageWidget(
+              imageUrl: widget.iconPath,
+              width: 64,
+              height: 64,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.onSurfaceVariant,
+                BlendMode.srcIn,
+              ),
+            ),
+            Text(
+              S.of(context).passphrase_raw,
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+            ),
+            Text(
+              S.of(context).trezor_step_passphrase_in_app,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              obscureText: _obscure,
+              autocorrect: false,
+              enableSuggestions: false,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _submit(),
+              decoration: InputDecoration(
+                hintText: S.of(context).passphrase_raw,
+                suffixIcon: IconButton(
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                ),
+              ),
+            ),
+            NewPrimaryButton(
+              onPressed: _submit,
+              text: S.of(context).continue_text,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ],
+        ),
       );
 }
 

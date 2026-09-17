@@ -884,8 +884,9 @@ class _NewSendPageState extends State<NewSendPage> {
           arguments: ConnectDevicePageParams(
             walletType: widget.sendViewModel.walletType,
             hardwareWalletType: widget.sendViewModel.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (_, __) {
-              widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
+            onConnectDevice: (_, __) async {
+              await widget.sendViewModel.hardwareWalletViewModel!
+                  .initWallet(widget.sendViewModel.wallet);
               Navigator.of(context).pop();
             },
             isReconnect: false,

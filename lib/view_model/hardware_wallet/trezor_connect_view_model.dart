@@ -145,6 +145,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   Completer<String?>? _pinCompleter;
   Completer<TrezorDeviceSettings>? _settingsCompleter;
+  Completer<String>? _passphraseCompleter;
   Completer<bool>? _retryCompleter;
 
   /// Completes when the user exits the pairing sheet. Independent of the
@@ -178,6 +179,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
   void setDeviceSettings(TrezorDeviceSettings settings) => _complete(_settingsCompleter, settings);
 
+  /// Called by the pairing sheet with the passphrase typed for an app-side
+  /// passphrase wallet. Used for this session only, never stored.
+  void setPassphrase(String passphrase) => _complete(_passphraseCompleter, passphrase);
+
   /// Called by the pairing sheet when the user taps "Try again" after a failed
   /// attempt. The pending [connectDevice] call runs another attempt and reports
   /// the final outcome to its caller, so the caller never loses track of a
@@ -194,6 +199,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     _complete(_retryCompleter, false);
     if (!(_settingsCompleter?.isCompleted ?? true)) {
       _settingsCompleter!.completeError(const _PairingCancelledException());
+    }
+    if (!(_passphraseCompleter?.isCompleted ?? true)) {
+      _passphraseCompleter!.completeError(const _PairingCancelledException());
     }
     try {
       await _client?.cancel();
@@ -320,7 +328,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       attempt: () async {
         final passphraseAlwaysOnDevice = client.passphraseAlwaysOnDevice;
 
-        final TrezorDeviceSettings settings;
+        TrezorDeviceSettings settings;
         if (preset != null) {
           settings = preset;
         } else if (passphraseAlwaysOnDevice) {
@@ -336,10 +344,11 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         }
         _throwIfCancelled();
 
+        settings = await _resolveAppPassphrase(settings);
         final usesPassphrase = settings.usesPassphrase;
         paringState = usesPassphrase || passphraseAlwaysOnDevice
             ? TrezorParingState.awaitingPassphrase
-            : TrezorParingState.initial;
+            : TrezorParingState.connecting;
         final passphrase = settings.passphraseOnDevice
             ? const sdk.TrezorPassphrase.onDevice()
             : usesPassphrase
@@ -350,11 +359,23 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
 
         _sessionSettings = passphraseAlwaysOnDevice && !usesPassphrase
             ? const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true)
-            : settings;
+            : _withoutSecret(settings);
       },
       // The link itself is fine; only the session attempt failed.
       onFailure: () async {},
     );
+  }
+
+  /// For an app-side passphrase wallet the mode is remembered but never the
+  /// secret: ask for it now, for this session only.
+  Future<TrezorDeviceSettings> _resolveAppPassphrase(TrezorDeviceSettings settings) async {
+    if (!settings.askPassphraseInApp) return settings;
+
+    paringState = TrezorParingState.awaitingAppPassphrase;
+    _passphraseCompleter = Completer<String>();
+    final passphrase = await _untilCancelled(_passphraseCompleter!.future);
+    _throwIfCancelled();
+    return settings.withPassphrase(passphrase);
   }
 
   /// Shows the pairing sheet and runs [attempt] until it succeeds, the user
@@ -407,6 +428,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       _retryCompleter = null;
       _pinCompleter = null;
       _settingsCompleter = null;
+      _passphraseCompleter = null;
       _cancelCompleter = null;
     }
   }
@@ -454,9 +476,15 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     );
 
     final client = _client!;
-    await _untilCancelled(client.createChannel());
-
     final hasAutoPairingCredentials = state.pairingCredentials.any((c) => c.autoconnect == true);
+
+    // First pairing walks the user through the device's pairing dialogs and
+    // ends in the code entry; later connects are silent unless the device asks
+    // for the passphrase itself.
+    paringState = hasAutoPairingCredentials
+        ? TrezorParingState.connecting
+        : TrezorParingState.pairingOnDevice;
+    await _untilCancelled(client.createChannel());
     final isAutoPairingAvailable = client is sdk.TrezorClientV2 && !hasAutoPairingCredentials;
 
     // With "passphrase always on device" enabled the device already asked for
@@ -465,7 +493,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     // app or creating a second session would only prompt them a second time.
     final passphraseAlwaysOnDevice = client.passphraseAlwaysOnDevice;
 
-    final TrezorDeviceSettings settings;
+    TrezorDeviceSettings settings;
     if (preset != null) {
       settings = preset;
     } else if (!isAutoPairingAvailable && passphraseAlwaysOnDevice) {
@@ -484,6 +512,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (settings.enableAutoParing && isAutoPairingAvailable) {
       if (client case final sdk.TrezorClientV2 clientV2) {
         try {
+          paringState = TrezorParingState.awaitingAutoConnectConfirm;
           final auto = await _untilCancelled(clientV2.getAutoPairingCredentials());
           state.setPairingCredentials([auto]);
           await _saveState();
@@ -497,7 +526,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
     _throwIfCancelled();
 
-    final usesPassphrase = settings.passphraseOnDevice || (settings.passphrase ?? "").isNotEmpty;
+    settings = await _resolveAppPassphrase(settings);
+    final usesPassphrase = settings.usesPassphrase;
     if (usesPassphrase && !passphraseAlwaysOnDevice) {
       paringState = TrezorParingState.awaitingPassphrase;
       final passphrase = settings.passphraseOnDevice
@@ -505,7 +535,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
           : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
       await _untilCancelled(client.createSession(passphrase));
     } else {
-      paringState = TrezorParingState.initial;
+      paringState = TrezorParingState.connecting;
     }
     _throwIfCancelled();
 
@@ -520,8 +550,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
             enableAutoParing: settings.enableAutoParing,
             passphraseOnDevice: true,
           )
-        : settings;
+        : _withoutSecret(settings);
   }
+
+  /// Keeps only the mode of [settings]; the typed passphrase is dropped once
+  /// the session is bound so nothing retains it.
+  TrezorDeviceSettings _withoutSecret(TrezorDeviceSettings settings) => TrezorDeviceSettings(
+        enableAutoParing: settings.enableAutoParing,
+        passphraseOnDevice: settings.passphraseOnDevice,
+        askPassphraseInApp: !settings.passphraseOnDevice &&
+            (settings.askPassphraseInApp || (settings.passphrase ?? "").isNotEmpty),
+      );
 
   Future<void> _resetClient() async {
     try {
@@ -763,6 +802,11 @@ abstract class TrezorParingState {
   static TrezorParingState success = SuccessTrezorParingState();
   static TrezorParingState verifyingPin = VerifyingPinTrezorParingState();
   static TrezorParingState awaitingPassphrase = AwaitingPassphraseTrezorParingState();
+  static TrezorParingState awaitingAppPassphrase = AwaitingAppPassphraseTrezorParingState();
+  static TrezorParingState awaitingAutoConnectConfirm =
+      AwaitingAutoConnectConfirmTrezorParingState();
+  static TrezorParingState connecting = ConnectingTrezorParingState();
+  static TrezorParingState pairingOnDevice = PairingOnDeviceTrezorParingState();
 
   static TrezorParingState awaitingSettings({
     required bool isAutoPairingAvailable,
@@ -812,6 +856,20 @@ class TrezorSessionMismatchException implements Exception {
 }
 
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
+
+/// The wallet's passphrase is typed in the app; waiting for the user.
+class AwaitingAppPassphraseTrezorParingState extends TrezorParingState {}
+
+/// The device asks whether Cake Wallet may connect automatically in future.
+class AwaitingAutoConnectConfirmTrezorParingState extends TrezorParingState {}
+
+/// Link and channel are being set up with stored credentials; nothing to do
+/// unless the device itself asks for something.
+class ConnectingTrezorParingState extends TrezorParingState {}
+
+/// First pairing: the device walks through its pairing dialogs before showing
+/// the security code.
+class PairingOnDeviceTrezorParingState extends TrezorParingState {}
 
 class SuccessTrezorParingState extends TrezorParingState {}
 

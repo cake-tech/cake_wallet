@@ -433,21 +433,21 @@ class SendPage extends BasePage {
                                       if (sendViewModel.wallet.isHardwareWallet) {
                                         if (!sendViewModel.hardwareWalletViewModel!
                                             .isConnected(sendViewModel.walletType)) {
-                                          await Navigator.of(context)
-                                              .pushNamed(Routes.connectDevices,
-                                                  arguments: ConnectDevicePageParams(
-                                                    walletType: sendViewModel.walletType,
-                                                    hardwareWalletType: sendViewModel
-                                                        .wallet.walletInfo.hardwareWalletType!,
-                                                    onConnectDevice: (BuildContext context, _) {
-                                                      sendViewModel.hardwareWalletViewModel!
-                                                          .initWallet(sendViewModel.wallet);
-                                                      Navigator.of(context).pop();
-                                                    },
-                                                    reconnectWallet: sendViewModel.wallet,
-                                                  ));
+                                          await Navigator.of(context).pushNamed(
+                                              Routes.connectDevices,
+                                              arguments: ConnectDevicePageParams(
+                                                walletType: sendViewModel.walletType,
+                                                hardwareWalletType: sendViewModel
+                                                    .wallet.walletInfo.hardwareWalletType!,
+                                                onConnectDevice: (BuildContext context, _) async {
+                                                  await sendViewModel.hardwareWalletViewModel!
+                                                      .initWallet(sendViewModel.wallet);
+                                                  Navigator.of(context).pop();
+                                                },
+                                                reconnectWallet: sendViewModel.wallet,
+                                              ));
                                         } else {
-                                          sendViewModel.hardwareWalletViewModel!
+                                          await sendViewModel.hardwareWalletViewModel!
                                               .initWallet(sendViewModel.wallet);
                                         }
                                       }

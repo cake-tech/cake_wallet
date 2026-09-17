@@ -29,7 +29,10 @@ class HardwareWalletProceedOnDeviceMessage extends StatelessWidget {
               colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
             ),
           Text(
-            S.of(context).proceed_on_device,
+            hardwareWalletType == HardwareWalletType.trezor
+                ? S.of(context).trezor_step_sign_transaction
+                : S.of(context).proceed_on_device,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w400,

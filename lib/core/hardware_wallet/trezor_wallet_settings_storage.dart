@@ -9,22 +9,37 @@ class TrezorDeviceSettings {
     required this.enableAutoParing,
     required this.passphraseOnDevice,
     this.passphrase,
+    this.askPassphraseInApp = false,
   });
 
   final bool enableAutoParing;
   final bool passphraseOnDevice;
+
+  /// Passphrase typed in the app for this session only. Never persisted.
   final String? passphrase;
 
-  bool get usesPassphrase => passphraseOnDevice || (passphrase ?? "").isNotEmpty;
+  /// The wallet uses an app-side passphrase that still has to be asked for
+  /// (restored settings only remember the mode, not the secret).
+  final bool askPassphraseInApp;
+
+  bool get usesPassphrase =>
+      passphraseOnDevice || askPassphraseInApp || (passphrase ?? "").isNotEmpty;
+
+  TrezorDeviceSettings withPassphrase(String value) => TrezorDeviceSettings(
+        enableAutoParing: enableAutoParing,
+        passphraseOnDevice: false,
+        passphrase: value,
+      );
 }
 
-/// Per-wallet persistence of [TrezorDeviceSettings] so a reconnect for a known
-/// wallet does not have to ask for the passphrase in the app again.
+/// Per-wallet persistence of how the Trezor session is set up: whether the
+/// wallet has no passphrase, a passphrase entered on the device, or one typed
+/// in the app. Only the mode is stored; an app-side passphrase is asked for on
+/// every connect and never written anywhere.
 ///
 /// Records are keyed by wallet type and name. They must be removed when the
-/// wallet is deleted and moved when it is renamed, or a stale record (which may
-/// hold an app-side passphrase) would outlive its wallet and be applied to a
-/// later wallet that happens to get the same name.
+/// wallet is deleted and moved when it is renamed, or a stale record would
+/// outlive its wallet and be applied to a later wallet reusing the name.
 class TrezorWalletSettingsStorage {
   TrezorWalletSettingsStorage(this._secureStorage);
 
@@ -47,15 +62,10 @@ class TrezorWalletSettingsStorage {
         case _modeDevice:
           return const TrezorDeviceSettings(enableAutoParing: true, passphraseOnDevice: true);
         case _modeApp:
-          final passphrase = await _secureStorage.read(key: _passphraseKeyPrefix + key);
-          // Without the stored secret the session cannot be rebuilt silently,
-          // so fall back to asking.
-          if (passphrase == null || passphrase.isEmpty) return null;
-
-          return TrezorDeviceSettings(
+          return const TrezorDeviceSettings(
             enableAutoParing: true,
             passphraseOnDevice: false,
-            passphrase: passphrase,
+            askPassphraseInApp: true,
           );
         case _modeNone:
           return const TrezorDeviceSettings(enableAutoParing: true, passphraseOnDevice: false);
@@ -71,19 +81,15 @@ class TrezorWalletSettingsStorage {
   Future<void> save(WalletType type, String name, TrezorDeviceSettings settings) async {
     try {
       final key = walletKey(type, name);
-      final passphrase = settings.passphrase ?? "";
       final mode = settings.passphraseOnDevice
           ? _modeDevice
-          : passphrase.isNotEmpty
+          : settings.askPassphraseInApp || (settings.passphrase ?? "").isNotEmpty
               ? _modeApp
               : _modeNone;
 
       await _secureStorage.write(key: _modeKeyPrefix + key, value: mode);
-      if (mode == _modeApp) {
-        await _secureStorage.write(key: _passphraseKeyPrefix + key, value: passphrase);
-      } else {
-        await _secureStorage.delete(key: _passphraseKeyPrefix + key);
-      }
+      // Earlier builds stored the app-side passphrase itself; scrub it.
+      await _secureStorage.delete(key: _passphraseKeyPrefix + key);
     } catch (e) {
       printV(e);
     }
@@ -107,15 +113,10 @@ class TrezorWalletSettingsStorage {
       final oldKey = walletKey(type, oldName);
       final mode = await _secureStorage.read(key: _modeKeyPrefix + oldKey);
       if (mode == null) return;
-      final passphrase = await _secureStorage.read(key: _passphraseKeyPrefix + oldKey);
 
       final newKey = walletKey(type, newName);
       await _secureStorage.write(key: _modeKeyPrefix + newKey, value: mode);
-      if (passphrase != null) {
-        await _secureStorage.write(key: _passphraseKeyPrefix + newKey, value: passphrase);
-      } else {
-        await _secureStorage.delete(key: _passphraseKeyPrefix + newKey);
-      }
+      await _secureStorage.delete(key: _passphraseKeyPrefix + newKey);
       await delete(type, oldName);
     } catch (e) {
       printV(e);

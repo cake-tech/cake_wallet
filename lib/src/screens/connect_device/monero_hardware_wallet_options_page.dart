@@ -12,6 +12,7 @@ import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart";
 import "package:cw_core/generate_name.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -166,7 +167,10 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         context: context,
         builder: (context) => AlertWithOneAction(
           alertTitle: S.of(context).proceed_on_device,
-          alertContent: S.of(context).proceed_on_device_description,
+          alertContent: _walletHardwareRestoreVM.hardwareWalletVM.hardwareWalletType ==
+                  HardwareWalletType.trezor
+              ? S.of(context).trezor_step_export_watch_only
+              : S.of(context).proceed_on_device_description,
           buttonText: S.of(context).cancel,
           alertBarrierDismissible: false,
           buttonAction: () => Navigator.of(context).pop(),

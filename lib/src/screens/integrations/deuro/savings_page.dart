@@ -180,13 +180,13 @@ class DEuroSavingsPage extends BasePage {
             arguments: ConnectDevicePageParams(
               walletType: _dEuroViewModel.wallet.type,
               hardwareWalletType: _dEuroViewModel.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+              onConnectDevice: (context, _) async {
+                await _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
                 Navigator.of(context).pop();
               },
             ));
       } else {
-        _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
+        await _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
       }
     }
   }

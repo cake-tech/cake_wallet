@@ -341,8 +341,8 @@ class DFXBuyProvider extends BuyProvider {
           arguments: ConnectDevicePageParams(
             walletType: wallet.walletInfo.type,
             hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, hwwVM) {
-              hwwVM.initWallet(wallet);
+            onConnectDevice: (context, hwwVM) async {
+              await hwwVM.initWallet(wallet);
               Navigator.of(context).pop();
             },
             isReconnect: false,
@@ -354,7 +354,7 @@ class DFXBuyProvider extends BuyProvider {
           return;
         }
       } else {
-        hardwareWalletVM!.initWallet(wallet);
+        await hardwareWalletVM!.initWallet(wallet);
       }
     }
 

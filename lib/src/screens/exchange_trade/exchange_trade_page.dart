@@ -215,14 +215,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             arguments: ConnectDevicePageParams(
               walletType: sendVM.walletType,
               hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+              onConnectDevice: (context, _) async {
+                await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
                 Navigator.of(context).pop();
               },
               reconnectWallet: sendVM.wallet,
             ));
       } else {
-        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+        await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
       }
     }
 

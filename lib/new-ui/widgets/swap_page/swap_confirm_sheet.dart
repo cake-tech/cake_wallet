@@ -53,8 +53,8 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
           arguments: ConnectDevicePageParams(
             walletType: sendVM.walletType,
             hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, _) {
-              sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+            onConnectDevice: (context, _) async {
+              await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
               Navigator.of(context).pop();
             },
             isReconnect: false,
@@ -67,7 +67,7 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
           return;
         }
       } else {
-        sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
+        await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
       }
     }
 
