@@ -1393,7 +1393,7 @@
   "trezor_step_pairing": "Trên Trezor của bạn, hãy kiểm tra xem mã ghép nối Bluetooth có khớp không, sau đó cho phép Cake Wallet ghép nối. Sau đó, mã bảo mật sẽ xuất hiện trên thiết bị.",
   "trezor_step_passphrase_in_app": "Nhập cụm mật khẩu cho ví này. Nó được gửi đến Trezor của bạn và không bao giờ được lưu trữ.",
   "trezor_step_passphrase_on_device": "Nhập cụm mật khẩu cho ví này trên Trezor của bạn và xác nhận nó.",
-  "trezor_step_sign_transaction": "Xem lại giao dịch trên Trezor của bạn: xác nhận từng người nhận, sau đó là phí và tổng số tiền.",
+  "trezor_step_sign_transaction": "Xem lại tất cả chi tiết giao dịch trên trận đấu Trezor của bạn.",
   "trocador_desc": "là một công cụ tổng hợp trao đổi, tận dụng nhiều sàn giao dịch khác nhau để tìm ra tỷ giá cạnh tranh.",
   "trocador_desc_kyc": "Bên cạnh tên nhà cung cấp, Xếp hạng KYC sẽ được hiển thị. Xếp hạng này do Trocador thiết lập và dựa trên các tiêu chí riêng của họ.",
   "trongrid_history": "Lịch sử TronGrid",

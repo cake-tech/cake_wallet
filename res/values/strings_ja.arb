@@ -1393,7 +1393,7 @@
   "trezor_step_pairing": "Trezor で、Bluetooth ペアリング コードが一致していることを確認し、Cake Wallet のペアリングを許可します。セキュリティ コードがデバイスに表示されます。",
   "trezor_step_passphrase_in_app": "このウォレットのパスフレーズを入力します。それは Trezor に送信され、保存されることはありません。",
   "trezor_step_passphrase_on_device": "Trezor にこのウォレットのパスフレーズを入力し、確認します。",
-  "trezor_step_sign_transaction": "Trezor で取引を確認します。各受信者を確認し、料金と合計を確認します。",
+  "trezor_step_sign_transaction": "Trezor マッチのすべての取引詳細を確認してください。",
   "trocador_desc": "は、複数の取引所を活用して競争力のあるレートを見つける交換アグリゲーターです。",
   "trocador_desc_kyc": "プロバイダー名とともに、KYC評価が表示されます。これはTrocadorによって設定され、独自の基準に基づいています。",
   "trongrid_history": "TronGrid 履歴",

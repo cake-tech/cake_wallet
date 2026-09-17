@@ -1392,7 +1392,7 @@
   "trezor_step_pairing": "在 Trezor 上，检查蓝牙配对代码是否匹配，然后允许 Cake Wallet 进行配对。然后设备上将出现安全代码。",
   "trezor_step_passphrase_in_app": "输入此钱包的密码。它会发送到您的 Trezor 并且不会存储。",
   "trezor_step_passphrase_on_device": "在 Trezor 上输入该钱包的密码并确认。",
-  "trezor_step_sign_transaction": "在 Trezor 上查看交易：确认每个收件人，然后确认费用和总额。",
+  "trezor_step_sign_transaction": "查看您的 Trezor 比赛的所有交易详细信息。",
   "trocador_desc": "是一个交易所聚合器，利用多个底层交易所来寻找有竞争力的汇率。",
   "trocador_desc_kyc": "在提供商名称旁边会显示 KYC 评级。该评级由 Trocador 设定，并基于其自身的评估标准。",
   "trongrid_history": "TronGrid 历史",

@@ -1398,7 +1398,7 @@
   "trezor_step_pairing": "Nde Trezor-pe, ehecha ojoajúpa pe código de emparejamiento Bluetooth, upéi eheja Cake Wallet tombojoaju. Upéi ojehechaukáta peteĩ kódigo de segurida pe aparátope.",
   "trezor_step_passphrase_in_app": "Emoinge ñe’ẽñemi ko billetera-pe g̃uarã. Oñemondóma nde Trezor-pe ha araka’eve noñongatúi.",
   "trezor_step_passphrase_on_device": "Emoinge ñe’ẽñemi ko billetera-pe g̃uarã nde Trezor-pe ha emoañete.",
-  "trezor_step_sign_transaction": "Ehechamína pe transacción nde Trezor-pe: emoañete peteĩteĩva recipiente, upéi pe cuota ha total.",
+  "trezor_step_sign_transaction": "Ehechamína opaite detalle transacción rehegua nde Trezor joaju rehegua.",
   "trocador_desc": "ha'e peteĩ agregador de intercambio oiporúva heta intercambio subyacente ojuhú hag̃ua tasa competitiva.",
   "trocador_desc_kyc": "Pe proveedor réra ykére, ojehechauka peteĩ calificación KYC rehegua. Péva omoĩ Trocador ha oñemopyenda ijehegui hag̃uaichaite hag̃ua.",
   "trongrid_history": "TronGrid rembiasakue",

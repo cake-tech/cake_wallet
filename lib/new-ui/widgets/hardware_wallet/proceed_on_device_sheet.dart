@@ -12,8 +12,10 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cw_core/wallet_info.dart";
@@ -235,7 +237,6 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
           ),
         AwaitingAppPassphraseTrezorParingState() => AppPassphraseEntryWidget(
             trezorConnectVM: widget.trezorConnectVM,
-            iconPath: hardwareWalletIcon ?? "",
             key: const ValueKey(6),
           ),
         AwaitingAutoConnectConfirmTrezorParingState() => PinEntryWidget(
@@ -495,17 +496,17 @@ class PinEntryWidget extends StatelessWidget {
       );
 }
 
-/// Passphrase field for a wallet set up with an app-side passphrase. The
-/// value goes straight to the view model for this session and is not kept.
+/// Passphrase field for a wallet set up with an app-side passphrase. Uses the
+/// same field, illustration and reveal toggle as the hot-wallet passphrase
+/// sheet (AddPassphraseBottomSheet). The value goes straight to the view model
+/// for this session and is not kept.
 class AppPassphraseEntryWidget extends StatefulWidget {
   const AppPassphraseEntryWidget({
     required this.trezorConnectVM,
-    required this.iconPath,
     super.key,
   });
 
   final TrezorConnectViewModelBase trezorConnectVM;
-  final String iconPath;
 
   @override
   State<AppPassphraseEntryWidget> createState() => _AppPassphraseEntryWidgetState();
@@ -513,7 +514,10 @@ class AppPassphraseEntryWidget extends StatefulWidget {
 
 class _AppPassphraseEntryWidgetState extends State<AppPassphraseEntryWidget> {
   final _controller = TextEditingController();
-  bool _obscure = true;
+  bool _obscurePassphrase = true;
+
+  static const _passphraseImageLight = "assets/images/passphrase_light.png";
+  static const _passphraseImageDark = "assets/images/passphrase_dark.png";
 
   @override
   void dispose() {
@@ -524,55 +528,63 @@ class _AppPassphraseEntryWidgetState extends State<AppPassphraseEntryWidget> {
   void _submit() => widget.trezorConnectVM.setPassphrase(_controller.text);
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16,
-          children: [
-            CakeImageWidget(
-              imageUrl: widget.iconPath,
-              width: 64,
-              height: 64,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.onSurfaceVariant,
-                BlendMode.srcIn,
-              ),
-            ),
-            Text(
-              S.of(context).passphrase_raw,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
-            ),
-            Text(
+  Widget build(BuildContext context) {
+    final passphraseImage =
+        context.currentTheme.isDark ? _passphraseImageDark : _passphraseImageLight;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          CakeImageWidget(imageUrl: passphraseImage, height: 85),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
               S.of(context).trezor_step_passphrase_in_app,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    decoration: TextDecoration.none,
+                  ),
             ),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              obscureText: _obscure,
-              autocorrect: false,
-              enableSuggestions: false,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                hintText: S.of(context).passphrase_raw,
-                suffixIcon: IconButton(
-                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                ),
+          ),
+          const SizedBox(height: 24),
+          BaseTextFormField(
+            key: const ValueKey("trezor_app_passphrase_textfield_key"),
+            controller: _controller,
+            obscureText: _obscurePassphrase,
+            autocorrect: false,
+            enableSuggestions: false,
+            textInputAction: TextInputAction.done,
+            onSubmit: (_) => _submit(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            hintText: S.of(context).required_passphrase,
+            suffixIcon: GestureDetector(
+              onTap: () => setState(() => _obscurePassphrase = !_obscurePassphrase),
+              child: Icon(
+                _obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                size: 24,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
-            NewPrimaryButton(
-              onPressed: _submit,
-              text: S.of(context).continue_text,
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ],
-        ),
-      );
+          ),
+          const SizedBox(height: 24),
+          NewPrimaryButton(
+            key: const ValueKey("trezor_app_passphrase_continue_button_key"),
+            onPressed: _submit,
+            text: S.of(context).continue_text,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
 }
 
 class WalletOptionsScreen extends StatefulWidget {

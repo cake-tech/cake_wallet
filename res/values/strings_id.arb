@@ -1395,7 +1395,7 @@
   "trezor_step_pairing": "Di Trezor Anda, periksa apakah kode penyandingan Bluetooth cocok, lalu izinkan Cake Wallet untuk memasangkan. Kode keamanan kemudian akan muncul di perangkat.",
   "trezor_step_passphrase_in_app": "Masukkan frasa sandi untuk dompet ini. Itu dikirim ke Trezor Anda dan tidak pernah disimpan.",
   "trezor_step_passphrase_on_device": "Masukkan frasa sandi untuk dompet ini di Trezor Anda dan konfirmasikan.",
-  "trezor_step_sign_transaction": "Tinjau transaksi di Trezor Anda: konfirmasikan setiap penerima, lalu biaya dan totalnya.",
+  "trezor_step_sign_transaction": "Tinjau semua detail transaksi pada pertandingan Trezor Anda.",
   "trocador_desc": "adalah agregator pertukaran yang memanfaatkan berbagai pertukaran yang mendasarinya untuk menemukan kurs yang kompetitif.",
   "trocador_desc_kyc": "Di samping nama penyedia, Peringkat KYC ditampilkan. Ini ditetapkan oleh Trocador dan didasarkan pada kriteria mereka sendiri.",
   "trongrid_history": "Riwayat TronGrid",

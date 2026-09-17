@@ -1393,7 +1393,7 @@
   "trezor_step_pairing": "En tu Trezor, verifica que el código de emparejamiento de Bluetooth coincida y luego permite que Cake Wallet se empareje. Luego aparecerá un código de seguridad en el dispositivo.",
   "trezor_step_passphrase_in_app": "Ingrese la frase de contraseña para esta billetera. Se envía a tu Trezor y nunca se almacena.",
   "trezor_step_passphrase_on_device": "Ingrese la frase de contraseña para esta billetera en su Trezor y confírmela.",
-  "trezor_step_sign_transaction": "Revisa la transacción en tu Trezor: confirma cada destinatario, luego la tarifa y el total.",
+  "trezor_step_sign_transaction": "Revise todos los detalles de la transacción en su coincidencia de Trezor.",
   "trocador_desc": "es un agregador de exchanges que aprovecha múltiples exchanges subyacentes para encontrar tasas competitivas.",
   "trocador_desc_kyc": "Junto al nombre del proveedor, se muestra una calificación de KYC. Esto lo establece Trocador y se basa en sus propios criterios.",
   "trongrid_history": "Historial de TronGrid",

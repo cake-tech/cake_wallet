@@ -1392,7 +1392,7 @@
   "trezor_step_pairing": "Na svom Trezoru provjerite podudara li se Bluetooth kod za uparivanje, a zatim dopustite Cake Walletu da se upari. Zatim će se na uređaju pojaviti sigurnosni kod.",
   "trezor_step_passphrase_in_app": "Enter the passphrase for this wallet. It is sent to your Trezor and never stored.",
   "trezor_step_passphrase_on_device": "Unesite zaporku za ovaj novčanik na svoj Trezor i potvrdite je.",
-  "trezor_step_sign_transaction": "Pregledajte transakciju na svom Trezoru: potvrdite svakog primatelja, zatim naknadu i ukupan iznos.",
+  "trezor_step_sign_transaction": "Pregledajte sve pojedinosti o transakciji na vašem Trezor meču.",
   "trocador_desc": "je agregator mjenjačnica koji koristi više mjenjačnica kako bi pronašao konkurentne tečajeve.",
   "trocador_desc_kyc": "Uz naziv pružatelja usluga prikazuje se KYC ocjena. To je postavio Trocador i temelji se na njihovim vlastitim kriterijima.",
   "trongrid_history": "Povijest TronGrid-a",

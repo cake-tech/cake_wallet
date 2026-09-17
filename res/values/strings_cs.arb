@@ -1392,7 +1392,7 @@
   "trezor_step_pairing": "Na svém Trezoru zkontrolujte, zda se párovací kód Bluetooth shoduje, a poté povolte Cake Wallet spárování. Poté se na zařízení objeví bezpečnostní kód.",
   "trezor_step_passphrase_in_app": "Zadejte přístupové heslo pro tuto peněženku. Odesílá se do vašeho Trezoru a nikdy se neukládá.",
   "trezor_step_passphrase_on_device": "Zadejte heslo pro tuto peněženku na vašem Trezoru a potvrďte jej.",
-  "trezor_step_sign_transaction": "Zkontrolujte transakci na svém Trezoru: potvrďte každého příjemce, poté poplatek a celkovou částku.",
+  "trezor_step_sign_transaction": "Prohlédněte si všechny podrobnosti transakce na vaší shodě Trezor.",
   "trocador_desc": "je agregátor směnáren, který využívá více podkladových směnáren k nalezení konkurenceschopných kurzů.",
   "trocador_desc_kyc": "Vedle názvu poskytovatele se zobrazuje hodnocení KYC. Toto hodnocení nastavuje Trocador a je založeno na jejich vlastních kritériích.",
   "trongrid_history": "Historie TronGrid",

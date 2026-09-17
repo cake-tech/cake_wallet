@@ -1394,7 +1394,7 @@
   "trezor_step_pairing": "A kan Trezor naku, duba cewa lambar haɗin haɗin Bluetooth ta yi daidai, sannan ba da izinin Wallet ɗin Cake don haɗawa. Sannan lambar tsaro zata bayyana akan na'urar.",
   "trezor_step_passphrase_in_app": "Shigar da kalmar wucewa na wannan wallet. Ana aika shi zuwa Trezor ɗin ku kuma ba a taɓa adana shi ba.",
   "trezor_step_passphrase_on_device": "Shigar da kalmar wucewa na wannan wallet akan Trezor ɗin ku kuma tabbatar da shi.",
-  "trezor_step_sign_transaction": "Yi nazarin ma'amala akan Trezor ɗin ku: tabbatar da kowane mai karɓa, sannan kuɗin da jimillar.",
+  "trezor_step_sign_transaction": "Bincika duk bayanan ma'amala akan wasan Trezor ku.",
   "trocador_desc": "mai tara musayar kuɗaɗen dijital ne wanda ke amfani da musayar kuɗaɗe da yawa a ƙarƙashinsa don nemo farashi masu gasa.",
   "trocador_desc_kyc": "Tare da sunan mai ba da sabis, ana nuna ƙimar KYC. Trocador ne ya saita wannan, kuma yana dogara ne da nasu ƙa’idoji.",
   "trongrid_history": "Tarihin TronGrid",

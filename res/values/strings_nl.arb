@@ -1392,7 +1392,7 @@
   "trezor_step_pairing": "Controleer op uw Trezor of de Bluetooth-koppelingscode overeenkomt en laat vervolgens Cake Wallet koppelen. Er verschijnt dan een beveiligingscode op het apparaat.",
   "trezor_step_passphrase_in_app": "Voer de wachtwoordzin voor deze portemonnee in. Het wordt naar uw Trezor gestuurd en nooit opgeslagen.",
   "trezor_step_passphrase_on_device": "Voer de wachtwoordzin voor deze portemonnee in op uw Trezor en bevestig deze.",
-  "trezor_step_sign_transaction": "Controleer de transactie op uw Trezor: bevestig elke ontvanger, vervolgens de vergoeding en het totaal.",
+  "trezor_step_sign_transaction": "Bekijk alle transactiegegevens van uw Trezor-wedstrijd.",
   "trocador_desc": "is een exchange-aggregator die meerdere onderliggende exchanges gebruikt om concurrerende tarieven te vinden.",
   "trocador_desc_kyc": "Naast de naam van de provider wordt een KYC-rating weergegeven. Deze wordt ingesteld door Trocador en is gebaseerd op hun eigen criteria.",
   "trongrid_history": "TronGrid-geschiedenis",

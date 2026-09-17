@@ -1392,7 +1392,7 @@
   "trezor_step_pairing": "Trezor'unuzda Bluetooth eşleştirme kodunun eşleşip eşleşmediğini kontrol edin ve ardından Cake Wallet'ın eşleşmesine izin verin. Daha sonra cihazda bir güvenlik kodu görünecektir.",
   "trezor_step_passphrase_in_app": "Bu cüzdanın parolasını girin. Trezor'unuza gönderilir ve asla saklanmaz.",
   "trezor_step_passphrase_on_device": "Bu cüzdanın parolasını Trezor'unuza girin ve onaylayın.",
-  "trezor_step_sign_transaction": "İşlemi Trezor'unuzda inceleyin: her alıcıyı onaylayın, ardından ücreti ve toplamı onaylayın.",
+  "trezor_step_sign_transaction": "Trezor maçınızdaki tüm işlem ayrıntılarını inceleyin.",
   "trocador_desc": "rekabetçi oranlar bulmak için birden fazla altta yatan borsadan yararlanan bir borsa toplayıcısıdır.",
   "trocador_desc_kyc": "Sağlayıcı adının yanında bir KYC Derecelendirmesi gösterilir. Bu, Trocador tarafından belirlenir ve kendi kriterlerine dayanır.",
   "trongrid_history": "TronGrid geçmişi",
