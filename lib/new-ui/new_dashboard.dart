@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../view_model/dashboard/dashboard_view_model.dart';
 
 class NewDashboard extends StatefulWidget {
@@ -54,7 +55,11 @@ class _NewDashboardState extends State<NewDashboard> {
       });
     });
 
-    Future.delayed(Duration(milliseconds: 300)).then((_) => _showChangelog(context));
+    Future.delayed(Duration(milliseconds: 300)).then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showChangelog(context);
+      });
+    });
     _showVulnerableSeedsPopup(context);
   }
 
