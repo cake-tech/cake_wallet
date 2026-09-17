@@ -21,7 +21,7 @@ dependencies:
   zkool:
     git:
       url: https://github.com/macsrock/zkool2.git
-      ref: 67a2513eb13bd738190b9a21f03da5eb305f84ad
+      ref: 8083636a44957d05a53c9b63f027f205714edea9
 
   path_provider: any
   sqflite_common_ffi: any

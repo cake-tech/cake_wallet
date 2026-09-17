@@ -2627,8 +2627,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: rust_builder
-      ref: "67a2513eb13bd738190b9a21f03da5eb305f84ad"
-      resolved-ref: "67a2513eb13bd738190b9a21f03da5eb305f84ad"
+      ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      resolved-ref: "8083636a44957d05a53c9b63f027f205714edea9"
       url: "https://github.com/macsrock/zkool2.git"
     source: git
     version: "0.0.1"
@@ -3485,8 +3485,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "67a2513eb13bd738190b9a21f03da5eb305f84ad"
-      resolved-ref: "67a2513eb13bd738190b9a21f03da5eb305f84ad"
+      ref: "8083636a44957d05a53c9b63f027f205714edea9"
+      resolved-ref: "8083636a44957d05a53c9b63f027f205714edea9"
       url: "https://github.com/macsrock/zkool2.git"
     source: git
     version: "6.30.0"
