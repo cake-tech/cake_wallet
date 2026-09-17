@@ -11,6 +11,7 @@ import "package:cake_wallet/new-ui/widgets/long_press_menu.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart";
 import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
@@ -295,9 +296,6 @@ class _GroupHeader extends StatelessWidget {
 
   String _title(BuildContext context) => switch (header) {
         SilentPaymentsReceivedHeader() => S.of(context).received,
-        RegularAddressesHeader() => S.of(context).addresses,
-        HiddenAddressesHeader() => S.of(context).hidden_addresses,
-        AccountsHeader() => S.of(context).accounts,
       };
 
   @override
@@ -463,69 +461,95 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 64,
-        width: MediaQuery.of(context).size.width * 0.9,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                spacing: 10,
-                children: [
-                  BalanceCard(
-                    borderRadius: 5,
-                    width: 50,
-                    design: design ?? CardDesign.genericDefault,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: MergeSemantics(
+          child: Semantics(
+            button: true,
+            hint: S.of(context).choose_account,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () async {
+                final bloc = context.read<AddressesBloc>();
+                await showPopUp<void>(
+                  context: context,
+                  builder: (_) => getIt.get<MoneroAccountListPage>(),
+                );
+                if (!bloc.isClosed) {
+                  bloc.add(const AddressListRefreshed());
+                }
+              },
+              child: Container(
+                height: 64,
+                width: MediaQuery.of(context).size.width * 0.9,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.accountLabel,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                      Row(
+                        spacing: 10,
+                        children: [
+                          BalanceCard(
+                            borderRadius: 5,
+                            width: 50,
+                            design: design ?? CardDesign.genericDefault,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.accountLabel,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              Text(
+                                widget.walletName,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      Text(
-                        widget.walletName,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      Row(
+                        spacing: 12,
+                        children: [
+                          Container(
+                            width: 1,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                            ),
+                          ),
+                          Observer(
+                            builder: (_) => Text(
+                              dashboardViewModel.balanceViewModel.balances.isNotEmpty
+                                  ? dashboardViewModel
+                                      .balanceViewModel.balances.values.first.availableBalance
+                                  : "",
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-              Row(
-                spacing: 12,
-                children: [
-                  Container(
-                    width: 1,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    ),
-                  ),
-                  Observer(
-                    builder: (_) => Text(
-                      dashboardViewModel.balanceViewModel.balances.isNotEmpty
-                          ? dashboardViewModel
-                              .balanceViewModel.balances.values.first.availableBalance
-                          : "",
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       );

@@ -42,12 +42,6 @@ final class AddressAdded extends AddressesEvent {
   final String label;
 }
 
-final class AddressDeleted extends AddressesEvent {
-  const AddressDeleted(this.address);
-
-  final String address;
-}
-
 final class AddressListRefreshed extends AddressesEvent {
   const AddressListRefreshed();
 }

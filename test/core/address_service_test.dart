@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_service.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
@@ -89,6 +90,7 @@ class _TestScope {
     when(() => wallet.balance)
         .thenReturn(mobx.ObservableMap<CryptoCurrency, Balance>.of(balances ?? {}));
     when(() => wallet.isEnabledAutoGenerateSubaddress).thenReturn(autoGenerateSubaddress);
+    when(() => wallet.receiveOptionAvailable(any())).thenReturn(true);
     when(wallet.save).thenAnswer((_) async {});
   }
 
@@ -225,6 +227,18 @@ void main() {
 
     test("addressTypeOptions reads wallet.walletAddresses.receivePageOptions", () {
       scope = _TestScope(receivePageOptions: const [ReceivePageOption.mainnet]);
+      final service = scope.build();
+      addTearDown(service.dispose);
+
+      expect(service.addressTypeOptions, const [ReceivePageOption.mainnet]);
+    });
+
+    test("addressTypeOptions drops options the wallet reports unavailable", () {
+      scope = _TestScope(
+        receivePageOptions: const [ReceivePageOption.mainnet, ReceivePageOption.testnet],
+      );
+      when(() => scope.wallet.receiveOptionAvailable(ReceivePageOption.mainnet)).thenReturn(true);
+      when(() => scope.wallet.receiveOptionAvailable(ReceivePageOption.testnet)).thenReturn(false);
       final service = scope.build();
       addTearDown(service.dispose);
 
@@ -460,18 +474,6 @@ void main() {
     });
   });
 
-  group("deleteSilentPaymentAddress", () {
-    test("no-op for non-Bitcoin wallets", () async {
-      scope = _TestScope(walletType: WalletType.litecoin);
-      final service = scope.build();
-      addTearDown(service.dispose);
-
-      await service.deleteSilentPaymentAddress("addr");
-
-      verifyNever(() => scope.walletAddresses.address = any());
-    });
-  });
-
   group("setAddressType", () {
     test("no-op for wallet types outside {bitcoin, litecoin, zcash}", () async {
       for (final t in const [
@@ -514,6 +516,26 @@ void main() {
         await scope.dispose();
       }
       scope = _TestScope();
+    });
+
+    test("silent-payments with no SP addresses is repaired to segwit and top-up runs", () async {
+      scope = _TestScope();
+      final b = bitcoin as _MockBitcoin;
+      when(() => b.hasSelectedSilentPayments(any())).thenReturn(true);
+      when(() => b.getSilentPaymentAddresses(any())).thenReturn(const []);
+      when(() => b.getSubAddresses(any())).thenReturn(const []);
+      when(b.getBitcoinSegwitPageOption).thenReturn(ReceivePageOption.mainnet);
+      when(() => b.getOptionToType(any())).thenReturn(SegwitAddresType.p2wpkh);
+      when(() => b.setAddressType(any(), any())).thenAnswer((_) async {});
+      when(() => b.generateNewAddress(any(), any())).thenAnswer((_) async {});
+      final service = scope.build();
+      addTearDown(service.dispose);
+
+      await service.applyOpenDefaults(lightningMode: false);
+
+      verify(() => b.getOptionToType(ReceivePageOption.mainnet)).called(1);
+      verify(() => b.setAddressType(scope.wallet, SegwitAddresType.p2wpkh)).called(1);
+      verify(() => b.generateNewAddress(scope.wallet, "")).called(1);
     });
   });
 

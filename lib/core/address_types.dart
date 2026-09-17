@@ -24,18 +24,6 @@ sealed class AddressGroupHeader {
   const AddressGroupHeader();
 }
 
-class RegularAddressesHeader extends AddressGroupHeader {
-  const RegularAddressesHeader();
-}
-
-class HiddenAddressesHeader extends AddressGroupHeader {
-  const HiddenAddressesHeader();
-}
-
-class AccountsHeader extends AddressGroupHeader {
-  const AccountsHeader();
-}
-
 class SilentPaymentsReceivedHeader extends AddressGroupHeader {
   const SilentPaymentsReceivedHeader();
 }

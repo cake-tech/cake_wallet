@@ -260,7 +260,7 @@ class AssetDetailsModal extends StatelessWidget {
                               bitcoin!
                                   .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
                         }
-                        openPage<ReceivePage>(context, param2: asset);
+                        openPage<ReceivePage>(context, param1: asset);
                       },
                     ),
                   ],

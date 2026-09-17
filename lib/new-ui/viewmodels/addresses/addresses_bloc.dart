@@ -25,7 +25,6 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     on<AddressHideToggled>(_onHideToggled, transformer: sequential());
     on<AddressLabelSet>(_onLabelSet, transformer: sequential());
     on<AddressAdded>(_onAddressAdded, transformer: droppable());
-    on<AddressDeleted>(_onDeleted, transformer: sequential());
     on<AddressListRefreshed>(_onListRefreshed, transformer: sequential());
     on<_WalletChanged>(_onWalletChanged, transformer: restartable());
 
@@ -130,27 +129,15 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
     }
 
     emit(initial.copyWith(isSaving: true, clearFailureCode: true));
+    bool added;
     try {
-      await addressService.addManualAddress(event.label);
+      added = await addressService.addManualAddress(event.label);
     } catch (e) {
       printV("AddressesBloc addManualAddress failed: $e");
       _emitFailure(emit, initial.walletId);
       return;
     }
-    _refreshGroups(emit, initial.walletId);
-  }
-
-  Future<void> _onDeleted(AddressDeleted event, Emitter<AddressesState> emit) async {
-    final initial = state;
-    if (initial is! AddressesLoaded) {
-      return;
-    }
-
-    emit(initial.copyWith(isSaving: true, clearFailureCode: true));
-    try {
-      await addressService.deleteSilentPaymentAddress(event.address);
-    } catch (e) {
-      printV("AddressesBloc deleteSilentPaymentAddress failed: $e");
+    if (!added) {
       _emitFailure(emit, initial.walletId);
       return;
     }
@@ -205,6 +192,7 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState> {
       emit(
         loaded.copyWith(
           groups: addressService.computeAddressList(),
+          activeAddress: addressService.currentAddress,
           hasHiddenAddresses: addressService.hasHiddenAddresses,
           accountLabel: addressService.accountLabel,
         ),

@@ -228,19 +228,24 @@ class AddressService {
     wallet.walletAddresses.address = address;
   }
 
-  Future<void> rotateAddress() async {
+  Future<bool> rotateAddress() async {
     final wallet = this.wallet;
     final newAddress = await _generateNewAddress("");
     if (newAddress == null || newAddress.isEmpty) {
-      return;
+      printV("rotateAddress: no new address for ${wallet.type}");
+      return false;
     }
     if (!identical(wallet, this.wallet)) {
-      return;
+      return false;
     }
     wallet.walletAddresses.address = newAddress;
+    return true;
   }
 
-  Future<void> addManualAddress(String label) => _generateNewAddress(label);
+  Future<bool> addManualAddress(String label) async {
+    final newAddress = await _generateNewAddress(label);
+    return newAddress != null && newAddress.isNotEmpty;
+  }
 
   Future<String?> _generateNewAddress(String label) async {
     final wallet = this.wallet;
@@ -256,11 +261,8 @@ class AddressService {
       final after = isSilentPayments
           ? bitcoin!.getSilentPaymentAddresses(wallet).toList()
           : bitcoin!.getSubAddresses(wallet).toList();
-      if (after.isEmpty) {
-        return null;
-      }
       final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
-      return (fresh ?? after.last).address;
+      return fresh?.address;
     }
 
     if (type == WalletType.decred) {
@@ -268,11 +270,8 @@ class AddressService {
       await decred!.generateNewAddress(wallet, label);
       await wallet.save();
       final after = decred!.getAddressInfos(wallet).toList();
-      if (after.isEmpty) {
-        return null;
-      }
       final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
-      return (fresh ?? after.last).address;
+      return fresh?.address;
     }
 
     if (type == WalletType.monero) {
@@ -284,14 +283,13 @@ class AddressService {
             label: label,
           );
       final subs = monero!.getSubaddressList(wallet).subaddresses;
-      if (subs.isEmpty) {
+      final fresh = subs.where((s) => !beforeIds.contains(s.id)).firstOrNull;
+      if (fresh == null) {
         return null;
       }
-      final fresh = subs.where((s) => !beforeIds.contains(s.id)).firstOrNull;
-      final newAddress = (fresh ?? subs.reduce((a, b) => a.id > b.id ? a : b)).address;
-      wallet.walletAddresses.manualAddresses.add(newAddress);
+      wallet.walletAddresses.manualAddresses.add(fresh.address);
       await wallet.save();
-      return newAddress;
+      return fresh.address;
     }
 
     if (type == WalletType.wownero) {
@@ -303,14 +301,13 @@ class AddressService {
             label: label,
           );
       final subAddresses = wownero!.getSubaddressList(wallet).subaddresses;
-      if (subAddresses.isEmpty) {
+      final fresh = subAddresses.where((s) => !beforeIds.contains(s.id)).firstOrNull;
+      if (fresh == null) {
         return null;
       }
-      final fresh = subAddresses.where((s) => !beforeIds.contains(s.id)).firstOrNull;
-      final newAddress = (fresh ?? subAddresses.reduce((a, b) => a.id > b.id ? a : b)).address;
-      wallet.walletAddresses.manualAddresses.add(newAddress);
+      wallet.walletAddresses.manualAddresses.add(fresh.address);
       await wallet.save();
-      return newAddress;
+      return fresh.address;
     }
 
     return null;
@@ -405,24 +402,6 @@ class AddressService {
     }
   }
 
-  Future<void> deleteSilentPaymentAddress(String address) async {
-    final wallet = this.wallet;
-    if (wallet.type != WalletType.bitcoin) {
-      return;
-    }
-    final wasActive = wallet.walletAddresses.address == address;
-    bitcoin!.deleteSilentPaymentAddress(wallet, address);
-    if (wasActive) {
-      final mains = bitcoin!.getSilentPaymentAddresses(wallet).toList();
-      if (mains.isNotEmpty) {
-        wallet.walletAddresses.address = mains.first.address;
-      } else {
-        await applyOpenDefaults(lightningMode: false);
-      }
-    }
-    await wallet.save();
-  }
-
   ReceivePageOption? get selectedAddressType {
     final type = wallet.type;
     if (type == WalletType.bitcoin || type == WalletType.litecoin) {
@@ -434,7 +413,8 @@ class AddressService {
     return null;
   }
 
-  List<ReceivePageOption> get addressTypeOptions => wallet.walletAddresses.receivePageOptions;
+  List<ReceivePageOption> get addressTypeOptions =>
+      wallet.walletAddresses.receivePageOptions.where(wallet.receiveOptionAvailable).toList();
 
   Future<void> setAddressType(ReceivePageOption option) => _setAddressTypeOn(wallet, option);
 

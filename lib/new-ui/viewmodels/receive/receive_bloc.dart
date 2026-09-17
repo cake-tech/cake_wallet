@@ -273,10 +273,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
       return;
     }
 
-    if (_isAnonpayOption(event.option)) {
-      return;
-    }
-
     emit(initial.copyWith(isChangingAddressType: true, clearFailureCode: true));
     try {
       await addressService.setAddressType(event.option);
@@ -381,11 +377,20 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     emit(initial.copyWith(isRotatingAddress: true, clearFailureCode: true));
 
     try {
-      await addressService.rotateAddress();
+      final rotated = await addressService.rotateAddress();
       if (isClosed) {
         return;
       }
       if (state case final ReceiveLoaded loaded when loaded.walletId == initial.walletId) {
+        if (!rotated) {
+          emit(
+            loaded.copyWith(
+              isRotatingAddress: false,
+              failureCode: ReceiveFailureCode.addressRotationFailed,
+            ),
+          );
+          return;
+        }
         emit(
           loaded.copyWith(
             addressEntry: _currentAddressEntry(),
@@ -652,7 +657,4 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState> {
     }
     return preset;
   }
-
-  bool _isAnonpayOption(ReceivePageOption option) =>
-      option == ReceivePageOption.anonPayInvoice || option == ReceivePageOption.anonPayDonationLink;
 }

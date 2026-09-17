@@ -1,7 +1,5 @@
-import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
@@ -23,8 +21,6 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/receive/anonpay_receive_page.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/qr_util.dart";
 import "package:cake_wallet/utils/share_util.dart";
 import "package:cake_wallet/utils/show_bar.dart";
@@ -37,7 +33,6 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 class ReceivePage extends StatelessWidget {
   const ReceivePage({super.key, this.initialToken});
@@ -462,62 +457,8 @@ class _LoadedWidget extends StatelessWidget {
       return;
     }
 
-    if (selected == ReceivePageOption.anonPayInvoice) {
-      if (context.mounted) {
-        await Navigator.of(context).pushNamed(
-          Routes.anonPayInvoicePage,
-          arguments: [state.addressEntry.address, selected],
-        );
-      }
-      return;
-    }
-
-    if (selected == ReceivePageOption.anonPayDonationLink) {
-      if (context.mounted) {
-        await _openAnonPayDonationLink(context, state, selected);
-      }
-      return;
-    }
-
     if (!bloc.isClosed) {
       bloc.add(AddressTypeSelected(selected));
-    }
-  }
-
-  Future<void> _openAnonPayDonationLink(
-    BuildContext context,
-    ReceiveLoaded state,
-    ReceivePageOption option,
-  ) async {
-    final prefs = getIt.get<SharedPreferences>();
-    final clearnetUrl = prefs.getString(PreferencesKey.clearnetDonationLink);
-    final onionUrl = prefs.getString(PreferencesKey.onionDonationLink);
-    final donationWalletName = prefs.getString(PreferencesKey.donationLinkWalletName);
-    final walletName = getIt.get<AppStore>().wallet?.name;
-    final qrImage = state.isLightning
-        ? "assets/images/btc_chain_qr_lightning.svg"
-        : getQrImage(state.walletType);
-
-    if (clearnetUrl != null &&
-        onionUrl != null &&
-        walletName != null &&
-        walletName == donationWalletName) {
-      await Navigator.of(context).pushNamed(
-        Routes.anonPayReceivePage,
-        arguments: AnonPayReceivePageArgs(
-          invoiceInfo: AnonpayDonationLinkInfo(
-            clearnetUrl: clearnetUrl,
-            onionUrl: onionUrl,
-            address: state.addressEntry.address,
-          ),
-          qrImage: qrImage,
-        ),
-      );
-    } else {
-      await Navigator.of(context).pushNamed(
-        Routes.anonPayInvoicePage,
-        arguments: [state.addressEntry.address, option],
-      );
     }
   }
 

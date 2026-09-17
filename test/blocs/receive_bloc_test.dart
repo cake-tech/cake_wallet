@@ -389,24 +389,6 @@ void main() {
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
-      "ignores anonpay options defensively",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.setAddressType(any())).thenAnswer((_) async {});
-      },
-      build: () => ReceiveBloc(
-        addressService: addressService,
-        fiatRateService: fiatRateService,
-        activeWalletService: activeWalletService,
-      ),
-      act: (bloc) => bloc.add(const AddressTypeSelected(ReceivePageOption.anonPayInvoice)),
-      wait: const Duration(milliseconds: 20),
-      verify: (bloc) {
-        verifyNever(() => addressService.setAddressType(ReceivePageOption.anonPayInvoice));
-      },
-    );
-
-    blocTest<ReceiveBloc, ReceiveState>(
       "setAddressType failure keeps the bloc in Loaded",
       setUp: () {
         wireDefaults();
@@ -460,7 +442,7 @@ void main() {
       "sets isRotatingAddress true while rotating, false after",
       setUp: () {
         wireDefaults();
-        when(() => addressService.rotateAddress()).thenAnswer((_) async {});
+        when(() => addressService.rotateAddress()).thenAnswer((_) async => true);
       },
       build: () => ReceiveBloc(
         addressService: addressService,
@@ -480,9 +462,9 @@ void main() {
       "droppable: back-to-back rotate events run once",
       setUp: () {
         wireDefaults();
-        final completer = Completer<void>();
+        final completer = Completer<bool>();
         when(() => addressService.rotateAddress()).thenAnswer((_) => completer.future);
-        Future.delayed(const Duration(milliseconds: 20), completer.complete);
+        Future.delayed(const Duration(milliseconds: 20), () => completer.complete(true));
       },
       build: () => ReceiveBloc(
         addressService: addressService,
@@ -516,6 +498,26 @@ void main() {
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.isRotatingAddress, isFalse);
+      },
+    );
+
+    blocTest<ReceiveBloc, ReceiveState>(
+      "rotateAddress false emits addressRotationFailed and clears isRotatingAddress",
+      setUp: () {
+        wireDefaults();
+        when(() => addressService.rotateAddress()).thenAnswer((_) async => false);
+      },
+      build: () => ReceiveBloc(
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        activeWalletService: activeWalletService,
+      ),
+      act: (bloc) => bloc.add(const AddressRotated()),
+      wait: const Duration(milliseconds: 50),
+      verify: (bloc) {
+        final state = bloc.state as ReceiveLoaded;
+        expect(state.isRotatingAddress, isFalse);
+        expect(state.failureCode, ReceiveFailureCode.addressRotationFailed);
       },
     );
   });

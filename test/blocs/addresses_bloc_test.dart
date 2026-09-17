@@ -223,7 +223,7 @@ void main() {
       "AddressAdded delegates",
       setUp: () {
         wireDefaults();
-        when(() => addressService.addManualAddress(any())).thenAnswer((_) async {});
+        when(() => addressService.addManualAddress(any())).thenAnswer((_) async => true);
       },
       build: buildBloc,
       act: (bloc) async {
@@ -240,9 +240,9 @@ void main() {
       "AddressAdded is droppable: rapid taps add once",
       setUp: () {
         wireDefaults();
-        final completer = Completer<void>();
+        final completer = Completer<bool>();
         when(() => addressService.addManualAddress(any())).thenAnswer((_) => completer.future);
-        Future.delayed(const Duration(milliseconds: 20), completer.complete);
+        Future.delayed(const Duration(milliseconds: 20), () => completer.complete(true));
       },
       build: buildBloc,
       act: (bloc) async {
@@ -258,19 +258,21 @@ void main() {
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "AddressDeleted delegates",
+      "AddressAdded with no new address emits saveFailed",
       setUp: () {
         wireDefaults();
-        when(() => addressService.deleteSilentPaymentAddress(any())).thenAnswer((_) async {});
+        when(() => addressService.addManualAddress(any())).thenAnswer((_) async => false);
       },
       build: buildBloc,
       act: (bloc) async {
         await waitForLoaded(bloc);
-        bloc.add(const AddressDeleted("sp1addr"));
+        bloc.add(const AddressAdded("Savings"));
       },
       wait: const Duration(milliseconds: 20),
-      verify: (_) {
-        verify(() => addressService.deleteSilentPaymentAddress("sp1addr")).called(1);
+      verify: (bloc) {
+        final state = bloc.state as AddressesLoaded;
+        expect(state.failureCode, AddressesFailureCode.saveFailed);
+        expect(state.isSaving, isFalse);
       },
     );
 
