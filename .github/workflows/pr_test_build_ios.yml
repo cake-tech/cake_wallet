@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 concurrency:
   group: ios-${{ github.head_ref || github.ref_name }}
@@ -17,7 +18,7 @@ defaults:
 jobs:
   testflight:
     if: github.event.pull_request.head.repo.fork == false
-    runs-on: macos-15
+    runs-on: macos-26
 
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
@@ -81,8 +82,30 @@ jobs:
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
-      - name: Build torch
-        run: ./scripts/ios/build_torch.sh aarch64-apple-ios
+      - name: Fetch prebuilt torch xcframework
+        env:
+          CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+        run: |
+          set -euo pipefail
+          IMAGE="$(./scripts/ios/docker/build.sh --image torch)"
+
+          command -v crane >/dev/null || brew install crane
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          crane manifest "$IMAGE" >/dev/null 2>&1 || {
+            echo "no prebuilt torch at $IMAGE" >&2
+            echo "run the 'Create iOS torch cache' workflow, then re-run this build" >&2
+            exit 1
+          }
+
+          TMP="$(mktemp -d)"
+          crane export "$IMAGE" - | tar -x -C "$TMP"
+          rsync -a "$TMP/w/" .
+          rm -rf "$TMP"
+
+          test -d scripts/torch_dart/ios/LibTorch.xcframework/ios-arm64 \
+            || { echo "restored xcframework has no ios-arm64 slice" >&2; exit 1; }
 
       - name: Prepare bitbox_flutter
         run: |
