@@ -100,6 +100,18 @@ jobs:
         run: |
           rustup target add aarch64-apple-ios
 
+      - name: Install protoc
+        env:
+          PROTOC_VERSION: "35.1"
+        run: |
+          set -euo pipefail
+          curl -sSL --retry 3 --retry-delay 5 -o "$RUNNER_TEMP/protoc.zip" \
+            "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-universal_binary.zip"
+          unzip -q -o "$RUNNER_TEMP/protoc.zip" -d "$RUNNER_TEMP/protoc"
+          rm -f "$RUNNER_TEMP/protoc.zip"
+          echo "$RUNNER_TEMP/protoc/bin" >> $GITHUB_PATH
+          "$RUNNER_TEMP/protoc/bin/protoc" --version
+
       - name: Add secrets
         run: |
           touch cw_bitcoin/lib/.secrets.g.dart
