@@ -1343,27 +1343,38 @@ abstract class Decred {
 Future<void> generateDogecoin(bool hasImplementation) async {
   final outputFile = File(dogecoinOutputPath);
   const dogecoinCommonHeaders = """
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:hive/hive.dart";
 """;
   const dogecoinCWHeaders = """
-import 'package:cw_dogecoin/cw_dogecoin.dart';
+import "package:cw_dogecoin/cw_dogecoin.dart";
 """;
-  const dogecoinCwPart = "part 'cw_dogecoin.dart';";
+  const dogecoinCwPart = "part \"cw_dogecoin.dart\";";
   const dogecoinContent = """
 abstract class DogeCoin {
+  WalletService createDogeCoinWalletService(
+    Box<UnspentCoinsInfo> unspentCoinSource, {
+    required bool isDirect,
+  });
 
-  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletCredentials createDogeCoinNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+  });
 
-  WalletCredentials createDogeCoinNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
-
-  WalletCredentials createDogeCoinRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createDogeCoinRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    String? passphrase,
+  });
 
   TransactionPriority deserializeDogeCoinTransactionPriority(int raw);
 
@@ -1375,12 +1386,12 @@ abstract class DogeCoin {
 }
 """;
 
-  const dogecoinEmptyDefinition = 'DogeCoin? dogecoin;\n';
-  const dogecoinCWDefinition = 'DogeCoin? dogecoin = CWDogeCoin();\n';
+  const dogecoinEmptyDefinition = "DogeCoin? dogecoin;\n";
+  const dogecoinCWDefinition = "DogeCoin? dogecoin = CWDogeCoin();\n";
 
-  final output = '$dogecoinCommonHeaders\n' +
-      (hasImplementation ? '$dogecoinCWHeaders\n' : '\n') +
-      (hasImplementation ? '$dogecoinCwPart\n\n' : '\n') +
+  final output = "$dogecoinCommonHeaders\n" +
+      (hasImplementation ? "$dogecoinCWHeaders\n" : "\n") +
+      (hasImplementation ? "$dogecoinCwPart\n\n" : "\n") +
       (hasImplementation ? dogecoinCWDefinition : dogecoinEmptyDefinition) +
       '\n' +
       dogecoinContent;
