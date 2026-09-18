@@ -55,7 +55,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -107,6 +107,7 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
 
     name = wallet.name;
     type = wallet.type;
@@ -207,6 +208,7 @@ abstract class DashboardViewModelBase with Store {
       loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+      loadSeedBackupReminder();
 
       tradeMonitor.stopTradeMonitoring();
       tradeMonitor.monitorActiveTrades(wallet!.id);
@@ -959,6 +961,22 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @observable
+  late bool showSeedBackupReminder;
+
+  @computed
+  bool get hasBalance => wallet.balance.values.any(
+        (balance) =>
+            !balance.available.isZero ||
+            !balance.unavailable.isZero ||
+            !(balance.secondAvailable?.isZero ?? true) ||
+            !(balance.secondUnavailable?.isZero ?? true) ||
+            !(balance.frozen?.isZero ?? true),
+      );
+
+  @computed
+  bool get shouldShowSeedBackupReminder => showSeedBackupReminder && hasBalance;
+
   @computed
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
@@ -1186,6 +1204,17 @@ abstract class DashboardViewModelBase with Store {
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
+  @action
+  void loadSeedBackupReminder() {
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+  }
+
+  @action
+  Future<void> dismissSeedBackupReminder() async {
+    showSeedBackupReminder = false;
+    await wallet.walletInfo.clearSeedBackupReminder();
   }
 
   @action
@@ -1572,8 +1601,7 @@ abstract class DashboardViewModelBase with Store {
         if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPassword(walletName: walletInfo.name);
           final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-          final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);
-          final jsonSource = await encryption.read(path: path, password: password);
+          final jsonSource = await read(path: path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 
