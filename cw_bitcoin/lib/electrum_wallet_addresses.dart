@@ -387,7 +387,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
-    _validateAddresses();
+    await _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -869,27 +869,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateAddresses() {
-    _addresses.forEach((element) async {
-      if (element.type == SegwitAddresType.mweb) {
-        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
-        return;
-      }
+  Future<void> _validateAddresses() async {
+    await Future.wait(
+      _addresses.map((element) async {
+        if (element.type == SegwitAddresType.mweb) {
+          // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+          return;
+        }
 
-      final mainHd = _hdFor(
-          isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
-      final sideHd = _hdFor(
-          isHidden: true, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
-      if (!element.isHidden &&
-          element.address !=
-              await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
-        element.isHidden = true;
-      } else if (element.isHidden &&
-          element.address !=
-              await getAddressAsync(index: element.index, hd: sideHd, addressType: element.type)) {
-        element.isHidden = false;
-      }
-    });
+        final mainHd = _hdFor(
+            isHidden: false, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
+        final sideHd = _hdFor(
+            isHidden: true, type: element.type, isLegacyDerivation: element.isLegacyDerivation);
+        if (!element.isHidden &&
+            element.address !=
+                await getAddressAsync(
+                    index: element.index, hd: mainHd, addressType: element.type)) {
+          element.isHidden = true;
+        } else if (element.isHidden &&
+            element.address !=
+                await getAddressAsync(
+                    index: element.index, hd: sideHd, addressType: element.type)) {
+          element.isHidden = false;
+        }
+      }),
+    );
   }
 
   @override

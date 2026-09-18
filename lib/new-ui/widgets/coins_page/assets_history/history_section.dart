@@ -75,7 +75,7 @@ class HistorySection extends StatelessWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         childCount: items.length,
-                        (context, index) => Observer(builder: (_) {
+                        (context, index) {
                           final prevItem = index == 0 ? null : items[index - 1];
                           final topPadding = index == 0 ? 0.0 : 18.0;
                           final item = items[index];
@@ -226,7 +226,7 @@ class HistorySection extends StatelessWidget {
                                     bottomSeparator: !roundedBottom));
                           } else
                             return Text(item.runtimeType.toString());
-                        }),
+                        },
                       ),
                     ),
                   );

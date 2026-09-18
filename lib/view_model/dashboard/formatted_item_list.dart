@@ -6,7 +6,13 @@ enum _DateBucket { recent, last7Days, last30Days, byMonth }
 
 List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
   final formattedList = <ActionListItem>[];
-  items.sort((a, b) => b.date.compareTo(a.date));
+  items.sort((a, b) {
+    final dateCompare = b.date.compareTo(a.date);
+    if (dateCompare != 0) {
+      return dateCompare;
+    }
+    return a.key.toString().compareTo(b.key.toString());
+  });
 
   final now = DateTime.now();
   final todayTreshold = DateTime(now.year, now.month, now.day);
