@@ -7,6 +7,7 @@ class BalanceCardStyleSettings {
   final int accountIndex;
   final int gradientIndex;
   final bool useSpecialDesign;
+  final bool hidden;
   final String backgroundImagePath;
   final int iconStyleIndex;
   final bool isGradientOnly;
@@ -17,6 +18,7 @@ class BalanceCardStyleSettings {
       required this.accountIndex,
       required this.gradientIndex,
       required this.useSpecialDesign,
+      required this.hidden,
       required this.backgroundImagePath,
       this.iconStyleIndex = 0,
       this.isGradientOnly = false,
@@ -29,6 +31,7 @@ class BalanceCardStyleSettings {
       "walletInfoId": walletInfoId,
       "accountIndex": accountIndex,
       "gradientIndex": gradientIndex,
+      "hidden": hidden ? 1 : 0,
       "useSpecialDesign": useSpecialDesign ? 1 : 0,
       "backgroundImagePath": backgroundImagePath,
       "iconStyleIndex": iconStyleIndex,
@@ -42,12 +45,37 @@ class BalanceCardStyleSettings {
     return BalanceCardStyleSettings(
       walletInfoId: json["walletInfoId"] as int,
       accountIndex: json["accountIndex"] as int,
+      hidden: json["hidden"] == 1,
       gradientIndex: json["gradientIndex"] as int,
       useSpecialDesign: json["useSpecialDesign"] == 1,
       backgroundImagePath: json["backgroundImagePath"] as String? ?? "",
       iconStyleIndex: json["iconStyleIndex"] as int? ?? 0,
       isGradientOnly: json["isGradientOnly"] == 1,
       cardOrder: json["cardOrder"] as int? ?? -1,
+    );
+  }
+
+  BalanceCardStyleSettings copyWith({
+    int? walletInfoId,
+    int? accountIndex,
+    int? gradientIndex,
+    int? iconStyleIndex,
+    bool? isGradientOnly,
+    bool? useSpecialDesign,
+    bool? hidden,
+    String? backgroundImagePath,
+    int? cardOrder,
+  }) {
+    return BalanceCardStyleSettings(
+      walletInfoId: walletInfoId ?? this.walletInfoId,
+      accountIndex: accountIndex ?? this.accountIndex,
+      gradientIndex: gradientIndex ?? this.gradientIndex,
+      useSpecialDesign: useSpecialDesign ?? this.useSpecialDesign,
+      hidden: hidden ?? this.hidden,
+      backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
+      cardOrder: cardOrder ?? this.cardOrder,
+      iconStyleIndex: iconStyleIndex ?? this.iconStyleIndex,
+      isGradientOnly: isGradientOnly ?? this.isGradientOnly
     );
   }
 
@@ -58,6 +86,7 @@ class BalanceCardStyleSettings {
     required CardDesign design,
     int iconStyleIndex = 0,
     int? gradientIndexOverride,
+    bool hidden = false
   }) {
     final int gradientIndex =
         gradientIndexOverride ?? CardDesign.allGradients.indexOf(design.gradient);
@@ -66,6 +95,7 @@ class BalanceCardStyleSettings {
       accountIndex: accountIndex,
       gradientIndex: gradientIndex,
       useSpecialDesign: design.backgroundType == CardDesignBackgroundTypes.svgFull,
+      hidden: hidden,
       backgroundImagePath:
           design.backgroundType == CardDesignBackgroundTypes.image ? design.imagePath : "",
       iconStyleIndex: iconStyleIndex,
@@ -98,6 +128,44 @@ class BalanceCardStyleSettings {
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
+
+  static Future<void> setVisibleOrder(int walletInfoId, Map<int, int> orderByAccountIndex) async {
+    if (orderByAccountIndex.isEmpty) {
+      return;
+    }
+
+    final entries = orderByAccountIndex.entries.toList();
+    final batch = db!.batch();
+
+    for (final entry in entries) {
+      batch.update(
+        tableName,
+        {"cardOrder": entry.value, "hidden": 0},
+        where: "walletInfoId = ? AND accountIndex = ?",
+        whereArgs: [walletInfoId, entry.key],
+      );
+    }
+
+    final updatedRowCounts = await batch.commit();
+
+    for (int i = 0; i < entries.length; i++) {
+      if (updatedRowCounts[i] == 0) {
+        await positionOnly(walletInfoId, entries[i].key, entries[i].value).insert();
+      }
+    }
+  }
+
+  static BalanceCardStyleSettings positionOnly(
+          int walletInfoId, int accountIndex, int cardOrder) =>
+      BalanceCardStyleSettings(
+        walletInfoId: walletInfoId,
+        accountIndex: accountIndex,
+        gradientIndex: -1,
+        useSpecialDesign: true,
+        hidden: false,
+        backgroundImagePath: "",
+        cardOrder: cardOrder,
+      );
 }

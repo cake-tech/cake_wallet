@@ -151,6 +151,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
+      required this.accountsHomePromoDismissed,
       required this.balanceHideCounter,
         required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
@@ -309,6 +310,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => mwebAdDismissed,
         (val) => sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
+
+    reaction((_) => accountsHomePromoDismissed,
+        (val) => sharedPreferences.setBool(PreferencesKey.accountsHomePromoDismissed, val));
 
     priority.observe((change) {
       final String? key;
@@ -1088,6 +1092,9 @@ abstract class SettingsStoreBase with Store {
   bool mwebAdDismissed;
 
   @observable
+  bool accountsHomePromoDismissed;
+
+  @observable
   bool zcashMigrationModalViewed;
 
   final SecureStorage _secureStorage;
@@ -1170,6 +1177,12 @@ abstract class SettingsStoreBase with Store {
 
   Future<void> setShouldShowReceiveWarning(bool value) async =>
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
+  bool isEducationDismissed(String educationId) =>
+      _sharedPreferences.getBool(PreferencesKey.educationDismissed(educationId)) ?? false;
+
+  Future<void> dismissEducation(String educationId) =>
+      _sharedPreferences.setBool(PreferencesKey.educationDismissed(educationId), true);
 
   static Future<SettingsStore> load(
       {required bool isBitcoinBuyEnabled,
@@ -1663,6 +1676,9 @@ abstract class SettingsStoreBase with Store {
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
 
+    final accountsHomePromoDismissed =
+        sharedPreferences.getBool(PreferencesKey.accountsHomePromoDismissed) ?? false;
+
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
@@ -1784,6 +1800,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
+      accountsHomePromoDismissed: accountsHomePromoDismissed,
       balanceHideCounter: balanceHideCounter,
       zcashMigrationModalViewed: zcashMigrationModalViewed
     );

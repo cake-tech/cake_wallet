@@ -591,14 +591,15 @@ Future<void> setup({
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
-  getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
-      (lightningMode, displayMode) {
+  getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
+      (params, _) {
     final wallet = getIt.get<AppStore>().wallet!;
     return CardCustomizerBloc(wallet,
-        lightningMode: lightningMode,
+        canHide: params.canHide,
+        lightningMode: params.lightningMode,
         displaySats: wallet.type == WalletType.bitcoin &&
-            (displayMode == BitcoinAmountDisplayMode.satoshi ||
-                (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
+            (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshi ||
+                (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning && params.lightningMode)));
   });
 
   getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
@@ -1039,11 +1040,39 @@ Future<void> setup({
           getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
-      (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
-          monero!.getAccountList(getIt.get<AppStore>().wallet!),
-          wownero?.getAccountList(getIt.get<AppStore>().wallet!),
-          wallet: getIt.get<AppStore>().wallet!,
-          accountListItem: account));
+      (AccountListItem? account, _) {
+    final wallet = getIt.get<AppStore>().wallet!;
+
+    if (wallet.type == WalletType.monero) {
+      final accountList = monero?.getAccountList(wallet);
+      if (accountList == null) {
+        throw StateError("Monero account support is unavailable");
+      }
+
+      return MoneroAccountEditOrCreateViewModel(
+        accountList,
+        null,
+        wallet: wallet,
+        accountListItem: account,
+      );
+    }
+
+    if (wallet.type == WalletType.wownero) {
+      final accountList = wownero?.getAccountList(wallet);
+      if (accountList == null) {
+        throw StateError("Wownero account support is unavailable");
+      }
+
+      return MoneroAccountEditOrCreateViewModel(
+        null,
+        accountList,
+        wallet: wallet,
+        accountListItem: account,
+      );
+    }
+
+    throw StateError("Account creation is unavailable for ${wallet.type}");
+  });
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreatePage(

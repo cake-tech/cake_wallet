@@ -443,16 +443,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasCoinControl =>
-      [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.decred,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin
-      ].contains(wallet.type) &&
-      coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet.hasCoinControl && coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
