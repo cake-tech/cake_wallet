@@ -2,7 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_row_widget.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/info_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -83,10 +82,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             },
           ),
           Observer(
-              builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
-                  ? HomeScreenAccountWidget(
-                      walletName: dashboardViewModel.name, accountName: dashboardViewModel.subname)
-                  : Column(
+              builder: (_) => Column(
                       children: [
                         SizedBox(height: 16),
                         Container(

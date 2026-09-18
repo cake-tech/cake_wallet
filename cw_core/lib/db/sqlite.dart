@@ -63,11 +63,12 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 12,
+  db = await openDatabase(dbFile.path, version: 13,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
       await db.execute('''
+
 DELETE FROM WalletInfo
 WHERE walletInfoId NOT IN (
     SELECT MIN(walletInfoId)
@@ -152,7 +153,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
     }
-
     if (oldVersion <= 10) {
       await _createImportedNFTTable(db);
     }
@@ -162,6 +162,27 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         table: "WalletInfo",
         column: "showSeedBackupReminder",
         definition: "BOOLEAN DEFAULT FALSE",
+      );
+    }
+    if (oldVersion <= 12) {
+      await _createWalletInfoAccountTable(db);
+      await _addColumnIfNotExists(
+        db,
+        table: "WalletInfo",
+        column: "accountDiscoveryLimit",
+        definition: "INTEGER DEFAULT NULL",
+      );
+      await _addColumnIfNotExists(
+        db,
+        table: "WalletInfo",
+        column: "isMultiAccountsEnabled",
+        definition: "INTEGER DEFAULT NULL",
+      );
+      await _addColumnIfNotExists(
+        db,
+        table: "WalletInfo",
+        column: "currentAccountIndex",
+        definition: "INTEGER NOT NULL DEFAULT 0",
       );
     }
   }, onCreate: (Database db, int version) async {
@@ -188,9 +209,12 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
+  currentAccountIndex INTEGER NOT NULL DEFAULT 0,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
+  accountDiscoveryLimit INTEGER DEFAULT NULL,
+  isMultiAccountsEnabled INTEGER DEFAULT NULL,
   showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
@@ -257,6 +281,7 @@ CREATE TABLE BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
+
     await _createBridgeTransferTable(db);
     await _createNodeTable(db);
     await _createTradeTable(db);
@@ -264,6 +289,7 @@ CREATE TABLE BalanceCardStyleSettings (
     await _createSplTokenTable(db);
     await _createTronTokenTable(db);
     await _createImportedNFTTable(db);
+    await _createWalletInfoAccountTable(db);
   });
 }
 
@@ -327,6 +353,24 @@ CREATE TABLE IF NOT EXISTS Trade (
   await db.execute('''
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
+''');
+}
+
+Future<void> _createWalletInfoAccountTable(Database db) async {
+  await db.execute('''
+CREATE TABLE IF NOT EXISTS WalletInfoAccount (
+  walletInfoAccountId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  walletInfoId INTEGER NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId),
+  UNIQUE(walletInfoId, accountIndex)
+);
+''');
+
+  await db.execute('''
+CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
+ON WalletInfoAccount(walletInfoId);
 ''');
 }
 

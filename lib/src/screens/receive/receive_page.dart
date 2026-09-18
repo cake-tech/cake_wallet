@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -104,7 +103,6 @@ class ReceivePage extends BasePage {
                   amountController: _amountController,
                 ),
               ),
-              AddressList(addressListViewModel: addressListViewModel),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
