@@ -9,7 +9,6 @@ import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,13 +17,11 @@ class DesktopDashboardPage extends StatelessWidget {
   DesktopDashboardPage({
     required this.balancePage,
     required this.dashboardViewModel,
-    required this.addressListViewModel,
     required this.desktopKey,
   });
 
   final BalancePage balancePage;
   final DashboardViewModel dashboardViewModel;
-  final WalletAddressListViewModel addressListViewModel;
   final GlobalKey<NavigatorState> desktopKey;
 
   bool _isEffectsInstalled = false;

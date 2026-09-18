@@ -67,116 +67,113 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surfaceDim,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    decoration: BoxDecoration(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+      gradient: LinearGradient(
+        colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surfaceDim],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: SafeArea(
+      child: Column(
+        children: [
+          Observer(
+            builder: (_) => ModalTopBar(
+              title: _pageTitle,
+              bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
+                  ? null
+                  : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
+              leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
+              onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Observer(
-                builder: (_) => ModalTopBar(
-                  title: _pageTitle,
-                  bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
-                      ? null
-                      : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
-                  leadingIcon: const Icon(Icons.close),
-                  leadingSemanticLabel: S.of(context).close,
-                  onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-                ),
+          Expanded(
+            child: Observer(
+              builder: (_) => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _customAmountMode
+                    ? BuySellCustomAmountInput(
+                        fiatCurrency: widget.buySellViewModel.fiatCurrency,
+                        cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                        cryptoAmount: widget.buySellViewModel.cryptoAmount,
+                        isLoading: _isLoadingPaymentMethods,
+                        hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
+                        onCurrencySelectorPressed: () => selectCryptoCurrency(context),
+                        controller: customInputController,
+                        focusNode: customInputFocusNode,
+                        onContinuePressed: () {
+                          navigateToProviders(context);
+                        },
+                        onChanged: (amount) {
+                          if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
+                            widget.buySellViewModel.setCryptoAmountFromFiat(amount);
+                          } else {
+                            widget.buySellViewModel.changeFiatAmount(amount: amount);
+                          }
+                        },
+                      )
+                    : BuySellDefaultAmountSelector(
+                        key: const ValueKey(0),
+                        defaultAmounts: widget.buySellViewModel.defaultAmounts,
+                        fiatCurrency: widget.buySellViewModel.fiatCurrency,
+                        currentAmount: widget.buySellViewModel.fiatAmount,
+                        hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
+                        onCurrencySelectorPressed: () => selectCryptoCurrency(context),
+                        onFiatSelectorPressed: () => selectFiatCurrency(context),
+                        cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                        isLoading: _isLoadingPaymentMethods,
+                        mode: widget.buySellViewModel.mode,
+                        onSelected: (amount) async {
+                          if (amount == null) {
+                            // this resets the rate and prevents showing 0 usd = 0.something btc
+                            await widget.buySellViewModel.changeFiatAmount(amount: "");
+                            setState(() {
+                              _customAmountMode = true;
+                            });
+                            customInputFocusNode.requestFocus();
+                          } else {
+                            if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
+                              await widget.buySellViewModel.setCryptoAmountFromFiat(amount);
+                            } else {
+                              await widget.buySellViewModel.changeFiatAmount(amount: amount);
+                            }
+                            if (context.mounted) {
+                              await navigateToProviders(context);
+                            }
+                          }
+                        },
+                      ),
               ),
-              Expanded(
-                child: Observer(
-                  builder: (_) => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _customAmountMode
-                        ? BuySellCustomAmountInput(
-                            fiatCurrency: widget.buySellViewModel.fiatCurrency,
-                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
-                            cryptoAmount: widget.buySellViewModel.cryptoAmount,
-                            isLoading: _isLoadingPaymentMethods,
-                            hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
-                            onCurrencySelectorPressed: () => selectCryptoCurrency(context),
-                            controller: customInputController,
-                            focusNode: customInputFocusNode,
-                            onContinuePressed: () {
-                              navigateToProviders(context);
-                            },
-                            onChanged: (amount) {
-                              if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
-                                widget.buySellViewModel.setCryptoAmountFromFiat(amount);
-                              } else {
-                                widget.buySellViewModel.changeFiatAmount(amount: amount);
-                              }
-                            },
-                          )
-                        : BuySellDefaultAmountSelector(
-                            key: const ValueKey(0),
-                            defaultAmounts: widget.buySellViewModel.defaultAmounts,
-                            fiatCurrency: widget.buySellViewModel.fiatCurrency,
-                            currentAmount: widget.buySellViewModel.fiatAmount,
-                            hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
-                            onCurrencySelectorPressed: () => selectCryptoCurrency(context),
-                            onFiatSelectorPressed: () => selectFiatCurrency(context),
-                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
-                            isLoading: _isLoadingPaymentMethods,
-                            mode: widget.buySellViewModel.mode,
-                            onSelected: (amount) async {
-                              if (amount == null) {
-                                // this resets the rate and prevents showing 0 usd = 0.something btc
-                                await widget.buySellViewModel.changeFiatAmount(amount: "");
-                                setState(() {
-                                  _customAmountMode = true;
-                                });
-                                customInputFocusNode.requestFocus();
-                              } else {
-                                if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
-                                  await widget.buySellViewModel.setCryptoAmountFromFiat(amount);
-                                } else {
-                                  await widget.buySellViewModel.changeFiatAmount(amount: amount);
-                                }
-                                if (context.mounted) {
-                                  await navigateToProviders(context);
-                                }
-                              }
-                            },
-                          ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 
   void selectCryptoCurrency(BuildContext context) => CurrencyPickerSheet.show(
-        context: context,
-        args: CurrencyPickerArgs(
-          items: widget.buySellViewModel.activeWalletCurrencies.toList(),
-          onSelected: (item) => widget.buySellViewModel.changeCryptoCurrency(currency: item),
-          symbolResolver: widget.buySellViewModel.amountParsingProxy.getCryptoSymbol,
-        ),
-      );
+    context: context,
+    args: CurrencyPickerArgs(
+      items: widget.buySellViewModel.activeWalletCurrencies.toList(),
+      onSelected: (item) => widget.buySellViewModel.changeCryptoCurrency(currency: item),
+      symbolResolver: widget.buySellViewModel.amountParsingProxy.getCryptoSymbol,
+    ),
+  );
 
   void selectFiatCurrency(BuildContext context) => FiatCurrencyPickerSheet.show(
-        context: context,
-        selected: widget.buySellViewModel.fiatCurrency,
-        onSelected: (item) => widget.buySellViewModel.changeFiatCurrency(currency: item),
-      );
+    context: context,
+    selected: widget.buySellViewModel.fiatCurrency,
+    onSelected: (item) => widget.buySellViewModel.changeFiatCurrency(currency: item),
+  );
 
   String get _pageTitle => widget.buySellViewModel.mode == BuySellPageMode.buy
       ? S.current.buy
       : S.current.sell +
-          ((widget.buySellViewModel.cryptoCurrencies.length == 1)
-              ? " ${widget.buySellViewModel.cryptoCurrencies.first.fullName}"
-              : "");
+            ((widget.buySellViewModel.cryptoCurrencies.length == 1)
+                ? " ${widget.buySellViewModel.cryptoCurrencies.first.fullName}"
+                : "");
 
   Future<void> navigateToProviders(BuildContext context) async {
     if (_isLoadingPaymentMethods) {
@@ -189,8 +186,10 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
       });
 
       await asyncWhen(
-        (_) => [PaymentMethodLoaded, PaymentMethodFailed]
-            .contains(widget.buySellViewModel.paymentMethodState.runtimeType),
+        (_) => [
+          PaymentMethodLoaded,
+          PaymentMethodFailed,
+        ].contains(widget.buySellViewModel.paymentMethodState.runtimeType),
       );
 
       if (widget.buySellViewModel.paymentMethodState is PaymentMethodFailed) {
@@ -260,47 +259,47 @@ class BuySellCustomAmountInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox.shrink(),
+        Column(
+          spacing: 8,
           children: [
-            const SizedBox.shrink(),
-            Column(
-              spacing: 8,
-              children: [
-                FloatingAmountInput(
-                  currency: fiatCurrency,
-                  focusNode: focusNode,
-                  controller: controller,
-                  onChanged: onChanged,
-                ),
-                Opacity(
-                  opacity: cryptoAmount.isEmpty ? 0 : 1,
-                  child: Text(
-                    "≈ ${cryptoAmount} ${cryptoCurrency.symbol}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
+            FloatingAmountInput(
+              currency: fiatCurrency,
+              focusNode: focusNode,
+              controller: controller,
+              onChanged: onChanged,
             ),
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: NewPrimaryButton(
-                disabled: controller.text.isEmpty,
-                onPressed: onContinuePressed,
-                isLoading: isLoading,
-                text: S.of(context).continue_text,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
+            Opacity(
+              opacity: cryptoAmount.isEmpty ? 0 : 1,
+              child: Text(
+                "≈ ${cryptoAmount} ${cryptoCurrency.symbol}",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
         ),
-      );
+        Padding(
+          padding: const EdgeInsets.all(18),
+          child: NewPrimaryButton(
+            disabled: controller.text.isEmpty,
+            onPressed: onContinuePressed,
+            isLoading: isLoading,
+            text: S.of(context).continue_text,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class BuySellDefaultAmountSelector extends StatelessWidget {
@@ -331,55 +330,53 @@ class BuySellDefaultAmountSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18),
-        child: Column(
-          spacing: 24,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hasCurrencySelector)
-              BuySellCurrencyPickerPill(
-                title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,
-                curr: cryptoCurrency,
-                onTap: onCurrencySelectorPressed,
-              ),
-            BuySellCurrencyPickerPill(
-              title: mode == BuySellPageMode.sell
-                  ? S.of(context).receive
-                  : S.of(context).purchase_with,
-              curr: fiatCurrency,
-              onTap: onFiatSelectorPressed,
-            ),
-            Text(
-              mode == BuySellPageMode.sell
-                  ? S.of(context).choose_amount_to_sell
-                  : S.of(context).choose_amount_to_buy,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              // +1 for "custom" option
-              itemCount: defaultAmounts.length + 1,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 16,
-                mainAxisExtent: 105,
-              ),
-              itemBuilder: (context, index) {
-                final String? item = index == defaultAmounts.length ? null : defaultAmounts[index];
-
-                return BuySellAmountPill(
-                  isLoading: isLoading && item == currentAmount,
-                  amount: item == null ? null : Money.parse(item, fiatCurrency),
-                  onTap: () => onSelected(item),
-                );
-              },
-            ),
-          ],
+    padding: const EdgeInsets.symmetric(horizontal: 18),
+    child: Column(
+      spacing: 24,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (hasCurrencySelector)
+          BuySellCurrencyPickerPill(
+            title: mode == BuySellPageMode.sell ? S.of(context).sell : S.of(context).buy,
+            curr: cryptoCurrency,
+            onTap: onCurrencySelectorPressed,
+          ),
+        BuySellCurrencyPickerPill(
+          title: mode == BuySellPageMode.sell ? S.of(context).receive : S.of(context).purchase_with,
+          curr: fiatCurrency,
+          onTap: onFiatSelectorPressed,
         ),
-      );
+        Text(
+          mode == BuySellPageMode.sell
+              ? S.of(context).choose_amount_to_sell
+              : S.of(context).choose_amount_to_buy,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          // +1 for "custom" option
+          itemCount: defaultAmounts.length + 1,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 16,
+            mainAxisExtent: 105,
+          ),
+          itemBuilder: (context, index) {
+            final String? item = index == defaultAmounts.length ? null : defaultAmounts[index];
+
+            return BuySellAmountPill(
+              isLoading: isLoading && item == currentAmount,
+              amount: item == null ? null : Money.parse(item, fiatCurrency),
+              onTap: () => onSelected(item),
+            );
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 class BuySellAmountPill extends StatelessWidget {
@@ -391,72 +388,73 @@ class BuySellAmountPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(9999999999),
-          border: Border.all(
-            width: 1,
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          ),
-          gradient: LinearGradient(
-            colors: [
-              context.customColors.cardGradientColorPrimary,
-              context.customColors.cardGradientColorSecondary,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(9999999999),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(9999999999),
-            onTap: onTap,
-            child: isLoading
-                ? const CupertinoActivityIndicator()
-                : Column(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(9999999999),
+      border: Border.all(width: 1, color: Theme.of(context).colorScheme.surfaceContainerHigh),
+      gradient: LinearGradient(
+        colors: [
+          context.customColors.cardGradientColorPrimary,
+          context.customColors.cardGradientColorSecondary,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(9999999999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(9999999999),
+        onTap: onTap,
+        child: isLoading
+            ? const CupertinoActivityIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    spacing: 4,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        spacing: 4,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (amount != null)
-                            MoneyText(
-                              amount!,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                              showSymbol: false,
-                            ),
-                          Text(
-                            amount?.currency.symbol ?? S.of(context).custom,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: amount == null
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (amount == null)
-                        Text(
-                          S.of(context).enter_amount,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                      if (amount != null)
+                        MoneyText(
+                          amount!,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          showSymbol: false,
                         ),
+                      Text(
+                        amount?.currency.symbol ?? S.of(context).custom,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: amount == null
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
-          ),
-        ),
-      );
+                  if (amount == null)
+                    Text(
+                      S.of(context).enter_amount,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
+              ),
+      ),
+    ),
+  );
 }
 
 class BuySellCurrencyPickerPill extends StatelessWidget {
-  const BuySellCurrencyPickerPill(
-      {required this.title, required this.curr, required this.onTap, super.key});
+  const BuySellCurrencyPickerPill({
+    required this.title,
+    required this.curr,
+    required this.onTap,
+    super.key,
+  });
 
   final String title;
   final Currency curr;
@@ -464,74 +462,72 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        spacing: 12,
-        children: [
-          Text(
-            title,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    spacing: 12,
+    children: [
+      Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: MediaQuery.sizeOf(context).width,
+          height: 62,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(18),
           ),
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
-              width: MediaQuery.sizeOf(context).width,
-              height: 62,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  spacing: 12,
                   children: [
-                    Row(
-                      spacing: 12,
+                    if (curr is CryptoCurrency)
+                      TokenChainDisplay(size: 30, asset: curr as CryptoCurrency)
+                    else if (curr is FiatCurrency)
+                      SizedBox(
+                        width: 30,
+                        child: Text(
+                          (curr as FiatCurrency).emoji,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 2,
                       children: [
-                        if (curr is CryptoCurrency)
-                          TokenChainDisplay(size: 30, asset: curr as CryptoCurrency)
-                        else if (curr is FiatCurrency)
-                          SizedBox(
-                              width: 30,
-                              child: Text(
-                                (curr as FiatCurrency).emoji,
-                                style: const TextStyle(fontSize: 24),
-                              )),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 2,
-                          children: [
-                            Text(
-                              curr.fullName ?? curr.symbol,
-                            ),
-                            CurrencySymbolText(
-                              curr,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                        Text(curr.fullName ?? curr.symbol),
+                        CurrencySymbolText(
+                          curr,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
-                    RotatedBox(
-                      quarterTurns: 2,
-                      child: CakeImageWidget(
-                        imageUrl: "assets/new-ui/dropdown_arrow.svg",
-                        width: 8,
-                        height: 8,
-                        colorFilter: ColorFilter.mode(
-                            Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                      ),
-                    ),
                   ],
                 ),
-              ),
+                RotatedBox(
+                  quarterTurns: 2,
+                  child: CakeImageWidget(
+                    imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                    width: 8,
+                    height: 8,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 }
