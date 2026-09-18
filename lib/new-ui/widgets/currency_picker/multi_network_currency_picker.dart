@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/chain_chip_strip.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_footer.dart";
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_recents_loader.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart';
@@ -100,7 +101,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   void _selectCurrency(CryptoCurrency currency) {
     widget.args.onSelected(currency);
-    Navigator.of(context).maybePop();
+    Navigator.of(context).pop();
   }
 
   void _onStablecoinPillTapped(CryptoCurrency tapped) {
@@ -148,6 +149,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   @override
   Widget build(BuildContext context) {
+    final footerHeight = CurrencyPickerFooter.heightFor(hasAction: false);
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
@@ -158,21 +160,23 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
             onSelected: (network) => setState(() => _selectedNetwork = network),
           ),
         Expanded(
-          child: _MultiNetworkPickerBody(
-            items: _visibleItems,
-            isSearching: _isSearching,
-            recents: _recents,
-            recentsLoaded: _recentsLoaded,
-            natives: _natives,
-            selected: widget.args.selected,
-            symbolResolver: widget.args.symbolResolver,
-            onSelect: _selectCurrency,
-            onStablecoinTap: _onStablecoinPillTapped,
+          child: Stack(
+            children: [
+              _MultiNetworkPickerBody(
+                items: _visibleItems,
+                isSearching: _isSearching,
+                recents: _recents,
+                recentsLoaded: _recentsLoaded,
+                natives: _natives,
+                selected: widget.args.selected,
+                symbolResolver: widget.args.symbolResolver,
+                onSelect: _selectCurrency,
+                onStablecoinTap: _onStablecoinPillTapped,
+                footerHeight: footerHeight,
+              ),
+              CurrencyPickerFooter(searchController: _searchController),
+            ],
           ),
-        ),
-        CurrencyPickerSearchField(
-          controller: _searchController,
-          hintText: S.of(context).search,
         ),
       ],
     );
@@ -190,10 +194,12 @@ class _MultiNetworkPickerBody extends StatefulWidget {
     required this.symbolResolver,
     required this.onSelect,
     required this.onStablecoinTap,
+    required this.footerHeight,
   });
 
   final bool isSearching;
   final bool recentsLoaded;
+  final double footerHeight;
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final List<CryptoCurrency> recents;
@@ -275,7 +281,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     if (items.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(24, 24, 24, widget.footerHeight),
           child: Text(
             S.of(context).picker_no_matches,
             textAlign: TextAlign.center,
@@ -294,7 +300,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
           controller: _scrollController,
           primary: false,
           physics: const ClampingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
           children: [
             CurrencyPickerListContainer(
               rows: [
@@ -351,7 +357,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
         controller: _scrollController,
         primary: false,
         physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
         children: [
           if (recentsLoaded && visibleRecents.isNotEmpty)
             _PickerSection(
@@ -525,7 +531,7 @@ class _PickerSection extends StatelessWidget {
       children: [
         PickerSectionHeader(title: title),
         child,
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -541,15 +547,13 @@ class _SymbolTrailing extends StatelessWidget {
   final String Function(CryptoCurrency) symbolResolver;
 
   @override
-  Widget build(BuildContext context) {
-    return Text(
+  Widget build(BuildContext context) => Text(
       symbolResolver(currency),
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
+            letterSpacing: -0.07,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
     );
-  }
 }
 
 class _SeeAllRow extends StatelessWidget {
@@ -601,13 +605,12 @@ class _RecentsRow extends StatelessWidget {
   final void Function(CryptoCurrency) onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
+  Widget build(BuildContext context) => SizedBox(
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: 4),
         itemBuilder: (_, i) {
           final item = items[i];
           return _RecentPill(
@@ -619,7 +622,6 @@ class _RecentsRow extends StatelessWidget {
         },
       ),
     );
-  }
 }
 
 class _RecentPill extends StatelessWidget {
@@ -642,7 +644,8 @@ class _RecentPill extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(80),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        height: 36,
+        padding: const EdgeInsets.only(left: 6, right: 10),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
           borderRadius: BorderRadius.circular(80),
@@ -658,8 +661,9 @@ class _RecentPill extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.06,
                   ),
             ),
           ],

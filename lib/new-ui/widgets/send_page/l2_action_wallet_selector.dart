@@ -354,8 +354,7 @@ class WalletRow extends StatelessWidget {
   final bool? isSelected;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: isCurrent ? 64 : 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -397,9 +396,20 @@ class WalletRow extends StatelessWidget {
                 ),
                 isSelected != null
                     ? NewSimpleCheckbox(value: isSelected!, onChanged: (val) {})
-                    : Icon(
-                        Icons.chevron_right,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    : SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: Center(
+                          child: CakeImageWidget(
+                            imageUrl: "assets/new-ui/arrow_right.svg",
+                            width: 7,
+                            height: 12,
+                            colorFilter: ColorFilter.mode(
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       )
               ],
             ),
@@ -407,5 +417,4 @@ class WalletRow extends StatelessWidget {
         ),
       ),
     );
-  }
 }
