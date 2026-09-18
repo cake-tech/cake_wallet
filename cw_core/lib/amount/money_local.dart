@@ -1,6 +1,6 @@
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/currency/currency.dart";
-import "package:intl/intl.dart";
 
 extension WithLocalSeparator<T extends Currency> on Money<T> {
   String toLocalStringWithSymbol({
@@ -38,10 +38,7 @@ extension WithLocalSeparator<T extends Currency> on Money<T> {
 
   String _withLocalSeparator(String amount, {String? locale}) {
     final isNegative = amount.startsWith("-");
-    final formater = NumberFormat("#,###", locale);
-    final parts = (isNegative ? amount.substring(1) : amount).split(".");
-    final formatted = [formater.format(int.tryParse(parts.first) ?? 0), ...parts.sublist(1)]
-        .join(formater.symbols.DECIMAL_SEP);
+    final formatted = (isNegative ? amount.substring(1) : amount).withLocalSeperator(locale);
 
     return isNegative ? "-$formatted" : formatted;
   }

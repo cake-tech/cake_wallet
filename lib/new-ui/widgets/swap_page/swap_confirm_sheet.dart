@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
