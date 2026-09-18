@@ -89,6 +89,29 @@ class ElectrumTransactionResolver {
   /// should fail fast and move on rather than stalling visible progress.
   static const int _resolutionBatchTimeoutMs = 6 * 1000;
 
+  /// Upper bound for the escalating per-txid timeout (see
+  /// [_timeoutMsFor]) - a transaction that's merely large (not actually
+  /// unfetchable) should eventually get a budget generous enough to
+  /// succeed, but this still bounds how long one attempt can take.
+  static const int _maxResolutionBatchTimeoutMs = 48 * 1000;
+
+  /// Consecutive resolution failures per txid. A large transaction's own
+  /// verbose/hex fetch (see [_resolveTransactionDetails]'s initial fetch,
+  /// as opposed to the chunked input fetches) is a single request, not a
+  /// small batch - [_resolutionBatchTimeoutMs] can be too short for it,
+  /// and [ElectrumWalletBase._processChunksToMap] swallows that timeout
+  /// silently (no exception, no log), which previously meant the same
+  /// too-short timeout got retried forever with no visible signal at all.
+  final Map<String, int> _consecutiveFailures = {};
+
+  /// Doubles the base timeout per consecutive failure for [txId], capped at
+  /// [_maxResolutionBatchTimeoutMs].
+  int _timeoutMsFor(String txId) {
+    final failures = (_consecutiveFailures[txId] ?? 0).clamp(0, 3);
+    final scaled = _resolutionBatchTimeoutMs * (1 << failures);
+    return scaled > _maxResolutionBatchTimeoutMs ? _maxResolutionBatchTimeoutMs : scaled;
+  }
+
   /// Register interest in [txId]'s resolution for the transaction details
   /// page, resolved whenever the shared background loop naturally reaches
   /// it. Returns the stored info as-is if it's already resolved.
@@ -207,13 +230,21 @@ class ElectrumTransactionResolver {
       return existingTxInfo;
     }
 
-    final targetVerbose =
-        await _wallet.fetchTransactionVerboseBatch([txId], timeoutMs: _resolutionBatchTimeoutMs);
+    // A single whole-transaction fetch, not a small batch - unlike the
+    // chunked input fetches below, a large tx's own verbose/hex payload can
+    // genuinely need more than the base timeout, and a timeout here is
+    // swallowed silently (see _processChunksToMap), so without this escalation
+    // a merely-large (not actually unfetchable) transaction would retry at
+    // the same too-short timeout forever with zero visible progress.
+    final timeoutMs = _timeoutMsFor(txId);
+    final targetVerbose = await _wallet.fetchTransactionVerboseBatch([txId], timeoutMs: timeoutMs);
     cacheVerboseHexes(targetVerbose);
     final targetOriginal = (await parseTransactions(targetVerbose))[txId];
     if (targetOriginal == null) {
+      _consecutiveFailures[txId] = (_consecutiveFailures[txId] ?? 0) + 1;
       return existingTxInfo;
     }
+    _consecutiveFailures.remove(txId);
 
     // Height/time/confirmations are properties of the target tx itself, not
     // of how many inputs are resolved yet - compute once and reuse for every

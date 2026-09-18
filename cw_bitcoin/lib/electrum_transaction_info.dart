@@ -252,12 +252,25 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // Reliable pre-fetch since ownership comes from scriptSig/witness alone.
       // Uses ownedInputTotal (sums only resolved inputs so far) rather than
       // waiting for full resolution, so it can transiently undercount but
-      // never overcount. Clamped at 0: an input confirmed ours but not yet
-      // resolved counts toward ownedInputCount but not ownedInputTotal,
-      // which could otherwise drive this negative.
-      final rawDisplayAmount =
-          ownedInputTotal - ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
-      walletDisplayAmount = rawDisplayAmount < 0 ? 0 : rawDisplayAmount;
+      // never overcount.
+      final ownedOutputsTotal =
+          ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
+      final rawDisplayAmount = ownedInputTotal - ownedOutputsTotal;
+      // Every owned input's value is known (not just its ownership), so
+      // ownedInputTotal can no longer be an undercount.
+      final ownedInputsFullyResolved = ownedInputs.length == ownedInputCount;
+      if (rawDisplayAmount < 0 && ownedInputsFullyResolved) {
+        // We contributed input(s) but were credited with more value than we
+        // put in - e.g. the receiver side of a payjoin, where the receiver
+        // co-spends one of their own UTXOs and the resulting payment output
+        // is larger than that UTXO by design. Net effect is a receive.
+        direction = TransactionDirection.incoming;
+        walletDisplayAmount = -rawDisplayAmount;
+      } else {
+        // Otherwise this is a genuine send; clamp at 0 only while
+        // ownedInputTotal may still be an undercount (see above).
+        walletDisplayAmount = rawDisplayAmount < 0 ? 0 : rawDisplayAmount;
+      }
     }
 
     // MWEB HogEx

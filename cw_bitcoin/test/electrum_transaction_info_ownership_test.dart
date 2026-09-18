@@ -256,6 +256,129 @@ void main() {
       expect(info.amount.amount.toInt(), ownedInputAmount);
     });
 
+    // Payjoin receiver: the wallet co-spends one of its own UTXOs as an
+    // extra input, but the payment output credited back to it is larger
+    // than that UTXO by design (defeats the round-number heuristic). Net
+    // effect is a receive, not a 0-amount send.
+    test(
+        "payjoin receiver: owns one input but is credited more than it put"
+        " in -> once resolved, reclassified as incoming with the net amount",
+        () {
+      const ownedInputAmount = 33554432;
+      const ownedOutputAmount = 50000000;
+      const strangerInputAmount = 1800000000;
+      const strangerChangeAmount = 1783000000;
+      final placeholderSig = "11" * 64;
+
+      final ownedInput = TxInput(txId: "aa" * 32, txIndex: 0);
+      final strangerInput = TxInput(txId: "bb" * 32, txIndex: 0);
+
+      final tx = BtcTransaction(
+        inputs: [ownedInput, strangerInput],
+        outputs: [
+          TxOutput(
+            amount: BigInt.from(ownedOutputAmount),
+            scriptPubKey: ownerPub.toP2wpkhAddress().toScriptPubKey(),
+          ),
+          TxOutput(amount: BigInt.from(strangerChangeAmount), scriptPubKey: strangerScriptCode),
+        ],
+        witnesses: [
+          TxWitnessInput(stack: [placeholderSig, ownedPubkeyHex]),
+          TxWitnessInput(stack: [placeholderSig, strangerPubkeyHex]),
+        ],
+        hasSegwit: true,
+      );
+
+      final ownedParentTx = BtcTransaction(
+        inputs: [],
+        outputs: [
+          TxOutput(
+            amount: BigInt.from(ownedInputAmount),
+            scriptPubKey: ownerPub.toP2wpkhAddress().toScriptPubKey(),
+          ),
+        ],
+        hasSegwit: false,
+      );
+      final strangerParentTx = BtcTransaction(
+        inputs: [],
+        outputs: [
+          TxOutput(amount: BigInt.from(strangerInputAmount), scriptPubKey: strangerScriptCode),
+        ],
+        hasSegwit: false,
+      );
+
+      final bundle = ElectrumTransactionBundle(
+        tx,
+        ins: [ownedParentTx, strangerParentTx],
+        confirmations: 1,
+      );
+
+      final info = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
+        walletType,
+        network,
+        addresses: {ownedAddress},
+      );
+
+      expect(info.direction, TransactionDirection.incoming);
+      expect(info.amount.amount.toInt(), ownedOutputAmount - ownedInputAmount);
+    });
+
+    test(
+        "payjoin receiver, owned input's parent not fetched yet -> stays"
+        " outgoing/0 and not exact rather than prematurely flipping to incoming",
+        () {
+      const ownedOutputAmount = 50000000;
+      const strangerInputAmount = 1800000000;
+      const strangerChangeAmount = 1783000000;
+      final placeholderSig = "11" * 64;
+
+      final ownedInput = TxInput(txId: "aa" * 32, txIndex: 0);
+      final strangerInput = TxInput(txId: "bb" * 32, txIndex: 0);
+
+      final tx = BtcTransaction(
+        inputs: [ownedInput, strangerInput],
+        outputs: [
+          TxOutput(
+            amount: BigInt.from(ownedOutputAmount),
+            scriptPubKey: ownerPub.toP2wpkhAddress().toScriptPubKey(),
+          ),
+          TxOutput(amount: BigInt.from(strangerChangeAmount), scriptPubKey: strangerScriptCode),
+        ],
+        witnesses: [
+          TxWitnessInput(stack: [placeholderSig, ownedPubkeyHex]),
+          TxWitnessInput(stack: [placeholderSig, strangerPubkeyHex]),
+        ],
+        hasSegwit: true,
+      );
+
+      final strangerParentTx = BtcTransaction(
+        inputs: [],
+        outputs: [
+          TxOutput(amount: BigInt.from(strangerInputAmount), scriptPubKey: strangerScriptCode),
+        ],
+        hasSegwit: false,
+      );
+
+      // ownedInput's own parent tx not fetched yet - only strangerInput's is.
+      final bundle = ElectrumTransactionBundle(
+        tx,
+        ins: [null, strangerParentTx],
+        confirmations: 1,
+      );
+
+      final info = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
+        walletType,
+        network,
+        addresses: {ownedAddress},
+      );
+
+      expect(info.direction, TransactionDirection.outgoing);
+      expect(info.amount.amount.toInt(), 0);
+      expect(info.additionalInfo["isWalletDisplayAmountExact"], false);
+    });
+
     test(
         "unknown-ownership input (taproot key-path witness, sig only), parent not fetched -> inputsOwnershipFullyResolved false",
         () {

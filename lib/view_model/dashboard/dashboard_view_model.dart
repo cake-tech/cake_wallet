@@ -551,8 +551,6 @@ abstract class DashboardViewModelBase with Store {
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
       // TODO(malik) update this in a saner way during the vm refactor
-      String _txIdentityString(String txHash, TransactionDirection direction) =>
-          "${txHash}_$direction";
       String _txIdentityStringConfirmations(
         String txHash,
         TransactionDirection direction,
@@ -594,20 +592,16 @@ abstract class DashboardViewModelBase with Store {
               ))
           .toList();
 
-      final newKeys = newTransactions
-          .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
-          .toSet();
+      // Keyed by hash alone (not hash+direction): a tx's direction/amount can
+      // be reclassified between resolution passes (e.g. a payjoin receive
+      // that initially looks like a partial outgoing send before all owned
+      // inputs are resolved), and a stale row for the old direction must not
+      // survive alongside the corrected one.
+      final newHashes = newTransactions.map((item) => item.transaction.txHash).toSet();
 
-      transactions.removeWhere((item) {
-        if (wallet.type == WalletType.zcash) {
-          return newTransactions.any(
-            (n) => n.transaction.txHash == item.transaction.txHash,
-          );
-        }
-        return newKeys.contains(
-          _txIdentityString(item.transaction.txHash, item.transaction.direction),
-        );
-      });
+      transactions.removeWhere(
+        (item) => newHashes.contains(item.transaction.txHash),
+      );
 
       transactions.addAll(newTransactions);
       // transactions.clear();
