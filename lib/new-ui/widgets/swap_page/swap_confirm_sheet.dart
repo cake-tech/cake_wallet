@@ -8,8 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/utils/ensure_hardware_wallet_ready.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
@@ -47,28 +46,9 @@ class _SwapConfirmSheetState extends State<SwapConfirmSheet> {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
     if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: sendVM.walletType,
-            hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, _) async {
-              await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-            reconnectWallet: sendVM.wallet,
-          ),
-        );
-
-        // Recheck to handle tap-backs
-        if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-          return;
-        }
-      } else {
-        await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-      }
+      final ready =
+          await ensureHardwareWalletReady(context, sendVM.hardwareWalletViewModel!, sendVM.wallet);
+      if (!ready || !mounted) return;
     }
 
     widget.exchangeTradeViewModel.confirmSending();

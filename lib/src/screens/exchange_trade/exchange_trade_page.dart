@@ -1,7 +1,7 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/utils/ensure_hardware_wallet_ready.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
@@ -210,20 +210,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     final sendVM = widget.exchangeTradeViewModel.sendViewModel;
 
     if (sendVM.wallet.isHardwareWallet) {
-      if (!sendVM.hardwareWalletViewModel!.isConnected(sendVM.walletType)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-              walletType: sendVM.walletType,
-              hardwareWalletType: sendVM.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) async {
-                await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-                Navigator.of(context).pop();
-              },
-              reconnectWallet: sendVM.wallet,
-            ));
-      } else {
-        await sendVM.hardwareWalletViewModel!.initWallet(sendVM.wallet);
-      }
+      final ready = await ensureHardwareWalletReady(
+        context,
+        sendVM.hardwareWalletViewModel!,
+        sendVM.wallet,
+        isReconnect: true,
+      );
+      if (!ready || !mounted) return;
     }
 
     widget.exchangeTradeViewModel.confirmSending();

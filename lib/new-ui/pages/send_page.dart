@@ -40,7 +40,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
-import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/utils/ensure_hardware_wallet_ready.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
@@ -877,31 +877,12 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.sendViewModel.wallet.isHardwareWallet) {
-      if (!widget.sendViewModel.hardwareWalletViewModel!
-          .isConnected(widget.sendViewModel.walletType)) {
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: widget.sendViewModel.walletType,
-            hardwareWalletType: widget.sendViewModel.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (_, __) async {
-              await widget.sendViewModel.hardwareWalletViewModel!
-                  .initWallet(widget.sendViewModel.wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-            reconnectWallet: widget.sendViewModel.wallet,
-          ),
-        );
-
-        // Recheck to handle tap-backs
-        if (!widget.sendViewModel.hardwareWalletViewModel!
-            .isConnected(widget.sendViewModel.walletType)) {
-          return;
-        }
-      } else {
-        await widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
-      }
+      final ready = await ensureHardwareWalletReady(
+        context,
+        widget.sendViewModel.hardwareWalletViewModel!,
+        widget.sendViewModel.wallet,
+      );
+      if (!ready || !mounted) return;
     }
 
     if (widget.sendViewModel.wallet.type == WalletType.monero) {

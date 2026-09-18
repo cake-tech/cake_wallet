@@ -917,18 +917,6 @@ class _PairingCancelledException implements Exception {
 
 /// The live Trezor session belongs to another wallet and could not be rebound
 /// to [walletName] (the user cancelled or the device rejected it).
-class TrezorSessionMismatchException implements Exception {
-  TrezorSessionMismatchException(this.walletName, {this.cancelled = false});
-
-  final String walletName;
-
-  /// True when the session could not be bound because the user exited the
-  /// pairing sheet, rather than because the device rejected or mismatched.
-  final bool cancelled;
-
-  @override
-  String toString() => S.current.trezor_error_session_mismatch;
-}
 
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
 
