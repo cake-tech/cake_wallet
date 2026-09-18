@@ -128,6 +128,11 @@ dependencies:
     git:
       url: https://github.com/cake-tech/trezor_connect
       ref: d1242cea90f84b00200e7bcab914a5af750e23fb
+  trezor_flutter:
+    git:
+      url: https://github.com/cake-tech/trezor-flutter.git
+      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
+      path: trezor-flutter
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
@@ -307,6 +312,7 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/buy_payment_methods/
 
   fonts:
     - family: Lato
