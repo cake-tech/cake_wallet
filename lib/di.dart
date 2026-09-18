@@ -29,6 +29,7 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/core/hardware_wallet/trezor_wallet_settings_storage.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
@@ -438,8 +439,16 @@ Future<void> setup({
     () => TrezorConnect("cakewallet://trezor_connect", appName: "Cake Wallet"),
   );
 
+  getIt.registerLazySingleton<TrezorWalletSettingsStorage>(
+    () => TrezorWalletSettingsStorage(getIt<SecureStorage>()),
+  );
+
   getIt.registerLazySingleton(
-    () => TrezorConnectViewModel(getIt<TrezorConnect>(), getIt<SecureStorage>()),
+    () => TrezorConnectViewModel(
+      getIt<TrezorConnect>(),
+      getIt<SecureStorage>(),
+      getIt<TrezorWalletSettingsStorage>(),
+    ),
   );
 
   getIt.registerFactory<KeyService>(() => KeyService(getIt.get<SecureStorage>()));
@@ -458,7 +467,8 @@ Future<void> setup({
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
       getIt.get<KeyService>(),
-      (WalletType type) => getIt.get<WalletService>(param1: type)));
+      (WalletType type) => getIt.get<WalletService>(param1: type),
+      trezorWalletSettings: getIt.get<TrezorWalletSettingsStorage>()));
 
   getIt.registerFactoryParam<WalletNewVM, NewWalletArguments, void>(
       (newWalletArgs, _) => WalletNewVM(

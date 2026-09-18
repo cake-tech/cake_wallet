@@ -14,6 +14,7 @@ import "package:cake_wallet/themes/core/material_base_theme.dart";
 import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -29,6 +30,7 @@ class ConnectDevicePageParams {
     required this.onConnectDevice,
     this.allowChangeWallet = false,
     this.isReconnect = true,
+    this.reconnectWallet,
   });
 
   final WalletType walletType;
@@ -36,6 +38,12 @@ class ConnectDevicePageParams {
   final bool allowChangeWallet;
   final bool isReconnect;
   final HardwareWalletType hardwareWalletType;
+
+  /// The already existing wallet this connection is for. When set, the view
+  /// model is given the chance to reuse the settings the wallet was set up
+  /// with instead of asking the user again. Leave null when restoring or
+  /// creating a new wallet.
+  final WalletBase? reconnectWallet;
 }
 
 class ConnectDevicePage extends BasePage {
@@ -43,11 +51,13 @@ class ConnectDevicePage extends BasePage {
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
         allowChangeWallet = params.allowChangeWallet || params.isReconnect,
-        isReconnect = params.isReconnect;
+        isReconnect = params.isReconnect,
+        reconnectWallet = params.reconnectWallet;
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final bool isReconnect;
+  final WalletBase? reconnectWallet;
   final HardwareWalletViewModel hardwareWalletVM;
 
   @override
@@ -67,6 +77,7 @@ class ConnectDevicePage extends BasePage {
           hardwareWalletVM,
           currentTheme,
           allowChangeWallet: allowChangeWallet,
+          reconnectWallet: reconnectWallet,
         ),
       );
 }
@@ -78,11 +89,13 @@ class ConnectDevicePageBody extends StatefulWidget {
     this.hardwareWalletVM,
     this.currentTheme, {
     this.allowChangeWallet = false,
+    this.reconnectWallet,
   });
 
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final WalletBase? reconnectWallet;
   final HardwareWalletViewModel hardwareWalletVM;
   final MaterialThemeBase currentTheme;
 
@@ -133,23 +146,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     });
   }
 
-  Future<void> _loadConnectedDevices() async {
-    try {
-      final connected = await widget.hardwareWalletVM.getConnectedBleDevices();
-      
-      printV(connected);
-      if (!mounted || connected.isEmpty) {
-        return;
-      }
-      setState(() {
-        bleDevices.addAll(connected);
-        longWait = false;
-      });
-    } catch (e) {
-      printV(e);
-    }
-  }
-
   @override
   void dispose() {
     _bleRefreshTimer?.cancel();
@@ -175,10 +171,34 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       if (usbDevices.length != dev.length) {
         setState(() => usbDevices = dev);
       }
-    } catch(e) {
+    } catch (e) {
       printV(e);
     }
     _isRefreshingUsb = false;
+  }
+
+  /// Devices that already hold a live connection never show up in a BLE scan
+  /// (a connected peripheral stops advertising), so list them up front.
+  Future<void> _loadConnectedDevices() async {
+    try {
+      final connected = await widget.hardwareWalletVM.getConnectedBleDevices();
+      if (!mounted || connected.isEmpty) return;
+      setState(() {
+        for (final device in connected) {
+          _addBleDevice(device);
+        }
+        longWait = false;
+      });
+    } catch (e) {
+      printV(e);
+    }
+  }
+
+  void _addBleDevice(HardwareWalletDevice device) {
+    final alreadyListed = bleDevices.any((d) => d.id == device.id);
+    if (!alreadyListed) {
+      bleDevices.add(device);
+    }
   }
 
   Future<void> _refreshBleDevices() async {
@@ -186,7 +206,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       if (widget.hardwareWalletVM.isBleEnabled) {
         _bleRefresh = widget.hardwareWalletVM.scanForBleDevices().listen(
               (device) => setState(() {
-                bleDevices.add(device);
+                _addBleDevice(device);
                 if (longWait) {
                   longWait = false;
                 }
@@ -211,6 +231,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
     _isConnectPressed = true;
     try {
+      final reconnectWallet = widget.reconnectWallet;
+      if (reconnectWallet != null) {
+        await widget.hardwareWalletVM.prepareReconnect(reconnectWallet);
+      }
+
       final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
       _isConnectPressed = false;
 
@@ -421,25 +446,30 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       isScrollControlled: true,
       builder: (_) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
-        steps: [
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step1_power.svg",
-            S.of(context).connect_hw_info_step_1,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step2_connect.svg",
-            S.of(context).connect_hw_info_step_2,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step3_unlock.svg",
-            S.of(context).connect_hw_info_step_3,
-          ),
-          InfoStep(
-            "assets/images/wallet_connect_step_icons/step4_select.svg",
-            S.of(context).connect_hw_info_step_4,
-          ),
-        ],
+        steps: _howToConnectSteps(context),
       ),
     );
+  }
+
+  List<InfoStep> _howToConnectSteps(BuildContext context) {
+    const icons = "assets/images/wallet_connect_step_icons";
+
+    // Trezor pairs from its own menu rather than from the phone's Bluetooth
+    // settings, so its steps differ from the Ledger flow.
+    if (widget.hardwareWalletVM.hardwareWalletType == HardwareWalletType.trezor) {
+      return [
+        InfoStep("$icons/step1_power.svg", S.of(context).connect_trezor_info_step_1),
+        InfoStep("$icons/step2_connect.svg", S.of(context).connect_trezor_info_step_2),
+        InfoStep("$icons/step3_unlock.svg", S.of(context).connect_trezor_info_step_3),
+        InfoStep("$icons/step4_select.svg", S.of(context).connect_trezor_info_step_4),
+      ];
+    }
+
+    return [
+      InfoStep("$icons/step1_power.svg", S.of(context).connect_hw_info_step_1),
+      InfoStep("$icons/step2_connect.svg", S.of(context).connect_hw_info_step_2),
+      InfoStep("$icons/step3_unlock.svg", S.of(context).connect_hw_info_step_3),
+      InfoStep("$icons/step4_select.svg", S.of(context).connect_hw_info_step_4),
+    ];
   }
 }

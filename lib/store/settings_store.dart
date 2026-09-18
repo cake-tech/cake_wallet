@@ -97,6 +97,7 @@ abstract class SettingsStoreBase with Store {
       required this.shouldShowYatPopup,
       required this.shouldShowDEuroDisclaimer,
       required this.shouldShowRepWarning,
+      required this.shouldShowTrezorResyncInfo,
       required this.isBitcoinBuyEnabled,
       required this.actionlistDisplayMode,
       required this.pinTimeOutDuration,
@@ -306,6 +307,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
+
+    reaction((_) => shouldShowTrezorResyncInfo,
+        (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowTrezorResyncInfo, val));
 
     reaction((_) => mwebAdDismissed,
         (val) => sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
@@ -815,6 +819,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowRepWarning;
+
+  @observable
+  bool shouldShowTrezorResyncInfo;
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
@@ -1453,6 +1460,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowDEuroDisclaimer) ?? true;
     final shouldShowRepWarning =
         sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? true;
+    final shouldShowTrezorResyncInfo =
+        sharedPreferences.getBool(PreferencesKey.shouldShowTrezorResyncInfo) ?? true;
 
     final generateSubaddresses =
         sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey);
@@ -1782,6 +1791,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
+      shouldShowTrezorResyncInfo: shouldShowTrezorResyncInfo,
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
       balanceHideCounter: balanceHideCounter,
@@ -1951,6 +1961,9 @@ abstract class SettingsStoreBase with Store {
             shouldShowDEuroDisclaimer;
     shouldShowRepWarning =
         sharedPreferences.getBool(PreferencesKey.shouldShowRepWarning) ?? shouldShowRepWarning;
+    shouldShowTrezorResyncInfo =
+        sharedPreferences.getBool(PreferencesKey.shouldShowTrezorResyncInfo) ??
+            shouldShowTrezorResyncInfo;
     sortBalanceBy = SortBalanceBy
         .values[sharedPreferences.getInt(PreferencesKey.sortBalanceBy) ?? sortBalanceBy.index];
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;

@@ -479,6 +479,20 @@ class CWMonero extends Monero {
       MoneroTrezorService(client);
 
   @override
+  Future<bool> trezorSessionMatchesWallet(Object wallet, trezor.TrezorClient client) async {
+    if (wallet is! MoneroWallet) return true;
+    // Primary address of the session's account vs. the wallet's; no device
+    // prompt is involved when the address is not shown on the device.
+    final deviceAddress = await MoneroTrezorService.runBlocking(
+      () => trezor.TrezorMonero(client).getAddress(showDisplay: false),
+    );
+    return deviceAddress == monero_wallet_api.getAddress(accountIndex: 0, addressIndex: 0);
+  }
+
+  @override
+  bool isTrezorBusy() => MoneroTrezorService.isBusy;
+
+  @override
   Future<void> syncTrezor(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
 

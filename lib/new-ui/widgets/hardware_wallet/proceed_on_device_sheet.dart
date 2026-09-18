@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_passphrase_input.dart";
@@ -10,8 +12,10 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cw_core/wallet_info.dart";
@@ -23,13 +27,11 @@ class HardwareWalletProceedOnDeviceSheet extends StatefulWidget {
   const HardwareWalletProceedOnDeviceSheet({
     required this.hardwareWalletType,
     required this.trezorConnectVM,
-    required this.onRetry,
     super.key,
   });
 
   final HardwareWalletType hardwareWalletType;
   final TrezorConnectViewModelBase trezorConnectVM;
-  final void Function() onRetry;
 
   @override
   State<HardwareWalletProceedOnDeviceSheet> createState() =>
@@ -48,18 +50,41 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
   ReactionDisposer? paringStateReaction;
 
+  /// The connect attempt this sheet was opened for (see
+  /// [TrezorConnectViewModelBase.pairingAttempt]).
+  Object? _attempt;
+
+  /// Set once this sheet's attempt reached success, so its disposal (which
+  /// only happens after the pop animation) never touches a later attempt.
+  bool _finished = false;
+
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
+    _controller.addListener(() {
+      setState(() {});
+      // A complete pairing code is submitted as soon as the last digit is
+      // typed; the arrow button stays as a fallback.
+      if (hasFullPin && !_pinSubmitted) {
+        _submitPin();
+      }
+    });
 
+    _attempt = widget.trezorConnectVM.pairingAttempt;
     _paringState = widget.trezorConnectVM.paringState;
     paringStateReaction = reaction((_) => widget.trezorConnectVM.paringState, (paringState) {
       if (paringState is SuccessTrezorParingState) {
+        _finished = true;
+        paringStateReaction?.reaction.dispose();
         if (mounted) {
           Navigator.of(context).pop();
         }
         return;
+      }
+      if (paringState is EnterPinTrezorParingState) {
+        // A fresh code request (e.g. after a retry) needs a fresh submission.
+        _pinSubmitted = false;
+        _controller.text = "";
       }
       setState(() => _paringState = paringState);
     });
@@ -67,11 +92,26 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
   @override
   void dispose() {
-    super.dispose();
     paringStateReaction?.reaction.dispose();
+    // The sheet can be removed without its own buttons (e.g. the app locks and
+    // the unlock navigation clears the route stack). A connect attempt that is
+    // still pending must not stay parked forever behind a sheet that no
+    // longer exists.
+    final vm = widget.trezorConnectVM;
+    if (!_finished && vm.isConnecting && vm.paringState is! SuccessTrezorParingState) {
+      unawaited(vm.cancelPairing(attempt: _attempt));
+    }
+    super.dispose();
   }
 
   bool get _isAwaitingPin => _paringState == TrezorParingState.enterPin;
+
+  bool _pinSubmitted = false;
+
+  void _submitPin() {
+    _pinSubmitted = true;
+    widget.trezorConnectVM.setParingPin(_controller.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
@@ -123,6 +163,9 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                           actionRightButton: () {
                             Navigator.of(context).pop();
                             Navigator.of(context).pop();
+                            // Lets the pending connect attempt clean up and
+                            // report failure instead of waiting forever.
+                            unawaited(widget.trezorConnectVM.cancelPairing(attempt: _attempt));
                           },
                         ),
                       ),
@@ -149,8 +192,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                               size: 36,
                               icon: const Icon(Icons.arrow_forward),
                               semanticLabel: S.of(context).confirm,
-                              onPressed: () =>
-                                  widget.trezorConnectVM.setParingPin(_controller.text.trim()),
+                              onPressed: _submitPin,
                             ),
                           ),
                         ],
@@ -183,21 +225,60 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
             onRetryPressed: retry,
             key: const ValueKey(2),
           ),
-        AwaitingSettingsTrezorParingState(:final isAutoPairingAvailable) => WalletOptionsScreen(
+        AwaitingSettingsTrezorParingState(
+          :final isAutoPairingAvailable,
+          :final passphraseAlwaysOnDevice,
+        ) =>
+          WalletOptionsScreen(
             trezorConnectVM: widget.trezorConnectVM,
             iconPath: hardwareWalletIcon ?? "",
             isAutoPairingAvailable: isAutoPairingAvailable,
+            passphraseAlwaysOnDevice: passphraseAlwaysOnDevice,
             key: const ValueKey(3),
           ),
         AwaitingPassphraseTrezorParingState() => PinEntryWidget(
-            title: S.of(context).proceed_on_device,
-            description: S.of(context).proceed_on_device_description,
+            title: S.of(context).passphrase_raw,
+            description: S.of(context).trezor_step_passphrase_on_device,
             pinOpenDuration: pinOpenDuration,
             pinLength: pinLength,
             isAwaitingPin: false,
             controller: _controller,
             iconPath: hardwareWalletIcon ?? "",
             key: const ValueKey(4),
+          ),
+        AwaitingAppPassphraseTrezorParingState() => AppPassphraseEntryWidget(
+            trezorConnectVM: widget.trezorConnectVM,
+            key: const ValueKey(6),
+          ),
+        AwaitingAutoConnectConfirmTrezorParingState() => PinEntryWidget(
+            title: S.of(context).auto_connect,
+            description: S.of(context).trezor_step_autoconnect,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(7),
+          ),
+        PairingOnDeviceTrezorParingState() => PinEntryWidget(
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).trezor_step_pairing,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(8),
+          ),
+        ConnectingTrezorParingState() => PinEntryWidget(
+            title: S.of(context).proceed_on_device,
+            description: S.of(context).trezor_step_connecting,
+            pinOpenDuration: pinOpenDuration,
+            pinLength: pinLength,
+            isAwaitingPin: false,
+            controller: _controller,
+            iconPath: hardwareWalletIcon ?? "",
+            key: const ValueKey(9),
           ),
         _ => const SizedBox.shrink(
             key: ValueKey(5),
@@ -206,7 +287,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
   void retry() {
     _controller.text = "";
-    widget.onRetry();
+    widget.trezorConnectVM.retryPairing();
   }
 
   String get pageTitle {
@@ -222,8 +303,18 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
       return S.of(context).other_device_settings;
     }
 
-    if (_paringState is AwaitingPassphraseTrezorParingState) {
+    if (_paringState is AwaitingPassphraseTrezorParingState ||
+        _paringState is AwaitingAppPassphraseTrezorParingState) {
       return S.of(context).passphrase_entry;
+    }
+
+    if (_paringState is AwaitingAutoConnectConfirmTrezorParingState) {
+      return S.of(context).auto_connect;
+    }
+
+    if (_paringState is PairingOnDeviceTrezorParingState ||
+        _paringState is ConnectingTrezorParingState) {
+      return S.of(context).device_confirmation;
     }
 
     return "";
@@ -416,10 +507,102 @@ class PinEntryWidget extends StatelessWidget {
       );
 }
 
+/// Passphrase field for a wallet set up with an app-side passphrase. Uses the
+/// same field, illustration and reveal toggle as the hot-wallet passphrase
+/// sheet (AddPassphraseBottomSheet). The value goes straight to the view model
+/// for this session and is not kept.
+class AppPassphraseEntryWidget extends StatefulWidget {
+  const AppPassphraseEntryWidget({
+    required this.trezorConnectVM,
+    super.key,
+  });
+
+  final TrezorConnectViewModelBase trezorConnectVM;
+
+  @override
+  State<AppPassphraseEntryWidget> createState() => _AppPassphraseEntryWidgetState();
+}
+
+class _AppPassphraseEntryWidgetState extends State<AppPassphraseEntryWidget> {
+  final _controller = TextEditingController();
+  bool _obscurePassphrase = true;
+
+  static const _passphraseImageLight = "assets/images/passphrase_light.png";
+  static const _passphraseImageDark = "assets/images/passphrase_dark.png";
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => widget.trezorConnectVM.setPassphrase(_controller.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final passphraseImage =
+        context.currentTheme.isDark ? _passphraseImageDark : _passphraseImageLight;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          CakeImageWidget(imageUrl: passphraseImage, height: 85),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              S.of(context).trezor_step_passphrase_in_app,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    decoration: TextDecoration.none,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          BaseTextFormField(
+            key: const ValueKey("trezor_app_passphrase_textfield_key"),
+            controller: _controller,
+            obscureText: _obscurePassphrase,
+            autocorrect: false,
+            enableSuggestions: false,
+            textInputAction: TextInputAction.done,
+            onSubmit: (_) => _submit(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            hintText: S.of(context).required_passphrase,
+            suffixIcon: GestureDetector(
+              onTap: () => setState(() => _obscurePassphrase = !_obscurePassphrase),
+              child: Icon(
+                _obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                size: 24,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          NewPrimaryButton(
+            key: const ValueKey("trezor_app_passphrase_continue_button_key"),
+            onPressed: _submit,
+            text: S.of(context).continue_text,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
 class WalletOptionsScreen extends StatefulWidget {
   const WalletOptionsScreen({
     required this.trezorConnectVM,
     required this.isAutoPairingAvailable,
+    required this.passphraseAlwaysOnDevice,
     required this.iconPath,
     super.key,
   });
@@ -428,6 +611,10 @@ class WalletOptionsScreen extends StatefulWidget {
   final TrezorConnectViewModelBase trezorConnectVM;
   final bool isAutoPairingAvailable;
 
+  /// The device always asks for the passphrase on its own screen, so the
+  /// passphrase options are not offered here.
+  final bool passphraseAlwaysOnDevice;
+
   @override
   State<WalletOptionsScreen> createState() => _WalletOptionsScreenState();
 }
@@ -435,10 +622,19 @@ class WalletOptionsScreen extends StatefulWidget {
 class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
   bool _autoConnect = true;
   bool _usePassphrase = false;
-  bool _setPassphraseOnDevice = false;
-  final _passphraseController  = TextEditingController();
+  bool _setPassphraseOnDevice = true;
+  final _passphraseController = TextEditingController();
 
-  bool get anythingSelected => _autoConnect || _usePassphrase;
+  bool get _showPassphraseOptions => !widget.passphraseAlwaysOnDevice;
+
+  bool get anythingSelected =>
+      (_autoConnect && widget.isAutoPairingAvailable) || (_usePassphrase && _showPassphraseOptions);
+
+  @override
+  void dispose() {
+    _passphraseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -504,40 +700,42 @@ class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
                             onChanged: (val) => setState(() => _autoConnect = val),
                             keyValue: "autoconnect",
                             label: S.of(context).auto_connect,
+                            subtitle: S.of(context).auto_connect_desc,
                           ),
                         ],
-                      "pass": [
-                        ListItemToggle(
-                          value: _usePassphrase,
-                          onChanged: (val) => setState(() => _usePassphrase = val),
-                          keyValue: "passphrase",
-                          label: S.of(context).passphrase,
-                          subtitle: S.of(context).wallet_has_passphrase,
-                        ),
-                        if (_usePassphrase) ...[
+                      if (_showPassphraseOptions)
+                        "pass": [
                           ListItemToggle(
-                            value: _setPassphraseOnDevice,
-                            onChanged: (val) => setState(() => _setPassphraseOnDevice = val),
-                            keyValue: "passphrase on device",
-                            label: S.of(context).enter_passphrase_on_device,
+                            value: _usePassphrase,
+                            onChanged: (val) => setState(() => _usePassphrase = val),
+                            keyValue: "passphrase",
+                            label: S.of(context).passphrase,
+                            subtitle: S.of(context).wallet_has_passphrase,
                           ),
-                          if (!_setPassphraseOnDevice)
-                            ListItemRegularRow(
-                              keyValue: "passphrase on app",
-                              label: S.of(context).passphrase_raw,
-                              onTap: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (_) => MoneroHardwareWalletPassphraseInputModal(
-                                    controller: _passphraseController,
-                                  ),
-                                );
-                              },
+                          if (_usePassphrase) ...[
+                            ListItemToggle(
+                              value: _setPassphraseOnDevice,
+                              onChanged: (val) => setState(() => _setPassphraseOnDevice = val),
+                              keyValue: "passphrase on device",
+                              label: S.of(context).enter_passphrase_on_device,
                             ),
-                        ]
-                      ],
+                            if (!_setPassphraseOnDevice)
+                              ListItemRegularRow(
+                                keyValue: "passphrase on app",
+                                label: S.of(context).passphrase_raw,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (_) => MoneroHardwareWalletPassphraseInputModal(
+                                      controller: _passphraseController,
+                                    ),
+                                  );
+                                },
+                              ),
+                          ]
+                        ],
                     },
                   ),
                 ],
@@ -548,7 +746,8 @@ class _WalletOptionsScreenState extends State<WalletOptionsScreen> {
                 TrezorDeviceSettings(
                   enableAutoParing: _autoConnect,
                   passphraseOnDevice: _usePassphrase && _setPassphraseOnDevice,
-                  passphrase: _usePassphrase && !_setPassphraseOnDevice ? _passphraseController.text : null,
+                  passphrase:
+                      _usePassphrase && !_setPassphraseOnDevice ? _passphraseController.text : null,
                 ),
               ),
               text: anythingSelected ? S.of(context).continue_text : S.of(context).skip,

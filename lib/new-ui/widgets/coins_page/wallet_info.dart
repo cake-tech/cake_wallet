@@ -13,6 +13,10 @@ class WalletInfoBar extends StatelessWidget {
   final String name;
   final HardwareWalletType? hardwareWalletType;
 
+  // Roughly the cap height of titleMedium, so the icon reads as part of the
+  // name rather than towering over it.
+  static const double _iconSize = 16;
+
   @override
   Widget build(BuildContext context) {
     final semanticsLabel =
@@ -21,44 +25,41 @@ class WalletInfoBar extends StatelessWidget {
     return Semantics(
       label: semanticsLabel,
       child: ExcludeSemantics(
-        child: Row(
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              transitionBuilder: (child, animation) => SizeTransition(
-                axis: Axis.horizontal,
-                sizeFactor: animation,
-                child: FadeTransition(opacity: animation, child: child),
-              ),
-              child: hardwareWalletIcon == null
-                  ? const SizedBox.shrink(key: ValueKey("empty"))
-                  : Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: CakeImageWidget(
-                        imageUrl: hardwareWalletIcon!,
-                        key: const ValueKey("hardware_wallet_icon"),
-                        width: 24,
-                        height: 24,
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.onSurfaceVariant,
-                          BlendMode.srcIn,
-                        ),
+        // The icon is laid out inline with the text so the font metrics, not
+        // the line box, decide its vertical position: it is centred on the
+        // middle of the glyphs, which is what the eye compares it against.
+        child: Text.rich(
+          TextSpan(
+            children: [
+              if (hardwareWalletIcon != null)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    // The text "middle" is the em-box middle, a touch above the
+                    // cap centre; the top padding nudges the icon down onto it.
+                    padding: const EdgeInsets.only(right: 6, top: 3),
+                    child: CakeImageWidget(
+                      imageUrl: hardwareWalletIcon!,
+                      key: const ValueKey("hardware_wallet_icon"),
+                      width: _iconSize,
+                      height: _iconSize,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn,
                       ),
                     ),
-            ),
-            Expanded(
-              child: Text(
-                name,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
-              ),
-            ),
-          ],
+                  ),
+                ),
+              TextSpan(text: name),
+            ],
+          ),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     );

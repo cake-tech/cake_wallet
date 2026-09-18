@@ -12,6 +12,7 @@ import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart";
 import "package:cw_core/generate_name.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -166,7 +167,10 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         context: context,
         builder: (context) => AlertWithOneAction(
           alertTitle: S.of(context).proceed_on_device,
-          alertContent: S.of(context).proceed_on_device_description,
+          alertContent: _walletHardwareRestoreVM.hardwareWalletVM.hardwareWalletType ==
+                  HardwareWalletType.trezor
+              ? S.of(context).trezor_step_export_watch_only
+              : S.of(context).proceed_on_device_description,
           buttonText: S.of(context).cancel,
           alertBarrierDismissible: false,
           buttonAction: () => Navigator.of(context).pop(),
@@ -174,7 +178,9 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
       ),
     );
 
-    final options = <String, dynamic>{"height": _blockchainHeightKey.currentState?.height ?? -1};
+    // 0 means "unknown"; a negative sentinel would cross the FFI boundary as a
+    // huge unsigned restore height.
+    final options = <String, dynamic>{"height": _blockchainHeightKey.currentState?.height ?? 0};
 
     if (_walletHardwareRestoreVM.passphraseAvailable && _passphraseController.text.isNotEmpty) {
       options["passphrase"] = _passphraseController.text;
@@ -191,20 +197,22 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
 
     reaction((_) => _walletHardwareRestoreVM.error, (error) {
       if (error != null) {
-        if (error == S.current.ledger_connection_error) {
-          Navigator.of(context).pop();
-        }
+        // See SelectHardwareWalletAccountPage: show the reason first, then
+        // leave the page on a lost connection.
+        final isConnectionError = isHardwareWalletConnectionError(error);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
           showPopUp<void>(
             context: context,
-            builder: (context) => AlertWithOneAction(
-              alertTitle: S.of(context).error,
+            builder: (dialogContext) => AlertWithOneAction(
+              alertTitle: S.of(dialogContext).error,
               alertContent: error,
-              buttonText: S.of(context).ok,
+              buttonText: S.of(dialogContext).ok,
               buttonAction: () {
                 _walletHardwareRestoreVM.error = null;
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
+                if (isConnectionError && context.mounted) Navigator.of(context).pop();
               },
             ),
           );

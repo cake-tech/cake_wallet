@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -28,6 +29,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -388,6 +390,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 Navigator.of(context).pushNamed(
                   Routes.chooseHardwareWalletAccount,
                   arguments: [type, hardwareWalletType],
+                );
+                return;
+              }
+
+              // A device that is already connected (e.g. it was just used for
+              // another wallet) does not advertise and would never show up in
+              // the connect page's scan. Skip the scan, but still let the user
+              // pick this wallet's session settings (passphrase) first.
+              final hardwareWalletVM =
+                  getIt.get<HardwareWalletViewModel>(param1: hardwareWalletType);
+              if (hardwareWalletVM.isConnected(type)) {
+                unawaited(
+                  hardwareWalletVM.prepareNewWalletSession(type).then((isReady) {
+                    if (!isReady) return;
+                    navigatorKey.currentState?.pushNamed(
+                      Routes.chooseHardwareWalletAccount,
+                      arguments: [type, hardwareWalletType],
+                    );
+                  }),
                 );
                 return;
               }
