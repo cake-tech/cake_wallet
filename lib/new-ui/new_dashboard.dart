@@ -33,7 +33,7 @@ class NewDashboard extends StatefulWidget {
 
   final List<Widget> dashboardPageWidgets = [
     getIt.get<NewHomePage>(),
-    getIt.get<WalletListPage>(),
+    getIt.get<WalletListPage>(param1: (_) => Future<void>.value()),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
     Placeholder(),
@@ -69,6 +69,7 @@ class _NewDashboardState extends State<NewDashboard> {
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
         body: Material(
+          key: ValueKey("new_dashboard_page_key"),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
