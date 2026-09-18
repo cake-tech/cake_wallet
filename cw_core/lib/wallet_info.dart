@@ -423,11 +423,13 @@ class WalletInfo {
   bool showSeedBackupReminder;
 
   Future<Map<String, String>> getAddresses() async {
+    if (internalId <= 0) return <String, String>{};
     final list = await WalletInfoAddressMap.selectList(internalId);
     return Map.fromEntries(list.map((e) => MapEntry(e.addressKey, e.addressValue)));
   }
 
   Future<void> setAddresses(Map<String, String> addresses) async {
+    if (internalId <= 0) return;
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
     final entries = addresses.entries.toList();
     for (final entry in entries) {
@@ -440,6 +442,7 @@ class WalletInfo {
   bool? showIntroCakePayCard;
 
   Future<Map<int, List<WalletInfoAddressInfo>>> getAddressInfos() async {
+    if (internalId <= 0) return <int, List<WalletInfoAddressInfo>>{};
     final list = await WalletInfoAddressInfo.selectList(internalId);
     final ret = <int, List<WalletInfoAddressInfo>>{};
     for (final e in list) {
@@ -450,6 +453,7 @@ class WalletInfo {
   }
 
   Future<void> setAddressInfos(Map<int, List<WalletInfoAddressInfo>> addressInfos) async {
+    if (internalId <= 0) return;
     await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
     final entries = addressInfos.entries.toList();
     for (final addressInfo in entries) {
@@ -467,11 +471,13 @@ class WalletInfo {
   }
 
   Future<Set<String>> getUsedAddresses() async {
+    if (internalId <= 0) return <String>{};
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.used);
     return list.map((e) => e.address).toSet();
   }
 
   Future<void> setUsedAddresses(List<String> addresses) async {
+    if (internalId <= 0) return;
     await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.used);
     for (final address in addresses) {
       await WalletInfoAddress.insert(internalId, WalletInfoAddressType.used, address);
@@ -479,11 +485,13 @@ class WalletInfo {
   }
 
   Future<Set<String>> getHiddenAddresses() async {
+    if (internalId <= 0) return <String>{};
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.hidden);
     return list.map((e) => e.address).toSet();
   }
 
   Future<void> setHiddenAddresses(List<String> addresses) async {
+    if (internalId <= 0) return;
     await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.hidden);
     for (final address in addresses) {
       await WalletInfoAddress.insert(internalId, WalletInfoAddressType.hidden, address);
@@ -491,11 +499,13 @@ class WalletInfo {
   }
 
   Future<Set<String>> getManualAddresses() async {
+    if (internalId <= 0) return <String>{};
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.manual);
     return list.map((e) => e.address).toSet();
   }
 
   Future<void> setManualAddresses(List<String> addresses) async {
+    if (internalId <= 0) return;
     await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.manual);
     for (final address in addresses) {
       await WalletInfoAddress.insert(internalId, WalletInfoAddressType.manual, address);
@@ -503,6 +513,7 @@ class WalletInfo {
   }
 
   Future<void> addAddress(String address, WalletInfoAddressType type) async {
+    if (internalId <= 0) return;
     await WalletInfoAddress.insert(internalId, type, address);
   }
 
