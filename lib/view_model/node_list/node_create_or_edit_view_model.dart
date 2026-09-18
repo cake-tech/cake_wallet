@@ -142,6 +142,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.zcash:
+      case WalletType.minotari:
         return false;
     }
   }

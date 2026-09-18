@@ -41,6 +41,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -1362,6 +1363,8 @@ Future<void> setup({
       case WalletType.decred:
         return decred!.createDecredWalletService(
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.minotari:
+        return minotari!.createMinotariWalletService();
       case WalletType.haven:
         return HavenWalletService();
       case WalletType.zcash:
