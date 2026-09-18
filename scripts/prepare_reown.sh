@@ -1,7 +1,7 @@
 #!/bin/bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/functions.sh"
 set -x -e
 cd "$(dirname "$0")"
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/functions.sh"
 
 # IMPORTANT: Make sure to update action 'Build Reown` in
 # - .github/workflows/pr_test_build_android.yml 
