@@ -188,6 +188,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.tron:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.minotari:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
