@@ -57,7 +57,7 @@ class EVMChainClient {
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        final res = (jsonResponse['result'] as List);
+        final res = jsonResponse["result"] as List;
         res.removeWhere((e) => e['value'] == '0');
 
         // Filter out spam native transactions below 0.00001 ETH (10000000000000 wei)
@@ -175,8 +175,9 @@ class EVMChainClient {
     try {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
+      final nodeHost = Uri.parse("https://${node.uriRaw}").host;
 
-      if (node.uriRaw.contains('nownodes.io')) {
+      if (nodeHost.endsWith(".nownodes.io")) {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
@@ -186,6 +187,17 @@ class EVMChainClient {
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
+      } else if (nodeHost.endsWith(".g.alchemy.com")) {
+        isModifiedNodeUri = true;
+        String alchemyApiKey = secrets.alchemyApiKey;
+
+        if (alchemyApiKey.isEmpty) {
+          printV("Alchemy API key is empty, cannot connect to ${node.uriRaw}");
+          return false;
+        }
+
+        final alchemyPath = node.path ?? "";
+        rpcUri = Uri.https(node.uriRaw, "$alchemyPath/$alchemyApiKey");
       }
 
       _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
@@ -318,6 +330,7 @@ class EVMChainClient {
         currency == CryptoCurrency.baseEth ||
         currency == CryptoCurrency.arbEth ||
         currency == CryptoCurrency.bnb ||
+        currency == CryptoCurrency.robEth ||
         contractAddress != null);
 
     final isNativeToken = [
@@ -325,7 +338,8 @@ class EVMChainClient {
       CryptoCurrency.maticpoly,
       CryptoCurrency.baseEth,
       CryptoCurrency.arbEth,
-      CryptoCurrency.bnb
+      CryptoCurrency.bnb,
+      CryptoCurrency.robEth
     ].contains(currency);
 
     // Get nonce with "pending" block tag to include pending transactions
@@ -540,18 +554,20 @@ class EVMChainClient {
     }
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String? chainName) async {
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
+      if (chainName != null) {
+        final token = await getErc20TokenFromMoralis(contractAddress, chainName);
 
-      if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        if (token != null && token.name.isNotEmpty && token.symbol.isNotEmpty) {
+          return token;
+        }
       }
 
-      return token;
+      return await getErcTokenInfoFromNode(contractAddress);
     } catch (e) {
       try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       } catch (e) {
         return null;
       }
@@ -598,7 +614,7 @@ class EVMChainClient {
     );
   }
 
-  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final name = await erc20.name();
     final symbol = await erc20.symbol();

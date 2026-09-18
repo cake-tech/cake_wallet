@@ -984,6 +984,7 @@
   "return_address_desc": "在极少数情况下兑换失败，我们的合作伙伴可以自动将您的付款退还至您提供的退款地址。",
   "return_address_desc_external": "由于您选择“从外部发送”，请在下方手动设置退款地址。",
   "robinhood_option_description": "使用您的借记卡、银行账户或 Robinhood 余额即可即时购买并转账。仅限美国。",
+  "robinhoodscan_history": "罗宾汉历史",
   "rotate_address": "获取新地址",
   "router_no_route": "未为 ${name} 定义路由",
   "salary": "薪资",

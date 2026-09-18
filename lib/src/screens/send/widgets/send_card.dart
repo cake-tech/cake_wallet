@@ -317,6 +317,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   ) async {
     Navigator.of(context).pop();
 
+    final targetWalletType = result.chainId != null
+        ? (evm?.getWalletTypeByChainId(result.chainId!) ?? paymentViewModel.detectedWalletType)
+        : paymentViewModel.detectedWalletType;
+
     await showModalBottomSheet<WalletInfo>(
       context: context,
       isDismissible: true,
@@ -324,7 +328,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       builder: (BuildContext dialogContext) {
         return WalletSwitcherBottomSheet(
           viewModel: walletSwitcherViewModel,
-          filterWalletType: paymentViewModel.detectedWalletType,
+          filterWalletType: targetWalletType,
         );
       },
     );

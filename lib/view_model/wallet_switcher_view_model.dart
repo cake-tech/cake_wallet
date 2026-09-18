@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -32,13 +31,6 @@ abstract class WalletSwitcherViewModelBase with Store {
   Future<List<WalletInfo>> getWallets(WalletType? walletType) async {
     final wiList = await WalletInfo.getAll();
     if (walletType == null) return wiList;
-
-    // For EVM-compatible wallet types, show all EVM-compatible wallets
-    // This allows users to switch between any EVM wallet regardless of the specific chain
-    if (isEVMCompatibleChain(walletType)) {
-      return wiList.where((wallet) => isEVMCompatibleChain(wallet.type)).toList();
-    }
-
     return wiList.where((wallet) => wallet.type == walletType).toList();
   }
 

@@ -1,0 +1,13 @@
+-
+  uri: rpc.mainnet.chain.robinhood.com
+  useSSL: true
+  isDefault: true
+  isEnabledForAutoSwitching: true
+  label: "Robinhood"
+-
+  uri: robinhood-mainnet.g.alchemy.com
+  path: /v2
+  useSSL: true
+  isDefault: false
+  isEnabledForAutoSwitching: true
+  label: "Alchemy"

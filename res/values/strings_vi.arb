@@ -985,6 +985,7 @@
   "return_address_desc": "Trong trường hợp hiếm hoi hoán đổi thất bại, các đối tác của chúng tôi có thể tự động hoàn tiền thanh toán của bạn về địa chỉ hoàn tiền đã cung cấp.",
   "return_address_desc_external": "Vì bạn đã chọn Gửi từ bên ngoài, vui lòng đặt thủ công địa chỉ hoàn tiền bên dưới.",
   "robinhood_option_description": "Mua và chuyển ngay lập tức bằng thẻ ghi nợ, tài khoản ngân hàng hoặc số dư Robinhood của bạn. Chỉ dành cho Hoa Kỳ.",
+  "robinhoodscan_history": "Lịch sử Robinhood",
   "rotate_address": "Nhận địa chỉ mới",
   "router_no_route": "Không có tuyến đường nào được xác định cho ${name}",
   "salary": "Lương",

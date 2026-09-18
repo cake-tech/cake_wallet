@@ -984,6 +984,7 @@
   "return_address_desc": "W rzadkich przypadkach nieudanej wymiany nasi partnerzy mogą automatycznie zwrócić Twoją płatność na podany adres zwrotu środków.",
   "return_address_desc_external": "Ponieważ wybrałeś opcję Wyślij z zewnątrz, ustaw poniżej ręcznie adres zwrotu środków.",
   "robinhood_option_description": "Kup i natychmiast przelej, używając karty debetowej, konta bankowego lub salda Robinhood. Tylko USA.",
+  "robinhoodscan_history": "Historia Robinhooda",
   "rotate_address": "Uzyskaj nowy adres",
   "router_no_route": "Nie zdefiniowano ścieżki dla ${name}",
   "salary": "Wynagrodzenie",
