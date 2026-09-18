@@ -11,6 +11,8 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_sheet.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/encryption_file_utils.dart";
@@ -189,11 +191,26 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   /// connection that only succeeded on a retry.
   void retryPairing() => _complete(_retryCompleter, true);
 
+  /// Identity of the connect/session attempt currently in progress, or null.
+  /// The pairing sheet captures it when it opens and hands it back to
+  /// [cancelPairing], so a sheet that is still animating away after its own
+  /// attempt finished cannot cancel the next attempt (e.g. the corrective
+  /// rebind that [_ensureSessionFor] starts right after a successful one).
+  Object? get pairingAttempt => _cancelCompleter;
+
+  /// Whether the last attempt run by [_runWithPairingSheet] ended because the
+  /// user exited or gave up, as opposed to a device/SDK failure.
+  bool _lastAttemptCancelled = false;
+
   /// Called by the pairing sheet when the user exits it. Unblocks whatever the
   /// pending [connectDevice] call is waiting on (pairing code, settings, retry
   /// or an on-device prompt) so it can clean up and return false instead of
-  /// hanging with [isConnecting] stuck at true.
-  Future<void> cancelPairing() async {
+  /// hanging with [isConnecting] stuck at true. With [attempt] (see
+  /// [pairingAttempt]) the call is ignored unless that attempt is still the
+  /// current one.
+  Future<void> cancelPairing({Object? attempt}) async {
+    if (attempt != null && !identical(attempt, _cancelCompleter)) return;
+
     _complete(_cancelCompleter, null);
     _complete(_pinCompleter, null);
     _complete(_retryCompleter, false);
@@ -203,11 +220,19 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (!(_passphraseCompleter?.isCompleted ?? true)) {
       _passphraseCompleter!.completeError(const _PairingCancelledException());
     }
-    try {
-      await _client?.cancel();
-    } catch (e) {
-      printV(e);
-    }
+
+    final client = _client;
+    if (client == null) return;
+    // Depending on the stage the SDK either sends an out-of-band Cancel or,
+    // when the device is not waiting on anything (e.g. the in-app passphrase
+    // entry before createSession), tears the BLE link down. That teardown is
+    // asynchronous while `isDisconnected` flips at once, so the next attempt
+    // must wait for it (see [_pendingCleanup]) or its fresh link is torn down
+    // with the old one.
+    final cancel = client.cancel().catchError((Object e) => printV(e));
+    final previous = _pendingCleanup ?? Future<void>.value();
+    _pendingCleanup = previous.then((_) => cancel);
+    await cancel;
   }
 
   static void _complete<T>(Completer<T>? completer, T value) {
@@ -361,8 +386,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
             ? const TrezorDeviceSettings(enableAutoParing: false, passphraseOnDevice: true)
             : _withoutSecret(settings);
       },
-      // The link itself is fine; only the session attempt failed.
-      onFailure: () async {},
+      onFailure: () async {
+        // Only the session attempt failed; the link is normally still fine.
+        // A cancel at a stage where the SDK disconnects is the exception:
+        // then the client is dead and must not be reused.
+        if (client.connection.isDisconnected) {
+          await _resetClient();
+        }
+      },
     );
   }
 
@@ -400,6 +431,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       ),
     );
 
+    _lastAttemptCancelled = false;
     try {
       while (true) {
         try {
@@ -409,6 +441,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         } catch (e) {
           await onFailure();
           if (_isPairingCancelled || e is _PairingCancelledException) {
+            _lastAttemptCancelled = true;
             return false;
           }
           printV(e);
@@ -418,6 +451,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
           // retry or to give up, so a retry's success reaches our caller.
           _retryCompleter = Completer<bool>();
           if (!await _retryCompleter!.future) {
+            _lastAttemptCancelled = true;
             return false;
           }
           paringState = TrezorParingState.initial;
@@ -672,7 +706,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (_sessionWalletKey != key) {
       final stored = await _walletSettings.load(wallet.type, wallet.name);
       if (!await _rebindSession(stored)) {
-        throw TrezorSessionMismatchException(wallet.name);
+        throw TrezorSessionMismatchException(wallet.name, cancelled: _lastAttemptCancelled);
       }
       _sessionWalletKey = null;
     }
@@ -683,7 +717,10 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     // failing later with a script/pubkey mismatch at signing time.
     if (!await _sessionMatchesWallet(wallet)) {
       _sessionWalletKey = null;
-      if (!await _rebindSession(null) || !await _sessionMatchesWallet(wallet)) {
+      if (!await _rebindSession(null)) {
+        throw TrezorSessionMismatchException(wallet.name, cancelled: _lastAttemptCancelled);
+      }
+      if (!await _sessionMatchesWallet(wallet)) {
         throw TrezorSessionMismatchException(wallet.name);
       }
     }
@@ -718,9 +755,18 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   String _walletKey(WalletBase wallet) =>
       TrezorWalletSettingsStorage.walletKey(wallet.type, wallet.name);
 
+  /// Binds the session to [wallet] and installs the hardware wallet service.
+  /// Throws [TrezorSessionMismatchException] when the session cannot be bound;
+  /// unless the user backed out themselves, the reason has already been shown
+  /// to them, so callers only need to stop their flow.
   @override
   Future<void> initWallet(WalletBase wallet) async {
-    await _ensureSessionFor(wallet);
+    try {
+      await _ensureSessionFor(wallet);
+    } on TrezorSessionMismatchException catch (e) {
+      if (!e.cancelled) await _showError(e.toString());
+      rethrow;
+    }
 
     switch (wallet.type) {
       case WalletType.monero:
@@ -734,6 +780,20 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       default:
         throw Exception("Unexpected wallet type: ${wallet.type} for trezor");
     }
+  }
+
+  Future<void> _showError(String message) async {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+    await showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithOneAction(
+        alertTitle: S.of(dialogContext).error,
+        alertContent: message,
+        buttonText: S.of(dialogContext).ok,
+        buttonAction: () => Navigator.of(dialogContext).pop(),
+      ),
+    );
   }
 
   final EncryptionFileUtils _encryptionFileUtils = encryptionFileUtilsFor(true);
@@ -858,9 +918,13 @@ class _PairingCancelledException implements Exception {
 /// The live Trezor session belongs to another wallet and could not be rebound
 /// to [walletName] (the user cancelled or the device rejected it).
 class TrezorSessionMismatchException implements Exception {
-  TrezorSessionMismatchException(this.walletName);
+  TrezorSessionMismatchException(this.walletName, {this.cancelled = false});
 
   final String walletName;
+
+  /// True when the session could not be bound because the user exited the
+  /// pairing sheet, rather than because the device rejected or mismatched.
+  final bool cancelled;
 
   @override
   String toString() => S.current.trezor_error_session_mismatch;

@@ -1,5 +1,4 @@
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'package:cw_core/get_height_by_date_xmr.dart';
 import 'dart:convert';

@@ -13,6 +13,7 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:flutter/cupertino.dart";
@@ -239,32 +240,18 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
 
     setState(() => _state = _KeyImageSyncState.syncing);
 
-    if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-      await Navigator.of(context).pushNamed(
-        Routes.connectDevices,
-        arguments: ConnectDevicePageParams(
-          walletType: widget.wallet.type,
-          hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
-          onConnectDevice: (_, __) async {
-            await widget.trezorConnectVM.initWallet(widget.wallet);
-            Navigator.of(context).pop();
-          },
-          isReconnect: false,
-          reconnectWallet: widget.wallet,
-        ),
-      );
-
-      // Recheck to handle tap-backs
-      if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-        setState(() => _state = _KeyImageSyncState.initial);
-        return;
-      }
-    } else {
-      await widget.trezorConnectVM.initWallet(widget.wallet);
+    final initialised = await _initWallet();
+    if (!mounted) return;
+    if (!initialised) {
+      // Backed out of the connect page, exited the passphrase prompt, or the
+      // session could not be bound (the view model has shown why). Back to
+      // the explanation with the Continue button instead of a dead spinner.
+      setState(() => _state = _KeyImageSyncState.initial);
+      return;
     }
 
     final result = await widget.trezorConnectVM.syncKeyImages(widget.wallet);
-    if (!context.mounted) return;
+    if (!mounted) return;
     if (result) {
       Navigator.of(context).pop();
       return;
@@ -283,6 +270,41 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
         buttonAction: () => Navigator.of(dialogContext).pop(),
       ),
     );
+  }
+
+  /// Binds the device session to this wallet, reconnecting first when needed.
+  /// False when the user backed out or the session could not be bound.
+  Future<bool> _initWallet() async {
+    var initialised = false;
+    Future<void> init() async {
+      try {
+        await widget.trezorConnectVM.initWallet(widget.wallet);
+        initialised = true;
+      } catch (e) {
+        printV(e);
+      }
+    }
+
+    if (widget.trezorConnectVM.isConnected(widget.wallet.type)) {
+      await init();
+      return initialised;
+    }
+
+    await Navigator.of(context).pushNamed(
+      Routes.connectDevices,
+      arguments: ConnectDevicePageParams(
+        walletType: widget.wallet.type,
+        hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
+        onConnectDevice: (_, __) async {
+          await init();
+          if (mounted) Navigator.of(context).pop();
+        },
+        isReconnect: false,
+        reconnectWallet: widget.wallet,
+      ),
+    );
+    // A tap-back never runs the callback, so `initialised` stays false.
+    return initialised;
   }
 }
 

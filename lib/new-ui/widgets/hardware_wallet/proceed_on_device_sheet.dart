@@ -50,6 +50,14 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
 
   ReactionDisposer? paringStateReaction;
 
+  /// The connect attempt this sheet was opened for (see
+  /// [TrezorConnectViewModelBase.pairingAttempt]).
+  Object? _attempt;
+
+  /// Set once this sheet's attempt reached success, so its disposal (which
+  /// only happens after the pop animation) never touches a later attempt.
+  bool _finished = false;
+
   @override
   void initState() {
     super.initState();
@@ -62,9 +70,12 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
       }
     });
 
+    _attempt = widget.trezorConnectVM.pairingAttempt;
     _paringState = widget.trezorConnectVM.paringState;
     paringStateReaction = reaction((_) => widget.trezorConnectVM.paringState, (paringState) {
       if (paringState is SuccessTrezorParingState) {
+        _finished = true;
+        paringStateReaction?.reaction.dispose();
         if (mounted) {
           Navigator.of(context).pop();
         }
@@ -87,8 +98,8 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
     // still pending must not stay parked forever behind a sheet that no
     // longer exists.
     final vm = widget.trezorConnectVM;
-    if (vm.isConnecting && vm.paringState is! SuccessTrezorParingState) {
-      unawaited(vm.cancelPairing());
+    if (!_finished && vm.isConnecting && vm.paringState is! SuccessTrezorParingState) {
+      unawaited(vm.cancelPairing(attempt: _attempt));
     }
     super.dispose();
   }
@@ -154,7 +165,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                             Navigator.of(context).pop();
                             // Lets the pending connect attempt clean up and
                             // report failure instead of waiting forever.
-                            unawaited(widget.trezorConnectVM.cancelPairing());
+                            unawaited(widget.trezorConnectVM.cancelPairing(attempt: _attempt));
                           },
                         ),
                       ),

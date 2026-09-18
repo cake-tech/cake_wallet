@@ -308,6 +308,10 @@ void restoreWalletFromSpendKeySync(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
   currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
 
   storeSync();
