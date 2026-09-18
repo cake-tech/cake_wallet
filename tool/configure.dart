@@ -196,10 +196,12 @@ abstract class Bitcoin {
     required DerivationType derivationType,
     required String derivationPath,
     String? passphrase,
+    int? height,
+    bool? alwaysScan,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
-  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey, HardwareWalletType? hardwareWalletType});
+  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType, int? height, bool? alwaysScan});
+  WalletCredentials createLitecoinWalletFromKeys({required String name, required String password, required String xpub, required String scanSecret, required String spendPubkey, HardwareWalletType? hardwareWalletType, int? height});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
