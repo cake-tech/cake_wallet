@@ -10,7 +10,7 @@ import 'dart:convert';
 // after its first output. (Note: `date..subtract(...)` would be a no-op since
 // DateTime is immutable.)
 int getMoneroHeigthByDate({required DateTime date}) =>
-    MoneroHeight.getBlockHeightByTime(date.subtract(Duration(days: 1)));
+    MoneroHeight.getBlockHeightByTime(date.subtract(const Duration(days: 1)));
 
 const havenDates = {
   "2023-05": 1352995,
