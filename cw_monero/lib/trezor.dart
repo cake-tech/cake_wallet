@@ -21,16 +21,6 @@ class Trezor {
 
   final MoneroTrezorService service;
 
-  String? _sessionPassphrase;
-
-  Future<void> newPassphraseSession(String? passphrase) async {
-    if (passphrase == null) return;
-
-    if (_sessionPassphrase == passphrase) return;
-    _sessionPassphrase = passphrase;
-    return service.client.createChannel(passphrase: _sessionPassphrase);
-  }
-
   Future<MoneroTrezorWatchCredentials> getWatchCredentials() async {
     final credentials = await TrezorMonero(service.client).getWatchCredentials();
 
