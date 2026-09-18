@@ -13,6 +13,14 @@ import 'package:cake_wallet/core/execution_state.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
+class AuthPageArgs {
+  AuthPageArgs({required this.onAuthenticationFinished, this.closable = true, this.biometryAllowed = true});
+
+  final OnAuthenticationFinished onAuthenticationFinished;
+  final bool closable;
+  final bool biometryAllowed;
+}
+
 abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
   void changeProcessText(String text);
   void hideProgressText();
@@ -20,7 +28,9 @@ abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
 }
 
 class AuthPage extends StatefulWidget {
-  AuthPage(this.authViewModel, {required this.onAuthenticationFinished, this.closable = true});
+  AuthPage(this.authViewModel, {required AuthPageArgs args})
+      : onAuthenticationFinished = args.onAuthenticationFinished,
+        closable = args.closable;
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;

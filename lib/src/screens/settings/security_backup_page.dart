@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
+import "package:cake_wallet/new-ui/pages/biometric_auth.dart";
 import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
+import "package:flutter/cupertino.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -40,8 +42,7 @@ class SecurityBackupPage extends BasePage {
   final bool _isHardwareWallet;
 
   @override
-  Widget body(BuildContext context) {
-    return ModalPageWrapper(
+  Widget body(BuildContext context) => ModalPageWrapper(
       topBar: ModalTopBar(
           title: "",
           leadingIcon: Icon(Icons.arrow_back_ios_new),
@@ -57,34 +58,53 @@ class SecurityBackupPage extends BasePage {
         children: [
           Observer(
             builder: (_) => NewListSections(sections: {
-              "": [
+              "bio": [
                 if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
-                  ListItemToggle(
-                      keyValue: "security_backup_page_allow_biometrics_button_key",
-                      label: S.current.settings_allow_biometrical_authentication,
-                      value: _securitySettingsViewModel.allowBiometricalAuthentication,
-                      onChanged: (bool value) {
-                        if (value) {
-                          _authService.authenticateAction(
-                            context,
-                            onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                              if (isAuthenticatedSuccessfully) {
-                                if (await _securitySettingsViewModel.biometricAuthenticated()) {
-                                  _securitySettingsViewModel.setAllowBiometricalAuthentication(
-                                      isAuthenticatedSuccessfully);
-                                }
-                              } else {
-                                _securitySettingsViewModel
-                                    .setAllowBiometricalAuthentication(isAuthenticatedSuccessfully);
-                              }
-                            },
-                            conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                          );
-                        } else {
-                          _securitySettingsViewModel.setAllowBiometricalAuthentication(value);
-                        }
-                      }),
+                    ListItemRegularRow(
+                        keyValue: "bio",
+                        label: _securitySettingsViewModel.biometricDisplayType?.displayName ?? "",
+                        subtitle: S.of(context).biometric_auth,
+                        iconPath: _securitySettingsViewModel.biometricDisplayType?.iconPath,
+                        onTap: () => Navigator.of(context).push(CupertinoPageRoute(
+                            builder: (context) => BiometricAuthPage(
+                                securitySettingsViewModel: _securitySettingsViewModel))))
+              ], "pin": [ ListItemSelector(
+                  keyValue: "security_backup_page_require_pin_after_button_key",
+                  label: S.current.require_pin_after,
+                  options: [_securitySettingsViewModel.pinCodeRequiredDuration.toString()],
+                  onTap: () async {
+                    final items = PinCodeRequiredDuration.values;
+
+                    final selectedAtIndex =
+                    items.indexOf(_securitySettingsViewModel.pinCodeRequiredDuration);
+
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (_) => Picker(
+                        items: items,
+                        selectedAtIndex: selectedAtIndex,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        onItemSelected: (PinCodeRequiredDuration item) {
+                          _securitySettingsViewModel.setPinCodeRequiredDuration(item);
+                        },
+                        isSeparated: false,
+                      ),
+                    );
+                  }),
+                ListItemRegularRow(
+                    keyValue: "security_backup_page_change_pin_button_key",
+                    label: S.current.settings_change_pin,
+                    onTap: () {
+                      _authService.authenticateAction(
+                        context,
+                        route: Routes.setupPin,
+                        arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                          setupPinContext.close();
+                        },
+                        conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                            .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+                      );
+                    }),], "extra": [
                 if (DeviceInfo.instance.isMobile)
                   ListItemToggle(
                       keyValue: "display_settings_prevent_screen_capture",
@@ -101,81 +121,33 @@ class SecurityBackupPage extends BasePage {
                       onChanged: (bool value) {
                         _authService
                             .authenticateAction(context, route: Routes.securityBackupDuressPin,
-                                onAuthSuccess: (isAuthenticatedSuccessfully) async {
-                          if (isAuthenticatedSuccessfully) {
-                            if (!value) {
-                              _securitySettingsViewModel.setEnableDuressPin(value);
-                              _securitySettingsViewModel.clearDuressPin();
-                              return;
-                            }
-                            final res = await _showDuressPinDescription(context);
-                            if (res) {
-                              final confirmation = await _showDuressPinConfirmation(context);
+                            onAuthSuccess: (isAuthenticatedSuccessfully) async {
+                              if (isAuthenticatedSuccessfully) {
+                                if (!value) {
+                                  _securitySettingsViewModel.setEnableDuressPin(value);
+                                  _securitySettingsViewModel.clearDuressPin();
+                                  return;
+                                }
+                                final res = await _showDuressPinDescription(context);
+                                if (res) {
+                                  final confirmation = await _showDuressPinConfirmation(context);
 
-                              if (confirmation) {
-                                Navigator.of(context).pushNamed(
-                                  Routes.setupDuressPin,
-                                  arguments: (PinCodeState<PinCodeWidget> pinCtx, String _) async {
-                                    pinCtx.close();
-                                    _securitySettingsViewModel.setEnableDuressPin(true);
-                                  },
-                                );
+                                  if (confirmation) {
+                                    Navigator.of(context).pushNamed(
+                                      Routes.setupDuressPin,
+                                      arguments: (PinCodeState<PinCodeWidget> pinCtx, String _) async {
+                                        pinCtx.close();
+                                        _securitySettingsViewModel.setEnableDuressPin(true);
+                                      },
+                                    );
+                                  }
+                                }
                               }
-                            }
-                          }
-                        },
-                                conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                                    .shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
+                            },
+                            conditionToDetermineIfToUse2FA: _securitySettingsViewModel
+                                .shouldRequireTOTP2FAForAllSecurityAndBackupSettings);
                       }),
-                ListItemSelector(
-                    keyValue: "security_backup_page_require_pin_after_button_key",
-                    label: S.current.require_pin_after,
-                    options: [_securitySettingsViewModel.pinCodeRequiredDuration.toString()],
-                    onTap: () async {
-                      final items = PinCodeRequiredDuration.values;
 
-                      final selectedAtIndex =
-                          items.indexOf(_securitySettingsViewModel.pinCodeRequiredDuration);
-
-                      await showPopUp<void>(
-                        context: context,
-                        builder: (_) => Picker(
-                          items: items,
-                          selectedAtIndex: selectedAtIndex,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          onItemSelected: (PinCodeRequiredDuration item) {
-                            _securitySettingsViewModel.setPinCodeRequiredDuration(item);
-                          },
-                          isSeparated: false,
-                        ),
-                      );
-                    }),
-                // if (!_isHardwareWallet)
-                //   ListItemRegularRow(
-                //       keyValue: "security_backup_page_show_keys_button_key",
-                //       label: S.current.show_keys,
-                //       onTap: () {
-                //         _authService.authenticateAction(
-                //           context,
-                //           route: Routes.showKeys,
-                //           conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                //               .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                //         );
-                //       }),
-                ListItemRegularRow(
-                    keyValue: "security_backup_page_change_pin_button_key",
-                    label: S.current.settings_change_pin,
-                    onTap: () {
-                      _authService.authenticateAction(
-                        context,
-                        route: Routes.setupPin,
-                        arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-                          setupPinContext.close();
-                        },
-                        conditionToDetermineIfToUse2FA: _securitySettingsViewModel
-                            .shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-                      );
-                    }),
                 ListItemRegularRow(
                     keyValue: "security_backup_page_totp_2fa_button_key",
                     label: _securitySettingsViewModel.useTotp2FA
@@ -197,7 +169,6 @@ class SecurityBackupPage extends BasePage {
         ],
       ),
     );
-  }
 }
 
 Future<bool> _showDuressPinDescription(BuildContext context) async {
