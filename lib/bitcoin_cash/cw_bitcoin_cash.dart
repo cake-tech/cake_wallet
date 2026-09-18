@@ -5,9 +5,8 @@ class CWBitcoinCash extends BitcoinCash {
   String getCashAddrFormat(String address) => AddressUtils.getCashAddrFormat(address);
 
   @override
-  WalletService createBitcoinCashWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return BitcoinCashWalletService(unspentCoinSource, isDirect);
+  WalletService createBitcoinCashWalletService(bool isDirect) {
+    return BitcoinCashWalletService(isDirect);
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
@@ -92,7 +93,11 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  int calculateEstimatedFee(TransactionPriority priority, int? amount);
+  Future<int> calculateEstimatedFee(
+    TransactionPriority priority,
+    int? amount, {
+    CoinSelection selection = const AllCoinSelection(),
+  });
 
   Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {}
 

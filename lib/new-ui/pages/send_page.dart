@@ -1,5 +1,7 @@
 import "dart:async";
 
+import "package:cake_wallet/di.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
@@ -620,19 +622,30 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
                                                   label: S.of(context).coin_control,
-                                                  onTap: () {
-                                                    showCupertinoModalBottomSheet(
+                                                  onTap: () async {
+                                                    final selection =
+                                                        await showCupertinoModalBottomSheet<
+                                                            CoinSelection?>(
                                                       enableDrag: false,
                                                       useRootNavigator: true,
                                                       isDismissible: false,
                                                       context: context,
-                                                      builder: (context) => NewCoinControlPage(
-                                                        unspentCoinsListViewModel: widget
-                                                            .sendViewModel
-                                                            .unspentCoinsListViewModel,
-                                                        canEdit: true,
+                                                      builder: (_) =>
+                                                          getIt.get<NewCoinControlPage>(
+                                                        param1: CoinControlPageArgs(
+                                                          canEdit: true,
+                                                          coinTypeToSpendFrom: widget
+                                                              .sendViewModel.coinTypeToSpendFrom,
+                                                          initialSelection: widget
+                                                              .sendViewModel.coinSelection,
+                                                        ),
                                                       ),
                                                     );
+
+                                                    if (selection != null) {
+                                                      widget.sendViewModel
+                                                          .applyCoinSelection(selection);
+                                                    }
                                                   },
                                                 ),
                                             ],
