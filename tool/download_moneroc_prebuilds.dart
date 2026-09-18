@@ -26,8 +26,48 @@ final List<String> triplets = [
   "aarch64-apple-ios-simulator",
 ];
 
+const _maxAttempts = 4;
+
+bool _isTransient(Object error) {
+  if (error is! DioException) {
+    return false;
+  }
+  final status = error.response?.statusCode;
+  if (status != null) {
+    return status >= 500;
+  }
+  switch (error.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return true;
+    default:
+      return false;
+  }
+}
+
+Future<T> _withRetry<T>(String what, Future<T> Function() operation) async {
+  for (var attempt = 1;; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt >= _maxAttempts || !_isTransient(error)) {
+        rethrow;
+      }
+      final wait = Duration(seconds: 5 * attempt);
+      print("  $what failed (attempt $attempt/$_maxAttempts): $error");
+      print("  retrying in ${wait.inSeconds}s");
+      await Future.delayed(wait);
+    }
+  }
+}
+
 Future<void> main() async {
-  final resp = await _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases");
+  final resp = await _withRetry(
+    "release list",
+    () => _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases"),
+  );
   final data = resp.data[0];
   final tagName = data['tag_name'];
   print("Downloading artifacts for: ${tagName}");
@@ -35,7 +75,10 @@ Future<void> main() async {
   final bundle = assets.firstWhere((asset) => asset["name"] == "release-bundle.zip");
   const bundlePath = "scripts/monero_c/release-bundle.zip";
   print("- downloading $bundlePath");
-  await _dio.download(bundle["browser_download_url"] as String, bundlePath);
+  await _withRetry(
+    "release-bundle.zip",
+    () => _dio.download(bundle["browser_download_url"] as String, bundlePath),
+  );
   final archive = ZipDecoder().decodeStream(InputFileStream(bundlePath));
   for (final file in archive) {
     final parts = file.name.split("/");
