@@ -136,7 +136,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               ))
             ],
           ),
-          if (widget.isSilentPaymentsScan)
+          if (widget.isSilentPaymentsScan && widget.toggleSingleScan != null)
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: Row(

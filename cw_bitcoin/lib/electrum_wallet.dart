@@ -435,6 +435,10 @@ abstract class ElectrumWalletBase
 
       final tip = await getUpdatedChainTip();
 
+      if (walletInfo.restoreHeight == 0) {
+        await walletInfo.updateRestoreHeight(tip);
+      }
+
       if (tip == walletInfo.restoreHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
         return;
@@ -528,6 +532,10 @@ abstract class ElectrumWalletBase
   StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
+
+  // Serializes restoreHeight persistence so overlapping SyncResponse messages
+  // can't have their SQLite saves complete out of order.
+  Future<void> _restoreHeightSaveChain = Future.value();
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -669,7 +677,17 @@ abstract class ElectrumWalletBase
           if (shouldUpdateSyncStatus) syncStatus = message.syncStatus;
         }
 
-        await walletInfo.updateRestoreHeight(message.height);
+        // receivePort.listen's callback isn't awaited by the stream, so without
+        // chaining, a fast SyncResponse could start its SQLite save before a
+        // slower earlier one finishes and overwrite it with an older height.
+        // Chaining onto the previous save forces writes to land in arrival
+        // order; catchError keeps one failed save from poisoning the chain
+        // (an unhandled `then` error would silently skip every save after it).
+        _restoreHeightSaveChain = _restoreHeightSaveChain
+            .then((_) => walletInfo.updateRestoreHeight(message.height))
+            .catchError((e, s) => printV(e));
+
+        await _restoreHeightSaveChain;
       }
     });
   }
@@ -4294,12 +4312,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
         final tweakHeight = response.block;
 
-        // Continuous status UI update, send how many blocks left to scan
         final syncingStatus = isSingleScan
             ? SyncingSyncStatus(1, 0)
             : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, tweakHeight);
-
-        if (shouldUpdateSyncStatus) scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
         try {
           final blockTweaks = response.blockTweaks;
@@ -4466,6 +4481,13 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         }
 
         syncHeight = tweakHeight;
+
+        // Continuous status UI update, send how many blocks left to scan. Sent
+        // only once this height's tweaks have been fully scanned, so a restart
+        // resumes from the last height that was actually processed.
+        if (shouldUpdateSyncStatus) {
+          scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
+        }
 
         if ((tweakHeight >= scanData.chainTip) || isSingleScan) {
           endScanningSuccesfully();
