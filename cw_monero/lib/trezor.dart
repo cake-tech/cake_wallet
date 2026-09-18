@@ -15,11 +15,12 @@ class MoneroTrezorService extends HardwareWalletService {
   /// while a transaction is being signed, say) leaves the Trezor unresponsive
   /// until it is power-cycled and re-paired. Static on purpose: services are
   /// created per call, but there is only ever one device.
-  static final Mutex _device = Mutex();
+  static final Mutex _mutex = Mutex();
 
-  static bool get isBusy => _device.isLocked;
+  /// Whether a device conversation is in progress (see [runBlocking]).
+  static bool get isBusy => _mutex.isLocked;
 
-  static Future<T> exclusive<T>(Future<T> Function() operation) => _device.protect(operation);
+  static Future<T> runBlocking<T>(Future<T> Function() operation) => _mutex.protect(operation);
 }
 
 class MoneroTrezorWatchCredentials {
@@ -35,8 +36,7 @@ class Trezor {
   final MoneroTrezorService service;
 
   Future<MoneroTrezorWatchCredentials> getWatchCredentials() async {
-    final credentials =
-        await MoneroTrezorService.exclusive(() => TrezorMonero(service.client).getWatchCredentials());
+    final credentials = await MoneroTrezorService.runBlocking(TrezorMonero(service.client).getWatchCredentials);
 
     return MoneroTrezorWatchCredentials(credentials.$1, credentials.$2);
   }
@@ -59,13 +59,15 @@ class Trezor {
         ),
       );
     }
-    final keyImages =
-        await MoneroTrezorService.exclusive(() => TrezorMonero(service.client).syncKeyImages(txIds));
+    final keyImages = await MoneroTrezorService.runBlocking(
+      () => TrezorMonero(service.client).syncKeyImages(txIds),
+    );
 
     return jsonEncode(keyImages.toMap());
   }
 
-  Future<String> signTransaction(String json) => MoneroTrezorService.exclusive(
-        () => TrezorMonero(service.client).signTransaction(jsonDecode(json) as Map<String, dynamic>),
+  Future<String> signTransaction(String json) => MoneroTrezorService.runBlocking(
+        () =>
+            TrezorMonero(service.client).signTransaction(jsonDecode(json) as Map<String, dynamic>),
       );
 }

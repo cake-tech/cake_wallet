@@ -55,6 +55,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
+  StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   final connect_sdk.TrezorConnect trezorConnect;
   final SecureStorage _secureStorage;
   final TrezorWalletSettingsStorage _walletSettings;
@@ -132,6 +133,21 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   @override
   Future<List<HardwareWalletDevice>> getAllUsbDevices() =>
       trezorUSB.devices.then((devices) => devices.map(TrezorHardwareWalletDevice.new).toList());
+
+  /// A Trezor with a live BLE link stops advertising, so a scan never lists
+  /// it; the SDK's connection manager still knows about it.
+  @override
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async {
+    if (!_bleIsInitialized) {
+      return const [];
+    }
+    try {
+      return (await trezorBLE.devices).map(TrezorHardwareWalletDevice.new).toList();
+    } catch (e) {
+      printV(e);
+      return const [];
+    }
+  }
 
   @override
   Future<void> stopScanning() async {
@@ -472,6 +488,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   Future<void> _connect(TrezorHardwareWalletDevice device, TrezorDeviceSettings? preset) async {
     final trezorInterface =
         device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
+    _connectionChangeSubscription ??=
+        trezorInterface.deviceStateChanges.listen(_connectionChangeListener);
 
     // Serialise behind a previous attempt that was cancelled mid-connect.
     await _awaitPendingCleanup();
@@ -622,21 +640,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   bool isConnected(WalletType type) => trezorUseNative.contains(type)
       ? _client != null && _client?.connection.isDisconnected == false
       : true;
-
-  @override
-  Future<List<HardwareWalletDevice>> getConnectedDevices() async {
-    final devices = <HardwareWalletDevice>[];
-    try {
-      // A Trezor with a live BLE link stops advertising, so a scan never lists
-      // it; the SDK's connection manager still knows about it.
-      if (_bleIsInitialized) {
-        devices.addAll((await trezorBLE.devices).map(TrezorHardwareWalletDevice.new));
-      }
-    } catch (e) {
-      printV(e);
-    }
-    return devices;
-  }
 
   /// Trezor errors carry their own description, so surface it instead of
   /// letting callers fall back to a generic (Ledger) connection error and
@@ -847,6 +850,19 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   /// Human-readable reason of the last failed [syncKeyImages], if any.
   String? lastSyncError;
 
+  /// The SDK reports the BLE link going away (device powered off, out of
+  /// range). Outside a connect attempt (which handles its own failures) the
+  /// client is dead: drop it, and the session attribution with it, so the next
+  /// use reconnects instead of talking to a closed link.
+  void _connectionChangeListener(sdk.BleConnectionState event) {
+    printV("Trezor device state changed: $event");
+    if (event == sdk.BleConnectionState.disconnected && !isConnecting) {
+      _client = null;
+      _sessionSettings = null;
+      _sessionWalletKey = null;
+    }
+  }
+
   Future<bool> syncKeyImages(WalletBase wallet) async {
     lastSyncError = null;
     if (wallet.type == WalletType.monero) {
@@ -864,6 +880,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       }
     }
     return true;
+  }
+
+  @override
+  Future<void> close() async {
+    try {
+      await _connectionChangeSubscription?.cancel();
+
+      _connectionChangeSubscription = null;
+      isConnecting = false;
+      await stopScanning();
+    } catch (_) {}
   }
 }
 

@@ -181,7 +181,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   /// (a connected peripheral stops advertising), so list them up front.
   Future<void> _loadConnectedDevices() async {
     try {
-      final connected = await widget.hardwareWalletVM.getConnectedDevices();
+      final connected = await widget.hardwareWalletVM.getConnectedBleDevices();
       if (!mounted || connected.isEmpty) return;
       setState(() {
         for (final device in connected) {

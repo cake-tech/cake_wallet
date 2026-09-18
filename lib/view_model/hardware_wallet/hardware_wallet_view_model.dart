@@ -20,10 +20,10 @@ abstract class HardwareWalletViewModel {
 
   Future<List<HardwareWalletDevice>> getAllUsbDevices();
 
-  /// Devices that already hold a live connection with this view model. A
-  /// connected BLE peripheral does not advertise, so a scan will not find it;
-  /// the connect page lists these up front so the user can proceed with it.
-  Future<List<HardwareWalletDevice>> getConnectedDevices() async => [];
+  /// Devices that already hold a live BLE connection with this view model. A
+  /// connected peripheral does not advertise, so a scan will not find it; the
+  /// connect page lists these up front so the user can proceed with it.
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async => [];
 
   Future<void> stopScanning();
 
