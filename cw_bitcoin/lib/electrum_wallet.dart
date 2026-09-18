@@ -794,7 +794,11 @@ abstract class ElectrumWalletBase
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
         final response = await ProxyWrapper()
-            .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
+            .get(
+              clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"),
+              onionUri: Uri.parse(
+                  "http://cakememcninjdqbaub3tp2iswuigxqtdoevnpgzkolmy4gvhrrsub3yd.onion/api/v1/fees/recommended"),
+            )
             .timeout(Duration(seconds: 15));
 
         final result = json.decode(response.body) as Map<String, dynamic>;
