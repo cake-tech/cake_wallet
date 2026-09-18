@@ -126,6 +126,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       trezorUSB.devices.then((devices) => devices.map(TrezorHardwareWalletDevice.new).toList());
 
   @override
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async {
+    if (!_bleIsInitialized) {
+      return const [];
+    }
+    return (await trezorBLE.devices).map(TrezorHardwareWalletDevice.new).toList();
+  }
+
+  @override
   Future<void> stopScanning() async {
     if (_bleIsInitialized) {
       await trezorBLE.stopScanning();

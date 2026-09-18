@@ -58,7 +58,7 @@ dependencies:
   trezor_flutter:
     git:
       url: https://github.com/cake-tech/trezor-flutter
-      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
+      ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
       path: trezor-flutter
   bitbox_flutter:
     path: ../scripts/bitbox_flutter
