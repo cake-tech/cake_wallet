@@ -1,5 +1,4 @@
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
@@ -47,8 +46,7 @@ class HistorySection extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
+  Widget build(BuildContext context) => SliverPadding(
         padding: EdgeInsets.only(left: 16.0, right: 16, top: short && roundedTopSection ? 18 : 0),
         sliver: Observer(
           builder: (_) {
@@ -118,8 +116,8 @@ class HistorySection extends StatelessWidget {
                               child: HistoryTile(
                                 title: item.formattedTitle + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
-                                amount: item.formattedCryptoAmount,
-                                amountFiat: item.formattedFiatAmount,
+                                amount: item.transaction.amount,
+                                amountFiat: item.fiatAmount,
                                 hasTokens: item.hasTokens,
                                 chainIconPath: _getChainIconPath(),
                                 roundedBottom: roundedBottom,
@@ -132,26 +130,16 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is TradeListItem) {
                             final trade = item.trade;
-                            final tradeFrom = trade.from;
-                            final tradeTo = trade.to;
 
                             return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
-                                from: tradeFrom,
-                                to: tradeTo,
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
-                                amount: dashboardViewModel.balanceDisplayMode ==
-                                        BalanceDisplayMode.hiddenBalance
-                                    ? "---"
-                                    : trade.amountFormatted(),
-                                receiveAmount: dashboardViewModel.balanceDisplayMode ==
-                                        BalanceDisplayMode.hiddenBalance
-                                    ? "---"
-                                    : trade.receiveAmountFormatted(),
+                                amount: trade.amountMoney,
+                                receiveAmount: trade.receiveMoney,
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
@@ -159,25 +147,32 @@ class HistorySection extends StatelessWidget {
                               ),
                             );
                           } else if (item is SpecificDateSectionItem) {
+                          return Padding(
+                            padding: EdgeInsets.only(left: 8, bottom: 8, top: topPadding),
+                            child: Text(
+                              item.text,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          );
+                        } else if (item is DateSectionItem) {
                             return Padding(
-                                padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
-                                child: Text(item.text,
-                                    style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)));
-                          } else if (item is DateSectionItem) {
-                            return Padding(
-                                padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: topPadding),
-                                child: Text(DateFormat("MMMM yyyy", localeName).format(item.date),
-                                    style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant)));
-                          } else if (item is OrderListItem) {
+                            padding: EdgeInsets.only(left: 8, bottom: 8, top: topPadding),
+                            child: Text(
+                              DateFormat("MMMM yyyy", localeName).format(item.date),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          );
+                        } else if (item is OrderListItem) {
                             return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item.order),
                               child: HistoryOrderTile(
                                 date: _formatTransactionDate(item.order.createdAt, localeName),
-                                amount: item.orderFormattedAmount,
-                                amountFiat: "",
+                                amount: item.order.amountMoney,
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
@@ -192,47 +187,47 @@ class HistorySection extends StatelessWidget {
                                 arguments: [item.sessionId, item.transaction],
                               ),
                               child: PayjoinHistoryTile(
-                                  createdAt:
-                                      _formatTransactionDate(session.inProgressSince!, localeName),
-                                  amount: dashboardViewModel.appStore.amountParsingProxy
-                                      .asDisplayString(Money(session.amount, CryptoCurrency.btc)),
-                                  currency: item.transaction?.from ?? "BTC",
-                                  state: item.status,
-                                  isSending: session.isSenderSession,
-                                  roundedTop: roundedTop,
-                                  roundedBottom: roundedBottom,
-                                  bottomSeparator: !roundedBottom),
+                                createdAt:
+                                    _formatTransactionDate(session.inProgressSince!, localeName),
+                                amount: Money(session.amount, CryptoCurrency.btc),
+                                state: item.status,
+                                isSending: session.isSenderSession,
+                                roundedTop: roundedTop,
+                                roundedBottom: roundedBottom,
+                                bottomSeparator: !roundedBottom,
+                              ),
                             );
                           } else if (item is AnonpayTransactionListItem) {
                             final transactionInfo = item.transaction;
 
                             return _historyRow(
-                                onTap: () => Navigator.of(context).pushNamed(
-                                    Routes.anonPayDetailsPage,
-                                    arguments: transactionInfo),
-                                child: AnonpayHistoryTile(
-                                    provider: transactionInfo.provider,
-                                    createdAt: _formatTransactionDate(
-                                        transactionInfo.createdAt, localeName),
-                                    amount: transactionInfo.fiatAmount?.toString() ??
-                                        (transactionInfo.amountTo?.toString() ?? ''),
-                                    currency: transactionInfo.fiatAmount != null
-                                        ? transactionInfo.fiatEquiv ?? ''
-                                        : CryptoCurrency.fromFullName(transactionInfo.coinTo)
-                                            .name
-                                            .toUpperCase(),
-                                    roundedTop: roundedTop,
-                                    roundedBottom: roundedBottom,
-                                    bottomSeparator: !roundedBottom));
-                          } else
+                              onTap: () => Navigator.of(context).pushNamed(
+                                Routes.anonPayDetailsPage,
+                                arguments: transactionInfo,
+                              ),
+                              child: AnonpayHistoryTile(
+                                provider: transactionInfo.provider,
+                                createdAt: _formatTransactionDate(
+                                  transactionInfo.createdAt,
+                                  localeName,
+                                ),
+                                amount: transactionInfo.amount,
+                                roundedTop: roundedTop,
+                                roundedBottom: roundedBottom,
+                                bottomSeparator: !roundedBottom,
+                              ),
+                            );
+                        } else {
                             return Text(item.runtimeType.toString());
-                        }),
+                          }
+                        },
+                        ),
                       ),
                     ),
                   );
           },
-        ));
-  }
+        ),
+  );
 
   String _getChainIconPath() {
     try {

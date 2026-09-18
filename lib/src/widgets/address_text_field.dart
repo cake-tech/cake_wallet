@@ -1,15 +1,15 @@
-import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_core/currency.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+import "package:cake_wallet/entities/contact_base.dart";
+import "package:cake_wallet/entities/qr_scanner.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
+import "package:cake_wallet/utils/device_info.dart";
+import "package:cake_wallet/utils/permission_handler.dart";
+import "package:cake_wallet/utils/responsive_layout_util.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:permission_handler/permission_handler.dart";
 
 enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 

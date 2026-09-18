@@ -106,12 +106,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
     return {
       for (final r in balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
-          fiat: balanceViewModel.isFiatDisabled
-              ? null
-              : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
-          fiatValue:
-              balanceViewModel.isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
+          amount: r.raw.available,
+          fiat: balanceViewModel.isFiatDisabled ? null : r.fiatAvailableBalanceRaw,
         ),
     };
   }
@@ -305,7 +301,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           if (widget.exchangeViewModel.tradeStarted) {
             return;
           }
-          final receiveAmount = widget.exchangeViewModel.receiveAmount;
+          final receiveAmount = widget.exchangeViewModel.receiveMoney;
           // FIXME we don't know why a reset is/was needed here, it messes up ui so i removed it
           // widget.exchangeViewModel.reset();
           // (widget.exchangeViewModel.tradesStore.trade?.provider ==

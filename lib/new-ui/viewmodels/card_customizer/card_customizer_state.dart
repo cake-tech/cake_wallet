@@ -6,7 +6,6 @@ sealed class CardCustomizerState {
   final String accountName;
   final int accountIndex;
   final int cardOrder;
-  final bool displaySats;
   final List<CardDesign> availableDesigns;
   final List<Gradient> availableColors;
   final List<CardIconPath> availableIconPaths;
@@ -19,7 +18,6 @@ sealed class CardCustomizerState {
     this.availableColors,
     this.accountName,
     this.accountIndex,
-    this.displaySats,
     this.cardOrder, {
     this.availableIconPaths = const [],
     this.selectedIconIndex = 0,
@@ -68,7 +66,6 @@ final class CardCustomizerNotLoaded extends CardCustomizerState {
       super.availableColors,
       super.accountName,
       super.accountIndex,
-      super.displaySats,
       super.cardOrder);
 
   @override
@@ -95,12 +92,11 @@ final class CardCustomizerInitial extends CardCustomizerState {
     List<Gradient> availableColors,
     String accountName,
     int accountIndex,
-    bool displaySats,
     int cardOrder, {
     List<CardIconPath> availableIconPaths = const [],
     int selectedIconIndex = 0,
   }) : super(selectedDesignIndex, selectedColorIndex, availableDesigns, availableColors,
-            accountName, accountIndex, displaySats, cardOrder,
+            accountName, accountIndex, cardOrder,
             availableIconPaths: availableIconPaths, selectedIconIndex: selectedIconIndex);
 
   CardCustomizerInitial copyWith({
@@ -110,7 +106,6 @@ final class CardCustomizerInitial extends CardCustomizerState {
     List<Gradient>? availableColors,
     String? accountName,
     int? accountIndex,
-    bool? displaySats,
     int? cardOrder,
     List<CardIconPath>? availableIconPaths,
     int? selectedIconIndex,
@@ -122,7 +117,6 @@ final class CardCustomizerInitial extends CardCustomizerState {
       availableColors ?? this.availableColors,
       accountName ?? this.accountName,
       accountIndex ?? this.accountIndex,
-      displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
       availableIconPaths: availableIconPaths ?? this.availableIconPaths,
       selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,
@@ -138,7 +132,6 @@ final class CardCustomizerSaved extends CardCustomizerState {
       super.availableColors,
       super.accountName,
       super.accountIndex,
-      super.displaySats,
       super.cardOrder,
       {super.availableIconPaths,
       super.selectedIconIndex});
@@ -151,7 +144,6 @@ final class CardCustomizerSaved extends CardCustomizerState {
       List<Gradient>? availableColors,
       String? accountName,
       int? accountIndex,
-      bool? displaySats,
       int? cardOrder,
       List<CardIconPath>? availableIconPaths,
       int? selectedIconIndex}) {
@@ -162,7 +154,6 @@ final class CardCustomizerSaved extends CardCustomizerState {
       availableColors ?? this.availableColors,
       accountName ?? this.accountName,
       accountIndex ?? this.accountIndex,
-      displaySats ?? this.displaySats,
       cardOrder ?? this.cardOrder,
       availableIconPaths: availableIconPaths ?? this.availableIconPaths,
       selectedIconIndex: selectedIconIndex ?? this.selectedIconIndex,

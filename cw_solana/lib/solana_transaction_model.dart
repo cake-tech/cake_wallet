@@ -7,7 +7,7 @@ class SolanaTransactionModel {
 
   final String to;
 
-  final Money amount;
+  final CryptoMoney amount;
 
   final bool isOutgoingTx;
 
@@ -16,7 +16,7 @@ class SolanaTransactionModel {
 
   final DateTime blockTime;
 
-  final Money fee;
+  final CryptoMoney fee;
 
   SolanaTransactionModel({
     required this.id,

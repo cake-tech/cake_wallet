@@ -4,7 +4,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -249,7 +248,7 @@ class SendTemplateCard extends StatelessWidget {
         selectedAtIndex: sendTemplateViewModel.walletCurrencies.indexOf(template.selectedCurrency),
         items: sendTemplateViewModel.walletCurrencies,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) => template.changeSelectedCurrency(cur as CryptoCurrency),
+        onItemSelected: (cur) => template.changeSelectedCurrency(cur as CryptoCurrency),
       ),
     );
   }

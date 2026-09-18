@@ -6,15 +6,14 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:flutter/material.dart';
 
 class CurrencyPickerSheet extends StatelessWidget {
-  const CurrencyPickerSheet({super.key, required this.args});
+  const CurrencyPickerSheet({required this.args, super.key});
 
   final CurrencyPickerArgs args;
 
   static Future<void> show({
     required BuildContext context,
     required CurrencyPickerArgs args,
-  }) {
-    return showModalBottomSheet<void>(
+  }) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -23,7 +22,6 @@ class CurrencyPickerSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => CurrencyPickerSheet(args: args),
     );
-  }
 
   @override
   Widget build(BuildContext context) {

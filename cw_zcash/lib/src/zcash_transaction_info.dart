@@ -8,8 +8,8 @@ import 'package:cw_zcash/src/zkooltx.dart';
 class ZcashTransactionInfo extends TransactionInfo {
   ZcashTransactionInfo({
     required final String id,
-    required final Money amount,
-    required final Money fee,
+    required final CryptoMoney amount,
+    required final CryptoMoney fee,
     required final TransactionDirection direction,
     required final bool isPending,
     required final DateTime date,

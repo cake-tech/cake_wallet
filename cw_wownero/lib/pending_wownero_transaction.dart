@@ -18,9 +18,11 @@ class PendingWowneroTransaction with PendingTransaction {
 
   final PendingTransactionDescription pendingTransactionDescription;
 
-  Money get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.wow);
+  @override
+  CryptoMoney get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.wow);
 
-  Money get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.wow);
+  @override
+  CryptoMoney get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.wow);
 
   @override
   String get id => pendingTransactionDescription.hash;

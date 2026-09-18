@@ -2,8 +2,6 @@ import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
-import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -20,6 +18,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/fiat_currency.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -114,8 +113,10 @@ abstract class OutputBase with Store {
   String? stealthAddress;
 
   @computed
-  Money get cryptoAmountMoney {
-    if (cryptoAmount.isEmpty) return Money.zero(cryptoCurrencyHandler());
+  CryptoMoney get cryptoAmountMoney {
+    if (cryptoAmount.isEmpty) {
+      return Money.zero(cryptoCurrencyHandler());
+    }
 
     try {
       return cryptoCurrencyHandler().parseAmount(cryptoAmount.sanitized());
@@ -124,8 +125,21 @@ abstract class OutputBase with Store {
     }
   }
 
+  @computed
+  Money<FiatCurrency> get fiatAmountMoney {
+    if (cryptoAmount.isEmpty && !sendAll) {
+      return Money.zero(_settingsStore.fiatCurrency);
+    }
+
+    try {
+      return _settingsStore.fiatCurrency.parseAmount(fiatAmount.sanitized());
+    } catch (e) {
+      return Money.zero(_settingsStore.fiatCurrency);
+    }
+  }
+
   @observable
-  Money estimatedFee;
+  CryptoMoney estimatedFee;
 
   @action
   Future<void> calculateEstimatedFee() async {
@@ -253,8 +267,7 @@ abstract class OutputBase with Store {
 
   @action
   void setSendAll(String fullBalance) {
-    cryptoFullBalance =
-        _appStore.amountParsingProxy.getCanonicalCryptoAmount(fullBalance, cryptoCurrencyHandler());
+    cryptoFullBalance = fullBalance;
     sendAll = true;
     _updateFiatAmount();
   }

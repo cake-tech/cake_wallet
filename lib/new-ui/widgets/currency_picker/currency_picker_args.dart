@@ -6,6 +6,13 @@ import "package:cw_core/erc20_token.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_type.dart";
+import 'package:cake_wallet/evm/evm.dart';
+import "package:cw_core/amount/money.dart";
+import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency/fiat_currency.dart";
+import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/currency_groups.dart';
+import 'package:cw_core/wallet_type.dart';
 
 String chainNameForCurrency(CryptoCurrency c) {
   if (c == CryptoCurrency.btcln) {
@@ -56,11 +63,10 @@ void appendEvmDefaultTokens(List<CryptoCurrency> into) {
 }
 
 class CurrencyPickerBalance {
-  const CurrencyPickerBalance({required this.amount, this.fiat, this.fiatValue});
+  const CurrencyPickerBalance({required this.amount, this.fiat});
 
-  final String amount;
-  final String? fiat;
-  final double? fiatValue;
+  final Money amount;
+  final Money? fiat;
 }
 
 String? _assetAddressKey(CryptoCurrency c) {
@@ -116,21 +122,21 @@ enum RecentsSource { none, trades, orders }
 
 class CurrencyPickerArgs {
   const CurrencyPickerArgs({
-    this.selected,
     required this.items,
+    required this.fiatCurrency,
+    required this.onSelected,
+    this.selected,
     this.balanceByAsset,
     this.filterByNetwork,
-    required this.onSelected,
-    required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
     this.useSingleNetworkLayout = false,
   });
 
   final CryptoCurrency? selected;
+  final FiatCurrency fiatCurrency;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
   final void Function(CryptoCurrency) onSelected;
-  final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
   final bool useSingleNetworkLayout;

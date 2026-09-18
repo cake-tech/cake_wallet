@@ -116,11 +116,11 @@ class CWTron extends Tron {
       (wallet as TronWallet).getTronBase58AddressFromHex(hexAddress);
 
   @override
-  Money? getTronNativeEstimatedFee(WalletBase wallet) =>
+  CryptoMoney? getTronNativeEstimatedFee(WalletBase wallet) =>
       (wallet as TronWallet).nativeTxEstimatedFee;
 
   @override
-  Money? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
+  CryptoMoney? getTronTRC20EstimatedFee(WalletBase wallet) => (wallet as TronWallet).trc20EstimatedFee;
 
   @override
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {
@@ -150,8 +150,8 @@ class CWTron extends Tron {
   @override
   TransactionInfo getTransactionInfo({
     required String id,
-    required Money amount,
-    Money? fee,
+    required CryptoMoney amount,
+    CryptoMoney? fee,
     required TransactionDirection direction,
     required DateTime blockTime,
     String? to,

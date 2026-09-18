@@ -120,7 +120,7 @@ class TransactionsPage extends StatelessWidget {
                                   formattedFiatAmount:
                                       dashboardViewModel.balanceViewModel.isFiatDisabled
                                           ? ''
-                                          : item.formattedFiatAmount,
+                                          : item.fiatAmount.toString(),
                                   title:
                                       item.formattedTitle + item.formattedStatus + transactionType,
                                   tags: tags,

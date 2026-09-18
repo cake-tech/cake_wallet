@@ -1,5 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
 import "package:flutter/material.dart";
 
 class SwapSourceSelector extends StatelessWidget {
@@ -15,7 +16,7 @@ class SwapSourceSelector extends StatelessWidget {
 
   final String currencyIconPath;
   final String currencyLabel;
-  final String availableBalance;
+  final Money? availableBalance;
   final VoidCallback onTap;
   final String? chainIconPath;
   final String? walletName;
@@ -102,7 +103,7 @@ class SwapSourceSelector extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                S.of(context).available_balance_short(availableBalance),
+                S.of(context).available_balance_short(availableBalance?.toString() ?? "-"),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.06,

@@ -1,5 +1,5 @@
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:cw_core/enumerable_item.dart";
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
@@ -87,8 +87,13 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "CAD", countryCode: "cad", fullName: "Canadian Dollar", emoji: "🇨🇦");
   static const chf =
       FiatCurrency(symbol: "CHF", countryCode: "che", fullName: "Swiss Franc", emoji: "🇨🇭");
-  static const clp =
-      FiatCurrency(symbol: "CLP", countryCode: "chl", fullName: "Chilean Peso", emoji: "🇨🇱");
+  static const clp = FiatCurrency(
+    symbol: "CLP",
+    countryCode: "chl",
+    fullName: "Chilean Peso",
+    emoji: "🇨🇱",
+    decimals: 0,
+  );
   static const cny =
       FiatCurrency(symbol: "CNY", countryCode: "chn", fullName: "Chinese Yuan", emoji: "🇨🇳");
   static const cop =
@@ -132,15 +137,30 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const isk = FiatCurrency(
     symbol: "ISK",
     countryCode: "isl",
-    fullName: "Icelandic Krona Króna",
+    fullName: "Icelandic Króna",
     emoji: "🇮🇸",
+    decimals: 0,
   );
-  static const jpy =
-      FiatCurrency(symbol: "JPY", countryCode: "jpn", fullName: "Japanese Yen", emoji: "🇯🇵");
-  static const krw =
-      FiatCurrency(symbol: "KRW", countryCode: "kor", fullName: "South Korean Won", emoji: "🇰🇷");
+  static const jpy = FiatCurrency(
+    symbol: "JPY",
+    countryCode: "jpn",
+    fullName: "Japanese Yen",
+    emoji: "🇯🇵",
+    decimals: 0,
+  );
+  static const kes =
+      FiatCurrency(symbol: "KES", countryCode: "ken", fullName: "Kenyan Shillings", emoji: "🇰🇪");
+  static const krw = FiatCurrency(
+    symbol: "KRW",
+    countryCode: "kor",
+    fullName: "South Korean Won",
+    emoji: "🇰🇷",
+    decimals: 0,
+  );
   static const mad =
       FiatCurrency(symbol: "MAD", countryCode: "mar", fullName: "Moroccan Dirham", emoji: "🇲🇦");
+  static const mop =
+      FiatCurrency(symbol: "MOP", countryCode: "mac", fullName: "Macanese pataca", emoji: "🇲🇴");
   static const mxn =
       FiatCurrency(symbol: "MXN", countryCode: "mex", fullName: "Mexican Peso", emoji: "🇲🇽");
   static const myr =
@@ -159,12 +179,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "PHP", countryCode: "phl", fullName: "Philippine Peso", emoji: "🇵🇭");
   static const pkr =
       FiatCurrency(symbol: "PKR", countryCode: "pak", fullName: "Pakistani Rupee", emoji: "🇵🇰");
-  static const pln = FiatCurrency(
-    symbol: "PLN",
-    countryCode: "pol",
-    fullName: "Poland Zloty złoty",
-    emoji: "🇵🇱",
-  );
+  static const pln =
+      FiatCurrency(symbol: "PLN", countryCode: "pol", fullName: "Polish Złoty", emoji: "🇵🇱");
   static const ron =
       FiatCurrency(symbol: "RON", countryCode: "rou", fullName: "Romanian Leu", emoji: "🇷🇴");
   static const rub =
@@ -175,14 +191,12 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "SEK", countryCode: "swe", fullName: "Swedish Krona", emoji: "🇸🇪");
   static const sgd =
       FiatCurrency(symbol: "SGD", countryCode: "sgp", fullName: "Singapore Dollar", emoji: "🇸🇬");
-  static const thb = FiatCurrency(
-    symbol: "THB",
-    countryCode: "tha",
-    fullName: "Thai Baht",
-    emoji: "🇹🇭",
-  );
+  static const thb =
+      FiatCurrency(symbol: "THB", countryCode: "tha", fullName: "Thai Baht", emoji: "🇹🇭");
+  static const tur =
+    FiatCurrency(symbol: "TRY", countryCode: "tur", fullName: "Turkish Lira", emoji: "🇹🇷");
   static const twd =
-      FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Thaiwan Dollar", emoji: "🇹🇼");
+      FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Taiwan Dollar", emoji: "🇹🇼");
   static const uah =
       FiatCurrency(symbol: "UAH", countryCode: "ukr", fullName: "Ukrainian Hryvnia", emoji: "🇺🇦");
   static const usd = FiatCurrency(
@@ -191,17 +205,18 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     fullName: "United States Dollar",
     emoji: "🇺🇸",
   );
-  static const vef = FiatCurrency(
-    symbol: "VEF",
+  static const ves = FiatCurrency(
+    symbol: "VES",
     countryCode: "ven",
-    fullName: "Venezuelan Bolivar Bolívar",
+    fullName: "Venezuelan Bolívar",
     emoji: "🇻🇪",
   );
   static const vnd = FiatCurrency(
     symbol: "VND",
     countryCode: "vnm",
-    fullName: "Vietnamese Dong đồng",
+    fullName: "Vietnamese Đồng",
     emoji: "🇻🇳",
+    decimals: 0,
   );
   static const zar = FiatCurrency(
     symbol: "ZAR",
@@ -209,10 +224,6 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     fullName: "South African Rand",
     emoji: "🇿🇦",
   );
-  static const tur =
-      FiatCurrency(symbol: "TRY", countryCode: "tur", fullName: "Turkish Lira", emoji: "🇹🇷");
-  static const kes =
-      FiatCurrency(symbol: "KES", countryCode: "ken", fullName: "Kenyan Shillings", emoji: "🇰🇪");
 
   static final _all = {
     FiatCurrency.amd.raw: FiatCurrency.amd,
@@ -261,7 +272,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     FiatCurrency.twd.raw: FiatCurrency.twd,
     FiatCurrency.uah.raw: FiatCurrency.uah,
     FiatCurrency.usd.raw: FiatCurrency.usd,
-    FiatCurrency.vef.raw: FiatCurrency.vef,
+    FiatCurrency.ves.raw: FiatCurrency.ves,
     FiatCurrency.vnd.raw: FiatCurrency.vnd,
     FiatCurrency.zar.raw: FiatCurrency.zar,
     FiatCurrency.tur.raw: FiatCurrency.tur,
@@ -286,8 +297,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   String get iconPath => "assets/images/flags/$countryCode.png";
 
   @override
-  Money parseAmount(String value) => Money.parse(value, this);
+  FiatMoney parseAmount(String value) => Money.parse(value, this);
 
   @override
-  Money? tryParseAmount(String value) => Money.tryParse(value, this);
+  FiatMoney? tryParseAmount(String value) => Money.tryParse(value, this);
 }

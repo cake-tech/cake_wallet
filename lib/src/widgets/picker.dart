@@ -1,17 +1,17 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:math';
+import "dart:math";
 
-import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/core/theme_extension.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:flutter/material.dart';
-import 'package:cw_core/currency.dart';
-import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import "package:cake_wallet/entities/seed_type.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/src/widgets/picker_wrapper_widget.dart";
+import "package:cake_wallet/src/widgets/search_bar_widget.dart";
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/responsive_layout_util.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:flutter/material.dart";
 
 class Picker<Item> extends StatefulWidget {
   Picker({

@@ -7,7 +7,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';

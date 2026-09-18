@@ -9,10 +9,9 @@ import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -239,6 +238,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     FiatCurrency.kes: ["5000", "10000", "50000", "100000", "250000"],
     FiatCurrency.krw: ["50000", "100000", "500000", "1000000", "2500000"],
     FiatCurrency.mad: ["500", "1000", "5000", "10000", "25000"],
+    FiatCurrency.mop: ["400", "800", "4000", "8000", "20000"],
     FiatCurrency.mxn: ["1000", "2000", "10000", "20000", "50000"],
     FiatCurrency.myr: ["250", "500", "2500", "5000", "12500"],
     FiatCurrency.ngn: ["50000", "100000", "500000", "1000000", "2500000"],
@@ -257,7 +257,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     FiatCurrency.twd: ["1500", "3000", "15000", "30000", "75000"],
     FiatCurrency.uah: ["2000", "4000", "20000", "40000", "100000"],
     FiatCurrency.usd: ["50", "100", "500", "1000", "2500"],
-    FiatCurrency.vef: ["2000", "4000", "20000", "40000", "100000"],
+    FiatCurrency.ves: ["2000", "4000", "20000", "40000", "100000"],
     FiatCurrency.vnd: ["1000000", "2000000", "10000000", "20000000", "50000000"],
     FiatCurrency.zar: ["1000", "2000", "10000", "20000", "50000"],
   };
