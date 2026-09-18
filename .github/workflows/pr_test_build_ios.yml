@@ -135,7 +135,8 @@ jobs:
           set -euo pipefail
           IMAGE="$(./scripts/ios/docker/build.sh --image torch)"
 
-          command -v crane >/dev/null || brew install crane
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          command -v crane >/dev/null || go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
           echo "${{ secrets.GITHUB_TOKEN }}" \
             | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
 
