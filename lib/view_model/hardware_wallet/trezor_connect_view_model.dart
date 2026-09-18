@@ -48,6 +48,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
+  StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   final connect_sdk.TrezorConnect trezorConnect;
   final SecureStorage _secureStorage;
 
@@ -126,6 +127,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       trezorUSB.devices.then((devices) => devices.map(TrezorHardwareWalletDevice.new).toList());
 
   @override
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async {
+    if (!_bleIsInitialized) {
+      return const [];
+    }
+    return (await trezorBLE.devices).map(TrezorHardwareWalletDevice.new).toList();
+  }
+
+  @override
   Future<void> stopScanning() async {
     if (_bleIsInitialized) {
       await trezorBLE.stopScanning();
@@ -167,6 +176,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       final trezorInterface =
           device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
       final connection = await trezorInterface.connect(device.device);
+
+      _connectionChangeSubscription ??=
+          trezorInterface.deviceStateChanges.listen(_connectionChangeListener);
 
       if (!isRetry) {
         unawaited(
@@ -342,6 +354,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
+  void _connectionChangeListener(sdk.BleConnectionState event) {
+    printV("Ledger Device State Changed: $event");
+    if (event == sdk.BleConnectionState.disconnected && !isConnecting) {
+      _client = null;
+    }
+  }
+
   Future<bool> syncKeyImages(WalletBase wallet) async {
     if (wallet.type == WalletType.monero) {
       try {
@@ -351,6 +370,17 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       }
     }
     return true;
+  }
+
+  @override
+  Future<void> close() async {
+    try {
+      await _connectionChangeSubscription?.cancel();
+
+      _connectionChangeSubscription = null;
+      isConnecting = false;
+      await stopScanning();
+    } catch (_) {}
   }
 }
 
