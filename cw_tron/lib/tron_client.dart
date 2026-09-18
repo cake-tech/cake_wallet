@@ -82,9 +82,11 @@ class TronClient {
       if (response.statusCode >= 200 &&
           response.statusCode < 300 &&
           jsonResponse['status'] != false) {
-        return (jsonResponse['data'] as List).map((e) {
-          return TronTRC20TransactionModel.fromJson(e as Map<String, dynamic>);
-        }).toList();
+        return (jsonResponse["data"] as List<dynamic>)
+            .cast<Map<String, dynamic>>()
+            .where((e) => e["type"] == "Transfer")
+            .map(TronTRC20TransactionModel.fromJson)
+            .toList();
       }
 
       return [];

@@ -15,6 +15,7 @@ class WCPermissionsMapper {
     'solana_signTransaction',
     'solana_signAllTransactions',
     'solana_signAndSendTransaction',
+    "tron_signTransaction",
   };
 
   static const _messageSigningMethods = {
@@ -25,6 +26,7 @@ class WCPermissionsMapper {
     'eth_signTypedData_v3',
     'eth_signTypedData_v4',
     'solana_signMessage',
+    "tron_signMessage",
   };
 
   static const _chainAdminMethods = {

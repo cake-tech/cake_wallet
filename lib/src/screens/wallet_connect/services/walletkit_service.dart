@@ -2,19 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
-import 'package:reown_walletkit/reown_walletkit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_service.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
@@ -23,6 +18,12 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bott
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_sheet.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import "package:cw_core/utils/print_verbose.dart";
+import "package:eth_sig_util/util/utils.dart";
+import "package:flutter/material.dart";
+import "package:mobx/mobx.dart";
+import "package:reown_walletkit/reown_walletkit.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 import 'bottom_sheet_service.dart';
 import 'chain_service/solana/solana_chain_id.dart';
@@ -159,6 +160,16 @@ abstract class WalletKitServiceBase with Store {
 
     for (final cId in SolanaChainId.values) {
       SolanaChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
+    }
+
+    for (final cId in TronChainId.values) {
+      TronChainService(
         reference: cId,
         appStore: appStore,
         wcKeyService: walletKeyService,
@@ -316,7 +327,7 @@ abstract class WalletKitServiceBase with Store {
             namespaces: NamespaceUtils.regenerateNamespacesWithChains(
               args.params.generatedNamespaces!,
             ),
-            sessionProperties: args.params.sessionProperties,
+            sessionProperties: _sessionPropertiesFor(args.params),
           );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
@@ -336,6 +347,15 @@ abstract class WalletKitServiceBase with Store {
         );
       }
     }
+  }
+
+  Map<String, String>? _sessionPropertiesFor(ProposalData proposal) {
+    final namespaceKeys = proposal.generatedNamespaces?.keys ?? const <String>[];
+    if (!namespaceKeys.any((key) => key.split(":").first == "tron")) {
+      return proposal.sessionProperties;
+    }
+
+    return {...?proposal.sessionProperties, "tron_method_version": "v1"};
   }
 
   @action
