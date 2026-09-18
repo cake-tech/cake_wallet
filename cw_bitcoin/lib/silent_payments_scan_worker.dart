@@ -380,6 +380,58 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       }
     }
 
+    // Cached per height (shared by both the v1 and v2 match-handling
+    // branches below) since every match in the same block asks for the same
+    // header - avoids one `blockchain.block.header` round trip per match.
+    final blockTimeCache = <int, DateTime>{};
+
+    Future<DateTime> fetchBlockTimeWithBackoff(int height) async {
+      final cached = blockTimeCache[height];
+      if (cached != null) {
+        return cached;
+      }
+
+      var backoff = const Duration(seconds: 1);
+      const maxBackoff = Duration(seconds: 8);
+      const maxAttempts = 4;
+
+      for (var attempt = 0; attempt < maxAttempts; attempt++) {
+        if (stopRequested) {
+          break;
+        }
+        try {
+          final headerHex = await client.request(
+            ElectrumRequestBlockHeader(startHeight: height, cpHeight: 0),
+            const Duration(seconds: 10),
+          ) as String;
+          // Block header layout (80 bytes): version(4) + prevBlockHash(32) +
+          // merkleRoot(32) + timestamp(4, little-endian) + bits(4) + nonce(4).
+          final headerBytes = BytesUtils.fromHexString(headerHex);
+          final timestampBytes = headerBytes.sublist(68, 72);
+          final timestamp = timestampBytes[0] |
+              (timestampBytes[1] << 8) |
+              (timestampBytes[2] << 16) |
+              (timestampBytes[3] << 24);
+          final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+          blockTimeCache[height] = date;
+          return date;
+        } catch (e) {
+          log(
+            "block.header fetch failed (attempt ${attempt + 1}/$maxAttempts), height: $height: $e",
+            LogLevel.error,
+          );
+          if (attempt < maxAttempts - 1) {
+            await Future.delayed(backoff);
+            if (backoff < maxBackoff) {
+              backoff *= 2;
+            }
+          }
+        }
+      }
+
+      return getDateByBitcoinHeight(height);
+    }
+
     Future<void> scan(int syncHeight, {required bool isSingleScan}) async {
       final int initialSyncHeight = syncHeight;
 
@@ -507,9 +559,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               fee: Money.zero(CryptoCurrency.btc),
               direction: TransactionDirection.incoming,
               isReplaced: false,
-              date: scanData.network == BitcoinNetwork.mainnet
-                  ? getDateByBitcoinHeight(matchHeight)
-                  : DateTime.now(),
+              date: await fetchBlockTimeWithBackoff(matchHeight),
               confirmations: scanData.chainTip - matchHeight + 1,
               isReceivedSilentPayment: true,
               isPending: false,
@@ -931,9 +981,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 fee: Money.zero(CryptoCurrency.btc),
                 direction: TransactionDirection.incoming,
                 isReplaced: false,
-                date: scanData.network == BitcoinNetwork.mainnet
-                    ? getDateByBitcoinHeight(tweakHeight)
-                    : DateTime.now(),
+                date: await fetchBlockTimeWithBackoff(tweakHeight),
                 confirmations: scanData.chainTip - tweakHeight + 1,
                 isReceivedSilentPayment: true,
                 isPending: false,
