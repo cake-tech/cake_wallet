@@ -10,6 +10,7 @@ import "package:cake_wallet/src/screens/transaction_details/confirmations_list_i
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -48,6 +49,21 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
 
     if (widget.highlightNoteField) {
       noteFocusNode.requestFocus();
+    }
+  }
+
+  Future<void> _rebroadcast(BuildContext context) async {
+    try {
+      await widget.transactionDetailsViewModel.rebroadcast();
+      if (!context.mounted) return;
+      showBar<void>(context, "Transaction rebroadcast to the connected node");
+    } catch (e) {
+      if (!context.mounted) return;
+      showBar<void>(
+        context,
+        "Unable to rebroadcast: ${e.toString()}",
+        duration: const Duration(seconds: 4),
+      );
     }
   }
 
@@ -200,6 +216,16 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                                 ],
                                               );
                                             },
+                                          ),
+                                        ],
+                                      if (widget.transactionDetailsViewModel.canRebroadcast)
+                                        "rebroadcast": [
+                                          ListItemRegularRow(
+                                            keyValue: "rebroadcast",
+                                            label: "Rebroadcast",
+                                            onTap: () => _rebroadcast(context),
+                                            foregroundColor:
+                                                Theme.of(context).colorScheme.primary,
                                           ),
                                         ],
                                     },

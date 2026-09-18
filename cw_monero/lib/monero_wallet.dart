@@ -341,6 +341,16 @@ abstract class MoneroWalletBase
     return retStatus;
   }
 
+  Future<bool> submitTransactionHex(String hex) async {
+    final retStatus = currentWallet!.submitTransactionHex(hex);
+    final status = currentWallet!.status();
+    if (status != 0) {
+      final err = currentWallet!.errorString();
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+    }
+    return retStatus;
+  }
+
   bool importKeyImagesUR(String ur) {
     final retStatus = currentWallet!.importKeyImagesUR(ur);
     final status = currentWallet!.status();
