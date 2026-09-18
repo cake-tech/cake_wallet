@@ -489,6 +489,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client);
   Future<bool> trezorSessionMatchesWallet(Object wallet, trezor.TrezorClient client);
   Future<void> syncTrezor(Object wallet);
+  bool isTrezorBusy();
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
   Future<int> getNodeHeight(Object wallet);
