@@ -87,8 +87,13 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "CAD", countryCode: "cad", fullName: "Canadian Dollar", emoji: "🇨🇦");
   static const chf =
       FiatCurrency(symbol: "CHF", countryCode: "che", fullName: "Swiss Franc", emoji: "🇨🇭");
-  static const clp =
-      FiatCurrency(symbol: "CLP", countryCode: "chl", fullName: "Chilean Peso", emoji: "🇨🇱", decimals: 0);
+  static const clp = FiatCurrency(
+    symbol: "CLP",
+    countryCode: "chl",
+    fullName: "Chilean Peso",
+    emoji: "🇨🇱",
+    decimals: 0,
+  );
   static const cny =
       FiatCurrency(symbol: "CNY", countryCode: "chn", fullName: "Chinese Yuan", emoji: "🇨🇳");
   static const cop =
@@ -129,14 +134,33 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "INR", countryCode: "ind", fullName: "Indian Rupee", emoji: "🇮🇳");
   static const irr =
       FiatCurrency(symbol: "IRR", countryCode: "irn", fullName: "Iranian Rial", emoji: "🇮🇷");
-  static const isk =
-      FiatCurrency(symbol: "ISK", countryCode: "isl", fullName: "Icelandic Króna", emoji: "🇮🇸", decimals: 0);
-  static const jpy =
-      FiatCurrency(symbol: "JPY", countryCode: "jpn", fullName: "Japanese Yen", emoji: "🇯🇵", decimals: 0);
-  static const krw =
-      FiatCurrency(symbol: "KRW", countryCode: "kor", fullName: "South Korean Won", emoji: "🇰🇷", decimals: 0);
+  static const isk = FiatCurrency(
+    symbol: "ISK",
+    countryCode: "isl",
+    fullName: "Icelandic Króna",
+    emoji: "🇮🇸",
+    decimals: 0,
+  );
+  static const jpy = FiatCurrency(
+    symbol: "JPY",
+    countryCode: "jpn",
+    fullName: "Japanese Yen",
+    emoji: "🇯🇵",
+    decimals: 0,
+  );
+  static const kes =
+      FiatCurrency(symbol: "KES", countryCode: "ken", fullName: "Kenyan Shillings", emoji: "🇰🇪");
+  static const krw = FiatCurrency(
+    symbol: "KRW",
+    countryCode: "kor",
+    fullName: "South Korean Won",
+    emoji: "🇰🇷",
+    decimals: 0,
+  );
   static const mad =
       FiatCurrency(symbol: "MAD", countryCode: "mar", fullName: "Moroccan Dirham", emoji: "🇲🇦");
+  static const mop =
+      FiatCurrency(symbol: "MOP", countryCode: "mac", fullName: "Macanese pataca", emoji: "🇲🇴");
   static const mxn =
       FiatCurrency(symbol: "MXN", countryCode: "mex", fullName: "Mexican Peso", emoji: "🇲🇽");
   static const myr =
@@ -169,6 +193,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "SGD", countryCode: "sgp", fullName: "Singapore Dollar", emoji: "🇸🇬");
   static const thb =
       FiatCurrency(symbol: "THB", countryCode: "tha", fullName: "Thai Baht", emoji: "🇹🇭");
+  static const tur =
+    FiatCurrency(symbol: "TRY", countryCode: "tur", fullName: "Turkish Lira", emoji: "🇹🇷");
   static const twd =
       FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Taiwan Dollar", emoji: "🇹🇼");
   static const uah =
@@ -185,18 +211,19 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     fullName: "Venezuelan Bolívar",
     emoji: "🇻🇪",
   );
-  static const vnd =
-      FiatCurrency(symbol: "VND", countryCode: "vnm", fullName: "Vietnamese Đồng", emoji: "🇻🇳", decimals: 0);
+  static const vnd = FiatCurrency(
+    symbol: "VND",
+    countryCode: "vnm",
+    fullName: "Vietnamese Đồng",
+    emoji: "🇻🇳",
+    decimals: 0,
+  );
   static const zar = FiatCurrency(
     symbol: "ZAR",
     countryCode: "saf",
     fullName: "South African Rand",
     emoji: "🇿🇦",
   );
-  static const tur =
-      FiatCurrency(symbol: "TRY", countryCode: "tur", fullName: "Turkish Lira", emoji: "🇹🇷");
-  static const kes =
-      FiatCurrency(symbol: "KES", countryCode: "ken", fullName: "Kenyan Shillings", emoji: "🇰🇪");
 
   static final _all = {
     FiatCurrency.amd.raw: FiatCurrency.amd,
