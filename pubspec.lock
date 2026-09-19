@@ -555,104 +555,6 @@ packages:
       url: "https://github.com/flutter/packages"
     source: git
     version: "1.0.9"
-  cw_bitcoin:
-    dependency: "direct main"
-    description:
-      path: cw_bitcoin
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_bitcoin_cash:
-    dependency: "direct main"
-    description:
-      path: cw_bitcoin_cash
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_core:
-    dependency: "direct main"
-    description:
-      path: cw_core
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_decred:
-    dependency: "direct main"
-    description:
-      path: cw_decred
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_dogecoin:
-    dependency: "direct main"
-    description:
-      path: cw_dogecoin
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_evm:
-    dependency: "direct main"
-    description:
-      path: cw_evm
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_monero:
-    dependency: "direct main"
-    description:
-      path: cw_monero
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_mweb:
-    dependency: transitive
-    description:
-      path: cw_mweb
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_nano:
-    dependency: "direct main"
-    description:
-      path: cw_nano
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_solana:
-    dependency: "direct main"
-    description:
-      path: cw_solana
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_tron:
-    dependency: "direct main"
-    description:
-      path: cw_tron
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_wownero:
-    dependency: "direct main"
-    description:
-      path: cw_wownero
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_zano:
-    dependency: "direct main"
-    description:
-      path: cw_zano
-      relative: true
-    source: path
-    version: "0.0.1"
-  cw_zcash:
-    dependency: "direct main"
-    description:
-      path: cw_zcash
-      relative: true
-    source: path
-    version: "1.0.0"
   dart_style:
     dependency: "direct overridden"
     description:
@@ -1272,7 +1174,7 @@ packages:
     source: git
     version: "2.11.1"
   flutter_secure_storage:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: flutter_secure_storage
       ref: ca897a08677edb443b366352dd7412735e098e7b
@@ -3161,8 +3063,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
-      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      ref: "9952fc72ded48891844d7786c0fa14c4cae1ce0b"
+      resolved-ref: "9952fc72ded48891844d7786c0fa14c4cae1ce0b"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"
@@ -3492,4 +3394,4 @@ packages:
     version: "6.24.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.19.0"
+  flutter: ">=3.3.0"

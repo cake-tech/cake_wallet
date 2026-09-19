@@ -1515,7 +1515,7 @@ dependency_overrides:
   universal_ble:
     git:
       url: https://github.com/cake-tech/universal_ble.git
-      ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+      ref: 9952fc72ded48891844d7786c0fa14c4cae1ce0b
   universal_io:
     git:
       url: https://github.com/dart-io-packages/universal_io
