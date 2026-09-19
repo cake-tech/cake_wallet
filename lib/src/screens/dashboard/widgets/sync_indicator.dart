@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SyncIndicator extends StatelessWidget {
@@ -20,7 +19,7 @@ class SyncIndicator extends StatelessWidget {
     return Observer(builder: (_) {
       final syncIndicatorWidth = 237.0;
       final status = dashboardViewModel.status;
-      final statusText =
+      final statusText = dashboardViewModel.pivxSyncIndicatorText ??
           syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode);
       final progress = status.progress();
       final indicatorOffset = progress * syncIndicatorWidth;
@@ -61,18 +60,22 @@ class SyncIndicator extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SyncIndicatorIcon(
-                          isSynced: status is SyncedSyncStatus,
+                          isSynced: dashboardViewModel.isSyncIndicatorSynced,
                           showTorIcon: dashboardViewModel.builtinTor,
                           size: dashboardViewModel.builtinTor ? 16 : 6,
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 6),
-                          child: Text(
-                            statusText,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
+                        Flexible(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 6),
+                            child: Text(
+                              statusText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                            ),
                           ),
                         )
                       ],

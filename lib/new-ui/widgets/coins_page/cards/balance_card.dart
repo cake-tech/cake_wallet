@@ -32,7 +32,8 @@ class BalanceCard extends StatelessWidget {
       this.capitalizeAssetName = true,
       this.onCustomizeTapped,
       this.accountIndex,
-      this.fiatFirst = false});
+      this.fiatFirst = false,
+      this.subline = ""});
 
   final double width;
   final double borderRadius;
@@ -43,6 +44,8 @@ class BalanceCard extends StatelessWidget {
   final String fiatBalance;
   final String fiatCurrencyTitle;
   final bool fiatFirst;
+
+  final String subline;
   final int? accountIndex;
   final bool capitalizeAssetName;
   final String assetName;
@@ -229,6 +232,17 @@ class BalanceCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (subline.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            subline,
+                            style: DefaultTextStyle.of(context).style.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: design.colors.textColorSecondary),
+                          ),
+                        ),
                     ],
                   )
                 else

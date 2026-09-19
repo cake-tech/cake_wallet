@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/universal_address_detector.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -66,6 +67,24 @@ abstract class PaymentViewModelBase with Store {
       detectedWalletType = null;
       isProcessing = true;
 
+      final currentWallet = appStore.wallet;
+
+      // a base58 D... addr is identical between pivx and dogecoin (both version
+      // byte 30), so the detector flags pivx as doge and offers a swap. if the
+      // addr is valid for the current wallet it's a normal send, skip detection.
+      bool isCurrentWalletAddress(String? candidate) =>
+          currentWallet != null &&
+          candidate != null &&
+          candidate.trim().isNotEmpty &&
+          AddressValidator(
+            type: currentWallet.currency,
+            isTestnet: currentWallet.isTestnet,
+          ).isValid(candidate.trim());
+
+      if (isCurrentWalletAddress(addressData)) {
+        return PaymentFlowResult.currentWalletCompatible();
+      }
+
       // Detect address type
       final detectionResult = UniversalAddressDetector.detectAddress(addressData);
 
@@ -74,6 +93,11 @@ abstract class PaymentViewModelBase with Store {
 
       if (!detectionResult.isValid || detectedWalletType == null) {
         return PaymentFlowResult.incompatible('Unable to detect address type');
+      }
+
+      // re-check the extracted addr (handles pivx: URIs) - still a normal send.
+      if (isCurrentWalletAddress(detectionResult.address)) {
+        return PaymentFlowResult.currentWalletCompatible();
       }
 
       if (detectedWalletType == WalletType.solana && solana == null) {
@@ -87,8 +111,6 @@ abstract class PaymentViewModelBase with Store {
           'Ethereum-compatible addresses are not supported in this app build.',
         );
       }
-
-      final currentWallet = appStore.wallet;
 
       if (currentWallet != null &&
           currentWallet.type == detectedWalletType &&
@@ -237,7 +259,7 @@ class PaymentFlowResult {
 
   /// Current wallet is compatible
   factory PaymentFlowResult.currentWalletCompatible(
-          AddressDetectionResult addressDetectionResult) =>
+          [AddressDetectionResult? addressDetectionResult]) =>
       PaymentFlowResult._(
         type: PaymentFlowType.currentWalletCompatible,
         addressDetectionResult: addressDetectionResult,

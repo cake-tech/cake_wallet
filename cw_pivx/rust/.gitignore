@@ -1,0 +1,26 @@
+# Rust build artifacts
+/target/
+Cargo.lock
+
+# Generated files
+*.so
+*.dylib
+*.a
+*.dll
+*.xcframework/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Build output directories
+/build/
+/out/
+
+# cbindgen generated
+/include/

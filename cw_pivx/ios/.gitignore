@@ -1,0 +1,22 @@
+# Ignore build artifacts
+Frameworks/*.xcframework/
+Frameworks/*.a
+*.dSYM/
+
+# Keep the header file
+!Classes/cw_pivx_sapling.h
+
+# Xcode
+xcuserdata/
+*.xccheckout
+build/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace
+
+# Cocoapods
+Pods/
+Podfile.lock

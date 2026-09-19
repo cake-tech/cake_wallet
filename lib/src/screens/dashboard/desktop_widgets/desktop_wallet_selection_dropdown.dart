@@ -62,6 +62,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final dogeIcon =
       Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg', height: 24, width: 24);
   final zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg', height: 24, width: 24);
+  final pivxIcon = Image.asset('assets/images/pivx_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -200,6 +201,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return decredIcon;
       case WalletType.dogecoin:
         return dogeIcon;
+      case WalletType.pivx:
+        return pivxIcon;
       case WalletType.base:
         return baseIcon;
       case WalletType.arbitrum:

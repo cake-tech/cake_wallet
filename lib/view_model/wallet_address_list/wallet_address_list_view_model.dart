@@ -2,6 +2,7 @@ import "dart:core";
 import "dart:developer" as dev;
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/pivx/pivx.dart";
 import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/core/fiat_conversion_service.dart";
@@ -198,8 +199,31 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
 
+  static int? pivxShieldedDiversifierIndexFromAddressMap(
+    Map<String, dynamic> address,
+  ) {
+    final rawIndex = address['diversifierIndex'];
+    if (rawIndex is int) return rawIndex;
+    if (rawIndex is num) return rawIndex.toInt();
+    if (rawIndex is String) return int.tryParse(rawIndex);
+    return null;
+  }
+
+  static bool isPivxShieldedAddress(String address) {
+    final normalized = address.toLowerCase().trim();
+    return normalized.startsWith('ps1') ||
+        normalized.startsWith('ptestsapling1');
+  }
+
   @computed
   WalletType get type => wallet.type;
+
+  @computed
+  bool get isPivx => wallet.type == WalletType.pivx;
+
+  @computed
+  bool get isPivxShieldedReceiveAddress =>
+      isPivx && isPivxShieldedAddress(address.address);
 
   @computed
   WalletAddressListItem get address =>
@@ -290,7 +314,80 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+      // PIVX has special handling for shielded (Sapling) addresses
+      if (wallet.type == WalletType.pivx) {
+        final saplingEnabled = pivx?.isSaplingEnabled(wallet) ?? false;
+
+        if (saplingEnabled) {
+          // touch shielded balance so MobX rebuilds the list when it changes
+          final walletBalance = wallet.balance[wallet.currency];
+          final shieldedBalance =
+              walletBalance?.secondAvailable?.amount.toInt() ?? 0;
+          final shieldedBalanceStr = _appStore.amountParsingProxy
+              .getDisplayCryptoString(
+                  shieldedBalance, walletTypeToCryptoCurrency(type));
+
+          // Add shielded section header with balance and explanation
+          addressList.add(WalletAddressListHeader(
+            title: S.current.shielded_sapling,
+            isShielded: true,
+            balance: '$shieldedBalanceStr ${wallet.currency.title}',
+            subtitle: S.current.shielded_balance_shared,
+          ));
+
+          // Get default shielded address (index 0)
+          final defaultShieldedAddress = pivx?.getShieldedAddress(wallet);
+          if (defaultShieldedAddress != null) {
+            addressList.add(WalletAddressListItem(
+              id: 0,
+              isPrimary: true,
+              name: S.current.primary_receive_address,
+              address: defaultShieldedAddress,
+              // Don't show per-address balance - it's in the header
+              balance: null,
+            ));
+          }
+
+          // Get additional shielded addresses (user-created diversified addresses)
+          final shieldedAddresses = pivx?.getShieldedAddresses(wallet) ?? [];
+          for (var i = 0; i < shieldedAddresses.length; i++) {
+            final addr = shieldedAddresses[i];
+            final divIndex = pivxShieldedDiversifierIndexFromAddressMap(addr);
+            if (divIndex == null) continue;
+            final divIndexText = divIndex.toString();
+            final label = addr['label'] as String?;
+            addressList.add(WalletAddressListItem(
+              id: divIndex,
+              isPrimary: false,
+              // Use label if set, otherwise localized "Receive Address #N"
+              name: label ??
+                  S.current.receive_address_n.replaceAll('#{0}', divIndexText),
+              address: addr['address'] as String,
+              // No per-address balance - shielded pool is unified
+              balance: null,
+            ));
+          }
+
+          addressList.add(WalletAddressListHeader(
+              title: S.current.transparent, isShielded: false));
+        }
+
+        // Then add transparent addresses
+        var addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
+          final isPrimary = subaddress.id == 0;
+          return WalletAddressListItem(
+              id: subaddress.id,
+              isPrimary:
+                  !saplingEnabled && isPrimary, // Only primary if no shielded
+              name: subaddress.name,
+              address: subaddress.address,
+              txCount: subaddress.txCount,
+              balance: _appStore.amountParsingProxy.getDisplayCryptoString(
+                  subaddress.balance, walletTypeToCryptoCurrency(type)),
+              isChange: subaddress.isChange);
+        });
+        addressList.addAll(addressItems);
+      } else if (bitcoin!.hasSelectedSilentPayments(wallet)) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
           final isPrimary = address.id == 0;
 
@@ -506,12 +603,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.decred,
         WalletType.dogecoin,
         WalletType.zcash,
+        WalletType.pivx,
       ].contains(wallet.type) &&
       !isLightning &&
       isZCashTransparent;
 
   @computed
-  bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
+  bool get hasAddressRotation =>
+      hasAddressList &&
+      wallet.type != WalletType.zcash &&
+      !isPivxShieldedReceiveAddress;
 
   @computed
   bool get isElectrumWallet => [
@@ -519,6 +620,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.dogecoin,
+        WalletType.pivx,
       ].contains(wallet.type);
 
   List<String> getWalletImages(int? chainId) {
@@ -645,7 +747,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get showAddManualAddresses =>
       !isAutoGenerateSubaddressEnabled ||
-      [WalletType.monero, WalletType.wownero].contains(wallet.type);
+      [WalletType.monero, WalletType.wownero, WalletType.pivx].contains(wallet.type);
 
   List<ListItem> _baseItems;
 
@@ -680,6 +782,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     if (wallet.type == WalletType.zcash) {
       await zcash!.setAddressType(wallet, option);
+    }
+    if (wallet.type == WalletType.pivx) {
+      await pivx!.setAddressType(wallet, option);
     }
   }
 

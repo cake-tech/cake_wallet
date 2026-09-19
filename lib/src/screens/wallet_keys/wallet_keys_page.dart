@@ -184,6 +184,16 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           _buildHeightBox(),
           const SizedBox(height: 20),
         ],
+        if (!isLegacySeed && widget.walletKeysViewModel.isPivx) ...[
+          WarningBox(
+            key: const ValueKey('wallet_keys_page_pivx_seed_only_notice_key'),
+            content: S.of(context).pivx_seed_only_recovery_notice,
+            iconSize: 28,
+            textAlign: TextAlign.start,
+            textWeight: FontWeight.w600,
+          ),
+          const SizedBox(height: 20),
+        ],
         (_buildPassphraseBox() ?? Container()),
         if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
         Expanded(

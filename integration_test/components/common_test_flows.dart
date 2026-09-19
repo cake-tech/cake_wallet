@@ -371,6 +371,8 @@ class CommonTestFlows {
         return secrets.dogeTestWalletSeeds;
       case WalletType.zcash:
         return secrets.zcashTestWalletSeeds;
+      case WalletType.pivx:
+        return secrets.dogeTestWalletSeeds; // TODO: Add PIVX test wallet seeds
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
