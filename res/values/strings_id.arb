@@ -1379,6 +1379,7 @@
   "transactions_will_appear_here": "Transaksi Anda akan muncul di sini.",
   "transparent_secret_key": "Kunci Rahasia Transparan",
   "transport_type": "Jenis Transport",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "adalah agregator pertukaran yang memanfaatkan berbagai pertukaran yang mendasarinya untuk menemukan kurs yang kompetitif.",
   "trocador_desc_kyc": "Di samping nama penyedia, Peringkat KYC ditampilkan. Ini ditetapkan oleh Trocador dan didasarkan pada kriteria mereka sendiri.",
   "trongrid_history": "Riwayat TronGrid",

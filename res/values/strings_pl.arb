@@ -1376,6 +1376,7 @@
   "transactions_will_appear_here": "Twoje transakcje pojawią się tutaj.",
   "transparent_secret_key": "Przezroczysty klucz tajny",
   "transport_type": "Typ transportu",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "to agregator giełd, który wykorzystuje wiele bazowych platform wymiany, aby znaleźć konkurencyjne kursy.",
   "trocador_desc_kyc": "Obok nazwy dostawcy wyświetlana jest ocena KYC. Jest ona ustalana przez Trocador i opiera się na jego własnych kryteriach.",
   "trongrid_history": "Historia TronGrid",

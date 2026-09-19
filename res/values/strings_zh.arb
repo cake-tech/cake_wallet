@@ -1376,6 +1376,7 @@
   "transactions_will_appear_here": "您的交易记录将显示在这里。",
   "transparent_secret_key": "透明私钥",
   "transport_type": "传输类型",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "是一个交易所聚合器，利用多个底层交易所来寻找有竞争力的汇率。",
   "trocador_desc_kyc": "在提供商名称旁边会显示 KYC 评级。该评级由 Trocador 设定，并基于其自身的评估标准。",
   "trongrid_history": "TronGrid 历史",

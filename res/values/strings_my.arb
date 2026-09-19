@@ -1376,6 +1376,7 @@
   "transactions_will_appear_here": "သင့် ငွေလွှဲပြောင်းမှုများသည် ဤနေရာတွင် ပေါ်လာပါမည်။",
   "transparent_secret_key": "Transparent လျှို့ဝှက်သော့",
   "transport_type": "ပို့ဆောင်မှုအမျိုးအစား",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "ယှဉ်ပြိုင်နိုင်သော နှုန်းထားများကို ရှာဖွေရန် အခြေခံ အပြန်အလှန်လဲလှယ်ရေး ပလက်ဖောင်းများ အများအပြားကို အသုံးချသည့် အပြန်အလှန်လဲလှယ်ရေး စုစည်းပေးသူတစ်ခုဖြစ်သည်။",
   "trocador_desc_kyc": "ဝန်ဆောင်မှုပေးသူအမည်နှင့်အတူ KYC Rating ကို ပြသထားသည်။ ၎င်းကို Trocador မှ သတ်မှတ်ထားပြီး ၎င်းတို့၏ ကိုယ်ပိုင်စံနှုန်းများအပေါ် အခြေခံထားသည်။",
   "trongrid_history": "TronGrid မှတ်တမ်း",

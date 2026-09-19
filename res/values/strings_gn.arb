@@ -1382,6 +1382,7 @@
   "transactions_will_appear_here": "Ko’ápe ojehechaukáta ne transacción-kuéra.",
   "transparent_secret_key": "Clave Secreta Transparente",
   "transport_type": "Transporte Mba'eichagua",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "ha'e peteĩ agregador de intercambio oiporúva heta intercambio subyacente ojuhú hag̃ua tasa competitiva.",
   "trocador_desc_kyc": "Pe proveedor réra ykére, ojehechauka peteĩ calificación KYC rehegua. Péva omoĩ Trocador ha oñemopyenda ijehegui hag̃uaichaite hag̃ua.",
   "trongrid_history": "TronGrid rembiasakue",

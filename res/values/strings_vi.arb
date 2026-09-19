@@ -1377,6 +1377,7 @@
   "transactions_will_appear_here": "Các giao dịch của bạn sẽ hiển thị ở đây.",
   "transparent_secret_key": "Khóa bí mật minh bạch",
   "transport_type": "Loại truyền tải",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "là một công cụ tổng hợp trao đổi, tận dụng nhiều sàn giao dịch khác nhau để tìm ra tỷ giá cạnh tranh.",
   "trocador_desc_kyc": "Bên cạnh tên nhà cung cấp, Xếp hạng KYC sẽ được hiển thị. Xếp hạng này do Trocador thiết lập và dựa trên các tiêu chí riêng của họ.",
   "trongrid_history": "Lịch sử TronGrid",
