@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import './print_verbose_dummy.dart';
 import 'package:dio/dio.dart';
 import 'package:archive/archive_io.dart';
 
@@ -27,36 +26,78 @@ final List<String> triplets = [
   "aarch64-apple-ios-simulator",
 ];
 
+const _maxAttempts = 4;
+
+bool _isTransient(Object error) {
+  if (error is! DioException) {
+    return false;
+  }
+  final status = error.response?.statusCode;
+  if (status != null) {
+    return status >= 500;
+  }
+  switch (error.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return true;
+    default:
+      return false;
+  }
+}
+
+Future<T> _withRetry<T>(String what, Future<T> Function() operation) async {
+  for (var attempt = 1;; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (attempt >= _maxAttempts || !_isTransient(error)) {
+        rethrow;
+      }
+      final wait = Duration(seconds: 5 * attempt);
+      print("  $what failed (attempt $attempt/$_maxAttempts): $error");
+      print("  retrying in ${wait.inSeconds}s");
+      await Future.delayed(wait);
+    }
+  }
+}
+
 Future<void> main() async {
-  final resp = await _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases");
+  final resp = await _withRetry(
+    "release list",
+    () => _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases"),
+  );
   final data = resp.data[0];
   final tagName = data['tag_name'];
   print("Downloading artifacts for: ${tagName}");
   final assets = data['assets'] as List<dynamic>;
-  for (var i = 0; i < assets.length; i++) {
-    for (var triplet in triplets) {
-      final asset = assets[i];
-      final filename = asset["name"] as String;
-      if (!filename.contains(triplet)) continue;
-      final coin = filename.split("_")[0];
-      String localFilename = filename.replaceAll("${coin}_${triplet}_", "");
-      localFilename = "scripts/monero_c/release/${coin}/${triplet}_${localFilename}";
-      final url = asset["browser_download_url"] as String;
-      print("- downloading $localFilename");
-      await _dio.download(url, localFilename);
-      if (localFilename.endsWith(".xz")) {
-        print("  extracting $localFilename");
-        final inputStream = InputFileStream(localFilename);
-        final archive = XZDecoder().decodeBytes(inputStream.toUint8List());
-        final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
-        outputStream.writeBytes(archive);
-      }
-    }
+  final bundle = assets.firstWhere((asset) => asset["name"] == "release-bundle.zip");
+  const bundlePath = "scripts/monero_c/release-bundle.zip";
+  print("- downloading $bundlePath");
+  await _withRetry(
+    "release-bundle.zip",
+    () => _dio.download(bundle["browser_download_url"] as String, bundlePath),
+  );
+  final archive = ZipDecoder().decodeStream(InputFileStream(bundlePath));
+  for (final file in archive) {
+    final parts = file.name.split("/");
+    if (!file.isFile || parts.length != 3 || !triplets.contains(parts[1])) continue;
+    final localFilename = "scripts/monero_c/release/${file.name}";
+    print("  extracting $localFilename");
+    Directory(File(localFilename).parent.path).createSync(recursive: true);
+    final outputStream = OutputFileStream(localFilename);
+    file.writeContent(outputStream);
+    outputStream.closeSync();
   }
+  File(bundlePath).deleteSync();
   if (Platform.isMacOS) {
     print("Generating ios framework");
-    final result =
-        Process.runSync("bash", ["-c", "cd scripts/ios && ./gen_framework.sh && cd ../.."]);
+    final result = Process.runSync(
+      "bash",
+      ["-c", "cd scripts/ios && ./gen_framework.sh && cd ../.."],
+      environment: {"MONEROC_TAG": tagName as String},
+    );
     print((result.stdout + result.stderr).toString().trim());
   }
 }
