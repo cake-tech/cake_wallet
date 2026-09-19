@@ -248,16 +248,37 @@ echo "   iOS XCFramework: ${IOS_XCFRAMEWORK}"
 echo ""
 
 FFIGEN_CONFIG="${BASE_DIR}/../../cw_mweb/ffigen_config.yaml"
+# Path is relative to the config, i.e. to cw_mweb/
+IOS_HEADER="ios/${FRAMEWORK_NAME}.xcframework/ios-arm64/${FRAMEWORK_NAME}.framework/Headers/${FRAMEWORK_NAME}.h"
 if [[ -f "$FFIGEN_CONFIG" ]]; then
     echo "Updating ffigen configuration..."
-    sed -i.bak "s|android/src/main/jniLibs/arm64-v8a/mweb.h|ios/${FRAMEWORK_NAME}.xcframework/ios-arm64/${FRAMEWORK_NAME}.framework/Headers/${FRAMEWORK_NAME}.h|g" "$FFIGEN_CONFIG"
-    mv "$FFIGEN_CONFIG.bak" "$FFIGEN_CONFIG"
+    sed -i.bak "s|android/src/main/jniLibs/arm64-v8a/libmweb.h|${IOS_HEADER}|g" "$FFIGEN_CONFIG"
+    rm -f "$FFIGEN_CONFIG.bak"
     echo "Updated ffigen config to use XCFramework header"
 fi
 
 cd "${BASE_DIR}/../../cw_mweb"
+
+# ffigen exits 0 with "Input Headers: []" when its entry point does not exist,
+# writing empty bindings. That surfaces ~35 minutes later as a Dart compile
+# error ("Method not found: 'MWebFlutter'"), so check here instead.
+if ! grep -q "$IOS_HEADER" ffigen_config.yaml; then
+    echo "ffigen_config.yaml does not reference $IOS_HEADER - the sed above did not apply" >&2
+    exit 1
+fi
+if [[ ! -f "$IOS_HEADER" ]]; then
+    echo "ffigen entry point is missing: cw_mweb/$IOS_HEADER" >&2
+    exit 1
+fi
+
 echo "Generating Dart FFI bindings..."
 dart run ffigen --config ffigen_config.yaml
+
+BINDING_CLASS="$(awk '/^name:/{print $2; exit}' ffigen_config.yaml)"
+if ! grep -q "class ${BINDING_CLASS}" lib/generated_bindings.g.dart; then
+    echo "ffigen produced no ${BINDING_CLASS} class in cw_mweb/lib/generated_bindings.g.dart" >&2
+    exit 1
+fi
 
 echo "Build completed successfully!"
 
