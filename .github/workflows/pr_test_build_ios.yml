@@ -20,6 +20,10 @@ jobs:
     if: github.event.pull_request.head.repo.fork == false
     runs-on: macos-26
 
+    outputs:
+      build_number: ${{ steps.config.outputs.build_number }}
+      app_version: ${{ steps.config.outputs.app_version }}
+
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       FLUTTER_VERSION: "3.41.9"
@@ -35,6 +39,23 @@ jobs:
           git config --global user.email "ci@cakewallet.com"
           git config --global user.name "CakeWallet CI"
           
+
+      - name: Identify the build
+        run: |
+          BRANCH="${BRANCH_NAME#origin/}"
+          # cw-1234-something -> 1234
+          TICKET="$(printf '%s' "$BRANCH" | tr 'A-Z' 'a-z' \
+            | grep -oE '(^|[^a-z0-9])cw-?[0-9]+' | head -1 | grep -oE '[0-9]+' || true)"
+
+          if [[ -n "$TICKET" ]]; then
+            TICKET=$((10#$TICKET))  # drop leading zeros, Apple dislikes them
+            echo "APP_DISPLAY_NAME=Cake CW-$TICKET" >> $GITHUB_ENV
+            echo "APP_VERSION=6.$TICKET" >> $GITHUB_ENV
+          else
+            echo "APP_DISPLAY_NAME=Cake (CI)" >> $GITHUB_ENV
+            echo "APP_VERSION=" >> $GITHUB_ENV
+          fi
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Check signing variables
         run: |
@@ -177,12 +198,27 @@ jobs:
 
 
       - name: Execute Build and Setup Commands
+        id: config
         run: |
           pushd scripts/ios
             source ./app_env.sh cakewallet
             export APP_IOS_BUNDLE_ID="${{ vars.IOS_BUNDLE_ID }}"
+            export APP_IOS_NAME="$APP_DISPLAY_NAME"
+            export APP_IOS_BUILD_NUMBER="$BUILD_NUMBER"
+            if [[ -n "$APP_VERSION" ]]; then
+              export APP_IOS_VERSION="$APP_VERSION"
+            fi
             ./app_config.sh
           popd
+
+          for key in CFBundleDisplayName CFBundleIdentifier CFBundleShortVersionString CFBundleVersion; do
+            echo "$key = $(/usr/libexec/PlistBuddy -c "Print :$key" ios/Runner/Info.plist)"
+          done
+
+          {
+            echo "app_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' ios/Runner/Info.plist)"
+            echo "build_number=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' ios/Runner/Info.plist)"
+          } >> $GITHUB_OUTPUT
 
       - name: Install Flutter dependencies
         run: flutter pub get
@@ -216,11 +252,6 @@ jobs:
 
       - name: Compile graphics
         run: ./compile_graphics.sh
-
-      - name: Set build number and identify the build
-        run: |
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" ios/Runner/Info.plist
-          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Replace email address
         run: |
@@ -361,3 +392,40 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH" || true
           rm -rf "$HOME/Library/MobileDevice/Provisioning Profiles" || true
           rm -rf "$HOME/.appstoreconnect/private_keys" || true
+
+  # posts the changelog to testflight
+  # this is a separate runner as the script waits for ocasionally 20+ minutes for the build to appear
+  changelog:
+    needs: testflight
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Set TestFlight changelog
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
+          BUILD_NUMBER: ${{ needs.testflight.outputs.build_number }}
+          APP_VERSION: ${{ needs.testflight.outputs.app_version }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          export ASC_KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          trap 'rm -f "$ASC_KEY_PATH"' EXIT
+          echo -n "$ASC_KEY_P8" | base64 --decode > "$ASC_KEY_PATH"
+
+          {
+            printf '%s @ %s (PR #%s, build %s)\n\n' \
+              "$BRANCH_NAME" \
+              "$(git rev-parse --short=8 HEAD)" \
+              "${{ github.event.pull_request.number }}" \
+              "$BUILD_NUMBER"
+            git log -1 --pretty=%B
+          } | dart run tool/set_testflight_changelog.dart
