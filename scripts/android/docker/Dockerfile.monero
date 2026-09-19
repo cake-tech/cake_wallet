@@ -2,8 +2,13 @@ ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
 RUN mkdir -p /w/scripts/android
+COPY scripts/functions.sh /w/scripts/functions.sh
 COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
 COPY scripts/android/build_monero_all.sh /w/scripts/android/build_monero_all.sh
+ARG COIN
+ARG TARGET
+ENV COIN=$COIN
+ENV TARGET=$TARGET
 RUN /w/scripts/android/build_monero_all.sh \
     && rm -rf /w/scripts/monero_c/contrib \
     /w/scripts/monero_c/.git \
