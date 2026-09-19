@@ -3098,18 +3098,18 @@ packages:
     dependency: "direct main"
     description:
       path: trezor-flutter
-      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
-      resolved-ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
-      url: "https://github.com/cake-tech/trezor-flutter"
+      ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      resolved-ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
     source: git
     version: "0.1.0"
   trezor_usb_transport:
     dependency: "direct overridden"
     description:
       path: trezor_usb_transport
-      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
-      resolved-ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
-      url: "https://github.com/cake-tech/trezor-flutter"
+      ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      resolved-ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
     source: git
     version: "0.0.1"
   tuple:
