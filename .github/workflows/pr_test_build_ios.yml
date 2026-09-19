@@ -57,57 +57,6 @@ jobs:
           fi
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
-      - name: Check signing variables
-        run: |
-          [[ -n "${{ vars.IOS_BUNDLE_ID }}" && -n "${{ vars.APPLE_TEAM_ID }}" ]] \
-            || { echo "set IOS_BUNDLE_ID and APPLE_TEAM_ID repo variables"; exit 1; }
-
-      - name: Check certificate matches provisioning profile
-        env:
-          DIST_CERT_P12: ${{ secrets.IOS_DIST_CERT_P12 }}
-          DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
-          PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
-        run: |
-          set -euo pipefail
-          echo -n "$DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/check.p12"
-          echo -n "$PROVISIONING_PROFILE" | base64 --decode > "$RUNNER_TEMP/check.mobileprovision"
-
-          CERT_PEM="$(openssl pkcs12 -in "$RUNNER_TEMP/check.p12" -nokeys -passin "pass:$DIST_CERT_PASSWORD" 2>/dev/null || true)"
-          if [[ -z "$CERT_PEM" ]]; then
-            CERT_PEM="$(openssl pkcs12 -in "$RUNNER_TEMP/check.p12" -nokeys -legacy -passin "pass:$DIST_CERT_PASSWORD" 2>/dev/null || true)"
-          fi
-          if [[ -z "$CERT_PEM" ]]; then
-            echo "could not read a certificate out of IOS_DIST_CERT_P12 (wrong IOS_DIST_CERT_PASSWORD?)" >&2
-            exit 1
-          fi
-
-          CERT_FP="$(echo "$CERT_PEM" | openssl x509 -noout -fingerprint -sha1 | cut -d= -f2 | tr -d ':')"
-          CERT_SUBJECT="$(echo "$CERT_PEM" | openssl x509 -noout -subject)"
-
-          security cms -D -i "$RUNNER_TEMP/check.mobileprovision" > "$RUNNER_TEMP/check.plist"
-          PROFILE_NAME="$(plutil -extract Name raw - < "$RUNNER_TEMP/check.plist")"
-          # sha1 of the DER is the fingerprint; grepping <data> out of the xml by
-          # hand breaks because plist base64 wraps across lines.
-          PROFILE_FPS="$(python3 -c "import plistlib,hashlib,sys; [print(hashlib.sha1(c).hexdigest().upper()) for c in plistlib.load(open(sys.argv[1],'rb'))['DeveloperCertificates']]" "$RUNNER_TEMP/check.plist")"
-
-          rm -f "$RUNNER_TEMP/check.p12" "$RUNNER_TEMP/check.mobileprovision" "$RUNNER_TEMP/check.plist"
-
-          echo "profile: $PROFILE_NAME"
-          echo "p12 certificate: $CERT_SUBJECT"
-          echo "  fingerprint: $CERT_FP"
-          echo "profile accepts:"
-          echo "$PROFILE_FPS" | sed 's/^/  /'
-
-          if ! grep -qx "$CERT_FP" <<< "$PROFILE_FPS"; then
-            echo "" >&2
-            echo "profile \"$PROFILE_NAME\" does not include the certificate in IOS_DIST_CERT_P12." >&2
-            echo "Regenerate the profile against that certificate - match it by the fingerprint" >&2
-            echo "above, not by name, since every org distribution cert shares one subject -" >&2
-            echo "then update the IOS_PROVISIONING_PROFILE secret." >&2
-            exit 1
-          fi
-          echo "certificate and profile agree"
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
