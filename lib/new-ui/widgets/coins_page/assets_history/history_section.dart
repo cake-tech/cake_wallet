@@ -76,6 +76,11 @@ class HistorySection extends StatelessWidget {
                       delegate: SliverChildBuilderDelegate(
                         childCount: items.length,
                         (context, index) => Observer(builder: (_) {
+                          // Re-read here (not just close over the outer
+                          // Observer's `items`) so THIS row's Observer has
+                          // its own tracked dependency on the computed list.
+                          final items =
+                              short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
                           final prevItem = index == 0 ? null : items[index - 1];
                           final topPadding = index == 0 ? 0.0 : 18.0;
                           final item = items[index];
@@ -128,6 +133,7 @@ class HistorySection extends StatelessWidget {
                                 direction: item.transaction.direction,
                                 pending: item.transaction.isPending,
                                 asset: asset,
+                                isSilentPayment: dashboardViewModel.isSilentPaymentTx(transaction),
                               ),
                             );
                           } else if (item is TradeListItem) {

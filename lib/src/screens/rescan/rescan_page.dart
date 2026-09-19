@@ -47,9 +47,16 @@ class _RescanPageState extends State<RescanPage> {
                   // disable date picker for mweb for now
                   toggleSingleScan: () =>
                       widget._rescanViewModel.doSingleScan = !widget._rescanViewModel.doSingleScan,
+                  historicalMode: widget._rescanViewModel.historicalMode,
+                  toggleHistoricalMode: () => widget._rescanViewModel.historicalMode =
+                      !widget._rescanViewModel.historicalMode,
                   walletType: widget._rescanViewModel.wallet.type,
                   heightController: _heightController,
                   bitcoinMempoolAPIEnabled: widget._rescanViewModel.isBitcoinMempoolAPIEnabled,
+                  workerCount: widget._rescanViewModel.workerCount,
+                  maxWorkerCount: widget._rescanViewModel.maxWorkerCount,
+                  supportsParallelScanning: widget._rescanViewModel.supportsParallelScanning,
+                  onWorkerCountChanged: (v) => widget._rescanViewModel.workerCount = v,
                 ),
               ),
             ),
@@ -134,8 +141,8 @@ class _RescanPageState extends State<RescanPage> {
 
     Navigator.of(context).pop();
 
-    final needsToSwitch =
-        await bitcoin!.getNodeIsElectrsSPEnabled(widget._rescanViewModel.wallet) == false;
+    final isSPEnabled = await bitcoin!.getNodeIsElectrsSPEnabled(widget._rescanViewModel.wallet);
+    final needsToSwitch = isSPEnabled == false;
 
     if (needsToSwitch) {
       return showPopUp<void>(

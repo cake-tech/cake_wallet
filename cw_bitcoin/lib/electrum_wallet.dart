@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math' show Random;
+import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -57,6 +58,8 @@ import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
+part 'silent_payments_scan_worker.dart';
+part 'silent_payments_scanner.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
@@ -319,6 +322,22 @@ abstract class ElectrumWalletBase
   static const int transactionChunkSize = 150;
   static const int inputTransactionChunkSize = 150;
   static const int discoveryHistoryChunkSize = 20;
+  // The actual size of a single JSON-RPC batch *array* sent in one
+  // callBatchWithTimeout call, distinct from the chunk sizes above (which
+  // only pace how many separate, individual, non-batched calls get fired
+  // before pausing — those aren't arrays and aren't subject to this limit).
+  // electrs-tweaks (server.rs, MAX_ARRAY_BATCH) kills the entire TCP
+  // connection outright — no JSON-RPC error, no reply at all — if a batch
+  // array exceeds this many elements. discoveryHistoryChunkSize above
+  // already independently landed on the same value for the same reason in
+  // the address-discovery path; every other genuine batch-array call must
+  // respect it too.
+  static const int batchArrayMaxSize = 20;
+  // Paces chunked bursts of individual (non-batched) per-address RPCs
+  // (subscribeForUpdates, fetchBalancesRegular, _fetchUnspentsRegular) so a
+  // wallet with many addresses doesn't dump thousands of requests on the
+  // wire in one instant with no wall-clock gap for the server to keep up.
+  static const Duration regularFetchChunkDelay = Duration(milliseconds: 250);
 
   static const int transactionBatchTimeoutMs = 15000;
 
@@ -418,6 +437,27 @@ abstract class ElectrumWalletBase
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
+  // Debounces the null-balance "connection lost" check: a single fetch where
+  // every address comes back null can happen against a live-but-flaky server
+  // (e.g. a proxy that mishandles get_balance), not just a genuinely dead
+  // connection — a real dead connection will keep failing every cycle, so
+  // requiring a few consecutive failures still catches that case without
+  // tearing down a connection that's actually still usable.
+  int _consecutiveNullBalanceFetches = 0;
+  static const int _nullBalanceFetchTolerance = 20;
+
+  // The SP-derived contribution to the balance is computed from local
+  // transaction history, not from this round's network round trip, so it's
+  // always fresh/correct - unlike the regular (non-SP) per-address totals
+  // below, which only get updated when the regular balance fetch actually
+  // returns usable data. When it doesn't (dead-connection guard below),
+  // these cached regular totals stand in instead of falling back to the
+  // *entire* previous balance snapshot, which would silently re-mask a
+  // freshly found SP output behind a stale combined total forever, on any
+  // cycle where the regular fetch fails.
+  int _lastKnownRegularConfirmed = 0;
+  int _lastKnownRegularUnconfirmed = 0;
+  int _lastKnownRegularFrozen = 0;
 
   Completer<SharedPreferences> sharedPrefs = Completer();
 
@@ -435,18 +475,23 @@ abstract class ElectrumWalletBase
 
       final tip = await getUpdatedChainTip();
 
+      printV(
+        "[SP CHECKPOINT DEBUG] setSilentPaymentsScanning(true): tip=$tip "
+        "restoreHeight=${walletInfo.restoreHeight}",
+      );
+
       if (tip == walletInfo.restoreHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
         return;
       }
 
       if (tip > walletInfo.restoreHeight) {
-        _setListeners(walletInfo.restoreHeight, chainTipParam: currentChainTip);
+        _spScanner.setListeners(walletInfo.restoreHeight, chainTipParam: currentChainTip);
       }
     } else {
       alwaysScan = false;
 
-      _isolate?.then((value) => value.kill(priority: Isolate.immediate));
+      unawaited(_spScanner.stopScanWorkers());
 
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
@@ -468,9 +513,28 @@ abstract class ElectrumWalletBase
   }
 
   Future<int> getUpdatedChainTip() async {
-    final newTip = await electrumClient.getCurrentBlockChainTip();
-    if (newTip != null && newTip > (currentChainTip ?? 0)) {
-      currentChainTip = newTip;
+    // A freshly-connecting client (e.g. right after switching nodes, or
+    // right on wallet open) can have electrumClient.isConnected still false
+    // for a brief window here - getCurrentBlockChainTip() (via
+    // callWithTimeout) returns null instantly in that case, not after an
+    // actual timeout, which used to make this fall back to
+    // `currentChainTip ?? 0` on the very first attempt. That placeholder 0
+    // is indistinguishable from a genuine "already at height 0" to every
+    // caller - confirmed causing _setListeners's `chainTip == height` early
+    // return to treat a rescan-from-genesis request (height=0) as "nothing
+    // to scan, already Synced" without ever actually scanning anything.
+    // Retry a few times with a short wait while specifically still
+    // connecting, instead of accepting the placeholder on the first try -
+    // bounded, and skipped entirely once actually connected (whether that
+    // call succeeds or not), so a genuine RPC failure or an actually-offline
+    // connection doesn't wait around uselessly.
+    for (var attempt = 0; attempt < 5; attempt++) {
+      final newTip = await electrumClient.getCurrentBlockChainTip();
+      if (newTip != null && newTip > (currentChainTip ?? 0)) {
+        currentChainTip = newTip;
+      }
+      if (newTip != null || electrumClient.isConnected) break;
+      await Future<void>.delayed(const Duration(milliseconds: 300));
     }
     return currentChainTip ?? 0;
   }
@@ -516,16 +580,20 @@ abstract class ElectrumWalletBase
   List<int> _feeRates;
 
   // ignore: prefer_final_fields
-  Map<String, BehaviorSubject<Object>?> _scripthashesUpdateSubject;
+  Map<String, BehaviorSubject<Object?>?> _scripthashesUpdateSubject;
 
   // ignore: prefer_final_fields
-  BehaviorSubject<Object>? _chainTipUpdateSubject;
+  BehaviorSubject<Object?>? _chainTipUpdateSubject;
   bool _isTransactionUpdating;
-  Future<Isolate>? _isolate;
+
+  // Silent Payments scan-worker orchestration (spawning/stopping the worker
+  // pool, progress aggregation, checkpoint flushing, node capability
+  // probing) lives on this dedicated object instead of directly on the
+  // wallet - see silent_payments_scanner.dart's doc comment for why.
+  late final SilentPaymentsScanner _spScanner = SilentPaymentsScanner(this);
 
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
-  StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
 
@@ -533,6 +601,7 @@ abstract class ElectrumWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
+    await _repairDuplicateSilentPaymentUnspents();
     await save();
 
     _autoSaveTimer =
@@ -541,137 +610,29 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> _setListeners(int height,
-      {int? chainTipParam, bool? doSingleScan, List<int>? rescanHeights}) async {
-    if (this is! BitcoinWallet) return;
-    if (isHardwareWallet) return;
-    if (seed?.isEmpty ?? true) return;
-
-    final chainTip = chainTipParam ?? await getUpdatedChainTip();
-    final shouldUpdateSyncStatus = rescanHeights == null || rescanHeights.isEmpty;
-
-    if (chainTip == height) {
-      syncStatus = SyncedSyncStatus();
+      {int? chainTipParam,
+      bool? doSingleScan,
+      List<int>? rescanHeights,
+      int? workerCountOverride,
+      bool ignoreExistingCoverage = false}) async {
+    if (this is! BitcoinWallet) {
+      return;
+    }
+    if (isHardwareWallet) {
+      return;
+    }
+    if (seed?.isEmpty ?? true) {
       return;
     }
 
-    if (shouldUpdateSyncStatus) syncStatus = AttemptingScanSyncStatus();
-
-    if (_isolate != null) {
-      final runningIsolate = await _isolate!;
-      runningIsolate.kill(priority: Isolate.immediate);
-    }
-
-    final appDir = await getAppDir();
-    String debugLogPath = "${appDir.path}/logs/debug.log";
-
-    final receivePort = ReceivePort();
-    _isolate = Isolate.spawn(
-      _handleScanSilentPayments,
-      ScanData(
-        sendPort: receivePort.sendPort,
-        silentAddress: walletAddresses.silentAddress!,
-        masterHD: _masterHD!,
-        network: network,
-        height: height,
-        chainTip: chainTip,
-        electrumClient: electrum.ElectrumClient(),
-        transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-        node: (await getNodeSupportsSilentPayments()) == true
-            ? ScanNode(node!.uri, node!.useSSL)
-            : null,
-        labels: walletAddresses.labels,
-        labelIndexes: walletAddresses.silentAddresses
-            .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
-            .map((addr) => addr.index)
-            .toList(),
-        isSingleScan: doSingleScan ?? false,
-        debugLogPath: debugLogPath,
-        rescanHeights: rescanHeights,
-      ),
+    await _spScanner.setListeners(
+      height,
+      chainTipParam: chainTipParam,
+      doSingleScan: doSingleScan,
+      rescanHeights: rescanHeights,
+      workerCountOverride: workerCountOverride,
+      ignoreExistingCoverage: ignoreExistingCoverage,
     );
-
-    await _receiveStream?.cancel();
-    _receiveStream = receivePort.listen((var message) async {
-      if (message is Map<String, ElectrumTransactionInfo>) {
-        for (final map in message.entries) {
-          final txid = map.key;
-          final tx = map.value;
-
-          if (tx.unspents != null) {
-            final existingTxInfo = transactionHistory.transactions[txid];
-            final txAlreadyExisted = existingTxInfo != null;
-
-            // Updating tx after re-scanned
-            if (txAlreadyExisted) {
-              existingTxInfo.amount = tx.amount;
-              existingTxInfo.confirmations = tx.confirmations;
-              existingTxInfo.height = tx.height;
-              existingTxInfo.date = tx.date;
-              existingTxInfo.isReceivedSilentPayment = tx.isReceivedSilentPayment;
-              existingTxInfo.direction = tx.direction;
-              existingTxInfo.isPending = tx.isPending;
-              existingTxInfo.unspents = tx.unspents;
-
-              final newUnspents = tx.unspents!
-                  .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
-                          element.hash.contains(unspent.hash) &&
-                          element.vout == unspent.vout &&
-                          element.value == unspent.value) ??
-                      false))
-                  .toList();
-
-              if (newUnspents.isNotEmpty) {
-                newUnspents.forEach(_updateSilentAddressRecord);
-
-                existingTxInfo.unspents ??= [];
-                existingTxInfo.unspents!.addAll(newUnspents);
-
-                final newAmount = newUnspents.length > 1
-                    ? newUnspents.map((e) => e.value).reduce((value, unspent) => value + unspent)
-                    : newUnspents[0].value;
-
-                if (existingTxInfo.direction == TransactionDirection.incoming) {
-                  existingTxInfo.amount += Money.fromInt(newAmount, currency);
-                }
-
-                // Updates existing TX
-                transactionHistory.addOne(existingTxInfo);
-                // Update balance record
-                balance[currency]!.confirmed += Money.fromInt(newAmount, currency);
-              }
-            } else {
-              // else: First time seeing this TX after scanning
-              tx.unspents!.forEach(_updateSilentAddressRecord);
-
-              // Add new TX record
-              transactionHistory.addMany(message);
-
-              // Update balance record
-              balance[currency]!.confirmed += tx.amount;
-
-              await save();
-            }
-
-            await updateAllUnspents();
-          }
-        }
-      }
-
-      if (message is SyncResponse) {
-        if (message.syncStatus is UnsupportedSyncStatus) {
-          nodeSupportsSilentPayments = false;
-        }
-
-        if (message.syncStatus is SyncingSyncStatus) {
-          var status = message.syncStatus as SyncingSyncStatus;
-          if (shouldUpdateSyncStatus) syncStatus = SyncingSyncStatus(status.blocksLeft, status.ptc);
-        } else {
-          if (shouldUpdateSyncStatus) syncStatus = message.syncStatus;
-        }
-
-        await walletInfo.updateRestoreHeight(message.height);
-      }
-    });
   }
 
   void _updateSilentAddressRecord(BitcoinSilentPaymentsUnspent unspent) {
@@ -696,9 +657,6 @@ abstract class ElectrumWalletBase
     );
   }
 
-  DateTime? _lastSilentPaymentsScan;
-  static const Duration _silentPaymentsScanDelay = Duration(minutes: 1);
-
   @action
   @override
   Future<void> startSync() async {
@@ -717,30 +675,7 @@ abstract class ElectrumWalletBase
       if (hasSilentPaymentsScanning) {
         silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
-
-        final now = DateTime.now();
-        final shouldForceRescan = _lastSilentPaymentsScan == null ||
-            now.difference(_lastSilentPaymentsScan!) >= _silentPaymentsScanDelay;
-
-        // Timer prevents server failure and this infinite looping and requesting
-        if (shouldForceRescan) {
-          _lastSilentPaymentsScan = now;
-
-          final rescanHeights = <int>[];
-
-          transactionHistory.transactions.values.forEach((tx) {
-            if (tx.unspents != null && tx.unspents!.isNotEmpty)
-              for (final unspent in tx.unspents!) {
-                if (unspent.silentPaymentTweak != null && tx.height != null && tx.height! > 0) {
-                  rescanHeights.add(tx.height!);
-                  break;
-                }
-              }
-          });
-
-          if (rescanHeights.isNotEmpty)
-            _setListeners(walletInfo.restoreHeight, rescanHeights: rescanHeights);
-        }
+        await _spScanner.maybeReverify();
       }
 
       await subscribeForUpdates();
@@ -824,57 +759,36 @@ abstract class ElectrumWalletBase
 
   Node? node;
 
-  Future<bool> getNodeIsElectrs() async {
-    if (node == null) {
-      return false;
-    }
+  // Still called independently by the UI's own "does your node support SP"
+  // prompt (see lib/bitcoin/cw_bitcoin.dart's getNodeIsElectrsSPEnabled) -
+  // unrelated to scanning ability itself (see _setListeners' own doc
+  // comment), just informational about `node`. Kept as a thin public
+  // passthrough since that external caller reaches this method directly on
+  // the wallet.
+  Future<bool> getNodeSupportsSilentPayments() => _spScanner.getNodeSupportsSilentPayments();
 
-    final version = await electrumClient.version();
+  /// Negotiates the `blockchain.tweaks.subscribe` wire-protocol version to
+  /// request against [node]: `min(what the node advertised,
+  /// sp_scanner.maxWireVersion())` — never the node's advertised version
+  /// alone, so this build never requests a version its own decoder can't
+  /// read (ADR-0020, sp-scan-bench/docs/adr).
+  ///
+  /// Optimistic by default: a node that hasn't been probed yet, or whose
+  /// probe couldn't complete (`getNodeSupportsSilentPayments` throwing —
+  /// `node.supportsSilentPayments` staying `null`/`false`), is assumed to
+  /// support the client's own max version rather than downgraded to legacy.
+  /// Only a *completed* probe that got a real reply with no version field
+  /// (`supportsSilentPayments == true` and `spMaxProtocolVersion == null`)
+  /// is a genuine negative signal — that's the one case this forces down to
+  /// version 1.
+  int negotiatedTweaksProtocolVersion() {
+    final clientMax = maxWireVersion();
+    final probedNegative =
+        node?.supportsSilentPayments == true && node?.spMaxProtocolVersion == null;
+    if (probedNegative) return 1;
 
-    if (version.isNotEmpty) {
-      final server = version[0];
-
-      if (server.toLowerCase().contains('electrs')) {
-        node!.isElectrs = true;
-        // TODO figure out why condition was needed
-        // if (node!.isInBox) {
-        node!.save();
-        // }
-        return node!.isElectrs!;
-      }
-    }
-
-    node!.isElectrs = false;
-    return node!.isElectrs!;
-  }
-
-  Future<bool> getNodeSupportsSilentPayments() async {
-    // As of today (august 2024), only ElectrumRS supports silent payments
-    if (!(await getNodeIsElectrs())) {
-      return false;
-    }
-
-    if (node == null) {
-      return false;
-    }
-
-    try {
-      final tweaksResponse = await electrumClient.getTweaks(height: 0);
-
-      if (tweaksResponse != null) {
-        node!.supportsSilentPayments = true;
-        node!.save();
-        return node!.supportsSilentPayments!;
-      }
-    } on electrum.RequestFailedTimeoutException catch (_) {
-      node!.supportsSilentPayments = false;
-      node!.save();
-      return node!.supportsSilentPayments!;
-    } catch (_) {}
-
-    node!.supportsSilentPayments = false;
-    node!.save();
-    return node!.supportsSilentPayments!;
+    final serverMax = node?.spMaxProtocolVersion ?? clientMax;
+    return serverMax < clientMax ? serverMax : clientMax;
   }
 
   @action
@@ -888,7 +802,7 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
 
-      await _receiveStream?.cancel();
+      await _spScanner.dispose();
       await electrumClient.close();
       _isBatchSupported = null;
 
@@ -1862,17 +1776,39 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> rescan({required int height, bool? doSingleScan}) async {
-    if (keys.privateKey.isEmpty) return;
+  Future<void> rescan({
+    required int height,
+    bool? doSingleScan,
+    int? workerCountOverride,
+    bool? historicalModeOverride,
+    bool ignoreExistingCoverage = true,
+  }) async {
+    if (keys.privateKey.isEmpty) {
+      return;
+    }
 
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan);
+    // rescan() serves two different callers with different intents (the
+    // Rescan page's "scan from height/date" flow, which wants "from height
+    // H" to mean literally that regardless of what's already covered - the
+    // default here - and "Resume scanning", which wants the opposite: skip
+    // whatever's already covered and only fill the real gaps, exactly like
+    // passive tip-follow does) - see ignoreExistingCoverage's own doc
+    // comment at its setListeners branch. Not awaited - see
+    // SilentPaymentsScanner.rescan's own doc comment.
+    _spScanner.rescan(
+      height: height,
+      doSingleScan: doSingleScan,
+      workerCountOverride: workerCountOverride,
+      historicalModeOverride: historicalModeOverride,
+      ignoreExistingCoverage: ignoreExistingCoverage,
+    );
   }
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     try {
-      await _receiveStream?.cancel();
+      await _spScanner.dispose();
       await electrumClient.close();
       _isBatchSupported = null;
     } catch (_) {}
@@ -1933,11 +1869,28 @@ abstract class ElectrumWalletBase
       }
     }
 
-    final currentWalletUnspentCoins =
-        unspentCoinsInfo.values.where((element) => element.walletId == id);
-
-    if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
-      unspentCoins.forEach((coin) => addCoinInfo(coin));
+    // addCoinInfo already checks per-coin whether an UnspentCoinsInfo entry
+    // exists before creating one (see its own doc), so calling it for every
+    // coin is always correct. The previous gate here — only calling it when
+    // the *aggregate* count of tracked coins differed from the freshly
+    // fetched count — was a broken proxy for "are there new coins": any
+    // unrelated count change elsewhere (e.g. an old UTXO being spent in the
+    // same cycle) could make the totals coincidentally match, silently
+    // skipping addCoinInfo for genuinely new coins. Since coin-control's own
+    // view model filters out any coin with no matching UnspentCoinsInfo
+    // entry, that meant a newly-scanned silent payment output could be
+    // correctly present in `unspentCoins` yet never actually shown - build
+    // the set of already-tracked (hash, vout) pairs once (O(n)) and only
+    // call addCoinInfo for coins missing from it, instead of an O(n^2)
+    // unconditional per-coin call or the previous broken aggregate check.
+    final alreadyTracked = unspentCoinsInfo.values
+        .where((element) => element.walletId == id)
+        .map((element) => '${element.hash}:${element.vout}')
+        .toSet();
+    final newCoins =
+        unspentCoins.where((coin) => !alreadyTracked.contains('${coin.hash}:${coin.vout}'));
+    for (final coin in newCoins) {
+      await addCoinInfo(coin);
     }
 
     await updateCoins(unspentCoins);
@@ -1947,8 +1900,23 @@ abstract class ElectrumWalletBase
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
     List<BitcoinAddressRecord> addresses,
   ) async {
-    final addressFutures = addresses.map((address) => fetchUnspent(address)).toList();
-    return Future.wait(addressFutures);
+    // Same unthrottled-burst issue as subscribeForUpdates used to have: firing
+    // one individual (non-batched) listunspent call per address all at once
+    // via a single Future.wait floods the connection for a wallet with many
+    // addresses. Chunked with an inter-chunk delay for the same reason —
+    // fetchUnspent's underlying call doesn't gate the pace on its own.
+    final results = <List<BitcoinUnspent>?>[];
+    for (var i = 0; i < addresses.length; i += addressHistoryChunkSize) {
+      final end = (i + addressHistoryChunkSize < addresses.length)
+          ? i + addressHistoryChunkSize
+          : addresses.length;
+      final chunk = addresses.sublist(i, end);
+
+      if (i > 0) await Future.delayed(regularFetchChunkDelay);
+
+      results.addAll(await Future.wait(chunk.map((address) => fetchUnspent(address))));
+    }
+    return results;
   }
 
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsBatch(
@@ -1964,7 +1932,7 @@ abstract class ElectrumWalletBase
       final unspentByScriptHash =
           await _processChunksToMap<String, String, List<Map<String, dynamic>>>(
         items: scriptHashes,
-        chunkSize: addressHistoryChunkSize,
+        chunkSize: batchArrayMaxSize,
         processChunk: _getListUnspentBatch,
       );
 
@@ -2169,6 +2137,61 @@ abstract class ElectrumWalletBase
     }
 
     if (duplicateKeys.isNotEmpty) await unspentCoinsInfo.deleteAll(duplicateKeys);
+  }
+
+  // One-time, idempotent self-heal for wallets that already picked up a
+  // duplicate silent payment unspent from the (now fixed) double-append bug
+  // in the scan-match handler above: a tx re-scanned at the same height
+  // twice could end up with the same real output listed twice in its own
+  // `unspents` list. Both updateAllUnspents() (the spendable coin list) and
+  // fetchBalances() (the reported balance) derive their totals by directly
+  // summing every tx's `unspents` with no dedup of their own, so a
+  // duplicate here silently doubles both - and a transaction built from the
+  // resulting coin list references the same real outpoint twice as separate
+  // inputs, which is invalid and fails with a duplicate-input error at
+  // spend time. Runs on every init() (cheap no-op scan over already-loaded
+  // tx history when nothing is actually wrong) so an already-affected
+  // wallet repairs itself without any manual/user action.
+  Future<void> _repairDuplicateSilentPaymentUnspents() async {
+    if (!hasSilentPaymentsScanning) return;
+
+    var anyTxChanged = false;
+
+    for (final tx in transactionHistory.transactions.values.toList()) {
+      final unspents = tx.unspents;
+      if (unspents == null || unspents.length < 2) continue;
+
+      final deduped = <String, BitcoinSilentPaymentsUnspent>{};
+      for (final unspent in unspents) {
+        deduped['${unspent.hash}:${unspent.vout}'] = unspent;
+      }
+      if (deduped.length == unspents.length) continue;
+
+
+      // tx.amount is deliberately left untouched here - it no longer means
+      // "sum of unspents" (processTweaksV2Block now counts a match's amount
+      // toward it regardless of spent status, so it can legitimately exceed
+      // that sum for a tx with a spent output - see its own doc comment).
+      // Deduplication doesn't change what was actually received either way
+      // - the duplicate was never a second real payment - so rewriting
+      // amount from the deduped unspents list would wrongly shrink it for
+      // any tx unlucky enough to have both a duplicate *and* a spent
+      // output, undercounting a real historical receive.
+      tx.unspents = deduped.values.toList();
+
+      // Same MobX same-reference-reassignment caveat as the scan-match
+      // handler above: force a real key removal+add so this repair is
+      // actually observed rather than silently skipped by ObservableMap.
+      transactionHistory.transactions.remove(tx.id);
+      transactionHistory.addOne(tx);
+      anyTxChanged = true;
+    }
+
+    if (!anyTxChanged) return;
+
+    await save();
+    await updateAllUnspents();
+    await updateBalance();
   }
 
   int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
@@ -2821,7 +2844,7 @@ abstract class ElectrumWalletBase
       processChunk: (chunk) => _fetchBatchAddressHistory(
         chunk,
         tip,
-        addressHistoryChunkSize,
+        batchArrayMaxSize,
       ),
     );
 
@@ -3183,7 +3206,7 @@ abstract class ElectrumWalletBase
     final verboseTransactionByHash =
         await _processChunksToMap<String, String, Map<String, dynamic>>(
       items: txIds,
-      chunkSize: transactionChunkSize,
+      chunkSize: batchArrayMaxSize,
       processChunk: _getTransactionVerboseBatch,
     );
 
@@ -3197,7 +3220,7 @@ abstract class ElectrumWalletBase
 
     final hexByHash = await _processChunksToMap<String, String, String?>(
       items: emptyHex,
-      chunkSize: transactionChunkSize,
+      chunkSize: batchArrayMaxSize,
       processChunk: _getTransactionHexBatch,
     );
 
@@ -3433,45 +3456,87 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> subscribeForUpdates() async {
-    final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
-      (address) =>
-          !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
-          address.type != SegwitAddresType.mweb,
-    );
+    final unsubscribedScriptHashes = walletAddresses.allAddresses
+        .where(
+          (address) =>
+              !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
+              address.type != SegwitAddresType.mweb,
+        )
+        .toList();
 
-    await Future.wait(unsubscribedScriptHashes.map((address) async {
-      final sh = address.getScriptHash(network);
-      if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
+    // Every unsubscribed address used to be fired at once via a single
+    // Future.wait, each as its own individual (non-batched) subscribe RPC.
+    // scripthashUpdate/subscribe write to the socket synchronously and don't
+    // wait for a reply, so for a wallet with thousands of addresses (common
+    // after a heavy silent-payments scan) this dumped thousands of pending
+    // subscribe requests on the wire in one burst. The server can only reply
+    // to them at some finite rate, and every other request queued behind
+    // that backlog on the same persistent connection (server.version,
+    // server.ping, tweaks probes) starved waiting its turn — and since
+    // _scripthashesUpdateSubject is wiped on every disconnect (to force
+    // re-subscribing after a fresh socket), every reconnect added another
+    // full burst on top of whatever the server hadn't finished answering
+    // yet, so the backlog only ever grew. Chunking bounds how many subscribe
+    // requests are outstanding at once, the same way every other bulk RPC in
+    // this file already does via _processChunksToMap. Unlike those, though,
+    // scripthashUpdate writes to the socket synchronously and doesn't await a
+    // server round-trip, so an inter-chunk delay is what actually paces the
+    // requests hitting the wire — without it, chunking would still fire every
+    // chunk back-to-back with no wall-clock gap for the server to catch up.
+    printV(
+        "subscribeForUpdates: subscribing ${unsubscribedScriptHashes.length} scripthashes in chunks of $addressHistoryChunkSize");
+    for (var i = 0; i < unsubscribedScriptHashes.length; i += addressHistoryChunkSize) {
+      final end = (i + addressHistoryChunkSize < unsubscribedScriptHashes.length)
+          ? i + addressHistoryChunkSize
+          : unsubscribedScriptHashes.length;
+      final chunk = unsubscribedScriptHashes.sublist(i, end);
+
+      if (i > 0) await Future.delayed(regularFetchChunkDelay);
+
+      await Future.wait(chunk.map((address) async {
+        final sh = address.getScriptHash(network);
+        if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
+          try {
+            await _scripthashesUpdateSubject[sh]?.close();
+          } catch (e) {
+            printV("failed to close: $e");
+          }
+        }
         try {
-          await _scripthashesUpdateSubject[sh]?.close();
+          _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
         } catch (e) {
-          printV("failed to close: $e");
+          printV("failed scripthashUpdate: $e");
         }
-      }
-      try {
-        _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
-      } catch (e) {
-        printV("failed scripthashUpdate: $e");
-      }
-      _scripthashesUpdateSubject[sh]?.listen((event) async {
-        try {
-          await updateUnspentsForAddress(address);
+        _scripthashesUpdateSubject[sh]?.listen((event) async {
+          // A null status means this address has no transaction history at
+          // all (per the Electrum protocol spec) — nothing changed, nothing
+          // to fetch. Without this check, every address's very first event
+          // (the subscribe ack itself, now correctly delivered) triggered a
+          // full unspent/balance/history refresh unconditionally, so a
+          // wallet with many unused derived addresses fired that entire
+          // refresh chain for all of them at once on every (re)subscribe —
+          // on top of, and unthrottled unlike, subscribeForUpdates' own
+          // chunked subscribe requests.
+          if (event == null) return;
+          try {
+            await updateUnspentsForAddress(address);
 
-          await updateBalance();
+            await updateBalance();
 
-          await _fetchAddressHistory(address, await getCurrentChainTip());
-        } catch (e, s) {
-          printV("sub error: $e");
-          _onError?.call(FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: this.runtimeType.toString(),
-          ));
-        }
-      }, onError: (e, s) {
-        printV("sub_listen error: $e $s");
-      });
-    }));
+            await _fetchAddressHistory(address, await getCurrentChainTip());
+          } catch (e, s) {
+            printV("sub error: $e");
+            _onError?.call(FlutterErrorDetails(
+              exception: e,
+              stack: s,
+              library: this.runtimeType.toString(),
+            ));
+          }
+        }, onError: (e, s) {
+          printV("sub_listen error: $e $s");
+        });
+      }));
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchBalancesBatch(
@@ -3486,7 +3551,7 @@ abstract class ElectrumWalletBase
     try {
       final balancesByScriptHash = await _processChunksToMap<String, String, Map<String, dynamic>>(
         items: scriptHashes,
-        chunkSize: addressHistoryChunkSize,
+        chunkSize: batchArrayMaxSize,
         processChunk: _getBalanceBatch,
       );
 
@@ -3510,17 +3575,42 @@ abstract class ElectrumWalletBase
   Future<List<Map<String, dynamic>>> fetchBalancesRegular(
     List<BitcoinAddressRecord> addresses,
   ) async {
-    final balanceFutures = <Future<Map<String, dynamic>>>[];
+    // Same unthrottled-burst issue as subscribeForUpdates used to have: one
+    // individual (non-batched) get_balance call per address fired all at
+    // once via a single Future.wait floods the connection for a wallet with
+    // many addresses. Chunked with an inter-chunk delay for the same reason.
+    final results = <Map<String, dynamic>>[];
+    for (var i = 0; i < addresses.length; i += addressHistoryChunkSize) {
+      final end = (i + addressHistoryChunkSize < addresses.length)
+          ? i + addressHistoryChunkSize
+          : addresses.length;
+      final chunk = addresses.sublist(i, end);
 
-    for (final address in addresses) {
-      final sh = address.getScriptHash(network);
-      balanceFutures.add(electrumClient.getBalance(sh));
+      if (i > 0) await Future.delayed(regularFetchChunkDelay);
+
+      results.addAll(await Future.wait(
+          chunk.map((address) => electrumClient.getBalance(address.getScriptHash(network)))));
     }
-
-    return Future.wait(balanceFutures);
+    return results;
   }
 
   Future<ElectrumBalance> fetchBalances() async {
+    if (!electrumClient.isConnected) {
+      // The socket is down (mid-reconnect, or briefly torn down). Every
+      // pending call() would resolve to null instantly rather than actually
+      // asking the server, which used to masquerade as "the server returned
+      // no balance for any address" and drive the dead-connection debounce
+      // toward LostConnectionSyncStatus even though nothing was ever asked.
+      // Skip the cycle entirely and keep the last known balance instead.
+      printV('fetchBalances: skipped, socket not connected');
+      return balance[currency] ??
+          ElectrumBalance(
+            confirmed: Money.zero(currency),
+            unconfirmed: Money.zero(currency),
+            frozen: Money.zero(currency),
+          );
+    }
+
     final addresses = walletAddresses.allAddresses
         .where((address) => address.address.isNotEmpty)
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
@@ -3533,9 +3623,15 @@ abstract class ElectrumWalletBase
     printV(
         'Fetched balances for ${addresses.length} addresses. Batch fetching: $shouldUseBatchFetching');
 
-    var totalFrozen = 0;
-    var totalConfirmed = 0;
-    var totalUnconfirmed = 0;
+    // Split into SP-derived (sourced from local transaction history, always
+    // valid regardless of whether this round's network fetch succeeds) and
+    // regular/non-SP (only trustworthy once the per-address fetch below
+    // actually returns usable data) so a dead/overloaded connection can fall
+    // back to the last known regular totals without also masking a freshly
+    // found SP output behind a stale *combined* snapshot - see the dead
+    // connection guard below and the _lastKnownRegular* fields' doc comment.
+    var spConfirmed = 0;
+    var spFrozen = 0;
 
     if (hasSilentPaymentsScanning) {
       // Add values from unspent coins that are not fetched by the address list
@@ -3544,14 +3640,15 @@ abstract class ElectrumWalletBase
         if (tx.unspents != null) {
           tx.unspents!.forEach((unspent) {
             if (unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-              if (unspent.isFrozen) totalFrozen += unspent.value;
-              totalConfirmed += unspent.value;
+              if (unspent.isFrozen) spFrozen += unspent.value;
+              spConfirmed += unspent.value;
             }
           });
         }
       });
     }
 
+    var regularFrozenFromUnspentInfo = 0;
     unspentCoinsInfo.values.forEach((info) {
       unspentCoins.forEach((element) {
         if (element.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) return;
@@ -3561,31 +3658,43 @@ abstract class ElectrumWalletBase
             element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
           if (info.isFrozen) {
-            totalFrozen += element.value;
+            regularFrozenFromUnspentInfo += element.value;
           }
         }
       });
     });
 
-    if (balances.isNotEmpty && balances.first['confirmed'] == null) {
-      // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
-      printV("got null balance responses from the server, setting connection status to lost");
-      syncStatus = LostConnectionSyncStatus();
-      return balance[currency] ??
-          ElectrumBalance(
-            confirmed: Money.zero(currency),
-            unconfirmed: Money.zero(currency),
-            frozen: Money.zero(currency),
-          );
+    if (balances.isNotEmpty && balances.every((b) => b['confirmed'] == null)) {
+      // Only treat this as a dead connection when EVERY address's balance
+      // came back null — checking just the first address was a false-positive
+      // trap: one address (e.g. a freshly generated, never-subscribed one)
+      // getting a malformed/empty response from a quirky server doesn't mean
+      // the whole connection is down.
+      _consecutiveNullBalanceFetches++;
+      printV(
+          "got null balance responses from the server ($_consecutiveNullBalanceFetches consecutive)");
+      if (_consecutiveNullBalanceFetches >= _nullBalanceFetchTolerance) {
+        printV("setting connection status to lost");
+        syncStatus = LostConnectionSyncStatus();
+      }
+      return ElectrumBalance(
+        confirmed: Money.fromInt(_lastKnownRegularConfirmed + spConfirmed, currency),
+        unconfirmed: Money.fromInt(_lastKnownRegularUnconfirmed, currency),
+        frozen: Money.fromInt(_lastKnownRegularFrozen + regularFrozenFromUnspentInfo + spFrozen,
+            currency),
+      );
     }
+    _consecutiveNullBalanceFetches = 0;
 
+    var regularConfirmed = 0;
+    var regularUnconfirmed = 0;
     for (var i = 0; i < balances.length; i++) {
       final addressRecord = addresses[i];
       final balance = balances[i];
       final confirmed = balance['confirmed'] as int? ?? 0;
       final unconfirmed = balance['unconfirmed'] as int? ?? 0;
-      totalConfirmed += confirmed;
-      totalUnconfirmed += unconfirmed;
+      regularConfirmed += confirmed;
+      regularUnconfirmed += unconfirmed;
 
       addressRecord.balance = confirmed + unconfirmed;
       if (confirmed > 0 || unconfirmed > 0) {
@@ -3593,6 +3702,13 @@ abstract class ElectrumWalletBase
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
       }
     }
+    _lastKnownRegularConfirmed = regularConfirmed;
+    _lastKnownRegularUnconfirmed = regularUnconfirmed;
+    _lastKnownRegularFrozen = regularFrozenFromUnspentInfo;
+
+    final totalConfirmed = regularConfirmed + spConfirmed;
+    final totalUnconfirmed = regularUnconfirmed;
+    final totalFrozen = regularFrozenFromUnspentInfo + spFrozen;
 
     return ElectrumBalance(
       confirmed: Money.fromInt(totalConfirmed, currency),
@@ -3601,10 +3717,58 @@ abstract class ElectrumWalletBase
     );
   }
 
+  // Reassigns balance[currency] to a brand-new ElectrumBalance instance
+  // rather than mutating the existing one's `confirmed` field in place
+  // (`balance[currency]!.confirmed += ...`) - ElectrumBalance is a plain
+  // class, not a MobX-observable one, so mutating a field on the object an
+  // ObservableMap already holds is invisible to MobX: it only reacts to a
+  // key being assigned/removed on the map itself, never to something
+  // changing inside a value it already holds. The old in-place-mutation
+  // pattern used to compute and even persist (via save()) a fully correct
+  // balance that the UI never rebuilt to reflect, since nothing ever
+  // actually looked like a change to the map. This is the SP scan-match
+  // handler's own equivalent of what fetchBalances()/updateBalance() already
+  // gets right by fully reassigning `balance[currency]` themselves.
+  void _bumpConfirmedBalance(Money amount) {
+    final previous = balance[currency]!;
+    balance[currency] = ElectrumBalance(
+      confirmed: previous.confirmed + amount,
+      unconfirmed: previous.unconfirmed,
+      frozen: previous.frozen,
+      secondConfirmed: previous.secondConfirmed,
+      secondUnconfirmed: previous.secondUnconfirmed,
+    );
+  }
+
+  bool _balanceUpdateInProgress = false;
+  bool _balanceUpdateQueued = false;
+
+  // fetchBalances() always refetches every address in the wallet — there's
+  // no way to scope it to just the one address that changed. It's called
+  // from subscribeForUpdates()'s per-subscription listener, so without this
+  // coalescing, every address with real history that reports a change
+  // within the same short window each independently triggered their own
+  // full wallet-wide balance refetch, stacking N full passes on top of each
+  // other instead of one. Any call that arrives while a fetch is already
+  // running just marks another pass as needed instead of starting a new,
+  // fully redundant one; at most one extra pass runs after the current one
+  // finishes, picking up whatever changed meanwhile.
   Future<void> updateBalance() async {
-    printV("updateBalance() called!");
-    balance[currency] = await fetchBalances();
-    await save();
+    if (_balanceUpdateInProgress) {
+      _balanceUpdateQueued = true;
+      return;
+    }
+
+    _balanceUpdateInProgress = true;
+    try {
+      do {
+        _balanceUpdateQueued = false;
+        balance[currency] = await fetchBalances();
+        await save();
+      } while (_balanceUpdateQueued);
+    } finally {
+      _balanceUpdateInProgress = false;
+    }
   }
 
   @override
@@ -3840,17 +4004,7 @@ abstract class ElectrumWalletBase
       if (_isTryingToConnect) return;
 
       _isTryingToConnect = true;
-
-      Timer(Duration(seconds: 5), () {
-        if (this.syncStatus is NotConnectedSyncStatus ||
-            this.syncStatus is LostConnectionSyncStatus) {
-          this.electrumClient.connectToUri(
-                node!.uri,
-                useSSL: node!.useSSL ?? false,
-              );
-        }
-        _isTryingToConnect = false;
-      });
+      unawaited(_reconnectWithBackoffUntilConnected());
     }
 
     // Message is shown on the UI for 3 seconds, revert to synced
@@ -3858,6 +4012,46 @@ abstract class ElectrumWalletBase
       Timer(Duration(seconds: 3), () {
         if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
       });
+    }
+  }
+
+  /// Keeps retrying the connection with capped exponential backoff for as
+  /// long as the socket is actually down, instead of the previous single
+  /// 5-second-later attempt. That one-shot retry only ever fired once per
+  /// genuinely *new* NotConnected/LostConnection value, because
+  /// `_onConnectionStatusChange` only reassigns `syncStatus` when it isn't
+  /// already that type (`if (syncStatus is! NotConnectedSyncStatus) ...`) —
+  /// so once the connection got stuck disconnected across several
+  /// disconnect signals in a row (exactly what this test node's flaky link
+  /// produces), `syncStatus` itself never changed again, the MobX reaction
+  /// that drives this method never refired, and the wallet stayed
+  /// permanently "Not Connected" after the very first failed retry.
+  /// Checks `electrumClient.isConnected` (actual transport state) rather
+  /// than `syncStatus` to decide whether to keep going, since a failed
+  /// `connect()` attempt can itself leave `syncStatus` stuck on
+  /// `ConnectingSyncStatus` without ever reporting failure.
+  Future<void> _reconnectWithBackoffUntilConnected() async {
+    var backoff = const Duration(seconds: 5);
+    const maxBackoff = Duration(seconds: 30);
+    try {
+      while (!electrumClient.isConnected) {
+        if (node == null) {
+          break;
+        }
+
+        try {
+          await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL ?? false);
+        } catch (_) {}
+
+        if (electrumClient.isConnected) {
+          break;
+        }
+
+        await Future.delayed(backoff);
+        if (backoff < maxBackoff) backoff *= 2;
+      }
+    } finally {
+      _isTryingToConnect = false;
     }
   }
 
@@ -4022,7 +4216,7 @@ abstract class ElectrumWalletBase
         trigger: 'full_reconnection_start',
       );
 
-      await _receiveStream?.cancel();
+      await _spScanner.dispose();
 
       await electrumClient.close();
 
@@ -4073,420 +4267,6 @@ abstract class ElectrumWalletBase
     } else {
       return mainHdByType[addrType] ?? mainHd;
     }
-  }
-}
-
-class ScanNode {
-  final Uri uri;
-  final bool? useSSL;
-
-  ScanNode(this.uri, this.useSSL);
-}
-
-class ScanData {
-  final SendPort sendPort;
-  final SilentPaymentOwner silentAddress;
-  final Bip32Slip10Secp256k1 masterHD;
-  final int height;
-  final ScanNode? node;
-  final BasedUtxoNetwork network;
-  final int chainTip;
-  final electrum.ElectrumClient electrumClient;
-  final List<String> transactionHistoryIds;
-  final Map<String, String> labels;
-  final List<int> labelIndexes;
-  final bool isSingleScan;
-  final String debugLogPath;
-  final List<int>? rescanHeights;
-
-  ScanData({
-    required this.sendPort,
-    required this.silentAddress,
-    required this.masterHD,
-    required this.height,
-    required this.node,
-    required this.network,
-    required this.chainTip,
-    required this.electrumClient,
-    required this.transactionHistoryIds,
-    required this.labels,
-    required this.labelIndexes,
-    required this.isSingleScan,
-    required this.debugLogPath,
-    required this.rescanHeights,
-  });
-
-  factory ScanData.fromHeight(ScanData scanData, int newHeight) {
-    return ScanData(
-      sendPort: scanData.sendPort,
-      silentAddress: scanData.silentAddress,
-      masterHD: scanData.masterHD,
-      height: newHeight,
-      node: scanData.node,
-      network: scanData.network,
-      chainTip: scanData.chainTip,
-      transactionHistoryIds: scanData.transactionHistoryIds,
-      electrumClient: scanData.electrumClient,
-      labels: scanData.labels,
-      labelIndexes: scanData.labelIndexes,
-      isSingleScan: scanData.isSingleScan,
-      debugLogPath: scanData.debugLogPath,
-      rescanHeights: scanData.rescanHeights,
-    );
-  }
-}
-
-class SyncResponse {
-  final int height;
-  final SyncStatus syncStatus;
-
-  SyncResponse(this.height, this.syncStatus);
-}
-
-Future<void> _handleScanSilentPayments(ScanData scanData) async {
-  final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
-  final hasForcedRescanHeights = !shouldUpdateSyncStatus;
-  CakeTor.instance = await CakeTorInstance.getInstance();
-
-  var node = scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001");
-
-  void log(String message, LogLevel level) {
-    printV("[Scanning] $message", file: scanData.debugLogPath, level: level);
-  }
-
-  try {
-    // if (scanData.shouldSwitchNodes) {
-    var scanningClient = await ElectrumProvider.connect(
-      ElectrumTCPService.connect(node),
-    );
-    // }
-
-    log("connected to ${node.toString()}", LogLevel.info);
-
-    final receivers = [
-      Receiver(
-        scanData.silentAddress.b_scan.toHex(),
-        scanData.silentAddress.B_spend.toHex(),
-        scanData.network == BitcoinNetwork.testnet,
-        scanData.labelIndexes,
-        scanData.labelIndexes.length,
-      ),
-      Receiver(
-        scanData.masterHD.derivePath(SILENT_PAYMENTS_SCAN_PATH_TESTNET).privateKey.toHex(),
-        scanData.masterHD.derivePath(SILENT_PAYMENTS_SPEND_PATH_TESTNET).publicKey.toHex(),
-        scanData.network == BitcoinNetwork.testnet,
-        scanData.labelIndexes,
-        scanData.labelIndexes.length,
-      )
-    ];
-
-    log(
-      "using receiver: b_scan: ${scanData.silentAddress.b_scan.toHex()}, b_spend: ${scanData.silentAddress.B_spend.toHex()}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
-      LogLevel.info,
-    );
-    log(
-      "using receiver: b_scan: ${receivers[1].bScan}, b_spend: ${receivers[1].BSpend}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
-      LogLevel.info,
-    );
-
-    void scan(int syncHeight, bool isSingleScan) async {
-      int initialSyncHeight = syncHeight;
-
-      int getCountToScanPerRequest(int syncHeight) {
-        if (isSingleScan) {
-          return 1;
-        }
-
-        final amountLeft = scanData.chainTip - syncHeight + 1;
-        return amountLeft;
-      }
-
-      // Initial status UI update, send how many blocks in total to scan
-      if (shouldUpdateSyncStatus)
-        scanData.sendPort.send(SyncResponse(syncHeight, StartingScanSyncStatus(syncHeight)));
-
-      final req = ElectrumTweaksSubscribe(
-        height: syncHeight,
-        count: getCountToScanPerRequest(syncHeight),
-        historicalMode: hasForcedRescanHeights,
-      );
-
-      var _scanningStream = await scanningClient.subscribe(req);
-
-      log(
-        "initial request: height: $syncHeight, count: ${getCountToScanPerRequest(syncHeight)}",
-        LogLevel.info,
-      );
-
-      void endScanningSuccesfully() {
-        if (isSingleScan) {
-          scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-        } else {
-          scanData.sendPort.send(
-            SyncResponse(syncHeight, SyncedTipSyncStatus(scanData.chainTip)),
-          );
-        }
-
-        _scanningStream?.close();
-        _scanningStream = null;
-
-        log(
-          "ended: syncHeight: $syncHeight, chainTip: ${scanData.chainTip}, isSingleScan: ${isSingleScan}",
-          LogLevel.info,
-        );
-      }
-
-      void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
-        final response = req.onResponse(event);
-
-        if (response == null || _scanningStream == null) {
-          log(
-            "ending: response = $response, stream = $_scanningStream",
-            LogLevel.error,
-          );
-          return;
-        }
-
-        // is success or error msg
-        final noData = response.message != null;
-
-        if (noData) {
-          if (isSingleScan) {
-            log("ending: noData and isSingleScan", LogLevel.info);
-
-            endScanningSuccesfully();
-            return;
-          }
-
-          // re-subscribe to continue receiving messages, starting from the next unscanned height
-          final nextHeight = syncHeight + 1;
-
-          if (nextHeight <= scanData.chainTip) {
-            log(
-              "resubscribing: nextHeight: $nextHeight, count: ${getCountToScanPerRequest(nextHeight)}",
-              LogLevel.info,
-            );
-
-            final nextStream = scanningClient.subscribe(
-              ElectrumTweaksSubscribe(
-                height: nextHeight,
-                count: getCountToScanPerRequest(nextHeight),
-                historicalMode: hasForcedRescanHeights,
-              ),
-            );
-
-            if (nextStream != null) {
-              nextStream.listen((event) => listenFn(event, req));
-            } else {
-              if (shouldUpdateSyncStatus)
-                scanData.sendPort.send(
-                  SyncResponse(scanData.height, LostConnectionSyncStatus()),
-                );
-            }
-          }
-
-          log(
-            "ending: resubscribing: nextHeight: $nextHeight, count: ${getCountToScanPerRequest(nextHeight)}",
-            LogLevel.info,
-          );
-          return;
-        }
-
-        final tweakHeight = response.block;
-
-        // Continuous status UI update, send how many blocks left to scan
-        final syncingStatus = isSingleScan
-            ? SyncingSyncStatus(1, 0)
-            : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, tweakHeight);
-
-        if (shouldUpdateSyncStatus) scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
-
-        try {
-          final blockTweaks = response.blockTweaks;
-
-          var blockDate = DateTime.now();
-          bool isDateNow = true;
-
-          for (final txid in blockTweaks.keys) {
-            final tweakData = blockTweaks[txid];
-            final outputPubkeys = tweakData!.outputPubkeys;
-            final tweak = tweakData.tweak;
-
-            try {
-              final addToWallet = <String, dynamic>{};
-
-              receivers.forEach((receiver) {
-                final preparedList = outputPubkeys.keys.toList().map((e) => [e]).toList();
-                // NOTE: scanOutputs, from sp_scanner package, called from rust here
-                final scanResult = scanOutputs(preparedList, tweak, receiver);
-
-                if (scanResult.isEmpty) return;
-
-                if (addToWallet[receiver.BSpend] == null) {
-                  addToWallet[receiver.BSpend] = scanResult;
-                } else {
-                  addToWallet[receiver.BSpend].addAll(scanResult);
-                }
-              });
-
-              if (addToWallet.isEmpty) {
-                // no results tx, continue to next tx
-                continue;
-              }
-
-              log(
-                "FOUND: addToWallet: ${addToWallet.length}, txid: $txid, tweak: $tweak, height: $tweakHeight",
-                LogLevel.info,
-              );
-
-              // Every tx in the block has the same date (the block date)
-              // So, if blockDate exists, reuse
-              if (isDateNow) {
-                try {
-                  final rootURL = "https://cake.mempool.space";
-                  final tweakBlockHash = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block-height/$tweakHeight"))
-                      .timeout(Duration(seconds: 15));
-                  final blockResponse = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block/${tweakBlockHash.body}"))
-                      .timeout(Duration(seconds: 15));
-
-                  if (blockResponse.statusCode == 200 &&
-                      blockResponse.body.isNotEmpty &&
-                      jsonDecode(blockResponse.body)['timestamp'] != null) {
-                    blockDate = DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(jsonDecode(blockResponse.body)['timestamp'].toString()) * 1000,
-                    );
-                    isDateNow = false;
-                  }
-                } catch (e, stacktrace) {
-                  printV(stacktrace);
-                  printV(e.toString());
-                }
-              }
-
-              // initial placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s) on the following loop
-              final txInfo = ElectrumTransactionInfo(
-                WalletType.bitcoin,
-                id: txid,
-                height: tweakHeight,
-                amount: Money.zero(CryptoCurrency.btc),
-                fee: Money.zero(CryptoCurrency.btc),
-                direction: TransactionDirection.incoming,
-                isReplaced: false,
-                date: scanData.network == BitcoinNetwork.mainnet
-                    ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : blockDate)
-                    : DateTime.now(),
-                confirmations: scanData.chainTip - tweakHeight + 1,
-                isReceivedSilentPayment: true,
-                isPending: false,
-                unspents: [],
-              );
-
-              List<BitcoinUnspent> unspents = [];
-
-              addToWallet.forEach((BSpend, scanResultPerLabel) {
-                scanResultPerLabel.forEach((label, scanOutput) {
-                  final labelValue = label == "None" ? null : label.toString();
-
-                  (scanOutput as Map<String, dynamic>).forEach((outputPubkey, tweak) {
-                    final t_k = tweak as String;
-
-                    final receivingOutputAddress = ECPublic.fromHex(outputPubkey)
-                        .toTaprootAddress(tweak: false)
-                        .toAddress(scanData.network);
-
-                    final matchingOutput = outputPubkeys[outputPubkey]!;
-                    final amount = matchingOutput.amount;
-                    final pos = matchingOutput.vout;
-                    final spent = matchingOutput.spendingInput;
-
-                    final matchingReceiver =
-                        receivers.indexWhere((receiver) => receiver.BSpend == BSpend);
-
-                    // final labelIndex = labelValue != null ? scanData.labels[label] : 0;
-                    // final balance = ElectrumBalance();
-                    // balance.confirmed = amount;
-
-                    final receivedAddressRecord = BitcoinSilentPaymentAddressRecord(
-                      receivingOutputAddress,
-                      index: 0,
-                      isHidden: false,
-                      isUsed: true,
-                      network: scanData.network,
-                      silentPaymentTweak: t_k,
-                      type: SegwitAddresType.p2tr,
-                      txCount: 1,
-                      balance: amount,
-                      spendDerivationPath: matchingReceiver == 0
-                          ? SILENT_PAYMENTS_SPEND_PATH
-                          : SILENT_PAYMENTS_SPEND_PATH_TESTNET,
-                    );
-
-                    final unspent = BitcoinSilentPaymentsUnspent(
-                      receivedAddressRecord,
-                      txid,
-                      amount,
-                      pos,
-                      silentPaymentTweak: t_k,
-                      silentPaymentLabel: labelValue,
-                    );
-
-                    if (spent == null) {
-                      unspents.add(unspent);
-                      txInfo.unspents!.add(unspent);
-                    }
-
-                    txInfo.amount += Money.fromInt(unspent.value, txInfo.amount.currency);
-                  });
-                });
-              });
-
-              scanData.sendPort.send({txInfo.id: txInfo});
-            } catch (e, stacktrace) {
-              if (shouldUpdateSyncStatus)
-                scanData.sendPort.send(
-                  SyncResponse(syncHeight, LostConnectionSyncStatus()),
-                );
-
-              log(stacktrace.toString(), LogLevel.error);
-              log(e.toString(), LogLevel.error);
-              return;
-            }
-          }
-        } catch (e, stacktrace) {
-          if (shouldUpdateSyncStatus)
-            scanData.sendPort.send(
-              SyncResponse(syncHeight, LostConnectionSyncStatus()),
-            );
-
-          log(stacktrace.toString(), LogLevel.error);
-          log(e.toString(), LogLevel.error);
-          return;
-        }
-
-        syncHeight = tweakHeight;
-
-        if ((tweakHeight >= scanData.chainTip) || isSingleScan) {
-          endScanningSuccesfully();
-        }
-      }
-
-      _scanningStream?.listen((event) => listenFn(event, req));
-    }
-
-    if (scanData.rescanHeights != null) {
-      for (final height in scanData.rescanHeights!) {
-        log("rescanning from height: $height", LogLevel.info);
-        scan(height, true);
-      }
-    } else {
-      scan(scanData.height, scanData.isSingleScan);
-    }
-  } catch (e) {
-    log("Error in _handleScanSilentPayments: $e", LogLevel.error);
-    if (shouldUpdateSyncStatus)
-      scanData.sendPort.send(SyncResponse(scanData.height, LostConnectionSyncStatus()));
   }
 }
 

@@ -269,8 +269,16 @@ abstract class Bitcoin {
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
+  Future<void> rescan(
+    Object wallet, {
+    required int height,
+    bool? doSingleScan,
+    int? workerCount,
+    bool? historicalMode,
+    bool ignoreExistingCoverage = true,
+  });
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
+  int negotiatedScanProtocolVersion(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
@@ -280,6 +288,7 @@ abstract class Bitcoin {
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
+  int txSilentPaymentUnspentsCount(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
   Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
@@ -338,6 +347,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
