@@ -1377,6 +1377,7 @@
   "transactions_will_appear_here": "あなたの取引履歴がここに表示されます。",
   "transparent_secret_key": "トランスペアレント秘密鍵",
   "transport_type": "トランスポートタイプ",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "は、複数の取引所を活用して競争力のあるレートを見つける交換アグリゲーターです。",
   "trocador_desc_kyc": "プロバイダー名とともに、KYC評価が表示されます。これはTrocadorによって設定され、独自の基準に基づいています。",
   "trongrid_history": "TronGrid 履歴",

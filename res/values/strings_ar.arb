@@ -1376,6 +1376,7 @@
   "transactions_will_appear_here": "ستظهر معاملاتك هنا.",
   "transparent_secret_key": "المفتاح السري الشفاف",
   "transport_type": "نوع النقل",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "هو مُجمِّع تبادل يستفيد من عدة منصات تداول أساسية للعثور على أسعار تنافسية.",
   "trocador_desc_kyc": "إلى جانب اسم المزوّد، يظهر تصنيف KYC. يتم تحديده بواسطة Trocador وهو يعتمد على معاييرهم الخاصة.",
   "trongrid_history": "سجل TronGrid",

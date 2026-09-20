@@ -1377,6 +1377,7 @@
   "transactions_will_appear_here": "Ваші транзакції з’являться тут.",
   "transparent_secret_key": "Прозорий секретний ключ",
   "transport_type": "Тип транспорту",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "це агрегатор обміну, який використовує кілька базових бірж, щоб знаходити конкурентні курси.",
   "trocador_desc_kyc": "Поруч із назвою постачальника відображається рейтинг KYC. Його встановлює Trocador на основі власних критеріїв.",
   "trongrid_history": "Історія TronGrid",
