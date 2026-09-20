@@ -1,11 +1,11 @@
 import "dart:async";
+import "dart:ui";
 
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
-import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
@@ -22,7 +22,6 @@ import "package:cw_core/sync_status.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
-import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
@@ -55,6 +54,7 @@ class WalletAccountsPage extends StatefulWidget {
 }
 
 class _WalletAccountsPageState extends State<WalletAccountsPage> {
+  static const double _kStackVisibleFactor = 0.2;
   late final double cardWidth = MediaQuery.of(context).size.width * 0.9;
 
   final List<AccountCustomizerListItem> _items = [];
@@ -64,11 +64,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   WalletAccountListViewModel get accountListViewModel =>
       widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
 
-  bool get _isBitcoinWallet =>
-      widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
+  bool get _isBitcoinWallet => widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
 
-  bool get _isMoneroWallet =>
-      widget.dashboardViewModel.wallet.type == WalletType.monero;
+  bool get _isMoneroWallet => widget.dashboardViewModel.wallet.type == WalletType.monero;
 
   bool get _isMultiAccountsEnabled =>
       widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled ?? false;
@@ -154,149 +152,176 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Observer(builder: (context) {
-        if (accountListViewModel.accounts.isEmpty) return const SizedBox.shrink();
+  Widget build(BuildContext context) {
+    final showResetButton =
+        (_isMultiAccountsEnabled && _items.length > 1) || (_isMoneroWallet && _items.length > 1);
+    if (_items.isEmpty) return const SizedBox.shrink();
 
-        final showResetButton = (_isMultiAccountsEnabled && _items.length > 1) || (_isMoneroWallet && _items.length > 1);
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24))),
+      child: Column(
+        children: [
+          ModalTopBar(
+            title: S.of(context).wallet_accounts,
+            leadingIcon: const Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
+            onLeadingPressed: Navigator.of(context).maybePop,
+            trailingIcon: showResetButton ? const Icon(Icons.refresh) : null,
+            trailingSemanticLabel: S.of(context).reset,
+            onTrailingPressed: showResetDialog,
+          ),
+          const SizedBox(height: 24),
+          if (_isBitcoinWallet)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: NewListSections(
+                sections: {
+                  "": [
+                    ListItemToggle(
+                        keyValue: "Multiple Accounts",
+                        label: "Multiple Accounts",
+                        value: _isMultiAccountsEnabled,
+                        onChanged: (val) async {
+                          if (!val) {
+                            AccountListItem? primary;
+                            for (final acc in accountListViewModel.accounts) {
+                              if (acc.id == 0) {
+                                primary = acc;
+                                break;
+                              }
+                            }
+                            if (primary != null && accountListViewModel.selectedAccount?.id != 0) {
+                              await accountListViewModel.select(primary);
+                            }
+                          }
 
+                          widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled = val;
+                          await widget.dashboardViewModel.wallet.walletInfo.save();
 
-        return Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24))),
-          child: Column(
-            children: [
-              ModalTopBar(
-                title: S.of(context).wallet_accounts,
-                leadingIcon: const Icon(Icons.close),
-                leadingSemanticLabel: S.of(context).close,
-                onLeadingPressed: Navigator.of(context).maybePop,
-                trailingIcon: showResetButton ? const Icon(Icons.refresh) : null,
-                trailingSemanticLabel: S.of(context).reset,
-                onTrailingPressed: showResetDialog,
+                          final wallet = widget.dashboardViewModel.wallet;
+                          if (val && wallet.type == WalletType.bitcoin) {
+                            unawaited(wallet.startSync());
+                          }
+
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        }),
+                  ],
+                },
               ),
-              const SizedBox(height: 24),
-              if (_isBitcoinWallet)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: NewListSections(
-                    sections: {
-                      "": [
-                        ListItemToggle(
-                            keyValue: "Multiple Accounts",
-                            label: "Multiple Accounts",
-                            value: _isMultiAccountsEnabled,
-                            onChanged: (val) async {
-                              if (!val) {
-                                AccountListItem? primary;
-                                for (final acc in accountListViewModel.accounts) {
-                                  if (acc.id == 0) {
-                                    primary = acc;
-                                    break;
-                                  }
-                                }
-                                if (primary != null &&
-                                    accountListViewModel.selectedAccount?.id != 0) {
-                                  await accountListViewModel.select(primary);
-                                }
-                              }
-
-                              widget.dashboardViewModel.wallet.walletInfo
-                                  .isMultiAccountsEnabled = val;
-                              await widget.dashboardViewModel.wallet.walletInfo.save();
-
-                              final wallet = widget.dashboardViewModel.wallet;
-                              if (val && wallet.type == WalletType.bitcoin) {
-                                unawaited(wallet.startSync());
-                              }
-
-                              if (mounted) setState(() {});
-                            }),
-                      ],
-                    },
+            ),
+          if (_isMoneroWallet || _isMultiAccountsEnabled)
+            Expanded(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24.0),
+                    child: Text(
+                      S.of(context).account_customizer_desc,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
                   ),
-                ),
-              Builder(builder: (_) {
-                if (_isBitcoinWallet && !_isMultiAccountsEnabled) {
-                  return const SizedBox.shrink();
-                }
-                return Expanded(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Text(
-                          S.of(context).account_customizer_desc,
-                          style:
-                              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            SingleChildScrollView(
-                              controller: ModalScrollController.of(context),
-                              padding: const EdgeInsets.only(bottom: 196),
-                              child: CardsView(
-                                key: ValueKey(
-                                    "${widget.dashboardViewModel.wallet.name}_${widget.dashboardViewModel.lightningMode}_${accountListViewModel.accounts.length}_${widget.dashboardViewModel.cardDesigns.length}"),
-                                dashboardViewModel: widget.dashboardViewModel,
-                                lightningMode: widget.dashboardViewModel.lightningMode,
-                                maxVisibleCards: null,
-                                allowCompactMode: false,
-                                enableReorder: true,
-                                onReorder: _onCardsReordered,
-                                onCustomizeTapped: _openCardCustomizer,
-                                onCompactModeBackgroundCardsTapped: _openCardCustomizer,
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        ReorderableListView.builder(
+                          padding: const EdgeInsets.only(bottom: 196),
+                          scrollController: ModalScrollController.of(context),
+                          onReorder: reorder,
+                          proxyDecorator: (child, index, animation) => AnimatedBuilder(
+                            animation: animation,
+                            builder: (context, _) {
+                              final animValue = Curves.easeOutCubic.transform(animation.value);
+                              final scale = lerpDouble(1, 1.05, animValue)!;
+
+                              return Opacity(
+                                opacity: 1 - animValue.clamp(0.0, 0.1),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: cardWidth,
+                                    child: Transform.scale(
+                                      scale: scale,
+                                      child: child,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: _items[index].card,
+                          ),
+                          itemCount: _items.length,
+                          itemBuilder: (context, int index) {
+                            final card = _items[index].card;
+                            // The stack is ordered bottom to top, so the last item
+                            // is the account currently in front — the selected one.
+                            final selectedItemIndex = _items.length - 1;
+
+                            return Container(
+                              key: ValueKey(index),
+                              // One labeled, selectable node per account; the card's own
+                              // texts stay reachable underneath it.
+                              child: Semantics(
+                                button: true,
+                                selected: selectedItemIndex == index,
+                                label: _items[index].accountListItem.label,
+                                onTap: () => reorder(index, _items.length),
+                                child: GestureDetector(
+                                  excludeFromSemantics: true,
+                                  onTap: () {
+                                    reorder(index, _items.length);
+                                  },
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    heightFactor: _kStackVisibleFactor,
+                                    child: card,
+                                  ),
+                                ),
                               ),
-                            ),
-                            SafeArea(
+                            );
+                          },
+                        ),
+                        SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 50),
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
                               child: Padding(
-                                padding: const EdgeInsets.only(bottom: 50),
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: MergeSemantics(
-                                        child: Semantics(
-                                          button: true,
-                                          child: InkWell(
+                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: MergeSemantics(
+                                    child: Semantics(
+                                      button: true,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(999999),
+                                        onTap: _showAddAccountModal,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.surfaceContainer,
                                             borderRadius: BorderRadius.circular(999999),
-                                            onTap: _showAddAccountModal,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .surfaceContainer,
-                                                borderRadius: BorderRadius.circular(999999),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(vertical: 18),
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  spacing: 8,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.add,
-                                                      size: 28,
-                                                      color:
-                                                          Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                    Text(
-                                                      S.of(context).add_account,
-                                                      style: TextStyle(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    )
-                                                  ],
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 18),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              spacing: 8,
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  size: 28,
+                                                  color: Theme.of(context).colorScheme.primary,
                                                 ),
-                                              ),
+                                                Text(
+                                                  S.of(context).add_account,
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                )
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -306,17 +331,18 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                                 ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                );
-              }),
-            ],
-          ),
-        );
-      });
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   bool _checkReadyToManage() {
     if (widget.dashboardViewModel.wallet.type == WalletType.bitcoin) {
@@ -324,39 +350,30 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     }
     if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
-          context: context,
-          builder: (context) => AlertWithOneAction(
-              alertTitle: S.of(context).wallet_is_syncing,
-              alertContent: S.of(context).cannot_manage_accounts_during_sync,
-              buttonText: S.of(context).ok,
-              buttonAction: Navigator.of(context).pop));
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).wallet_is_syncing,
+          alertContent: S.of(context).cannot_manage_accounts_during_sync,
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
       return false;
     }
     return true;
   }
 
   Future<void> _showAddAccountModal() async {
-    if (!_checkReadyToManage()) {
-      return;
-    }
+    if (!_checkReadyToManage()) return;
 
     final res = await showCupertinoModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) => Material(
-              child: AccountCreationModal(
-                state: () => widget.accountEditOrCreateViewModel.state,
-                onPressed: (label) async {
-                  widget.accountEditOrCreateViewModel.label = label;
-                  await widget.accountEditOrCreateViewModel.save();
-                  if (!context.mounted) return;
-
-                  if (widget.accountEditOrCreateViewModel.state is ExecutedSuccessfullyState) {
-                    Navigator.of(context).pop(true);
-                  }
-                },
-              ),
-            ));
+          child: AccountCreationModal(
+            viewModel: widget.accountEditOrCreateViewModel,
+          ),
+        ));
 
     if (res != null && res is bool && res == true) {
       await accountListViewModel.reload();
@@ -383,7 +400,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
       lightningMode: widget.dashboardViewModel.lightningMode,
-      useCupertinoScaffold: false,
+      asModalSheet: false,
       onSaved: _reloadAccountsAndCards,
     );
   }

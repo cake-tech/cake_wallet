@@ -362,12 +362,9 @@ abstract class DashboardViewModelBase with Store {
     transactions.clear();
 
     final allTransactions = wallet.transactionHistory.transactions.values;
-    final filteredTransactions = allTransactions.where((tx) {
-      if (wallet.type == WalletType.bitcoin) {
-        return bitcoin!.isTransactionForCurrentAccount(wallet, tx);
-      }
-      return true;
-    }).toList()
+    final filteredTransactions = allTransactions
+        .where((tx) => bitcoin!.isTransactionForCurrentAccount(wallet, tx))
+        .toList()
       ..sort((a, b) => a.date.compareTo(b.date));
 
     transactions.addAll(
