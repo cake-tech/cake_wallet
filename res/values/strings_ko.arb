@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Trezor가 잠겨 있습니다. 잠금을 해제하고 다시 시도해 보세요.",
   "trezor_error_disconnected": "Trezor의 연결이 끊어졌습니다. 다시 연결하고 다시 시도해 보세요.",
   "trezor_error_session_mismatch": "연결된 Trezor 세션이 다른 지갑에 속해 있어 전환할 수 없습니다. Trezor를 다시 연결하고 다시 시도하세요.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Trezor에서 향후 Cake Wallet이 자동으로 연결될 수 있는지 확인하세요.",
   "trezor_step_connecting": "Trezor에 연결 중입니다. 암호를 묻는 메시지가 나타나면 장치에 암호를 입력하세요.",
   "trezor_step_export_watch_only": "Trezor에서 감시 전용 자격 증명 내보내기를 확인하세요.",

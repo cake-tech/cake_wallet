@@ -1391,6 +1391,7 @@
   "trezor_error_device_locked": "Nde Trezor oñemboty. Emboguejy ha eñeha’ã jey.",
   "trezor_error_disconnected": "Nde Trezor ojedesconecta va’ekue. Embojoaju jey ha eñeha’ã jey.",
   "trezor_error_session_mismatch": "Pe sesión Trezor oñembojoajúva haꞌehína ambue billetera mbaꞌe ha ndaikatúi oñemoambue. Embojoaju jey nde Trezor ha eñeha’ã jey.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Emoañete nde Trezor-pe ikatuha Cake Wallet oñembojoaju ijeheguiete tenonderãme.",
   "trezor_step_connecting": "Oñembojoajúvo nde Trezor rehe. Ojeruréramo peteĩ ñe’ẽñemi, emoinge tembipuru’ípe.",
   "trezor_step_export_watch_only": "Emoañete eguerahaukaha umi credencial reloj-pe g̃uarãnte nde Trezor-pe.",

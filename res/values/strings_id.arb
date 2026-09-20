@@ -1388,6 +1388,7 @@
   "trezor_error_device_locked": "Trezor Anda terkunci. Buka kuncinya dan coba lagi.",
   "trezor_error_disconnected": "Trezor Anda terputus. Hubungkan kembali dan coba lagi.",
   "trezor_error_session_mismatch": "Sesi Trezor yang terhubung adalah milik dompet lain dan tidak dapat dialihkan. Hubungkan kembali Trezor Anda dan coba lagi.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Konfirmasikan di Trezor Anda bahwa Cake Wallet dapat terhubung secara otomatis di masa mendatang.",
   "trezor_step_connecting": "Menghubungkan ke Trezor Anda. Jika meminta frasa sandi, masukkan di perangkat.",
   "trezor_step_export_watch_only": "Konfirmasikan ekspor kredensial khusus jam tangan di Trezor Anda.",

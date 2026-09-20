@@ -1386,6 +1386,7 @@
   "trezor_error_device_locked": "Trezor của bạn đã bị khóa. Hãy mở khóa và thử lại.",
   "trezor_error_disconnected": "Trezor của bạn đã bị ngắt kết nối. Hãy kết nối lại và thử lại.",
   "trezor_error_session_mismatch": "Phiên Trezor được kết nối thuộc về một ví khác và không thể chuyển đổi được. Kết nối lại Trezor của bạn và thử lại.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Xác nhận trên Trezor của bạn rằng Cake Wallet có thể tự động kết nối trong tương lai.",
   "trezor_step_connecting": "Đang kết nối với Trezor của bạn. Nếu nó yêu cầu cụm mật khẩu, hãy nhập cụm mật khẩu đó vào thiết bị.",
   "trezor_step_export_watch_only": "Xác nhận xuất thông tin xác thực chỉ dành cho đồng hồ trên Trezor của bạn.",

@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "သင်၏ Trezor ကိုသော့ခတ်ထားသည်။ လော့ခ်ဖွင့်ပြီး ထပ်စမ်းကြည့်ပါ။",
   "trezor_error_disconnected": "သင်၏ Trezor သည် အဆက်ပြတ်သွားခဲ့သည်။ ၎င်းကို ပြန်လည်ချိတ်ဆက်ပြီး ထပ်စမ်းကြည့်ပါ။",
   "trezor_error_session_mismatch": "ချိတ်ဆက်ထားသည့် Trezor စက်ရှင်သည် အခြားပိုက်ဆံအိတ်တစ်ခုမှ ပိုင်ဆိုင်ပြီး ပြောင်း၍မရပါ။ သင်၏ Trezor ကို ပြန်လည်ချိတ်ဆက်ပြီး ထပ်စမ်းကြည့်ပါ။",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Cake Wallet သည် အနာဂတ်တွင် အလိုအလျောက်ချိတ်ဆက်နိုင်သည်ကို သင်၏ Trezor တွင် အတည်ပြုပါ။",
   "trezor_step_connecting": "သင်၏ Trezor သို့ချိတ်ဆက်နေသည်။ စကားဝှက်တစ်ခုတောင်းပါက ၎င်းကို စက်ပေါ်တွင်ထည့်ပါ။",
   "trezor_step_export_watch_only": "သင်၏ Trezor တွင် နာရီသီးသန့် အထောက်အထားများကို တင်ပို့ကြောင်း အတည်ပြုပါ။",

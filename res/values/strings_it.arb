@@ -1386,6 +1386,7 @@
   "trezor_error_device_locked": "Il tuo Trezor è bloccato. Sbloccalo e riprova.",
   "trezor_error_disconnected": "Il tuo Trezor è stato disconnesso. Ricollegalo e riprova.",
   "trezor_error_session_mismatch": "La sessione Trezor connessa appartiene a un altro portafoglio e non può essere cambiata. Ricollega il tuo Trezor e riprova.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Conferma sul tuo Trezor che Cake Wallet potrebbe connettersi automaticamente in futuro.",
   "trezor_step_connecting": "Connessione al tuo Trezor. Se richiede una passphrase, inseriscila sul dispositivo.",
   "trezor_step_export_watch_only": "Conferma l'esportazione delle credenziali solo per l'orologio sul tuo Trezor.",

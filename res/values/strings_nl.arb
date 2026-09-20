@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Je Trezor is vergrendeld. Ontgrendel het en probeer het opnieuw.",
   "trezor_error_disconnected": "De verbinding met uw Trezor is verbroken. Sluit hem opnieuw aan en probeer het opnieuw.",
   "trezor_error_session_mismatch": "De verbonden Trezor-sessie hoort bij een andere portemonnee en kan niet worden gewisseld. Sluit uw Trezor opnieuw aan en probeer het opnieuw.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Bevestig op uw Trezor dat Cake Wallet in de toekomst automatisch verbinding kan maken.",
   "trezor_step_connecting": "Verbinding maken met uw Trezor. Als er om een ​​wachtwoordzin wordt gevraagd, voert u deze op het apparaat in.",
   "trezor_step_export_watch_only": "Bevestig het exporteren van de alleen-lezen inloggegevens op uw Trezor.",

@@ -4,9 +4,16 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 
 class HardwareWalletProceedOnDeviceMessage extends StatelessWidget {
-  const HardwareWalletProceedOnDeviceMessage({super.key, required this.hardwareWalletType});
+  const HardwareWalletProceedOnDeviceMessage({
+    super.key,
+    required this.hardwareWalletType,
+    this.note,
+  });
 
   final HardwareWalletType hardwareWalletType;
+
+  /// Optional hint about what the device is going to ask
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,17 @@ class HardwareWalletProceedOnDeviceMessage extends StatelessWidget {
               fontWeight: FontWeight.w400,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-          )
+          ),
+          if (note != null)
+            Text(
+              note!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
         ]),
       ),
     );

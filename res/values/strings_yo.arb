@@ -1386,6 +1386,7 @@
   "trezor_error_device_locked": "Trezor rẹ ti wa ni titiipa. Ṣii silẹ ki o gbiyanju lẹẹkansi.",
   "trezor_error_disconnected": "Trezor rẹ ti ge asopọ. Tun pada ki o si gbiyanju lẹẹkansi.",
   "trezor_error_session_mismatch": "Akoko Trezor ti a ti sopọ jẹ ti apamọwọ miiran ati pe ko le yipada. Tun Trezor rẹ so pọ ki o tun gbiyanju lẹẹkansi.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Jẹrisi Trezor rẹ pe Apamọwọ Akara oyinbo le sopọ laifọwọyi ni ọjọ iwaju.",
   "trezor_step_connecting": "Nsopọ si Trezor rẹ. Ti o ba beere fun ọrọ igbaniwọle kan, tẹ sii sori ẹrọ naa.",
   "trezor_step_export_watch_only": "Jẹrisi gbigbejade awọn iwe-ẹri iṣọ-nikan lori Trezor rẹ.",

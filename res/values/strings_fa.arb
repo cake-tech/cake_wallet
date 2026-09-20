@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Trezor شما قفل شده است. آن را باز کنید و دوباره امتحان کنید.",
   "trezor_error_disconnected": "ترزور شما قطع شد. دوباره آن را وصل کنید و دوباره امتحان کنید.",
   "trezor_error_session_mismatch": "جلسه Trezor متصل به کیف پول دیگری تعلق دارد و نمی توان آن را تغییر داد. Trezor خود را دوباره وصل کنید و دوباره امتحان کنید.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "در Trezor خود تأیید کنید که کیک کیف پول ممکن است در آینده به طور خودکار متصل شود.",
   "trezor_step_connecting": "اتصال به Trezor شما. اگر یک عبارت عبور می خواهد، آن را در دستگاه وارد کنید.",
   "trezor_step_export_watch_only": "صدور اعتبارنامه فقط ساعت را در Trezor خود تأیید کنید.",

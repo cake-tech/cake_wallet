@@ -850,13 +850,28 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
   /// Human-readable reason of the last failed [syncKeyImages], if any.
   String? lastSyncError;
 
-  /// The SDK reports the BLE link going away (device powered off, out of
+  /// The SDK reports a BLE link going away (device powered off, out of
   /// range). Outside a connect attempt (which handles its own failures) the
   /// client is dead: drop it, and the session attribution with it, so the next
   /// use reconnects instead of talking to a closed link.
-  void _connectionChangeListener(sdk.BleConnectionState event) {
+  Future<void> _connectionChangeListener(sdk.BleConnectionState event) async {
     printV("Trezor device state changed: $event");
-    if (event == sdk.BleConnectionState.disconnected && !isConnecting) {
+    if (event != sdk.BleConnectionState.disconnected || isConnecting) return;
+
+    final client = _client;
+    if (client == null) return;
+
+    // The events are not device specific: make sure it is our Trezor that is
+    // gone before dropping a client that may still be perfectly connected.
+    if (client.connection.connectionType == sdk.ConnectionType.ble) {
+      try {
+        final state = await sdk.UniversalBle.getConnectionState(client.connection.device.id);
+        if (state == sdk.BleConnectionState.connected) return;
+      } catch (_) {}
+    }
+
+    // A connect that started while we were checking owns _client now.
+    if (identical(_client, client)) {
       _client = null;
       _sessionSettings = null;
       _sessionWalletKey = null;

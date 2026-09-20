@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "تريزور الخاص بك مقفل. افتحه وحاول مرة أخرى.",
   "trezor_error_disconnected": "تم قطع اتصال جهاز Trezor الخاص بك. أعد توصيله وحاول مرة أخرى.",
   "trezor_error_session_mismatch": "تنتمي جلسة Trezor المتصلة إلى محفظة أخرى ولا يمكن تبديلها. أعد توصيل جهاز Trezor وحاول مرة أخرى.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "قم بتأكيد على Trezor الخاص بك أن Cake Wallet قد تتصل تلقائيًا في المستقبل.",
   "trezor_step_connecting": "الاتصال بـ Trezor الخاص بك. إذا طلب عبارة مرور، أدخلها على الجهاز.",
   "trezor_step_export_watch_only": "قم بتأكيد تصدير بيانات اعتماد المراقبة فقط على جهاز Trezor الخاص بك.",

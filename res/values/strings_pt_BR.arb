@@ -735,6 +735,7 @@
   "skip_verification_question": "Você ainda deseja pular a verificação?",
   "skip_verification_title": "Tem certeza?",
   "skip_verification_warning": "Se você não fizer backup da sua frase de recuperação e perder o acesso à Cake Wallet ou ao seu dispositivo, seus ativos serão perdidos.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "unsupported_token_requested": "Este pedido de pagamento é para um token que não conseguimos identificar na rede selecionada.",
   "networks": "Redes",
   "new_first_wallet_text": "Manter sua cripto segura é moleza",

@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Váš Trezor je zamčený. Odemkněte jej a zkuste to znovu.",
   "trezor_error_disconnected": "Váš Trezor byl odpojen. Znovu jej připojte a zkuste to znovu.",
   "trezor_error_session_mismatch": "Připojená relace Trezor patří do jiné peněženky a nelze ji přepnout. Znovu připojte Trezor a zkuste to znovu.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Potvrďte na svém Trezoru, že Cake Wallet se může v budoucnu automaticky připojit.",
   "trezor_step_connecting": "Připojování k vašemu Trezoru. Pokud požaduje přístupovou frázi, zadejte ji do zařízení.",
   "trezor_step_export_watch_only": "Potvrďte export přihlašovacích údajů pouze ke sledování na vašem Trezoru.",

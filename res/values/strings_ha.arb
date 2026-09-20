@@ -1387,6 +1387,7 @@
   "trezor_error_device_locked": "Trezor naku yana kulle. Buɗe shi kuma sake gwadawa.",
   "trezor_error_disconnected": "An katse Trezor naku. Sake haɗa shi kuma a sake gwadawa.",
   "trezor_error_session_mismatch": "Zaman Trezor da aka haɗa na wani walat ne kuma ba za a iya canzawa ba. Sake haɗa Trezor ɗin ku kuma sake gwadawa.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Tabbatar da Trezor ɗin ku cewa Wallet ɗin Cake na iya haɗawa ta atomatik a nan gaba.",
   "trezor_step_connecting": "Haɗa zuwa Trezor. Idan ya nemi kalmar wucewa, shigar da shi akan na'urar.",
   "trezor_step_export_watch_only": "Tabbatar da fitar da takaddun shaida-kawai akan Trezor.",

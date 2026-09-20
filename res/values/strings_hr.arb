@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Vaš Trezor je zaključan. Otključajte ga i pokušajte ponovno.",
   "trezor_error_disconnected": "Vaš Trezor je isključen. Ponovno ga spojite i pokušajte ponovno.",
   "trezor_error_session_mismatch": "Povezana Trezor sesija pripada drugom novčaniku i ne može se prebaciti. Reconnect your Trezor and try again.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Potvrdite na svom Trezoru da se Cake Wallet u budućnosti može automatski povezati.",
   "trezor_step_connecting": "Povezivanje s vašim Trezorom. Ako traži zaporku, unesite je na uređaju.",
   "trezor_step_export_watch_only": "Potvrdite izvoz vjerodajnica samo za gledanje na svom Trezoru.",

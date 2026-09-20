@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Ձեր Trezor-ը կողպված է: Ապակողպեք այն և նորից փորձեք:",
   "trezor_error_disconnected": "Ձեր Trezor-ն անջատվել է: Կրկին միացրեք այն և նորից փորձեք:",
   "trezor_error_session_mismatch": "Միացված Trezor նիստը պատկանում է մեկ այլ դրամապանակի և հնարավոր չէ փոխել: Միացրեք ձեր Trezor-ը և նորից փորձեք:",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Հաստատեք ձեր Trezor-ում, որ Cake Wallet-ը կարող է ավտոմատ կերպով միանալ ապագայում:",
   "trezor_step_connecting": "Միանալով ձեր Trezor-ին: Եթե ​​այն պահանջում է անցաբառ, մուտքագրեք այն սարքի վրա:",
   "trezor_step_export_watch_only": "Հաստատեք արտահանել միայն ժամացույցի հավատարմագրերը ձեր Trezor-ից:",

@@ -1386,6 +1386,7 @@
   "trezor_error_device_locked": "Ваш Trezor заблоковано. Розблокуйте його та повторіть спробу.",
   "trezor_error_disconnected": "Ваш Trezor було відключено. Повторно підключіть його та повторіть спробу.",
   "trezor_error_session_mismatch": "Підключений сеанс Trezor належить до іншого гаманця, і його неможливо переключити. Повторно підключіть Trezor і повторіть спробу.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Підтвердьте на своєму Trezor, що Cake Wallet може підключатися автоматично в майбутньому.",
   "trezor_step_connecting": "Підключення до Trezor. Якщо запитує парольну фразу, введіть її на пристрої.",
   "trezor_step_export_watch_only": "Підтвердьте експорт облікових даних лише для перегляду на вашому Trezor.",

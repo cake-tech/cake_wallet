@@ -1385,6 +1385,7 @@
   "trezor_error_device_locked": "Naka-lock ang iyong Trezor. I-unlock ito at subukang muli.",
   "trezor_error_disconnected": "Nadiskonekta ang iyong Trezor. Ikonekta itong muli at subukang muli.",
   "trezor_error_session_mismatch": "Ang nakakonektang Trezor session ay kabilang sa isa pang wallet at hindi maaaring ilipat. Ikonekta muli ang iyong Trezor at subukang muli.",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trezor_step_autoconnect": "Kumpirmahin sa iyong Trezor na maaaring awtomatikong kumonekta ang Cake Wallet sa hinaharap.",
   "trezor_step_connecting": "Kumokonekta sa iyong Trezor. Kung humingi ito ng passphrase, ilagay ito sa device.",
   "trezor_step_export_watch_only": "Kumpirmahin ang pag-export ng mga kredensyal na relo lang sa iyong Trezor.",
