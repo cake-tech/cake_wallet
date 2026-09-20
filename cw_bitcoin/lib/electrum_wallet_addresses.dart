@@ -329,15 +329,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return silentAddress?.toString() ?? '';
     }
 
-    final mainMap = walletInfo.type == WalletType.bitcoin
-        ? mainHdByTypeAndAccount[currentAccountIndex]
-        : mainHdByTypeAndAccount[0];
-
-    final mainHd = mainMap?[addressPageType] ?? mainMap?.values.first;
-
-    if (mainHd == null) return '';
-
-    return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
+    return _firstAddressForType(addressPageType);
   }
 
   String get payjoinCompatibleAddress {
@@ -346,6 +338,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ? SegwitAddresType.p2wpkh
         : addressPageType;
 
+    return _firstAddressForType(addrType);
+  }
+
+  String _firstAddressForType(BitcoinAddressType addrType) {
     final mainMap = walletInfo.type == WalletType.bitcoin
         ? mainHdByTypeAndAccount[currentAccountIndex]
         : mainHdByTypeAndAccount[0];
@@ -413,21 +409,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       for (final accountIndex in effectiveAccountIndexes) {
         final typesForAccount =
             accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
-        for (final type in typesForAccount) {
-          final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
-          if (shouldSkipHardwareWalletType) continue;
-          await _generateInitialAddresses(accountIndex: accountIndex, type: type);
-
-          // Non need to generate legacy addresses for other accounts than the first one, since accounts were added later.
-          if (accountIndex == 0) {
-            await _generateInitialAddresses(
-              accountIndex: accountIndex,
-              type: type,
-              isLegacyDerivation: true,
-            );
-          }
-        }
+        await prepareAccountAddresses(
+          accountIndex,
+          types: typesForAccount,
+          includeLegacy: accountIndex == 0,
+        );
       }
     }
 
@@ -504,13 +491,25 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return labels;
   }
 
-  Future<void> prepareAccountAddresses(int accountIndex, {List<BitcoinAddressType>? types}) async {
+  Future<void> prepareAccountAddresses(
+    int accountIndex, {
+    List<BitcoinAddressType>? types,
+    bool includeLegacy = false,
+  }) async {
     for (final type in types ?? BITCOIN_ADDRESS_TYPES) {
       final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
       if (shouldSkipHardwareWalletType) continue;
 
       await _generateInitialAddresses(accountIndex: accountIndex, type: type);
+
+      if (includeLegacy) {
+        await _generateInitialAddresses(
+          accountIndex: accountIndex,
+          type: type,
+          isLegacyDerivation: true,
+        );
+      }
     }
 
     updateAddressesByMatch();

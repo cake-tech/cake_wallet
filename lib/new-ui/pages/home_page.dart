@@ -20,7 +20,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dar
 import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/settings/wallet_accounts_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/utils/feature_flag.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
