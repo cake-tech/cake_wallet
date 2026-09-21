@@ -4,6 +4,7 @@ cd "$(dirname $0)"
 
 CW_DOCKER_REGISTRY="${CW_DOCKER_REGISTRY:-localhost/cake-tech/cake_wallet}"
 CW_DOCKER_USE_CLOUD="${CW_DOCKER_USE_CLOUD:-}"
+CW_DOCKER_PULL_ONLY="${CW_DOCKER_PULL_ONLY:-}"
 
 SCRIPT_DIR="$(pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
@@ -71,6 +72,12 @@ docker create --name temp_extract $(img final $final_ver) \
 || echo "cache miss oh"
 
 docker rm temp_extract || true
+
+if [[ "x$CW_DOCKER_PULL_ONLY" == "xtrue" ]]
+then
+  echo "cache miss: prebuilt dependency image not found in registry, and building dependencies is not allowed in pull only mode."
+  exit 1
+fi
 
 build base "$base_ver"
 

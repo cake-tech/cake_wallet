@@ -2,7 +2,7 @@ name: Unit tests
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 on: [pull_request]
 
@@ -46,12 +46,14 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
 
-      - name: Build dependencies utilizing ghcr cache
+      - name: Pull prebuilt dependencies from ghcr
         run: |
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
             CW_DOCKER_USE_CLOUD=true \
-            ./scripts/linux/docker/build.sh
+            CW_DOCKER_PULL_ONLY=true \
+            ./scripts/linux/docker/build.sh \
+          || { echo "::error::The prebuilt dependency images for this change are not on ghcr yet. The Cake Wallet Linux build creates and pushes them, so re-run this workflow once that build has finished."; exit 1; }
 
       - name: Execute Build and Setup Commands
         run: |
