@@ -205,7 +205,7 @@ CREATE TABLE WalletInfo (
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
-  backfillTargetHeight INTEGER DEFAULT NULL
+  backfillTargetHeight INTEGER DEFAULT NULL,
   showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
