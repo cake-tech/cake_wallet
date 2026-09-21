@@ -10,7 +10,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/utils/ensure_hardware_wallet_ready.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/adaptable_page_view.dart';
@@ -431,25 +431,13 @@ class SendPage extends BasePage {
                                       }
 
                                       if (sendViewModel.wallet.isHardwareWallet) {
-                                        if (!sendViewModel.hardwareWalletViewModel!
-                                            .isConnected(sendViewModel.walletType)) {
-                                          await Navigator.of(context).pushNamed(
-                                              Routes.connectDevices,
-                                              arguments: ConnectDevicePageParams(
-                                                walletType: sendViewModel.walletType,
-                                                hardwareWalletType: sendViewModel
-                                                    .wallet.walletInfo.hardwareWalletType!,
-                                                onConnectDevice: (BuildContext context, _) async {
-                                                  await sendViewModel.hardwareWalletViewModel!
-                                                      .initWallet(sendViewModel.wallet);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                reconnectWallet: sendViewModel.wallet,
-                                              ));
-                                        } else {
-                                          await sendViewModel.hardwareWalletViewModel!
-                                              .initWallet(sendViewModel.wallet);
-                                        }
+                                        final ready = await ensureHardwareWalletReady(
+                                          context,
+                                          sendViewModel.hardwareWalletViewModel!,
+                                          sendViewModel.wallet,
+                                          isReconnect: true,
+                                        );
+                                        if (!ready) return;
                                       }
 
                                       if (sendViewModel.wallet.type == WalletType.monero) {

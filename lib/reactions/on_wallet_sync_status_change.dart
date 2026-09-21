@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -65,13 +67,44 @@ void startWalletSyncStatusChangeReaction(
 /// wallet that keeps syncing is not nagged on every completed sync.
 final Set<String> _keyImageSyncOffered = {};
 
-/// An offer that had to wait: fires once the user is back on the dashboard
-/// with the device idle.
+/// An offer that had to wait for the user to come back to the dashboard.
 ReactionDisposer? _pendingKeyImageSyncOffer;
+
+/// Identity of the deferral currently in flight, so a newer one (or a wallet
+/// switch) makes an older one give up when it wakes.
+Object? _pendingKeyImageSyncOfferToken;
 
 void _cancelPendingKeyImageSyncOffer() {
   _pendingKeyImageSyncOffer?.call();
   _pendingKeyImageSyncOffer = null;
+  _pendingKeyImageSyncOfferToken = null;
+}
+
+/// Waits until the user is on the dashboard and nothing is talking to the
+/// device, then offers again. The route is observable, so a MobX `when` covers
+/// it; the device mutex is plain Dart state MobX cannot see, so idleness is
+/// awaited on the mutex itself instead of polled or inferred.
+Future<void> _deferKeyImageSyncOffer(WalletBase wallet, AppStore appStore) async {
+  _cancelPendingKeyImageSyncOffer();
+  final token = Object();
+  _pendingKeyImageSyncOfferToken = token;
+
+  if (appStore.currentRouteName != Routes.dashboard) {
+    final onDashboard = Completer<void>();
+    _pendingKeyImageSyncOffer = when(
+      (_) => appStore.currentRouteName == Routes.dashboard,
+      onDashboard.complete,
+    );
+    await onDashboard.future;
+    _pendingKeyImageSyncOffer = null;
+  }
+  if (!identical(_pendingKeyImageSyncOfferToken, token)) return;
+
+  await monero!.waitForTrezorIdle();
+  if (!identical(_pendingKeyImageSyncOfferToken, token)) return;
+
+  _pendingKeyImageSyncOfferToken = null;
+  _promptTrezorKeyImageSyncIfNeeded(wallet);
 }
 
 /// A Monero wallet on a Trezor is view-only on the phone: without the key
@@ -100,14 +133,7 @@ void _promptTrezorKeyImageSyncIfNeeded(WalletBase wallet) {
   if (appStore.wallet != wallet) return;
 
   if (!_canOfferKeyImageSync(appStore)) {
-    _cancelPendingKeyImageSyncOffer();
-    _pendingKeyImageSyncOffer = when(
-      (_) => _canOfferKeyImageSync(appStore),
-      () {
-        _pendingKeyImageSyncOffer = null;
-        _promptTrezorKeyImageSyncIfNeeded(wallet);
-      },
-    );
+    unawaited(_deferKeyImageSyncOffer(wallet, appStore));
     return;
   }
 
@@ -115,10 +141,9 @@ void _promptTrezorKeyImageSyncIfNeeded(WalletBase wallet) {
   if (navigator == null) return;
 
   _keyImageSyncOffered.add(key);
-  navigator.pushNamed(
-    Routes.syncKeyImagesDevices,
-    arguments: monero!.exportOutputsUR(wallet),
-  );
+  // For a Trezor the route builds the sync sheet itself and ignores route
+  // arguments; the output export those would carry is only for the QR flow.
+  navigator.pushNamed(Routes.syncKeyImagesDevices);
 }
 
 bool _canOfferKeyImageSync(AppStore appStore) =>

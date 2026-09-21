@@ -957,9 +957,6 @@ class _PairingCancelledException implements Exception {
   const _PairingCancelledException();
 }
 
-/// The live Trezor session belongs to another wallet and could not be rebound
-/// to [walletName] (the user cancelled or the device rejected it).
-
 class AwaitingPassphraseTrezorParingState extends TrezorParingState {}
 
 /// The wallet's passphrase is typed in the app; waiting for the user.

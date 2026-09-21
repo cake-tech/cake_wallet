@@ -486,11 +486,14 @@ class CWMonero extends Monero {
     final deviceAddress = await MoneroTrezorService.runBlocking(
       () => trezor.TrezorMonero(client).getAddress(showDisplay: false),
     );
-    return deviceAddress == monero_wallet_api.getAddress(accountIndex: 0, addressIndex: 0);
+    return deviceAddress == wallet.trezorVerificationAddress;
   }
 
   @override
   bool isTrezorBusy() => MoneroTrezorService.isBusy;
+
+  @override
+  Future<void> waitForTrezorIdle() => MoneroTrezorService.runBlocking(() async {});
 
   @override
   Future<void> syncTrezor(Object wallet) async {
