@@ -1,8 +1,4 @@
-import "package:cake_wallet/di.dart";
-import "package:cake_wallet/store/app_store.dart";
-import "package:cw_core/sync_status.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
 import "../../core/app_launcher.dart";
@@ -25,25 +21,6 @@ void main() {
 
     await dashboardRobot.isDisplayed();
     await homePageRobot.isDisplayed();
-
-    final appStore = getIt.get<AppStore>();
-
-    // Reaching a syncing or synced state proves node connection over the live network.
-    final synced = await homePageRobot.pumpUntil(
-      () {
-        final status = appStore.wallet?.syncStatus;
-        return status is SyncronizingSyncStatus ||
-            status is SyncingSyncStatus ||
-            status is SyncedSyncStatus;
-      },
-      timeout: const Duration(minutes: 3),
-    );
-
-    expect(
-      synced,
-      true,
-      reason: "Wallet never started syncing, last status: ${appStore.wallet?.syncStatus}",
-    );
 
     await homePageRobot.confirmSyncIndicatorShown();
   });

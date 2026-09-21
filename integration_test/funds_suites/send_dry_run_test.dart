@@ -62,6 +62,8 @@ void main() {
 
         await sendRobot.confirmTransactionBuilt();
 
+        await sendRobot.confirmSendButtonReplacesSwiper();
+
         tester.printToConsole("${type.name} built a transaction, leaving it unsent");
         FundsOutcome.ok(tester, type.name, "built and signed, not broadcast");
 

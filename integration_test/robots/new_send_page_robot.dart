@@ -1,6 +1,7 @@
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
@@ -79,6 +80,32 @@ class NewSendPageRobot extends BaseRobot {
     await tester.drag(finder.first, Offset(width, 0));
 
     await tester.pump(const Duration(milliseconds: 500));
+  }
+
+  Future<void> confirmSendButtonReplacesSwiper() async {
+    final swiper = find.byKey(const ValueKey("send_page_confirm_swiper_key"));
+
+    await pumpUntilFound(swiper);
+
+    tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(accessibleNavigation: true);
+    addTearDown(tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue);
+
+    await settle(max: const Duration(seconds: 2));
+
+    final button = find.descendant(of: swiper, matching: find.byType(NewPrimaryButton));
+
+    expect(
+      tester.any(button),
+      true,
+      reason: "Accessible navigation is on but the sheet still only offers the swiper",
+    );
+
+    expect(
+      tester.widget<NewPrimaryButton>(button.first).onPressed,
+      isNotNull,
+      reason: "The send button a screen reader gets is disabled",
+    );
   }
 
   Future<void> confirmTransactionBuilt({Duration timeout = const Duration(minutes: 3)}) async {

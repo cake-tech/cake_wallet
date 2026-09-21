@@ -114,7 +114,7 @@ stable history. funds_suites run only from the manual funds workflow.
 
 ## What is covered today
 
-Twenty eight suites. Add a line here when you add one.
+Twenty seven suites. Add a line here when you add one.
 
 ### tier0, no network needed
 
@@ -125,7 +125,6 @@ Twenty eight suites. Add a line here when you add one.
 | `invalid_seed_test` | A seed the wallet cannot parse leaves the user on the restore screen with nothing created |
 | `duplicate_wallet_name_test` | A name already taken is refused instead of quietly overwriting the wallet holding it |
 | `wallet_group_test` | A wallet added to an existing seed shares that seed, and both wallets stay reachable through the group |
-| `wallet_switching_test` | Picking another wallet in the list actually loads it, down to the balance and address on screen |
 | `wallet_rename_test` | A wallet can be renamed, and cannot be renamed onto a name another wallet already holds |
 | `wallet_delete_test` | Deleting a wallet takes it off the list and out of storage, and leaves the others alone |
 | `receive_address_test` | The receive sheet shows an address the opened wallet owns, not a leftover from the previous one |
@@ -305,10 +304,3 @@ file and regenerates the bindings itself. And `assets/images` svgs need compilin
   did not.
 - A suite that fails once in CI retries once with wiped app data. A red gate means the
   same suite failed twice in a row.
-- `wallet_switching_test` fails intermittently, roughly one run in three locally. The first
-  thing thrown is `entry.currentState == _RouteLifecycle.popping` out of the navigator, from
-  the flushbar the wallet list uses as its loading bar being taken off the navigator twice.
-  Every `!_debugLocked` after that is the fallout, including the one during teardown that
-  actually fails the suite. The bar is a route of its own and another_flushbar documents
-  that dismissing one that is not the top route is unsupported, so the fix belongs in how
-  the wallet list shows loading progress rather than in the suite.

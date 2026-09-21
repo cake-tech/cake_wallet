@@ -272,142 +272,6 @@ jobs:
           echo "Priming build with $first_suite"
           flutter build apk --debug --target-platform android-x64 --target="$first_suite" --dart-define=CI_BUILD=true
 
-      - name: Prepare emulator test script
-        run: |
-          cat > /tmp/emulator_ready.sh << 'EOF'
-          #!/bin/bash
-
-          echo "Waiting for boot completion..."
-          timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; done' || echo "Boot completion timeout, continuing"
-
-          echo "Waiting for package manager..."
-          timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; done' || echo "Package manager timeout, continuing"
-
-          echo "Waiting for settings service..."
-          timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; done' || echo "Settings service timeout, continuing"
-
-          echo "Emulator readiness check completed"
-          EOF
-
-          chmod +x /tmp/emulator_ready.sh
-
-          # Takes the tier to run as its first argument, the workflow runs it once per tier
-          # so each tier uploads its logs before the next one can take the runner down
-          cat > /tmp/run_integration_tests.sh << 'EOF'
-          #!/bin/bash
-
-          TIER="$1"
-
-          # These arrive from the step's env block rather than as substituted text. An empty one
-          # would silently fall back to the runner's own default suite dir, so say so instead.
-          if [[ -z "${SUITE_DIR_INPUT:-}" ]]; then
-            echo "SUITE_DIR_INPUT never reached the emulator script"
-            exit 1
-          fi
-
-          KEYS_IMPORTED=""
-
-          import_encryption_keys() {
-            if [[ -n "$KEYS_IMPORTED" ]]; then
-              return
-            fi
-
-            # A keyserver flake must never eat the test exit code
-            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 || true # konstantin@cakewallet.com
-            gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC || true # cyjan@mrcyjanek.net
-            KEYS_IMPORTED=1
-          }
-
-          # The plaintext goes either way, an artifact we could not encrypt is worse than none
-          encrypt_and_drop() {
-            gpg --trust-model always --encrypt --output "$1.gpg" \
-              --recipient 6B3199AD9B3D23B8 \
-              --recipient 35C8DBAFB8D9ACAC \
-              "$1" || echo "Encrypting $1 failed, discarding it"
-            rm -f "$1"
-          }
-
-          /tmp/emulator_ready.sh
-
-          adb shell settings put global window_animation_scale 0.0 || true
-          adb shell settings put global transition_animation_scale 0.0 || true
-          adb shell settings put global animator_duration_scale 0.0 || true
-
-          echo "===== resources before $TIER ====="
-          free -h || true
-          df -h / || true
-
-          if [[ "$RECORD_SCREEN" == "true" ]]; then
-            echo "Starting chunked screen recording..."
-            (i=0; while true; do adb shell screenrecord --time-limit 180 --bit-rate 2000000 "/sdcard/rec_${TIER}_$i.mp4" || break; i=$((i+1)); done) &
-            RECORD_LOOP_PID=$!
-          fi
-
-          # Both tiers get one retry. tier1 talks to live nodes and providers, and giving it
-          # no retry meant a driver that never attached was reported as a failing test.
-          RETRIES=1
-
-          # The step log is public, so a run log that gets encrypted below must not print here.
-          run_suites() {
-            env \
-              SUITE_DIR="$SUITE_DIR_INPUT" \
-              TEST_TIER="$TIER" \
-              EXTRA_DART_DEFINES="$EXTRA_DART_DEFINES_INPUT" \
-              TEST_TIMEOUT=600 \
-              RETRY_COUNT=$RETRIES \
-              PLATFORM=android \
-              SUMMARY_FILE="${TIER}_summary.txt" \
-              ./integration_test_runner.sh 2>&1
-          }
-
-          set -o pipefail
-          set +e
-          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
-            run_suites > "${TIER}_run.log"
-          else
-            run_suites | tee "${TIER}_run.log"
-          fi
-          TEST_EXIT_CODE=$?
-          set -e
-
-          echo "===== resources after $TIER ====="
-          free -h || true
-          df -h / || true
-
-          adb logcat -d > "${TIER}_logcat.txt" || true
-
-          # A funds run puts real funded seeds on the device and these carry whatever the app
-          # logs, so they leave the runner the same way the recordings do
-          if [[ "${ENCRYPT_LOGS:-}" == "true" ]]; then
-            import_encryption_keys
-            encrypt_and_drop "${TIER}_logcat.txt"
-            encrypt_and_drop "${TIER}_run.log"
-          fi
-
-          if [[ -n "${RECORD_LOOP_PID:-}" ]]; then
-            echo "Stopping screen recording and encrypting..."
-            kill "$RECORD_LOOP_PID" || true
-            adb shell killall -INT screenrecord || true
-            sleep 5
-
-            mkdir -p recordings
-            for f in $(adb shell ls /sdcard/rec_*.mp4 2>/dev/null | tr -d '\r'); do
-              adb pull "$f" recordings/ || true
-            done
-
-            # Recordings show seed words on screen so they are never uploaded in plaintext
-            import_encryption_keys
-            for f in recordings/*.mp4; do
-              [[ -f "$f" ]] || continue
-              encrypt_and_drop "$f"
-            done
-          fi
-
-          exit $TEST_EXIT_CODE
-          EOF
-
-          chmod +x /tmp/run_integration_tests.sh
-          
       - name: Cap the gradle heap for the test phase
         run: |
           sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx3072M/' android/gradle.properties
@@ -431,7 +295,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
           disable-animations: false
           working-directory: ${{ github.workspace }}
-          script: bash /tmp/run_integration_tests.sh ${{ inputs.test_tier }}
+          script: bash scripts/ci/run_integration_tests.sh ${{ inputs.test_tier }}
 
       - name: Upload test logs
         if: always()
@@ -463,7 +327,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -cores 4 -no-snapshot-save
           disable-animations: false
           working-directory: ${{ github.workspace }}
-          script: bash /tmp/run_integration_tests.sh tier1
+          script: bash scripts/ci/run_integration_tests.sh tier1
 
       - name: Upload tier1 logs
         if: ${{ always() && inputs.test_tier == 'tier0' }}

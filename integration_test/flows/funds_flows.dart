@@ -66,7 +66,7 @@ class FundsFlows {
 
       _hasRestoredAnyWallet = true;
 
-      await _dashboardRobot.isDisplayed(timeout: TestConfig.walletSyncBudget);
+      await _waitForDashboard(type);
       await _homePageRobot.isDisplayed();
 
       if (await _hasSpendableBalance()) {
@@ -97,6 +97,26 @@ class FundsFlows {
     }
 
     return _isHomeInFront;
+  }
+
+  Future<void> _waitForDashboard(WalletType type) async {
+    final reached = await _dashboardRobot.pumpUntil(
+      () => tester.any(find.byKey(const ValueKey("new_dashboard_page_key"))),
+      timeout: TestConfig.walletSyncBudget,
+    );
+
+    if (reached) {
+      return;
+    }
+
+    final status = getIt.get<AppStore>().wallet?.syncStatus;
+    final stillSyncing = status is SyncingSyncStatus || status is SyncronizingSyncStatus;
+
+    throw TestFailure(
+      stillSyncing
+          ? "${type.name} never became ready to send, it is still syncing (${status.runtimeType})"
+          : "${type.name} never reached the dashboard, its status was ${status.runtimeType}",
+    );
   }
 
   bool get _isHomeInFront => _homePageRobot.isInFront && !_sendRobot.isSendFlowOpen;

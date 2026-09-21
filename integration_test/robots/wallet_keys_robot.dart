@@ -62,7 +62,7 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       }
       if (hasPrivateKey) {
         await _openKeysTab();
-        _showsCredential(appStore.wallet!.privateKey!, "private key");
+        _showsCredentialOnce(appStore.wallet!.privateKey!, "private key");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }
@@ -76,13 +76,13 @@ class WalletKeysAndSeedPageRobot extends BaseRobot {
       }
       if (hasHexSeed) {
         await _openKeysTab();
-        _showsCredential(appStore.wallet!.hexSeed!, "hex seed");
+        _showsCredentialOnce(appStore.wallet!.hexSeed!, "hex seed");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has hexSeed properly displayed");
       }
       if (hasPrivateKey) {
         await _openKeysTab();
-        _showsCredential(appStore.wallet!.privateKey!, "private key");
+        _showsCredentialOnce(appStore.wallet!.privateKey!, "private key");
         _verifiedCredentials++;
         tester.printToConsole("$walletName wallet has private key properly displayed");
       }

@@ -3,7 +3,6 @@ import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_til
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
 import "package:cw_core/sync_status.dart";
-import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -165,42 +164,44 @@ class HomePageRobot extends BaseRobot {
         matching: find.byType(HistoryTile),
       );
 
-  Future<void> confirmSyncIndicatorShown() async {
+  Future<void> confirmSyncIndicatorShown({Duration timeout = const Duration(minutes: 3)}) async {
     final syncBar = find.byType(SyncBar);
-    final dot = find.descendant(of: syncBar, matching: find.byType(CupertinoActivityIndicator));
     final tick = find.descendant(of: syncBar, matching: find.byIcon(Icons.check));
 
     SyncStatus? lastStatus;
-    bool? syncedFromTheStart;
+    var sawIndicator = false;
 
-    final shown = await pumpUntil(() {
-      lastStatus = _dashboardStatus();
+    final synced = await pumpUntil(
+      () {
+        lastStatus = _dashboardStatus();
 
-      if (lastStatus == null) {
-        return false;
-      }
+        if (lastStatus == null) {
+          return false;
+        }
 
-      final synced = lastStatus.runtimeType == SyncedSyncStatus;
-      syncedFromTheStart ??= synced;
+        final keyed = find.descendant(
+          of: syncBar,
+          matching: find.byKey(ValueKey(lastStatus.runtimeType)),
+        );
 
-      if (!synced) {
-        final reported =
-            find.descendant(of: syncBar, matching: find.byKey(ValueKey(lastStatus.runtimeType)));
+        sawIndicator = sawIndicator || tester.any(keyed) || tester.any(tick);
 
-        return tester.any(reported);
-      }
-
-      return tester.any(tick) || (syncedFromTheStart! && !tester.any(dot));
-    });
-
-    if (syncedFromTheStart == true) {
-      tester.printToConsole("Already synced when checked, the sync bar itself was not observed");
-    }
+        return lastStatus is SyncedSyncStatus;
+      },
+      timeout: timeout,
+    );
 
     expect(
-      shown,
+      synced,
       true,
-      reason: "Sync bar showed nothing while the wallet reported ${lastStatus.runtimeType}",
+      reason: "The wallet never synced within ${timeout.inMinutes}m, "
+          "it reported ${lastStatus.runtimeType}",
+    );
+
+    expect(
+      sawIndicator,
+      true,
+      reason: "The sync bar never showed a status while the wallet synced",
     );
   }
 

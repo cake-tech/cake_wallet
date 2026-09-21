@@ -33,7 +33,7 @@ class NewDashboard extends StatefulWidget {
 
   final List<Widget> dashboardPageWidgets = [
     getIt.get<NewHomePage>(),
-    getIt.get<WalletListPage>(param1: (_) => Future<void>.value()),
+    getIt.get<WalletListPage>(),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
     Placeholder(),
