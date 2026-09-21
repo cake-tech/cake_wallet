@@ -85,6 +85,8 @@ abstract class TronWalletBase
 
   Timer? _transactionsUpdateTimer;
 
+  bool _isUpdatingTransactions = false;
+
   @override
   WalletAddresses walletAddresses;
 
@@ -410,6 +412,10 @@ abstract class TronWalletBase
         continue;
       }
 
+      if (transactionModel.contractAddress != null && !transactionModel.isTrc20Transfer) {
+        continue;
+      }
+
       var txCurrency = currency;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
@@ -638,9 +644,22 @@ abstract class TronWalletBase
     }
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
-      _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+      if (_isUpdatingTransactions) {
+        return;
+      }
+
+      _isUpdatingTransactions = true;
+      try {
+        await Future.wait([
+          _updateBalance(),
+          fetchTransactions(),
+          fetchTrc20ExcludedTransactions(),
+        ]);
+      } catch (e) {
+        printV("Tron transaction update failed: $e");
+      } finally {
+        _isUpdatingTransactions = false;
+      }
     });
   }
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -7,91 +6,51 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
+import "package:cw_tron/tron_grid_api.dart";
 import 'package:cw_tron/tron_http_provider.dart';
+import "package:cw_tron/tron_scan_api.dart";
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
+import "package:cw_tron/tron_transactions_api.dart";
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import '.secrets.g.dart' as secrets;
 import 'package:on_chain/on_chain.dart';
 
 class TronClient {
-  late final client = ProxyWrapper().getHttpIOClient();
+  TronClient({TronTransactionsApi? transactionsApi, TronTransactionsApi? fallbackTransactionsApi})
+      : _transactionsApi = transactionsApi ?? TronGridApi(),
+        _fallbackTransactionsApi = fallbackTransactionsApi ?? TronScanApi();
+
+  final TronTransactionsApi _transactionsApi;
+  final TronTransactionsApi _fallbackTransactionsApi;
 
   TronProvider? _provider;
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
-  Future<List<TronTransactionModel>> fetchTransactions(String address,
-      {String? contractAddress}) async {
-    try {
-      final response = await client.get(
-        Uri.https(
-          "api.trongrid.io",
-          "/v1/accounts/$address/transactions",
-          {
-            "only_confirmed": "true",
-            "limit": "200",
-          },
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-          'TRON-PRO-API-KEY': secrets.tronGridApiKey,
-        },
-      );
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
+  Future<List<TronTransactionModel>> fetchTransactions(String address) =>
+      _fetchWithFallback((api) => api.getTransactions(address));
 
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300 &&
-          jsonResponse['status'] != false) {
-        return (jsonResponse['data'] as List).map((e) {
-          return TronTransactionModel.fromJson(e as Map<String, dynamic>);
-        }).toList();
+  Future<List<TronTRC20TransactionModel>> fetchTrc20ExcludedTransactions(String address) =>
+      _fetchWithFallback((api) => api.getTrc20Transactions(address));
+
+  Future<List<T>> _fetchWithFallback<T>(
+    Future<List<T>> Function(TronTransactionsApi api) fetch,
+  ) async {
+    for (final api in [_transactionsApi, _fallbackTransactionsApi]) {
+      try {
+        return await fetch(api);
+      } catch (e) {
+        printV("${api.runtimeType} history request failed: $e");
       }
-
-      return [];
-    } catch (e, s) {
-      log('Error getting tx: ${e.toString()}\n ${s.toString()}');
-      return [];
     }
-  }
 
-  Future<List<TronTRC20TransactionModel>> fetchTrc20ExcludedTransactions(String address) async {
-    try {
-      final response = await client.get(
-        Uri.https(
-          "api.trongrid.io",
-          "/v1/accounts/$address/transactions/trc20",
-          {
-            "only_confirmed": "true",
-            "limit": "200",
-          },
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-          'TRON-PRO-API-KEY': secrets.tronGridApiKey,
-        },
-      );
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300 &&
-          jsonResponse['status'] != false) {
-        return (jsonResponse['data'] as List).map((e) {
-          return TronTRC20TransactionModel.fromJson(e as Map<String, dynamic>);
-        }).toList();
-      }
-
-      return [];
-    } catch (e, s) {
-      log('Error getting trc20 tx: ${e.toString()}\n ${s.toString()}');
-      return [];
-    }
+    return [];
   }
 
   bool connect(Node node) {
@@ -466,10 +425,11 @@ class TronClient {
         ),
       );
 
-      final outputResult = request.outputResult?.first ?? BigInt.zero;
+      final outputResult = (request.outputResult?.first as BigInt?) ?? BigInt.zero;
 
       return TronBalance(Money(outputResult, currency));
-    } catch (_) {
+    } catch (e) {
+      printV("Fetching the ${currency.symbol} balance failed: $e");
       if (throwOnError) {
         rethrow;
       }
