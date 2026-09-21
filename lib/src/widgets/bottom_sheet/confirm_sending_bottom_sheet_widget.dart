@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -82,6 +83,27 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
 
   bool get showAddress => !outputs
       .any((e) => RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()));
+
+  @override
+  bool get isSlideActionEnabled =>
+      cakePayBuyCardViewModel?.sendViewModel.isReadyForSend ?? super.isSlideActionEnabled;
+
+  @override
+  Widget buildFooter(BuildContext context) {
+    final sendViewModel = cakePayBuyCardViewModel?.sendViewModel;
+    if (sendViewModel == null) return super.buildFooter(context);
+
+    return Observer(
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!sendViewModel.isReadyForSend)
+            SendSyncingIndicator(status: sendViewModel.wallet.syncStatus),
+          super.buildFooter(context),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget contentWidget(BuildContext context) {
