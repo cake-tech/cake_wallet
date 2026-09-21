@@ -128,7 +128,7 @@ abstract class DashboardViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
 
@@ -157,7 +157,7 @@ abstract class DashboardViewModelBase with Store {
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
 
@@ -1241,11 +1241,9 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
 
-  ReactionDisposer? _onMoneroAccountChangeReaction;
+  ReactionDisposer? _onAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
-
-  ReactionDisposer? _onBitcoinAccountChangeReaction;
 
   ReactionDisposer? _transactionDisposer;
 
@@ -1334,17 +1332,17 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     name = wallet.name;
 
-    _onBitcoinAccountChangeReaction?.reaction.dispose();
-    _onBitcoinAccountChangeReaction = null;
+    _onAccountChangeReaction?.reaction.dispose();
+    _onAccountChangeReaction = null;
     loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
 
-      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(wallet));
 
@@ -1356,10 +1354,10 @@ abstract class DashboardViewModelBase with Store {
     } else if (wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(wallet).label;
 
-      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(wallet));
 
@@ -1420,8 +1418,8 @@ abstract class DashboardViewModelBase with Store {
       return;
     }
 
-    _onBitcoinAccountChangeReaction?.reaction.dispose();
-    _onBitcoinAccountChangeReaction = reaction(
+    _onAccountChangeReaction?.reaction.dispose();
+    _onAccountChangeReaction = reaction(
       (_) => accountListViewModel?.selectedAccount?.id,
       (_) {
         _reloadTransactions();

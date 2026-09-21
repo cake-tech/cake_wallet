@@ -47,7 +47,6 @@ class NewHomePage extends StatefulWidget {
 }
 
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
-  bool _lightningMode = false;
 
   WalletAccountEditOrCreateViewModel? accountEditOrCreateViewModel;
 
@@ -62,7 +61,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
       _setAccountEditOrCreateViewModel();
       setState(() {
-        _lightningMode = false;
       });
     });
 
@@ -155,6 +153,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
               SliverToBoxAdapter(
                 child: Observer(
                   builder: (_) {
+                    final _lightningMode = widget.dashboardViewModel.lightningMode;
                     final List<BalanceCardAction> actions = _lightningMode
                         ? [
                       BalanceCardAction(
@@ -189,9 +188,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                           dashboardViewModel: widget.dashboardViewModel,
                           onLightningSwitchPress: () {
                             widget.dashboardViewModel.toggleLightningMode();
-                            setState(() {
-                              _lightningMode = widget.dashboardViewModel.lightningMode;
-                            });
                           },
                           onSettingsButtonPress: () {
                             CupertinoScaffold.showCupertinoModalBottomSheet(
@@ -307,7 +303,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     await showCardCustomizer(
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
-      lightningMode: _lightningMode,
+      lightningMode: widget.dashboardViewModel.lightningMode,
     );
   }
 
