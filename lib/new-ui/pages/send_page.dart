@@ -610,7 +610,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                                   // Without fee priorities the row does nothing,
-                                                  // so it must not be announced as interactive.
+                                                  // so it must not be announced as interactive or
+                                                  // show a tappable arrow.
+                                                  showArrow: widget
+                                                      .sendViewModel.feesViewModel.hasFeesPriority,
                                                   onTap: widget.sendViewModel.feesViewModel
                                                           .hasFeesPriority
                                                       ? () =>

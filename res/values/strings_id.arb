@@ -987,6 +987,7 @@
   "return_address_desc": "Dalam kasus swap gagal yang jarang terjadi, mitra kami dapat secara otomatis mengembalikan pembayaran Anda ke alamat refund yang diberikan.",
   "return_address_desc_external": "Karena Anda memilih Kirim dari Eksternal, harap tetapkan alamat pengembalian secara manual di bawah.",
   "robinhood_option_description": "Beli dan transfer secara instan menggunakan kartu debit, rekening bank, atau saldo Robinhood Anda. Hanya untuk AS.",
+  "robinhoodscan_history": "Sejarah Robinhood",
   "rotate_address": "Dapatkan alamat baru",
   "router_no_route": "Tidak ada rute yang ditentukan untuk ${name}",
   "salary": "Gaji",

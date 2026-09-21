@@ -221,6 +221,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:
@@ -262,6 +263,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         defaultTokenSymbols = evm!.getDefaultTokenSymbols(_balanceViewModel.wallet);
         break;
       case WalletType.solana:

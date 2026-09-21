@@ -295,6 +295,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.tron:
       case WalletType.solana:
       case WalletType.bitcoin:
@@ -1277,6 +1278,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.solana,
           WalletType.tron,
           WalletType.arbitrum,
+          WalletType.robinhood,
           WalletType.zcash,
         ].contains(wallet.type)) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
@@ -1315,6 +1317,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.createEVMTransactionCredentials(
           outputs,
           priority: priority,

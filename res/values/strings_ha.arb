@@ -986,6 +986,7 @@
   "return_address_desc": "A cikin yanayin da ba kasafai ba na musanya da ta gaza, abokan hulɗarmu za su iya mayar da kuɗin biyan ku ta atomatik zuwa adireshin mayar da kuɗi da aka bayar.",
   "return_address_desc_external": "Tun da ka zaɓi Aika Daga Waje, don Allah ka saita adireshin mayar da kuɗi da hannu a ƙasa.",
   "robinhood_option_description": "Sayi kuma canja wurin nan take ta amfani da katin debit, asusun banki, ko ma'aunin Robinhood. Amurka kawai.",
+  "robinhoodscan_history": "Tarihin Robinhood",
   "rotate_address": "Samu sabon adireshin",
   "router_no_route": "Ba a ayyana wata hanya don ${name} ba",
   "salary": "Albashi",

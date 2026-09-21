@@ -984,6 +984,7 @@
   "return_address_desc": "Ve vzácném případě neúspěšného swapu mohou naši partneři automaticky vrátit vaši platbu na zadanou refund adresu.",
   "return_address_desc_external": "Protože jste zvolili možnost Odeslat z externího zdroje, nastavte níže ručně adresu pro vrácení.",
   "robinhood_option_description": "Nakupujte a převádějte okamžitě pomocí debetní karty, bankovního účtu nebo zůstatku Robinhood. Pouze v USA.",
+  "robinhoodscan_history": "Historie Robinhood",
   "rotate_address": "Získejte novou adresu",
   "router_no_route": "Pro ${name} není definována žádná trasa",
   "salary": "Plat",

@@ -199,7 +199,7 @@ class CWEVM extends EVM {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
-    final chainName = EVMChainUtils.getDefaultTokenSymbol(evmWallet.selectedChainId).toLowerCase();
+    final chainName = EVMChainUtils.getMoralisChainName(evmWallet.selectedChainId);
     return evmWallet.getErc20Token(contractAddress, chainName);
   }
 

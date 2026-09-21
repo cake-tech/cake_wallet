@@ -984,6 +984,7 @@
   "return_address_desc": "Nadiren de olsa başarısız bir takas durumunda, ortaklarımız ödemenizi sağlanan iade adresine otomatik olarak geri gönderebilir.",
   "return_address_desc_external": "\"Dışarıdan Gönder\" seçeneğini seçtiğiniz için lütfen aşağıda bir iade adresini manuel olarak belirleyin.",
   "robinhood_option_description": "Banka kartınızı, banka hesabınızı veya Robinhood bakiyenizi kullanarak anında satın alın ve aktarın. Yalnızca ABD'de.",
+  "robinhoodscan_history": "Robinhood'un Tarihi",
   "rotate_address": "Yeni adres al",
   "router_no_route": "${name} için rota tanımlanmadı",
   "salary": "Maaş",

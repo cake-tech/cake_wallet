@@ -108,6 +108,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:

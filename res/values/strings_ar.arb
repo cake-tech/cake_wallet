@@ -984,6 +984,7 @@
   "return_address_desc": "في الحالة النادرة لفشل عملية المبادلة، يمكن لشركائنا ردّ دفعتك تلقائيًا إلى عنوان الاسترداد المُقدَّم.",
   "return_address_desc_external": "نظرًا لأنك اخترت Send From External، يُرجى تعيين عنوان الاسترداد يدويًا أدناه.",
   "robinhood_option_description": "اشترِ وحوّل فورًا باستخدام بطاقة الخصم أو حسابك المصرفي أو رصيد Robinhood. الولايات المتحدة الأمريكية فقط.",
+  "robinhoodscan_history": "تاريخ روبنهود",
   "rotate_address": "احصل على عنوان جديد",
   "router_no_route": "لم يتم تعريف مسار لـ ${name}",
   "salary": "الراتب",

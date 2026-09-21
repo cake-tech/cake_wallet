@@ -984,6 +984,7 @@
   "return_address_desc": "In het zeldzame geval dat de swap mislukt, kunnen onze partners je betaling automatisch terugstorten naar het opgegeven terugbetalingsadres.",
   "return_address_desc_external": "Omdat je voor Verzenden vanaf extern hebt gekozen, stel hieronder handmatig een terugbetalingsadres in.",
   "robinhood_option_description": "Koop en zet direct over met je bankpas, bankrekening of Robinhood-saldo. Alleen in de VS.",
+  "robinhoodscan_history": "Robinhood-geschiedenis",
   "rotate_address": "Nieuw adres krijgen",
   "router_no_route": "Geen route gedefinieerd voor ${name}",
   "salary": "Salaris",
