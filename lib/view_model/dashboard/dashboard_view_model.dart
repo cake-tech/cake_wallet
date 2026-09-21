@@ -202,7 +202,10 @@ abstract class DashboardViewModelBase with Store {
       _onWalletChange(wallet);
       resetLightningMode();
       _checkMweb();
-      loadCardDesigns();
+      unawaited(() async {
+        await _migrateLegacyLightningCardDesign();
+        loadCardDesigns();
+      }());
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
       loadSeedBackupReminder();
@@ -242,7 +245,10 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
-    loadCardDesigns();
+    unawaited(() async {
+      await _migrateLegacyLightningCardDesign();
+      loadCardDesigns();
+    }());
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -1642,5 +1648,34 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> refreshDashboard() async {
     reconnect();
+  }
+
+
+  Future<void> _migrateLegacyLightningCardDesign() async {
+    if (wallet.type != WalletType.bitcoin) return;
+
+    final walletInfoId = wallet.walletInfo.internalId;
+
+    final alreadyMigrated = await BalanceCardStyleSettings.get(walletInfoId, -2);
+    if (alreadyMigrated != null) return;
+
+    final legacyDesign = await BalanceCardStyleSettings.get(walletInfoId, -1);
+    if (legacyDesign == null) return;
+
+    final accounts = await wallet.walletInfo.getAccounts();
+    if (accounts.length > 1) return;
+
+    await BalanceCardStyleSettings(
+      walletInfoId: walletInfoId,
+      accountIndex: -2,
+      gradientIndex: legacyDesign.gradientIndex,
+      useSpecialDesign: legacyDesign.useSpecialDesign,
+      backgroundImagePath: legacyDesign.backgroundImagePath,
+      iconStyleIndex: legacyDesign.iconStyleIndex,
+      isGradientOnly: legacyDesign.isGradientOnly,
+      cardOrder: legacyDesign.cardOrder,
+    ).insert();
+
+    await BalanceCardStyleSettings.delete(walletInfoId, -1);
   }
 }
