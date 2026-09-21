@@ -2,9 +2,17 @@ import 'dart:convert';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/currency.dart';
 
 class ElectrumBalance extends Balance {
+
+  factory ElectrumBalance.zero(CryptoCurrency currency) => ElectrumBalance(
+    confirmed: Money.zero(currency),
+    unconfirmed: Money.zero(currency),
+    frozen: Money.zero(currency),
+  );
+
   ElectrumBalance({
     required this.confirmed,
     required this.unconfirmed,

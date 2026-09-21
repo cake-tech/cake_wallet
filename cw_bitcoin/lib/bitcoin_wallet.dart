@@ -733,7 +733,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     // Restrict extra Bitcoin accounts (accountIndex > 0) to the address types
-    if (type == WalletType.bitcoin && currentAccountIndex > 0) {
+    if (currentAccountIndex > 0) {
       if (option is BitcoinReceivePageOption) {
         final addressType = option.toType();
         if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {

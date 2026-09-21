@@ -94,7 +94,7 @@ abstract class ElectrumWalletBase
         this.alwaysScan = alwaysScan,
         silentPaymentsScanningActive = alwaysScan ?? false,
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(
-            currency != null ? {currency: initialBalance ?? _zeroBalance(currency)} : {}),
+            currency != null ? {currency: initialBalance ?? ElectrumBalance.zero(currency)} : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
@@ -283,12 +283,6 @@ abstract class ElectrumWalletBase
 
   static const int maxProbAccounts = 3;
 
-  static ElectrumBalance _zeroBalance(CryptoCurrency currency) => ElectrumBalance(
-        confirmed: Money.zero(currency),
-        unconfirmed: Money.zero(currency),
-        frozen: Money.zero(currency),
-      );
-
   final Map<String, Set<String>> _appliedCoinKeysByAddress = {};
 
   @observable
@@ -389,7 +383,7 @@ abstract class ElectrumWalletBase
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) =>
-      accountBalances[accountIndex] ?? _zeroBalance(currency);
+      accountBalances[accountIndex] ?? ElectrumBalance.zero(currency);
 
   void _updateAccountBalancesFromUnspents() {
     if (!_hasCompleteUnspentSet) return;
@@ -398,7 +392,7 @@ abstract class ElectrumWalletBase
 
     for (final coin in unspentCoins) {
       final accountIndex = coin.bitcoinAddressRecord.accountIndex;
-      final current = newBalances[accountIndex] ?? _zeroBalance(currency);
+      final current = newBalances[accountIndex] ?? ElectrumBalance.zero(currency);
       final amount = Money.fromInt(coin.value, currency);
 
       if (coin.isFrozen) {
@@ -415,7 +409,7 @@ abstract class ElectrumWalletBase
     }
 
     for (final accountIndex in walletAddresses.accountIndexes) {
-      newBalances.putIfAbsent(accountIndex, () => _zeroBalance(currency));
+      newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
     }
 
     accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
@@ -506,7 +500,7 @@ abstract class ElectrumWalletBase
     if (isNewAccount) {
       walletAddresses.accountIndexes.add(accountIndex);
 
-      accountBalances[accountIndex] = _zeroBalance(currency);
+      accountBalances[accountIndex] = ElectrumBalance.zero(currency);
     }
 
     await walletInfo.setSelectedAccount(accountIndex);
@@ -2414,13 +2408,13 @@ abstract class ElectrumWalletBase
 
     for (final addr in walletAddresses.allAddresses) {
       if (addr.type == SegwitAddresType.mweb) continue;
-      final current = newBalances[addr.accountIndex] ?? _zeroBalance(currency);
+      final current = newBalances[addr.accountIndex] ?? ElectrumBalance.zero(currency);
       current.confirmed += Money.fromInt(addr.balance, currency);
       newBalances[addr.accountIndex] = current;
     }
 
     for (final accountIndex in walletAddresses.accountIndexes) {
-      newBalances.putIfAbsent(accountIndex, () => _zeroBalance(currency));
+      newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
     }
 
     // balance[currency] came from the wallet file and is authoritative for the

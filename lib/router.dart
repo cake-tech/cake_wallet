@@ -958,7 +958,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
 
     case Routes.walletAccountsPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletAccountsPage>());
+      return handleRouteWithPlatformAwareness((_) => getIt.get<WalletAccountsPage>());
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
