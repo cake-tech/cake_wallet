@@ -1384,6 +1384,7 @@
   "transactions_will_appear_here": "Vaše transakcije će se pojaviti ovdje.",
   "transparent_secret_key": "Transparentni tajni ključ",
   "transport_type": "Vrsta transporta",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "je agregator mjenjačnica koji koristi više mjenjačnica kako bi pronašao konkurentne tečajeve.",
   "trocador_desc_kyc": "Uz naziv pružatelja usluga prikazuje se KYC ocjena. To je postavio Trocador i temelji se na njihovim vlastitim kriterijima.",
   "trongrid_history": "Povijest TronGrid-a",

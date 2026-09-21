@@ -1384,6 +1384,7 @@
   "transactions_will_appear_here": "Ձեր գործարքները կհայտնվեն այստեղ։",
   "transparent_secret_key": "Թափանցիկ գաղտնի բանալի",
   "transport_type": "Տրանսպորտի տեսակ",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "փոխանակման ագրեգատոր է, որը օգտագործում է մի քանի հիմքում ընկած փոխանակումներ՝ մրցունակ փոխարժեքներ գտնելու համար։",
   "trocador_desc_kyc": "Մատակարարի անվան հետ մեկտեղ ցուցադրվում է KYC վարկանիշը։ Այն սահմանվում է Trocador-ի կողմից և հիմնված է նրանց սեփական չափանիշների վրա։",
   "trongrid_history": "TronGrid-ի պատմություն",

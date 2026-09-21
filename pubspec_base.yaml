@@ -131,7 +131,7 @@ dependencies:
   trezor_flutter:
     git:
       url: https://github.com/cake-tech/trezor-flutter.git
-      ref: 02771769fc800c06e29ac9186e37e9c2aeb0b54c
+      ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
       path: trezor-flutter
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
@@ -234,7 +234,7 @@ dev_dependencies:
 #   universal_ble:
 #     git:
 #       url: https://github.com/cake-tech/universal_ble.git
-#       ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+#       ref: 9952fc72ded48891844d7786c0fa14c4cae1ce0b
 #   flutter_secure_storage:
 #     git:
 #       url: https://github.com/cake-tech/flutter_secure_storage.git

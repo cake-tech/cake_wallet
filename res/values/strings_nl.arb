@@ -1384,6 +1384,7 @@
   "transactions_will_appear_here": "Je transacties verschijnen hier.",
   "transparent_secret_key": "Transparante geheime sleutel",
   "transport_type": "Transporttype",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "is een exchange-aggregator die meerdere onderliggende exchanges gebruikt om concurrerende tarieven te vinden.",
   "trocador_desc_kyc": "Naast de naam van de provider wordt een KYC-rating weergegeven. Deze wordt ingesteld door Trocador en is gebaseerd op hun eigen criteria.",
   "trongrid_history": "TronGrid-geschiedenis",

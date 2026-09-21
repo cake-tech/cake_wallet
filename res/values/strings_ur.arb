@@ -1386,6 +1386,7 @@
   "transactions_will_appear_here": "آپ کی ٹرانزیکشنز یہاں ظاہر ہوں گی۔",
   "transparent_secret_key": "شفاف خفیہ کلید",
   "transport_type": "ٹرانسپورٹ کی قسم",
+  "trezor_locktime_notice": "Your Trezor will ask you to confirm a locktime. This is a privacy feature and does not delay your payment.",
   "trocador_desc": "ایک ایکسچینج ایگریگیٹر ہے جو مسابقتی نرخ تلاش کرنے کے لیے متعدد بنیادی ایکسچینجز سے فائدہ اٹھاتا ہے۔",
   "trocador_desc_kyc": "فراہم کنندہ کے نام کے ساتھ ایک KYC ریٹنگ بھی دکھائی جاتی ہے۔ یہ Trocador کی جانب سے مقرر کی جاتی ہے اور ان کے اپنے معیار پر مبنی ہوتی ہے۔",
   "trongrid_history": "TronGrid ہسٹری",
