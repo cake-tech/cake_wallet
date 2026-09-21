@@ -310,6 +310,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;
+        await _settingsStore.updateNodesForTor(true);
         int? chainId;
         if (isEVMCompatibleChain(_wallet.type)) {
           chainId = evm!.getSelectedChainId(_wallet);
@@ -320,6 +321,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == true) return;
+        await _settingsStore.updateNodesForTor(false);
         int? chainId;
         if (isEVMCompatibleChain(_wallet.type)) {
           chainId = evm!.getSelectedChainId(_wallet);

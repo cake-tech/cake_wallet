@@ -1123,6 +1123,23 @@ abstract class SettingsStoreBase with Store {
     return node;
   }
 
+  Future<void> updateNodesForTor(bool torEnabled) async {
+    final builtin = await Node.getAllBuiltin();
+    runInAction(() {
+      for (final type in nodes.keys.toList()) {
+        final current = nodes[type]!;
+        final isOnion = current.uriRaw.contains('.onion');
+        Node? target;
+        if (torEnabled && !isOnion && current.isOfficial) {
+          target = builtin.firstWhereOrNull((n) => n.type == type && n.uriRaw.contains('.onion'));
+        } else if (!torEnabled && isOnion && current.isBuiltin) {
+          target = builtin.firstWhereOrNull((n) => n.type == type && n.isDefault);
+        }
+        if (target != null) nodes[type] = target;
+      }
+    });
+  }
+
   String _getEVMNodePreferenceKey(int chainId) {
     switch (chainId) {
       case 1:

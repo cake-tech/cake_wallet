@@ -55,6 +55,10 @@ const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const zcashDefaultNodeUri = 'zec.rocks:443';
+const cakeWalletMoneroOnionUri =
+    'cakexmrkbd7ptshw7vfzhzqgg77xgeavdrxm6zbu57lppfkj3fczbrqd.onion:18081';
+const cakeWalletZcashOnionUri =
+    'cakezecgh6enylxz3yya52pu4rq3bojy7zfhvnegqkq4qbbpzderjiqd.onion:9067';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -646,6 +650,26 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "Swaps.XYZ",
             enabled: false,
+          );
+          break;
+        case 72:
+          final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.monero,
+            currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
+            newDefaultUri: builtinTor ? cakeWalletMoneroOnionUri : null,
+            oldUri: ['cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion'],
+          );
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.zcash,
+            currentNodePreferenceKey: PreferencesKey.currentZcashNodeIdKey,
+            newDefaultUri: builtinTor ? cakeWalletZcashOnionUri : null,
+            oldUri: [
+              '2c4whzg26j6hgjh22rxynj3oig4gm22ga7x74weclujywxye23v3u5id.onion',
+              'bvp2l442g5ogma7rywzahm7eqyhpp3g26n3gvvxeioqn5csio2ir6myd.onion',
+            ],
           );
           break;
         default:
