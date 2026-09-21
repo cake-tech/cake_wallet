@@ -86,6 +86,7 @@ class WalletCreationService {
       case WalletType.dogecoin:
       case WalletType.nano:
       case WalletType.zcash:
+      case WalletType.zano:
       case WalletType.decred:
         return true;
       case WalletType.monero:
@@ -93,7 +94,6 @@ class WalletCreationService {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
-      case WalletType.zano:
         return false;
     }
   }

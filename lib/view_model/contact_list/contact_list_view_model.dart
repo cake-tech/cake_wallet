@@ -14,6 +14,7 @@ import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -33,79 +34,103 @@ abstract class ContactListViewModelBase with Store {
   }
 
   Future<void> _init() async {
-    final walletInfos = await WalletInfo.getAll();
-    for (final info in walletInfos) {
-      final addressInfos = await info.getAddressInfos();
-      final addresses = await info.getAddresses();
-      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
-          addressInfos.isNotEmpty) {
-        for (var key in addressInfos.keys) {
-          final value = addressInfos[key];
-          final address = value?.first;
-          if (address != null) {
-            final name = _createName(info.name, address.label, key: key);
-            walletContacts.add(WalletContact(
-              address.address,
+    await loadWalletContacts();
+
+    _subscription = contactSource.bindToListWithTransform(
+      contacts,
+      (contact) => ContactRecord(contactSource, contact),
+      initialFire: true,
+    );
+
+    setOrderType(settingsStore.contactListOrder);
+  }
+
+  Future<void> _lastWalletContactsLoad = Future.value();
+
+  @action
+  Future<void> loadWalletContacts() async {
+    final waitFor = _lastWalletContactsLoad;
+    final done = Completer<void>();
+    _lastWalletContactsLoad = done.future;
+
+    await waitFor;
+
+    try {
+      final loadedContacts = <WalletContact>[];
+      final walletInfos = await WalletInfo.getAll();
+      for (final info in walletInfos) {
+        final addressInfos = await info.getAddressInfos();
+        final addresses = await info.getAddresses();
+        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
+            addressInfos.isNotEmpty) {
+          for (var key in addressInfos.keys) {
+            final value = addressInfos[key];
+            final address = value?.first;
+            if (address != null) {
+              final name = _createName(info.name, address.label, key: key);
+              loadedContacts.add(WalletContact(
+                address.address,
+                name,
+                getCryptoCurrencyForWalletListItem(
+                  info.type,
+                ),
+                walletType: info.type,
+              ));
+            }
+          }
+        } else if (addresses.isNotEmpty == true && addresses.length > 1) {
+          if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
+              .contains(info.type)) {
+            final address = info.address;
+            final name = _createName(info.name, "", key: 0);
+            loadedContacts.add(WalletContact(
+              address,
               name,
               getCryptoCurrencyForWalletListItem(
                 info.type,
               ),
               walletType: info.type,
             ));
+          } else {
+            addresses.forEach((address, label) {
+              if (label.isEmpty) {
+                return;
+              }
+              final name = _createName(info.name, label, key: null);
+              loadedContacts.add(WalletContact(
+                address,
+                name,
+                getCryptoCurrencyForWalletListItem(
+                  info.type,
+                  isTestnet: info.network == null
+                      ? false
+                      : info.network!.toLowerCase().contains("testnet"),
+                ),
+                walletType: info.type,
+              ));
+            });
           }
-        }
-      } else if (addresses.isNotEmpty == true && addresses.length > 1) {
-        if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
-            .contains(info.type)) {
-          final address = info.address;
-          final name = _createName(info.name, "", key: 0);
-          walletContacts.add(WalletContact(
-            address,
-            name,
+        } else {
+          loadedContacts.add(WalletContact(
+            info.address,
+            _createName(info.name, "",
+                key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
+                    ? 0
+                    : null),
             getCryptoCurrencyForWalletListItem(
               info.type,
             ),
             walletType: info.type,
           ));
-        } else {
-          addresses.forEach((address, label) {
-            if (label.isEmpty) {
-              return;
-            }
-            final name = _createName(info.name, label, key: null);
-            walletContacts.add(WalletContact(
-              address,
-              name,
-              getCryptoCurrencyForWalletListItem(
-                info.type,
-                isTestnet:
-                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
-              ),
-              walletType: info.type,
-            ));
-          });
         }
-      } else {
-        walletContacts.add(WalletContact(
-          info.address,
-          _createName(info.name, "",
-              key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
-                  ? 0
-                  : null),
-          getCryptoCurrencyForWalletListItem(
-            info.type,
-          ),
-          walletType: info.type,
-        ));
       }
+
+      walletContacts = loadedContacts;
+    } catch (e) {
+      printV("loadWalletContacts failed: $e");
+    } finally {
+      done.complete();
     }
-
-    _subscription = contactSource.bindToListWithTransform(
-        contacts, (Contact contact) => ContactRecord(contactSource, contact),
-        initialFire: true);
-
-    setOrderType(settingsStore.contactListOrder);
-    walletContacts = walletContacts.toList(); // rebuild
   }
 
   String _createName(String walletName, String label, {int? key = null}) {

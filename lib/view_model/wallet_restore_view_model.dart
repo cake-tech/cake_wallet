@@ -83,8 +83,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   late final bool hasSeedLanguageSelector =
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
-  late final bool hasBlockchainHeightSelector =
-      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.zcash].contains(type);
+  late final bool hasBlockchainHeightSelector = [
+    WalletType.monero,
+    WalletType.haven,
+    WalletType.wownero,
+    WalletType.zcash,
+    WalletType.zano,
+  ].contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
@@ -109,8 +114,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreMode mode;
 
   @computed
-  bool get passphraseAvailable =>
-      mode == WalletRestoreMode.seed || hardwareWalletType == HardwareWalletType.trezor;
+  bool get passphraseAvailable => mode == WalletRestoreMode.seed;
 
   @observable
   bool hasPassphrase;
@@ -204,13 +208,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             height: height,
           );
         case WalletType.zano:
-          return zano!.createZanoRestoreWalletFromSeedCredentials(
+          final credentials = zano!.createZanoRestoreWalletFromSeedCredentials(
             name: name,
             password: password,
             height: height,
             passphrase: passphrase ?? '',
             mnemonic: seed,
           );
+          credentials.derivationInfo = derivationInfo;
+          return credentials;
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
             name: name,
@@ -363,6 +369,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           seedKey: seedKey,
           node: node,
         );
+      case WalletType.zano:
+        final mnemonic = (credentials['seed'] as String?)?.trim() ?? '';
+        if (mnemonic.isEmpty) break;
+        if (zano!.isBip39Seed(mnemonic)) {
+          return [
+            DerivationInfo(derivationType: DerivationType.bip39),
+          ];
+        }
+        return [
+          DerivationInfo(derivationType: DerivationType.unknown),
+        ];
       default:
         break;
     }

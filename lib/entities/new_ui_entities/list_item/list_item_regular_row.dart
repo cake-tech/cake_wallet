@@ -22,6 +22,8 @@ class ListItemRegularRow extends ListItem {
     this.leadingIconSize,
     this.badgeIconSize,
     this.iconColor,
+    this.secondaryLabel,
+    this.subtitleColor,
   });
 
   final String? subtitle;
@@ -31,10 +33,12 @@ class ListItemRegularRow extends ListItem {
   final String? badgeIconPath;
   final String? copyableText;
   final VoidCallback? onTap;
+  final String? secondaryLabel;
   final bool showArrow;
   final Widget? bottomWidget;
   final Widget? trailingWidget;
   final bool truncateTrailingText;
+  final Color? subtitleColor;
   final Color? foregroundColor;
   final double? trailingIconSize;
   final Widget? leadingIconErrorWidget;
