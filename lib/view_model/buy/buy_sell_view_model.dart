@@ -396,63 +396,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
   }
 
-  void onTapChoseProvider(BuildContext context) async {
-    skipIsReadyToTradeReaction = true;
-    final initialQuotes = List<Quote>.from(sortedRecommendedQuotes + sortedQuotes);
-    await calculateBestRate();
-    final newQuotes = (sortedRecommendedQuotes + sortedQuotes);
-
-    for (var quote in newQuotes) quote.limits = null;
-
-    final newQuoteProviders = newQuotes
-        .map((quote) => quote.provider.isAggregator ? quote.rampName : quote.provider.title)
-        .toSet();
-
-    final outOfLimitQuotes = initialQuotes.where((initialQuote) {
-      return !newQuoteProviders.contains(
-          initialQuote.provider.isAggregator ? initialQuote.rampName : initialQuote.provider.title);
-    }).map((missingQuote) {
-      final quote = Quote(
-        rate: missingQuote.rate,
-        feeAmount: missingQuote.feeAmount,
-        networkFee: missingQuote.networkFee,
-        transactionFee: missingQuote.transactionFee,
-        payout: missingQuote.payout,
-        rampId: missingQuote.rampId,
-        rampName: missingQuote.rampName,
-        rampIconPath: missingQuote.rampIconPath,
-        paymentType: missingQuote.paymentType,
-        quoteId: missingQuote.quoteId,
-        recommendations: missingQuote.recommendations,
-        provider: missingQuote.provider,
-        isBuyAction: missingQuote.isBuyAction,
-        limits: missingQuote.limits,
-      );
-      quote.setFiatCurrency = missingQuote.fiatCurrency;
-      quote.setCryptoCurrency = missingQuote.cryptoCurrency;
-      return quote;
-    }).toList();
-
-    final updatedQuoteOptions = List<SelectableItem>.from([
-      OptionTitle(title: 'Recommended'),
-      ...sortedRecommendedQuotes,
-      if (sortedQuotes.isNotEmpty) OptionTitle(title: 'All Providers'),
-      ...sortedQuotes,
-      if (outOfLimitQuotes.isNotEmpty) OptionTitle(title: 'Out of Limits'),
-      ...outOfLimitQuotes,
-    ]);
-
-    if (context.mounted) {
-      await Navigator.of(context).pushNamed(
-        Routes.buyOptionsPage,
-        arguments: [
-          updatedQuoteOptions,
-          changeOption,
-          launchTrade,
-        ],
-      ).then((value) => calculateBestRate());
-    }
-  }
 
   void _onPairChange() {
     _initialize();

@@ -41,7 +41,6 @@ class _TabViewWrapperState extends State<TabViewWrapper> with SingleTickerProvid
   Widget build(BuildContext context) {
     final textStyle = TextStyle(
         fontSize: 18,
-        fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
         color: Theme.of(context).colorScheme.onSurface);
 

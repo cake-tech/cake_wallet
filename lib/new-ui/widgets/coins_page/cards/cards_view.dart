@@ -349,7 +349,7 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
@@ -396,7 +396,7 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
