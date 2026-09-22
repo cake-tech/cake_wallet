@@ -65,7 +65,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 12,
+    version: 13,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -158,7 +158,15 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     if (oldVersion <= 10) {
       await _createImportedNFTTable(db);
     }
-    if(oldVersion <= 11) {
+    if (oldVersion <= 11) {
+      await _addColumnIfNotExists(
+        db,
+        table: "WalletInfo",
+        column: "showSeedBackupReminder",
+        definition: "BOOLEAN DEFAULT FALSE",
+      );
+    }
+    if(oldVersion <= 12) {
       await _createChartsTables(db);
     }
   }, onCreate: (Database db, int version) async {
@@ -187,7 +195,8 @@ CREATE TABLE WalletInfo (
   sortOrder INTEGER DEFAULT (0) NOT NULL,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
-  favoriteTokenAddress TEXT DEFAULT NULL
+  favoriteTokenAddress TEXT DEFAULT NULL,
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
 

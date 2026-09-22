@@ -132,12 +132,15 @@ Future<Transaction> getTransaction(String txId) async {
     return txCache[currentWallet!.ffiAddress()]![txId]!;
   }
   await txHistoryMutex.acquire();
-  final tx = txhistory!.transactionById(txId);
-  final txDart = Transaction(txInfo: tx);
-  txCache[currentWallet!.ffiAddress()] ??= {};
-  txCache[currentWallet!.ffiAddress()]![txId] = txDart;
-  txHistoryMutex.release();
-  return txDart;
+  try {
+    final tx = txhistory!.transactionById(txId);
+    final txDart = Transaction(txInfo: tx);
+    txCache[currentWallet!.ffiAddress()] ??= {};
+    txCache[currentWallet!.ffiAddress()]![txId] = txDart;
+    return txDart;
+  } finally {
+    txHistoryMutex.release();
+  }
 }
 
 Future<PendingTransactionDescription> createTransactionSync(
