@@ -618,11 +618,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => page);
 
     case Routes.accountCustomizer:
-      return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<AccountCustomizer>(
-          param1: settings.arguments! as DashboardViewModel,
-        ),
+      final page = getIt.get<AccountCustomizer>(
+        param1: settings.arguments! as DashboardViewModel,
       );
+      return handleRouteWithPlatformAwareness((_) => page);
 
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(

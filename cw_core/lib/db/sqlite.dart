@@ -63,7 +63,7 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 12,
+  db = await openDatabase(dbFile.path, version: 13,
       onUpgrade: (Database db, int oldVersion, int newVersion) async {
     printV("migrating: $oldVersion, $newVersion");
     if (oldVersion <= 1) {
@@ -152,7 +152,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       await _createSplTokenTable(db);
       await _createTronTokenTable(db);
     }
-
     if (oldVersion <= 10) {
       await _createImportedNFTTable(db);
     }
@@ -163,6 +162,16 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         column: "showSeedBackupReminder",
         definition: "BOOLEAN DEFAULT FALSE",
       );
+    }
+    if (oldVersion <= 12) {
+      await _addColumnIfNotExists(
+        db,
+        table: "BalanceCardStyleSettings",
+        column: "hidden",
+        definition: "BOOLEAN DEFAULT FALSE",
+      );
+      // Version 11 account builds predate the ImportedNFT migration.
+      await _createImportedNFTTable(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -253,6 +262,7 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
