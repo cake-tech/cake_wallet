@@ -148,13 +148,11 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                             context: context,
                             barrierColor: Colors.black.withAlpha(85),
                             builder: (context) => FractionallySizedBox(
-                              child: Material(
-                                child: NewSettingsPage(
-                                  dashboardViewModel: widget.dashboardViewModel,
-                                  authService: getIt.get<AuthService>(),
-                                ),
-                              ),
-                            ),
+                                child: Material(
+                                    child: NewSettingsPage(
+                              dashboardViewModel: widget.dashboardViewModel,
+                              authService: getIt.get<AuthService>(),
+                            ))),
                           );
 
                           if (!mounted) {

@@ -825,9 +825,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return handleRouteWithPlatformAwareness((context) => page);
 
     case Routes.resetPage:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ResetPage>(),
-      );
+      final page = getIt.get<ResetPage>();
+      return handleRouteWithPlatformAwareness((context) => page);
 
     case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;

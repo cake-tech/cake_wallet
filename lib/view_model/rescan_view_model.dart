@@ -1,6 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import "package:cake_wallet/monero/monero.dart";
-import "package:cake_wallet/wownero/wownero.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -39,9 +38,7 @@ abstract class RescanViewModelBase with Store {
       wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);
 
   int? get initialRestoreHeight {
-    final supportsPolyseed = wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
-
-    if (!supportsPolyseed || !wallet.isSoftwareWallet) {
+    if (wallet.type != WalletType.monero || !wallet.isSoftwareWallet) {
       return null;
     }
 
@@ -53,15 +50,10 @@ abstract class RescanViewModelBase with Store {
 
     try {
       final language = PolyseedLang.getByPhrase(seed);
-      final coin = wallet.type == WalletType.monero
-          ? PolyseedCoin.POLYSEED_MONERO
-          : PolyseedCoin.POLYSEED_WOWNERO;
       final birthday = DateTime.fromMillisecondsSinceEpoch(
-        Polyseed.decode(seed, language, coin).birthday * 1000,
+        Polyseed.decode(seed, language, PolyseedCoin.POLYSEED_MONERO).birthday * 1000,
       );
-      final restoreHeight = wallet.type == WalletType.monero
-          ? monero!.getHeightByDate(date: birthday)
-          : wownero!.getHeightByDate(date: birthday);
+      final restoreHeight = monero!.getHeightByDate(date: birthday);
 
       return restoreHeight > 0 ? restoreHeight : null;
     } catch (_) {
