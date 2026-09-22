@@ -68,7 +68,7 @@ class PriceData implements Comparable<PriceData> {
   }
 
   Future<void> insert() async {
-    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.ignore);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<void> insertMany(Iterable<PriceData> data) async {
@@ -82,7 +82,7 @@ class PriceData implements Comparable<PriceData> {
       batch.insert(
         tableName,
         datum.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.ignore,
+        conflictAlgorithm: ConflictAlgorithm.replace,
       );
     }
 
