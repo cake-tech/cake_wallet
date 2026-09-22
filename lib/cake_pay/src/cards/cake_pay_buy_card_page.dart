@@ -17,8 +17,10 @@ import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
+import 'package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_transaction_sent_bottom_sheet.dart';
@@ -83,15 +85,29 @@ class CakePayBuyCardPage extends BasePage {
 
   @override
   Widget? middle(BuildContext context) {
-    return Text(
-      title,
-      textAlign: TextAlign.center,
-      maxLines: 2,
-      style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-          color: titleColor(context)),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Observer(
+            builder: (_) => SyncIndicatorIcon(isSynced: _sendViewModel.isReadyForSend),
+          ),
+        ),
+        Flexible(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Lato',
+              color: titleColor(context),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -149,7 +165,7 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(children: [
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       if (card.prepaidRange.isNotEmpty)
                         PrepaidRangeAmountWidget(
                           fiatCurrency: card.fiatCurrency.title,
@@ -180,6 +196,31 @@ class CakePayBuyCardPage extends BasePage {
                           amountController: _amountController,
                           onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
                         ),
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _amountController,
+                        builder: (_, value, __) {
+                          final error =
+                              value.text.isEmpty ? null : cakePayBuyCardViewModel.amountError;
+                          if (error == null) return const SizedBox.shrink();
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Semantics(
+                              container: true,
+                              liveRegion: true,
+                              label: '${S.of(context).amount} $error',
+                              excludeSemantics: true,
+                              child: Text(
+                                error,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ]))),
             Expanded(
               flex: 2,
@@ -341,6 +382,11 @@ class CakePayBuyCardPage extends BasePage {
                         ),
                       ),
                     ),
+                  if (!_sendViewModel.isReadyForSend)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: SendSyncingIndicator(status: _sendViewModel.wallet.syncStatus),
+                    ),
                   if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
@@ -355,7 +401,8 @@ class CakePayBuyCardPage extends BasePage {
                               : confirmPurchaseFirst(context);
                         },
                         text: '(Dev) Simulate Purchasing Gift Card',
-                        isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                        isDisabled: !_sendViewModel.isReadyForSend ||
+                            !cakePayBuyCardViewModel.isAmountSufficient ||
                             cakePayBuyCardViewModel.isPurchasing,
                         isLoading: _sendViewModel.state is IsExecutingState ||
                             cakePayBuyCardViewModel.isPurchasing,
@@ -375,7 +422,8 @@ class CakePayBuyCardPage extends BasePage {
                             : confirmPurchaseFirst(context);
                       },
                       text: S.of(context).purchase_gift_card,
-                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                      isDisabled: !_sendViewModel.isReadyForSend ||
+                          !cakePayBuyCardViewModel.isAmountSufficient ||
                           cakePayBuyCardViewModel.isPurchasing ||
                           _sendViewModel.state is ExecutedSuccessfullyState,
                       isLoading: _sendViewModel.state is IsExecutingState ||
@@ -658,7 +706,6 @@ class CakePayBuyCardPage extends BasePage {
                   feeFiatAmount: _sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
-                  isSlideActionEnabled: _sendViewModel.isReadyForSend,
                   slideActionButtonText:
                       cakePayBuyCardViewModel.isSimulating ? 'Swipe to simulate' : 'Swipe to send',
                   accessibleNavigationModeSlideActionButtonText:
