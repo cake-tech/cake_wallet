@@ -954,7 +954,7 @@
   "reset_filters": "Reset Filters",
   "reset_password": "Reset Password",
   "reset_settings_to_default": "Reset settings to default",
-  "reset_wallet_settings_notice": "This will reset all of the settings for this wallet.",
+  "reset_wallet_settings_notice": "This will reset this wallet's settings and shared privacy and connection preferences to their defaults.",
   "restore": "Restore",
   "restore_active_seed": "Active seed",
   "restore_address": "Address",

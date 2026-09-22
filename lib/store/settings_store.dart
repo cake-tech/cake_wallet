@@ -804,6 +804,21 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenMinutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
+  static const defaultShouldSaveRecipientAddress = false;
+  static const defaultFiatApiMode = FiatApiMode.enabled;
+
+  static const defaultExchangeStatus = ExchangeApiMode.enabled;
+  static const defaultDisableAutomaticExchangeStatusUpdates = false;
+  static const defaultBuiltinTor = false;
+  static const defaultLookupsTwitter = true;
+  static const defaultLookupsMastodon = true;
+  static const defaultLookupsYatService = true;
+  static const defaultLookupsUnstoppableDomains = true;
+  static const defaultLookupsOpenAlias = true;
+  static const defaultLookupsFio = true;
+  static const defaultLookupsNostr = true;
+  static const defaultLookupsThorChain = false;
+
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
@@ -1320,12 +1335,14 @@ abstract class SettingsStoreBase with Store {
             defaultDisplayAmountsInSatoshi.raw);
     // FIX-ME: Check for which default value we should have here
     final shouldSaveRecipientAddress =
-        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
+        sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ??
+            defaultShouldSaveRecipientAddress;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableTradeOption =
         sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
     final disableAutomaticExchangeStatusUpdates =
-        sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? false;
+        sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ??
+            defaultDisableAutomaticExchangeStatusUpdates;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
@@ -1336,8 +1353,8 @@ abstract class SettingsStoreBase with Store {
     final contactListAscending =
         sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
-            FiatApiMode.enabled.raw);
+      raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ?? defaultFiatApiMode.raw,
+    );
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
@@ -1352,8 +1369,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
             SyncStatusDisplayMode.blocksRemaining.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
-            ExchangeApiMode.enabled.raw);
+      raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ?? defaultExchangeStatus.raw,
+    );
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1383,14 +1400,19 @@ abstract class SettingsStoreBase with Store {
         evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
-    final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    final lookupsTwitter =
+        sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? defaultLookupsTwitter;
     final lookupsZanoAlias =
         sharedPreferences.getBool(PreferencesKey.lookupsZanoAlias) ?? defaultLookupsZanoAlias;
-    final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
-    final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    final lookupsMastodon =
+        sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? defaultLookupsMastodon;
+    final lookupsYatService =
+        sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? defaultLookupsYatService;
     final lookupsUnstoppableDomains =
-        sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
-    final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+        sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ??
+            defaultLookupsUnstoppableDomains;
+    final lookupsOpenAlias =
+        sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? defaultLookupsOpenAlias;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? defaultLookupsENS;
     final lookupsZcashNames =
         sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? defaultLookupsZcashNames;
@@ -1398,9 +1420,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.lookupsZcashAddress) ?? defaultLookupsZcashAddress;
     final lookupsWellKnown =
         sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? defaultLookupsWellKnown;
-    final lookupsFio = sharedPreferences.getBool(PreferencesKey.lookupsFio) ?? true;
-    final lookupsNostr = sharedPreferences.getBool(PreferencesKey.lookupsNostr) ?? true;
-    final lookupsThorChain = sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? false;
+    final lookupsFio = sharedPreferences.getBool(PreferencesKey.lookupsFio) ?? defaultLookupsFio;
+    final lookupsNostr =
+        sharedPreferences.getBool(PreferencesKey.lookupsNostr) ?? defaultLookupsNostr;
+    final lookupsThorChain =
+        sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? defaultLookupsThorChain;
     final lookupsBip353 =
         sharedPreferences.getBool(PreferencesKey.lookupsBip353) ?? defaultLookupsBip353;
     final lookupsLNUrl =
@@ -1612,7 +1636,7 @@ abstract class SettingsStoreBase with Store {
           (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 2); // default to 2 - daily sync
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
-    final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
+    final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? defaultBuiltinTor;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1977,8 +2001,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
             SyncStatusDisplayMode.blocksRemaining.name);
     exchangeStatus = ExchangeApiMode.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
-            ExchangeApiMode.enabled.raw);
+      raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ?? defaultExchangeStatus.raw,
+    );
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -2025,14 +2049,19 @@ abstract class SettingsStoreBase with Store {
       ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
-    lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    lookupsTwitter =
+        sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? defaultLookupsTwitter;
     lookupsZanoAlias =
         sharedPreferences.getBool(PreferencesKey.lookupsZanoAlias) ?? defaultLookupsZanoAlias;
-    lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
-    lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
+    lookupsMastodon =
+        sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? defaultLookupsMastodon;
+    lookupsYatService =
+        sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? defaultLookupsYatService;
     lookupsUnstoppableDomains =
-        sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
-    lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+        sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ??
+            defaultLookupsUnstoppableDomains;
+    lookupsOpenAlias =
+        sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? defaultLookupsOpenAlias;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? defaultLookupsENS;
     lookupsZcashNames =
         sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? defaultLookupsZcashNames;
@@ -2260,61 +2289,31 @@ abstract class SettingsStoreBase with Store {
   }
 
   @action
-  void resetCurrencySettingsToDefault(WalletType type) {
+  void resetStoreOnlySettingsToDefault(WalletType type) {
+    shouldSaveRecipientAddress = defaultShouldSaveRecipientAddress;
+    fiatApiMode = defaultFiatApiMode;
+    lookupsTwitter = defaultLookupsTwitter;
+    lookupsMastodon = defaultLookupsMastodon;
+    lookupsYatService = defaultLookupsYatService;
+    lookupsUnstoppableDomains = defaultLookupsUnstoppableDomains;
+    lookupsOpenAlias = defaultLookupsOpenAlias;
+    lookupsENS = defaultLookupsENS;
+    lookupsZcashNames = defaultLookupsZcashNames;
+    lookupsZcashAddress = defaultLookupsZcashAddress;
+    lookupsWellKnown = defaultLookupsWellKnown;
+    lookupsZanoAlias = defaultLookupsZanoAlias;
+    lookupsFio = defaultLookupsFio;
+    lookupsNostr = defaultLookupsNostr;
+    lookupsThorChain = defaultLookupsThorChain;
+    lookupsBip353 = defaultLookupsBip353;
+    lookupsLNUrl = defaultLookupsLNUrl;
+
     setDefaultPriorityFor(type);
 
-    switch (type) {
-      case WalletType.ethereum:
-        useEtherscan = defaultUseEtherscan;
-        lookupsENS = defaultLookupsENS;
-        break;
-      case WalletType.polygon:
-        usePolygonScan = defaultUsePolygonScan;
-        break;
-      case WalletType.base:
-        useBaseScan = defaultUseBaseScan;
-        break;
-      case WalletType.arbitrum:
-        useArbiScan = defaultUseArbiScan;
-        break;
-      case WalletType.bsc:
-        useBscScan = defaultUseBscScan;
-        break;
-      case WalletType.bitcoin:
-        customBitcoinFeeRate = defaultCustomBitcoinFeeRate;
-        useMempoolFeeAPI = defaultUseMempoolFeeAPI;
-        usePayjoin = defaultUsePayjoin;
-        displayAmountsInSatoshi = defaultDisplayAmountsInSatoshi;
-        lookupsBip353 = defaultLookupsBip353;
-        lookupsLNUrl = defaultLookupsLNUrl;
-        break;
-      case WalletType.litecoin:
-        mwebAlwaysScan = defaultMwebAlwaysScan;
-        mwebNodeUri = defaultMwebNodeUri;
-        break;
-      case WalletType.zcash:
-        lookupsZcashNames = defaultLookupsZcashNames;
-        lookupsZcashAddress = defaultLookupsZcashAddress;
-        break;
-      case WalletType.nano:
-        lookupsWellKnown = defaultLookupsWellKnown;
-        break;
-      case WalletType.tron:
-        useTronGrid = defaultUseTronGrid;
-        break;
-      case WalletType.zano:
-        lookupsZanoAlias = defaultLookupsZanoAlias;
-        break;
-      case WalletType.monero:
-      case WalletType.haven:
-      case WalletType.bitcoinCash:
-      case WalletType.solana:
-      case WalletType.wownero:
-      case WalletType.decred:
-      case WalletType.dogecoin:
-      case WalletType.banano:
-      case WalletType.none:
-        break;
+    if (type == WalletType.bitcoin) {
+      customBitcoinFeeRate = defaultCustomBitcoinFeeRate;
+      useMempoolFeeAPI = defaultUseMempoolFeeAPI;
+      displayAmountsInSatoshi = defaultDisplayAmountsInSatoshi;
     }
   }
 

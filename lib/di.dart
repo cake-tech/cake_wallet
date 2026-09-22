@@ -1177,7 +1177,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => AboutPage(appVersion: getIt.get<SettingsStore>().appVersion));
 
-  getIt.registerFactory(() => ResetViewModel(getIt.get<AppStore>()));
+  getIt.registerFactory(() => ResetViewModel(getIt.get<AppStore>(), getIt.get<TradeMonitor>()));
 
   getIt.registerFactory(() => ResetPage(getIt.get<ResetViewModel>()));
 
