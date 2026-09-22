@@ -2,6 +2,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_pivx/src/sapling/pivx_sapling_electrumx.dart';
 import 'package:flutter/material.dart';
 
 class NodeListRow extends StatelessWidget {

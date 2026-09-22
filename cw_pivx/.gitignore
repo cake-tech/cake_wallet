@@ -1,0 +1,38 @@
+# Dart build artifacts
+.dart_tool/
+.packages
+build/
+*.g.dart
+
+# Flutter
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Generated code
+*.freezed.dart
+*.mocks.dart
+
+# Test
+coverage/
+
+# Sapling proving params — ~51MB, fetched via scripts/prepare_pivx_params.sh,
+# bundled as an app asset, not committed.
+assets/params/*.params
+
+# Native Sapling libraries — built from source via scripts/android/build_pivx.sh
+# and the sibling scripts/{ios,macos,linux}/build_pivx.sh, not committed.
+android/src/main/jniLibs/
+macos/Frameworks/*.dylib
+macos/Frameworks/*.a
+ios/Frameworks/*.dylib
+ios/Frameworks/*.a
+linux/lib/*.so

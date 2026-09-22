@@ -59,6 +59,9 @@ class WalletRestoreFromQRCode {
     'zcash': WalletType.zcash,
     'zcash-wallet': WalletType.zcash,
     'zcash_wallet': WalletType.zcash,
+    'pivx': WalletType.pivx,
+    'pivx-wallet': WalletType.pivx,
+    'pivx_wallet': WalletType.pivx,
   };
 
   static WalletType? _extractWalletType(String code) {
@@ -179,6 +182,16 @@ class WalletRestoreFromQRCode {
       final txIdValue = credentials['tx_payment_id'] as String? ?? '';
       if (txIdValue.isNotEmpty) return WalletRestoreMode.txids;
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
+    }
+
+    if (type == WalletType.pivx &&
+        (credentials.containsKey('private_key') ||
+            credentials.containsKey('spend_key') ||
+            credentials.containsKey('view_key') ||
+            credentials.containsKey('xpub') ||
+            credentials.containsKey('zpub'))) {
+      throw UnsupportedError(
+          'PIVX key restore is not supported yet. Restore PIVX wallets from seed phrase and optional restore height.');
     }
 
     if (credentials.containsKey("xpub") || credentials.containsKey("zpub")) {

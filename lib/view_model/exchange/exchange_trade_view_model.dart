@@ -467,6 +467,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:
         return NanoURI(amount: amount, address: inputAddress);
+      case WalletType.pivx:
+        return PivxURI(amount: amount, address: inputAddress);
       case WalletType.zano:
         return ZanoURI(amount: amount, address: inputAddress);
       case WalletType.decred:

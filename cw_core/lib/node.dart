@@ -55,6 +55,13 @@ class Node {
     this.isOfficial = false,
     this.isBuiltin = false,
     this.isDefault = false,
+    this.supportsPivxSapling,
+    this.pivxSaplingContract,
+    this.pivxSaplingServerVersion,
+    this.pivxCoreVersion,
+    this.pivxSaplingNetwork,
+    this.pivxSaplingActivationHeight,
+    this.pivxSaplingLastCheckedAt,
     String? uri,
     WalletType? type,
   }) {
@@ -98,7 +105,14 @@ class Node {
         isEnabledForAutoSwitching = _getBoolFromDB(map['isEnabledForAutoSwitching']),
         isOfficial = _getBoolFromDB(map['isOfficial']),
         isBuiltin = _getBoolFromDB(map['isBuiltin']),
-        isDefault = _getBoolFromDB(map['isDefault']);
+        isDefault = _getBoolFromDB(map['isDefault']),
+        supportsPivxSapling = map['supportsPivxSapling'] as bool?,
+        pivxSaplingContract = map['pivxSaplingContract'] as String?,
+        pivxSaplingServerVersion = map['pivxSaplingServerVersion'] as String?,
+        pivxCoreVersion = map['pivxCoreVersion'] as String?,
+        pivxSaplingNetwork = map['pivxSaplingNetwork'] as String?,
+        pivxSaplingActivationHeight = map['pivxSaplingActivationHeight'] as int?,
+        pivxSaplingLastCheckedAt = map['pivxSaplingLastCheckedAt'] as DateTime?;
 
   static bool _getBoolFromDB(value, {bool? defaultValue}) {
     if (value is bool) {
@@ -261,6 +275,30 @@ class Node {
   static String get tableName => "Node";
   static String get selfIdColumn => "${tableName}Id";
 
+  bool? supportsPivxSapling;
+
+  String? pivxSaplingContract;
+
+  String? pivxSaplingServerVersion;
+
+  String? pivxCoreVersion;
+
+  String? pivxSaplingNetwork;
+
+  int? pivxSaplingActivationHeight;
+
+  DateTime? pivxSaplingLastCheckedAt;
+
+  String get pivxSaplingVersionLabel {
+    final parts = <String>[
+      if (pivxSaplingContract?.isNotEmpty ?? false) pivxSaplingContract!,
+      if (pivxSaplingServerVersion?.isNotEmpty ?? false) pivxSaplingServerVersion!,
+      if (pivxCoreVersion?.isNotEmpty ?? false) 'Core $pivxCoreVersion',
+    ];
+
+    return parts.isEmpty ? 'PIVX Sapling' : parts.join(' / ');
+  }
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -285,6 +323,7 @@ class Node {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         return createUriFromElectrumAddress(uriRaw, path!);
       case WalletType.nano:
       case WalletType.banano:
@@ -357,6 +396,7 @@ class Node {
         case WalletType.tron:
         case WalletType.dogecoin:
         case WalletType.zcash:
+        case WalletType.pivx:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();

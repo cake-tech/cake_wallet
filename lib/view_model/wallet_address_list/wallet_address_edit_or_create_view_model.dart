@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
@@ -27,7 +28,8 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 }
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
-  WalletAddressEditOrCreateViewModelBase({required WalletBase wallet, WalletAddressListItem? item})
+  WalletAddressEditOrCreateViewModelBase(
+      {required WalletBase wallet, WalletAddressListItem? item, this.isShielded = false})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
@@ -42,6 +44,9 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   bool isEdit;
 
+  /// If true, create a shielded address (e.g., PIVX Sapling).
+  final bool isShielded;
+
   final WalletAddressListItem? _item;
   final WalletBase _wallet;
 
@@ -49,7 +54,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.bitcoinCash ||
       _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.dogecoin;
+      _wallet.type == WalletType.dogecoin ||
+      _wallet.type == WalletType.pivx;
 
   String get derivationPath => _item?.derivationPath ?? '';
   String get index => _item?.id.toString() ?? '';
@@ -72,6 +78,13 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   Future<void> _createNew() async {
     final wallet = _wallet;
+
+    // Handle PIVX shielded address creation separately
+    if (wallet.type == WalletType.pivx && isShielded) {
+      await pivx!.generateNewShieldedAddress(wallet, label: label.isNotEmpty ? label : null);
+      await wallet.save();
+      return;
+    }
 
     if (isElectrum) {
       await bitcoin!.generateNewAddress(wallet, label);
@@ -112,6 +125,18 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   Future<void> _update() async {
     final wallet = _wallet;
+    final item = _item;
+
+    // Handle PIVX shielded address label update
+    if (wallet.type == WalletType.pivx && item != null) {
+      // Check if this is a shielded address (starts with 'ps1')
+      final address = item.address;
+      if (address.startsWith('ps1')) {
+        await pivx!.updateShieldedAddressLabel(wallet, address: address, label: label.isNotEmpty ? label : '');
+        await wallet.save();
+        return;
+      }
+    }
 
     if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
 

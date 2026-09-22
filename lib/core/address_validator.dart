@@ -193,7 +193,13 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.kmd:
         pattern = 'R[0-9a-zA-Z]{33}';
       case CryptoCurrency.pivx:
-        pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
+        // PIVX address formats:
+        // - D... : Standard P2PKH addresses (34 chars, version byte 30)
+        // - EXM... : Exchange addresses (37 chars, version bytes [0x01, 0xb9, 0xa2])
+        // - S... : Staking addresses (version byte 63)
+        // - ps1... : Sapling shielded addresses (bech32, mainnet, ~75-80 chars after prefix)
+        // - ptestsapling1... : Sapling shielded addresses (bech32, testnet)
+        pattern = '(D([1-9a-km-zA-HJ-NP-Z]){33}|EXM([1-9a-km-zA-HJ-NP-Z]){33}|ps1[a-z0-9]{70,}|ptestsapling1[a-z0-9]{70,})';
       case CryptoCurrency.btcln:
         pattern =
             r'(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl|LNBC|LNTB|LNBS|LNBCRT|LNURL)[a-zA-Z0-9]+';
@@ -325,9 +331,10 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zec:
         return null;
       case CryptoCurrency.kmd:
-      case CryptoCurrency.pivx:
       case CryptoCurrency.rvn:
         return [34];
+      case CryptoCurrency.pivx:
+        return null; // Variable length: 34 for D, 37 for EXM, ~78-80 for ps1 shielded
       case CryptoCurrency.dcr:
         return [35];
       case CryptoCurrency.stx:

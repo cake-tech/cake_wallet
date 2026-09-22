@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/address_edit_or_create_arguments.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
@@ -65,16 +66,31 @@ class _AddressListState extends State<AddressList> {
   }
 
   @override
+  void didUpdateWidget(AddressList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Refresh items when the widget is updated (e.g., balance changed)
+    if (oldWidget.addressListViewModel != widget.addressListViewModel) {
+      updateItems();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     bool editable = widget.onSelect == null;
-    return ListView.separated(
+    // Wrap in Observer to react to balance changes (important for PIVX shielded balance)
+    return Observer(
+      builder: (_) {
+        // Access the items getter inside Observer to establish MobX dependency
+        final currentItems = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+
+        return ListView.separated(
       padding: EdgeInsets.all(0),
       separatorBuilder: (context, _) => const HorizontalSectionDivider(),
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: items.length,
+      itemCount: currentItems.length,
       itemBuilder: (context, index) {
-        final item = items[index];
+        final item = currentItems[index];
         Widget cell = Container();
 
         if (item is WalletAccountListHeader) {
@@ -124,15 +140,19 @@ class _AddressListState extends State<AddressList> {
 
         if (item is WalletAddressListHeader) {
           cell = HeaderTile(
-            title: S.of(context).addresses,
+            title: item.title ?? S.of(context).addresses,
+            subtitle: item.subtitle,
+            balance: item.balance,
             walletAddressListViewModel: widget.addressListViewModel,
             showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
-            showSearchButton: true,
+            showSearchButton: !item.isShielded, // Only show search for transparent addresses
             onSearchCallback: updateItems,
-            trailingButtonTap: () =>
-                Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
-              updateItems(); // refresh the new address
-            }),
+            trailingButtonTap: () {
+              final args = AddressEditOrCreateArguments(isShielded: item.isShielded);
+              Navigator.of(context).pushNamed(Routes.newSubaddress, arguments: args).then((value) {
+                updateItems(); // refresh the new address
+              });
+            },
             trailingIcon: Icon(
               Icons.add,
               size: 20,
@@ -200,6 +220,8 @@ class _AddressListState extends State<AddressList> {
               );
       },
     );
+      },  // Close Observer builder
+    );  // Close Observer
   }
 
   void _hideAddress(WalletAddressListItem item) async {
