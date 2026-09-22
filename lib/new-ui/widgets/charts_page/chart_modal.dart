@@ -57,32 +57,34 @@ class ChartModal extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: MediaQuery.of(context).size.width * 0.05,
                   children: [
-                    if(canOpenBuySell)
-...[                    CoinActionButton(
-                      icon: CakeImageWidget(
-                        width: 36, height: 36,
-                        imageUrl: "assets/new-ui/plus.svg",
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.primary,
-                          BlendMode.srcIn,
+                    if (canOpenBuySell) ...[
+                      CoinActionButton(
+                        icon: CakeImageWidget(
+                          width: 36,
+                          height: 36,
+                          imageUrl: "assets/new-ui/plus.svg",
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
+                        label: S.of(context).buy,
+                        action: () => openBuySellPage(context, BuySellPageMode.buy),
                       ),
-                      label: S.of(context).buy,
-                      action: () => openBuySellPage(context, BuySellPageMode.buy),
-
-                    ),
-                    CoinActionButton(
-                      icon: CakeImageWidget(
-                        width: 36, height: 36,
-                        imageUrl: "assets/new-ui/sell.svg",
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.primary,
-                          BlendMode.srcIn,
+                      CoinActionButton(
+                        icon: CakeImageWidget(
+                          width: 36,
+                          height: 36,
+                          imageUrl: "assets/new-ui/sell.svg",
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
+                        label: S.of(context).sell,
+                        action: () => openBuySellPage(context, BuySellPageMode.sell),
                       ),
-                      label: S.of(context).sell,
-                      action: () => openBuySellPage(context, BuySellPageMode.sell),
-                    ),],
+                    ],
                     CoinActionButton(
                       icon: CakeImageWidget(
                         imageUrl: "assets/new-ui/exchange.svg",
@@ -138,7 +140,8 @@ class ChartModal extends StatelessWidget {
 
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
-    final page = getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: mode, initialCurrency: currency));
+    final page = getIt.get<NewBuySellAmountPage>(
+        param1: NewBuySellParams(mode: mode, initialCurrency: currency));
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
