@@ -3,6 +3,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
@@ -68,7 +69,7 @@ class BuySellSelectorModal extends StatelessWidget {
 
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
-    final page = getIt.get<NewBuySellAmountPage>(param1: mode);
+    final page = getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: mode));
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
