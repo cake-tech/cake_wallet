@@ -64,7 +64,7 @@ class ChartsPage extends StatelessWidget implements PageOpenListener {
                     sliver: CupertinoSliverRefreshControl(
                       refreshTriggerPullDistance: 160,
                       refreshIndicatorExtent: 90,
-                      onRefresh: () async => context.read<ChartsBloc>().add(PageRefreshed()),
+                      onRefresh: () async => chartsBloc.add(PageRefreshed()),
                     ),
                   ),
                   SliverToBoxAdapter(
