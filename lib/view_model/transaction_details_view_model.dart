@@ -54,6 +54,23 @@ bool isLightning(TransactionInfo tx) => (tx.additionalInfo["isLightning"] as boo
 
 bool hasLightningPreimage(TransactionInfo tx) => (tx.additionalInfo["preimage"] as String?) != null;
 
+bool _hasMinotariCounterparty(TransactionDetailsViewModelBase vm) =>
+    vm.wallet.type == WalletType.minotari &&
+    vm.transactionInfo.additionalInfo["counterpartyAddress"] != null;
+
+/// Minotari surfaces the counterparty as an address plus an optional emoji ID.
+String _minotariCounterparty(TransactionDetailsViewModelBase vm) {
+  final address = vm.transactionInfo.additionalInfo["counterpartyAddress"] as String? ?? "";
+  final emoji = vm.transactionInfo.additionalInfo["counterpartyEmoji"] as String?;
+  return emoji != null ? "$emoji $address" : address;
+}
+
+String _minotariInfo(TransactionDetailsViewModelBase vm, String field) =>
+    vm.transactionInfo.additionalInfo[field] as String? ?? "";
+
+bool _hasMinotariInfo(TransactionDetailsViewModelBase vm, String field) =>
+    vm.wallet.type == WalletType.minotari && _minotariInfo(vm, field).isNotEmpty;
+
 class TxDetailRowDefinition {
   TxDetailRowDefinition({
     required this.keyString,
@@ -101,10 +118,57 @@ class TxDetailRowDefinition {
       title: S.current.confirmations,
       valueGetter: (vm) => "${vm.transactionInfo.confirmations}/${vm.neededConfirmations}",
       applicable: (vm) =>
-          [...electrumWalletTypes, ...evmWalletTypes, WalletType.zcash, WalletType.monero]
-              .contains(vm.wallet.type) &&
+          [
+            ...electrumWalletTypes,
+            ...evmWalletTypes,
+            WalletType.zcash,
+            WalletType.monero,
+            WalletType.minotari
+          ].contains(vm.wallet.type) &&
           !isLightning(vm.transactionInfo),
       listItemBuilder: ConfirmationsListItem.new,
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_status_key",
+      title: "Status",
+      valueGetter: (vm) => _minotariInfo(vm, "status"),
+      applicable: (vm) => _hasMinotariInfo(vm, "status"),
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_source_key",
+      title: "Source",
+      valueGetter: (vm) => _minotariInfo(vm, "source"),
+      applicable: (vm) => _hasMinotariInfo(vm, "source"),
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_counterparty_address_key",
+      title: S.current.transaction_details_source_address,
+      valueGetter: _minotariCounterparty,
+      applicable: (vm) =>
+          _hasMinotariCounterparty(vm) &&
+          vm.transactionInfo.direction == TransactionDirection.incoming,
+      listItemBuilder: AddressListItem.new,
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_counterparty_address_key",
+      title: S.current.transaction_details_recipient_address,
+      valueGetter: _minotariCounterparty,
+      applicable: (vm) =>
+          _hasMinotariCounterparty(vm) &&
+          vm.transactionInfo.direction != TransactionDirection.incoming,
+      listItemBuilder: AddressListItem.new,
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_counterparty_label_key",
+      title: "Label",
+      valueGetter: (vm) => _minotariInfo(vm, "counterpartyLabel"),
+      applicable: (vm) => _hasMinotariInfo(vm, "counterpartyLabel"),
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_message_key",
+      title: "Message",
+      valueGetter: (vm) => _minotariInfo(vm, "message"),
+      applicable: (vm) => _hasMinotariInfo(vm, "message"),
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_recipient_address_key",
@@ -496,6 +560,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return "https://blockchair.com/dogecoin/transaction/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
+      case WalletType.minotari:
+        return 'https://explore.tari.com/search?hash=${txId}';
       case WalletType.none:
         return "";
     }

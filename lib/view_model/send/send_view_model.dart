@@ -25,6 +25,7 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
@@ -1278,6 +1279,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.tron,
           WalletType.arbitrum,
           WalletType.zcash,
+          WalletType.minotari,
         ].contains(wallet.type)) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
@@ -1342,6 +1344,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           currency: selectedCryptoCurrency,
           // priority: priority,
         );
+      case WalletType.minotari:
+        return minotari!.createMinotariTransactionCredentials(outputs);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type} for send');
     }
