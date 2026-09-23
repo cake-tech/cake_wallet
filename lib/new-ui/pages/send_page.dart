@@ -49,6 +49,7 @@ import "package:cake_wallet/src/widgets/standard_checkbox.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
+import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
@@ -864,8 +865,23 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.sendViewModel.wallet.isHardwareWallet) {
+      final trezorVM = widget.sendViewModel.hardwareWalletViewModel;
+      if (trezorVM is TrezorConnectViewModel &&
+          widget.sendViewModel.walletType == WalletType.bitcoin &&
+          trezorVM.isConnected(WalletType.bitcoin) &&
+          !trezorVM.isSessionFor(widget.sendViewModel.wallet)) {
+        // The live session belongs to another wallet (passphrase); open one for this wallet
+        await trezorVM.dropSession();
+      }
+
       if (!widget.sendViewModel.hardwareWalletViewModel!
           .isConnected(widget.sendViewModel.walletType)) {
+        final hardwareWalletVM = widget.sendViewModel.hardwareWalletViewModel;
+        if (hardwareWalletVM is TrezorConnectViewModel &&
+            widget.sendViewModel.walletType == WalletType.bitcoin) {
+          hardwareWalletVM.prepareReconnect(widget.sendViewModel.wallet);
+        }
+
         await Navigator.of(context).pushNamed(
           Routes.connectDevices,
           arguments: ConnectDevicePageParams(
@@ -878,6 +894,9 @@ class _NewSendPageState extends State<NewSendPage> {
             isReconnect: false,
           ),
         );
+        if (hardwareWalletVM is TrezorConnectViewModel) {
+          hardwareWalletVM.cancelReconnect();
+        }
 
         // Recheck to handle tap-backs
         if (!widget.sendViewModel.hardwareWalletViewModel!

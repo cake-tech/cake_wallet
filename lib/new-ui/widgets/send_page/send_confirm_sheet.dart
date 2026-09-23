@@ -57,8 +57,7 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return PopScope(
+  Widget build(BuildContext context) => PopScope(
       canPop: !widget.isPage,
       onPopInvokedWithResult: (didPop, result) {
         if (widget.isPage) {
@@ -67,11 +66,11 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
       },
       child: SafeArea(
         bottom: false,
-        minimum: widget.isPage ? EdgeInsets.zero : EdgeInsets.only(top: 64),
+        minimum: widget.isPage ? EdgeInsets.zero : const EdgeInsets.only(top: 64),
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
           child: SafeArea(child: Observer(
             builder: (_) {
@@ -125,7 +124,6 @@ class _SendConfirmSheetState extends State<SendConfirmSheet> {
         ),
       ),
     );
-  }
 }
 
 class SendTransactionDetails extends StatelessWidget {
@@ -142,9 +140,8 @@ class SendTransactionDetails extends StatelessWidget {
     final resolvedIconPath = iconPath ?? sendViewModel.currency.iconPath ?? "";
 
     return LayoutBuilder(
-      builder: (context, constraints) {
-        return Column(
-            key: ValueKey(0),
+      builder: (context, constraints) => Column(
+            key: const ValueKey(0),
             mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min,
             children: [
               ModalTopBar(
@@ -171,28 +168,26 @@ class SendTransactionDetails extends StatelessWidget {
                       headingLevel: 1,
                       child: Text(
                         title ?? S.of(context).send,
-                        style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                       ),
                     )
                   ],
                 ),
-                trailingIcon: Icon(Icons.close),
+                trailingIcon: const Icon(Icons.close),
                 trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).maybePop,
               ),
               isPage
                   ? Expanded(child: _buildMainContent(context))
                   : Flexible(child: _buildMainContent(context))
-            ]);
-      },
+            ]),
     );
   }
 
   Money sumByMoney<T>(List<T> list, Money Function(T) picker, Currency currency) =>
       list.map(picker).fold(Money.zero(currency), (a, b) => a + b);
 
-  Widget _buildMainContent(BuildContext context) {
-    return Observer(builder: (context) {
+  Widget _buildMainContent(BuildContext context) => Observer(builder: (context) {
       final transaction = sendViewModel.pendingTransaction;
       final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
 
@@ -424,7 +419,7 @@ class SendTransactionDetails extends StatelessWidget {
                     ],
                     if (sendViewModel.isElectrumWallet) ...[
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Container(
                           height: 1,
                           color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -463,13 +458,12 @@ class SendTransactionDetails extends StatelessWidget {
               ),
               SendConfirmBottomWidget(sendViewModel: sendViewModel),
               if (Platform.isAndroid) // spacing between bottom widget and system navbar
-                SizedBox(),
+                const SizedBox(),
             ],
           ),
         ),
       );
     });
-  }
 
   String formatAmount(String amount) {
     try {
@@ -493,27 +487,24 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
   bool _isNoteButtonLoading = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(
+  Widget build(BuildContext context) => Observer(
       builder: (_) => Column(
         spacing: 12,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          SizedBox(
-            height: 12,
-          ),
+          const SizedBox(height: 12),
           // The sheet swaps its content in place, so this title becoming visible is what
           // tells a screen reader that the transaction went through.
           Semantics(
             liveRegion: true,
             child: Text(
               S.of(context).transaction_sent_new,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
             ),
           ),
-          SizedBox(),
-          CakeImageWidget(width: 200, height: 200, imageUrl: "assets/new-ui/birthday_cake.svg"),
+          const SizedBox(),
+          const CakeImageWidget(width: 200, height: 200, imageUrl: "assets/new-ui/birthday_cake.svg"),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
@@ -523,9 +514,9 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                   Row(
                     spacing: 8,
                     children: [
-                      if (!(widget.sendViewModel!.checkIfAddressIsAContact(
-                              widget.sendViewModel!.outputs.first.address)) &&
-                          !(widget.sendViewModel!.outputs.first.isParsedAddress))
+                      if (!widget.sendViewModel!.checkIfAddressIsAContact(
+                              widget.sendViewModel!.outputs.first.address) &&
+                          !widget.sendViewModel!.outputs.first.isParsedAddress)
                         TransactionCommittedScreenActionButton(
                             text: S.of(context).save_contact,
                             iconPath: "assets/new-ui/save_contact.svg",
@@ -554,9 +545,10 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                               // for other currs this is instant
                               await asyncWhen((_) => widget.sendViewModel!.transactionInfo != null);
 
-                              setState(() {
-                                _isNoteButtonLoading = false;
-                              });
+                              _isNoteButtonLoading = false;
+                              if (mounted) {
+                                setState(() {});
+                              }
 
                               final page = getIt.get<TransactionDetailsModal>(
                                   param1: widget.sendViewModel!.transactionInfo!, param2: true);
@@ -573,16 +565,13 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
                     text: S.of(context).done,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary),
-                SizedBox(
-                  height: 12,
-                )
+                const SizedBox(height: 12),
               ],
             ),
           ),
         ],
       ),
     );
-  }
 }
 
 class TransactionCommittedScreenActionButton extends StatelessWidget {
@@ -599,8 +588,7 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
   final bool isLoading;
 
   @override
-  Widget build(BuildContext context) {
-    return Flexible(
+  Widget build(BuildContext context) => Flexible(
         child: Semantics(
             button: true,
             enabled: !isLoading,
@@ -615,13 +603,13 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       color: Theme.of(context).colorScheme.surfaceContainer),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       spacing: 10,
                       children: [
                         isLoading
-                            ? CupertinoActivityIndicator()
+                            ? const CupertinoActivityIndicator()
                             : CakeImageWidget(
                                 imageUrl: iconPath,
                                 width: 24,
@@ -639,7 +627,6 @@ class TransactionCommittedScreenActionButton extends StatelessWidget {
                     ),
                   ),
                 ))));
-  }
 }
 
 class MultiSendAddressPreview extends StatefulWidget {
@@ -664,8 +651,7 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
   bool _expanded = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.all(12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -677,7 +663,7 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
               children: [
                 Text(
                   "${widget.index}:",
-                  style: TextStyle(fontFamily: "IBM Plex Mono"),
+                  style: const TextStyle(fontFamily: "IBM Plex Mono"),
                 ),
                 if (!_expanded)
                   Semantics(
@@ -726,5 +712,4 @@ class _MultiSendAddressPreviewState extends State<MultiSendAddressPreview> {
         ],
       ),
     );
-  }
 }

@@ -126,6 +126,7 @@ class CurrencyPickerArgs {
     required this.fiatCurrency,
     required this.onSelected,
     this.selected,
+    this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
     this.recentsSource = RecentsSource.none,
@@ -136,6 +137,7 @@ class CurrencyPickerArgs {
   final FiatCurrency fiatCurrency;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;

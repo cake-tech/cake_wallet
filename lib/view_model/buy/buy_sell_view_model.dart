@@ -12,7 +12,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/amount/money.dart';
@@ -29,9 +29,10 @@ enum BuySellPageMode { buy, sell }
 class BuySellViewModel = BuySellViewModelBase with _$BuySellViewModel;
 
 abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with Store {
-  BuySellViewModelBase(AppStore appStore, {required this.mode, required this.fiatConversionStore})
+  BuySellViewModelBase(AppStore appStore, {required NewBuySellParams params, required this.fiatConversionStore})
       : _cryptoAmount = '',
         fiatAmount = '',
+        mode = params.mode,
         cryptoCurrencyAddress = '',
         isCryptoCurrencyAddressEnabled = false,
         cryptoCurrencies = <CryptoCurrency>[],
@@ -57,6 +58,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _initialize();
 
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
+
+    if(params.initialCurrency != null) {
+      changeCryptoCurrency(currency: params.initialCurrency!);
+    }
   }
 
   late Timer bestRateSync;
@@ -396,63 +401,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
   }
 
-  void onTapChoseProvider(BuildContext context) async {
-    skipIsReadyToTradeReaction = true;
-    final initialQuotes = List<Quote>.from(sortedRecommendedQuotes + sortedQuotes);
-    await calculateBestRate();
-    final newQuotes = (sortedRecommendedQuotes + sortedQuotes);
-
-    for (var quote in newQuotes) quote.limits = null;
-
-    final newQuoteProviders = newQuotes
-        .map((quote) => quote.provider.isAggregator ? quote.rampName : quote.provider.title)
-        .toSet();
-
-    final outOfLimitQuotes = initialQuotes.where((initialQuote) {
-      return !newQuoteProviders.contains(
-          initialQuote.provider.isAggregator ? initialQuote.rampName : initialQuote.provider.title);
-    }).map((missingQuote) {
-      final quote = Quote(
-        rate: missingQuote.rate,
-        feeAmount: missingQuote.feeAmount,
-        networkFee: missingQuote.networkFee,
-        transactionFee: missingQuote.transactionFee,
-        payout: missingQuote.payout,
-        rampId: missingQuote.rampId,
-        rampName: missingQuote.rampName,
-        rampIconPath: missingQuote.rampIconPath,
-        paymentType: missingQuote.paymentType,
-        quoteId: missingQuote.quoteId,
-        recommendations: missingQuote.recommendations,
-        provider: missingQuote.provider,
-        isBuyAction: missingQuote.isBuyAction,
-        limits: missingQuote.limits,
-      );
-      quote.setFiatCurrency = missingQuote.fiatCurrency;
-      quote.setCryptoCurrency = missingQuote.cryptoCurrency;
-      return quote;
-    }).toList();
-
-    final updatedQuoteOptions = List<SelectableItem>.from([
-      OptionTitle(title: 'Recommended'),
-      ...sortedRecommendedQuotes,
-      if (sortedQuotes.isNotEmpty) OptionTitle(title: 'All Providers'),
-      ...sortedQuotes,
-      if (outOfLimitQuotes.isNotEmpty) OptionTitle(title: 'Out of Limits'),
-      ...outOfLimitQuotes,
-    ]);
-
-    if (context.mounted) {
-      await Navigator.of(context).pushNamed(
-        Routes.buyOptionsPage,
-        arguments: [
-          updatedQuoteOptions,
-          changeOption,
-          launchTrade,
-        ],
-      ).then((value) => calculateBestRate());
-    }
-  }
 
   void _onPairChange() {
     _initialize();

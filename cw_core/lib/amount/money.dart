@@ -314,4 +314,7 @@ class Money<T extends Currency> implements Comparable<Money<T>> {
     }
     return currency.symbol;
   }
+
+  /// new [Money] with absolute value of this instance
+  Money abs() => copyWith(amount: amount.abs());
 }

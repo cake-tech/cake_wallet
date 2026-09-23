@@ -20,6 +20,9 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   final int decimals;
 
   @override
+  String get apiString => "fiat.$title";
+
+  @override
   final String symbol;
 
   final String emoji;
