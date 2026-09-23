@@ -498,7 +498,10 @@ abstract class MoneroWalletBase
           paymentId: '');
     }
 
-    // final status = monero.PendingTransaction_status(pendingTransactionDescription);
+    if (pendingTransactionDescription.txCount != 1) {
+      throw MoneroTransactionCreationException(
+          "This payment would be split into ${pendingTransactionDescription.txCount} transactions. Send smaller transaction to yourself first.",);
+    }
 
     return PendingMoneroTransaction(pendingTransactionDescription, this);
   }

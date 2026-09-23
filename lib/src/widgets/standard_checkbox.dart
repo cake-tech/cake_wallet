@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatelessWidget {
   StandardCheckbox(
-      {required this.value,
+      {super.key,
+      required this.value,
       this.caption = '',
       this.gradientBackground = false,
       this.borderColor,

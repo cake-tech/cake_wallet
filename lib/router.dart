@@ -684,7 +684,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buySellPage:
       return handleRouteWithPlatformAwareness(
-        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: BuySellPageMode.buy)),
+        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.buy))),
       );
 
 

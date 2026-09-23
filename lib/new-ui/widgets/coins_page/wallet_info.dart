@@ -29,6 +29,7 @@ class WalletInfoBar extends StatelessWidget {
         // the line box, decide its vertical position: it is centred on the
         // middle of the glyphs, which is what the eye compares it against.
         child: Text.rich(
+          key: const ValueKey("home_page_wallet_name_text_key"),
           TextSpan(
             children: [
               if (hardwareWalletIcon != null)
