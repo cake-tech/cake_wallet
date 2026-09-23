@@ -11,7 +11,7 @@ class LightTheme extends MaterialThemeBase {
   ThemeMode get themeMode => ThemeMode.light;
 
   @override
-  Color get primaryColor => const Color(0xFF4EBEFF);
+  Color get primaryColor => const Color(0xFF2D9EFA);
 
   @override
   Color get secondaryColor => const Color(0xFF625C64);
@@ -23,7 +23,7 @@ class LightTheme extends MaterialThemeBase {
   Color get errorColor => const Color(0xFFBA1A1A);
 
   @override
-  Color get surfaceColor => const Color(0xFFEFEFF8);
+  Color get surfaceColor => const Color(0xFFEDEDFA);
 
   @override
   ColorScheme get colorScheme => ColorScheme.light(
@@ -45,13 +45,13 @@ class LightTheme extends MaterialThemeBase {
         onErrorContainer: const Color(0xFFE43D3D),
         surface: surfaceColor,
         surfaceDim: const Color(0xFFE7E7FD),
-        onSurface: const Color(0xFF312938),
-        onSurfaceVariant: const Color(0xFF6C6772),
-        surfaceContainerLowest: Color(0xFFE4E4E4),
-        surfaceContainerLow: Color(0xFFECECED),
-        surfaceContainer: Color(0xFFFBFBFD),
-        surfaceContainerHigh: Color(0xFFFDFDFE),
-        surfaceContainerHighest: Color(0xFFFFFFFF),
+        onSurface: const Color(0xFF28222E),
+        onSurfaceVariant: const Color(0xFF857D8D),
+        surfaceContainerLowest: Color(0xFFD5D5EB),
+        surfaceContainerLow: Color(0xFFD5D5EB),
+        surfaceContainer: Color(0xFFFFFFFF),
+        surfaceContainerHigh: Color(0xFFF2F2FC),
+        surfaceContainerHighest: Color(0xFFDADAED),
         onInverseSurface: Color(0xFFFAFAFA),
         outline: const Color(0xFF7B757C),
         outlineVariant: const Color(0xFFEDEDF6),
