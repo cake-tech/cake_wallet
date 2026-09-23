@@ -1,5 +1,3 @@
-import "dart:async";
-
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
@@ -60,18 +58,28 @@ abstract class AppStoreBase with Store {
   Future<void> changeCurrentWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
     final changingToSameWalletType = this.wallet?.type == wallet.type;
+    final previousWalletType = this.wallet?.type;
 
     await this.wallet?.close(shouldCleanup: !changingToSameWalletType);
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
     if (isWalletConnectCompatibleChain(wallet.type)) {
-      unawaited(_setupWalletConnect());
+      getIt.get<WalletKitService>().resetConnectionsState();
+      _queueWalletConnectAction(_setupWalletConnect);
+    } else if (previousWalletType != null && isWalletConnectCompatibleChain(previousWalletType)) {
+      _queueWalletConnectAction(_disposeWalletConnect);
     }
     await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
     await getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+  }
+
+  Future<void> _lastWalletConnectAction = Future.value();
+
+  void _queueWalletConnectAction(Future<void> Function() action) {
+    _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
   }
 
   Future<void> _setupWalletConnect() async {
@@ -82,6 +90,14 @@ abstract class AppStoreBase with Store {
       await wcService.init();
     } catch (e, s) {
       printV("WalletConnect setup failed: $e\n$s");
+    }
+  }
+
+  Future<void> _disposeWalletConnect() async {
+    try {
+      await getIt.get<WalletKitService>().onDispose();
+    } catch (e) {
+      printV("WalletConnect teardown failed: $e");
     }
   }
 }

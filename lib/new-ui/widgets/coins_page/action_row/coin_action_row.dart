@@ -53,7 +53,6 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).send,
             action: () {
-              if (FeatureFlag.hasNewUiExtraPages) {
                 final sendPage = getIt.get<NewSendPage>(
                   param1: SendPageParams(
                     unspentCoinType:
@@ -74,11 +73,6 @@ class CoinActionRow extends StatelessWidget {
                     );
                   },
                 );
-              } else {
-                Map<String, dynamic>? args;
-                if (lightningMode) args = {'coinTypeToSpendFrom': UnspentCoinType.lightning};
-                Navigator.of(context).pushNamed(Routes.send, arguments: args);
-              }
             },
           ),
           CoinActionButton(
@@ -91,7 +85,6 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).receive,
             action: () async {
-              if (FeatureFlag.hasNewUiExtraPages) {
                 final page = getIt.get<NewReceivePage>(param1: lightningMode);
                 CupertinoScaffold.showCupertinoModalBottomSheet(
                   context: context,
@@ -100,17 +93,6 @@ class CoinActionRow extends StatelessWidget {
                     return Material(child: ModalNavigator(parentContext: context, rootPage: page));
                   },
                 );
-              } else {
-                // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)
-                if (lightningMode) {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
-                } else {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()));
-                }
-                Navigator.of(context).pushNamed(Routes.addressPage);
-              }
             },
           ),
           if (showSwap)
@@ -126,7 +108,6 @@ class CoinActionRow extends StatelessWidget {
               action: () {
                 final page =
                     getIt.get<NewSwapPage>(param2: lightningMode ? CryptoCurrency.btcln : null);
-                if (FeatureFlag.hasNewUiExtraPages) {
                   CupertinoScaffold.showCupertinoModalBottomSheet(
                     context: context,
                     barrierColor: Colors.black.withAlpha(85),
@@ -136,9 +117,6 @@ class CoinActionRow extends StatelessWidget {
                       parentContext: context,
                     )),
                   );
-                } else {
-                  Navigator.of(context).pushNamed(Routes.exchange);
-                }
               },
             ),
           CoinActionButton(
@@ -162,7 +140,8 @@ class CoinActionRow extends StatelessWidget {
 
     if (code == null || code.isEmpty) return;
 
-    late final PaymentRequest req;
+    PaymentRequest? req;
+    String? rawInput;
     var unspentCoinType = UnspentCoinType.any;
     if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
       unspentCoinType = UnspentCoinType.lightning;
@@ -172,8 +151,6 @@ class CoinActionRow extends StatelessWidget {
       unspentCoinType = UnspentCoinType.lightning;
       final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
       req = PaymentRequest(code, amount, "", "", "");
-    } else if (OpenCryptoPayService.isOpenCryptoPayQR(code)) {
-      req = PaymentRequest(code, "", "", "", "");
     } else if (Uri.tryParse(code)?.scheme == "wc") {
       if (!isWalletConnectCompatibleChain(walletType)) {
         showPopUp<void>(
@@ -190,19 +167,19 @@ class CoinActionRow extends StatelessWidget {
       Navigator.of(context)
           .pushNamed(Routes.walletConnectConnectionsListing, arguments: Uri.parse(code));
       return;
-    } else if (["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
+    } else if (!OpenCryptoPayService.isOpenCryptoPayQR(code) &&
+        ["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
       Navigator.of(context).pushNamed(Routes.newNode,
           arguments: {"editingNode": Node.fromUri(Uri.parse(code), walletType)});
       return;
     } else {
-      final uri = Uri.tryParse(code);
-      if (uri == null) return;
-      req = PaymentRequest.fromUri(uri);
+      rawInput = code;
     }
 
     final sendPage = getIt.get<NewSendPage>(
       param1: SendPageParams(
         initialPaymentRequest: req,
+        initialRawInput: rawInput,
         unspentCoinType: unspentCoinType,
       ),
     );

@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -85,7 +84,6 @@ abstract class DashboardViewModelBase with Store {
       required this.orderFilterStore,
       required this.transactionFilterStore,
       required this.settingsStore,
-      required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
@@ -96,7 +94,6 @@ abstract class DashboardViewModelBase with Store {
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
-        isMigratingToIronwood = false,
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
@@ -108,6 +105,7 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
 
     name = wallet.name;
     type = wallet.type;
@@ -208,6 +206,7 @@ abstract class DashboardViewModelBase with Store {
       loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+      loadSeedBackupReminder();
 
       tradeMonitor.stopTradeMonitoring();
       tradeMonitor.monitorActiveTrades(wallet!.id);
@@ -250,8 +249,6 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
 
     reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
-
-    addZcashMigrationReaction();
 
     tradeMonitor.monitorActiveTrades(wallet.id);
   }
@@ -377,21 +374,9 @@ abstract class DashboardViewModelBase with Store {
     );
   }
 
-  @observable
-  ReactionDisposer? zcashMigrationReactionDisposer;
-
-  @action
-  void addZcashMigrationReaction()  {
-    zcashMigrationReactionDisposer?.reaction.dispose();
-    zcashMigrationReactionDisposer = null;
-
-    if (wallet.type == WalletType.zcash) {
-      zcashMigrationReactionDisposer = reaction((_) => wallet.balance.values.first, (_) async {
-        isMigratingToIronwood =
-            wallet.type == WalletType.zcash && await zcash!.hasOrchardMigratableBalance(wallet);
-      });
-    }
-  }
+  @computed
+  bool get isMigratingToIronwood =>
+      wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
   bool get isSyncHeavy {
@@ -629,13 +614,14 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get shouldShowMwebAd {
+    return false;
     if (wallet.type != WalletType.litecoin) return false;
 
     if (mwebEnabled) return false;
 
     if (settingsStore.mwebAdDismissed) return false;
 
-    return Platform.isAndroid || Platform.isIOS;
+    return (Platform.isAndroid || Platform.isIOS) && !wallet.isHardwareWallet;
   }
 
   @action
@@ -907,6 +893,22 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @observable
+  late bool showSeedBackupReminder;
+
+  @computed
+  bool get hasBalance => wallet.balance.values.any(
+        (balance) =>
+            !balance.available.isZero ||
+            !balance.unavailable.isZero ||
+            !(balance.secondAvailable?.isZero ?? true) ||
+            !(balance.secondUnavailable?.isZero ?? true) ||
+            !(balance.frozen?.isZero ?? true),
+      );
+
+  @computed
+  bool get shouldShowSeedBackupReminder => showSeedBackupReminder && hasBalance;
+
   @computed
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
@@ -1137,6 +1139,17 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
+  void loadSeedBackupReminder() {
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+  }
+
+  @action
+  Future<void> dismissSeedBackupReminder() async {
+    showSeedBackupReminder = false;
+    await wallet.walletInfo.clearSeedBackupReminder();
+  }
+
+  @action
   void dismissPayjoin() {
     settingsStore.showPayjoinCard = false;
   }
@@ -1156,7 +1169,6 @@ abstract class DashboardViewModelBase with Store {
 
   SettingsStore settingsStore;
 
-  YatStore yatStore;
 
   TradesStore tradesStore;
 
@@ -1288,8 +1300,6 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     name = wallet.name;
     loadFilterItems();
-
-    addZcashMigrationReaction();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -1571,9 +1581,6 @@ abstract class DashboardViewModelBase with Store {
       return ServicesResponse([], false, '');
     }
   }
-
-  @observable
-  bool isMigratingToIronwood;
 
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {

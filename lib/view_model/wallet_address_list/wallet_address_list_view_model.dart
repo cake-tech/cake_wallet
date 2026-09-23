@@ -2,7 +2,6 @@ import "dart:core";
 import "dart:developer" as dev;
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
-import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/core/wallet_change_listener_view_model.dart";
@@ -46,7 +45,6 @@ class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletA
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required super.appStore,
-    required this.yatStore,
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = appStore.wallet!.currency,
@@ -654,7 +652,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   List<ListItem> _baseItems;
 
-  final YatStore yatStore;
 
   @action
   void setAddress(WalletAddressListItem address) =>

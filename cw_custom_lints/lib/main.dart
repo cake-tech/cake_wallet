@@ -3,6 +3,8 @@ import "package:analysis_server_plugin/registry.dart";
 import "package:cw_custom_lints/http_force_proxy/http_force_proxy_rule.dart";
 import "package:cw_custom_lints/modal_top_bar_semantics/modal_top_bar_semantics_rule.dart";
 import "package:cw_custom_lints/modern_button_semantics/modern_button_semantics_rule.dart";
+import "package:cw_custom_lints/money_amount_to_string/money_amount_to_string_fix.dart";
+import "package:cw_custom_lints/money_amount_to_string/money_amount_to_string_rule.dart";
 import "package:cw_custom_lints/print_verbose/print_verbose_fix.dart";
 import "package:cw_custom_lints/print_verbose/print_verbose_rule.dart";
 import "package:cw_custom_lints/restricted_imports/restricted_imports_rule.dart";
@@ -20,7 +22,13 @@ class CwCustomLintsPlugin extends Plugin {
     registry.registerWarningRule(HttpForceProxyRule());
     registry.registerWarningRule(ModernButtonSemanticsRule());
     registry.registerWarningRule(ModalTopBarSemanticsRule());
+    registry.registerWarningRule(MoneyAmountToStringRule());
 
     registry.registerFixForRule(PrintVerboseRule.code, ReplaceWithPrintV.new);
+    registry.registerFixForRule(MoneyAmountToStringRule.code, ReplaceWithMoneyToString.new);
+    registry.registerFixForRule(
+      MoneyAmountToStringRule.code,
+      ReplaceWithMoneyToStringInBaseUnit.new,
+    );
   }
 }
