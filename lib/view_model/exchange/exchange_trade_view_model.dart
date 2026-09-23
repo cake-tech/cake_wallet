@@ -32,6 +32,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -346,23 +347,33 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
-        return _createERC681URI(fromCurrency, inputAddress, amount);
+        return _createERC681URI(fromCurrency, inputAddress, amount, uriWalletType);
       case WalletType.solana:
+        final mintAddress = TokenUtilities.findSolanaTokenMint(fromCurrency);
+        if (!identical(fromCurrency, CryptoCurrency.sol) &&
+            (mintAddress == null || mintAddress.isEmpty)) {
+          return null;
+        }
         return SolanaURI(
           amount: amount,
           address: inputAddress,
-          contractAddress: TokenUtilities.findSolanaTokenMint(fromCurrency),
+          contractAddress: mintAddress,
         );
       case WalletType.tron:
+        final contractAddress = TokenUtilities.findTronTokenContract(fromCurrency);
+        if (!identical(fromCurrency, CryptoCurrency.trx) &&
+            (contractAddress == null || contractAddress.isEmpty)) {
+          return null;
+        }
         return TronURI(
           amount: amount,
           address: inputAddress,
-          contractAddress: TokenUtilities.findTronTokenContract(fromCurrency),
+          contractAddress: contractAddress,
         );
       case WalletType.monero:
         return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
-        return MoneroURI(address: inputAddress, amount: amount);
+        return WowneroURI(address: inputAddress, amount: amount);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:
@@ -381,32 +392,36 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   @action
-  PaymentURI? _createERC681URI(CryptoCurrency currency, String address, String amount) {
-    final chainId = TokenUtilities.getChainId(currency);
-    final isNativeToken = TokenUtilities.isNativeToken(currency);
+  PaymentURI? _createERC681URI(
+    CryptoCurrency currency,
+    String address,
+    String amount,
+    WalletType walletType,
+  ) {
+    final nativeCurrency = walletTypeToCryptoCurrency(walletType);
+    final chainId = getChainIdByCryptoCurrency(nativeCurrency)!;
 
-    if (isNativeToken) {
+    if (identical(currency, nativeCurrency)) {
       return ERC681URI(
         chainId: chainId,
         address: address,
         amount: amount,
         contractAddress: null,
       );
-    } else {
-      final erc20Token = TokenUtilities.findErc20Token(currency, wallet) ??
-          TokenUtilities.findErc20TokenForSwap(currency);
+    }
 
-      if (erc20Token != null) {
-        return ERC681URI(
-          chainId: chainId,
-          address: address,
-          amount: amount,
-          contractAddress: erc20Token.contractAddress,
-          tokenDecimals: erc20Token.decimal,
-        );
-      }
+    final erc20Token = TokenUtilities.findErc20TokenForSwap(currency);
+    if (erc20Token == null || erc20Token.contractAddress.isEmpty) {
       return null;
     }
+
+    return ERC681URI(
+      chainId: chainId,
+      address: address,
+      amount: amount,
+      contractAddress: erc20Token.contractAddress,
+      tokenDecimals: erc20Token.decimal,
+    );
   }
 
   @computed

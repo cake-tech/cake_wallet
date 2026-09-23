@@ -121,35 +121,36 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 fontWeight: FontWeight.w500))
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          largeQrMode = !largeQrMode;
-                        });
-                      },
-                      child: TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeOutCubic,
-                        tween: Tween<double>(
-                          begin: resolvedSize,
-                          end: resolvedSize,
-                        ),
-                        builder: (context, animatedSize, child) {
-                          return SizedBox(
-                            width: animatedSize,
-                            height: animatedSize,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: QrImage(
-                                size: animatedSize,
-                                embeddedImagePath: widget.from.iconPath,
-                                data: uri?.toString() ?? widget.address,
-                              ),
-                            ),
-                          );
+                    if (uri != null)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            largeQrMode = !largeQrMode;
+                          });
                         },
+                        child: TweenAnimationBuilder<double>(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic,
+                          tween: Tween<double>(
+                            begin: resolvedSize,
+                            end: resolvedSize,
+                          ),
+                          builder: (context, animatedSize, child) {
+                            return SizedBox(
+                              width: animatedSize,
+                              height: animatedSize,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: QrImage(
+                                  size: animatedSize,
+                                  embeddedImagePath: widget.from.iconPath,
+                                  data: uri!.toString(),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
                     AddressFormatter.buildSegmentedAddress(
                         address: widget.address,
                         evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
