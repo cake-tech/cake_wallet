@@ -16,6 +16,7 @@ import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -32,25 +33,17 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
-import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
+import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart";
 import 'package:cake_wallet/src/screens/connect_device/select_device_manufacturer_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
+import "package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import "package:cake_wallet/src/screens/dashboard/pages/nft_send_page.dart";
-import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
@@ -67,15 +60,8 @@ import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
-import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
-import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
-import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_display_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
@@ -87,24 +73,16 @@ import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart'
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
-import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
-import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
-import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
-import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
-import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
@@ -116,7 +94,6 @@ import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
-import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -124,7 +101,6 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
@@ -173,7 +149,6 @@ import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -426,7 +401,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewAddressesPage>(param1: settings.arguments as bool));
+          (context) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden:settings.arguments as bool)));
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
@@ -444,14 +419,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<WalletRestoreChooseDerivationPage>(
               param1: settings.arguments as List<DerivationInfo>));
 
-    case Routes.sweepingWalletPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
       return CupertinoPageRoute<void>(
           settings: settings,
-          builder: (_) =>
-              FeatureFlag.hasNewUi ? getIt.get<NewDashboard>() : getIt.get<DashboardPage>());
+          builder: (_) => getIt.get<NewDashboard>());
 
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;
@@ -471,27 +443,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         settings: settings,
       );
 
-    case Routes.sendTemplate:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
-
-    case Routes.receive:
-      return CupertinoPageRoute<void>(
-          builder: (context) => getIt.get<ReceivePage>(), settings: settings);
-
-    case Routes.addressPage:
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
-          settings: settings);
 
     case Routes.newReceivePage:
-      if (FeatureFlag.hasNewUi) {
         return handleRouteWithPlatformAwareness(
           (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
           settings: settings,
         );
-      }
-      return handleRouteWithPlatformAwareness((context) => getIt.get<AddressPage>(),
-          settings: settings);
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -504,9 +461,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
 
-    case Routes.newSubaddress:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -624,9 +578,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<PrivacyPage>(),
       );
 
-    case Routes.trocadorProvidersPage:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<TrocadorProvidersPage>());
 
     case Routes.domainLookupsPage:
       return CupertinoPageRoute<void>(
@@ -666,11 +617,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(builder: (_) => page);
 
-    case Routes.nanoAccountCreation:
-      return CupertinoPageRoute<String>(
-          builder: (_) =>
-              getIt.get<NanoAccountEditOrCreatePage>(param1: settings.arguments as NanoAccount?));
-
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<ContactListPage>(),
@@ -682,7 +628,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden: false, popOnSelection: true)));
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(
@@ -699,12 +645,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<ShowKeysDisclaimerPage>(),
       );
 
-    case Routes.exchangeTrade:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTradePage>());
-
-    case Routes.exchangeConfirm:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
-
     case Routes.tradeDetails:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
@@ -716,48 +656,28 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buySellPage:
       return handleRouteWithPlatformAwareness(
-        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: BuySellPageMode.buy)),
+        (context) => Material(child: getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.buy))),
       );
 
-    case Routes.buyOptionsPage:
-      final args = settings.arguments as List;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
 
-    case Routes.paymentMethodOptionsPage:
-      final args = settings.arguments as List;
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
-
-    case Routes.buyWebView:
-      final args = settings.arguments as List;
-
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.exchange:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ExchangePage>(param1: settings.arguments as PaymentRequest?),
+            (context) => Material(
+            child: getIt.get<NewSwapPage>(param1: settings.arguments as PaymentRequest?)),
+        settings: settings,
       );
-
-    case Routes.exchangeTemplate:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
 
     case Routes.rescan:
       final page = getIt.get<RescanPage>();
       return MaterialPageRoute<void>(builder: (_) => page);
 
-    case Routes.faq:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());
 
     case Routes.walletGroupExistingSeedDescriptionPage:
       return MaterialPageRoute<void>(builder: (_) => WalletGroupExistingSeedDescriptionPage());
-
-    case Routes.transactionSuccessPage:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
 
     case Routes.backup:
       return handleRouteWithPlatformAwareness(
@@ -832,13 +752,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<CakePayAccountPage>(),
       );
 
-    case Routes.webViewPage:
-      final args = settings.arguments as List;
-      final title = args.first as String;
-      final url = args[1] as Uri;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<WebViewPage>(param1: title, param2: url));
-
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
       final type = args['type'] as WalletType;
@@ -866,15 +779,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.anonPayInvoicePage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
-
-    case Routes.anonPayReceivePage:
-      final anonReceivePageArgs = settings.arguments as AnonPayReceivePageArgs;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonReceivePageArgs));
-
     case Routes.anonPayDetailsPage:
       final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
       return CupertinoPageRoute<void>(
@@ -888,23 +792,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<PayjoinDetailsPage>(param1: sessionId, param2: transactionInfo));
 
-    case Routes.desktop_actions:
-      return PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (_, __, ___) => DesktopDashboardActions(getIt<DashboardViewModel>()),
-      );
-
-    case Routes.desktop_settings_page:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DesktopSettingsPage>());
-
     case Routes.empty_no_route:
       return MaterialPageRoute<void>(builder: (_) => SizedBox.shrink());
-
-    case Routes.transactionsPage:
-      return CupertinoPageRoute<void>(
-          settings: settings,
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<TransactionsPage>());
 
     case Routes.setup_2faPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAPage>());
@@ -1025,11 +914,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (_) => getIt.get<SeedVerificationPage>(param1: settings.arguments as bool),
-      );
-
-    case Routes.exchangeTradeExternalSendPage:
-      return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<ExchangeTradeExternalSendPage>(),
       );
 
     case Routes.backgroundSync:
