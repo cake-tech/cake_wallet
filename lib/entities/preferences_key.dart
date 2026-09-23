@@ -81,6 +81,9 @@ class PreferencesKey {
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
   static const builtinTorKey = 'builtin_tor';
+  static const torSwitchToOnionNodesKey = 'tor_switch_to_onion_nodes';
+  static const torClearnetNodeIdsKey = 'tor_clearnet_node_ids';
+  static const torOnionNodeIdsKey = 'tor_onion_node_ids';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';

@@ -1581,5 +1581,6 @@
   "zcash_network_upgrade": "Zcash ネットワークのアップグレード",
   "zcash_network_upgrade_desc_1": "Zcash は、Ironwood と呼ばれるネットワーク アップグレードを受けており、資金を使用する前に資金の移行が必要です。この移行は自動的に行われ、プライバシーが保護され、Zcash ウォレットを開くとすぐに開始されます。",
   "zcash_network_upgrade_desc_2": "移行が完了すると、利用可能残高は通常の状態に戻り、引き続き通常どおり Zcash を送受信できます。",
-  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。"
+  "zcash_network_upgrade_desc_3": "Zcash ウォレットの同期が完了するまで待ってから、移行が完了するまでアプリを開いたままにしてください。残高によっては数分かかる場合があります。",
+  "tor_switch_to_onion_nodes": "Torが有効な間はonionノードに切り替える"
 }

@@ -1581,5 +1581,6 @@
   "zcash_network_upgrade": "Zcash-netwerkupgrade",
   "zcash_network_upgrade_desc_1": "Zcash heeft een netwerkupgrade ondergaan genaamd Ironwood, die migratie van fondsen vereist voordat ze kunnen worden uitgegeven. Deze migratie is automatisch, behoud van de privacy en begint zodra u uw Zcash-portemonnee opent.",
   "zcash_network_upgrade_desc_2": "Wanneer de migratie is voltooid, wordt uw beschikbare saldo weer normaal en kunt u zoals gewoonlijk Zcash blijven verzenden en ontvangen.",
-  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo."
+  "zcash_network_upgrade_desc_3": "Wacht tot de synchronisatie van uw Zcash-portemonnee is voltooid en laat de app open totdat de migratie is voltooid. Dit kan enkele minuten duren, afhankelijk van het saldo.",
+  "tor_switch_to_onion_nodes": "Overschakelen naar onion-nodes zolang Tor is ingeschakeld"
 }

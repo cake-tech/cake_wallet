@@ -88,6 +88,9 @@ abstract class ConnectionSyncViewModelBase with Store {
   @computed
   bool get builtinTor => _settingsStore.currentBuiltinTor;
 
+  @computed
+  bool get torSwitchToOnionNodes => _settingsStore.torSwitchToOnionNodes;
+
   List<AddressSource> get domainLookupSources => AddressResolverService.supportedSources;
 
   bool lookupValue(AddressSource source) {
@@ -287,6 +290,19 @@ abstract class ConnectionSyncViewModelBase with Store {
   void setUseBscScan(bool value) {
     _settingsStore.useBscScan = value;
     evm!.updateScanProviderUsageState(_wallet, value);
+  }
+
+  @action
+  Future<void> setTorSwitchToOnionNodes(bool value) async {
+    _settingsStore.torSwitchToOnionNodes = value;
+    if (!_settingsStore.currentBuiltinTor) return;
+    await _settingsStore.updateNodesForTor(value);
+    int? chainId;
+    if (isEVMCompatibleChain(_wallet.type)) {
+      chainId = evm!.getSelectedChainId(_wallet);
+    }
+    await _wallet.connectToNode(
+        node: _settingsStore.getCurrentNode(_wallet.type, chainId: chainId));
   }
 
   @action

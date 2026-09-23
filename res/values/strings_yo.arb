@@ -1581,5 +1581,6 @@
   "zcash_network_upgrade": "Zcash Network Igbesoke",
   "zcash_network_upgrade_desc_1": "Zcash ti ṣe iṣagbega nẹtiwọọki kan ti a pe ni Ironwood ti o nilo ijira awọn owo ṣaaju ki wọn to le lo. Iṣilọ yii jẹ aifọwọyi, ipamọ-aṣiri, o si bẹrẹ ni kete ti o ṣii apamọwọ Zcash rẹ.",
   "zcash_network_upgrade_desc_2": "Nigbati ijira ba pari, Iwontunws.funfun Wa rẹ yoo pada si deede, ati pe o le tẹsiwaju lati firanṣẹ ati gba Zcash bi igbagbogbo.",
-  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi."
+  "zcash_network_upgrade_desc_3": "Jọwọ gba apamọwọ Zcash rẹ lati pari mimuuṣiṣẹpọ, lẹhinna fi ohun elo naa silẹ ni sisi titi ti ijira yoo pari eyiti o le gba iṣẹju diẹ ti o da lori iwọntunwọnsi.",
+  "tor_switch_to_onion_nodes": "Yipada si awọn ipade onion nigba ti Tor ti wa ni titan"
 }

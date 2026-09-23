@@ -54,6 +54,14 @@ class ConnectionSyncPage extends BasePage {
                             onChanged: (val) {
                               _connectionSyncViewModel.setBuiltinTor(val, context);
                             }),
+                      if (FeatureFlag.isInAppTorEnabled)
+                        ListItemToggle(
+                            keyValue: "tor_switch_to_onion_nodes",
+                            label: S.of(context).tor_switch_to_onion_nodes,
+                            value: _connectionSyncViewModel.torSwitchToOnionNodes,
+                            onChanged: (val) {
+                              _connectionSyncViewModel.setTorSwitchToOnionNodes(val);
+                            }),
                       ListItemToggle(
                           keyValue: "disable_automatic_exchange_status_updates",
                           label: S.of(context).disable_automatic_exchange_status_updates,
