@@ -125,7 +125,6 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     }
     final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
 
-    return AmountParsingProxy(settingsStore.displayAmountsInSatoshi)
-        .asDisplayStringWithSymbol(balance.available);
+    return AmountParsingProxy(settingsStore.displayAmountsInSatoshi).asDisplayString(balance.available);
   }
 }

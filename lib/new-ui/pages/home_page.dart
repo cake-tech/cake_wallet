@@ -11,6 +11,7 @@ import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
+import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
@@ -21,11 +22,9 @@ import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dar
 import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/utils/feature_flag.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/nft_view_model.dart";
-import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -45,7 +44,6 @@ class NewHomePage extends StatefulWidget {
 }
 
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
-
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
 
@@ -54,8 +52,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     super.initState();
 
     _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
-      setState(() {
-      });
+      setState(() {});
     });
 
     _migrationReaction = reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
@@ -147,8 +144,10 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                         label: S.current.buy,
                         icon: Icons.arrow_forward_ios_rounded,
                         iconSize: 12,
-                        onTap: () =>
-                            Navigator.of(context).pushNamed(Routes.buySellPage),
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          builder: (context) => BuySellSelectorModal(),
+                        ),
                       )
                     ]
                         : [];
@@ -179,7 +178,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                               widget.dashboardViewModel.accountListViewModel?.reload();
                               await Future<void>.delayed(Duration.zero);
                               await widget.dashboardViewModel.loadCardDesigns();
-                              setState(() {});
+                              if (mounted) setState(() {});
                             });
                           },
                         ),
@@ -193,28 +192,29 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 onCompactModeBackgroundCardsTapped: openAccountCustomizer,
                                 lightningMode: _lightningMode,
                                 actions: actions),
-                            Observer(builder: (_) => AnimatedSize(
-                              duration: Duration(milliseconds: 150),
-                              curve: Curves.easeInOutCubic,
-                              child:
-                              (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
-                                  ? Column(
-                                children: [
-                                  const SizedBox(
-                                    height: 12,
-                                    width: double.infinity,
-                                  ),
-                                  Text(
-                                    S.of(context).long_press_show_balance,
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant),
+                            Observer(
+                                builder: (_) => AnimatedSize(
+                                  duration: const Duration(milliseconds: 150),
+                                  curve: Curves.easeInOutCubic,
+                                  child: (widget
+                                      .dashboardViewModel.shouldShowBalanceHiddenMessage)
+                                      ? Column(
+                                    children: [
+                                      const SizedBox(
+                                        height: 12,
+                                        width: double.infinity,
+                                      ),
+                                      Text(
+                                        S.of(context).long_press_show_balance,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant),
+                                      )
+                                    ],
                                   )
-                                ],
-                              )
-                                  : SizedBox(width: double.infinity),
-                            )),
+                                      : const SizedBox(width: double.infinity),
+                                )),
                             UnconfirmedBalanceWidget(
                                 dashboardViewModel: widget.dashboardViewModel),
                             SeedBackupReminderCard(
@@ -324,7 +324,9 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
       }
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (!mounted) return;
+
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
             initialPaymentRequest: paymentRequest,
@@ -338,7 +340,8 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
             padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: SizedBox(
                 height: MediaQuery.of(context).size.height * 0.6,
-                child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
+                child:
+                ModalNavigator(parentContext: context, rootPage: Material(child: page))),
           ));
     } else {
       Navigator.pushNamed(
@@ -369,7 +372,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
             initialPaymentRequest: paymentRequest,
@@ -379,14 +382,13 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
       showCupertinoModalBottomSheet(
           context: context,
           barrierColor: Colors.black.withAlpha(128),
-          builder: (context) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-            );
-          });
+          builder: (context) => Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child:
+                ModalNavigator(parentContext: context, rootPage: Material(child: page))),
+          ));
     } else {
       Navigator.pushNamed(
         context,
