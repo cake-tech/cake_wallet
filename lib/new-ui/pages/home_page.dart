@@ -9,6 +9,7 @@ import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart";
@@ -20,14 +21,11 @@ import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dar
 import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/utils/feature_flag.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/nft_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
-import "package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_edit_or_create_view_model.dart";
-import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -48,8 +46,6 @@ class NewHomePage extends StatefulWidget {
 
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
-  WalletAccountEditOrCreateViewModel? accountEditOrCreateViewModel;
-
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
 
@@ -57,9 +53,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void initState() {
     super.initState();
 
-    _setAccountEditOrCreateViewModel();
     _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
-      _setAccountEditOrCreateViewModel();
       setState(() {
       });
     });
@@ -99,26 +93,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
-
-  void _setAccountEditOrCreateViewModel() {
-    if (!widget.dashboardViewModel.balanceViewModel.hasAccounts) {
-      accountEditOrCreateViewModel = null;
-      return;
-    }
-
-    switch (widget.dashboardViewModel.wallet.type) {
-      case WalletType.bitcoin:
-        accountEditOrCreateViewModel = getIt.get<BitcoinAccountEditOrCreateViewModel>();
-        break;
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-        accountEditOrCreateViewModel = getIt.get<MoneroAccountEditOrCreateViewModel>();
-        break;
-      default:
-        accountEditOrCreateViewModel = null;
-    }
-  }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -203,7 +177,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                               ),
                             ).then((_) async {
                               widget.dashboardViewModel.accountListViewModel?.reload();
-                              _setAccountEditOrCreateViewModel();
                               await Future<void>.delayed(Duration.zero);
                               await widget.dashboardViewModel.loadCardDesigns();
                               setState(() {});
@@ -319,26 +292,18 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   }
 
   Future<void> openAccountCustomizer() async {
-    final accountList = widget.dashboardViewModel.accountListViewModel;
-    final accountEditOrCreate = accountEditOrCreateViewModel;
-    if (accountList == null || accountEditOrCreate == null) {
-      return;
-    }
+    if (widget.dashboardViewModel.accountListViewModel == null) return;
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
       context: context,
       builder: (context) => ModalNavigator(
-          parentContext: context,
-          heightMode: ModalHeightModes.fullScreen,
-          rootPage: Material(
-            child: WalletAccountsPage(
-              accountListViewModel: accountList,
-              accountEditOrCreateViewModel: accountEditOrCreate,
-              dashboardViewModel: widget.dashboardViewModel,
-            ),
-          ),
+        parentContext: context,
+        heightMode: ModalHeightModes.fullScreen,
+        rootPage: Material(
+          child: getIt.get<WalletAccountsPage>(param1: widget.dashboardViewModel),
         ),
+      ),
     );
     await widget.dashboardViewModel.loadCardDesigns();
   }

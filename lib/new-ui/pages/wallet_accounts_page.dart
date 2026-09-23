@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:ui";
 
 import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
@@ -64,12 +65,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   WalletAccountListViewModel get accountListViewModel =>
       widget.dashboardViewModel.accountListViewModel ?? widget.accountListViewModel;
 
-  bool get _isBitcoinWallet => widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
-
-  bool get _isMoneroWallet => widget.dashboardViewModel.wallet.type == WalletType.monero;
-
   bool get _isMultiAccountsEnabled =>
-      widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled ?? false;
+      widget.dashboardViewModel.isMultiAccountsEnabled;
 
   @override
   void initState() {
@@ -89,6 +86,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       await widget.dashboardViewModel.loadCardDesigns();
       if (!mounted) return;
       loadCards();
+
+      if (!_isMultiAccountsEnabled) return;
 
       final activeId = accountListViewModel.selectedAccount?.id;
 
@@ -117,14 +116,47 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   void loadCards() {
-    final accounts = accountListViewModel.accounts;
-    if (accounts.isEmpty && _items.isNotEmpty) return;
+    final allAccounts = accountListViewModel.accounts;
+    final visible = widget.dashboardViewModel.visibleAccounts;
+
+    if (visible.isEmpty && _items.isNotEmpty) return;
 
     _items.clear();
-    for (int i = 0; i < accounts.length; i++) {
-      final index = widget.dashboardViewModel.cardOrder[i];
 
-      if (index == null || index < 0 || index >= accounts.length) {
+    if (!_isMultiAccountsEnabled) {
+      if (visible.isNotEmpty) {
+        final account = visible.first;
+        final realIndex = allAccounts.indexWhere((a) => a.id == account.id);
+        final design = (realIndex >= 0 &&
+                realIndex < widget.dashboardViewModel.cardDesigns.length)
+            ? widget.dashboardViewModel.cardDesigns[realIndex]
+            : CardDesign.genericDefault;
+
+        _items.add(AccountCustomizerListItem(
+          card: BalanceCard(
+            accountName: account.label,
+            accountIndex: account.id,
+            balance: account.balance ?? "0.00",
+            accountBalance: account.balance ?? "0.00",
+            designSwitchDuration: Duration.zero,
+            assetName: accountListViewModel.currency.title,
+            onCustomizeTapped: null,
+            selected: true,
+            width: cardWidth,
+            design: design,
+          ),
+          order: realIndex >= 0 ? realIndex : 0,
+          accountListItem: account,
+        ));
+      }
+      if (mounted) setState(() {});
+      return;
+    }
+
+    for (int i = 0; i < allAccounts.length; i++) {
+      final realIndex = widget.dashboardViewModel.cardOrder[i];
+
+      if (realIndex == null || realIndex < 0 || realIndex >= allAccounts.length) {
         // db order broken.
         reset();
         break;
@@ -132,19 +164,19 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
       _items.add(AccountCustomizerListItem(
           card: BalanceCard(
-            accountName: accounts[index].label,
-            accountIndex: accounts[index].id,
-            balance: accounts[index].balance ?? "0.00",
-            accountBalance: accounts[index].balance ?? "0.00",
+            accountName: allAccounts[realIndex].label,
+            accountIndex: allAccounts[realIndex].id,
+            balance: allAccounts[realIndex].balance ?? "0.00",
+            accountBalance: allAccounts[realIndex].balance ?? "0.00",
             designSwitchDuration: Duration.zero,
             assetName: accountListViewModel.currency.title,
             onCustomizeTapped: null,
-            selected: i == accounts.length - 1,
+            selected: i == allAccounts.length - 1,
             width: cardWidth,
-            design: widget.dashboardViewModel.cardDesigns[index],
+            design: widget.dashboardViewModel.cardDesigns[realIndex],
           ),
-          order: index,
-          accountListItem: accounts[index]));
+          order: realIndex,
+          accountListItem: allAccounts[realIndex]));
     }
     if (mounted) {
       setState(() {});
@@ -153,9 +185,11 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final showResetButton =
-        (_isMultiAccountsEnabled && _items.length > 1) || (_isMoneroWallet && _items.length > 1);
-    if (_items.isEmpty) return const SizedBox.shrink();
+    final showResetButton = _isMultiAccountsEnabled && _items.length > 1;
+    final showAccountsToggle = widget.dashboardViewModel.canToggleMultiAccounts;
+    final isToggleEnabled = widget.dashboardViewModel.multiAccountsToggleValue;
+
+    if (_items.isEmpty && !showAccountsToggle) return const SizedBox.shrink();
 
     return Container(
       decoration: BoxDecoration(
@@ -173,7 +207,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             onTrailingPressed: showResetDialog,
           ),
           const SizedBox(height: 24),
-          if (_isBitcoinWallet)
+          if (showAccountsToggle)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: NewListSections(
@@ -182,38 +216,17 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                     ListItemToggle(
                         keyValue: "Multiple Accounts",
                         label: "Multiple Accounts",
-                        value: _isMultiAccountsEnabled,
+                        value: isToggleEnabled,
                         onChanged: (val) async {
-                          if (!val) {
-                            AccountListItem? primary;
-                            for (final acc in accountListViewModel.accounts) {
-                              if (acc.id == 0) {
-                                primary = acc;
-                                break;
-                              }
-                            }
-                            if (primary != null && accountListViewModel.selectedAccount?.id != 0) {
-                              await accountListViewModel.select(primary);
-                            }
-                          }
-
-                          widget.dashboardViewModel.wallet.walletInfo.isMultiAccountsEnabled = val;
-                          await widget.dashboardViewModel.wallet.walletInfo.save();
-
-                          final wallet = widget.dashboardViewModel.wallet;
-                          if (val && wallet.type == WalletType.bitcoin) {
-                            unawaited(wallet.startSync());
-                          }
-
-                          if (mounted) {
-                            setState(() {});
-                          }
+                          await widget.dashboardViewModel.setMultiAccountsEnabled(val);
+                          if (!mounted) return;
+                          loadCards();
                         }),
                   ],
                 },
               ),
             ),
-          if (_isMoneroWallet || _isMultiAccountsEnabled)
+          if (_isMultiAccountsEnabled && _items.isNotEmpty)
             Expanded(
               child: Column(
                 children: [
@@ -255,14 +268,10 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                           itemCount: _items.length,
                           itemBuilder: (context, int index) {
                             final card = _items[index].card;
-                            // The stack is ordered bottom to top, so the last item
-                            // is the account currently in front — the selected one.
                             final selectedItemIndex = _items.length - 1;
 
                             return Container(
                               key: ValueKey(index),
-                              // One labeled, selectable node per account; the card's own
-                              // texts stay reachable underneath it.
                               child: Semantics(
                                 button: true,
                                 selected: selectedItemIndex == index,
@@ -270,9 +279,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                                 onTap: () => reorder(index, _items.length),
                                 child: GestureDetector(
                                   excludeFromSemantics: true,
-                                  onTap: () {
-                                    reorder(index, _items.length);
-                                  },
+                                  onTap: () => reorder(index, _items.length),
                                   child: Align(
                                     alignment: Alignment.topCenter,
                                     heightFactor: _kStackVisibleFactor,
@@ -366,12 +373,14 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   Future<void> _showAddAccountModal() async {
     if (!_checkReadyToManage()) return;
 
+    final createViewModel = getIt.get<WalletAccountEditOrCreateViewModel>();
+
     final res = await showCupertinoModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) => Material(
           child: AccountCreationModal(
-            viewModel: widget.accountEditOrCreateViewModel,
+            viewModel: createViewModel,
           ),
         ));
 
@@ -438,6 +447,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   void reorder(int oldIndex, int newIndex) {
+    if (!_isMultiAccountsEnabled) return;
     setState(() {
       if (oldIndex < newIndex) {
         newIndex -= 1;
@@ -471,6 +481,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   }
 
   Future<void> saveCardOrder() async {
+
+    if (!_isMultiAccountsEnabled) return;
+
     for (int orderIndex = 0; orderIndex < _items.length; orderIndex++) {
       final item = _items[orderIndex];
       printV("${item.accountListItem.id}: $orderIndex");

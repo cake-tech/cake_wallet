@@ -958,7 +958,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
 
     case Routes.walletAccountsPage:
-      return handleRouteWithPlatformAwareness((_) => getIt.get<WalletAccountsPage>());
+      final dashboardViewModel = settings.arguments as DashboardViewModel?;
+      assert(dashboardViewModel != null,
+      "Routes.walletAccountsPage needs the caller's DashboardViewModel as arguments",);
+      return handleRouteWithPlatformAwareness((_) => getIt.get<WalletAccountsPage>(
+        param1: dashboardViewModel ?? getIt.get<DashboardViewModel>(),
+      ),);
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

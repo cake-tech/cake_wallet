@@ -107,6 +107,17 @@ class _CardsViewState extends State<CardsView> {
         });
       },
     ));
+
+    _disposers.add(reaction(
+          (_) => widget.dashboardViewModel.isMultiAccountsEnabled,
+          (_) {
+        if (!mounted) return;
+        if (_dragVisualIndex != null) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
+    ));
   }
 
   @override
@@ -400,7 +411,7 @@ class _CardsViewState extends State<CardsView> {
 
     final wallet = widget.dashboardViewModel.wallet;
     if (wallet.type == WalletType.bitcoin &&
-        !(wallet.walletInfo.isMultiAccountsEnabled ?? false)) {
+        !widget.dashboardViewModel.isMultiAccountsEnabled) {
       return 1;
     }
 
@@ -457,42 +468,55 @@ class _CardsViewState extends State<CardsView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(builder: (context) {
-      final parentWidth = MediaQuery.of(context).size.width;
-      final children = <Widget>[];
-
-      int numCards = _visibleCardsCount();
-
-      if (numCards == 0) numCards = 1;
-
-      if (_selectedIndex >= numCards) {
-        _selectedIndex = _currentSelectedVisualIndex();
-      }
-
-      final bool compactMode = widget.allowCompactMode && numCards >= compactModeTreshold;
-      final double overlapAmount = compactMode ? 5.0 : 46.0;
-      for (int i = _cardsToRender(numCards); i >= 0; i--) {
-        int visualIndex = (_selectedIndex - i + numCards) % numCards;
-
-        final realIndex = _realIndexForVisualIndex(visualIndex, numCards);
-
-        children.add(
-            _buildCard(visualIndex, realIndex, numCards, parentWidth, compactMode, overlapAmount));
-      }
-
-      return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        width: double.infinity,
-        height: _getBoxHeight(numCards, overlapAmount),
-        child: SizedBox(
-          key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
-          width: double.infinity,
-          height: _getBoxHeight(numCards, overlapAmount),
-          child: Stack(alignment: Alignment.center, children: children),
+  Widget build(BuildContext context) => AnimatedSwitcher(
+      duration: animDuration,
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeOut,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
         ),
-      );
-    });
-  }
+      child: KeyedSubtree(
+        key: ValueKey(widget.lightningMode),
+        child: Observer(builder: (context) {
+          final parentWidth = MediaQuery.of(context).size.width;
+          final children = <Widget>[];
+
+          int numCards = _visibleCardsCount();
+
+          if (numCards == 0) numCards = 1;
+
+          if (_selectedIndex >= numCards) {
+            _selectedIndex = _currentSelectedVisualIndex();
+          }
+
+          final bool compactMode = widget.allowCompactMode && numCards >= compactModeTreshold;
+          final double overlapAmount = compactMode ? 5.0 : 46.0;
+          for (int i = _cardsToRender(numCards); i >= 0; i--) {
+            int visualIndex = (_selectedIndex - i + numCards) % numCards;
+
+            final realIndex = _realIndexForVisualIndex(visualIndex, numCards);
+
+            children.add(
+                _buildCard(visualIndex, realIndex, numCards, parentWidth, compactMode, overlapAmount));
+          }
+
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            width: double.infinity,
+            height: _getBoxHeight(numCards, overlapAmount),
+            child: SizedBox(
+              key: ValueKey(_getBoxHeight(numCards, overlapAmount)),
+              width: double.infinity,
+              height: _getBoxHeight(numCards, overlapAmount),
+              child: Stack(alignment: Alignment.center, children: children),
+            ),
+          );
+        }),
+      ),
+    );
 }

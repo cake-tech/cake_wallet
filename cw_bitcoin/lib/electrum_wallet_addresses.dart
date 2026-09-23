@@ -216,9 +216,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           "Error: Unable to fetch your Lightning address, please check your network connection.";
     }
 
-    // Should not happen, but just in case, return an empty string if the address type is not supported.
     final accountIndexForCheck = walletInfo.type == WalletType.bitcoin ? currentAccountIndex : 0;
     if (!_isAddressTypeSupportedForAccount(addressPageType, accountIndexForCheck)) {
+      printV("addressPageType $addressPageType is not supported for account $accountIndexForCheck");
       return "";
     }
 
@@ -407,12 +407,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       for (final accountIndex in effectiveAccountIndexes) {
-        final typesForAccount =
-            accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
 
         await prepareAccountAddresses(
           accountIndex,
-          types: typesForAccount,
+          types: accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES,
           includeLegacy: accountIndex == 0,
         );
       }
@@ -493,10 +491,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   Future<void> prepareAccountAddresses(
     int accountIndex, {
-    List<BitcoinAddressType>? types,
+    List<BitcoinAddressType> types = BITCOIN_ADDRESS_TYPES,
     bool includeLegacy = false,
   }) async {
-    for (final type in types ?? BITCOIN_ADDRESS_TYPES) {
+    for (final type in types) {
       final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
       if (shouldSkipHardwareWalletType) continue;

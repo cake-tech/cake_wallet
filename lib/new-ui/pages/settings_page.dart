@@ -70,6 +70,7 @@ class SettingsSectionData {
       S.current.accounts,
       Routes.walletAccountsPage,
       condition: _hasAccounts,
+      routeArgsBuilder: (vm) => vm,
     ),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),

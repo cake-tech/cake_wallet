@@ -246,6 +246,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_list_view_model.dart';
@@ -1158,30 +1159,30 @@ Future<void> setup({
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(),
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
 
-  getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet!;
 
+  getIt.registerFactory<WalletAccountEditOrCreateViewModel>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
     switch (wallet.type) {
       case WalletType.bitcoin:
-        return WalletAccountsPage(
-          dashboardViewModel: getIt.get<DashboardViewModel>(),
-          accountListViewModel: getIt.get<BitcoinAccountListViewModel>(),
-          accountEditOrCreateViewModel: getIt.get<BitcoinAccountEditOrCreateViewModel>(),
-        );
-
+        return getIt.get<BitcoinAccountEditOrCreateViewModel>();
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.haven:
-        return WalletAccountsPage(
-          dashboardViewModel: getIt.get<DashboardViewModel>(),
-          accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
-          accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>(),
-        );
-
+        return getIt.get<MoneroAccountEditOrCreateViewModel>();
       default:
-        throw Exception('Unsupported wallet type for accounts page: ${wallet.type}');
+        throw Exception(
+            'Unsupported wallet type for WalletAccountEditOrCreateViewModel: ${wallet.type}');
     }
   });
+
+  getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
+        (dashboardViewModel, _) => WalletAccountsPage(
+      dashboardViewModel: dashboardViewModel,
+      accountListViewModel:
+      dashboardViewModel.accountListViewModel ?? getIt.get<WalletAccountListViewModel>(),
+      accountEditOrCreateViewModel: getIt.get<WalletAccountEditOrCreateViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 

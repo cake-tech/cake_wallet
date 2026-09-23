@@ -7,6 +7,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -111,6 +112,7 @@ abstract class DashboardViewModelBase with Store {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
 
     name = wallet.name;
     type = wallet.type;
@@ -128,8 +130,7 @@ abstract class DashboardViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
-      _onAccountChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).account,
+      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
@@ -451,6 +452,8 @@ abstract class DashboardViewModelBase with Store {
       numAccounts = btcAccounts!.length + 1; // adding 1 for the lightning account
     }
 
+    final usesAccountIndices = wallet.type == WalletType.bitcoin || balanceViewModel.hasAccounts;
+
     cardDesigns.clear();
     final newOrder = <int, int>{};
 
@@ -460,15 +463,17 @@ abstract class DashboardViewModelBase with Store {
       late final int index;
       final isLightning = wallet.type == WalletType.bitcoin && i == lightningCardIndex;
       if (isLightning) {
-        index =
-            -2; // using -2 to differentiate lightning card from regular accounts, which use 0, 1, 2, etc.
-      } else if (balanceViewModel.hasAccounts) {
+        index = -2;
+      } else if (usesAccountIndices) {
         index = i;
       } else {
         index = -1;
       }
 
-      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
+      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull ??
+          (index == 0 && wallet.type != WalletType.bitcoin
+              ? walletCardStyleSettings.where((e) => e.accountIndex == -1).firstOrNull
+              : null);
 
       final curr = isLightning ? CryptoCurrency.btcln : wallet.currency;
 
@@ -919,6 +924,54 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showSeedBackupReminder;
 
+  @observable
+  late bool multiAccountsToggleValue;
+
+  @computed
+  bool get hasNativeAccounts => wallet.walletInfo.hasNativeAccounts;
+
+  @computed
+  bool get canToggleMultiAccounts => wallet.walletInfo.canToggleMultiAccounts;
+
+  @computed
+  bool get isMultiAccountsEnabled =>
+      hasNativeAccounts || (canToggleMultiAccounts && multiAccountsToggleValue);
+
+  @computed
+  List<AccountListItem> get visibleAccounts {
+    final all = accountListViewModel?.accounts;
+    if (all == null || all.isEmpty) return const <AccountListItem>[];
+    if (isMultiAccountsEnabled) return all.toList(growable: false);
+    final primary = all.where((a) => a.id == 0).firstOrNull ?? all.first;
+    return <AccountListItem>[primary];
+  }
+
+  @action
+  Future<void> setMultiAccountsEnabled(bool value) async {
+    if (!canToggleMultiAccounts) return;
+
+    if (!value) {
+      final vm = accountListViewModel;
+      final selectedId = vm?.selectedAccount?.id;
+      if (vm != null && selectedId != null && selectedId != 0) {
+        final primary = vm.accounts.where((a) => a.id == 0).firstOrNull;
+        if (primary != null) {
+          await vm.select(primary);
+        }
+      }
+    }
+
+    wallet.walletInfo.isMultiAccountsEnabled = value;
+    await wallet.walletInfo.save();
+    multiAccountsToggleValue = value;
+    await accountListViewModel?.reload();
+    await loadCardDesigns();
+
+    if (value) {
+      unawaited(wallet.startSync());
+    }
+  }
+
   @computed
   bool get hasBalance => wallet.balance.values.any(
         (balance) =>
@@ -1331,6 +1384,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
 
     _onAccountChangeReaction?.reaction.dispose();
     _onAccountChangeReaction = null;
@@ -1342,8 +1396,7 @@ abstract class DashboardViewModelBase with Store {
       _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onAccountChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).account,
+      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
@@ -1648,32 +1701,72 @@ abstract class DashboardViewModelBase with Store {
     reconnect();
   }
 
+  static final Map<int, Future<void>> _legacyCardMigrations = {};
 
-  Future<void> _migrateLegacyLightningCardDesign() async {
-    if (wallet.type != WalletType.bitcoin) return;
+  Future<void> _migrateLegacyLightningCardDesign() {
+    if (wallet.type != WalletType.bitcoin) return Future.value();
 
-    final walletInfoId = wallet.walletInfo.internalId;
+    final walletInfo = wallet.walletInfo;
+    final walletInfoId = walletInfo.internalId;
 
-    final alreadyMigrated = await BalanceCardStyleSettings.get(walletInfoId, -2);
-    if (alreadyMigrated != null) return;
+    return _legacyCardMigrations.putIfAbsent(
+      walletInfoId,
+      () => _runLegacyCardMigration(walletInfo).catchError((Object e) {
+        _legacyCardMigrations.remove(walletInfoId);
+        printV('Legacy card style migration failed: $e');
+      }),
+    );
+  }
 
-    final legacyDesign = await BalanceCardStyleSettings.get(walletInfoId, -1);
-    if (legacyDesign == null) return;
+  Future<void> _runLegacyCardMigration(WalletInfo walletInfo) async {
+    final walletInfoId = walletInfo.internalId;
+    final migratedKey = PreferencesKey.legacyBitcoinCardStyleMigratedForWallet(walletInfoId);
 
-    final accounts = await wallet.walletInfo.getAccounts();
-    if (accounts.length > 1) return;
+    if (sharedPreferences.getBool(migratedKey) == true) return;
 
-    await BalanceCardStyleSettings(
-      walletInfoId: walletInfoId,
-      accountIndex: -2,
-      gradientIndex: legacyDesign.gradientIndex,
-      useSpecialDesign: legacyDesign.useSpecialDesign,
-      backgroundImagePath: legacyDesign.backgroundImagePath,
-      iconStyleIndex: legacyDesign.iconStyleIndex,
-      isGradientOnly: legacyDesign.isGradientOnly,
-      cardOrder: legacyDesign.cardOrder,
-    ).insert();
+    final accounts = await walletInfo.getAccounts();
+    if (accounts.length > 1) {
+      await sharedPreferences.setBool(migratedKey, true);
+      return;
+    }
+
+    final legacyBitcoin = await BalanceCardStyleSettings.get(walletInfoId, -1);
+    final legacyLightning = await BalanceCardStyleSettings.get(walletInfoId, 0);
+
+    if (legacyBitcoin == null && legacyLightning == null) {
+      await sharedPreferences.setBool(migratedKey, true);
+      return;
+    }
 
     await BalanceCardStyleSettings.delete(walletInfoId, -1);
+    await BalanceCardStyleSettings.delete(walletInfoId, 0);
+
+    if (legacyBitcoin != null) {
+      await BalanceCardStyleSettings(
+        walletInfoId: walletInfoId,
+        accountIndex: 0,
+        gradientIndex: legacyBitcoin.gradientIndex,
+        useSpecialDesign: legacyBitcoin.useSpecialDesign,
+        backgroundImagePath: legacyBitcoin.backgroundImagePath,
+        iconStyleIndex: legacyBitcoin.iconStyleIndex,
+        isGradientOnly: legacyBitcoin.isGradientOnly,
+        cardOrder: 0,
+      ).insert();
+    }
+
+    if (legacyLightning != null) {
+      await BalanceCardStyleSettings(
+        walletInfoId: walletInfoId,
+        accountIndex: -2,
+        gradientIndex: legacyLightning.gradientIndex,
+        useSpecialDesign: legacyLightning.useSpecialDesign,
+        backgroundImagePath: legacyLightning.backgroundImagePath,
+        iconStyleIndex: legacyLightning.iconStyleIndex,
+        isGradientOnly: legacyLightning.isGradientOnly,
+        cardOrder: legacyLightning.cardOrder,
+      ).insert();
+    }
+
+    await sharedPreferences.setBool(migratedKey, true);
   }
 }

@@ -44,7 +44,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
 
   Future<void> _onSubmit() async {
     if (widget.viewModel.state is IsExecutingState) return;
-    if (_controller.text.isEmpty || _controller.text.length > maxAccountNameLength) return;
+    if (_controller.text.trim().isEmpty || _controller.text.length > maxAccountNameLength) return;
 
     await widget.viewModel.save();
 
@@ -122,15 +122,17 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                           ],
                         ),
                       ),
-                      Observer(
-                        builder: (_) => NewPrimaryButton(
-                          onPressed: _onSubmit,
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary,
-                          disabled: _controller.text.isEmpty ||
-                              _controller.text.length > maxAccountNameLength,
-                          isLoading: widget.viewModel.state is IsExecutingState,
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) => Observer(
+                          builder: (_) => NewPrimaryButton(
+                            onPressed: _onSubmit,
+                            text: S.of(context).continue_text,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            disabled: value.text.trim().isEmpty || value.text.length > maxAccountNameLength,
+                            isLoading: widget.viewModel.state is IsExecutingState,
+                          ),
                         ),
                       ),
                       SizedBox(),

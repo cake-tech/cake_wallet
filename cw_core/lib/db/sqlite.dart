@@ -359,12 +359,11 @@ ON Trade (id);
 Future<void> _createWalletInfoAccountTable(Database db) async {
   await db.execute('''
 CREATE TABLE IF NOT EXISTS WalletInfoAccount (
-  walletInfoAccountId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   walletInfoId INTEGER NOT NULL,
   accountIndex INTEGER NOT NULL,
   label TEXT NOT NULL,
-  CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId),
-  UNIQUE(walletInfoId, accountIndex)
+  PRIMARY KEY (walletInfoId, accountIndex),
+  CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
 ''');
 

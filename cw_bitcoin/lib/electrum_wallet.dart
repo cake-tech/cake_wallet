@@ -520,7 +520,7 @@ abstract class ElectrumWalletBase
     if (isNewAccount) {
       await walletAddresses.prepareAccountAddresses(
         accountIndex,
-        types: accountIndex == 0 ? null : EXTRA_ACCOUNT_ADDRESS_TYPES,
+        types: accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES,
       );
     }
 
@@ -560,7 +560,7 @@ abstract class ElectrumWalletBase
   bool get isInitialBitcoinAccountsSync =>
       type == WalletType.bitcoin &&
           derivationInfo.derivationType == DerivationType.bip39 &&
-          (walletInfo.isMultiAccountsEnabled ?? false) &&
+          walletInfo.multiAccountsActive &&
           (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override
@@ -3315,7 +3315,7 @@ abstract class ElectrumWalletBase
         walletAddresses.accountIndexes.add(accountIndex);
         await walletAddresses.prepareAccountAddresses(
           accountIndex,
-          types: isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : null,
+          types: isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : BITCOIN_ADDRESS_TYPES,
         );
       }
 

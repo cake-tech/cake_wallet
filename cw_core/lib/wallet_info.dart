@@ -246,17 +246,16 @@ class WalletInfoAddress {
 
 class WalletInfoAccount {
   WalletInfoAccount({
-    required this.walletInfoId, required this.accountIndex, required this.label, this.id = 0,
+    required this.walletInfoId,
+    required this.accountIndex,
+    required this.label,
   });
 
-  int id;
   int walletInfoId;
   int accountIndex;
   String label;
 
   static String get tableName => "walletInfoAccount";
-
-  static String get selfIdColumn => "${tableName}Id";
 
   static Future<List<WalletInfoAccount>> selectList(int walletInfoId) async {
     final query = await db!.query(
@@ -286,15 +285,7 @@ class WalletInfoAccount {
         whereArgs: [walletInfoId, accountIndex],
       );
 
-      if (updated > 0) {
-        final row = await txn.query(
-          tableName,
-          where: 'walletInfoId = ? AND accountIndex = ?',
-          whereArgs: [walletInfoId, accountIndex],
-          limit: 1,
-        );
-        return row.first[selfIdColumn] as int;
-      }
+      if (updated > 0) return updated;
 
       return await txn.insert(tableName, {
         'walletInfoId': walletInfoId,
@@ -306,7 +297,6 @@ class WalletInfoAccount {
 
   Map<String, dynamic> toJson() {
     return {
-      selfIdColumn: id,
       'walletInfoId': walletInfoId,
       'accountIndex': accountIndex,
       'label': label,
@@ -315,7 +305,6 @@ class WalletInfoAccount {
 
   factory WalletInfoAccount.fromJson(Map<String, dynamic> json) {
     return WalletInfoAccount(
-      id: json[selfIdColumn] as int,
       walletInfoId: json['walletInfoId'] as int,
       accountIndex: json['accountIndex'] as int,
       label: json['label'] as String,
@@ -660,6 +649,16 @@ class WalletInfo {
   String? network;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
+
+  bool get hasNativeAccounts =>
+      type == WalletType.monero || type == WalletType.wownero;
+
+  bool get canToggleMultiAccounts => type == WalletType.bitcoin;
+
+  bool get multiAccountsActive =>
+      hasNativeAccounts ||
+      (canToggleMultiAccounts && isMultiAccountsEnabled == true);
+
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
