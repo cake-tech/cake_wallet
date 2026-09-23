@@ -1,6 +1,6 @@
+import "dart:collection";
 import 'dart:io';
 import 'dart:convert';
-import './print_verbose_dummy.dart';
 
 import 'localization/localization_constants.dart';
 import 'utils/utils.dart';
@@ -49,7 +49,7 @@ Future<void> main(List<String> args) async {
       return;
     }
 
-    final localePath = <String, dynamic>{};
+    final localePath = SplayTreeMap<String, dynamic>();
     await dir.list(recursive: false).forEach((element) {
       // Parse the locale from the file name (e.g. strings_pt_br.arb -> pt_BR),
       // normalizing the case so keys match LanguageService.supportedLocales.
@@ -103,8 +103,14 @@ Future<void> main(List<String> args) async {
 
       output += classDeclaration;
 
+      // Flutter matches on the language subtag, so pt_BR is emitted as Locale("pt", "BR")
       localePath.keys.forEach((key) {
-        output += '      Locale("$key", ""),' + '\n';
+        final parts = key.split("_");
+        if (parts.length == 2) {
+          output += '      Locale("${parts[0]}", "${parts[1]}"),\n';
+        } else {
+          output += '      Locale("$key", ""),\n';
+        }
       });
 
       output += part2;

@@ -1,6 +1,7 @@
 import "dart:convert";
 import "dart:io";
 
+import "package:cw_core/imported_nft.dart";
 import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
@@ -62,6 +63,11 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
   Future<void> _renameTokenRows(String currentName, String newName) async {
     if (getType() == WalletType.solana) {
       await SPLToken.renameWallet(currentName, newName);
+      await ImportedNFT.renameWallet(
+        currentName,
+        newName,
+        chains: const [ImportedNFT.solanaChain],
+      );
     }
 
     if (getType() == WalletType.tron) {

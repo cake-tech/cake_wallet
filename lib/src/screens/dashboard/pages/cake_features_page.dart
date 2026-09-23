@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -18,10 +17,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class CakeFeaturesPage extends StatelessWidget {
-  CakeFeaturesPage({required this.dashboardViewModel, required this.cakeFeaturesViewModel});
+  CakeFeaturesPage({required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final CakeFeaturesViewModel cakeFeaturesViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +36,7 @@ class CakeFeaturesPage extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minHeight: constraints.maxHeight),
                       child: IntrinsicHeight(
-                        child: !FeatureFlag.hasNewUi ? _buildOldUi(context) : _buildNewUi(context),
+                        child: _buildNewUi(context),
                       ),
                     ),
                   );
@@ -52,19 +50,6 @@ class CakeFeaturesPage extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    if (!FeatureFlag.hasNewUi) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16),
-        child: Text(
-          S.of(context).apps,
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-        ),
-      );
-    }
-
     return Align(
       alignment: Alignment.center,
       child: Padding(
@@ -81,45 +66,6 @@ class CakeFeaturesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildOldUi(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 2),
-        DashBoardRoundedCardWidget(
-          shadowBlur: dashboardViewModel.getShadowBlur(),
-          shadowSpread: dashboardViewModel.getShadowSpread(),
-          onTap: () => _onCakePayTap(context),
-          title: 'Cake Pay',
-          subTitle: S.of(context).cake_pay_subtitle,
-          image: Image.asset('assets/images/cakepay.png', height: 74, width: 70, fit: BoxFit.cover),
-        ),
-        Observer(builder: (_) {
-          if (dashboardViewModel.type == WalletType.ethereum) {
-            return DashBoardRoundedCardWidget(
-              shadowBlur: dashboardViewModel.getShadowBlur(),
-              shadowSpread: dashboardViewModel.getShadowSpread(),
-              onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
-              title: S.of(context).deuro_savings,
-              subTitle: S.of(context).deuro_savings_subtitle,
-              image: Image.asset('assets/images/deuro_icon.png',
-                  height: 80, width: 80, fit: BoxFit.cover),
-            );
-          }
-          return const SizedBox();
-        }),
-        DashBoardRoundedCardWidget(
-          shadowBlur: dashboardViewModel.getShadowBlur(),
-          shadowSpread: dashboardViewModel.getShadowSpread(),
-          onTap: () => _launchUrl("cake.nano-gpt.com"),
-          title: "NanoGPT",
-          subTitle: S.of(context).nanogpt_subtitle,
-          image: Image.asset('assets/images/nanogpt.png', height: 80, width: 80, fit: BoxFit.cover),
-        ),
-        const Spacer(),
-        const SizedBox(height: 125),
-      ],
-    );
-  }
 
   Widget _buildNewUi(BuildContext context) {
     return Column(
