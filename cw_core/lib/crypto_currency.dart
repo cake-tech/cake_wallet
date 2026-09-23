@@ -48,6 +48,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   String get symbol => title;
+  @override
+  String get apiString => "crypto.$title";
 
   set enabled(bool value) => this.enabled = value;
 

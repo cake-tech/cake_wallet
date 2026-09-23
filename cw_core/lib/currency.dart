@@ -20,6 +20,7 @@ abstract class Currency {
 
   @override
   int get hashCode => decimals.hashCode ^ symbol.hashCode ^ tag.hashCode;
+  String get apiString;
 
   String get serialized;
 }

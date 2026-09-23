@@ -388,8 +388,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
-      resolved-ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
+      ref: "3aba867dcab6737f6707782f5db15d71f303db38"
+      resolved-ref: "3aba867dcab6737f6707782f5db15d71f303db38"
       url: "https://github.com/cake-tech/cake_backup.git"
     source: git
     version: "1.0.0+1"
@@ -2935,7 +2935,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
@@ -3098,18 +3098,18 @@ packages:
     dependency: "direct main"
     description:
       path: trezor-flutter
-      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
-      resolved-ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
-      url: "https://github.com/cake-tech/trezor-flutter"
+      ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      resolved-ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
     source: git
     version: "0.1.0"
   trezor_usb_transport:
     dependency: "direct overridden"
     description:
       path: trezor_usb_transport
-      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
-      resolved-ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
-      url: "https://github.com/cake-tech/trezor-flutter"
+      ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      resolved-ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
+      url: "https://github.com/cake-tech/trezor-flutter.git"
     source: git
     version: "0.0.1"
   tuple:
@@ -3161,8 +3161,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
-      resolved-ref: "6735c1bdf7f42c501d51c20564eb957c3a12b981"
+      ref: "9952fc72ded48891844d7786c0fa14c4cae1ce0b"
+      resolved-ref: "9952fc72ded48891844d7786c0fa14c4cae1ce0b"
       url: "https://github.com/cake-tech/universal_ble.git"
     source: git
     version: "2.0.0"

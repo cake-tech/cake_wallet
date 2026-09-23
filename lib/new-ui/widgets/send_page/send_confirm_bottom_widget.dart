@@ -14,6 +14,19 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
+import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart';
+import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 // FIXME remove this after pr passes testing, added so i see the runtimeType without having to check myself
 class UnreachableWidget extends StatelessWidget {
@@ -141,7 +154,7 @@ class SendConfirmBottomWidget extends StatelessWidget {
     switch (state) {
       case ExecutedSuccessfullyState:
         return ConfirmSwiper(
-          onConfirmed: () {
+          key: ValueKey("send_page_confirm_swiper_key"),onConfirmed: () {
             sendViewModel.commitTransaction(context);
           },
           swiperText: S.of(context).swipe_to_send,
@@ -156,6 +169,10 @@ class SendConfirmBottomWidget extends StatelessWidget {
       case IsAwaitingDeviceResponseState:
         return HardwareWalletProceedOnDeviceMessage(
           hardwareWalletType: sendViewModel.wallet.hardwareWalletType!,
+          note: sendViewModel.walletType == WalletType.bitcoin &&
+                  sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor
+              ? S.of(context).trezor_locktime_notice
+              : null,
         );
       case TransactionCommitting:
         return LoadingBottomWidget(text: "${S.of(context).sending}...");

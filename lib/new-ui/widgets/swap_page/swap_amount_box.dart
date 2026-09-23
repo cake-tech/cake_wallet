@@ -148,7 +148,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                     clipBehavior: Clip.none,
                                     children: [
                                       TextFormField(
-                                        keyboardType: const TextInputType.numberWithOptions(
+                                        key: ValueKey(widget.isReceiverCard
+                                                ? "swap_page_receive_amount_field_key"
+                                                : "swap_page_deposit_amount_field_key"),
+                                            keyboardType: const TextInputType.numberWithOptions(
                                           signed: false,
                                           decimal: true,
                                         ),
@@ -231,7 +234,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: _presentCurrencyPicker,
+                          key: ValueKey(widget.isReceiverCard
+                                  ? "swap_amount_box_receive_currency_button_key"
+                                  : "swap_amount_box_deposit_currency_button_key"),onTap: _presentCurrencyPicker,
                           child: Container(
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,

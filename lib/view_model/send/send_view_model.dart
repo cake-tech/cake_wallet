@@ -47,7 +47,6 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -102,7 +101,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   SendViewModelBase(
     this._appStore,
-    this.sendTemplateViewModel,
     this._fiatConversationStore,
     this._adrResService,
     this.balanceViewModel,
@@ -435,10 +433,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return sp.hasMatch(address);
   }
 
-  @computed
-  List<Template> get templates => sendTemplateViewModel.templates
-      .where((template) => _isEqualCurrency(template.cryptoCurrency))
-      .toList();
 
   @computed
   bool get hasCoinControl =>
@@ -491,7 +485,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   final AppStore _appStore;
   SettingsStore get _settingsStore => _appStore.settingsStore;
-  final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
   final HardwareWalletViewModel? hardwareWalletViewModel;
@@ -503,9 +496,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
-  @computed
   bool get hasMultiRecipient =>
-      sendTemplateViewModel.hasMultiRecipient && coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet.type != WalletType.haven &&
+      wallet.type != WalletType.solana &&
+      wallet.type != WalletType.tron &&
+      !isEVMCompatibleChain(wallet.type) &&
+      coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   String get languageCode => _appStore.settingsStore.languageCode;

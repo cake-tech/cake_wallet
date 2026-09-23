@@ -177,5 +177,8 @@ class TronToken extends CryptoCurrency {
   int get hashCode => contractAddress.hashCode;
 
   @override
+  String get apiString => "trx.$contractAddress";
+
+  @override
   String get serialized => "trx.$contractAddress";
 }
