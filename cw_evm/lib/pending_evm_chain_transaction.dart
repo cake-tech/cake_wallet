@@ -25,10 +25,10 @@ class PendingEVMChainTransaction with PendingTransaction {
   }
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   Future<void> commit() async => await sendTransaction();

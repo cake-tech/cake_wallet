@@ -1,6 +1,6 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:web3dart/crypto.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/pending_transaction.dart";
+import "package:web3dart/crypto.dart";
 
 class PendingTronTransaction with PendingTransaction {
   final Function sendTransaction;
@@ -15,10 +15,10 @@ class PendingTronTransaction with PendingTransaction {
   });
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   String get amountFormatted => amount.toString();

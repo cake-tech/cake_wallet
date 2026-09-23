@@ -5,8 +5,8 @@ import 'package:cw_core/transaction_info.dart';
 class DecredTransactionInfo extends TransactionInfo {
   DecredTransactionInfo({
     required String id,
-    required Money amount,
-    required Money fee,
+    required CryptoMoney amount,
+    required CryptoMoney fee,
     required TransactionDirection direction,
     required bool isPending,
     required DateTime date,

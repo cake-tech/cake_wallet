@@ -1,6 +1,8 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/currency/currency.dart";
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -73,17 +75,18 @@ abstract class UnspentCoinsListViewModelBase with Store {
   bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
-  Map<String, String> get fiatAmounts {
+  Map<String, Money<Currency>> get fiatAmounts {
     final currency = wallet.currency;
     final price = _fiatConversationStore.prices[currency];
-    if (price == null || price == 0.0 || isFiatDisabled) return {};
+    if (price == null || price == 0.0 || isFiatDisabled) {
+      return {};
+    }
 
-    final result = <String, String>{};
+    final result = <String, Money<Currency>>{};
     for (final item in items) {
-      final formatted = formatAmountToString(item.value);
-      final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
-      final fiatValue = price * cryptoAmount;
-      result[item.amount] = '${fiatCurrency.title} ${fiatValue.toStringAsFixed(2)}';
+      final exchangeRate = _fiatConversationStore.getExchangeRate(currency, fiatCurrency, price);
+      final fiatValue = exchangeRate.convert(item.amount);
+      result[item.id] = fiatValue;
     }
 
     return result;
@@ -220,12 +223,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
             if (existingItem == null) return null;
 
-            final symbol = _appStore.amountParsingProxy.getCryptoSymbol(wallet.currency);
-
             return UnspentCoinsItem(
+              cryptoCurrency: wallet.currency,
               address: elem.address,
-              amount:
-                  '${_appStore.amountParsingProxy.getDisplayCryptoString(elem.value, wallet.currency)} $symbol',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,

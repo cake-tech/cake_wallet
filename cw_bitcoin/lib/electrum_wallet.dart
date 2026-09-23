@@ -1158,7 +1158,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<EstimatedTxResult> estimateTxForAmount(
-    Money credentialsAmount,
+      CryptoMoney credentialsAmount,
     List<BitcoinOutput> outputs,
     List<BitcoinOutput> updatedOutputs,
     int feeRate, {
@@ -1428,7 +1428,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<Money> _maxSpendableNoChangeAmount({
+  Future<CryptoMoney> _maxSpendableNoChangeAmount({
     required BitcoinOutput initialOutput,
     required int feeRate,
     String? memo,
@@ -1511,7 +1511,7 @@ abstract class ElectrumWalletBase
       final memo = transactionCredentials.outputs.first.memo;
       final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
 
-      var credentialsAmount = Money.zero(currency);
+      var credentialsAmount = CryptoMoney.zero(currency);
       var hasSilentPayment = false;
 
       for (final out in transactionCredentials.outputs) {
@@ -4507,8 +4507,8 @@ class EstimatedTxResult {
   final List<UtxoWithAddress> utxos;
   final List<ECPrivateInfo> inputPrivKeyInfos;
   final Map<String, PublicKeyWithDerivationPath> publicKeys; // PubKey to derivationPath
-  final Money fee;
-  final Money amount;
+  final CryptoMoney fee;
+  final CryptoMoney amount;
   final bool spendsSilentPayment;
 
   // final bool sendsToSilentPayment;

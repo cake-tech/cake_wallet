@@ -13,13 +13,8 @@ part 'card_customizer_event.dart';
 part 'card_customizer_state.dart';
 
 class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> {
-  final WalletBase _wallet;
-  final bool lightningMode;
-  final bool displaySats;
-
-  CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
-      : super(CardCustomizerNotLoaded(
-            0, 0, [CardDesign.genericDefault], [], "", -1, displaySats, 0)) {
+  CardCustomizerBloc(this._wallet, {required this.cryptoCurrency})
+      : super(CardCustomizerNotLoaded(0, 0, [CardDesign.genericDefault], [], "", -1, 0)) {
     on<_Init>(_init);
     on<CardDesignSelected>(_onDesignSelected);
     on<ColorSelected>(_onColorSelected);
@@ -29,11 +24,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
     add(_Init());
   }
+  final WalletBase _wallet;
+  final CryptoCurrency cryptoCurrency;
 
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
-    if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
-      list.add(CardDesign.specialDesignsForCurrencies[_wallet.currency]!.gradient);
+    if (CardDesign.specialDesignsForCurrencies[cryptoCurrency] != null) {
+      list.add(CardDesign.specialDesignsForCurrencies[cryptoCurrency]!.gradient);
     }
     return list;
   }
@@ -42,15 +39,15 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex));
   }
 
-  List<CardDesign> _initAvailableDesigns({bool lightningMode = false}) {
+  List<CardDesign> _initAvailableDesigns() {
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
-    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
 
     ret.add(CardDesign.gradientOnlyDesign);
-    ret.add(CardDesign.forCurrencyIcon(curr));
+    ret.add(CardDesign.forCurrencyIcon(cryptoCurrency));
 
-    if (CardDesign.specialDesignsForCurrencies[curr] != null)
-      ret.add(CardDesign.forCurrencySpecial(curr));
+    if (CardDesign.specialDesignsForCurrencies[cryptoCurrency] != null) {
+      ret.add(CardDesign.forCurrencySpecial(cryptoCurrency));
+    }
 
     return ret;
   }
@@ -82,8 +79,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return ret == -1 ? CardDesign.allGradients.length : ret;
   }
 
-  void _init(_Init event, Emitter<CardCustomizerState> emit) async {
-    late final account;
+  Future<void> _init(_Init event, Emitter<CardCustomizerState> emit) async {
+    late final dynamic account;
     if (_wallet.type == WalletType.monero) {
       account = monero!.getCurrentAccount(_wallet);
     } else if (_wallet.type == WalletType.wownero) {
@@ -91,36 +88,39 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     } else {
       account = null;
     }
-    final accountName = (account?.label ?? "") as String;
+
     late final int accountIndex;
     if (account != null) {
       accountIndex = account.id as int;
-    } else if (lightningMode) {
+    } else if (cryptoCurrency == CryptoCurrency.btcln) {
       accountIndex = 0;
     } else {
       accountIndex = -1;
     }
-    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
-    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, curr);
-    final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
+    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, cryptoCurrency);
+    final availableDesigns = _initAvailableDesigns();
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
-    final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
+    final availableIconPaths = CardDesign.iconPathsForWalletType(cryptoCurrency);
     final selectedIconIndex = _initSelectedIconIndex(currentDesignSettings, availableIconPaths);
+    final accountName = (account?.label ?? "") as String;
 
-    emit(CardCustomizerInitial(
+    emit(
+      CardCustomizerInitial(
         selectedDesignIndex,
         selectedColor,
         availableDesigns,
         availableColors,
         accountName,
         accountIndex,
-        displaySats,
         currentDesignSettings?.cardOrder ?? 0,
         availableIconPaths: availableIconPaths,
-        selectedIconIndex: selectedIconIndex));
+        selectedIconIndex: selectedIconIndex,
+      ),
+    );
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
@@ -169,7 +169,6 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
           state.availableColors,
           state.accountName,
           state.accountIndex,
-          state.displaySats,
           state.cardOrder,
           availableIconPaths: state.availableIconPaths,
           selectedIconIndex: state.selectedIconIndex));

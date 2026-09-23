@@ -77,14 +77,14 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
               ReceivePageOption.mainnet,
         );
-        widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
+        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
         widget.receiveOptionViewModel.selectReceiveOption(
           widget.receiveOptionViewModel.options
                   .firstWhereOrNull((item) => item.value.contains("Standard")) ??
               ReceivePageOption.mainnet,
         );
-        widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
+        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btc);
       }
     });
 
@@ -104,9 +104,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
           bitcoin!.isBitcoinReceivePageOption(option)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         if (option.value.contains("Lightning")) {
-          widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
+          widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
         } else {
-          widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
+          widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btc);
         }
         return;
       }
@@ -228,7 +228,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     },
                     largeQrMode: _largeQrMode,
                   ),
-                  if (widget.addressListViewModel.tokenCurrency != null)
+                  if (widget.addressListViewModel.showTokenCurrencyLabel)
                     ReceiveTokenDisplay(addressListViewModel: widget.addressListViewModel),
                   if (hasAddressTypeSelector)
                     ReceiveAddressTypeDisplay(
@@ -236,9 +236,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       receiveOptionViewModel: widget.receiveOptionViewModel,
                       largeQrMode: _largeQrMode,
                     ),
-                  ReceiveAddressWidget(
-                    addressListViewModel: widget.addressListViewModel,
-                  ),
+                  ReceiveAddressWidget(addressListViewModel: widget.addressListViewModel),
                   // The label chip animates to zero height when there is no
                   // label (or in large QR mode); keep it out of the semantics
                   // tree entirely while it is collapsed.
@@ -267,9 +265,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       copyData: widget.addressListViewModel.hasPayjoin
                           ? null
                           : ClipboardData(
-                              text: widget.addressListViewModel.displayAmount.isEmpty
-                                  ? widget.addressListViewModel.uri.address
-                                  : widget.addressListViewModel.uri.toString(),
+                              text: widget.addressListViewModel.displayAmount != null
+                                  ? widget.addressListViewModel.uri.toString()
+                                  : widget.addressListViewModel.uri.address,
                             ),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
@@ -303,7 +301,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ),
                   ReceiveLargeAmountPreview(
                     amount: widget.addressListViewModel.displayAmount,
-                    currency: widget.addressListViewModel.cryptoCurrencySymbol,
+                    currencySymbol: widget.addressListViewModel.cryptoCurrencySymbol,
                     largeQrMode: _largeQrMode,
                   ),
                   if (infobox != null && !widget.addressListViewModel.isLightning)

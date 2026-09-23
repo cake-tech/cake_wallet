@@ -1,4 +1,4 @@
-import 'package:cw_core/amount/money.dart';
+import "package:cw_core/amount/money.dart";
 
 abstract class Currency {
   String get symbol;

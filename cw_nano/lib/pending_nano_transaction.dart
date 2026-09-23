@@ -17,13 +17,13 @@ class PendingNanoTransaction with PendingTransaction {
   String hex = "unused";
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
   String get amountFormatted => amount.toString();
 
   @override
-  Money get fee => Money.zero(CryptoCurrency.nano);
+  CryptoMoney get fee => Money.zero(CryptoCurrency.nano);
 
   @override
   Future<void> commit() async {

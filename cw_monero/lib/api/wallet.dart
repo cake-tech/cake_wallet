@@ -155,10 +155,10 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;
 }
 
-Money getFullBalance({int accountIndex = 0}) =>
+CryptoMoney getFullBalance({int accountIndex = 0}) =>
     Money.fromInt(currentWallet?.balance(accountIndex: accountIndex) ?? 0, CryptoCurrency.xmr);
 
-Money getUnlockedBalance({int accountIndex = 0}) => Money.fromInt(
+CryptoMoney getUnlockedBalance({int accountIndex = 0}) => Money.fromInt(
     currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0, CryptoCurrency.xmr);
 
 int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;

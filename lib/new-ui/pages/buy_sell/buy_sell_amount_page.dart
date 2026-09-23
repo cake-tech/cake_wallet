@@ -2,7 +2,6 @@ import "dart:async";
 
 import "package:cake_wallet/buy/payment_method.dart";
 import "package:cake_wallet/buy/sell_buy_states.dart";
-import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_provider_page.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
@@ -21,7 +20,8 @@ import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -168,7 +168,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
         args: CurrencyPickerArgs(
           items: widget.buySellViewModel.activeWalletCurrencies.toList(),
           onSelected: (item) => widget.buySellViewModel.changeCryptoCurrency(currency: item),
-          symbolResolver: widget.buySellViewModel.amountParsingProxy.getCryptoSymbol,
+          fiatCurrency: widget.buySellViewModel.fiatCurrency,
         ),
       );
 
