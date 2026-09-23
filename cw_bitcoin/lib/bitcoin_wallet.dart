@@ -724,21 +724,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   bool receiveOptionAvailable(ReceivePageOption option) {
-    if(option == BitcoinReceivePageOption.lightning) {
-      return hasLightningSupport;
+    final isExtraAccount = currentAccountIndex > 0;
+
+    if (option == BitcoinReceivePageOption.lightning) {
+      // Lightning is tied to the primary account only
+      return !isExtraAccount && hasLightningSupport;
     }
 
-    if(option == BitcoinReceivePageOption.silent_payments) {
-      return hasSilentPaymentsScanning;
+    if (option == BitcoinReceivePageOption.silent_payments) {
+      // Silent payments are tied to the primary account only
+      return !isExtraAccount && hasSilentPaymentsScanning;
     }
 
-    // Restrict extra Bitcoin accounts (accountIndex > 0) to the address types
-    if (currentAccountIndex > 0) {
-      if (option is BitcoinReceivePageOption) {
-        final addressType = option.toType();
-        if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
-          return false;
-        }
+    // Restrict extra Bitcoin accounts (accountIndex > 0) to the allowed address types
+    if (isExtraAccount && option is BitcoinReceivePageOption) {
+      final addressType = option.toType();
+      if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
+        return false;
       }
     }
 

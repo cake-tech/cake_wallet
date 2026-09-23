@@ -31,8 +31,9 @@ bool _requiresKeyImageSync(DashboardViewModel vm) =>
 
 bool _hasAccounts(DashboardViewModel vm) =>
     hasAccountsWalletTypes.contains(vm.wallet.type) &&
-    !(vm.wallet.type == WalletType.bitcoin &&
-        vm.wallet.derivationInfo.derivationType == DerivationType.electrum);
+        !(vm.wallet.type == WalletType.bitcoin &&
+            (vm.wallet.derivationInfo.derivationType == DerivationType.electrum ||
+                !vm.wallet.isSoftwareWallet));
 
 class SettingsListItem {
   const SettingsListItem(

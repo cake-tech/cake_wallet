@@ -653,7 +653,8 @@ class WalletInfo {
   bool get hasNativeAccounts =>
       type == WalletType.monero || type == WalletType.wownero;
 
-  bool get canToggleMultiAccounts => type == WalletType.bitcoin;
+  bool get canToggleMultiAccounts =>
+      type == WalletType.bitcoin && hardwareWalletType == null;
 
   bool get multiAccountsActive =>
       hasNativeAccounts ||

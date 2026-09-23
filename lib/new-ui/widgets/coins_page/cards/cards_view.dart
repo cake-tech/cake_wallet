@@ -174,7 +174,9 @@ class _CardsViewState extends State<CardsView> {
     final isSelected = _selectedIndex == visualIndex;
     final isDragged = _dragVisualIndex == visualIndex;
     final accounts = accountListViewModel?.accounts;
-    final cardLabel = (accounts != null && realIndex < accounts.length)
+    final hideAccountLabel = widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
+        !widget.dashboardViewModel.isMultiAccountsEnabled;
+    final cardLabel = (!hideAccountLabel && accounts != null && realIndex < accounts.length)
         ? accounts[realIndex].label
         : S.of(context).balance;
 
@@ -261,9 +263,12 @@ class _CardsViewState extends State<CardsView> {
             cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
           }
 
+          final hideAccountInfo = widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
+              !widget.dashboardViewModel.isMultiAccountsEnabled;
+
           final String accountName;
           final String accountBalance;
-          if (account == null) {
+          if (account == null || hideAccountInfo) {
             accountName = "";
             accountBalance = "";
           } else {
@@ -279,11 +284,10 @@ class _CardsViewState extends State<CardsView> {
             width: effectiveCardWidth,
             accountName: accountName,
             accountBalance: accountBalance,
-            designSwitchDuration: Duration(milliseconds: 150),
+            designSwitchDuration: const Duration(milliseconds: 150),
             assetName: assetName,
             capitalizeAssetName: _shouldCapitalizeAssetName(),
             balance: walletBalance,
-            accountIndex: account?.id,
             fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                 widget.dashboardViewModel.settingsStore.fiatCurrency.title,
             fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,

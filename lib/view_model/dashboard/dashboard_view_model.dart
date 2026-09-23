@@ -948,17 +948,12 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   Future<void> setMultiAccountsEnabled(bool value) async {
-    if (!canToggleMultiAccounts) return;
+    if (!canToggleMultiAccounts) {
+      return;
+    }
 
     if (!value) {
-      final vm = accountListViewModel;
-      final selectedId = vm?.selectedAccount?.id;
-      if (vm != null && selectedId != null && selectedId != 0) {
-        final primary = vm.accounts.where((a) => a.id == 0).firstOrNull;
-        if (primary != null) {
-          await vm.select(primary);
-        }
-      }
+      await _selectPrimaryAccount();
     }
 
     wallet.walletInfo.isMultiAccountsEnabled = value;
@@ -1369,7 +1364,26 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void toggleLightningMode() => lightningMode = !lightningMode;
+  void toggleLightningMode() {
+    lightningMode = !lightningMode;
+
+    // Lightning belongs to the primary account only
+    if (lightningMode) {
+      unawaited(_selectPrimaryAccount());
+    }
+  }
+
+  Future<void> _selectPrimaryAccount() async {
+    if (wallet.type != WalletType.bitcoin) return;
+
+    final vm = accountListViewModel;
+    if (vm == null || vm.selectedAccount?.id == 0) return;
+
+    final primary = vm.accounts.where((a) => a.id == 0).firstOrNull;
+    if (primary != null) {
+      await vm.select(primary);
+    }
+  }
 
   @action
   void resetLightningMode() => lightningMode = false;
