@@ -286,7 +286,12 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 'wallet_restore_from_seed_blockheight_textfield_key',
               ),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker: [WalletType.monero, WalletType.wownero, WalletType.zcash].contains(
+              hasDatePicker: [
+                WalletType.monero,
+                WalletType.wownero,
+                WalletType.zcash,
+                WalletType.zano,
+              ].contains(
                 widget.type,
               ),
               walletType: widget.type,
@@ -329,8 +334,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     });
   }
 
-  void _setLanguageLabel(String language) =>
-      languageController.text = '${language.replaceAll("POLYSEED_", "")} (Seed language)';
+  void _setLanguageLabel(String language) => languageController.text =
+      "${language.replaceAll("POLYSEED_", "")} (${S.current.seed_language})";
 
   void _changeSeedType(MoneroSeedType item) {
     widget.seedSettingsViewModel.setMoneroSeedType(item);

@@ -108,6 +108,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadConnectedDevices();
+
       _bleStateTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) => widget.hardwareWalletVM.updateBleState(),
@@ -129,6 +131,23 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         });
       }
     });
+  }
+
+  Future<void> _loadConnectedDevices() async {
+    try {
+      final connected = await widget.hardwareWalletVM.getConnectedBleDevices();
+      
+      printV(connected);
+      if (!mounted || connected.isEmpty) {
+        return;
+      }
+      setState(() {
+        bleDevices.addAll(connected);
+        longWait = false;
+      });
+    } catch (e) {
+      printV(e);
+    }
   }
 
   @override

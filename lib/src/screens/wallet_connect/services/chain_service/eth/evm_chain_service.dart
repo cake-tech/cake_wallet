@@ -1,3 +1,4 @@
+import "dart:async";
 import 'dart:convert';
 
 import 'package:cake_wallet/di.dart';
@@ -5,6 +6,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -18,6 +20,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wall
 import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
+import "package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/evm/evm.dart';
@@ -82,7 +85,9 @@ class EvmChainServiceImpl {
     if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
       final walletClient = evm?.getWeb3Client(appStore.wallet!);
 
-      if (walletClient != null) return walletClient;
+      if (walletClient != null) {
+        return walletClient;
+      }
     }
 
     final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
@@ -93,8 +98,18 @@ class EvmChainServiceImpl {
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.personalSign.name);
+    if (pRequest == null) {
+      return;
+    }
+
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest);
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -104,6 +119,7 @@ class EvmChainServiceImpl {
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -141,8 +157,18 @@ class EvmChainServiceImpl {
   Future<void> ethSign(String topic, dynamic parameters) async {
     debugPrint('ethSign request: $parameters');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.ethSign.name);
+    if (pRequest == null) {
+      return;
+    }
+
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest);
     final message = EthUtils.getUtf8Message(data.toString());
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -152,6 +178,7 @@ class EvmChainServiceImpl {
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -189,8 +216,18 @@ class EvmChainServiceImpl {
   Future<void> ethSignTypedData(String topic, dynamic parameters) async {
     debugPrint('ethSignTypedData request: $parameters');
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.ethSignTypedData.name);
+    if (pRequest == null) {
+      return;
+    }
+
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -199,6 +236,7 @@ class EvmChainServiceImpl {
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -236,8 +274,18 @@ class EvmChainServiceImpl {
 
     final permitRequestMessage = await extractPermitData(parameters);
 
-    final pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.ethSignTypedDataV4.name);
+    if (pRequest == null) {
+      return;
+    }
+
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
+
+    if (!_isRequestAuthorized(topic, requestAddress: address)) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
+
     final data = EthUtils.getDataFromSessionRequest(pRequest) as String;
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -246,6 +294,7 @@ class EvmChainServiceImpl {
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -280,10 +329,22 @@ class EvmChainServiceImpl {
   Future<void> ethSignTransaction(String topic, dynamic parameters) async {
     debugPrint('ethSignTransaction request: $parameters');
 
-    final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.ethSignTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
+
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
 
-    if (data == null) return;
+    if (data == null) {
+      _respondMalformedRequest(topic, pRequest.id);
+      return;
+    }
+
+    if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
 
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
@@ -293,6 +354,7 @@ class EvmChainServiceImpl {
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: address,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -333,10 +395,21 @@ class EvmChainServiceImpl {
 
   Future<void> ethSendTransaction(String topic, dynamic parameters) async {
     debugPrint('ethSendTransaction request: $parameters');
-    final SessionRequest pRequest = walletKit.pendingRequests.getAll().last;
+    final pRequest = _pendingRequest(topic, EVMSupportedMethods.ethSendTransaction.name);
+    if (pRequest == null) {
+      return;
+    }
 
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
-    if (data == null) return;
+    if (data == null) {
+      _respondMalformedRequest(topic, pRequest.id);
+      return;
+    }
+
+    if (!_isRequestAuthorized(topic, requestAddress: data['from']?.toString())) {
+      await _rejectUnauthorizedRequest(topic, pRequest.id);
+      return;
+    }
 
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -344,6 +417,7 @@ class EvmChainServiceImpl {
       data,
       method: pRequest.method,
       chainId: pRequest.chainId,
+      topic: topic,
       transportType: pRequest.transportType.name,
       verifyContext: pRequest.verifyContext,
     );
@@ -379,6 +453,77 @@ class EvmChainServiceImpl {
     _handleResponseForTopic(topic, response);
   }
 
+  void _respondMalformedRequest(String topic, int requestId) {
+    final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+    _handleResponseForTopic(
+      topic,
+      JsonRpcResponse(
+        id: requestId,
+        jsonrpc: "2.0",
+        error: JsonRpcError(code: error.code, message: error.message),
+      ),
+    );
+  }
+
+  SessionRequest? _pendingRequest(String topic, String method) {
+    final matches = walletKit.pendingRequests
+        .getAll()
+        .where((request) => request.topic == topic && request.method == method);
+
+    return matches.isEmpty ? null : matches.last;
+  }
+
+  bool _isRequestAuthorized(String topic, {String? requestAddress}) {
+    final wallet = appStore.wallet;
+    if (wallet == null) {
+      return false;
+    }
+
+    final keys = wcKeyService.getKeysForChain(wallet);
+    if (keys.isEmpty) {
+      return false;
+    }
+
+    final walletAddress = keys.first.publicKey;
+
+    if (!MethodsUtils.isSessionOwnedByWallet(walletKit.sessions.get(topic), walletAddress)) {
+      return false;
+    }
+
+    if (requestAddress != null && !MethodsUtils.isSameAccount(requestAddress, walletAddress)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+    unawaited(
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          message: S.current.wc_request_for_different_wallet,
+        ),
+      ),
+    );
+
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: const JsonRpcError(
+            code: 4100,
+            message: "The requested account has not been authorized by the user.",
+          ),
+        ),
+      );
+    } catch (e) {
+      printV("rejectUnauthorizedRequest: $e");
+    }
+  }
+
   void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {
     final session = walletKit.sessions.get(topic);
 
@@ -388,7 +533,9 @@ class EvmChainServiceImpl {
         response: response,
       );
 
-      if (session == null) return;
+      if (session == null) {
+        return;
+      }
 
       MethodsUtils.handleRedirect(
         topic,
@@ -397,7 +544,9 @@ class EvmChainServiceImpl {
         response.error == null,
       );
     } on ReownSignError catch (error) {
-      if (session == null) return;
+      if (session == null) {
+        return;
+      }
 
       MethodsUtils.handleRedirect(
         topic,
@@ -413,6 +562,7 @@ class EvmChainServiceImpl {
     String? method,
     String? chainId,
     String? address,
+    String? topic,
     VerifyContext? verifyContext,
     required String transportType,
   }) async {
@@ -456,6 +606,7 @@ class EvmChainServiceImpl {
       method: method,
       chainId: chainId,
       address: address ?? transaction.from?.hex ?? '',
+      topic: topic,
       transportType: transportType,
       verifyContext: verifyContext,
       extraModels: feeRows,
@@ -472,13 +623,17 @@ class EvmChainServiceImpl {
     String nativeSymbol,
   ) {
     final gasLimit = transaction.maxGas;
-    if (gasLimit == null || gasLimit <= 0) return const [];
+    if (gasLimit == null || gasLimit <= 0) {
+      return const [];
+    }
 
     final gasLimitBig = BigInt.from(gasLimit);
     final isEip1559 = transaction.isEIP1559;
     final perGasWei =
         isEip1559 ? transaction.maxFeePerGas?.getInWei : transaction.gasPrice?.getInWei;
-    if (perGasWei == null || perGasWei <= BigInt.zero) return const [];
+    if (perGasWei == null || perGasWei <= BigInt.zero) {
+      return const [];
+    }
 
     final feeWei = gasLimitBig * perGasWei;
     final feeNative = feeWei.toDouble() / 1e18;
@@ -500,19 +655,25 @@ class EvmChainServiceImpl {
   ) {
     final cryptoPart = '${_formatNativeAmount(feeNative)} $nativeSymbol';
 
-    if (nativeCurrency == null) return cryptoPart;
+    if (nativeCurrency == null) {
+      return cryptoPart;
+    }
 
     try {
       final fiatStore = getIt.get<FiatConversionStore>();
       final price = fiatStore.prices[nativeCurrency];
-      if (price == null || price <= 0) return cryptoPart;
+      if (price == null || price <= 0) {
+        return cryptoPart;
+      }
 
       final fiatSymbol = appStore.settingsStore.fiatCurrency.title;
       final fiatValue = calculateFiatAmount(
         price: price,
         cryptoAmount: feeNative.toString(),
       );
-      if (fiatValue.isEmpty || fiatValue == '0.00') return cryptoPart;
+      if (fiatValue.isEmpty || fiatValue == '0.00') {
+        return cryptoPart;
+      }
 
       return '$cryptoPart (~ $fiatValue $fiatSymbol)';
     } catch (_) {
@@ -521,14 +682,20 @@ class EvmChainServiceImpl {
   }
 
   String _formatNativeAmount(double value) {
-    if (value == 0) return '0';
-    if (value >= 0.0001) return value.toStringAsFixed(6);
+    if (value == 0) {
+      return '0';
+    }
+    if (value >= 0.0001) {
+      return value.toStringAsFixed(6);
+    }
     return value.toStringAsExponential(4);
   }
 
   Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
     final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
-    if (hasGasLimit) return transaction;
+    if (hasGasLimit) {
+      return transaction;
+    }
 
     final hint = transaction.gasPrice ?? transaction.maxFeePerGas ?? await ethClient.getGasPrice();
 
@@ -689,7 +856,9 @@ $messageDetails''';
       final fieldType = field['type'] as String;
       final value = message[field['name'] as String];
 
-      if (value == null) continue;
+      if (value == null) {
+        continue;
+      }
 
       if (types.containsKey(fieldType)) {
         final nestedFields = types[fieldType] as List<dynamic>;
@@ -714,7 +883,9 @@ $messageDetails''';
   }
 
   String _toCamelCase(String input) {
-    if (input.isEmpty) return input;
+    if (input.isEmpty) {
+      return input;
+    }
     return input[0].toUpperCase() + input.substring(1).toLowerCase();
   }
 

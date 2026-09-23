@@ -6,6 +6,8 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -61,7 +63,12 @@ class SendConfirmBottomWidget extends StatelessWidget {
         );
       case IsAwaitingDeviceResponseState:
         return HardwareWalletProceedOnDeviceMessage(
-            hardwareWalletType: sendViewModel.wallet.hardwareWalletType!);
+          hardwareWalletType: sendViewModel.wallet.hardwareWalletType!,
+          note: sendViewModel.walletType == WalletType.bitcoin &&
+                  sendViewModel.wallet.hardwareWalletType == HardwareWalletType.trezor
+              ? S.of(context).trezor_locktime_notice
+              : null,
+        );
       case TransactionCommitting:
         return LoadingBottomWidget(
           text: "${S.of(context).sending}...",

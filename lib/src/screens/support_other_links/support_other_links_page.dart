@@ -2,7 +2,6 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_link_provider_cell.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
-import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -36,9 +35,6 @@ class SupportOtherLinksPage extends BasePage {
               itemCounter: (int _) => supportViewModel.items.length,
               itemBuilder: (_, index) {
                 final item = supportViewModel.items[index];
-                if (item is RegularListItem) {
-                  return SettingsCellWithArrow(title: item.title, handler: item.handler);
-                }
                 if (item is LinkListItem) {
                   bool hasLightIcon = false;
                   if (item.lightIcon != null) hasLightIcon = true;

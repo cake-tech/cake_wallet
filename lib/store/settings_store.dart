@@ -1378,8 +1378,8 @@ abstract class SettingsStoreBase with Store {
       pinLength = defaultPinLength;
     }
 
-    final savedLanguageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-        await LanguageService.localeDetection();
+    final savedLanguageCode =
+        _offeredLanguageCode(sharedPreferences) ?? await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1938,7 +1938,12 @@ abstract class SettingsStoreBase with Store {
     }
     pinCodeLength = pinLength;
 
-    languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
+    final restoredLanguageCode = _offeredLanguageCode(sharedPreferences);
+    if (restoredLanguageCode == null) {
+      await sharedPreferences.setString(PreferencesKey.currentLanguageCode, languageCode);
+    } else {
+      languageCode = restoredLanguageCode;
+    }
     shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? shouldShowYatPopup;
     shouldShowDEuroDisclaimer =
@@ -2313,6 +2318,12 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {
+    final code = sharedPreferences.getString(PreferencesKey.currentLanguageCode);
+
+    return LanguageService.list.containsKey(code) ? code : null;
   }
 
   static Future<String?> _getDeviceName() async {

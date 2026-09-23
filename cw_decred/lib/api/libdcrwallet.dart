@@ -182,7 +182,7 @@ class Libwallet {
             final cName = name.toCString();
             final cSignReq = signReq.toCString();
             res = executePayloadFn(
-              fn: () => dcrwalletApi.createSignedTransaction(cName, cSignReq),
+              fn: () => dcrwalletApi.createTransaction(cName, cSignReq),
               ptrsToFree: [cName, cSignReq],
             );
             break;
@@ -441,7 +441,9 @@ class Libwallet {
   }
 
   Future<String> syncStatus(String walletName) async {
-    if (_closed) throw StateError('Closed');
+    if (_closed) {
+      return "closed";
+    }
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
     _activeRequests[id] = completer;
