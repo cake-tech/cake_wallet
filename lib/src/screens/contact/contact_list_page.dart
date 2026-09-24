@@ -68,6 +68,7 @@ class ContactListPage extends BasePage implements PageOpenListener {
                 minWidth: 32.0,
                 height: 32.0,
                 child: TextButton(
+                  key: ValueKey("contact_list_page_add_contact_button_key"),
                   // FIX-ME: Style
                   //shape: CircleBorder(),
                   onPressed: () async {
@@ -459,7 +460,7 @@ class _ContactListBodyState extends State<ContactListBody> {
       color: Theme.of(context).colorScheme.onSurface,
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: FeatureFlag.hasNewUi ? 48 : 0),
+      padding: const EdgeInsets.only(bottom: 48),
       child: MergeSemantics(
         child: SizedBox(
           height: 58,

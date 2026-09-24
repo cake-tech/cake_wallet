@@ -14,6 +14,7 @@ class ReceiveAddressWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
+        key: const ValueKey("receive_page_address_key"),
         padding: const EdgeInsets.symmetric(horizontal: 50),
         child: AddressFormatter.buildSegmentedAddress(
           address: address,
