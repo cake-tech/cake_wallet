@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -175,7 +176,19 @@ class OtherSettingsPage extends BasePage {
                       keyValue: "[dev] show commit/branch overlay",
                       label: "[dev] show commit/branch overlay",
                       value: _otherSettingsViewModel.showCiBuildOverlay,
-                      onChanged: _otherSettingsViewModel.setShowCiBuildOverlay),
+                      onChanged: (val){
+                        if(!val) {
+                          showPopUp(
+                                      context: context,
+                                      builder: (context) => AlertWithOneAction(
+                                            alertTitle: "overlay disabled",
+                                            alertContent:
+                                                "don't send issue reports without the overlay, pretty please",
+                                            buttonText: "okay",
+                                            buttonAction: Navigator.of(context).pop,
+                                          ));
+                                }
+                        _otherSettingsViewModel.setShowCiBuildOverlay(val);}),
                 if (_otherSettingsViewModel.walletType == WalletType.monero)
                   ListItemRegularRow(
                       keyValue: "[dev] monero background sync",
