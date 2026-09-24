@@ -1,10 +1,10 @@
 import "dart:convert";
 
-import 'package:bech32/bech32.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
+import "package:bech32/bech32.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/utils/proxy_wrapper.dart";
 
 const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 const _LUD17_PREFIXES = ["lnurlw", "lnurlc", "lnurlp", "keyauth"];
