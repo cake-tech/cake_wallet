@@ -5,6 +5,7 @@ import 'package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provi
 import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
+import "package:cake_wallet/exchange/provider/flashnet/flashnet_exchange_provider.dart";
 import 'package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
@@ -73,6 +74,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case ExchangeProviderDescription.flashnet:
+        _provider = FlashnetExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -113,6 +117,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://solscan.io/tx/${trade.txId}';
       case ExchangeProviderDescription.nearIntents:
         return 'https://explorer.near-intents.org/transactions/${trade.id}';
+      case ExchangeProviderDescription.flashnet:
+        return "https://orchestra.flashnet.xyz/explorer/${trade.id}";
     }
     return null;
   }
