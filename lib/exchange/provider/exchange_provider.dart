@@ -1,11 +1,19 @@
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/trade_request.dart';
-import 'package:cw_core/crypto_currency.dart';
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/limits.dart";
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_core/wallet_base.dart";
 
 abstract class ExchangeProvider {
-  ExchangeProvider();
+  ExchangeProvider({ProxyWrapper? proxyWrapper}) : proxyWrapper = proxyWrapper ?? ProxyWrapper();
+
+  final ProxyWrapper proxyWrapper;
 
   String get title;
 
@@ -24,20 +32,24 @@ abstract class ExchangeProvider {
   @override
   String toString() => title;
 
-  Future<Limits?> fetchLimits(
-      {required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode});
+  Future<ExchangeLimits> fetchLimits(
+      {required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode,});
 
   Future<Trade> createTrade(
-      {required TradeRequest request, required bool isFixedRateMode, required bool isSendAll});
+      {required TradeRequest request,});
 
-  Future<Trade> findTradeById({required String id});
+  Future<Trade> updateTrade(Trade trade);
 
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount});
+  Future<ProviderRate> fetchRate({required Money from, required CryptoCurrency to, required bool isFixedRate});
 
   Future<bool> checkIsAvailable();
+}
+
+
+abstract interface class TransactionCreationExchangeProvider {
+  Future<PendingTransaction> createTransaction(WalletBase wallet, Trade trade);
+}
+
+abstract interface class TransactionCommitExchangeProvider {
+  Future<void> commitTransaction(PendingTransaction tx);
 }

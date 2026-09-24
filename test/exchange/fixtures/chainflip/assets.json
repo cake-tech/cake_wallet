@@ -1,0 +1,321 @@
+{
+  "assets": [
+    {
+      "enabled": true,
+      "id": "btc.btc",
+      "direction": "both",
+      "ticker": "BTC",
+      "name": "Bitcoin",
+      "network": "Bitcoin",
+      "networkLogo": "/networks/btc/logo.svg",
+      "assetLogo": "/assets/btc.btc/logo.svg",
+      "decimals": 8,
+      "minimalAmount": 0.0004,
+      "minimalAmountNative": "40000",
+      "usdPrice": 64395.42448448485,
+      "usdPriceNative": "64395424484",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "dot.hub",
+      "direction": "both",
+      "ticker": "DOT",
+      "name": "Assethub",
+      "network": "Assethub",
+      "networkLogo": "/networks/hub/logo.svg",
+      "assetLogo": "/assets/dot.hub/logo.svg",
+      "decimals": 10,
+      "minimalAmount": 4,
+      "minimalAmountNative": "40000000000",
+      "usdPrice": 0.7644386778,
+      "usdPriceNative": "764438",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "eth.arb",
+      "direction": "both",
+      "ticker": "ETH",
+      "name": "arbEthereum",
+      "network": "Arbitrum",
+      "networkLogo": "/networks/arb/logo.svg",
+      "assetLogo": "/assets/eth.arb/logo.svg",
+      "decimals": 18,
+      "minimalAmount": 0.0039,
+      "minimalAmountNative": "3900000000000000",
+      "usdPrice": 1921.2433686337,
+      "usdPriceNative": "1921243368",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "eth.eth",
+      "direction": "both",
+      "ticker": "ETH",
+      "name": "Ethereum",
+      "network": "Ethereum",
+      "networkLogo": "/networks/eth/logo.svg",
+      "assetLogo": "/assets/eth.eth/logo.svg",
+      "decimals": 18,
+      "minimalAmount": 0.01,
+      "minimalAmountNative": "10000000000000000",
+      "usdPrice": 1911.18672279095,
+      "usdPriceNative": "1911186722",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "flip.eth",
+      "direction": "both",
+      "ticker": "FLIP",
+      "name": "Chainflip",
+      "network": "Ethereum",
+      "contractAddress": "0x826180541412D574cf1336d22c0C0a287822678A",
+      "networkLogo": "/networks/eth/logo.svg",
+      "assetLogo": "/assets/flip.eth/logo.svg",
+      "decimals": 18,
+      "minimalAmount": 4,
+      "minimalAmountNative": "4000000000000000000",
+      "usdPrice": 0.31336071405,
+      "usdPriceNative": "313360",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "sol.sol",
+      "direction": "both",
+      "ticker": "SOL",
+      "name": "Solana",
+      "network": "Solana",
+      "networkLogo": "/networks/sol/logo.svg",
+      "assetLogo": "/assets/sol.sol/logo.svg",
+      "decimals": 9,
+      "minimalAmount": 0.068,
+      "minimalAmountNative": "68000000",
+      "usdPrice": 73.6938757149,
+      "usdPriceNative": "73693875",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "trx.tron",
+      "direction": "both",
+      "ticker": "TRX",
+      "name": "Tron",
+      "network": "Tron",
+      "networkLogo": "/networks/tron/logo.svg",
+      "assetLogo": "/assets/trx.tron/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 30,
+      "minimalAmountNative": "30000000",
+      "usdPrice": 0.32770412885,
+      "usdPriceNative": "327704",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdc.arb",
+      "direction": "both",
+      "ticker": "USDC",
+      "name": "arbUSDC",
+      "network": "Arbitrum",
+      "contractAddress": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      "networkLogo": "/networks/arb/logo.svg",
+      "assetLogo": "/assets/usdc.arb/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 10,
+      "minimalAmountNative": "10000000",
+      "usdPrice": 1.0004003352,
+      "usdPriceNative": "1000400",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdc.eth",
+      "direction": "both",
+      "ticker": "USDC",
+      "name": "ethUSDC",
+      "network": "Ethereum",
+      "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "networkLogo": "/networks/eth/logo.svg",
+      "assetLogo": "/assets/usdc.eth/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 20,
+      "minimalAmountNative": "20000000",
+      "usdPrice": 1,
+      "usdPriceNative": "1000000",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdc.hub",
+      "direction": "both",
+      "ticker": "USDC",
+      "name": "hubUSDC",
+      "network": "Assethub",
+      "contractAddress": "1337",
+      "networkLogo": "/networks/hub/logo.svg",
+      "assetLogo": "/assets/usdc.hub/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 20,
+      "minimalAmountNative": "20000000",
+      "usdPrice": 0.999950005,
+      "usdPriceNative": "999950",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdc.sol",
+      "direction": "both",
+      "ticker": "USDC",
+      "name": "solUSDC",
+      "network": "Solana",
+      "contractAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "networkLogo": "/networks/sol/logo.svg",
+      "assetLogo": "/assets/usdc.sol/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 10,
+      "minimalAmountNative": "10000000",
+      "usdPrice": 1.00020003,
+      "usdPriceNative": "1000200",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdt.arb",
+      "direction": "both",
+      "ticker": "USDT",
+      "name": "arbUSDT",
+      "network": "Arbitrum",
+      "contractAddress": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+      "networkLogo": "/networks/arb/logo.svg",
+      "assetLogo": "/assets/usdt.arb/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 10,
+      "minimalAmountNative": "10000000",
+      "usdPrice": 0.99785259775,
+      "usdPriceNative": "997852",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdt.eth",
+      "direction": "both",
+      "ticker": "USDT",
+      "name": "ethUSDT",
+      "network": "Ethereum",
+      "contractAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "networkLogo": "/networks/eth/logo.svg",
+      "assetLogo": "/assets/usdt.eth/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 20,
+      "minimalAmountNative": "20000000",
+      "usdPrice": 0.99900055475,
+      "usdPriceNative": "999000",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdt.hub",
+      "direction": "both",
+      "ticker": "USDT",
+      "name": "hubUSDT",
+      "network": "Assethub",
+      "contractAddress": "1984",
+      "networkLogo": "/networks/hub/logo.svg",
+      "assetLogo": "/assets/usdt.hub/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 20,
+      "minimalAmountNative": "20000000",
+      "usdPrice": 0.999950015,
+      "usdPriceNative": "999950",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdt.sol",
+      "direction": "both",
+      "ticker": "USDT",
+      "name": "solUSDT",
+      "network": "Solana",
+      "contractAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      "networkLogo": "/networks/sol/logo.svg",
+      "assetLogo": "/assets/usdt.sol/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 10,
+      "minimalAmountNative": "10000000",
+      "usdPrice": 0.9985459932,
+      "usdPriceNative": "998545",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "usdt.tron",
+      "direction": "both",
+      "ticker": "USDT",
+      "name": "trxUSDT",
+      "network": "Tron",
+      "contractAddress": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      "networkLogo": "/networks/tron/logo.svg",
+      "assetLogo": "/assets/usdt.tron/logo.svg",
+      "decimals": 6,
+      "minimalAmount": 10,
+      "minimalAmountNative": "10000000",
+      "usdPrice": 0.9989506147,
+      "usdPriceNative": "998950",
+      "platforms": [
+        "chainflip"
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "wbtc.eth",
+      "direction": "both",
+      "ticker": "WBTC",
+      "name": "ethWBTC",
+      "network": "Ethereum",
+      "contractAddress": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      "networkLogo": "/networks/eth/logo.svg",
+      "assetLogo": "/assets/wbtc.eth/logo.svg",
+      "decimals": 8,
+      "minimalAmount": 0.0004,
+      "minimalAmountNative": "40000",
+      "usdPrice": 63827.6720673093,
+      "usdPriceNative": "63827672067",
+      "platforms": [
+        "chainflip"
+      ]
+    }
+  ]
+}

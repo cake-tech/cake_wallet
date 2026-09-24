@@ -6,6 +6,7 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/evm_address_detected_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/network_decision_page.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
@@ -15,7 +16,6 @@ import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
-import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -345,13 +345,11 @@ class AnyPayFlow {
     );
 
     final page = NewSwapPage(
-      getIt.get<ExchangeViewModel>(),
+      getIt.get<SwapBloc>(),
       authService,
       getIt.get<AddressResolverService>(),
       null,
-      walletSwitcherViewModel: walletSwitcherViewModel,
       fromSend: SwapFromSendArgs.fromIntent(intent),
-      balanceViewModel: sendViewModel.balanceViewModel,
     );
     await Navigator.of(presentContext).push<void>(
       CupertinoPageRoute(

@@ -178,4 +178,7 @@ class TronToken extends CryptoCurrency {
 
   @override
   String get apiString => "trx.$contractAddress";
+
+  @override
+  String get serialized => "trx.$contractAddress";
 }

@@ -293,4 +293,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   @override
   Money? tryParseAmount(String value) => Money.tryParse(value, this);
+
+  @override
+  String get serialized => "fiat.$symbol";
 }

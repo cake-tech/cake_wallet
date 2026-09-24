@@ -6,6 +6,13 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:flutter/foundation.dart";
 import "package:path/path.dart" as p;
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
+import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/db/trade_migration.dart";
+import "package:cw_core/root_dir.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:flutter/foundation.dart";
+import "package:sqflite_common_ffi/sqflite_ffi.dart";
+import "package:path/path.dart" as p;
 
 Database? db;
 
@@ -65,7 +72,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 13,
+    version: 14,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -102,9 +109,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
       await _addColumnIfNotExists(
         db,
-        table: 'BalanceCardStyleSettings',
-        column: 'cardOrder',
-        definition: 'INTEGER DEFAULT 0',
+        table: "BalanceCardStyleSettings",
+        column: "cardOrder",
+        definition: "INTEGER DEFAULT 0",
       );
     }
     if (oldVersion <= 3) {
@@ -122,14 +129,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     }
 
     if (oldVersion <= 5) {
-      await _createTradeTable(db);
+      await createTradeTable(db);
     }
     if (oldVersion <= 6) {
       await _addColumnIfNotExists(
         db,
-        table: 'Trade',
-        column: 'toAddressExtraId',
-        definition: 'TEXT',
+        table: "Trade",
+        column: "toAddressExtraId",
+        definition: "TEXT",
       );
     }
     if (oldVersion <= 7) {
@@ -138,15 +145,15 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     if (oldVersion <= 8) {
       await _addColumnIfNotExists(
         db,
-        table: 'BalanceCardStyleSettings',
-        column: 'iconStyleIndex',
-        definition: 'INTEGER DEFAULT 0',
+        table: "BalanceCardStyleSettings",
+        column: "iconStyleIndex",
+        definition: "INTEGER DEFAULT 0",
       );
       await _addColumnIfNotExists(
         db,
-        table: 'BalanceCardStyleSettings',
-        column: 'isGradientOnly',
-        definition: 'BOOLEAN DEFAULT FALSE',
+        table: "BalanceCardStyleSettings",
+        column: "isGradientOnly",
+        definition: "BOOLEAN DEFAULT FALSE",
       );
     }
     if (oldVersion <= 9) {
@@ -168,6 +175,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
     }
     if(oldVersion <= 12) {
       await _createChartsTables(db);
+    }
+    if(oldVersion <= 13) {
+      await migrateTradeTableToNewSchema(db);
     }
   }, onCreate: (Database db, int version) async {
     await db.execute('''
@@ -264,7 +274,7 @@ CREATE TABLE BalanceCardStyleSettings (
         ''');
       await _createBridgeTransferTable(db);
       await _createNodeTable(db);
-      await _createTradeTable(db);
+      await createTradeTable(db);
       await _createChartsTables(db);
       await _createErc20TokenTable(db);
       await _createSplTokenTable(db);
@@ -293,62 +303,33 @@ CREATE TABLE ChartsAssets (
         """);
 }
 
-Future<void> _createTradeTable(Database db) async {
+Future<void> createTradeTable(Database db) async {
   await db.execute("""
-CREATE TABLE IF NOT EXISTS Trade (
-  tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  id TEXT NOT NULL,
-  providerRaw INTEGER NOT NULL DEFAULT 0,
-  fromTitle TEXT,
-  fromName TEXT,
-  fromTag TEXT,
-  fromFullName TEXT,
-  fromDecimals INTEGER,
-  fromRaw INTEGER,
-  fromIconPath TEXT,
-  fromFlatIconPath TEXT,
-  fromChainIconPath TEXT,
-  toTitle TEXT,
-  toName TEXT,
-  toTag TEXT,
-  toFullName TEXT,
-  toDecimals INTEGER,
-  toRaw INTEGER,
-  toIconPath TEXT,
-  toFlatIconPath TEXT,
-  toChainIconPath TEXT,
-  stateRaw TEXT NOT NULL DEFAULT '',
-  createdAt INTEGER,
-  expiredAt INTEGER,
-  amount TEXT NOT NULL DEFAULT '',
-  receiveAmount TEXT,
-  inputAddress TEXT,
-  extraId TEXT,
-  outputTransaction TEXT,
-  refundAddress TEXT,
-  walletId TEXT,
-  payoutAddress TEXT,
-  toAddressExtraId TEXT,
-  password TEXT,
-  providerId TEXT,
-  providerName TEXT,
-  fromWalletAddress TEXT,
-  memo TEXT,
-  txId TEXT,
-  isRefund INTEGER DEFAULT 0,
-  isSendAll INTEGER DEFAULT 0,
-  router TEXT,
-  needToRegisterInSwapXyz INTEGER DEFAULT 0,
-  sourceTokenAddress TEXT,
-  sourceTokenDecimals INTEGER,
-  routerData TEXT,
-  routerValue TEXT,
-  routerChainId INTEGER,
-  sourceTokenAmountRaw TEXT,
-  requiresTokenApproval INTEGER DEFAULT 0,
-  chainId INTEGER,
-  fee REAL
+CREATE TABLE Trade (
+    tradeId INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL,
+    provider INTEGER, 
+    state TEXT,
+    accountIndex INTEGER,
+    depositAmount TEXT,
+    payoutAmount TEXT,
+    fundingAddress TEXT,
+    refundAddress TEXT,
+    payoutAddress TEXT,
+    createdAt INTEGER,
+    expiredAt INTEGER,
+    extraId TEXT,
+    outputTransaction TEXT,
+    walletId TEXT,
+    toAddressExtraId TEXT,
+    password TEXT,
+    providerId TEXT,
+    memo TEXT,
+    txId TEXT,
+    isRefund INTEGER,
+    chainId INTEGER
 );
+
 """);
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique

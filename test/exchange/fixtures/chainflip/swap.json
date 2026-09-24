@@ -1,0 +1,11 @@
+{
+  "id": 61978,
+  "address": "0x4fab7dc9d763a21e01c1799d72900b02d0a5f092",
+  "issuedBlock": 14138313,
+  "network": "Ethereum",
+  "channelId": 13128,
+  "sourceExpiryBlock": 25645142,
+  "explorerUrl": "https://scan.chainflip.io/channels/14138313-Ethereum-13128",
+  "channelOpeningFee": 0,
+  "channelOpeningFeeNative": "0"
+}

@@ -1,31 +1,24 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/utils/address_formatter.dart';
-import 'package:cake_wallet/utils/clipboard_util.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/payment_uris.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart";
+import "package:cake_wallet/src/screens/receive/widgets/qr_image.dart";
+import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/clipboard_util.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/payment_uris.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class SwapSendExternalModal extends StatefulWidget {
   const SwapSendExternalModal(
-      {super.key,
-      required this.amount,
-      required this.from,
-      required this.to,
-      required this.address,
-      required this.exchangeTradeViewModel});
+      {required this.uri, required this.from, required this.to, super.key, this.extraId,});
 
-  final String amount;
-  final ExchangeTradeViewModel exchangeTradeViewModel;
   final CryptoCurrency from;
   final CryptoCurrency to;
-  final String address;
+  final PaymentURI uri;
+  final String? extraId;
 
   @override
   State<SwapSendExternalModal> createState() => _SwapSendExternalModalState();
@@ -38,17 +31,10 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
   static const warningBackgroundColor = Color(0xFF8E5800);
 
   @override
-  void initState() {
-    super.initState();
-    final newUri = widget.exchangeTradeViewModel.paymentUri;
-    setState(() {
-      uri = newUri;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.address.isEmpty) return SizedBox.shrink();
+    if (widget.uri.address.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.8 : 0.54);
 
     return PopScope(
@@ -58,7 +44,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: SafeArea(
           child: Column(
@@ -68,12 +54,12 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                 title: "",
                 leadingWidget: SwapModalHeader(
                     fromIconPath: widget.from.iconPath ?? "", toIconPath: widget.to.iconPath ?? ""),
-                trailingIcon: Icon(Icons.close),
+                trailingIcon: const Icon(Icons.close),
                 trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).pop,
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   spacing: 24,
                   children: [
@@ -93,12 +79,12 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 color: Theme.of(context).colorScheme.surfaceContainer,
                                 borderRadius: BorderRadius.circular(12)),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8),
                               child: Row(
                                 spacing: 8,
                                 children: [
                                   Text(
-                                    widget.amount,
+                                    widget.uri.amount,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 16,
@@ -134,8 +120,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                           begin: resolvedSize,
                           end: resolvedSize,
                         ),
-                        builder: (context, animatedSize, child) {
-                          return SizedBox(
+                        builder: (context, animatedSize, child) => SizedBox(
                             width: animatedSize,
                             height: animatedSize,
                             child: ClipRRect(
@@ -143,16 +128,18 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               child: QrImage(
                                 size: animatedSize,
                                 embeddedImagePath: widget.from.iconPath,
-                                data: uri?.toString() ?? widget.address,
+                                data: uri?.toString() ?? widget.uri.address,
                               ),
                             ),
-                          );
-                        },
+                          ),
                       ),
                     ),
                     AddressFormatter.buildSegmentedAddress(
-                        address: widget.address,
-                        evenTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                        address: widget.uri.address,
+                        evenTextStyle: TextStyle(color: Theme
+                            .of(context)
+                            .colorScheme
+                            .onSurface, fontFamily: "IBM Plex Mono", fontSize: 16),
                         textAlign: TextAlign.center),
                     Container(
                         decoration: BoxDecoration(
@@ -160,18 +147,18 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(20),
                           child: Text(
                             S.of(context).send_external_desc,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: warningTextColor, fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         )),
-                    if (widget.exchangeTradeViewModel.trade.extraId != null)
+                    if (widget.extraId != null)
                       CopyWrapper(
                         data: ClipboardData(
-                            text: widget.exchangeTradeViewModel.trade.extraId!),
+                            text: widget.extraId!),
                         builder: (context, copied) => Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -199,7 +186,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        widget.exchangeTradeViewModel.trade.extraId!,
+                                        widget.extraId!,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 18,
@@ -233,7 +220,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         Flexible(
                           child: NewPrimaryButton(
                               onPressed: () =>
-                                  ClipboardUtil.copyToClipboard(context, widget.address),
+                                  ClipboardUtil.copyToClipboard(context, widget.uri.address),
                               text: S.of(context).copy,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary),
@@ -247,7 +234,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         ),
                       ],
                     ),
-                    SizedBox()
+                    const SizedBox()
                   ],
                 ),
               ),

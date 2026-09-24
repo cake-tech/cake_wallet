@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:cake_wallet/core/secure_storage.dart';
+import "package:cake_wallet/exchange/trade_state.dart";
 import 'package:collection/collection.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
@@ -399,11 +401,13 @@ Future<void> ios_migrate_trades_list() async {
       await Trade(
         id: tradeId,
         provider: provider,
-        from: from,
-        to: to,
+        state: TradeState.expired,
+        fundingAddress: "",
+        refundAddress: "",
+        payoutAddress: "",
+        depositAmount: Money.zero(from),
+        payoutAmount: Money.zero(to),
         createdAt: date,
-        amount: '',
-        receiveAmount: '',
       ).save();
     }
 

@@ -1,0 +1,53 @@
+{
+  "id": 61978,
+  "platform": "chainflip",
+  "status": {
+    "state": "waiting",
+    "sourceAsset": "eth.eth",
+    "destinationAsset": "usdc.eth",
+    "destinationAddress": "0x00d283ffcb70f7b9a1d844e54a1ade61e5443b6c",
+    "depositChannel": {
+      "id": "14138313-Ethereum-13128",
+      "createdAt": 1785333864000,
+      "createdAtDate": "2026-07-29T14:04:24+00:00",
+      "brokerCommissionBps": 5,
+      "depositAddress": "0x4fab7dc9d763a21e01c1799d72900b02d0a5f092",
+      "sourceChainExpiryBlock": "25645142",
+      "estimatedExpiryTime": 1785407934000,
+      "estimatedExpiryDate": "2026-07-30T10:38:54+00:00",
+      "isExpired": false,
+      "openedThroughBackend": false,
+      "affiliateBrokers": [
+        {
+          "account": "cFJu3ygud5dPFaZnXKhUkDJ23xdVi4ixgMjxrM5t5y1fYhKFB",
+          "commissionBps": 170
+        }
+      ],
+      "fillOrKillParams": {
+        "retryDurationBlocks": 100,
+        "refundAddress": "0x00d283ffcb70f7b9a1d844e54a1ade61e5443b6c",
+        "minimumPrice": "0"
+      }
+    },
+    "fillOrKillParams": {
+      "retryDurationBlocks": 100,
+      "refundAddress": "0x00d283ffcb70f7b9a1d844e54a1ade61e5443b6c",
+      "minimumPrice": "0"
+    },
+    "brokers": [
+      {
+        "account": "cFJZVRaybb2PBwxTiAiRLiQfHY4KPB3RpJK22Q7Fhqk979aCH",
+        "commissionBps": 5
+      },
+      {
+        "account": "cFJu3ygud5dPFaZnXKhUkDJ23xdVi4ixgMjxrM5t5y1fYhKFB",
+        "commissionBps": 170
+      }
+    ],
+    "estimatedDurationSeconds": 168,
+    "sourceChainRequiredBlockConfirmations": 5,
+    "fees": [],
+    "lastStateChainUpdateAt": 1785333896842,
+    "lastStateChainUpdateAtDate": "2026-07-29T14:04:56.842+00:00"
+  }
+}
