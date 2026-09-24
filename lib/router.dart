@@ -768,6 +768,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
       final setZcashNetwork = args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
+      final alwaysScanSilentPayments = args['alwaysScanSilentPayments'] as bool? ?? false;
+      final toggleAlwaysScanSilentPayments =
+          args['toggleAlwaysScanSilentPayments'] as Function(bool? val)? ?? (_) {};
+      final silentPaymentsScanHeight = args['silentPaymentsScanHeight'] as int? ?? 0;
+      final setSilentPaymentsScanHeight =
+          args['setSilentPaymentsScanHeight'] as Function(int height)? ?? (_) {};
 
       final viewModelParam = {'type': type, 'isPow': false};
 
@@ -779,6 +785,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           toggleUseTestnet: toggleTestnet,
           zcashNetwork: zcashNetwork,
           setZcashNetwork: setZcashNetwork,
+          alwaysScanSilentPayments: alwaysScanSilentPayments,
+          toggleAlwaysScanSilentPayments: toggleAlwaysScanSilentPayments,
+          silentPaymentsScanHeight: silentPaymentsScanHeight,
+          setSilentPaymentsScanHeight: setSilentPaymentsScanHeight,
           advancedPrivacySettingsViewModel:
               getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
           nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),

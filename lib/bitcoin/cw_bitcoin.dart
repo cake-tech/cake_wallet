@@ -8,6 +8,8 @@ class CWBitcoin extends Bitcoin {
     required DerivationType derivationType,
     required String derivationPath,
     String? passphrase,
+    int? height,
+    bool? alwaysScan,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
         name: name,
@@ -16,6 +18,8 @@ class CWBitcoin extends Bitcoin {
         derivationType: derivationType,
         derivationPath: derivationPath,
         passphrase: passphrase,
+        height: height,
+        alwaysScan: alwaysScan,
       );
 
   @override
@@ -24,9 +28,17 @@ class CWBitcoin extends Bitcoin {
     required String password,
     required String xpub,
     HardwareWalletType? hardwareWalletType,
+    int? height,
+    bool? alwaysScan,
   }) =>
       BitcoinWalletFromKeysCredentials(
-          name: name, password: password, xpub: xpub, hardwareWalletType: hardwareWalletType);
+        name: name,
+        password: password,
+        xpub: xpub,
+        hardwareWalletType: hardwareWalletType,
+        height: height,
+        alwaysScan: alwaysScan,
+      );
 
   @override
   WalletCredentials createLitecoinWalletFromKeys({
@@ -36,6 +48,7 @@ class CWBitcoin extends Bitcoin {
     required String scanSecret,
     required String spendPubkey,
     HardwareWalletType? hardwareWalletType,
+    int? height,
   }) =>
       LitecoinWalletFromKeysCredentials(
         name: name,
@@ -44,6 +57,7 @@ class CWBitcoin extends Bitcoin {
         scanSecret: scanSecret,
         spendPubkey: spendPubkey,
         hardwareWalletType: hardwareWalletType,
+        height: height,
       );
 
   @override

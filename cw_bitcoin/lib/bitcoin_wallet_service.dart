@@ -177,6 +177,7 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
       useLightning: false,
+      alwaysScan: credentials.alwaysScan,
     );
 
     await wallet.save();
@@ -203,6 +204,7 @@ class BitcoinWalletService extends WalletService<
       payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      alwaysScan: credentials.alwaysScan,
     );
     await wallet.save();
     await wallet.init();
