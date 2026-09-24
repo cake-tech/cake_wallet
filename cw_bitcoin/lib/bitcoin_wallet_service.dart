@@ -84,7 +84,7 @@ class BitcoinWalletService extends WalletService<
   Future<BitcoinWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name, type: getType());
     }
     try {
       final wallet = await BitcoinWalletBase.open(
@@ -118,7 +118,7 @@ class BitcoinWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
 
