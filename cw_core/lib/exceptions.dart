@@ -116,11 +116,6 @@ class WalletDeprecationException extends CakeException {
       : super("Wallet type no longer supported");
 }
 
-class WalletSwitchException implements Exception {
-  WalletSwitchException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
+class WalletSwitchException extends CakeException {
+  WalletSwitchException(super.message);
 }
