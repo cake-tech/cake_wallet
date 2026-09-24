@@ -147,20 +147,14 @@ class BackupMetadata {
   }
 }
 
-class IncompatibleBackupAppException implements InvalidBackupException {
+class IncompatibleBackupAppException extends InvalidBackupException {
   const IncompatibleBackupAppException({
     required this.sourceAppName,
     required this.currentAppName,
-  });
+  }) : super("This backup was created in $sourceAppName and cannot be restored in $currentAppName.");
 
   final String sourceAppName;
   final String currentAppName;
-
-  @override
-  String get message => "This backup was created in $sourceAppName and cannot be restored in $currentAppName.";
-
-  @override
-  String toString() => message;
 }
 
 class BackupServiceV3 extends $BackupService {
