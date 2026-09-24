@@ -348,18 +348,22 @@ class ERC681URI extends PaymentURI {
     return uri;
   }
 
-  /// Formats amount for native ETH payments (in wei using scientific notation)
+  /// Formats amount for native ETH payments (in wei using scientific notation).
+  ///
+  /// Keep the decimal text. double.toString() turns 1 wei into "1e-18", and
+  /// appending "e18" makes "1e-18e18", which is not a value.
   String _formatAmountForNative(String amount) {
-    try {
-      // Convert decimal amount to double for scientific notation
-      final amountDouble = double.parse(amount.replaceAll(",", "."));
-
-      // Use scientific notation as recommended by ERC-681
-      return "${amountDouble}e18";
-    } catch (e) {
-      // Fallback to original amount if parsing fails
-      return amount.replaceAll(",", ".");
+    final normalized = amount.replaceAll(",", ".").trim();
+    if (normalized.isEmpty) {
+      return normalized;
     }
+    if (normalized.contains("e") || normalized.contains("E")) {
+      return normalized;
+    }
+    if (normalized.contains(".")) {
+      return "${normalized}e18";
+    }
+    return "$normalized.0e18";
   }
 
   static int _getChainID(String path) =>
