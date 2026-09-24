@@ -299,6 +299,8 @@ jobs:
         run: |
           flutter build ipa \
             --release \
+            --dart-define=CI_COMMIT="$(git rev-parse HEAD)" \
+            --dart-define=CI_BRANCH="$BRANCH_NAME" \
             --dart-define=hasDevOptions=true \
             --export-options-plist=ios/ExportOptions.plist
 
