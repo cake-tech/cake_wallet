@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import "package:cw_bitcoin/exceptions.dart";
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -223,6 +224,13 @@ class LightningWallet {
       if (paymentMethod is SendPaymentMethod_Bolt11Invoice) {
         final lightningFeeSats = paymentMethod.lightningFeeSats;
         final sparkTransferFeeSats = paymentMethod.sparkTransferFeeSats;
+
+        final requiredAmount =
+            prepareResponse.amount + (feesIncluded ? BigInt.zero : lightningFeeSats);
+        final balance = await sdk.getInfo(request: const GetInfoRequest(ensureSynced: true));
+        if (balance.balanceSats < requiredAmount) {
+          throw BitcoinTransactionWrongBalanceException();
+        }
 
         final baseAmount = request.amount ?? amountSats;
         final amount = baseAmount != null
