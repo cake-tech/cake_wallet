@@ -49,6 +49,7 @@ class WalletInfoBar extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
+                key: const ValueKey("home_page_wallet_name_text_key"),
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,

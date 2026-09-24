@@ -61,21 +61,24 @@ zcash_ver=$(tinysha $SCRIPT_DIR/Dockerfile.zcash $REPO_ROOT/scripts/prepare_zcas
 echo $base_ver $torch_ver $reown_ver $bitbox_ver $monero_ver $mwebd_ver $zcash_ver > /tmp/docker_build_versions
 final_ver=$(tinysha /tmp/docker_build_versions)
 
-docker create --name temp_extract $(img final $final_ver) \
+# The extract container is addressed by its id, not a fixed name: CI runners on the same
+# machine share one docker daemon, so a fixed name collides between concurrent jobs.
+extract_cid=""
+extract_cid=$(docker create $(img final $final_ver)) \
 && cd $REPO_ROOT \
-&& docker cp temp_extract:/w.top w.top \
+&& docker cp "$extract_cid:/w.top" w.top \
 && rsync -av w.top/ . \
 && rm -rf w.top \
-&& docker rm temp_extract \
+&& docker rm "$extract_cid" \
 && echo "cache ok" \
 && exit 0 \
 || echo "cache miss oh"
 
-docker rm temp_extract || true
+if [[ -n "$extract_cid" ]]; then docker rm "$extract_cid" || true; fi
 
 if [[ "x$CW_DOCKER_PULL_ONLY" == "xtrue" ]]
 then
-  echo "cache miss: prebuilt dependency image not found in registry, and building dependencies is not allowed in pull only mode."
+  echo "cache miss: could not extract $(img final $final_ver), and pull only mode does not build dependencies."
   exit 1
 fi
 
@@ -107,14 +110,17 @@ echo "done: $(img final $final_ver)"
 echo $(img final $final_ver) > /tmp/cakewallet_docker
 
 
-docker create --name temp_extract $(img final $final_ver) \
+extract_cid=""
+extract_cid=$(docker create $(img final $final_ver)) \
 && cd $REPO_ROOT \
-&& docker cp temp_extract:/w.top w.top \
+&& docker cp "$extract_cid:/w.top" w.top \
 && rsync -av w.top/ . \
 && rm -rf w.top \
-&& docker rm temp_extract \
+&& docker rm "$extract_cid" \
 && echo "cache ok" \
 && exit 0
+
+if [[ -n "$extract_cid" ]]; then docker rm "$extract_cid" || true; fi
 
 echo idk.
 exit 1
