@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import "package:cake_wallet/cake_pay/src/services/cake_pay_exceptions.dart";
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order.dart';
