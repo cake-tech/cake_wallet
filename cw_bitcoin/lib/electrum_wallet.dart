@@ -13,6 +13,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/coin_selection.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
+import 'package:cw_bitcoin/message_signing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -3633,13 +3634,10 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final addressRecord = address != null
-        ? walletAddresses.allAddresses.firstWhereOrNull((addr) => addr.address == address)
-        : null;
-
-    if (addressRecord != null && addressRecord.type == SegwitAddresType.p2tr) {
-      throw UnsupportedError("Cannot sign message with Taproot address");
-    }
+    final addressRecord = resolveMessageSigningAddress(
+      address: address,
+      allAddresses: walletAddresses.allAddresses,
+    );
 
     final hd = addressRecord != null
         ? _hdFor(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
