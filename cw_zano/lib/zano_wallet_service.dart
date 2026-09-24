@@ -89,7 +89,7 @@ class ZanoWalletService extends WalletService<
   Future<ZanoWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name, type: getType());
     }
     try {
       final wallet =
@@ -123,7 +123,7 @@ class ZanoWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -132,7 +132,7 @@ class ZanoWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
     final currentWallet =
         ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,

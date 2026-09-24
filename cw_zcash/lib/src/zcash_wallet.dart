@@ -979,7 +979,7 @@ abstract class ZcashWalletBase
     }
     final currentWalletDir = Directory(await pathForWalletDir(name: fromName, type: _type));
     if (!currentWalletDir.existsSync()) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: fromName, type: _type);
     }
     final newWalletDirPath = '${await pathForWalletTypeDir(type: _type)}/$toName';
     if (Directory(newWalletDirPath).existsSync()) {

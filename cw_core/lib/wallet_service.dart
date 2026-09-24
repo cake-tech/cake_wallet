@@ -40,7 +40,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
 
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());

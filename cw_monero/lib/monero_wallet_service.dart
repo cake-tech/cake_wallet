@@ -185,7 +185,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw WalletNotFoundException();
+        throw WalletNotFoundException(name: name, type: getType());
       }
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
@@ -240,7 +240,7 @@ class MoneroWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -249,7 +249,7 @@ class MoneroWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
@@ -557,7 +557,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw WalletNotFoundException();
+        throw WalletNotFoundException(name: name, type: getType());
       }
       final wallet = MoneroWallet(
         walletInfo: walletInfo,

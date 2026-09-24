@@ -94,7 +94,7 @@ class ZcashWalletService
   Future<ZcashWallet> openWallet(final String name, final String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name, type: getType());
     }
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
     if (await isWalletExit(name)) {
@@ -138,7 +138,7 @@ class ZcashWalletService
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -147,10 +147,10 @@ class ZcashWalletService
   Future<void> rename(final String currentName, final String password, final String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
     if (!await isWalletExit(currentName)) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
 
     await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);

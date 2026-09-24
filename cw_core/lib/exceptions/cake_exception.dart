@@ -55,7 +55,11 @@ class WalletOpenException extends CakeException {
 }
 
 class WalletNotFoundException extends WalletOpenException {
-  const WalletNotFoundException() : super("Wallet not found");
+  const WalletNotFoundException({this.type, required this.name})
+      : super("Wallet not found");
+
+  final WalletType? type;
+  final String name;
 }
 
 class AccountNotFoundException extends CakeException {

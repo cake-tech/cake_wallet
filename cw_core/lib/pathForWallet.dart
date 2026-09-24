@@ -48,7 +48,7 @@ Future<void> copyWalletFilesTo({
   final typeRoot = await pathForWalletTypeDir(type: type);
   final sourceDir = Directory(p.join(typeRoot, fromName));
   if (!sourceDir.existsSync()) {
-    throw WalletNotFoundException();
+    throw WalletNotFoundException(name: fromName, type: type);
   }
 
   if (Directory(p.join(typeRoot, toName)).existsSync()) {

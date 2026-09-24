@@ -68,7 +68,7 @@ class LitecoinWalletService extends WalletService<
   Future<LitecoinWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name, type: getType());
     }
 
     try {
@@ -101,7 +101,7 @@ class LitecoinWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
 

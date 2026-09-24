@@ -66,7 +66,7 @@ class EVMChainWalletService extends WalletService<
   Future<void> saveBackup(String name, {WalletInfo? walletInfo}) async {
     final info = walletInfo ?? await _findWalletByName(name);
     if (info == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name);
     }
 
     final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: info.type);
@@ -82,7 +82,7 @@ class EVMChainWalletService extends WalletService<
   Future<void> restoreWalletFilesFromBackup(String name) async {
     final walletInfo = await _findWalletByName(name);
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name);
     }
 
     final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
@@ -140,7 +140,7 @@ class EVMChainWalletService extends WalletService<
   Future<EVMChainWallet> openWallet(String name, String password) async {
     final walletInfo = await _findWalletByName(name);
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: name);
     }
 
     try {
@@ -179,7 +179,7 @@ class EVMChainWalletService extends WalletService<
 
     final currentWalletInfo = await _findWalletByName(currentName);
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName);
     }
 
     final type = currentWalletInfo.type;
@@ -355,7 +355,7 @@ class EVMChainWalletService extends WalletService<
   Future<void> remove(String wallet) async {
     final walletInfo = await _findWalletByName(wallet);
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet);
     }
 
     File(await pathForWalletDir(name: wallet, type: walletInfo.type)).delete(recursive: true);
