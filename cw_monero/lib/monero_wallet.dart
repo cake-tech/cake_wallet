@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cw_core/amount/money.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
@@ -27,6 +28,7 @@ import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
+import "package:cw_monero/exceptions/monero_exceptions.dart";
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_balance.dart';
@@ -346,7 +348,7 @@ abstract class MoneroWalletBase
     final status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw Exception("unable to import key images: $err");
+      throw KeyImageException("unable to import key images: $err");
     }
     return retStatus;
   }
@@ -385,17 +387,17 @@ abstract class MoneroWalletBase
 
   MoneroTrezorService? trezorService;
 
-  Trezor _getTrezor() => Trezor(trezorService ?? (throw Exception("Trezor not connected")));
+  Trezor _getTrezor() => Trezor(trezorService ?? (throw HardwareWalletNotConnectedException("Trezor not connected")));
 
   Future<void> syncTrezor() async {
-    if (trezorService == null) throw Exception("Trezor not connected");
+    if (trezorService == null) throw HardwareWalletNotConnectedException("Trezor not connected");
 
     final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
     final tdis = monero.Wallet_exportTrezorTdis(ptr);
     final response = await _getTrezor().keyImageSync(tdis);
     final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
 
-    if (!success) throw Exception(monero.Wallet_errorString(ptr));
+    if (!success) throw MoneroWalletException(monero.Wallet_errorString(ptr));
   }
 
   Future<String> signTrezorTransaction(String json) => _getTrezor().signTransaction(json);
@@ -878,7 +880,7 @@ abstract class MoneroWalletBase
     // the restore height is probably correct, so we do nothing:
     if (height > MIN_RESTORE_HEIGHT) return;
 
-    throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
+    throw MoneroWalletException("height isn't > $MIN_RESTORE_HEIGHT!");
   }
 
   void _setHeightFromDate({int tryNum = 0}) {
@@ -890,7 +892,7 @@ abstract class MoneroWalletBase
     try {
       height = _getHeightByDate(walletInfo.date.subtract(Duration(days: 14)));
       if (height <= 0) {
-        throw Exception("height is <= 0");
+        throw MoneroWalletException("height is <= 0");
       }
       monero_wallet.setRefreshFromBlockHeight(height: height);
     } catch (_) {
@@ -921,7 +923,7 @@ abstract class MoneroWalletBase
 
     if (nodeHeight <= 0) {
       // the node returned 0 (an error state)
-      throw Exception("nodeHeight is <= 0!");
+      throw MoneroWalletException("nodeHeight is <= 0!");
     }
 
     return nodeHeight - heightDistance;

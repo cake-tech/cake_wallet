@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/core/address_resolver/address_resolver_exceptions.dart";
 import 'package:cake_wallet/core/address_resolver/twitter/twitter_user.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
@@ -23,13 +24,12 @@ class TwitterApi {
         path: userPath + userName,
         queryParameters: queryParams);
 
-    final response =
-        await ProxyWrapper().get(clearnetUri: uri, headers: headers).catchError((error) {
-      throw Exception('HTTP request failed: $error');
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers).catchError((error) {
+      throw AddressResolverServerResponseException('HTTP request failed: $error');
     });
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw AddressResolverServerResponseException('Unexpected http status: ${response.statusCode}');
     }
 
     final Map<String, dynamic> responseJSON = jsonDecode(response.body) as Map<String, dynamic>;
@@ -37,7 +37,7 @@ class TwitterApi {
         !responseJSON['errors'][0]['detail']
             .toString()
             .contains("Could not find tweet with pinned_tweet_id")) {
-      throw Exception(responseJSON['errors'][0]['detail']);
+      throw AddressResolverServerResponseException(responseJSON['errors'][0]['detail'] as String? ?? "");
     }
 
     return TwitterUser.fromJson(responseJSON, _getPinnedTweet(responseJSON));

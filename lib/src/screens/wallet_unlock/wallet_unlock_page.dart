@@ -130,7 +130,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
   @override
   Future<void> close({String? route, arguments}) async {
     if (_key.currentContext == null) {
-      throw Exception('Key context is null. Should be not happened');
+      throw ArgumentError('Key context is null. Should be not happened');
     }
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android

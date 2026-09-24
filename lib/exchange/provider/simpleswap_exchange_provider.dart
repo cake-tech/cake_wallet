@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -67,11 +68,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
-      throw Exception('$error');
+      throw ExchangeProviderResponseCodeException('$error', response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -303,11 +304,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
-      throw TradeNotFoundException(id, provider: description, description: error);
+      throw ExchangeProviderResponseCodeException(error, response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;

@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_evm/clients/arbitrum_client.dart';
 import 'package:cw_evm/clients/base_client.dart';
 import 'package:cw_evm/clients/bsc_client.dart';
@@ -17,7 +18,7 @@ class EVMChainClientFactory {
     final config = _registry.getChainConfig(chainId);
 
     if (config == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
+      throw BadChainIdException('Chain config not found for chainId: $chainId');
     }
 
     // Check if chain needs custom client

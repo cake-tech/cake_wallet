@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:ffi/ffi.dart';
 import 'dart:convert';
 
@@ -10,6 +11,10 @@ class PayloadResult {
   const PayloadResult(this.payload, this.err, this.errCode);
 }
 
+class DecredPayloadExecutionException extends CakeException {
+  const DecredPayloadExecutionException(super.message);
+}
+
 // Executes the provided fn and converts the string response to a PayloadResult.
 // Returns payload, error code, and error.
 PayloadResult executePayloadFn({
@@ -19,12 +24,12 @@ PayloadResult executePayloadFn({
 }) {
   final jsonStr = fn().toDartString();
   freePointers(ptrsToFree);
-  if (jsonStr == null) throw Exception("no json return from wallet library");
+  if (jsonStr == null) throw DecredPayloadExecutionException("no json return from wallet library");
   final decoded = json.decode(jsonStr);
 
   final err = decoded["error"] ?? "";
-  if (!skipErrorCheck) {
-    checkErr(err);
+  if (!skipErrorCheck && (err as String? ?? "").isNotEmpty) {
+    throw DecredPayloadExecutionException(err as String);
   }
 
   final payload = decoded["payload"] ?? "";
@@ -38,10 +43,6 @@ void freePointers(List<Pointer> ptrsToFree) {
   }
 }
 
-void checkErr(String err) {
-  if (err == "") return;
-  throw Exception(err);
-}
 
 extension StringUtil on String {
   Pointer<Char> toCString() => toNativeUtf8().cast<Char>();

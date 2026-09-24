@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -54,7 +55,7 @@ abstract class MoneroAccountListViewModelBase with Store {
           .toList();
     }
 
-    throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
+    throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type} for monero', _wallet.type);
   }
 
   @computed

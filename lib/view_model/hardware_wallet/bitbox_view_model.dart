@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -109,7 +110,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type} for bitbox');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for bitbox', wallet.type);
     }
   }
 }
