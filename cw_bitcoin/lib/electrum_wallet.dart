@@ -581,6 +581,10 @@ abstract class ElectrumWalletBase
   @override
   bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
+  @override
+  bool get hasAccountsSupport => type == WalletType.bitcoin && isSoftwareWallet
+      && derivationInfo.derivationType != DerivationType.electrum;
+
   @observable
   bool nodeSupportsSilentPayments = true;
   @observable

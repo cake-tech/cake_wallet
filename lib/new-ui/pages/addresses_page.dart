@@ -130,7 +130,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
-                            if (hasAccountsWalletTypes.contains(widget.addressListViewModel.type))
+                            if (widget.dashboardViewModel.isMultiAccountsEnabled)
                               Observer(
                                   builder: (_) => AccountPreviewHeader(
                                         dashboardViewModel: widget.dashboardViewModel,

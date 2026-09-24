@@ -251,6 +251,12 @@ class WalletInfoAccount {
     required this.label,
   });
 
+  factory WalletInfoAccount.fromJson(Map<String, dynamic> json) => WalletInfoAccount(
+    walletInfoId: json["walletInfoId"] as int,
+    accountIndex: json["accountIndex"] as int,
+    label: json["label"] as String,
+  );
+
   int walletInfoId;
   int accountIndex;
   String label;
@@ -268,48 +274,34 @@ class WalletInfoAccount {
     return List.generate(query.length, (index) => WalletInfoAccount.fromJson(query[index]));
   }
 
-  static Future<int> deleteByWalletInfoId(int walletInfoId) async {
-    return await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
-  }
+  static Future<int> deleteByWalletInfoId(int walletInfoId) async => await db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
 
   static Future<int> insertOrUpdate({
     required int walletInfoId,
     required int accountIndex,
     required String label,
-  }) async {
-    return await db!.transaction((txn) async {
+  }) async => await db!.transaction((txn) async {
       final updated = await txn.update(
         tableName,
-        {'label': label},
-        where: 'walletInfoId = ? AND accountIndex = ?',
+        {"label": label},
+        where: "walletInfoId = ? AND accountIndex = ?",
         whereArgs: [walletInfoId, accountIndex],
       );
 
       if (updated > 0) return updated;
 
       return await txn.insert(tableName, {
-        'walletInfoId': walletInfoId,
-        'accountIndex': accountIndex,
-        'label': label,
+        "walletInfoId": walletInfoId,
+        "accountIndex": accountIndex,
+        "label": label,
       });
     });
-  }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'walletInfoId': walletInfoId,
-      'accountIndex': accountIndex,
-      'label': label,
+  Map<String, dynamic> toJson() => {
+      "walletInfoId": walletInfoId,
+      "accountIndex": accountIndex,
+      "label": label,
     };
-  }
-
-  factory WalletInfoAccount.fromJson(Map<String, dynamic> json) {
-    return WalletInfoAccount(
-      walletInfoId: json['walletInfoId'] as int,
-      accountIndex: json['accountIndex'] as int,
-      label: json['label'] as String,
-    );
-  }
 }
 
 class DerivationInfo {

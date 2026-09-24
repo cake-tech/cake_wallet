@@ -382,7 +382,7 @@ ON Trade (id);
 }
 
 Future<void> _createWalletInfoAccountTable(Database db) async {
-  await db.execute('''
+  await db.execute("""
 CREATE TABLE IF NOT EXISTS WalletInfoAccount (
   walletInfoId INTEGER NOT NULL,
   accountIndex INTEGER NOT NULL,
@@ -390,12 +390,12 @@ CREATE TABLE IF NOT EXISTS WalletInfoAccount (
   PRIMARY KEY (walletInfoId, accountIndex),
   CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
-''');
+""");
 
-  await db.execute('''
+  await db.execute("""
 CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
 ON WalletInfoAccount(walletInfoId);
-''');
+""");
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

@@ -31,6 +31,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     add(_Init());
   }
 
+  bool get _accountNameEnabled =>
+      !lightningMode && _wallet.hasAccountsSupport && _wallet.walletInfo.multiAccountsActive;
+
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
     if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
@@ -115,6 +118,16 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       return (accountName: "", accountIndex: -2);
     }
 
+    final account = await _resolveCurrentAccount();
+
+    if (!_accountNameEnabled) {
+      return (accountName: "", accountIndex: account.accountIndex);
+    }
+
+    return account;
+  }
+
+  Future<({String accountName, int accountIndex})> _resolveCurrentAccount() async {
     if (_wallet.type == WalletType.monero) {
       final account = monero!.getCurrentAccount(_wallet);
       return (accountName: account.label, accountIndex: account.id);
@@ -188,6 +201,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<void> saveAccountName() async {
+    if (!_accountNameEnabled) return;
+
     if (_wallet.type == WalletType.monero) {
       await saveMoneroAccountName();
     }

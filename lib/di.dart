@@ -545,7 +545,7 @@ Future<void> setup({
       accountListViewModelFactory: () {
         final wallet = getIt.get<AppStore>().wallet;
         if (wallet == null) return null;
-        final hasAccounts = hasAccountsWalletTypes.contains(wallet.type);
+        final hasAccounts = wallet.hasAccountsSupport;
         if (!hasAccounts) return null;
         return getIt.get<WalletAccountListViewModel>();
       },
