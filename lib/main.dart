@@ -192,6 +192,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     } else {
       runApp(
         CiBuildOverlay(
+          settingsStore: getIt.get<SettingsStore>(),
           child: App(
               key: topLevelKey,
               initialQuickAction: initialQuickAction,
