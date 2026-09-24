@@ -49,7 +49,7 @@ jobs:
 
           if [[ -n "$TICKET" ]]; then
             TICKET=$((10#$TICKET))  # drop leading zeros, Apple dislikes them
-            echo "APP_DISPLAY_NAME=Cake CW-$TICKET" >> $GITHUB_ENV
+            echo "APP_DISPLAY_NAME=CW-$TICKET" >> $GITHUB_ENV
             echo "APP_VERSION=6.$TICKET" >> $GITHUB_ENV
           else
             echo "APP_DISPLAY_NAME=Cake (CI)" >> $GITHUB_ENV
