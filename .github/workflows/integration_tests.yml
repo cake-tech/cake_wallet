@@ -1,0 +1,28 @@
+name: Integration Tests
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  workflow_dispatch:
+
+concurrency:
+  group: integration-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-integration-tests:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      suite_dir: integration_test/suites
+      test_tier: tier0
+      slack_notify: true
+    secrets: inherit

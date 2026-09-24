@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart';
@@ -10,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -22,6 +25,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:flutter/material.dart';
+import "package:flutter_mobx/flutter_mobx.dart";
 import 'package:path/path.dart' as p;
 
 class OtherSettingsPage extends BasePage {
@@ -49,7 +53,7 @@ class OtherSettingsPage extends BasePage {
       //     iconPath: "assets/new-ui/settings_row_icons/other.svg",
       //     message: "Other settings",
       //     title: S.of(context).other_settings),
-      content: NewListSections(sections: {
+      content: Observer(builder: (_) => NewListSections(sections: {
         "": [
           if (_otherSettingsViewModel.displayTransactionPriority)
             _otherSettingsViewModel.walletType == WalletType.bitcoin
@@ -167,6 +171,24 @@ class OtherSettingsPage extends BasePage {
         "dev": FeatureFlag.hasDevOptions == false
             ? []
             : [
+                if (CiBuildOverlay.isCiBuild)
+                  ListItemToggle(
+                      keyValue: "[dev] show commit/branch overlay",
+                      label: "[dev] show commit/branch overlay",
+                      value: _otherSettingsViewModel.showCiBuildOverlay,
+                      onChanged: (val){
+                        if(!val) {
+                          showPopUp(
+                                      context: context,
+                                      builder: (context) => AlertWithOneAction(
+                                            alertTitle: "overlay disabled",
+                                            alertContent:
+                                                "don't send issue reports without the overlay, pretty please",
+                                            buttonText: "okay",
+                                            buttonAction: Navigator.of(context).pop,
+                                          ));
+                                }
+                        _otherSettingsViewModel.setShowCiBuildOverlay(val);}),
                 if (_otherSettingsViewModel.walletType == WalletType.monero)
                   ListItemRegularRow(
                       keyValue: "[dev] monero background sync",
@@ -231,7 +253,7 @@ class OtherSettingsPage extends BasePage {
                       dbDebugMarker.create();
                     }),
               ]
-      }),
+      })),
     );
   }
 
