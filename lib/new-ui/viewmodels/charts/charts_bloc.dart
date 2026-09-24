@@ -82,7 +82,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
         ),
       );
     } else {
-      throw Exception("attempted price load without currency data");
+      throw StateError("attempted price load without currency data");
     }
   }
 
@@ -125,7 +125,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final newCurrencies = s.currencies..remove(event.currency);
 
       if (newCurrencies.isEmpty) {
-        throw Exception(
+        throw StateError(
           "removed the last currency ${kDebugMode ? "- your ui should block this! what did you do?" : ""}",
         );
       }

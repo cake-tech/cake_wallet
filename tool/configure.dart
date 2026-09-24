@@ -798,6 +798,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
   const nanoCWHeaders = """
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
+import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
