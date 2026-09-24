@@ -6,14 +6,9 @@ import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:flutter/material.dart";
 
 class ReceiveLabelModal extends StatefulWidget {
-  const ReceiveLabelModal({
-    required this.initialLabel,
-    required this.onSubmit,
-    super.key,
-  });
+  const ReceiveLabelModal({required this.initialLabel, super.key});
 
   final String initialLabel;
-  final Future<void> Function(String label) onSubmit;
 
   @override
   State<ReceiveLabelModal> createState() => _ReceiveLabelModalState();
@@ -21,7 +16,6 @@ class ReceiveLabelModal extends StatefulWidget {
 
 class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
   late final TextEditingController _controller;
-  bool _saving = false;
 
   @override
   void initState() {
@@ -33,23 +27,6 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (_saving) {
-      return;
-    }
-    setState(() => _saving = true);
-    try {
-      await widget.onSubmit(_controller.text);
-      if (mounted && Navigator.canPop(context)) {
-        Navigator.of(context).pop(_controller.text);
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _saving = false);
-      }
-    }
   }
 
   @override
@@ -143,8 +120,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
                       ),
                     ),
                     NewPrimaryButton(
-                      isLoading: _saving,
-                      onPressed: _submit,
+                      onPressed: () => Navigator.of(context).pop(_controller.text),
                       text: S.of(context).continue_text,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,

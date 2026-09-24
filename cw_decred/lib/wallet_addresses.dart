@@ -110,11 +110,11 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  Future<void> generateNewAddress(String label) async {
+  Future<String> generateNewAddress(String label) async {
     // NOTE: This will ignore the gap limit and may cause problems when restoring from seed if too
     // many addresses are taken and not used.
     final addr = await _libwallet.newExternalAddress(walletInfo.name) ?? '';
-    if (addr == "") return;
+    if (addr == "") return addr;
 
     if (!addressesMap.containsKey(addr)) {
       addressesMap[addr] = "";
@@ -131,6 +131,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     }
     selectedAddr = addr;
     await saveAddressesInBox();
+    return addr;
   }
 
   @override

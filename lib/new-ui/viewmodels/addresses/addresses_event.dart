@@ -4,10 +4,8 @@ sealed class AddressesEvent {
   const AddressesEvent();
 }
 
-final class AddressesOpened extends AddressesEvent {
-  const AddressesOpened({this.showHidden = false});
-
-  final bool showHidden;
+final class Init extends AddressesEvent {
+  const Init();
 }
 
 final class SearchTermEntered extends AddressesEvent {
@@ -30,9 +28,9 @@ final class AddressHideToggled extends AddressesEvent {
 }
 
 final class AddressLabelSet extends AddressesEvent {
-  const AddressLabelSet(this.address, this.label);
+  const AddressLabelSet(this.entry, this.label);
 
-  final String address;
+  final AddressEntry entry;
   final String label;
 }
 

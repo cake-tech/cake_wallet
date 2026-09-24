@@ -51,15 +51,15 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: MoneyText.optional(
-                                amount,
-                                isHiddenAmount: false,
-                                fractionalDigits: 20,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                          amount,
+                          isHiddenAmount: false,
+                          fractionalDigits: 20,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                     if (fiatEquivalent != null)

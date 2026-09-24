@@ -6,14 +6,14 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
-import 'package:cake_wallet/core/active_wallet_service.dart';
+import "package:cake_wallet/core/active_wallet_service.dart";
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
-import 'package:cake_wallet/core/address_service.dart';
-import 'package:cake_wallet/core/fiat_rate_service.dart';
-import 'package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart';
-import 'package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart';
+import "package:cake_wallet/core/address_service.dart";
+import "package:cake_wallet/core/fiat_rate_service.dart";
+import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
@@ -501,8 +501,8 @@ Future<void> setup({
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
-  getIt.registerLazySingleton<ActiveWalletService>(
-      () => ActiveWalletService(getIt.get<AppStore>()));
+  getIt
+      .registerLazySingleton<ActiveWalletService>(() => ActiveWalletService(getIt.get<AppStore>()));
 
   getIt.registerLazySingleton<FiatRateService>(() => FiatRateService(
         fiatConversionStore: getIt.get<FiatConversionStore>(),
@@ -510,10 +510,8 @@ Future<void> setup({
       ));
 
   getIt.registerLazySingleton<AddressService>(() => AddressService(
-        wallet: () => getIt.get<ActiveWalletService>().wallet,
-        walletChanges: getIt.get<ActiveWalletService>().walletChanges,
+        activeWalletService: getIt.get<ActiveWalletService>(),
         settingsStore: getIt.get<SettingsStore>(),
-        amountParsingProxyGetter: () => getIt.get<AppStore>().amountParsingProxy,
       ));
 
   getIt.registerFactoryParam<ReceiveBloc, CryptoCurrency?, void>(
@@ -792,7 +790,7 @@ Future<void> setup({
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
 
   getIt.registerFactoryParam<ReceivePage, CryptoCurrency?, void>(
-    (initialToken, _) => ReceivePage(initialToken: initialToken),
+    (initialToken, _) => ReceivePage(bloc: getIt.get<ReceiveBloc>(param1: initialToken)),
   );
 
   getIt.registerFactoryParam<SendViewModel, UnspentCoinType?, void>(
@@ -987,7 +985,7 @@ Future<void> setup({
   });
 
   getIt.registerFactoryParam<AddressesPage, bool, void>(
-    (showHidden, _) => AddressesPage(showHidden: showHidden),
+    (showHidden, _) => AddressesPage(bloc: getIt.get<AddressesBloc>(param1: showHidden)),
   );
 
   getIt.registerFactory(

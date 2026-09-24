@@ -34,10 +34,3 @@ class AddressGroup {
   final AddressGroupHeader? header;
   final List<AddressEntry> entries;
 }
-
-class AddressAccount {
-  const AddressAccount({required this.id, required this.label});
-
-  final int id;
-  final String label;
-}

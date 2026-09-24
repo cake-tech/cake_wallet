@@ -17,7 +17,8 @@ import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal({
+  const TransactionDetailsModal(
+      {
     required this.transactionDetailsViewModel,
     this.highlightNoteField = false,
     super.key,

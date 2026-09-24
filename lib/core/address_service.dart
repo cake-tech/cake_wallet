@@ -1,8 +1,8 @@
 import "dart:async";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/active_wallet_service.dart";
 import "package:cake_wallet/core/address_types.dart";
-import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/decred/decred.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -12,74 +12,60 @@ import "package:cake_wallet/reactions/wallet_utils.dart" as wallet_utils;
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/tron/tron.dart";
-import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:mobx/mobx.dart" as mobx;
 
+class AddressServiceException implements Exception {
+  const AddressServiceException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => "AddressServiceException: $message";
+}
+
 class AddressService {
   AddressService({
-    required WalletBase Function() wallet,
-    required Stream<WalletBase> walletChanges,
+    required ActiveWalletService activeWalletService,
     required SettingsStore settingsStore,
-    required AmountParsingProxy Function() amountParsingProxyGetter,
-  })  : _wallet = wallet,
-        _settingsStore = settingsStore,
-        _amountParsingProxyGetter = amountParsingProxyGetter {
-    _walletSub = walletChanges.listen((_) => _bindPayjoin());
+  })  : _activeWalletService = activeWalletService,
+        _settingsStore = settingsStore {
+    _walletSub = activeWalletService.walletChanges.listen((_) => _bindPayjoin());
     _bindPayjoin();
   }
 
-  final WalletBase Function() _wallet;
+  final ActiveWalletService _activeWalletService;
   final SettingsStore _settingsStore;
-  final AmountParsingProxy Function() _amountParsingProxyGetter;
 
   final _payjoinController = StreamController<String?>.broadcast();
   late final StreamSubscription<WalletBase> _walletSub;
   mobx.ReactionDisposer? _payjoinDisposer;
 
-  WalletBase? _preLightningWallet;
-  ReceivePageOption? _preLightningType;
-
-  WalletBase get wallet => _wallet();
-  AmountParsingProxy get _amountParsingProxy => _amountParsingProxyGetter();
-
-  String get walletName => wallet.name;
-  WalletType get walletType => wallet.type;
-  String get walletId => wallet.id;
-  CryptoCurrency get walletCurrency => wallet.currency;
+  WalletBase get wallet => _activeWalletService.wallet;
 
   List<CryptoCurrency> get receivableTokens =>
       wallet.balance.keys.whereType<CryptoCurrency>().toList();
 
   bool get hasTokens => wallet_utils.hasTokens(wallet.type);
 
-  bool get isInfoboxDismissed => wallet.walletInfo.receiveInfoboxDismissed;
-
-  bool get hasAccounts => const {WalletType.monero, WalletType.wownero}.contains(wallet.type);
-
-  bool get hasHiddenAddresses => wallet.walletAddresses.hiddenAddresses.isNotEmpty;
+  bool get hasAccounts => wallet.type == WalletType.monero;
 
   List<AddressGroup> computeAddressList() {
     final type = wallet.type;
 
     if (type == WalletType.monero) {
       return [_moneroAddresses()];
-    }
-    if (type == WalletType.wownero) {
-      return [_wowneroAddresses()];
     }
     if (_isElectrumType(type)) {
       return _electrumAddresses();
@@ -93,7 +79,7 @@ class AddressService {
     if (type == WalletType.tron) {
       return _singleAddressGroup(tron!.getAddress(wallet));
     }
-    if (type == WalletType.nano || type == WalletType.banano) {
+    if (type == WalletType.nano) {
       return _singleAddressGroup(wallet.walletAddresses.address);
     }
     if (type == WalletType.zano) {
@@ -120,22 +106,6 @@ class AddressService {
             label: s.label,
             txCount: s.txCount,
             balance: Money.tryParse(s.received ?? "", CryptoCurrency.xmr),
-            isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
-          ),
-        )
-        .toList();
-    return AddressGroup(entries: entries);
-  }
-
-  AddressGroup _wowneroAddresses() {
-    final wallet = this.wallet;
-    final subaddresses = wownero!.getSubaddressList(wallet).subaddresses;
-    final entries = subaddresses
-        .map(
-          (s) => AddressEntry(
-            id: s.id,
-            address: s.address,
-            label: s.label,
             isHidden: wallet.walletAddresses.hiddenAddresses.contains(s.address),
           ),
         )
@@ -228,50 +198,29 @@ class AddressService {
     wallet.walletAddresses.address = address;
   }
 
-  Future<bool> rotateAddress() async {
+  Future<void> rotateAddress() async {
     final wallet = this.wallet;
-    final newAddress = await _generateNewAddress("");
-    if (newAddress == null || newAddress.isEmpty) {
-      printV("rotateAddress: no new address for ${wallet.type}");
-      return false;
-    }
-    if (!identical(wallet, this.wallet)) {
-      return false;
-    }
+    final newAddress = await _generateNewAddress(wallet, "");
     wallet.walletAddresses.address = newAddress;
-    return true;
+    if (wallet.walletAddresses.address != newAddress) {
+      throw AddressServiceException("${wallet.type} did not switch to $newAddress");
+    }
   }
 
-  Future<bool> addManualAddress(String label) async {
-    final newAddress = await _generateNewAddress(label);
-    return newAddress != null && newAddress.isNotEmpty;
-  }
+  Future<void> addManualAddress(String label) => _generateNewAddress(wallet, label);
 
-  Future<String?> _generateNewAddress(String label) async {
-    final wallet = this.wallet;
+  Future<String> _generateNewAddress(WalletBase wallet, String label) async {
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
-      final isSilentPayments = bitcoin!.hasSelectedSilentPayments(wallet);
-      final before = isSilentPayments
-          ? bitcoin!.getSilentPaymentAddresses(wallet).map((a) => a.address).toSet()
-          : bitcoin!.getSubAddresses(wallet).map((a) => a.address).toSet();
-      await bitcoin!.generateNewAddress(wallet, label);
-      await wallet.save();
-      final after = isSilentPayments
-          ? bitcoin!.getSilentPaymentAddresses(wallet).toList()
-          : bitcoin!.getSubAddresses(wallet).toList();
-      final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
-      return fresh?.address;
+      final address = await bitcoin!.generateNewAddress(wallet, label);
+      return _requireAddress(address, type);
     }
 
     if (type == WalletType.decred) {
-      final before = decred!.getAddressInfos(wallet).map((a) => a.address).toSet();
-      await decred!.generateNewAddress(wallet, label);
+      final address = _requireAddress(await decred!.generateNewAddress(wallet, label), type);
       await wallet.save();
-      final after = decred!.getAddressInfos(wallet).toList();
-      final fresh = after.where((a) => !before.contains(a.address)).firstOrNull;
-      return fresh?.address;
+      return address;
     }
 
     if (type == WalletType.monero) {
@@ -285,55 +234,43 @@ class AddressService {
       final subs = monero!.getSubaddressList(wallet).subaddresses;
       final fresh = subs.where((s) => !beforeIds.contains(s.id)).firstOrNull;
       if (fresh == null) {
-        return null;
+        throw AddressServiceException("monero added no subaddress to account $accountIndex");
       }
       wallet.walletAddresses.manualAddresses.add(fresh.address);
       await wallet.save();
       return fresh.address;
     }
 
-    if (type == WalletType.wownero) {
-      final accountIndex = wownero!.getCurrentAccount(wallet).id;
-      final beforeIds = wownero!.getSubaddressList(wallet).subaddresses.map((s) => s.id).toSet();
-      await wownero!.getSubaddressList(wallet).addSubaddress(
-            wallet,
-            accountIndex: accountIndex,
-            label: label,
-          );
-      final subAddresses = wownero!.getSubaddressList(wallet).subaddresses;
-      final fresh = subAddresses.where((s) => !beforeIds.contains(s.id)).firstOrNull;
-      if (fresh == null) {
-        return null;
-      }
-      wallet.walletAddresses.manualAddresses.add(fresh.address);
-      await wallet.save();
-      return fresh.address;
-    }
-
-    return null;
+    throw AddressServiceException("address generation is not supported for $type");
   }
 
-  Future<void> setLabel(String address, String label) async {
+  String _requireAddress(String address, WalletType type) {
+    if (address.isEmpty) {
+      throw AddressServiceException("$type returned an empty address");
+    }
+    return address;
+  }
+
+  Future<void> setLabel(AddressEntry entry, String label) async {
     final wallet = this.wallet;
     final type = wallet.type;
 
     if (_isElectrumType(type)) {
-      await bitcoin!.updateAddress(wallet, address, label);
+      await bitcoin!.updateAddress(wallet, entry.address, label);
       return;
     }
 
     if (type == WalletType.decred) {
-      await decred!.updateAddress(wallet, address, label);
+      await decred!.updateAddress(wallet, entry.address, label);
       await wallet.save();
       return;
     }
 
-    final index = _entryIdFor(address);
-    if (index == null) {
-      return;
-    }
-
     if (type == WalletType.monero) {
+      final index = entry.id;
+      if (index == null) {
+        throw AddressServiceException("monero subaddress ${entry.address} has no index");
+      }
       await monero!.getSubaddressList(wallet).setLabelSubaddress(
             wallet,
             accountIndex: monero!.getCurrentAccount(wallet).id,
@@ -344,37 +281,15 @@ class AddressService {
       return;
     }
 
-    if (type == WalletType.wownero) {
-      await wownero!.getSubaddressList(wallet).setLabelSubaddress(
-            wallet,
-            accountIndex: wownero!.getCurrentAccount(wallet).id,
-            addressIndex: index,
-            label: label,
-          );
-      await wallet.save();
-    }
+    throw AddressServiceException("address labels are not supported for $type");
   }
 
   bool get canSetLabel {
     final type = wallet.type;
-    return _isElectrumType(type) ||
-        type == WalletType.decred ||
-        type == WalletType.monero ||
-        type == WalletType.wownero;
+    return _isElectrumType(type) || type == WalletType.decred || type == WalletType.monero;
   }
 
   bool get canHide => wallet.type != WalletType.zcash;
-
-  int? _entryIdFor(String address) {
-    for (final group in computeAddressList()) {
-      for (final entry in group.entries) {
-        if (entry.address == address) {
-          return entry.id;
-        }
-      }
-    }
-    return null;
-  }
 
   Future<void> setHidden(String address, {required bool hidden}) async {
     final wallet = this.wallet;
@@ -386,23 +301,15 @@ class AddressService {
 
     await wallet.walletAddresses.saveAddressesInBox();
 
-    final type = wallet.type;
-    if (type == WalletType.monero) {
+    if (wallet.type == WalletType.monero) {
       await monero!.getSubaddressList(wallet).update(
             wallet,
             accountIndex: monero!.getCurrentAccount(wallet).id,
           );
-      return;
-    }
-    if (type == WalletType.wownero) {
-      wownero!.getSubaddressList(wallet).update(
-            wallet,
-            accountIndex: wownero!.getCurrentAccount(wallet).id,
-          );
     }
   }
 
-  ReceivePageOption? get selectedAddressType {
+  ReceivePageOption get selectedAddressType {
     final type = wallet.type;
     if (type == WalletType.bitcoin || type == WalletType.litecoin) {
       return bitcoin!.getSelectedAddressType(wallet);
@@ -410,7 +317,7 @@ class AddressService {
     if (type == WalletType.zcash) {
       return zcash!.getSelectedAddressType(wallet);
     }
-    return null;
+    return addressTypeOptions.firstOrNull ?? ReceivePageOption.mainnet;
   }
 
   List<ReceivePageOption> get addressTypeOptions =>
@@ -510,19 +417,6 @@ class AddressService {
     await _payjoinController.close();
   }
 
-  AddressAccount? get currentAccount {
-    final type = wallet.type;
-    if (type == WalletType.monero) {
-      final acc = monero!.getCurrentAccount(wallet);
-      return AddressAccount(id: acc.id, label: acc.label);
-    }
-    if (type == WalletType.wownero) {
-      final acc = wownero!.getCurrentAccount(wallet);
-      return AddressAccount(id: acc.id, label: acc.label);
-    }
-    return null;
-  }
-
   bool get isAutoGenerateSubaddressEnabled {
     if (isSilentPayments) {
       return false;
@@ -549,34 +443,12 @@ class AddressService {
       return;
     }
 
-    if (bitcoin!.hasSelectedSilentPayments(wallet) &&
-        bitcoin!.getSilentPaymentAddresses(wallet).isEmpty) {
-      await _setAddressTypeOn(wallet, bitcoin!.getBitcoinSegwitPageOption());
-      if (bitcoin!.getSubAddresses(wallet).isEmpty) {
-        await bitcoin!.generateNewAddress(wallet, "");
-        await wallet.save();
-      }
-      return;
-    }
-
-    final current = bitcoin!.getSelectedAddressType(wallet);
     final lightning = bitcoin!.getBitcoinLightningReceivePageOption();
-
-    if (lightningMode) {
-      if (current == lightning) {
-        return;
-      }
-      _preLightningWallet = wallet;
-      _preLightningType = current;
-      await _setAddressTypeOn(wallet, lightning);
-      return;
-    }
-
-    if (current == lightning) {
-      final previous = identical(_preLightningWallet, wallet) ? _preLightningType : null;
-      _preLightningWallet = null;
-      _preLightningType = null;
-      await _setAddressTypeOn(wallet, previous ?? bitcoin!.getBitcoinSegwitPageOption());
+    final target = lightningMode && addressTypeOptions.contains(lightning)
+        ? lightning
+        : bitcoin!.getBitcoinSegwitPageOption();
+    if (bitcoin!.getSelectedAddressType(wallet) != target) {
+      await _setAddressTypeOn(wallet, target);
     }
   }
 
@@ -590,18 +462,8 @@ class AddressService {
     return zcash!.hasSelectedTransparentAddress(wallet);
   }
 
-  Future<void> dismissInfobox() async {
-    wallet.walletInfo.receiveInfoboxDismissed = true;
-    try {
-      await wallet.walletInfo.save();
-    } catch (e) {
-      printV("failed to save receiveInfoboxDismissed: $e");
-    }
-  }
-
-  bool useSatoshi(Currency currency) => _amountParsingProxy.useSatoshi(currency);
-
-  String get accountLabel => currentAccount?.label ?? "";
+  String get accountLabel =>
+      wallet.type == WalletType.monero ? monero!.getCurrentAccount(wallet).label : "";
 
   bool _isElectrumType(WalletType type) =>
       type == WalletType.bitcoin ||

@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
@@ -633,9 +634,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<String>(
-          builder: (context) => AddressesPage(
-                onSelect: (address) => Navigator.of(context).pop(address),
-              ));
+        builder: (_) => AddressesPage(
+          bloc: getIt.get<AddressesBloc>(param1: false),
+          popOnSelection: true,
+        ),
+      );
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(

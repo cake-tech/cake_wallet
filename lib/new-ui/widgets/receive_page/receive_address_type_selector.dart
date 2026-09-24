@@ -1,3 +1,4 @@
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -45,12 +46,14 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
               widget.options.length <= ReceiveAddressTypeSelector.otherOptionsThreshold,
         )
         .toList();
+    final lightning = bitcoin?.getBitcoinLightningReceivePageOption();
+    final preferred =
+        widget.selected == lightning ? lightning : bitcoin?.getBitcoinSegwitPageOption();
     commonOptions.sort((a, b) {
-      final preferred = widget.selected.value.contains("Lightning") ? "Lightning" : "Standard";
-      if (a.value.contains(preferred)) {
+      if (a == preferred) {
         return -1;
       }
-      if (b.value.contains(preferred)) {
+      if (b == preferred) {
         return 1;
       }
       return a.value.compareTo(b.value);

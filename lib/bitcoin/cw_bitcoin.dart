@@ -129,10 +129,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> generateNewAddress(Object wallet, String label) async {
+  Future<String> generateNewAddress(Object wallet, String label) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+    final record = bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+    await Future<void>.delayed(Duration.zero);
     await wallet.save();
+    return record.address;
   }
 
   @override
@@ -764,8 +766,7 @@ class CWBitcoin extends Bitcoin {
   @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    if (!isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? "";
   }
 
   @override

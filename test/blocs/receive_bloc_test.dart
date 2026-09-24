@@ -14,6 +14,7 @@ import "package:cw_core/currency.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
@@ -36,6 +37,10 @@ class _FakeCurrency extends Fake implements Currency {}
 
 class _FakeWalletBase extends Fake implements WalletBase {}
 
+class _MockWallet extends Mock implements WalletBase {}
+
+class _MockWalletInfo extends Mock implements WalletInfo {}
+
 const _btcAddress = AddressEntry(address: "bc1qtestaddress");
 final _btcUri = BitcoinURI(address: _btcAddress.address, amount: "");
 
@@ -46,6 +51,7 @@ void main() {
     registerFallbackValue(_FakeFiatCurrency());
     registerFallbackValue(_FakeMoney());
     registerFallbackValue(_FakeCurrency());
+    registerFallbackValue(_btcAddress);
   });
 
   late _MockAddressService addressService;
@@ -54,6 +60,22 @@ void main() {
   late StreamController<WalletBase> walletChangesController;
   late StreamController<FiatCurrency> rateChangesController;
   late StreamController<String?> payjoinController;
+  late _MockWallet wallet;
+  late _MockWalletInfo walletInfo;
+
+  _MockWallet mockWallet({
+    required String id,
+    required WalletType type,
+    required CryptoCurrency currency,
+    required WalletInfo info,
+  }) {
+    final w = _MockWallet();
+    when(() => w.id).thenReturn(id);
+    when(() => w.type).thenReturn(type);
+    when(() => w.currency).thenReturn(currency);
+    when(() => w.walletInfo).thenReturn(info);
+    return w;
+  }
 
   void wireDefaults({
     WalletType walletType = WalletType.bitcoin,
@@ -67,15 +89,20 @@ void main() {
     bool isSilentPayments = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool isZCashTransparent = true,
-    ReceivePageOption? selectedAddressType,
+    ReceivePageOption selectedAddressType = ReceivePageOption.mainnet,
     PaymentURI? initialUri,
   }) {
-    when(() => addressService.walletType).thenReturn(walletType);
-    when(() => addressService.walletId).thenReturn("wallet-a");
-    when(() => addressService.walletName).thenReturn("wallet-a");
-    when(() => addressService.walletCurrency).thenReturn(walletCurrency ?? CryptoCurrency.btc);
+    walletInfo = _MockWalletInfo();
+    when(() => walletInfo.receiveInfoboxDismissed).thenReturn(isInfoboxDismissed);
+    when(walletInfo.save).thenAnswer((_) async => 0);
+    wallet = mockWallet(
+      id: "wallet-a",
+      type: walletType,
+      currency: walletCurrency ?? CryptoCurrency.btc,
+      info: walletInfo,
+    );
+    when(() => addressService.wallet).thenReturn(wallet);
     when(() => addressService.receivableTokens).thenReturn(receivableTokens);
-    when(() => addressService.isInfoboxDismissed).thenReturn(isInfoboxDismissed);
     when(() => addressService.hasAccounts).thenReturn(hasAccounts);
     when(() => addressService.addressTypeOptions).thenReturn(options);
     when(() => addressService.computeAddressList()).thenReturn(addressGroups);
@@ -85,7 +112,6 @@ void main() {
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
     when(() => addressService.isZCashTransparent).thenReturn(isZCashTransparent);
-    when(() => addressService.useSatoshi(any())).thenReturn(false);
     when(() => addressService.autoGenerateSubaddressStatus)
         .thenReturn(AutoGenerateSubaddressStatus.disabled);
     when(() => addressService.hasTokens).thenReturn(false);
@@ -136,7 +162,9 @@ void main() {
 
     blocTest<ReceiveBloc, ReceiveState>(
       "applies lightning open defaults when opened with the lightning token",
-      setUp: wireDefaults,
+      setUp: () => wireDefaults(
+        initialUri: LightningPaymentRequest(address: "user@cake.cash", amount: "", lnURL: "lnurl1"),
+      ),
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
@@ -255,11 +283,20 @@ void main() {
 
     // Regression: satoshiForLightning display mode + lightning token used to
     // multiply the amount by 10^8 per modal round-trip. The modal parses sats
-    // input against BTCLN; the bloc must store the request denominated in BTC
-    // without touching the base-unit amount.
+    // input against BTCLN; the bloc must keep the base-unit amount as it is.
     blocTest<ReceiveBloc, ReceiveState>(
-      "amount denominated in BTCLN is stored as BTC",
-      setUp: wireDefaults,
+      "amount denominated in BTCLN keeps its base units",
+      setUp: () {
+        final invoice =
+            LightningPaymentRequest(address: "user@cake.cash", amount: "", lnURL: "lnurl1");
+        wireDefaults(initialUri: invoice);
+        when(
+          () => addressService.fetchPaymentRequestUri(
+            amount: any(named: "amount"),
+            token: any(named: "token"),
+          ),
+        ).thenAnswer((_) async => invoice);
+      },
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
@@ -272,7 +309,7 @@ void main() {
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
-        expect(state.requestedAmount, Money(BigInt.from(1235), CryptoCurrency.btc));
+        expect(state.requestedAmount, Money(BigInt.from(1235), CryptoCurrency.btcln));
       },
     );
 
@@ -422,8 +459,14 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 10));
         bloc.add(const AddressTypeSelected(ReceivePageOption.mainnet));
         await Future<void>.delayed(const Duration(milliseconds: 10));
-        when(() => addressService.walletType).thenReturn(WalletType.monero);
-        when(() => addressService.walletId).thenReturn("wallet-b");
+        final walletB = mockWallet(
+          id: "wallet-b",
+          type: WalletType.monero,
+          currency: CryptoCurrency.xmr,
+          info: walletInfo,
+        );
+        when(() => addressService.wallet).thenReturn(walletB);
+        when(() => addressService.selectedAddressType).thenReturn(ReceivePageOption.testnet);
         walletChangesController.add(_FakeWalletBase());
         await Future<void>.delayed(const Duration(milliseconds: 10));
         setTypeCompleter.complete();
@@ -432,7 +475,8 @@ void main() {
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.walletType, WalletType.monero);
-        expect(state.addressType, isNull);
+        // The stale emit would have written the option picked on the old wallet
+        expect(state.addressType, ReceivePageOption.testnet);
       },
     );
   });
@@ -442,7 +486,7 @@ void main() {
       "sets isRotatingAddress true while rotating, false after",
       setUp: () {
         wireDefaults();
-        when(() => addressService.rotateAddress()).thenAnswer((_) async => true);
+        when(() => addressService.rotateAddress()).thenAnswer((_) async {});
       },
       build: () => ReceiveBloc(
         addressService: addressService,
@@ -462,9 +506,9 @@ void main() {
       "droppable: back-to-back rotate events run once",
       setUp: () {
         wireDefaults();
-        final completer = Completer<bool>();
+        final completer = Completer<void>();
         when(() => addressService.rotateAddress()).thenAnswer((_) => completer.future);
-        Future.delayed(const Duration(milliseconds: 20), () => completer.complete(true));
+        Future.delayed(const Duration(milliseconds: 20), completer.complete);
       },
       build: () => ReceiveBloc(
         addressService: addressService,
@@ -501,23 +545,30 @@ void main() {
       },
     );
 
+    final presented = <ReceivePresentation>[];
+
     blocTest<ReceiveBloc, ReceiveState>(
-      "rotateAddress false emits addressRotationFailed and clears isRotatingAddress",
+      "a failed rotation is reported once as a presentation event, not in state",
       setUp: () {
         wireDefaults();
-        when(() => addressService.rotateAddress()).thenAnswer((_) async => false);
+        presented.clear();
+        when(() => addressService.rotateAddress())
+            .thenThrow(const AddressServiceException("no new address"));
       },
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
         activeWalletService: activeWalletService,
       ),
-      act: (bloc) => bloc.add(const AddressRotated()),
+      act: (bloc) {
+        bloc.presentation.listen(presented.add);
+        bloc.add(const AddressRotated());
+      },
       wait: const Duration(milliseconds: 50),
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.isRotatingAddress, isFalse);
-        expect(state.failureCode, ReceiveFailureCode.addressRotationFailed);
+        expect(presented, [isA<ReceiveAddressRotationFailed>()]);
       },
     );
   });
@@ -545,10 +596,7 @@ void main() {
   group("infobox", () {
     blocTest<ReceiveBloc, ReceiveState>(
       "marks the infobox dismissed once",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
-      },
+      setUp: wireDefaults,
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
@@ -559,16 +607,14 @@ void main() {
       verify: (bloc) {
         final state = bloc.state as ReceiveLoaded;
         expect(state.isInfoboxDismissed, isTrue);
-        verify(() => addressService.dismissInfobox()).called(1);
+        verify(() => walletInfo.receiveInfoboxDismissed = true).called(1);
+        verify(walletInfo.save).called(1);
       },
     );
 
     blocTest<ReceiveBloc, ReceiveState>(
       "no-op when already dismissed",
-      setUp: () {
-        wireDefaults(isInfoboxDismissed: true);
-        when(() => addressService.dismissInfobox()).thenAnswer((_) async {});
-      },
+      setUp: () => wireDefaults(isInfoboxDismissed: true),
       build: () => ReceiveBloc(
         addressService: addressService,
         fiatRateService: fiatRateService,
@@ -577,7 +623,7 @@ void main() {
       act: (bloc) => bloc.add(const InfoboxDismissed()),
       wait: const Duration(milliseconds: 20),
       verify: (_) {
-        verifyNever(() => addressService.dismissInfobox());
+        verifyNever(walletInfo.save);
       },
     );
   });

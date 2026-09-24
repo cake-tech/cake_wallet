@@ -34,8 +34,8 @@ class FiatRateService {
   FiatCurrency get currentFiat => _settingsStore.fiatCurrency;
   Stream<FiatCurrency> get rateChanges => _rateChangesController.stream;
 
-  final Map<CryptoCurrency, Map<FiatCurrency, ExchangeRate>> _fetchedRates = {};
-  final Map<CryptoCurrency, Map<FiatCurrency, Future<void>>> _inflightFetches = {};
+  final Map<(CryptoCurrency, FiatCurrency), ExchangeRate> _fetchedRates = {};
+  final Map<(CryptoCurrency, FiatCurrency), Future<void>> _inflightFetches = {};
 
   void _notify(FiatCurrency fiat) {
     if (_rateChangesController.isClosed) {
@@ -44,34 +44,40 @@ class FiatRateService {
     _rateChangesController.add(fiat);
   }
 
+  CryptoCurrency _pricedAs(CryptoCurrency crypto) =>
+      crypto == CryptoCurrency.btcln ? CryptoCurrency.btc : crypto;
+
   ExchangeRate? _rateFor(CryptoCurrency crypto, FiatCurrency fiat) {
+    final priced = _pricedAs(crypto);
     if (fiat == _settingsStore.fiatCurrency) {
-      final live = _fiatConversionStore.prices[crypto];
+      final live = _fiatConversionStore.prices[priced];
       if (live != null) {
-        final pair = ExchangeRate.tryFromDouble(base: crypto, quoteCurrency: fiat, rate: live);
+        final pair = ExchangeRate.tryFromDouble(base: priced, quoteCurrency: fiat, rate: live);
         if (pair != null) {
           return pair;
         }
       }
     }
 
-    return _fetchedRates[crypto]?[fiat];
+    return _fetchedRates[(priced, fiat)];
   }
 
   Future<void> ensureRateFor(CryptoCurrency crypto, FiatCurrency fiat) {
-    if (_rateFor(crypto, fiat) != null) {
+    final priced = _pricedAs(crypto);
+    if (_rateFor(priced, fiat) != null) {
       return Future<void>.value();
     }
 
-    final pending = _inflightFetches[crypto]?[fiat];
+    final key = (priced, fiat);
+    final pending = _inflightFetches[key];
     if (pending != null) {
       return pending;
     }
 
-    final fetch = _fetchRate(crypto, fiat).whenComplete(() {
-      _inflightFetches[crypto]?.remove(fiat);
+    final fetch = _fetchRate(priced, fiat).whenComplete(() {
+      _inflightFetches.remove(key);
     });
-    _inflightFetches.putIfAbsent(crypto, () => {})[fiat] = fetch;
+    _inflightFetches[key] = fetch;
     return fetch;
   }
 
@@ -92,7 +98,7 @@ class FiatRateService {
         return;
       }
 
-      _fetchedRates.putIfAbsent(crypto, () => {})[fiat] = rate;
+      _fetchedRates[(crypto, fiat)] = rate;
       _notify(_settingsStore.fiatCurrency);
     } catch (e) {
       printV("failed to fetch fiat rate for $crypto/$fiat: $e");
@@ -120,7 +126,19 @@ class FiatRateService {
       return null;
     }
 
-    return _rateFor(crypto, fiat)?.convert(amount);
+    final rate = _rateFor(crypto, fiat);
+    if (rate == null) {
+      return null;
+    }
+
+    if (from == CryptoCurrency.btcln) {
+      return rate.convert(Money(amount.amount, CryptoCurrency.btc));
+    }
+    final converted = rate.convert(amount);
+    if (to == CryptoCurrency.btcln) {
+      return Money(converted.amount, CryptoCurrency.btcln);
+    }
+    return converted;
   }
 
   Future<void> dispose() async {

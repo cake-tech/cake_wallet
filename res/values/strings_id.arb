@@ -912,6 +912,7 @@
   "receive_error_address_list": "Tidak dapat memuat alamat Anda. Silakan coba lagi.",
   "receive_error_address_rotation": "Tidak dapat memperoleh alamat baru. Silakan coba lagi.",
   "receive_error_address_type": "Tidak dapat mengubah jenis alamat. Silakan coba lagi.",
+  "receive_error_address_update": "Tidak dapat memperbarui alamat ini. Silakan coba lagi.",
   "receive_error_fiat_rate": "Tidak dapat mengonversi jumlah tersebut saat ini. Silakan periksa koneksi Anda dan coba lagi.",
   "receive_error_invoice": "Tidak dapat membuat faktur Lightning. Silakan periksa koneksi Anda dan coba lagi.",
   "receive_error_label_update": "Tidak dapat menyimpan label. Silakan coba lagi.",

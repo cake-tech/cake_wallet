@@ -16,6 +16,8 @@ class _MockActiveWalletService extends Mock implements ActiveWalletService {}
 
 class _FakeWallet extends Fake implements WalletBase {}
 
+class _MockWallet extends Mock implements WalletBase {}
+
 AddressGroup _group(List<AddressEntry> entries, {AddressGroupHeader? header}) =>
     AddressGroup(header: header, entries: entries);
 
@@ -31,6 +33,10 @@ AddressEntry _entry(
     );
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const AddressEntry(address: "fallback"));
+  });
+
   late _MockAddressService addressService;
   late _MockActiveWalletService activeWalletService;
   late StreamController<WalletBase> walletChangesController;
@@ -45,25 +51,19 @@ void main() {
     List<AddressGroup> groups = const [],
     String currentAddress = "addr1",
     bool hasAccounts = false,
-    AddressAccount? currentAccount,
     WalletType walletType = WalletType.bitcoin,
-    String walletId = "wallet-a",
-    String walletName = "wallet-a",
-    String accountLabel = "",
-    bool hasHiddenAddresses = false,
     bool isAutoGenerateSubaddressEnabled = false,
     bool canSetLabel = true,
     bool canHide = true,
   }) {
+    final wallet = _MockWallet();
+    when(() => wallet.id).thenReturn("wallet-a");
+    when(() => wallet.type).thenReturn(walletType);
+    when(() => wallet.name).thenReturn("wallet-a");
+    when(() => addressService.wallet).thenReturn(wallet);
     when(() => addressService.computeAddressList()).thenReturn(groups);
     when(() => addressService.currentAddress).thenReturn(currentAddress);
     when(() => addressService.hasAccounts).thenReturn(hasAccounts);
-    when(() => addressService.currentAccount).thenReturn(currentAccount);
-    when(() => addressService.walletType).thenReturn(walletType);
-    when(() => addressService.walletId).thenReturn(walletId);
-    when(() => addressService.walletName).thenReturn(walletName);
-    when(() => addressService.accountLabel).thenReturn(accountLabel);
-    when(() => addressService.hasHiddenAddresses).thenReturn(hasHiddenAddresses);
     when(
       () => addressService.isAutoGenerateSubaddressEnabled,
     ).thenReturn(isAutoGenerateSubaddressEnabled);
@@ -211,11 +211,16 @@ void main() {
       build: buildBloc,
       act: (bloc) async {
         await waitForLoaded(bloc);
-        bloc.add(const AddressLabelSet("addr1", "Donations"));
+        bloc.add(AddressLabelSet(_entry("addr1"), "Donations"));
       },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
-        verify(() => addressService.setLabel("addr1", "Donations")).called(1);
+        verify(
+          () => addressService.setLabel(
+            any(that: isA<AddressEntry>().having((e) => e.address, "address", "addr1")),
+            "Donations",
+          ),
+        ).called(1);
       },
     );
 
@@ -223,7 +228,7 @@ void main() {
       "AddressAdded delegates",
       setUp: () {
         wireDefaults();
-        when(() => addressService.addManualAddress(any())).thenAnswer((_) async => true);
+        when(() => addressService.addManualAddress(any())).thenAnswer((_) async {});
       },
       build: buildBloc,
       act: (bloc) async {
@@ -240,9 +245,9 @@ void main() {
       "AddressAdded is droppable: rapid taps add once",
       setUp: () {
         wireDefaults();
-        final completer = Completer<bool>();
+        final completer = Completer<void>();
         when(() => addressService.addManualAddress(any())).thenAnswer((_) => completer.future);
-        Future.delayed(const Duration(milliseconds: 20), () => completer.complete(true));
+        Future.delayed(const Duration(milliseconds: 20), completer.complete);
       },
       build: buildBloc,
       act: (bloc) async {
@@ -257,22 +262,27 @@ void main() {
       },
     );
 
+    final presented = <AddressesPresentation>[];
+
     blocTest<AddressesBloc, AddressesState>(
-      "AddressAdded with no new address emits saveFailed",
+      "a failed add is reported once as a presentation event and clears isSaving",
       setUp: () {
         wireDefaults();
-        when(() => addressService.addManualAddress(any())).thenAnswer((_) async => false);
+        presented.clear();
+        when(() => addressService.addManualAddress(any()))
+            .thenThrow(const AddressServiceException("no new address"));
       },
       build: buildBloc,
       act: (bloc) async {
+        bloc.presentation.listen(presented.add);
         await waitForLoaded(bloc);
         bloc.add(const AddressAdded("Savings"));
       },
       wait: const Duration(milliseconds: 20),
       verify: (bloc) {
         final state = bloc.state as AddressesLoaded;
-        expect(state.failureCode, AddressesFailureCode.saveFailed);
         expect(state.isSaving, isFalse);
+        expect(presented, [isA<AddressesAddFailed>()]);
       },
     );
 
@@ -290,14 +300,13 @@ void main() {
                   _group([_entry("addr1", isHidden: true), _entry("addr2")]),
                 ];
         });
+        final wallet = _MockWallet();
+        when(() => wallet.id).thenReturn("wallet-a");
+        when(() => wallet.type).thenReturn(WalletType.bitcoin);
+        when(() => wallet.name).thenReturn("wallet-a");
+        when(() => addressService.wallet).thenReturn(wallet);
         when(() => addressService.currentAddress).thenReturn("addr1");
         when(() => addressService.hasAccounts).thenReturn(false);
-        when(() => addressService.currentAccount).thenReturn(null);
-        when(() => addressService.walletType).thenReturn(WalletType.bitcoin);
-        when(() => addressService.walletId).thenReturn("wallet-a");
-        when(() => addressService.walletName).thenReturn("wallet-a");
-        when(() => addressService.accountLabel).thenReturn("");
-        when(() => addressService.hasHiddenAddresses).thenReturn(false);
         when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
         when(() => addressService.canSetLabel).thenReturn(true);
         when(() => addressService.canHide).thenReturn(true);

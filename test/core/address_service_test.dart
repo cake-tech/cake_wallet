@@ -2,10 +2,9 @@ import "dart:async";
 
 import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/active_wallet_service.dart";
 import "package:cake_wallet/core/address_service.dart";
-import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
@@ -44,6 +43,35 @@ class _FakeSettingsStore extends Fake implements SettingsStore {
   set autoGenerateSubaddressStatus(AutoGenerateSubaddressStatus next) {
     _status = next;
   }
+}
+
+class _FakeActiveWalletService extends Fake implements ActiveWalletService {
+  _FakeActiveWalletService(this._wallet, this.walletChanges);
+
+  final WalletBase Function() _wallet;
+
+  @override
+  final Stream<WalletBase> walletChanges;
+
+  @override
+  WalletBase get wallet => _wallet();
+}
+
+class _Option implements ReceivePageOption {
+  const _Option(this.value);
+
+  @override
+  final String value;
+  @override
+  String? get iconPath => null;
+  @override
+  String? get description => null;
+  @override
+  bool get isCommon => false;
+  @override
+  bool get addAddressWord => false;
+  @override
+  bool get canRotateAddress => true;
 }
 
 class _FakePaymentURI extends Fake implements PaymentURI {
@@ -100,12 +128,9 @@ class _TestScope {
   final _FakeSettingsStore settings;
   final StreamController<WalletBase> _walletChanges = StreamController<WalletBase>.broadcast();
 
-  AddressService build({BitcoinAmountDisplayMode mode = BitcoinAmountDisplayMode.bitcoin}) =>
-      AddressService(
-        wallet: () => wallet,
-        walletChanges: _walletChanges.stream,
+  AddressService build() => AddressService(
+        activeWalletService: _FakeActiveWalletService(() => wallet, _walletChanges.stream),
         settingsStore: settings,
-        amountParsingProxyGetter: () => AmountParsingProxy(mode),
       );
 
   Future<void> dispose() async {
@@ -169,15 +194,6 @@ void main() {
   });
 
   group("chain-agnostic getters", () {
-    test("walletType / walletCurrency reflect wallet fields", () {
-      scope = _TestScope(walletType: WalletType.monero);
-      final service = scope.build();
-      addTearDown(service.dispose);
-
-      expect(service.walletType, WalletType.monero);
-      expect(service.walletCurrency, CryptoCurrency.xmr);
-    });
-
     test("receivableTokens returns crypto keys from wallet.balance", () {
       scope = _TestScope(
         balances: {
@@ -194,18 +210,10 @@ void main() {
       );
     });
 
-    test("isInfoboxDismissed reads wallet.walletInfo.receiveInfoboxDismissed", () {
-      scope = _TestScope(infoboxDismissed: true);
-      final service = scope.build();
-      addTearDown(service.dispose);
-
-      expect(service.isInfoboxDismissed, isTrue);
-    });
-
-    test("hasAccounts is true only for Monero and Wownero", () {
+    test("hasAccounts is true only for Monero", () {
       for (final entry in const {
         WalletType.monero: true,
-        WalletType.wownero: true,
+        WalletType.wownero: false,
         WalletType.bitcoin: false,
         WalletType.zcash: false,
         WalletType.solana: false,
@@ -245,7 +253,8 @@ void main() {
       expect(service.addressTypeOptions, const [ReceivePageOption.mainnet]);
     });
 
-    test("selectedAddressType is null for chains outside {bitcoin, litecoin, zcash}", () {
+    test("selectedAddressType is the first option for chains outside {bitcoin, litecoin, zcash}",
+        () {
       for (final t in const [
         WalletType.monero,
         WalletType.wownero,
@@ -260,13 +269,13 @@ void main() {
       ]) {
         scope = _TestScope(walletType: t);
         final service = scope.build();
-        expect(service.selectedAddressType, isNull, reason: t.toString());
+        expect(service.selectedAddressType, ReceivePageOption.mainnet, reason: t.toString());
         service.dispose();
       }
       scope = _TestScope();
     });
 
-    test("currentAccount is null for chains without accounts", () {
+    test("accountLabel is empty for chains without accounts", () {
       for (final t in const [
         WalletType.bitcoin,
         WalletType.litecoin,
@@ -276,7 +285,7 @@ void main() {
       ]) {
         scope = _TestScope(walletType: t);
         final service = scope.build();
-        expect(service.currentAccount, isNull, reason: t.toString());
+        expect(service.accountLabel, isEmpty, reason: t.toString());
         service.dispose();
       }
       scope = _TestScope();
@@ -304,7 +313,7 @@ void main() {
   });
 
   group("chain capability flags", () {
-    test("canSetLabel is true for electrum, decred, monero, wownero — else false", () {
+    test("canSetLabel is true for electrum, decred and monero, else false", () {
       const truthy = {
         WalletType.bitcoin,
         WalletType.litecoin,
@@ -312,9 +321,9 @@ void main() {
         WalletType.dogecoin,
         WalletType.decred,
         WalletType.monero,
-        WalletType.wownero,
       };
       const falsy = {
+        WalletType.wownero,
         WalletType.solana,
         WalletType.tron,
         WalletType.nano,
@@ -518,49 +527,65 @@ void main() {
       scope = _TestScope();
     });
 
-    test("silent-payments with no SP addresses is repaired to segwit and top-up runs", () async {
-      scope = _TestScope();
-      final b = bitcoin as _MockBitcoin;
-      when(() => b.hasSelectedSilentPayments(any())).thenReturn(true);
-      when(() => b.getSilentPaymentAddresses(any())).thenReturn(const []);
-      when(() => b.getSubAddresses(any())).thenReturn(const []);
-      when(b.getBitcoinSegwitPageOption).thenReturn(ReceivePageOption.mainnet);
-      when(() => b.getOptionToType(any())).thenReturn(SegwitAddresType.p2wpkh);
+    const standard = _Option("Standard");
+    const taproot = _Option("Taproot");
+    const lightning = _Option("Lightning");
+
+    void stubOptions(_MockBitcoin b, {required ReceivePageOption selected}) {
+      when(b.getBitcoinSegwitPageOption).thenReturn(standard);
+      when(b.getBitcoinLightningReceivePageOption).thenReturn(lightning);
+      when(() => b.getSelectedAddressType(any())).thenReturn(selected);
+      when(() => b.getOptionToType(standard)).thenReturn(SegwitAddresType.p2wpkh);
+      when(() => b.getOptionToType(lightning)).thenReturn(SegwitAddresType.p2tr);
       when(() => b.setAddressType(any(), any())).thenAnswer((_) async {});
-      when(() => b.generateNewAddress(any(), any())).thenAnswer((_) async {});
+    }
+
+    test("resets a bitcoin wallet to Standard on open when another type is selected", () async {
+      scope = _TestScope(receivePageOptions: const [standard, taproot, lightning]);
+      final b = bitcoin as _MockBitcoin;
+      stubOptions(b, selected: taproot);
       final service = scope.build();
       addTearDown(service.dispose);
 
       await service.applyOpenDefaults(lightningMode: false);
 
-      verify(() => b.getOptionToType(ReceivePageOption.mainnet)).called(1);
       verify(() => b.setAddressType(scope.wallet, SegwitAddresType.p2wpkh)).called(1);
-      verify(() => b.generateNewAddress(scope.wallet, "")).called(1);
     });
-  });
 
-  group("dismissInfobox", () {
-    test("sets wallet.walletInfo.receiveInfoboxDismissed = true and saves", () async {
-      scope = _TestScope(infoboxDismissed: false);
+    test("selects Lightning in lightning mode when the wallet offers it", () async {
+      scope = _TestScope(receivePageOptions: const [standard, taproot, lightning]);
+      final b = bitcoin as _MockBitcoin;
+      stubOptions(b, selected: standard);
       final service = scope.build();
       addTearDown(service.dispose);
 
-      await service.dismissInfobox();
+      await service.applyOpenDefaults(lightningMode: true);
 
-      verify(() => scope.walletInfo.receiveInfoboxDismissed = true).called(1);
-      verify(scope.walletInfo.save).called(1);
+      verify(() => b.setAddressType(scope.wallet, SegwitAddresType.p2tr)).called(1);
     });
 
-    test("swallows save errors", () async {
-      scope = _TestScope();
-      when(scope.walletInfo.save).thenThrow(Exception("disk full"));
+    test("falls back to Standard in lightning mode when Lightning is not offered", () async {
+      scope = _TestScope(receivePageOptions: const [standard, taproot]);
+      final b = bitcoin as _MockBitcoin;
+      stubOptions(b, selected: taproot);
       final service = scope.build();
       addTearDown(service.dispose);
 
-      // Should NOT throw.
-      await service.dismissInfobox();
+      await service.applyOpenDefaults(lightningMode: true);
 
-      verify(() => scope.walletInfo.receiveInfoboxDismissed = true).called(1);
+      verify(() => b.setAddressType(scope.wallet, SegwitAddresType.p2wpkh)).called(1);
+    });
+
+    test("leaves the address type alone when the target is already selected", () async {
+      scope = _TestScope(receivePageOptions: const [standard, taproot, lightning]);
+      final b = bitcoin as _MockBitcoin;
+      stubOptions(b, selected: standard);
+      final service = scope.build();
+      addTearDown(service.dispose);
+
+      await service.applyOpenDefaults(lightningMode: false);
+
+      verifyNever(() => b.setAddressType(any(), any()));
     });
   });
 
@@ -595,55 +620,6 @@ void main() {
         expect(result, same(uri));
       },
     );
-  });
-
-  group("useSatoshi", () {
-    test("useSatoshi(btc) is false under bitcoin display mode", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.bitcoin);
-      addTearDown(service.dispose);
-
-      expect(service.useSatoshi(CryptoCurrency.btc), isFalse);
-    });
-
-    test("useSatoshi(btc) is true under satoshi display mode", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshi);
-      addTearDown(service.dispose);
-
-      expect(service.useSatoshi(CryptoCurrency.btc), isTrue);
-    });
-
-    test("useSatoshi(btcln) is true under satoshiForLightning mode", () {
-      scope = _TestScope();
-      final service = scope.build(mode: BitcoinAmountDisplayMode.satoshiForLightning);
-      addTearDown(service.dispose);
-
-      expect(service.useSatoshi(CryptoCurrency.btcln), isTrue);
-      // BTC does NOT get sats in satoshiForLightning mode.
-      expect(service.useSatoshi(CryptoCurrency.btc), isFalse);
-    });
-
-    test("useSatoshi is always false for non-BTC currencies regardless of display mode", () {
-      for (final mode in const [
-        BitcoinAmountDisplayMode.bitcoin,
-        BitcoinAmountDisplayMode.satoshi,
-        BitcoinAmountDisplayMode.satoshiForLightning,
-      ]) {
-        scope = _TestScope();
-        final service = scope.build(mode: mode);
-        for (final c in const [
-          CryptoCurrency.eth,
-          CryptoCurrency.xmr,
-          CryptoCurrency.sol,
-          CryptoCurrency.trx,
-        ]) {
-          expect(service.useSatoshi(c), isFalse, reason: "$mode + $c");
-        }
-        service.dispose();
-      }
-      scope = _TestScope();
-    });
   });
 
   group("payjoinEndpointChanges stream", () {
@@ -711,10 +687,11 @@ class _FailingScope {
   final _settings = _FakeSettingsStore();
 
   AddressService build() => AddressService(
-        wallet: () => throw StateError("No wallet is active yet"),
-        walletChanges: _walletChanges.stream,
+        activeWalletService: _FakeActiveWalletService(
+          () => throw StateError("No wallet is active yet"),
+          _walletChanges.stream,
+        ),
         settingsStore: _settings,
-        amountParsingProxyGetter: () => const AmountParsingProxy(BitcoinAmountDisplayMode.bitcoin),
       );
 
   void emit() {

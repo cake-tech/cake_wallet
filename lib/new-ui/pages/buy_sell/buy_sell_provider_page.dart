@@ -29,118 +29,124 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-      gradient: LinearGradient(
-        colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surfaceDim],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    ),
-    child: SafeArea(
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: _pageTitle,
-            leadingIcon: const Icon(Icons.arrow_back_ios_new),
-            onLeadingPressed: Navigator.of(context).pop,
-            leadingSemanticLabel: S.of(context).seed_alert_back,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceDim,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Expanded(
-            child: Observer(
-              builder: (_) {
-                if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 24,
-                    children: [
-                      const Icon(Icons.warning_amber_outlined, size: 48),
-                      Column(
-                        spacing: 10,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              ModalTopBar(
+                title: _pageTitle,
+                leadingIcon: const Icon(Icons.arrow_back_ios_new),
+                onLeadingPressed: Navigator.of(context).pop,
+                leadingSemanticLabel: S.of(context).seed_alert_back,
+              ),
+              Expanded(
+                child: Observer(
+                  builder: (_) {
+                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 24,
                         children: [
-                          Text(
-                            S.of(context).could_not_load_quotes,
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            (widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
-                                    .errorMessage ??
-                                S.of(context).please_try_again_later,
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                }
-
-                if (widget.buySellViewModel.buySellQuotState is BuySellQuotLoading) {
-                  return Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 8,
-                      children: [
-                        const CupertinoActivityIndicator(),
-                        Text(
-                          S.of(context).loading_rates,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  controller: ModalScrollController.of(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: NewListSections(
-                      showHeader: true,
-                      sections: {
-                        "": [
-                          ListItemRegularRow(
-                            keyValue: "payment method",
-                            label: S.of(context).payment_method,
-                            showArrow: true,
-                            onTap: () {
-                              final page = BuySellPaymentMethodPage(
-                                buySellViewModel: widget.buySellViewModel,
-                              );
-                              Navigator.of(context).push(
-                                CupertinoPageRoute(
-                                  builder: (context) =>
-                                      Material(color: Colors.transparent, child: page),
-                                ),
-                              );
-                            },
-                            trailingText: widget.buySellViewModel.selectedPaymentMethod?.title,
+                          const Icon(Icons.warning_amber_outlined, size: 48),
+                          Column(
+                            spacing: 10,
+                            children: [
+                              Text(
+                                S.of(context).could_not_load_quotes,
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                (widget.buySellViewModel.buySellQuotState as BuySellQuotFailed)
+                                        .errorMessage ??
+                                    S.of(context).please_try_again_later,
+                              ),
+                            ],
                           ),
                         ],
-                        S.of(context).available_providers: [
-                          ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
-                          if (widget.buySellViewModel.sortedQuotes.isNotEmpty)
-                            ListItemDropdown(
-                              keyValue: "more options",
-                              label: S.of(context).more_options,
-                              onTap: () {
-                                setState(() {
-                                  _allProvidersExpanded = !_allProvidersExpanded;
-                                });
-                              },
+                      );
+                    }
+
+                    if (widget.buySellViewModel.buySellQuotState is BuySellQuotLoading) {
+                      return Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 8,
+                          children: [
+                            const CupertinoActivityIndicator(),
+                            Text(
+                              S.of(context).loading_rates,
+                              style:
+                                  TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
-                          if (_allProvidersExpanded)
-                            ...widget.buySellViewModel.sortedQuotes.map(quoteListItem),
-                        ],
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      controller: ModalScrollController.of(context),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: NewListSections(
+                          showHeader: true,
+                          sections: {
+                            "": [
+                              ListItemRegularRow(
+                                keyValue: "payment method",
+                                label: S.of(context).payment_method,
+                                showArrow: true,
+                                onTap: () {
+                                  final page = BuySellPaymentMethodPage(
+                                    buySellViewModel: widget.buySellViewModel,
+                                  );
+                                  Navigator.of(context).push(
+                                    CupertinoPageRoute(
+                                      builder: (context) => Material(
+                                        color: Colors.transparent,
+                                        child: page,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                trailingText: widget.buySellViewModel.selectedPaymentMethod?.title,
+                              ),
+                            ],
+                            S.of(context).available_providers: [
+                              ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
+                              if (widget.buySellViewModel.sortedQuotes.isNotEmpty)
+                                ListItemDropdown(
+                                  keyValue: "more options",
+                                  label: S.of(context).more_options,
+                                  onTap: () {
+                                    setState(() {
+                                      _allProvidersExpanded = !_allProvidersExpanded;
+                                    });
+                                  },
+                                ),
+                              if (_allProvidersExpanded)
+                                ...widget.buySellViewModel.sortedQuotes.map(quoteListItem),
+                            ],
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 
   String get _pageTitle =>
       "${widget.buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell} ${widget.buySellViewModel.cryptoCurrency.fullName ?? ""}";
@@ -181,7 +187,10 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
     final page = BuySellConfirmationPage(buySellViewModel: widget.buySellViewModel);
     Navigator.of(context).push(
       CupertinoPageRoute(
-        builder: (context) => Material(color: Colors.transparent, child: page),
+        builder: (context) => Material(
+          color: Colors.transparent,
+          child: page,
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import "dart:ui";
 
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart";
@@ -11,12 +12,12 @@ import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/debounce.dart";
-import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cw_core/card_design.dart";
@@ -30,81 +31,66 @@ import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AddressesPage extends StatelessWidget {
-  const AddressesPage({super.key, this.showHidden = false, this.onSelect});
+  const AddressesPage({required this.bloc, this.popOnSelection = false, super.key});
 
-  final bool showHidden;
-  final void Function(String address)? onSelect;
+  final AddressesBloc bloc;
+  final bool popOnSelection;
 
   @override
   Widget build(BuildContext context) => BlocProvider<AddressesBloc>(
-        create: (_) => getIt<AddressesBloc>(param1: showHidden),
-        child: _AddressesPageBody(onSelect: onSelect),
+        create: (_) => bloc,
+        child: _AddressesPageBody(isPicker: popOnSelection),
       );
 }
 
 class _AddressesPageBody extends StatelessWidget {
-  const _AddressesPageBody({this.onSelect});
+  const _AddressesPageBody({required this.isPicker});
 
-  final void Function(String address)? onSelect;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: BlocConsumer<AddressesBloc, AddressesState>(
-          listenWhen: (previous, current) {
-            final prev = previous is AddressesLoaded ? previous.failureCode : null;
-            final curr = current is AddressesLoaded ? current.failureCode : null;
-            return curr != null && curr != prev;
-          },
-          listener: (context, state) {
-            if (state is! AddressesLoaded || state.failureCode == null) {
-              return;
-            }
-            showBar(context, S.of(context).error_dialog_content);
-          },
-          builder: (context, state) => switch (state) {
-            AddressesLoading() => const _LoadingWidget(),
-            AddressesFailure() => const _FailureWidget(),
-            AddressesLoaded() => _LoadedWidget(state: state, onSelect: onSelect),
-          },
-        ),
-      );
-}
-
-class _LoadingWidget extends StatelessWidget {
-  const _LoadingWidget();
+  final bool isPicker;
 
   @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) {
+    final showHidden = context.read<AddressesBloc>().showHidden;
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
         spacing: 12,
         children: [
-          _TopBar(title: S.of(context).addresses),
-          const Expanded(child: Center(child: CupertinoActivityIndicator(radius: 14))),
+          _TopBar(title: showHidden ? S.of(context).hidden_addresses : S.of(context).addresses),
+          Expanded(
+            child: BlocPresentationListener<AddressesBloc, AddressesPresentation>(
+              listener: (context, event) => showPopUp<void>(
+                context: context,
+                builder: (dialogContext) => AlertWithOneAction(
+                  alertTitle: S.of(dialogContext).error,
+                  alertContent: event.message,
+                  buttonText: S.of(dialogContext).ok,
+                  buttonAction: () => Navigator.of(dialogContext).pop(),
+                ),
+              ),
+              child: BlocBuilder<AddressesBloc, AddressesState>(
+                builder: (context, state) => switch (state) {
+                  AddressesLoading() => const Center(child: CupertinoActivityIndicator(radius: 14)),
+                  AddressesFailure() => Center(child: Text(state.message)),
+                  AddressesLoaded() => _LoadedWidget(state: state, isPicker: isPicker),
+                },
+              ),
+            ),
+          ),
         ],
-      );
-}
-
-class _FailureWidget extends StatelessWidget {
-  const _FailureWidget();
-
-  @override
-  Widget build(BuildContext context) => Column(
-        spacing: 12,
-        children: [
-          _TopBar(title: S.of(context).addresses),
-          Expanded(child: Center(child: Text(S.of(context).error_dialog_content))),
-        ],
-      );
+      ),
+    );
+  }
 }
 
 class _LoadedWidget extends StatefulWidget {
-  const _LoadedWidget({required this.state, this.onSelect});
+  const _LoadedWidget({required this.state, required this.isPicker});
 
   final AddressesLoaded state;
-  final void Function(String address)? onSelect;
+  final bool isPicker;
 
   @override
   State<_LoadedWidget> createState() => _LoadedWidgetState();
@@ -140,86 +126,77 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
     super.dispose();
   }
 
-  bool get _isPicker => widget.onSelect != null;
-
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
-    final title = state.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses;
+    final isPicker = widget.isPicker;
     final groups = state.displayableGroups;
+    final listStartsAtFirstRow = state.showHidden || isPicker || !state.hasHiddenAddresses;
 
-    return Column(
-      spacing: 12,
+    return Stack(
       children: [
-        _TopBar(title: title),
-        Expanded(
-          child: Stack(
-            children: [
-              CustomScrollView(
-                controller: ModalScrollController.of(context),
-                slivers: [
-                  if (!state.showHidden)
-                    SliverToBoxAdapter(
-                      child: Column(
-                        spacing: 16,
-                        children: [
-                          if (state.hasAccounts)
-                            _AccountPreviewHeader(
-                              walletName: state.walletName,
-                              accountLabel: state.accountLabel,
-                            ),
-                          Text(
-                            S.of(context).long_press_edit_address,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          if (!_isPicker && state.showAddManualAddresses)
-                            const _AddManualAddressButton(),
-                          if (!_isPicker && state.hasHiddenAddresses) const _ShowHiddenButton(),
-                        ],
+        CustomScrollView(
+          controller: ModalScrollController.of(context),
+          slivers: [
+            if (!state.showHidden)
+              SliverToBoxAdapter(
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    if (state.hasAccounts)
+                      _AccountPreviewHeader(
+                        walletName: state.walletName,
+                        accountLabel: context.read<AddressesBloc>().accountLabel,
+                      ),
+                    Text(
+                      S.of(context).long_press_edit_address,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  if (!state.showHidden && !state.hasHiddenAddresses)
-                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
-                  for (var i = 0; i < groups.length; i++)
-                    _GroupSection(
-                      group: groups[i],
-                      state: state,
-                      isFirstGroup: i == 0,
-                      isLast: i == groups.length - 1,
-                      isPicker: _isPicker,
-                      onEntrySelected: _handleEntrySelected,
-                    ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 72)),
-                ],
-              ),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: _AddressSearchBox(controller: _searchController),
+                    if (!isPicker && state.showAddManualAddresses) const _AddManualAddressButton(),
+                    if (!isPicker && state.hasHiddenAddresses) const _ShowHiddenButton(),
+                  ],
                 ),
               ),
-              if (state.isSaving)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: ColoredBox(
-                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.35),
-                      child: const Center(child: CupertinoActivityIndicator(radius: 14)),
-                    ),
-                  ),
-                ),
-            ],
+            if (!state.showHidden && listStartsAtFirstRow)
+              const SliverToBoxAdapter(child: SizedBox(height: 12)),
+            for (var i = 0; i < groups.length; i++)
+              _GroupSection(
+                group: groups[i],
+                state: state,
+                isFirstGroup: i == 0,
+                isLast: i == groups.length - 1,
+                isPicker: isPicker,
+                listStartsAtFirstRow: listStartsAtFirstRow,
+                onEntrySelected: _handleEntrySelected,
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 72)),
+          ],
+        ),
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: _AddressSearchBox(controller: _searchController),
           ),
         ),
+        if (state.isSaving)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ColoredBox(
+                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.35),
+                child: const Center(child: CupertinoActivityIndicator(radius: 14)),
+              ),
+            ),
+          ),
       ],
     );
   }
 
   void _handleEntrySelected(BuildContext context, String address) {
-    if (_isPicker) {
-      widget.onSelect!(address);
+    if (widget.isPicker) {
+      Navigator.of(context).pop(address);
     } else {
       context.read<AddressesBloc>().add(ActiveAddressSet(address));
     }
@@ -233,6 +210,7 @@ class _GroupSection extends StatelessWidget {
     required this.isFirstGroup,
     required this.isLast,
     required this.isPicker,
+    required this.listStartsAtFirstRow,
     required this.onEntrySelected,
   });
 
@@ -241,6 +219,7 @@ class _GroupSection extends StatelessWidget {
   final bool isFirstGroup;
   final bool isLast;
   final bool isPicker;
+  final bool listStartsAtFirstRow;
   final void Function(BuildContext context, String address) onEntrySelected;
 
   @override
@@ -260,8 +239,7 @@ class _GroupSection extends StatelessWidget {
               return _AddressRow(
                 entry: entry,
                 selected: entry.address == state.activeAddress && !isPicker,
-                isFirst:
-                    isFirstGroup && index == 0 && (state.showHidden || !state.hasHiddenAddresses),
+                isFirst: isFirstGroup && index == 0 && listStartsAtFirstRow,
                 isLast: index == group.entries.length - 1,
                 walletType: state.walletType,
                 hasReceived: state.hasAccounts,
@@ -322,15 +300,15 @@ class _AddManualAddressButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Material(
           child: InkWell(
-            onTap: () {
+            onTap: () async {
               final bloc = context.read<AddressesBloc>();
-              showPopUp<String>(
+              final label = await showPopUp<String>(
                 context: context,
-                builder: (_) => _AddressLabelInputPopup(
-                  initialLabel: "",
-                  onSaved: (value) => bloc.add(AddressAdded(value)),
-                ),
+                builder: (_) => const _AddressLabelInputPopup(initialLabel: ""),
               );
+              if (label != null && !bloc.isClosed) {
+                bloc.add(AddressAdded(label));
+              }
             },
             child: Container(
               height: 48,
@@ -715,13 +693,13 @@ class _AddressRow extends StatelessWidget {
 
     Future<void> editLabel() async {
       final bloc = context.read<AddressesBloc>();
-      await showPopUp<String>(
+      final label = await showPopUp<String>(
         context: context,
-        builder: (_) => _AddressLabelInputPopup(
-          initialLabel: entry.label ?? "",
-          onSaved: (label) => bloc.add(AddressLabelSet(entry.address, label)),
-        ),
+        builder: (_) => _AddressLabelInputPopup(initialLabel: entry.label ?? ""),
       );
+      if (label != null && !bloc.isClosed) {
+        bloc.add(AddressLabelSet(entry, label));
+      }
     }
 
     Future<void> showInfo() async {
@@ -792,10 +770,9 @@ class _AddressRow extends StatelessWidget {
 }
 
 class _AddressLabelInputPopup extends StatefulWidget {
-  const _AddressLabelInputPopup({required this.initialLabel, required this.onSaved});
+  const _AddressLabelInputPopup({required this.initialLabel});
 
   final String initialLabel;
-  final void Function(String label) onSaved;
 
   @override
   State<_AddressLabelInputPopup> createState() => _AddressLabelInputPopupState();
@@ -840,10 +817,7 @@ class _AddressLabelInputPopupState extends State<_AddressLabelInputPopup> {
                       keyValue: "label",
                       label: S.of(context).label,
                       focusNode: _focusNode,
-                      onFieldSubmitted: (value) {
-                        widget.onSaved(value);
-                        Navigator.of(context).pop(value);
-                      },
+                      onFieldSubmitted: (value) => Navigator.of(context).pop(value),
                     ),
                   ],
                 },

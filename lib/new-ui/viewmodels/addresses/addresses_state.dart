@@ -1,10 +1,7 @@
 part of "addresses_bloc.dart";
 
-sealed class AddressesState extends Equatable {
+sealed class AddressesState {
   const AddressesState();
-
-  @override
-  List<Object?> get props => const [];
 }
 
 final class AddressesLoading extends AddressesState {
@@ -21,13 +18,10 @@ final class AddressesLoaded extends AddressesState {
     required this.walletId,
     required this.walletType,
     required this.walletName,
-    required this.accountLabel,
-    required this.hasHiddenAddresses,
     required this.showAddManualAddresses,
     required this.canSetLabel,
     required this.canHide,
     this.isSaving = false,
-    this.failureCode,
   });
 
   final List<AddressGroup> groups;
@@ -38,13 +32,12 @@ final class AddressesLoaded extends AddressesState {
   final String walletId;
   final WalletType walletType;
   final String walletName;
-  final String accountLabel;
-  final bool hasHiddenAddresses;
   final bool showAddManualAddresses;
   final bool canSetLabel;
   final bool canHide;
   final bool isSaving;
-  final AddressesFailureCode? failureCode;
+
+  bool get hasHiddenAddresses => groups.any((g) => g.entries.any((e) => e.isHidden));
 
   List<AddressGroup> get displayableGroups {
     final term = searchTerm.toLowerCase();
@@ -71,68 +64,26 @@ final class AddressesLoaded extends AddressesState {
     List<AddressGroup>? groups,
     String? activeAddress,
     String? searchTerm,
-    bool? showHidden,
-    bool? hasAccounts,
-    String? walletId,
-    WalletType? walletType,
-    String? walletName,
-    String? accountLabel,
-    bool? hasHiddenAddresses,
-    bool? showAddManualAddresses,
-    bool? canSetLabel,
-    bool? canHide,
     bool? isSaving,
-    AddressesFailureCode? failureCode,
-    bool clearFailureCode = false,
   }) =>
       AddressesLoaded(
         groups: groups ?? this.groups,
         activeAddress: activeAddress ?? this.activeAddress,
         searchTerm: searchTerm ?? this.searchTerm,
-        showHidden: showHidden ?? this.showHidden,
-        hasAccounts: hasAccounts ?? this.hasAccounts,
-        walletId: walletId ?? this.walletId,
-        walletType: walletType ?? this.walletType,
-        walletName: walletName ?? this.walletName,
-        accountLabel: accountLabel ?? this.accountLabel,
-        hasHiddenAddresses: hasHiddenAddresses ?? this.hasHiddenAddresses,
-        showAddManualAddresses: showAddManualAddresses ?? this.showAddManualAddresses,
-        canSetLabel: canSetLabel ?? this.canSetLabel,
-        canHide: canHide ?? this.canHide,
+        showHidden: showHidden,
+        hasAccounts: hasAccounts,
+        walletId: walletId,
+        walletType: walletType,
+        walletName: walletName,
+        showAddManualAddresses: showAddManualAddresses,
+        canSetLabel: canSetLabel,
+        canHide: canHide,
         isSaving: isSaving ?? this.isSaving,
-        failureCode: clearFailureCode ? null : (failureCode ?? this.failureCode),
       );
-
-  @override
-  List<Object?> get props => [
-        groups,
-        activeAddress,
-        searchTerm,
-        showHidden,
-        hasAccounts,
-        walletId,
-        walletType,
-        walletName,
-        accountLabel,
-        hasHiddenAddresses,
-        showAddManualAddresses,
-        canSetLabel,
-        canHide,
-        isSaving,
-        failureCode,
-      ];
 }
 
 final class AddressesFailure extends AddressesState {
-  const AddressesFailure(this.code);
+  const AddressesFailure();
 
-  final AddressesFailureCode code;
-
-  @override
-  List<Object?> get props => [code];
-}
-
-enum AddressesFailureCode {
-  addressListUnavailable,
-  saveFailed,
+  String get message => S.current.receive_error_address_list;
 }

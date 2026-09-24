@@ -16,8 +16,8 @@ final class ReceiveLoaded extends ReceiveState {
     required this.addressEntry,
     required this.addressType,
     required this.addressTypeOptions,
-    required this.inputCurrency,
-    required this.tokenCurrency,
+    required this.cryptoCurrency,
+    required this.fiatCurrency,
     required this.receivableTokens,
     required this.requestedAmount,
     required this.fiatEquivalent,
@@ -27,23 +27,20 @@ final class ReceiveLoaded extends ReceiveState {
     required this.paymentUri,
     required this.isSilentPayments,
     required this.isLightning,
-    required this.autoGenerateSubaddressStatus,
     required this.isZCashTransparent,
-    required this.inputUsesSats,
     required this.walletId,
     required this.walletType,
     required this.walletCurrency,
     required this.hasTokens,
     this.isChangingAddressType = false,
-    this.failureCode,
   });
 
   final AddressEntry addressEntry;
-  final ReceivePageOption? addressType;
+  final ReceivePageOption addressType;
   final List<ReceivePageOption> addressTypeOptions;
 
-  final Currency inputCurrency;
-  final CryptoCurrency? tokenCurrency;
+  final CryptoCurrency cryptoCurrency;
+  final FiatCurrency? fiatCurrency;
   final List<CryptoCurrency> receivableTokens;
 
   final Money? requestedAmount;
@@ -58,15 +55,16 @@ final class ReceiveLoaded extends ReceiveState {
 
   final bool isSilentPayments;
   final bool isLightning;
-  final AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
   final bool isZCashTransparent;
-  final bool inputUsesSats;
 
   final String walletId;
   final WalletType walletType;
   final CryptoCurrency walletCurrency;
   final bool hasTokens;
-  final ReceiveFailureCode? failureCode;
+
+  Currency get inputCurrency => fiatCurrency ?? cryptoCurrency;
+
+  CryptoCurrency? get tokenCurrency => cryptoCurrency == walletCurrency ? null : cryptoCurrency;
 
   bool get hasPayjoin =>
       walletType == WalletType.bitcoin &&
@@ -83,7 +81,6 @@ final class ReceiveLoaded extends ReceiveState {
     }
     return const {
       WalletType.monero,
-      WalletType.wownero,
       WalletType.bitcoinCash,
       WalletType.bitcoin,
       WalletType.litecoin,
@@ -93,23 +90,29 @@ final class ReceiveLoaded extends ReceiveState {
     }.contains(walletType);
   }
 
-  bool get hasAddressRotation => hasAddressList && walletType != WalletType.zcash;
+  bool get hasAddressRotation =>
+      hasAddressList && walletType != WalletType.zcash && addressType.canRotateAddress;
 
-  Money? get amountInInputCurrency =>
-      inputCurrency is FiatCurrency ? fiatEquivalent : requestedAmount;
+  Money? get amountInInputCurrency => fiatCurrency != null ? fiatEquivalent : requestedAmount;
+
+  String get qrEmbeddedIcon {
+    final token = tokenCurrency;
+    if (token != null && token != CryptoCurrency.btcln) {
+      return token.iconPath ?? getQrImage(walletType);
+    }
+    if (isLightning) {
+      return "assets/images/btc_chain_qr_lightning.svg";
+    }
+    return getQrImage(walletType);
+  }
 
   ReceiveLoaded copyWith({
     AddressEntry? addressEntry,
     ReceivePageOption? addressType,
-    List<ReceivePageOption>? addressTypeOptions,
-    Currency? inputCurrency,
-    CryptoCurrency? tokenCurrency,
-    bool clearTokenCurrency = false,
-    List<CryptoCurrency>? receivableTokens,
-    Money? requestedAmount,
-    bool clearRequestedAmount = false,
-    Money? fiatEquivalent,
-    bool clearFiatEquivalent = false,
+    CryptoCurrency? cryptoCurrency,
+    ValueGetter<FiatCurrency?>? fiatCurrency,
+    ValueGetter<Money?>? requestedAmount,
+    ValueGetter<Money?>? fiatEquivalent,
     bool? isInfoboxDismissed,
     bool? isFetchingInvoice,
     bool? isRotatingAddress,
@@ -117,25 +120,17 @@ final class ReceiveLoaded extends ReceiveState {
     PaymentURI? paymentUri,
     bool? isSilentPayments,
     bool? isLightning,
-    AutoGenerateSubaddressStatus? autoGenerateSubaddressStatus,
     bool? isZCashTransparent,
-    bool? inputUsesSats,
-    String? walletId,
-    WalletType? walletType,
-    CryptoCurrency? walletCurrency,
-    bool? hasTokens,
-    ReceiveFailureCode? failureCode,
-    bool clearFailureCode = false,
   }) =>
       ReceiveLoaded(
         addressEntry: addressEntry ?? this.addressEntry,
         addressType: addressType ?? this.addressType,
-        addressTypeOptions: addressTypeOptions ?? this.addressTypeOptions,
-        inputCurrency: inputCurrency ?? this.inputCurrency,
-        tokenCurrency: clearTokenCurrency ? null : (tokenCurrency ?? this.tokenCurrency),
-        receivableTokens: receivableTokens ?? this.receivableTokens,
-        requestedAmount: clearRequestedAmount ? null : (requestedAmount ?? this.requestedAmount),
-        fiatEquivalent: clearFiatEquivalent ? null : (fiatEquivalent ?? this.fiatEquivalent),
+        addressTypeOptions: addressTypeOptions,
+        cryptoCurrency: cryptoCurrency ?? this.cryptoCurrency,
+        fiatCurrency: fiatCurrency != null ? fiatCurrency() : this.fiatCurrency,
+        receivableTokens: receivableTokens,
+        requestedAmount: requestedAmount != null ? requestedAmount() : this.requestedAmount,
+        fiatEquivalent: fiatEquivalent != null ? fiatEquivalent() : this.fiatEquivalent,
         isInfoboxDismissed: isInfoboxDismissed ?? this.isInfoboxDismissed,
         isFetchingInvoice: isFetchingInvoice ?? this.isFetchingInvoice,
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
@@ -143,15 +138,11 @@ final class ReceiveLoaded extends ReceiveState {
         paymentUri: paymentUri ?? this.paymentUri,
         isSilentPayments: isSilentPayments ?? this.isSilentPayments,
         isLightning: isLightning ?? this.isLightning,
-        autoGenerateSubaddressStatus:
-            autoGenerateSubaddressStatus ?? this.autoGenerateSubaddressStatus,
         isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
-        inputUsesSats: inputUsesSats ?? this.inputUsesSats,
-        walletId: walletId ?? this.walletId,
-        walletType: walletType ?? this.walletType,
-        walletCurrency: walletCurrency ?? this.walletCurrency,
-        hasTokens: hasTokens ?? this.hasTokens,
-        failureCode: clearFailureCode ? null : (failureCode ?? this.failureCode),
+        walletId: walletId,
+        walletType: walletType,
+        walletCurrency: walletCurrency,
+        hasTokens: hasTokens,
       );
 
   @override
@@ -159,8 +150,8 @@ final class ReceiveLoaded extends ReceiveState {
         addressEntry,
         addressType,
         addressTypeOptions,
-        inputCurrency,
-        tokenCurrency,
+        cryptoCurrency,
+        fiatCurrency,
         receivableTokens,
         requestedAmount,
         fiatEquivalent,
@@ -171,31 +162,16 @@ final class ReceiveLoaded extends ReceiveState {
         paymentUri.toString(),
         isSilentPayments,
         isLightning,
-        autoGenerateSubaddressStatus,
         isZCashTransparent,
-        inputUsesSats,
         walletId,
         walletType,
         walletCurrency,
         hasTokens,
-        failureCode,
       ];
 }
 
 final class ReceiveFailure extends ReceiveState {
-  const ReceiveFailure(this.code);
+  const ReceiveFailure();
 
-  final ReceiveFailureCode code;
-
-  @override
-  List<Object?> get props => [code];
-}
-
-enum ReceiveFailureCode {
-  addressListUnavailable,
-  addressTypeChangeFailed,
-  addressRotationFailed,
-  labelUpdateFailed,
-  invoiceFetchFailed,
-  fiatRateUnavailable,
+  String get message => S.current.receive_error_address_list;
 }

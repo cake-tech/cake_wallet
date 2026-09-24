@@ -32,6 +32,7 @@ class ReceiveInfoBox extends StatelessWidget {
     switch (type) {
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.none:
         return null;
@@ -56,7 +57,6 @@ class ReceiveInfoBox extends StatelessWidget {
           ),
         );
       case WalletType.monero:
-      case WalletType.wownero:
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

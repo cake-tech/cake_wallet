@@ -1,49 +1,71 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/use_base_unit_provider.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-class ReceiveAmountModal extends StatefulWidget {
-  const ReceiveAmountModal({
+class ReceiveAmountModal extends StatelessWidget {
+  const ReceiveAmountModal({required this.bloc, required this.amountAtOpen, super.key});
+
+  final ReceiveBloc bloc;
+  final Money? amountAtOpen;
+
+  @override
+  Widget build(BuildContext context) => BlocBuilder<ReceiveBloc, ReceiveState>(
+        bloc: bloc,
+        buildWhen: (_, next) => next is ReceiveLoaded,
+        builder: (context, state) {
+          if (state is! ReceiveLoaded) {
+            return const SizedBox.shrink();
+          }
+
+          return _AmountForm(
+            key: ValueKey(state.cryptoCurrency),
+            bloc: bloc,
+            state: state,
+            initialAmount: state.amountInInputCurrency ?? amountAtOpen,
+            useBaseUnit: BaseUnit.useBaseUnitOf(context, state.inputCurrency),
+          );
+        },
+      );
+}
+
+class _AmountForm extends StatefulWidget {
+  const _AmountForm({
+    required this.bloc,
+    required this.state,
     required this.initialAmount,
-    required this.selectedCurrency,
-    required this.useSatoshi,
-    required this.showTokenPicker,
-    required this.token,
-    required this.onAmountSubmitted,
-    required this.onCurrencyPickerTap,
-    required this.onTokenPickerTap,
+    required this.useBaseUnit,
     super.key,
   });
 
+  final ReceiveBloc bloc;
+  final ReceiveLoaded state;
   final Money? initialAmount;
-  final Currency selectedCurrency;
-  final bool useSatoshi;
-  final bool showTokenPicker;
-  final CryptoCurrency token;
-  final void Function(Money? amount) onAmountSubmitted;
-  final VoidCallback onCurrencyPickerTap;
-  final VoidCallback onTokenPickerTap;
+  final bool useBaseUnit;
 
   @override
-  State<ReceiveAmountModal> createState() => _ReceiveAmountModalState();
+  State<_AmountForm> createState() => _AmountFormState();
 }
 
-class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
+class _AmountFormState extends State<_AmountForm> {
   late final TextEditingController _amountController;
 
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-      text: widget.initialAmount?.toStringWithPrecision(useBaseUnit: widget.useSatoshi) ?? "",
+      text: widget.initialAmount?.toStringWithPrecision(useBaseUnit: widget.useBaseUnit) ?? "",
     );
   }
 
@@ -53,12 +75,30 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
     super.dispose();
   }
 
-  int get _inputDecimals => widget.useSatoshi ? 0 : widget.selectedCurrency.decimals;
+  int get _inputDecimals => widget.useBaseUnit ? 0 : widget.state.inputCurrency.decimals;
 
   Money? _parseAmount(String raw) => Money.tryParse(
         raw.replaceAll(",", "."),
-        widget.selectedCurrency,
-        isBaseUnit: widget.useSatoshi,
+        widget.state.inputCurrency,
+        isBaseUnit: widget.useBaseUnit,
+      );
+
+  Future<void> _pickInputCurrency() => FiatCurrencyPickerSheet.show(
+        context: context,
+        selected: widget.state.inputCurrency,
+        cryptoOption: widget.state.cryptoCurrency,
+        onSelected: (fiat) => widget.bloc.add(InputCurrencySelected(fiat)),
+        onCryptoSelected: (crypto) => widget.bloc.add(InputCurrencySelected(crypto)),
+      );
+
+  Future<void> _pickToken() => CurrencyPickerSheet.show(
+        context: context,
+        args: CurrencyPickerArgs(
+          items: widget.state.receivableTokens,
+          selected: widget.state.tokenCurrency,
+          onSelected: (currency) => widget.bloc.add(TokenSelected(currency)),
+          symbolResolver: (c) => c.title,
+        ),
       );
 
   String get _amountHint {
@@ -95,7 +135,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 12,
                     children: [
-                      if (widget.showTokenPicker) ...[
+                      if (widget.state.hasTokens) ...[
                         // The caption is reused as the picker's semantics label,
                         // so it must not be announced as a separate node.
                         ExcludeSemantics(child: Text(S.of(context).token)),
@@ -104,7 +144,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                             button: true,
                             label: S.of(context).select_token,
                             child: GestureDetector(
-                              onTap: widget.onTokenPickerTap,
+                              onTap: _pickToken,
                               child: Container(
                                 height: 60,
                                 decoration: BoxDecoration(
@@ -121,11 +161,11 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                         children: [
                                           ExcludeSemantics(
                                             child: TokenImageWidget(
-                                              imageUrl: widget.token.iconPath ?? "",
+                                              imageUrl: widget.state.cryptoCurrency.iconPath ?? "",
                                               size: 32,
                                             ),
                                           ),
-                                          CurrencySymbolText(widget.token),
+                                          CurrencySymbolText(widget.state.cryptoCurrency),
                                         ],
                                       ),
                                       const ExcludeSemantics(
@@ -211,7 +251,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                 button: true,
                                 label: S.of(context).select_fiat_currency_title,
                                 child: GestureDetector(
-                                  onTap: widget.onCurrencyPickerTap,
+                                  onTap: _pickInputCurrency,
                                   child: Container(
                                     height: 60,
                                     decoration: BoxDecoration(
@@ -226,7 +266,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                       spacing: 4,
                                       children: [
                                         CurrencySymbolText(
-                                          widget.selectedCurrency,
+                                          widget.state.inputCurrency,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurface,
                                           ),
@@ -252,11 +292,11 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                         onPressed: () {
                           final raw = _amountController.text.trim();
                           if (raw.isEmpty) {
-                            widget.onAmountSubmitted(null);
+                            widget.bloc.add(const AmountChanged(null));
                           } else {
                             final amount = _parseAmount(raw);
                             if (amount != null) {
-                              widget.onAmountSubmitted(amount);
+                              widget.bloc.add(AmountChanged(amount));
                             }
                           }
                           Navigator.of(context).pop();

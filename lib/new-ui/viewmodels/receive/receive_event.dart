@@ -4,10 +4,8 @@ sealed class ReceiveEvent {
   const ReceiveEvent();
 }
 
-final class ReceiveOpened extends ReceiveEvent {
-  const ReceiveOpened({this.initialToken});
-
-  final CryptoCurrency? initialToken;
+final class Init extends ReceiveEvent {
+  const Init();
 }
 
 final class AmountChanged extends ReceiveEvent {

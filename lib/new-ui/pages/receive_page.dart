@@ -1,10 +1,7 @@
-import "package:cake_wallet/di.dart";
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
-import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
-import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
-import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_display.dart";
@@ -21,11 +18,10 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/utils/qr_util.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/utils/share_util.dart";
-import "package:cake_wallet/utils/show_bar.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/zcash/zcash.dart";
-import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -35,21 +31,19 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class ReceivePage extends StatelessWidget {
-  const ReceivePage({super.key, this.initialToken});
+  const ReceivePage({required this.bloc, super.key});
 
-  final CryptoCurrency? initialToken;
+  final ReceiveBloc bloc;
 
   @override
   Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
-        create: (_) => getIt<ReceiveBloc>(param1: initialToken),
-        child: _ReceivePageBody(initialToken: initialToken),
+        create: (_) => bloc,
+        child: const _ReceivePageBody(),
       );
 }
 
 class _ReceivePageBody extends StatefulWidget {
-  const _ReceivePageBody({required this.initialToken});
-
-  final CryptoCurrency? initialToken;
+  const _ReceivePageBody();
 
   @override
   State<_ReceivePageBody> createState() => _ReceivePageBodyState();
@@ -72,30 +66,27 @@ class _ReceivePageBodyState extends State<_ReceivePageBody> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
-          child: BlocConsumer<ReceiveBloc, ReceiveState>(
-            listenWhen: (previous, current) {
-              final prev = previous is ReceiveLoaded ? previous.failureCode : null;
-              final curr = current is ReceiveLoaded ? current.failureCode : null;
-              return curr != null && curr != prev;
-            },
-            listener: (context, state) {
-              if (state is! ReceiveLoaded || state.failureCode == null) {
-                return;
-              }
-              showBar(context, _failureMessage(context, state.failureCode!));
-            },
-            builder: (context, state) => switch (state) {
-              ReceiveLoading() => const _LoadingWidget(),
-              ReceiveFailure() => _FailureWidget(
-                  code: state.code,
-                  initialToken: widget.initialToken,
-                ),
-              ReceiveLoaded() => _LoadedWidget(
-                  state: state,
-                  largeQrMode: _largeQrMode,
-                  onQrTap: () => _toggleLargeQr(context, state),
-                ),
-            },
+          child: BlocPresentationListener<ReceiveBloc, ReceivePresentation>(
+            listener: (context, event) => showPopUp<void>(
+              context: context,
+              builder: (dialogContext) => AlertWithOneAction(
+                alertTitle: S.of(dialogContext).error,
+                alertContent: event.message,
+                buttonText: S.of(dialogContext).ok,
+                buttonAction: () => Navigator.of(dialogContext).pop(),
+              ),
+            ),
+            child: BlocBuilder<ReceiveBloc, ReceiveState>(
+              builder: (context, state) => switch (state) {
+                ReceiveLoading() => const _LoadingWidget(),
+                ReceiveFailure() => _FailureWidget(message: state.message),
+                ReceiveLoaded() => _LoadedWidget(
+                    state: state,
+                    largeQrMode: _largeQrMode,
+                    onQrTap: () => _toggleLargeQr(context, state),
+                  ),
+              },
+            ),
           ),
         ),
       );
@@ -125,27 +116,13 @@ class _LoadingWidget extends StatelessWidget {
       );
 }
 
-String _failureMessage(BuildContext context, ReceiveFailureCode code) => switch (code) {
-      ReceiveFailureCode.addressListUnavailable => S.of(context).receive_error_address_list,
-      ReceiveFailureCode.addressTypeChangeFailed => S.of(context).receive_error_address_type,
-      ReceiveFailureCode.addressRotationFailed => S.of(context).receive_error_address_rotation,
-      ReceiveFailureCode.labelUpdateFailed => S.of(context).receive_error_label_update,
-      ReceiveFailureCode.invoiceFetchFailed => S.of(context).receive_error_invoice,
-      ReceiveFailureCode.fiatRateUnavailable => S.of(context).receive_error_fiat_rate,
-    };
-
 class _FailureWidget extends StatelessWidget {
-  const _FailureWidget({
-    required this.code,
-    required this.initialToken,
-  });
+  const _FailureWidget({required this.message});
 
-  final ReceiveFailureCode code;
-  final CryptoCurrency? initialToken;
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    final message = _failureMessage(context, code);
     return Column(
       children: [
         ModalTopBar(
@@ -162,9 +139,7 @@ class _FailureWidget extends StatelessWidget {
               children: [
                 Text(message),
                 TextButton(
-                  onPressed: () => context.read<ReceiveBloc>().add(
-                        ReceiveOpened(initialToken: initialToken),
-                      ),
+                  onPressed: () => context.read<ReceiveBloc>().add(const Init()),
                   child: Text(S.of(context).try_again),
                 ),
               ],
@@ -198,12 +173,11 @@ class _LoadedWidget extends StatelessWidget {
       onDismissed: () => context.read<ReceiveBloc>().add(const InfoboxDismissed()),
       autoGenerateSubaddressStatus: state.isLightning
           ? AutoGenerateSubaddressStatus.disabled
-          : state.autoGenerateSubaddressStatus,
-      addressRotates: state.walletType != WalletType.zcash ||
-          state.addressType == null ||
-          zcash!.isRotatingAddressOption(state.addressType!),
+          : context.read<ReceiveBloc>().autoGenerateSubaddressStatus,
+      addressRotates:
+          state.walletType != WalletType.zcash || zcash!.isRotatingAddressOption(state.addressType),
     );
-    final isRotationAvailable = state.hasAddressRotation && !_isMwebOption(state.addressType);
+    final isRotationAvailable = state.hasAddressRotation;
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -253,7 +227,7 @@ class _LoadedWidget extends StatelessWidget {
               ),
               ReceiveQrCode(
                 qrData: state.paymentUri.toString(),
-                embeddedIconAsset: _qrEmbeddedIcon(state),
+                embeddedIconAsset: state.qrEmbeddedIcon,
                 hasPayjoin: state.hasPayjoin,
                 largeQrMode: largeQrMode,
                 onTap: onQrTap,
@@ -264,9 +238,9 @@ class _LoadedWidget extends StatelessWidget {
                   token: state.tokenCurrency!,
                   walletType: state.walletType,
                 ),
-              if (hasAddressTypeSelector && state.addressType != null)
+              if (hasAddressTypeSelector)
                 ReceiveAddressTypeDisplay(
-                  selected: state.addressType!,
+                  selected: state.addressType,
                   walletType: state.walletType,
                   largeQrMode: largeQrMode,
                   onTap: () => _showAddressTypePicker(context, state),
@@ -331,23 +305,6 @@ class _LoadedWidget extends StatelessWidget {
     );
   }
 
-  bool _isMwebOption(ReceivePageOption? option) {
-    if (option == null) {
-      return false;
-    }
-    return (option.description ?? "").toLowerCase().contains("mweb");
-  }
-
-  String _qrEmbeddedIcon(ReceiveLoaded state) {
-    if (state.tokenCurrency != null && state.tokenCurrency != CryptoCurrency.btcln) {
-      return state.tokenCurrency!.iconPath ?? getQrImage(state.walletType);
-    }
-    if (state.isLightning) {
-      return "assets/images/btc_chain_qr_lightning.svg";
-    }
-    return getQrImage(state.walletType);
-  }
-
   void _showPayjoinCopyModal(BuildContext context, ReceiveLoaded state) {
     showModalBottomSheet<void>(
       isScrollControlled: true,
@@ -361,93 +318,36 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _showLabelModal(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    await showMaterialModalBottomSheet<String>(
+    final label = await showMaterialModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(80),
-      builder: (_) => ReceiveLabelModal(
-        initialLabel: state.addressEntry.label ?? "",
-        onSubmit: (label) async => bloc.add(LabelSubmitted(label)),
-      ),
+      builder: (_) => ReceiveLabelModal(initialLabel: state.addressEntry.label ?? ""),
     );
+    if (label != null && !bloc.isClosed) {
+      bloc.add(LabelSubmitted(label));
+    }
   }
 
-  Future<void> _showAmountModal(BuildContext context, ReceiveLoaded initialState) async {
+  Future<void> _showAmountModal(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    final amountAtOpen = initialState.amountInInputCurrency;
-
     await showMaterialModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(80),
-      builder: (_) => BlocProvider<ReceiveBloc>.value(
-        value: bloc,
-        child: BlocBuilder<ReceiveBloc, ReceiveState>(
-          buildWhen: (a, b) => b is ReceiveLoaded,
-          builder: (context, state) {
-            if (state is! ReceiveLoaded) {
-              return const SizedBox.shrink();
-            }
-            final displayCrypto = state.tokenCurrency ?? state.walletCurrency;
-            final modalKey = ValueKey<String>(state.tokenCurrency?.title ?? "wallet");
-            return ReceiveAmountModal(
-              key: modalKey,
-              initialAmount: state.amountInInputCurrency ?? amountAtOpen,
-              selectedCurrency: state.inputCurrency,
-              useSatoshi: state.inputUsesSats,
-              showTokenPicker: state.hasTokens,
-              token: displayCrypto,
-              onAmountSubmitted: (amount) => bloc.add(AmountChanged(amount)),
-              onCurrencyPickerTap: () => _pickInputCurrency(context, state, bloc),
-              onTokenPickerTap: () => _pickToken(context, state, bloc),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<void> _pickInputCurrency(
-    BuildContext context,
-    ReceiveLoaded state,
-    ReceiveBloc bloc,
-  ) async {
-    final cryptoOption = state.tokenCurrency ?? state.walletCurrency;
-    await FiatCurrencyPickerSheet.show(
-      context: context,
-      selected: state.inputCurrency,
-      cryptoOption: cryptoOption,
-      onSelected: (fiat) => bloc.add(InputCurrencySelected(fiat)),
-      onCryptoSelected: (crypto) => bloc.add(InputCurrencySelected(crypto)),
-    );
-  }
-
-  Future<void> _pickToken(
-    BuildContext context,
-    ReceiveLoaded state,
-    ReceiveBloc bloc,
-  ) async {
-    await CurrencyPickerSheet.show(
-      context: context,
-      args: CurrencyPickerArgs(
-        items: state.receivableTokens,
-        selected: state.tokenCurrency,
-        onSelected: (currency) => bloc.add(TokenSelected(currency)),
-        symbolResolver: (c) => c.title,
-      ),
+      builder: (_) => ReceiveAmountModal(bloc: bloc, amountAtOpen: state.amountInInputCurrency),
     );
   }
 
   Future<void> _showAddressTypePicker(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    final currentSelected = state.addressType ?? ReceivePageOption.mainnet;
     final selected = await showCupertinoModalBottomSheet<ReceivePageOption>(
       context: context,
       barrierColor: Colors.black.withAlpha(80),
       builder: (_) => Material(
         child: ReceiveAddressTypeSelector(
           options: state.addressTypeOptions,
-          selected: currentSelected,
+          selected: state.addressType,
           walletType: state.walletType,
         ),
       ),

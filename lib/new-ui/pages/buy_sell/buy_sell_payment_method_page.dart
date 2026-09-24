@@ -16,63 +16,66 @@ class BuySellPaymentMethodPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-      gradient: LinearGradient(
-        colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surfaceDim],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    ),
-    child: SafeArea(
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: S.of(context).payment_method,
-            leadingIcon: const Icon(Icons.arrow_back_ios_new),
-            onLeadingPressed: Navigator.of(context).pop,
-            leadingSemanticLabel: S.of(context).seed_alert_back,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceDim,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Observer(
-                builder: (_) => NewListSections(
-                  sections: {
-                    "": buySellViewModel.paymentMethods
-                        .map(
-                          (item) => ListItemRegularRow(
-                            keyValue: item.title,
-                            label: item.title,
-                            showArrow: false,
-                            iconPath: Theme.of(context).brightness == Brightness.light
-                                ? item.lightIconPath
-                                : item.darkIconPath,
-                            iconColor: item.paymentMethodType.isMonochromeIcon
-                                ? Theme.of(context).colorScheme.onSurfaceVariant
-                                : null,
-                            trailingWidget: buySellViewModel.selectedPaymentMethod == item
-                                ? Icon(
-                                    Icons.check,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    size: 16,
-                                  )
-                                : null,
-                            onTap: () {
-                              buySellViewModel.changeOption(item);
-                              unawaited(buySellViewModel.calculateBestRate());
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        )
-                        .toList(),
-                  },
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              ModalTopBar(
+                title: S.of(context).payment_method,
+                leadingIcon: const Icon(Icons.arrow_back_ios_new),
+                onLeadingPressed: Navigator.of(context).pop,
+                leadingSemanticLabel: S.of(context).seed_alert_back,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Observer(
+                    builder: (_) => NewListSections(
+                      sections: {
+                        "": buySellViewModel.paymentMethods
+                            .map(
+                              (item) => ListItemRegularRow(
+                                keyValue: item.title,
+                                label: item.title,
+                                showArrow: false,
+                                iconPath: Theme.of(context).brightness == Brightness.light
+                                    ? item.lightIconPath
+                                    : item.darkIconPath,
+                                iconColor: item.paymentMethodType.isMonochromeIcon
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : null,
+                                trailingWidget: buySellViewModel.selectedPaymentMethod == item
+                                    ? Icon(
+                                        Icons.check,
+                                        color: Theme.of(context).colorScheme.primary,
+                                        size: 16,
+                                      )
+                                    : null,
+                                onTap: () {
+                                  buySellViewModel.changeOption(item);
+                                  unawaited(buySellViewModel.calculateBestRate());
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            )
+                            .toList(),
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 }
