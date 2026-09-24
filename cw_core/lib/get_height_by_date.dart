@@ -1,6 +1,5 @@
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'package:cw_core/get_height_by_date_xmr.dart';
 import 'dart:convert';
@@ -8,7 +7,7 @@ import 'dart:convert';
 // FIXME: Hardcoded values; Works only for monero
 
 int getMoneroHeigthByDate({required DateTime date}) =>
-    MoneroHeight.getBlockHeightByTime(date..subtract(Duration(days: 1)));
+    MoneroHeight.getBlockHeightByTime(date.subtract(const Duration(days: 1)));
 
 const havenDates = {
   "2023-05": 1352995,

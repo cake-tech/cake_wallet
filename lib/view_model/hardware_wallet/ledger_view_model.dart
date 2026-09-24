@@ -142,6 +142,14 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       ledgerPlusUSB.devices.then((devices) => devices.map(LedgerHardwareWalletDevice.new).toList());
 
   @override
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async {
+    if (!_bleIsInitialized) {
+      return const [];
+    }
+    return (await ledgerPlusBLE.devices).map(LedgerHardwareWalletDevice.new).toList();
+  }
+
+  @override
   Future<void> stopScanning() async {
     if (_bleIsInitialized) {
       await ledgerPlusBLE.stopScanning();

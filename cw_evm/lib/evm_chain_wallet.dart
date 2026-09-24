@@ -42,7 +42,6 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:eth_sig_util/eth_sig_util.dart';
 
 import 'contract/erc20.dart';
 import 'evm_chain_transaction_info.dart';
@@ -269,7 +268,13 @@ abstract class EVMChainWalletBase
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
-    return (await sharedPrefs.future).getBool(key) ?? true;
+
+    try {
+      return (await sharedPrefs.future).getBool(key) ?? true;
+    } catch (e) {
+      printV("Could not read the $key preference: $e");
+      return false;
+    }
   }
 
   EVMChainTransactionInfo getTransactionInfo(
@@ -1126,6 +1131,10 @@ abstract class EVMChainWalletBase
 
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return {};
+    }
+
     final List<EVMChainTransactionModel> transactions = [];
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -1559,26 +1568,46 @@ abstract class EVMChainWalletBase
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 
   @override
-  Future<String> signMessage(String message, {String? address}) async {
-    return bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
-  }
+  Future<String> signMessage(String message, {String? address}) async =>
+      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(utf8.encode(message)));
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
-    if (address == null) {
+    if (address == null || address.isEmpty) {
       return false;
     }
-    final recoveredAddress = EthSigUtil.recoverPersonalSignature(
-      message: ascii.encode(message),
-      signature: signature,
-    );
-    return recoveredAddress.toUpperCase() == address.toUpperCase();
+
+    try {
+      final signatureBytes = hexToBytes(signature.trim().toLowerCase());
+      if (signatureBytes.length != 65) {
+        return false;
+      }
+
+      final messageBytes = utf8.encode(message);
+      final prefixedMessage = Uint8List.fromList(
+        ascii.encode("\x19Ethereum Signed Message:\n${messageBytes.length}") + messageBytes,
+      );
+      final v = signatureBytes[64] < 27 ? signatureBytes[64] + 27 : signatureBytes[64];
+      final publicKey = ecRecover(
+        keccak256(prefixedMessage),
+        MsgSignature(
+          bytesToUnsignedInt(signatureBytes.sublist(0, 32)),
+          bytesToUnsignedInt(signatureBytes.sublist(32, 64)),
+          v,
+        ),
+      );
+
+      final paddedPublicKey = Uint8List(64)..setRange(64 - publicKey.length, 64, publicKey);
+      final recoveredAddress = EthereumAddress.fromPublicKey(paddedPublicKey);
+      return recoveredAddress.hexNo0x == strip0x(address.trim().toLowerCase());
+    } catch (e) {
+      printV("Failed to verify EVM message signature: $e");
+      return false;
+    }
   }
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();

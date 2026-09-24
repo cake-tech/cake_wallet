@@ -131,7 +131,7 @@ dependencies:
   trezor_flutter:
     git:
       url: https://github.com/cake-tech/trezor-flutter.git
-      ref: f5121b1f3a06000ff836da8e6e6c83f53a9fa487
+      ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
       path: trezor-flutter
   bitbox_flutter:
     path: ./scripts/bitbox_flutter
@@ -166,7 +166,7 @@ dependencies:
   torch_dart:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
-  fl_chart: ^0.70.2
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -234,7 +234,7 @@ dev_dependencies:
 #   universal_ble:
 #     git:
 #       url: https://github.com/cake-tech/universal_ble.git
-#       ref: 6735c1bdf7f42c501d51c20564eb957c3a12b981
+#       ref: 9952fc72ded48891844d7786c0fa14c4cae1ce0b
 #   flutter_secure_storage:
 #     git:
 #       url: https://github.com/cake-tech/flutter_secure_storage.git
@@ -312,15 +312,10 @@ flutter:
     - assets/new-ui/hardware_wallets/
     - assets/new-ui/node_speed_badges/
     - assets/new-ui/address_sources/
+    - assets/new-ui/buy_payment_methods/
+    - assets/new-ui/charts_sort_criteria/
 
   fonts:
-    - family: Lato
-      fonts:
-        - asset: assets/fonts/Lato-Regular.ttf
-        - asset: assets/fonts/Lato-Medium.ttf
-        - asset: assets/fonts/Lato-Semibold.ttf
-        - asset: assets/fonts/Lato-Bold.ttf
-
     - family: Wix Madefor Text
       fonts:
         - asset: assets/fonts/WixMadeforText-Regular.ttf

@@ -28,7 +28,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   String get title => 'Exolix';
 
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => false;
 
   @override
   bool get isEnabled => true;
