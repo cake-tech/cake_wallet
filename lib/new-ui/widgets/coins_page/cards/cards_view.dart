@@ -40,7 +40,6 @@ class CardsView extends StatefulWidget {
 
   final void Function(int oldRealIndex, int newRealIndex)? onReorder;
 
-  @override
   _CardsViewState createState() => _CardsViewState();
 }
 
@@ -65,14 +64,6 @@ class _CardsViewState extends State<CardsView> {
 
   final List<ReactionDisposer> _disposers = [];
 
-  void _recomputeSelectedIndex() {
-    if (!mounted) return;
-    if (_dragVisualIndex != null) return;
-    setState(() {
-      _selectedIndex = _currentSelectedVisualIndex();
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -80,22 +71,46 @@ class _CardsViewState extends State<CardsView> {
 
     _disposers.add(reaction(
           (_) => widget.dashboardViewModel.cardOrder.values.toList(),
-          (_) => _recomputeSelectedIndex(),
+          (_) {
+        if (!mounted) return;
+        if (_dragVisualIndex != null) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
     ));
 
     _disposers.add(reaction(
           (_) => widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id,
-          (_) => _recomputeSelectedIndex(),
+          (_) {
+        if (!mounted) return;
+        if (_dragVisualIndex != null) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
     ));
 
     _disposers.add(reaction(
           (_) => widget.dashboardViewModel.accountListViewModel?.accounts.length,
-          (_) => _recomputeSelectedIndex(),
+          (_) {
+        if (!mounted) return;
+        if (_dragVisualIndex != null) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
     ));
 
     _disposers.add(reaction(
           (_) => widget.dashboardViewModel.isMultiAccountsEnabled,
-          (_) => _recomputeSelectedIndex(),
+          (_) {
+        if (!mounted) return;
+        if (_dragVisualIndex != null) return;
+        setState(() {
+          _selectedIndex = _currentSelectedVisualIndex();
+        });
+      },
     ));
   }
 
@@ -135,12 +150,6 @@ class _CardsViewState extends State<CardsView> {
     return visualIndex;
   }
 
-  /// Bitcoin without multi-accounts behaves like a single-account wallet:
-  /// no account name, no account balance, generic accessibility label.
-  bool get _hideAccountInfo =>
-      widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
-          !widget.dashboardViewModel.isMultiAccountsEnabled;
-
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       bool compactMode, double overlapAmount) {
     final accountListViewModel = widget.dashboardViewModel.accountListViewModel;
@@ -159,7 +168,9 @@ class _CardsViewState extends State<CardsView> {
     final isSelected = _selectedIndex == visualIndex;
     final isDragged = _dragVisualIndex == visualIndex;
     final accounts = accountListViewModel?.accounts;
-    final cardLabel = (!_hideAccountInfo && accounts != null && realIndex < accounts.length)
+    final hideAccountLabel = widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
+        !widget.dashboardViewModel.isMultiAccountsEnabled;
+    final cardLabel = (!hideAccountLabel && accounts != null && realIndex < accounts.length)
         ? accounts[realIndex].label
         : S.of(context).balance;
 
@@ -246,9 +257,13 @@ class _CardsViewState extends State<CardsView> {
             cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
           }
 
+          // Bitcoin without multi-accounts: behave like a single-account wallet, no account name
+          final hideAccountInfo = widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
+              !widget.dashboardViewModel.isMultiAccountsEnabled;
+
           final String accountName;
           final String accountBalance;
-          if (account == null || _hideAccountInfo) {
+          if (account == null || hideAccountInfo) {
             accountName = "";
             accountBalance = "";
           } else {
@@ -264,7 +279,7 @@ class _CardsViewState extends State<CardsView> {
             width: effectiveCardWidth,
             accountName: accountName,
             accountBalance: accountBalance,
-            designSwitchDuration: const Duration(milliseconds: 150),
+            designSwitchDuration: Duration(milliseconds: 150),
             assetName: assetName,
             capitalizeAssetName: _shouldCapitalizeAssetName(),
             balance: walletBalance,
@@ -299,40 +314,40 @@ class _CardsViewState extends State<CardsView> {
   }
 
   Widget _wrapDraggable(
-      int visualIndex, int realIndex, int numCards, bool isDragged, Widget cardChild) =>
-      DragTarget<int>(
-        onWillAcceptWithDetails: (details) {
-          if (details.data == visualIndex) return false;
-          if (_hoverVisualIndex != visualIndex) {
-            setState(() => _hoverVisualIndex = visualIndex);
-          }
-          return true;
+      int visualIndex, int realIndex, int numCards, bool isDragged, Widget cardChild) => DragTarget<int>(
+    onWillAcceptWithDetails: (details) {
+      if (details.data == visualIndex) return false;
+      if (_hoverVisualIndex != visualIndex) {
+        setState(() => _hoverVisualIndex = visualIndex);
+      }
+      return true;
+    },
+    onAcceptWithDetails: (details) {
+      final fromVisual = details.data;
+      final toVisual = _hoverVisualIndex ?? visualIndex;
+      _commitReorder(fromVisual, toVisual, numCards);
+    },
+    builder: (context, candidateData, rejectedData) {
+      return LongPressDraggable<int>(
+        data: visualIndex,
+        onDragStarted: () => setState(() {
+          _dragVisualIndex = visualIndex;
+          _hoverVisualIndex = visualIndex;
+        }),
+        onDraggableCanceled: (_, __) => _clearDrag(),
+        onDragEnd: (_) {
+          if (_dragVisualIndex != null) _clearDrag();
         },
-        onAcceptWithDetails: (details) {
-          final fromVisual = details.data;
-          final toVisual = _hoverVisualIndex ?? visualIndex;
-          _commitReorder(fromVisual, toVisual, numCards);
-        },
-        builder: (context, candidateData, rejectedData) {
-          return LongPressDraggable<int>(
-            data: visualIndex,
-            onDragStarted: () => setState(() {
-              _dragVisualIndex = visualIndex;
-              _hoverVisualIndex = visualIndex;
-            }),
-            onDraggableCanceled: (_, __) => _clearDrag(),
-            onDragEnd: (_) {
-              if (_dragVisualIndex != null) _clearDrag();
-            },
-            feedback: Material(
-              color: Colors.transparent,
-              child: SizedBox(width: effectiveCardWidth, child: cardChild),
-            ),
-            childWhenDragging: const SizedBox.shrink(),
-            child: cardChild,
-          );
-        },
+        feedback: Material(
+          color: Colors.transparent,
+          child: SizedBox(width: effectiveCardWidth, child: cardChild),
+        ),
+
+        childWhenDragging: const SizedBox.shrink(),
+        child: cardChild,
       );
+    },
+  );
 
   void _clearDrag() {
     if (!mounted) return;
@@ -393,8 +408,9 @@ class _CardsViewState extends State<CardsView> {
       return 1;
     }
 
-    // Bitcoin without multi-accounts: only the primary account card
-    if (_hideAccountInfo) {
+    final wallet = widget.dashboardViewModel.wallet;
+    if (wallet.type == WalletType.bitcoin &&
+        !widget.dashboardViewModel.isMultiAccountsEnabled) {
       return 1;
     }
 
@@ -483,12 +499,12 @@ class _CardsViewState extends State<CardsView> {
 
           final realIndex = _realIndexForVisualIndex(visualIndex, numCards);
 
-          children.add(_buildCard(
-              visualIndex, realIndex, numCards, parentWidth, compactMode, overlapAmount));
+          children.add(
+              _buildCard(visualIndex, realIndex, numCards, parentWidth, compactMode, overlapAmount));
         }
 
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: Duration(milliseconds: 200),
           curve: Curves.easeOut,
           width: double.infinity,
           height: _getBoxHeight(numCards, overlapAmount),
