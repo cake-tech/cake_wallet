@@ -115,6 +115,7 @@ abstract class OtherSettingsViewModelBase with Store {
       WalletType.litecoin,
       WalletType.bitcoinCash,
       WalletType.dogecoin,
+      WalletType.pivx,
     ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
@@ -131,6 +132,7 @@ abstract class OtherSettingsViewModelBase with Store {
       WalletType.litecoin,
       WalletType.bitcoinCash,
       WalletType.dogecoin,
+      WalletType.pivx,
     ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);

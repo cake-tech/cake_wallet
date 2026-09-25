@@ -33,6 +33,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -172,6 +173,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialDecredTransactionPriority,
       TransactionPriority? initialZcashTransactionPriority,
       TransactionPriority? initialDogecoinTransactionPriority,
+      TransactionPriority? initialPivxTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -282,6 +284,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.dogecoin] = initialDogecoinTransactionPriority;
     }
 
+    if (initialPivxTransactionPriority != null) {
+      priority[WalletType.pivx] = initialPivxTransactionPriority;
+    }
+
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
     }
@@ -355,6 +361,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.dogecoin:
           key = PreferencesKey.dogecoinTransactionPriority;
+          break;
+        case WalletType.pivx:
+          key = PreferencesKey.pivxTransactionPriority;
           break;
         default:
           key = null;
@@ -1223,6 +1232,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? decredTransactionPriority;
     TransactionPriority? zcashTransactionPriority;
     TransactionPriority? dogecoinTransactionPriority;
+    TransactionPriority? pivxTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1274,6 +1284,10 @@ abstract class SettingsStoreBase with Store {
       dogecoinTransactionPriority = dogecoin?.deserializeDogeCoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.pivxTransactionPriority) != null) {
+      pivxTransactionPriority = pivx?.deserializePivxTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.pivxTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1290,6 +1304,7 @@ abstract class SettingsStoreBase with Store {
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
     zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
     dogecoinTransactionPriority ??= dogecoin?.getDefaultTransactionPriority();
+    pivxTransactionPriority ??= pivx?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1424,6 +1439,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final pivxNodeId = sharedPreferences.getInt(PreferencesKey.currentPivxNodeIdKey);
 
     final nodeSource = await Node.getAll();
     final powNodeSource = await Node.getAllPow();
@@ -1470,6 +1486,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
     final robinhoodNode = nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == robinhoodDefaultNodeUri);
+    final pivxNode = nodeSource.firstWhereOrNull((e) => e.id == pivxNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == pivxDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1580,6 +1598,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (pivxNode != null) {
+      nodes[WalletType.pivx] = pivxNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1790,6 +1812,7 @@ abstract class SettingsStoreBase with Store {
       initialDecredTransactionPriority: decredTransactionPriority,
       initialZcashTransactionPriority: zcashTransactionPriority,
       initialDogecoinTransactionPriority: dogecoinTransactionPriority,
+      initialPivxTransactionPriority: pivxTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1897,6 +1920,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
       priority[WalletType.dogecoin] = dogecoin!.deserializeDogeCoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
+    }
+    if (pivx != null &&
+        sharedPreferences.getInt(PreferencesKey.pivxTransactionPriority) != null) {
+      priority[WalletType.pivx] = pivx!.deserializePivxTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.pivxTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -2063,6 +2091,8 @@ abstract class SettingsStoreBase with Store {
     final zcashNode = await Node.get(zcashNodeId ?? -1);
     final decredNode = await Node.get(decredNodeId ?? -1);
     final dogecoinNode = await Node.get(dogecoinNodeId ?? -1);
+    final pivxNodeId = sharedPreferences.getInt(PreferencesKey.currentPivxNodeIdKey);
+    final pivxNode = await Node.get(pivxNodeId ?? -1);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -2138,6 +2168,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (pivxNode != null) {
+      nodes[WalletType.pivx] = pivxNode;
     }
 
     // MIGRATED:
@@ -2289,6 +2323,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zcash:
         await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);
+        break;
+      case WalletType.pivx:
+        await _sharedPreferences.setInt(PreferencesKey.currentPivxNodeIdKey, node.id);
         break;
       case WalletType.none:
         throw UnimplementedError();

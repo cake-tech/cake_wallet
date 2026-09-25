@@ -36,6 +36,7 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'exchange_trade_view_model.g.dart';
@@ -204,6 +205,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     output.setCryptoAmount(trade.amount);
     if (_provider is ThorChainExchangeProvider) output.memo = trade.memo ?? "";
     if (trade.isSendAll == true) output.sendAll = true;
+    // Matches the "any" swap quote: the wallet pays a plain deposit from coins
+    // first, then notes, and an exchange (EXM) deposit from coins only.
+    if (wallet.type == WalletType.pivx) {
+      sendViewModel.coinTypeToSpendFrom = UnspentCoinType.any;
+    }
   }
 
   @action
@@ -369,6 +375,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:
         return NanoURI(amount: amount, address: inputAddress);
+      case WalletType.pivx:
+        return PivxURI(amount: amount, address: inputAddress);
       case WalletType.zano:
         return ZanoURI(amount: amount, address: inputAddress);
       case WalletType.decred:
