@@ -51,6 +51,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.doge;
     case WalletType.zcash:
       return CryptoCurrency.zec;
+    case WalletType.pivx:
+      return CryptoCurrency.pivx;
     case WalletType.none:
       throw BadWalletTypeException(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency', type);
@@ -160,6 +162,8 @@ String? symbolIconPathForWalletType(WalletType type) {
       return "$prefix/zec-symbol.svg";
     case WalletType.nano:
       return "$prefix/xno-symbol.svg";
+    case WalletType.pivx:
+      return "$prefix/pivx-symbol.svg";
     case WalletType.wownero:
     case WalletType.haven:
     case WalletType.banano:

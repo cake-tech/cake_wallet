@@ -1,0 +1,17 @@
+-
+  uri: electrum02.chainster.org:50002
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: electrum01.chainster.org:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: electrum02.chainster.org:50001
+  useSSL: false
+  isEnabledForAutoSwitching: true
+-
+  uri: electrum01.chainster.org:50001
+  useSSL: false
+  isEnabledForAutoSwitching: true
