@@ -77,9 +77,9 @@ class CWDecred extends Decred {
   }
 
   @override
-  Future<void> generateNewAddress(Object wallet, String label) async {
+  Future<String> generateNewAddress(Object wallet, String label) {
     final decredWallet = wallet as DecredWallet;
-    await decredWallet.walletAddresses.generateNewAddress(label);
+    return decredWallet.walletAddresses.generateNewAddress(label);
   }
 
   @override

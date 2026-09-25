@@ -129,10 +129,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> generateNewAddress(Object wallet, String label) async {
+  Future<String> generateNewAddress(Object wallet, String label) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+    final record = bitcoinWallet.walletAddresses.generateNewAddress(label: label);
+    await Future<void>.delayed(Duration.zero);
     await wallet.save();
+    return record.address;
   }
 
   @override
@@ -321,25 +323,6 @@ class CWBitcoin extends Bitcoin {
   bool hasSelectedLightning(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.addressPageType is LightningAddressType;
-  }
-
-  @override
-  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
-    switch (option) {
-      case BitcoinReceivePageOption.p2pkh:
-        return P2pkhAddressType.p2pkh;
-      case BitcoinReceivePageOption.p2sh:
-        return P2shAddressType.p2wpkhInP2sh;
-      case BitcoinReceivePageOption.p2tr:
-        return SegwitAddresType.p2tr;
-      case BitcoinReceivePageOption.p2wsh:
-        return SegwitAddresType.p2wsh;
-      case BitcoinReceivePageOption.mweb:
-        return SegwitAddresType.mweb;
-      case BitcoinReceivePageOption.p2wpkh:
-      default:
-        return SegwitAddresType.p2wpkh;
-    }
   }
 
   @override
@@ -783,8 +766,7 @@ class CWBitcoin extends Bitcoin {
   @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    if (!isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? "";
   }
 
   @override

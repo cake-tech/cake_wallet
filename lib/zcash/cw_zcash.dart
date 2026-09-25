@@ -185,11 +185,6 @@ class CWZcash extends Zcash {
   }
 
   @override
-  dynamic getZcashAddressType(ReceivePageOption option) {
-    return (option as ZcashReceivePageOption).toType();
-  }
-
-  @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final zcashWallet = wallet as ZcashWallet;
     await (zcashWallet.walletAddresses as ZcashWalletAddresses)

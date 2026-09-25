@@ -209,7 +209,7 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet, String label);
+  Future<String> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
 
@@ -242,7 +242,6 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   ReceivePageOption getBitcoinLightningReceivePageOption();
   ReceivePageOption getBitcoinSegwitPageOption();
   ReceivePageOption getLitecoinMwebReceivePageOption();
@@ -1310,7 +1309,7 @@ abstract class Decred {
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
   Future<void> updateAddress(Object wallet, String address, String label);
-  Future<void> generateNewAddress(Object wallet, String label);
+  Future<String> generateNewAddress(Object wallet, String label);
 
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
@@ -1802,7 +1801,6 @@ abstract class Zcash {
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   ReceivePageOption getSelectedAddressType(Object wallet);
-  dynamic getZcashAddressType(ReceivePageOption option);
   bool hasSelectedTransparentAddress(Object wallet);
   bool isRotatingAddressOption(ReceivePageOption option);
   Future<void> setAddressType(Object wallet, dynamic option);

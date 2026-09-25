@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dar
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
+import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
@@ -401,7 +402,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.receiveAddresses:
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden:settings.arguments as bool)));
+          (context) => getIt.get<AddressesPage>(param1: settings.arguments as bool));
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
@@ -443,12 +444,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
         settings: settings,
       );
 
-
     case Routes.newReceivePage:
-        return handleRouteWithPlatformAwareness(
-          (context) => Material(child: getIt.get<NewReceivePage>(param1: false, param2: null)),
-          settings: settings,
-        );
+      return handleRouteWithPlatformAwareness(
+          (context) => Material(child: getIt.get<ReceivePage>()),
+          settings: settings);
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -460,7 +459,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
-
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -635,7 +633,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden: false, popOnSelection: true)));
+      return MaterialPageRoute<String>(
+        builder: (_) => AddressesPage(
+          bloc: getIt.get<AddressesBloc>(param1: false),
+          popOnSelection: true,
+        ),
+      );
 
     case Routes.addressBookAddContact:
       return handleRouteWithPlatformAwareness(

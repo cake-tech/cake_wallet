@@ -37,6 +37,9 @@ class FiatCurrency implements Currency {
 
   @override
   Money? tryParseAmount(String value) => Money.tryParse(value, this);
+
+  @override
+  String get apiString =>  "fiat.$symbol";
 }
 
 const EUR = FiatCurrency(symbol: 'EUR', countryCode: "eur", fullName: "Euro");

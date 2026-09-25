@@ -1,13 +1,11 @@
-import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
-import "package:cake_wallet/bitcoin/bitcoin.dart";
-import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/di.dart";
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/receive/receive_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_display.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_widget.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
@@ -20,340 +18,355 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/utils/share_util.dart";
-import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
-import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart";
-import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/zcash/zcash.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter_mobx/flutter_mobx.dart";
-import "package:mobx/mobx.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
-class NewReceivePage extends StatefulWidget {
-  NewReceivePage({
-    required this.addressListViewModel,
-    required this.receiveOptionViewModel,
-    required this.dashboardViewModel,
-    required this.lightningMode,
-    super.key,
-    CryptoCurrency? initialCurrency,
-  }) {
-    if (initialCurrency != null && initialCurrency != addressListViewModel.selectedCurrency) {
-      addressListViewModel.setTokenCurrency(initialCurrency);
-    }
-  }
+class ReceivePage extends StatelessWidget {
+  const ReceivePage({required this.bloc, super.key});
 
-  final WalletAddressListViewModel addressListViewModel;
-  final ReceiveOptionViewModel receiveOptionViewModel;
-  final DashboardViewModel dashboardViewModel;
-  final bool lightningMode;
+  final ReceiveBloc bloc;
 
   @override
-  State<NewReceivePage> createState() => _NewReceivePageState();
+  Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
+        create: (_) => bloc,
+        child: const _ReceivePageBody(),
+      );
 }
 
-class _NewReceivePageState extends State<NewReceivePage> {
-  bool _largeQrMode = false;
-  late WalletAddressListItem? _addressItemWithLabel;
+class _ReceivePageBody extends StatefulWidget {
+  const _ReceivePageBody();
 
   @override
-  void initState() {
-    super.initState();
+  State<_ReceivePageBody> createState() => _ReceivePageBodyState();
+}
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.lightningMode) {
-        widget.receiveOptionViewModel.selectReceiveOption(
-          widget.receiveOptionViewModel.options
-                  .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
-              ReceivePageOption.mainnet,
-        );
-        widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
-      } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
-        widget.receiveOptionViewModel.selectReceiveOption(
-          widget.receiveOptionViewModel.options
-                  .firstWhereOrNull((item) => item.value.contains("Standard")) ??
-              ReceivePageOption.mainnet,
-        );
-        widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
-      }
-    });
+class _ReceivePageBodyState extends State<_ReceivePageBody> {
+  bool _largeQrMode = false;
 
-    reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surfaceBright,
+              Theme.of(context).colorScheme.surface,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: BlocPresentationListener<ReceiveBloc, ReceivePresentation>(
+            listener: (context, event) => showPopUp<void>(
+              context: context,
+              builder: (dialogContext) => AlertWithOneAction(
+                alertTitle: S.of(dialogContext).error,
+                alertContent: event.message,
+                buttonText: S.of(dialogContext).ok,
+                buttonAction: () => Navigator.of(dialogContext).pop(),
+              ),
+            ),
+            child: BlocBuilder<ReceiveBloc, ReceiveState>(
+              builder: (context, state) => switch (state) {
+                ReceiveLoading() => const _LoadingWidget(),
+                ReceiveFailure() => _FailureWidget(message: state.message),
+                ReceiveLoaded() => _LoadedWidget(
+                    state: state,
+                    largeQrMode: _largeQrMode,
+                    onQrTap: () => _toggleLargeQr(context, state),
+                  ),
+              },
+            ),
+          ),
+        ),
+      );
 
-    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
-      (item) =>
-          item is WalletAddressListItem && item.address == widget.addressListViewModel.uri.address,
-    ) as WalletAddressListItem?;
-
-    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
-      // The infobox depends on the selected address type, so the page has to be
-      // rebuilt when it changes.
-      if (mounted) setState(() {});
-
-      if (widget.dashboardViewModel.type == WalletType.bitcoin &&
-          bitcoin!.isBitcoinReceivePageOption(option)) {
-        widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
-        if (option.value.contains("Lightning")) {
-          widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
-        } else {
-          widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
-        }
-        return;
-      }
-      if (widget.dashboardViewModel.type == WalletType.zcash) {
-        widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
-        return;
-      }
-
-      if ([WalletType.bitcoin, WalletType.litecoin]
-          .contains(widget.addressListViewModel.type)) {
-        widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
-      }
-      if (widget.addressListViewModel.type == WalletType.zcash) {
-        printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
-        widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
-      }
-    });
+  void _toggleLargeQr(BuildContext context, ReceiveLoaded state) {
+    setState(() => _largeQrMode = !_largeQrMode);
+    if (!state.isInfoboxDismissed) {
+      context.read<ReceiveBloc>().add(const InfoboxDismissed());
+    }
   }
+}
+
+class _LoadingWidget extends StatelessWidget {
+  const _LoadingWidget();
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          ModalTopBar(
+            title: S.of(context).receive,
+            leadingIcon: const Icon(Icons.close),
+            leadingSemanticLabel: S.of(context).close,
+            onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+          ),
+          const Expanded(child: Center(child: CupertinoActivityIndicator(radius: 14))),
+        ],
+      );
+}
+
+class _FailureWidget extends StatelessWidget {
+  const _FailureWidget({required this.message});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
-    final hasAddressTypeSelector = widget.receiveOptionViewModel.options.length > 1;
-    final hasLabel = _addressItemWithLabel?.name != null && _addressItemWithLabel!.name!.isNotEmpty;
-    final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
-    final infobox = ReceiveInfoBox.forWalletType(
-      widget.addressListViewModel.type,
-      supportedCurrencies:
-          widget.addressListViewModel.tokenCurrencies.whereType<CryptoCurrency>().toList(),
-      onDismissed: () {
-        widget.addressListViewModel.dismissInfobox();
-        setState(() {});
-      },
-      autoGenerateSubaddressStatus: widget.lightningMode
-          ? AutoGenerateSubaddressStatus.disabled
-          : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
-      addressRotates: _selectedAddressRotates,
-    );
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.surfaceBright,
-            Theme.of(context).colorScheme.surface,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+    return Column(
+      children: [
+        ModalTopBar(
+          title: S.of(context).receive,
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
+          onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ModalTopBar(
-              title: _largeQrMode ? "" : S.of(context).receive,
-              leadingIcon: const Icon(Icons.close),
-              leadingSemanticLabel: S.of(context).close,
-              onLeadingPressed: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-              trailingWidget: Observer(
-                builder: (_) => AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _largeQrMode ||
-                          widget.addressListViewModel.hasAddressRotation
-                              /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
-                              &&
-                              !(widget.receiveOptionViewModel.selectedReceiveOption.description ??
-                                      "")
-                                  .toLowerCase()
-                                  .contains("mweb")
-                      ? ModernButton(
-                          key: ValueKey(_largeQrMode),
-                          size: 36,
-                          icon: _largeQrMode
-                              ? const Icon(Icons.share)
-                              : widget.addressListViewModel.isRotatingAddress
-                                  ? const CupertinoActivityIndicator()
-                                  : const Icon(Icons.refresh),
-                          semanticLabel: _largeQrMode
-                              ? S.of(context).share_address
-                              : S.of(context).rotate_address,
-                          onPressed: () {
-                            if (_largeQrMode) {
-                              ShareUtil.share(
-                                text: widget.addressListViewModel.uri.toString(),
-                                context: context,
-                              );
-                            } else {
-                              if (widget.addressListViewModel.hasAddressRotation) {
-                                widget.addressListViewModel.rotateAddress();
-                              }
-                            }
-                          },
-                        )
-                      : const SizedBox.shrink(),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 16,
+              children: [
+                Text(message),
+                TextButton(
+                  onPressed: () => context.read<ReceiveBloc>().add(const Init()),
+                  child: Text(S.of(context).try_again),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LoadedWidget extends StatelessWidget {
+  const _LoadedWidget({
+    required this.state,
+    required this.largeQrMode,
+    required this.onQrTap,
+  });
+
+  final ReceiveLoaded state;
+  final bool largeQrMode;
+  final VoidCallback onQrTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasAddressTypeSelector = state.addressTypeOptions.length > 1;
+    final hasLabel = state.addressEntry.label != null && state.addressEntry.label!.isNotEmpty;
+    final infobox = ReceiveInfoBox.forWalletType(
+      context,
+      state.walletType,
+      supportedCurrencies: state.receivableTokens,
+      onDismissed: () => context.read<ReceiveBloc>().add(const InfoboxDismissed()),
+      autoGenerateSubaddressStatus: state.isLightning
+          ? AutoGenerateSubaddressStatus.disabled
+          : context.read<ReceiveBloc>().autoGenerateSubaddressStatus,
+      addressRotates:
+          state.walletType != WalletType.zcash || zcash!.isRotatingAddressOption(state.addressType),
+    );
+    final isRotationAvailable = state.hasAddressRotation;
+
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        ModalTopBar(
+          title: largeQrMode ? "" : S.of(context).receive,
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.of(context).close,
+          trailingWidget: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: largeQrMode || isRotationAvailable
+                ? ModernButton(
+                    key: ValueKey(largeQrMode),
+                    size: 36,
+                    icon: largeQrMode
+                        ? const Icon(Icons.share)
+                        : state.isRotatingAddress
+                            ? const CupertinoActivityIndicator()
+                            : const Icon(Icons.refresh),
+                    semanticLabel:
+                        largeQrMode ? S.of(context).share_address : S.of(context).rotate_address,
+                    onPressed: () {
+                      if (largeQrMode) {
+                        ShareUtil.share(
+                          text: state.paymentUri.toString(),
+                          context: context,
+                        );
+                      } else if (isRotationAvailable) {
+                        context.read<ReceiveBloc>().add(const AddressRotated());
+                      }
+                    },
+                  )
+                : const SizedBox.shrink(),
+          ),
+          onLeadingPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+        ),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              ReceiveAmountDisplay(
+                amount: state.requestedAmount,
+                fiatEquivalent: state.fiatEquivalent,
+                largeQrMode: largeQrMode,
+              ),
+              ReceiveQrCode(
+                qrData: state.paymentUri.toString(),
+                embeddedIconAsset: state.qrEmbeddedIcon,
+                hasPayjoin: state.hasPayjoin,
+                largeQrMode: largeQrMode,
+                onTap: onQrTap,
+                isFetching: state.isFetchingInvoice,
+              ),
+              if (state.tokenCurrency != null && !state.isLightning)
+                ReceiveTokenDisplay(
+                  token: state.tokenCurrency!,
+                  walletType: state.walletType,
+                ),
+              if (hasAddressTypeSelector)
+                ReceiveAddressTypeDisplay(
+                  selected: state.addressType,
+                  walletType: state.walletType,
+                  largeQrMode: largeQrMode,
+                  onTap: () => _showAddressTypePicker(context, state),
+                  isLoading: state.isChangingAddressType,
+                ),
+              ReceiveAddressWidget(
+                address: state.addressEntry.address,
+                walletType: state.walletType,
+              ),
+              // The label chip animates to zero height when there is no
+              // label (or in large QR mode); keep it out of the semantics
+              // tree entirely while it is collapsed.
+              ExcludeSemantics(
+                excluding: largeQrMode || !hasLabel,
+                child: MergeSemantics(
+                  child: Semantics(
+                    button: true,
+                    hint: S.of(context).set_label,
+                    child: GestureDetector(
+                      onTap: () => _showLabelModal(context, state),
+                      child: ReceiveLabelWidget(
+                        label: state.addressEntry.label ?? "",
+                        largeQrMode: largeQrMode,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  ReceiveAmountDisplay(
-                    walletAddressListViewModel: widget.addressListViewModel,
-                    largeQrMode: _largeQrMode,
-                  ),
-                  ReceiveQrCode(
-                    addressListViewModel: widget.addressListViewModel,
-                    onTap: () {
-                      setState(() {
-                        _largeQrMode = !_largeQrMode;
-                        // _infoboxDimissed = true;
-                        widget.addressListViewModel.dismissInfobox();
-                      });
-                    },
-                    largeQrMode: _largeQrMode,
-                  ),
-                  if (widget.addressListViewModel.tokenCurrency != null)
-                    ReceiveTokenDisplay(addressListViewModel: widget.addressListViewModel),
-                  if (hasAddressTypeSelector)
-                    ReceiveAddressTypeDisplay(
-                      lightningMode: widget.lightningMode,
-                      receiveOptionViewModel: widget.receiveOptionViewModel,
-                      largeQrMode: _largeQrMode,
-                    ),
-                  ReceiveAddressWidget(
-                    addressListViewModel: widget.addressListViewModel,
-                  ),
-                  // The label chip animates to zero height when there is no
-                  // label (or in large QR mode); keep it out of the semantics
-                  // tree entirely while it is collapsed.
-                  ExcludeSemantics(
-                    excluding: _largeQrMode || !hasLabel,
-                    child: MergeSemantics(
-                      child: Semantics(
-                        button: true,
-                        hint: S.of(context).set_label,
-                        child: GestureDetector(
-                          onTap: _showLabelModal,
-                          child: ReceiveLabelWidget(
-                            name: _addressItemWithLabel?.name ?? "",
-                            largeQrMode: _largeQrMode,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Observer(
-                    builder: (_) => ReceiveBottomButtons(
-                      key: const ValueKey(0),
-                      largeQrMode: _largeQrMode,
-                      showAccountsButton: widget.addressListViewModel.hasAddressList,
-                      showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
-                      copyData: widget.addressListViewModel.hasPayjoin
-                          ? null
-                          : ClipboardData(
-                              text: widget.addressListViewModel.displayAmount.isEmpty
-                                  ? widget.addressListViewModel.uri.address
-                                  : widget.addressListViewModel.uri.toString(),
-                            ),
-                      onCopyButtonPressed: () {
-                        if (widget.addressListViewModel.hasPayjoin) {
-                          showModalBottomSheet(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (context) =>
-                                PayjoinCopyModal(uri: widget.addressListViewModel.uri),
-                          );
-                        }
-                      },
-                      onAmountButtonPressed: () {
-                        showMaterialModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.transparent,
-                          barrierColor: Colors.black.withAlpha(80),
-                          builder: (context) => ReceiveAmountModal(
-                            walletAddressListViewModel: widget.addressListViewModel,
-                            onSubmitted: (amount) {},
-                          ),
-                        );
-                      },
-                      onLabelButtonPressed: _showLabelModal,
-                      onAccountsButtonPressed: () {
-                        Navigator.of(context).pushNamed(
-                          Routes.receiveAddresses,
-                          arguments: false,
-                        );
-                      },
-                    ),
-                  ),
-                  ReceiveLargeAmountPreview(
-                    amount: widget.addressListViewModel.displayAmount,
-                    currency: widget.addressListViewModel.cryptoCurrencySymbol,
-                    largeQrMode: _largeQrMode,
-                  ),
-                  if (infobox != null && !widget.addressListViewModel.isLightning)
-                    ClipRect(
-                      child: AnimatedAlign(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        heightFactor: infoboxDismissed ? 0 : 1,
-                        alignment: Alignment.center,
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: infoboxDismissed ? 0 : 1,
-                          curve: Curves.easeOutCubic,
-                          child: infobox,
-                        ),
-                      ),
-                    ),
-                ],
+              ReceiveBottomButtons(
+                largeQrMode: largeQrMode,
+                copyData: state.hasPayjoin ? null : ClipboardData(text: _copyText(state)),
+                showAddressesButton: state.hasAddressList,
+                showLabelButton: state.hasAddressList && !hasLabel,
+                onCopyButtonPressed: () => _showPayjoinCopyModal(context, state),
+                onAmountButtonPressed: () => _showAmountModal(context, state),
+                onLabelButtonPressed: () => _showLabelModal(context, state),
+                onAddressesButtonPressed: () => _openAddressesPage(context, state),
               ),
-            ),
-          ],
+              ReceiveLargeAmountPreview(
+                amount: state.requestedAmount,
+                largeQrMode: largeQrMode,
+              ),
+              if (infobox != null && !state.isLightning)
+                ClipRect(
+                  child: AnimatedAlign(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    heightFactor: state.isInfoboxDismissed ? 0 : 1,
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: state.isInfoboxDismissed ? 0 : 1,
+                      curve: Curves.easeOutCubic,
+                      child: infobox,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  /// Zcash is the only wallet type that also offers static address types, so
-  /// the rotation notice must not be shown for it unless the disposable
-  /// transparent type is the one currently selected.
-  bool get _selectedAddressRotates =>
-      widget.addressListViewModel.type != WalletType.zcash ||
-      zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
+  void _showPayjoinCopyModal(BuildContext context, ReceiveLoaded state) {
+    showModalBottomSheet<void>(
+      isScrollControlled: true,
+      context: context,
+      builder: (_) => PayjoinCopyModal(uri: state.paymentUri),
+    );
+  }
 
-  void _showLabelModal() {
-    showMaterialModalBottomSheet(
+  String _copyText(ReceiveLoaded state) =>
+      state.requestedAmount == null ? state.paymentUri.address : state.paymentUri.toString();
+
+  Future<void> _showLabelModal(BuildContext context, ReceiveLoaded state) async {
+    final bloc = context.read<ReceiveBloc>();
+    final label = await showMaterialModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(80),
-      builder: (_) => getIt.get<ReceiveLabelModal>(param1: _addressItemWithLabel),
-    ).then((value) {
-      _reloadAddressWithLabel(widget.addressListViewModel.uri);
-    });
+      builder: (_) => ReceiveLabelModal(initialLabel: state.addressEntry.label ?? ""),
+    );
+    if (label != null && !bloc.isClosed) {
+      bloc.add(LabelSubmitted(label));
+    }
   }
 
-  void _reloadAddressWithLabel(PaymentURI newAddress) {
-    // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later
-    setState(() {
-      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
-        (item) => item is WalletAddressListItem && item.address == newAddress.address,
-      ) as WalletAddressListItem?;
-    });
+  Future<void> _showAmountModal(BuildContext context, ReceiveLoaded state) async {
+    final bloc = context.read<ReceiveBloc>();
+    await showMaterialModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withAlpha(80),
+      builder: (_) => ReceiveAmountModal(bloc: bloc, amountAtOpen: state.amountInInputCurrency),
+    );
+  }
+
+  Future<void> _showAddressTypePicker(BuildContext context, ReceiveLoaded state) async {
+    final bloc = context.read<ReceiveBloc>();
+    final selected = await showCupertinoModalBottomSheet<ReceivePageOption>(
+      context: context,
+      barrierColor: Colors.black.withAlpha(80),
+      builder: (_) => Material(
+        child: ReceiveAddressTypeSelector(
+          options: state.addressTypeOptions,
+          selected: state.addressType,
+          walletType: state.walletType,
+        ),
+      ),
+    );
+
+    if (selected == null) {
+      return;
+    }
+
+    if (!bloc.isClosed) {
+      bloc.add(AddressTypeSelected(selected));
+    }
+  }
+
+  Future<void> _openAddressesPage(BuildContext context, ReceiveLoaded state) async {
+    final bloc = context.read<ReceiveBloc>();
+    await Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
+    if (!bloc.isClosed) {
+      bloc.add(const AddressesPageClosed());
+    }
   }
 }
