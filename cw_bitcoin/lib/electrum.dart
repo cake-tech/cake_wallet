@@ -48,6 +48,7 @@ class ElectrumClient {
   void Function(ConnectionStatus)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  final Map<String, int> _batchSizes = {};
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   Timer? _aliveTimer;
@@ -74,14 +75,20 @@ class ElectrumClient {
 
     // Reset internal state to ensure clean connection
     _resetInternalState();
+    // The old socket's onDone is ignored once it is replaced, so its in-flight
+    // calls must fail here or they hang.
+    failPendingRequests();
 
+    // Detach before closing: its onDone would otherwise still pass the
+    // listener's identity check and tear down mid-redial.
+    final previous = socket;
+    socket = null;
     try {
-      await socket?.close();
+      await previous?.close();
     } catch (_) {}
     if (attempt != _connectAttempt) {
       return;
     }
-    socket = null;
 
     final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     final ProxySocket newSocket;
@@ -113,6 +120,11 @@ class ElectrumClient {
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
+    // Large responses span TCP packets and can split a multibyte char, so decode
+    // as a stream into a per-socket line buffer. unterminatedString belongs to _parseResponse.
+    final lineBuffer = StringBuffer();
+    final utf8Sink = const Utf8Decoder(allowMalformed: true)
+        .startChunkedConversion(StringConversionSink.fromStringSink(lineBuffer));
     newSocket.listen(
       (Uint8List event) {
         // A replaced socket's late reply must not complete a same-id request of the new session.
@@ -120,13 +132,13 @@ class ElectrumClient {
           return;
         }
         try {
-          final msg = utf8.decode(event.toList());
-          final messagesList = msg.split("\n");
-          for (var message in messagesList) {
-            if (message.isEmpty) {
-              continue;
-            }
-            _parseResponse(message);
+          utf8Sink.add(event);
+          final lines = lineBuffer.toString().split('\n');
+          lineBuffer
+            ..clear()
+            ..write(lines.removeLast());
+          for (final line in lines) {
+            if (line.isNotEmpty) _parseResponse(line);
           }
         } catch (e) {
           printV("socket.listen: $e");
@@ -416,6 +428,7 @@ class ElectrumClient {
   Future<Map<String, Map<String, dynamic>>> getBatchBalance(
     List<String> scriptHashes, {
     int timeout = 10000,
+    bool keepIndexes = false,
   }) async {
     final paramsList = scriptHashes.map((h) => <Object>[h]).toList(growable: false);
 
@@ -423,6 +436,7 @@ class ElectrumClient {
       method: 'blockchain.scripthash.get_balance',
       paramsList: paramsList,
       timeout: timeout,
+      keepIndexes: keepIndexes,
     );
 
     final balanceMap = <String, Map<String, dynamic>>{};
@@ -503,10 +517,13 @@ class ElectrumClient {
     return result;
   }
 
+  /// [keepIndexes]: result i always answers request i, a missing item is a
+  /// null hole. Off keeps the compacted list other wallets rely on.
   Future<List<dynamic>> callBatchWithTimeout({
     required String method,
     required List<List<Object>> paramsList,
     int timeout = 10000,
+    bool keepIndexes = false,
   }) async {
     if (!isConnected) return [];
 
@@ -523,14 +540,16 @@ class ElectrumClient {
 
     // Register the task
     _tasks[internalBatchKey] = SocketTask(completer: completer, isSubscription: false);
+    if (keepIndexes) _batchSizes[internalBatchKey] = paramsList.length;
 
     // Write to socket
-    socket!.write(json.encode(batchPayload) + "\n");
+    _writeRegistered(internalBatchKey, json.encode(batchPayload) + "\n");
 
     // Timeout Logic
     Timer(Duration(milliseconds: timeout), () {
       if (!completer.isCompleted) {
         _tasks.remove(internalBatchKey);
+        _batchSizes.remove(internalBatchKey);
         completer.completeError(RequestFailedTimeoutException("BATCH_$method", batchBaseId));
       }
     });
@@ -705,7 +724,7 @@ class ElectrumClient {
     final id = _id;
     idCallback?.call(id);
     _registryTask(id, completer);
-    socket!.write(jsonrpc(method: method, id: id, params: params));
+    _writeRegistered(id.toString(), jsonrpc(method: method, id: id, params: params));
 
     return completer.future;
   }
@@ -719,7 +738,7 @@ class ElectrumClient {
       _id += 1;
       final id = _id;
       _registryTask(id, completer);
-      socket!.write(jsonrpc(method: method, id: id, params: params));
+      _writeRegistered(id.toString(), jsonrpc(method: method, id: id, params: params));
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
           completer.completeError(RequestFailedTimeoutException(method, id));
@@ -736,9 +755,12 @@ class ElectrumClient {
   Future<void> close() async {
     _connectAttempt++;
     _aliveTimer?.cancel();
+    // Detached first, as in connect(): a close event landing before close()
+    // returns would publish disconnected and schedule a reconnect.
+    final closing = socket;
+    socket = null;
     try {
-      await socket?.close();
-      socket = null;
+      await closing?.close();
     } catch (_) {}
     onConnectionStatusChange = null;
     // Reset internal state when closing
@@ -753,10 +775,46 @@ class ElectrumClient {
   }
 
   void _resetInternalStateCompletely() {
+    // unblock awaiting callers before clearing _tasks. an explicit close or
+    // reconnect that clears without onDone firing first would orphan an in-flight
+    // completer (e.g. node switching mid shield sync).
+    failPendingRequests();
     _id = 0;
     _tasks.clear();
     _errors.clear();
     unterminatedString = '';
+  }
+
+  // fail in-flight request completers on disconnect so callers awaiting call()
+  // unblock instead of hanging. call() has no timeout, so a dropped/half-open
+  // socket leaves the completer dangling forever (this wedged pivx shield sync
+  // until restart). subscriptions are left alone so they resume on reconnect.
+  @visibleForTesting
+  void failPendingRequests() {
+    final pending = _tasks.entries
+        .where((task) => !task.value.isSubscription && task.value.completer != null)
+        .toList();
+    for (final task in pending) {
+      final completer = task.value.completer!;
+      if (!completer.isCompleted) {
+        completer.completeError(
+            RequestFailedTimeoutException('connection_closed', 0));
+      }
+      _tasks.remove(task.key);
+      _batchSizes.remove(task.key);
+    }
+  }
+
+  // A write that throws hands the error to the caller; the registered task
+  // would otherwise sit until failPendingRequests fails it with no listener.
+  void _writeRegistered(String taskKey, String payload) {
+    try {
+      socket!.write(payload);
+    } catch (_) {
+      _tasks.remove(taskKey);
+      _batchSizes.remove(taskKey);
+      rethrow;
+    }
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -809,13 +867,22 @@ class ElectrumClient {
     }
   }
 
+  int _statusChanges = 0;
+
   void _setConnectionStatus(ConnectionStatus status) {
+    final change = ++_statusChanges;
     onConnectionStatusChange?.call(status);
-    if (!isConnected) {
+    // A listener that reconnects swaps the socket inside the call above; a
+    // teardown after it would destroy the new socket.
+    if (change != _statusChanges) return;
+    // A half-open socket still reads as connected; a failed ping must tear it
+    // down too, or in-flight calls hang until close().
+    if (status == ConnectionStatus.disconnected || !isConnected) {
       try {
         socket?.destroy();
       } catch (_) {}
       socket = null;
+      failPendingRequests();
     }
   }
 
@@ -843,12 +910,26 @@ class ElectrumClient {
           : firstIdAttr;
 
       // Extract the results from each item in the batch
-      final results = response.map((item) {
+      var results = response.map((item) {
         if (item is Map) {
           return item['result'] ?? item['error'];
         }
         return null;
       }).toList();
+
+      // keepIndexes callers: compacting a reply with a missing item hands
+      // later results to the wrong request, so place each by its id index and
+      // leave holes null. Sized by the request: a hostile id cannot grow it.
+      final size = _batchSizes.remove(batchKey);
+      if (size != null) {
+        results = List<dynamic>.filled(size, null);
+        for (final item in response) {
+          if (item is! Map) continue;
+          final index = int.tryParse(item['id'].toString().split('-').last);
+          if (index == null || index < 0 || index >= size) continue;
+          results[index] = item['result'] ?? item['error'];
+        }
+      }
 
       _finish(batchKey, results);
       return;
