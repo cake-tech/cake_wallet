@@ -145,6 +145,7 @@ lib/dogecoin/dogecoin.dart
 lib/base/base.dart
 lib/arbitrum/arbitrum.dart
 lib/evm/evm.dart
+lib/pivx/pivx.dart
 lib/zcash/zcash.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
@@ -221,6 +222,7 @@ flatpak-build/
 scripts/torch_dart/
 fiat-check-output.txt
 scripts/zcash_lib
+scripts/pivx_lib
 scripts/android/yttrium
 scripts/bitbox_flutter
 scripts/reown_flutter
