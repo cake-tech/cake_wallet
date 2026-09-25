@@ -347,7 +347,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<List<int>> loadAccountIndexes() async {
-    if (type != WalletType.bitcoin) return [0];
+    if (!hasAccountsSupport) return [0];
 
     final accounts = await walletInfo.getAccounts();
     return accounts.map((account) => account.accountIndex).toList();
@@ -558,8 +558,7 @@ abstract class ElectrumWalletBase
   bool get shouldUseBatchFetching => useBatchForHistory && _isBatchSupported == true;
 
   bool get isInitialBitcoinAccountsSync =>
-      type == WalletType.bitcoin &&
-          derivationInfo.derivationType == DerivationType.bip39 &&
+      hasAccountsSupport &&
           walletInfo.multiAccountsActive &&
           (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
@@ -582,8 +581,11 @@ abstract class ElectrumWalletBase
   bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
   @override
-  bool get hasAccountsSupport => type == WalletType.bitcoin && isSoftwareWallet
-      && derivationInfo.derivationType != DerivationType.electrum;
+  bool get hasAccountsSupport =>
+      type == WalletType.bitcoin &&
+          isSoftwareWallet &&
+          _masterHD != null && // xpub / watch-only: can't derive other (hardened) accounts
+          derivationInfo.derivationType != DerivationType.electrum;
 
   @observable
   bool nodeSupportsSilentPayments = true;
@@ -4100,7 +4102,7 @@ abstract class ElectrumWalletBase
 
   List<ElectrumTransactionInfo> get currentAccountBitcoinTransactions {
     final all = transactionHistory.transactions.values;
-    if (type != WalletType.bitcoin) return all.toList();
+    if (!hasAccountsSupport) return all.toList();
 
     final accountIndex = currentAccountIndex;
     final accountAddresses = walletAddresses.allAddresses
