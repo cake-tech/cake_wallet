@@ -288,7 +288,8 @@ jobs:
           SUITE_DIR_INPUT: ${{ inputs.suite_dir }}
           EXTRA_DART_DEFINES_INPUT: ${{ inputs.extra_dart_defines }}
         with:
-          api-level: 29
+          api-level: 31
+          target: google_apis
           arch: x86_64
           profile: pixel_5
           force-avd-creation: false
@@ -320,7 +321,8 @@ jobs:
           SUITE_DIR_INPUT: ${{ inputs.suite_dir }}
           EXTRA_DART_DEFINES_INPUT: ${{ inputs.extra_dart_defines }}
         with:
-          api-level: 29
+          api-level: 31
+          target: google_apis
           arch: x86_64
           profile: pixel_5
           force-avd-creation: false
@@ -590,9 +592,3 @@ jobs:
             -H "Content-type: application/json; charset=utf-8" \
             --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg ts "$thread_ts" --arg text "$passed" \
               '{channel: $channel, thread_ts: $ts, text: $text}')" > /dev/null
-
-      - name: Post-test cleanup
-        if: always()
-        run: |
-          pkill -f emulator || echo "No emulator processes to kill"
-          pkill -f adb || echo "No adb processes to kill"
