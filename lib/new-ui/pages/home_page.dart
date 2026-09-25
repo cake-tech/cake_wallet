@@ -189,9 +189,9 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                     '${widget.dashboardViewModel.wallet.name}_${_lightningMode}_${widget.dashboardViewModel.accountListViewModel?.accounts.length ?? 0}_${widget.dashboardViewModel.cardDesigns.length}'),
                                 onCustomizeTapped: openCardCustomizer,
                                 dashboardViewModel: widget.dashboardViewModel,
+                                accountListViewModel: widget.dashboardViewModel.accountListViewModel,
                                 onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                                lightningMode: _lightningMode,
-                                actions: actions),
+                                lightningMode: _lightningMode),
                             Observer(
                                 builder: (_) => AnimatedSize(
                                   duration: const Duration(milliseconds: 150),

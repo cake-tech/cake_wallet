@@ -3,6 +3,7 @@ import "dart:ui";
 
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
@@ -67,6 +68,15 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
   bool get _isMultiAccountsEnabled =>
       widget.dashboardViewModel.isMultiAccountsEnabled;
+
+  String get _assetName => widget.dashboardViewModel.appStore.amountParsingProxy
+      .getCryptoSymbol(accountListViewModel.currency);
+
+
+  bool get _capitalizeAssetName =>
+      widget.dashboardViewModel.wallet.type != WalletType.bitcoin ||
+          widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi !=
+              BitcoinAmountDisplayMode.satoshi;
 
   @override
   void initState() {
@@ -139,8 +149,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             balance: account.balance ?? "0.00",
             accountBalance: account.balance ?? "0.00",
             designSwitchDuration: Duration.zero,
-            assetName: accountListViewModel.currency.title,
-            onCustomizeTapped: null,
+            assetName: _assetName,
+            capitalizeAssetName: _capitalizeAssetName,
             selected: true,
             width: cardWidth,
             design: design,
@@ -169,8 +179,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             balance: allAccounts[realIndex].balance ?? "0.00",
             accountBalance: allAccounts[realIndex].balance ?? "0.00",
             designSwitchDuration: Duration.zero,
-            assetName: accountListViewModel.currency.title,
-            onCustomizeTapped: null,
+            assetName: _assetName,
+            capitalizeAssetName: _capitalizeAssetName,
             selected: i == allAccounts.length - 1,
             width: cardWidth,
             design: widget.dashboardViewModel.cardDesigns[realIndex],
@@ -465,6 +475,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             accountIndex: _items[i].card.accountIndex,
             accountBalance: _items[i].card.accountBalance,
             assetName: _items[i].card.assetName,
+            capitalizeAssetName: _items[i].card.capitalizeAssetName,
             designSwitchDuration: _items[i].card.designSwitchDuration,
             onCustomizeTapped: (i == _items.length - 1) ? _openCardCustomizer : null,
             selected: i == _items.length - 1,
@@ -532,7 +543,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             accountIndex: accounts[i].id,
             balance: accounts[i].balance ?? "0.00",
             accountBalance: accounts[i].balance ?? "0.00",
-            assetName: accountListViewModel.currency.title,
+            assetName: _assetName,
+            capitalizeAssetName: _capitalizeAssetName,
             selected: i == accounts.length - 1,
             designSwitchDuration: const Duration(milliseconds: 200),
             width: cardWidth,
