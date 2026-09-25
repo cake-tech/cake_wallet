@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "mali. Pakitiyak na ang iyong Recovery Phrase ay nai-save nang tama at subukang muli.",
   "info": "Impormasyon",
   "infobox_auto_address": "Iikot ang iyong receive address sa tuwing makakatanggap ka ng transaksyon",
-  "infobox_multichain": "Gamitin ang address na ito para makatanggap ng anumang token o collectible sa",
   "infobox_multichain_named": "Gamitin ang address na ito para makatanggap ng anumang token o collectible sa ${chain}",
   "infobox_rotation": "Ang iyong receive address ay magpapalit sa tuwing isasara mo at muling bubuksan ang screen na ito",
   "input": "Input",

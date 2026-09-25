@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Netočno. Provjerite je li vaša fraza za oporavak ispravno spremljena i pokušajte ponovno.",
   "info": "Info",
   "infobox_auto_address": "Vaša adresa za primanje mijenjat će se svaki put kada primite transakciju",
-  "infobox_multichain": "Koristite ovu adresu za primanje bilo kojeg tokena ili kolekcionarskog predmeta na",
   "infobox_multichain_named": "Koristite ovu adresu za primanje bilo kojeg tokena ili kolekcionarskog predmeta na ${chain}",
   "infobox_rotation": "Vaša adresa za primanje će se mijenjati svaki put kada zatvorite i ponovno otvorite ovaj zaslon",
   "input": "Unos",

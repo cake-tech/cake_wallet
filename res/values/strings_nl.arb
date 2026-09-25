@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Onjuist. Zorg ervoor dat uw herstelzin correct is opgeslagen en probeer het opnieuw.",
   "info": "Info",
   "infobox_auto_address": "Je ontvangstadres wisselt elke keer dat je een transactie ontvangt",
-  "infobox_multichain": "Gebruik dit adres om een token of collectible te ontvangen op",
   "infobox_multichain_named": "Gebruik dit adres om een ​​token of verzamelobject op ${chain} te ontvangen",
   "infobox_rotation": "Je ontvangstadres wisselt telkens wanneer je dit scherm sluit en opnieuw opent",
   "input": "Invoer",

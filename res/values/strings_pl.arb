@@ -594,7 +594,6 @@
   "incorrect_seed_option_back": "Błędny. Upewnij się, że fraza odzyskiwania została poprawnie zapisana i spróbuj ponownie.",
   "info": "Informacje",
   "infobox_auto_address": "Twój adres do odbioru będzie się zmieniał za każdym razem, gdy otrzymasz transakcję",
-  "infobox_multichain": "Użyj tego adresu, aby otrzymać dowolny token lub przedmiot kolekcjonerski na",
   "infobox_multichain_named": "Użyj tego adresu, aby otrzymać dowolny token lub przedmiot kolekcjonerski na ${chain}",
   "infobox_rotation": "Twój adres do odbioru będzie się zmieniać za każdym razem, gdy zamkniesz i ponownie otworzysz ten ekran",
   "input": "Dane wejściowe",

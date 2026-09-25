@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Yanlış. Lütfen Kurtarma İfadenizin doğru şekilde kaydedildiğinden emin olun ve tekrar deneyin.",
   "info": "Bilgi",
   "infobox_auto_address": "Her işlem aldığınızda alma adresiniz her seferinde değişecektir",
-  "infobox_multichain": "Herhangi bir token veya koleksiyon parçası almak için bu adresi kullanın",
   "infobox_multichain_named": "${chain} üzerinde herhangi bir jeton veya koleksiyon parçası almak için bu adresi kullanın",
   "infobox_rotation": "Bu ekranı her kapatıp yeniden açtığınızda alma adresiniz değişecektir",
   "input": "Girdi",

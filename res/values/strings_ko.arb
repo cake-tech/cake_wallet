@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "잘못된. 복구 문구가 올바르게 저장되었는지 확인하고 다시 시도해 주세요.",
   "info": "정보",
   "infobox_auto_address": "수신 주소는 거래를 받을 때마다 변경됩니다.",
-  "infobox_multichain": "이 주소를 사용하여 다음에서 어떤 토큰이나 수집품이든 받으세요",
   "infobox_multichain_named": "${chain}에서 토큰이나 수집품을 받으려면 이 주소를 사용하세요.",
   "infobox_rotation": "이 화면을 닫았다가 다시 열 때마다 수신 주소가 변경됩니다.",
   "input": "입력",

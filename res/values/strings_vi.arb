@@ -594,7 +594,6 @@
   "incorrect_seed_option_back": "Không đúng. Vui lòng đảm bảo Cụm từ khôi phục của bạn được lưu chính xác và thử lại.",
   "info": "Thông tin",
   "infobox_auto_address": "Địa chỉ nhận của bạn sẽ thay đổi mỗi khi bạn nhận được một giao dịch",
-  "infobox_multichain": "Sử dụng địa chỉ này để nhận bất kỳ token hoặc vật phẩm sưu tầm nào trên",
   "infobox_multichain_named": "Sử dụng địa chỉ này để nhận bất kỳ mã thông báo hoặc bộ sưu tập nào trên ${chain}",
   "infobox_rotation": "Địa chỉ nhận của bạn sẽ thay đổi mỗi khi bạn đóng và mở lại màn hình này",
   "input": "Đầu vào",

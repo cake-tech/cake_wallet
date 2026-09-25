@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Errato. Assicurati che la frase di recupero sia salvata correttamente e riprova.",
   "info": "Informazioni",
   "infobox_auto_address": "Il tuo indirizzo di ricezione cambierà ogni volta che ricevi una transazione",
-  "infobox_multichain": "Usa questo indirizzo per ricevere qualsiasi token o oggetto da collezione su",
   "infobox_multichain_named": "Utilizza questo indirizzo per ricevere qualsiasi token o oggetto da collezione su ${chain}",
   "infobox_rotation": "Il tuo indirizzo di ricezione cambierà ogni volta che chiudi e riapri questa schermata",
   "input": "Input",

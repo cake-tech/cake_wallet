@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "不正确。请确保您的恢复短语已正确保存，然后重试。",
   "info": "信息",
   "infobox_auto_address": "每次收到交易时，您的收款地址都会自动轮换",
-  "infobox_multichain": "使用此地址接收任何代币或收藏品",
   "infobox_multichain_named": "使用此地址接收 ${chain} 上的任何代币或收藏品",
   "infobox_rotation": "每次您关闭并重新打开此页面时，您的接收地址都会更换",
   "input": "输入",

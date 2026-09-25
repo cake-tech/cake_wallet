@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Incorrect. Veuillez vous assurer que votre phrase de récupération est correctement enregistrée et réessayez.",
   "info": "Informations",
   "infobox_auto_address": "Votre adresse de réception changera à chaque fois que vous recevrez une transaction",
-  "infobox_multichain": "Utilisez cette adresse pour recevoir n'importe quel jeton ou objet de collection sur",
   "infobox_multichain_named": "Utilisez cette adresse pour recevoir n'importe quel jeton ou objet de collection sur ${chain}",
   "infobox_rotation": "Votre adresse de réception sera renouvelée à chaque fois que vous fermerez et rouvrirez cet écran",
   "input": "Entrée",

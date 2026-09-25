@@ -593,7 +593,6 @@
   "incorrect_seed_option_back": "Salah. Harap pastikan Frase Pemulihan Anda disimpan dengan benar dan coba lagi.",
   "info": "Informasi",
   "infobox_auto_address": "Alamat penerimaan Anda akan berganti setiap kali Anda menerima transaksi",
-  "infobox_multichain": "Gunakan alamat ini untuk menerima token atau koleksi apa pun di",
   "infobox_multichain_named": "Gunakan alamat ini untuk menerima token atau barang koleksi apa pun di ${chain}",
   "infobox_rotation": "Alamat penerimaan Anda akan berubah setiap kali Anda menutup dan membuka kembali layar ini",
   "input": "Input",
