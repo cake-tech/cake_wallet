@@ -854,7 +854,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
     }
     output.address = trade.fundingAddress;
-    return _transactionService.createTransaction([output], coinTypeToSpendFrom: .nonMweb);
+    // pivx: nonMweb is no PIVX source. Swaps spend coins only, matching the
+    // transparent spending balance the page shows.
+    return _transactionService.createTransaction(
+      [output],
+      coinTypeToSpendFrom: _appStore.wallet!.type == WalletType.pivx ? .transparent : .nonMweb,
+    );
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
