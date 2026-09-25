@@ -4098,6 +4098,26 @@ abstract class ElectrumWalletBase
     );
   }
 
+  List<ElectrumTransactionInfo> get currentAccountBitcoinTransactions {
+    final all = transactionHistory.transactions.values;
+    if (type != WalletType.bitcoin) return all.toList();
+
+    final accountIndex = currentAccountIndex;
+    final accountAddresses = walletAddresses.allAddresses
+        .where((a) => a.accountIndex == accountIndex)
+        .map((a) => a.address)
+        .toSet();
+
+    return all.where((tx) {
+      // Locally created transactions store the account index explicitly,
+      // so use it first instead of checking the addresses.
+      if (tx.accountIndex != null) return tx.accountIndex == accountIndex;
+
+      return (tx.inputAddresses ?? const <String>[]).any(accountAddresses.contains) ||
+          (tx.outputAddresses ?? const <String>[]).any(accountAddresses.contains);
+    }).toList();
+  }
+
   Future<void> updateBalance() async {
     printV("updateBalance() called!");
 

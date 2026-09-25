@@ -201,10 +201,7 @@ abstract class DashboardViewModelBase with Store {
       _onWalletChange(wallet);
       resetLightningMode();
       _checkMweb();
-      unawaited(() async {
-        await _migrateLegacyLightningCardDesign();
-        loadCardDesigns();
-      }());
+      loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
       loadSeedBackupReminder();
@@ -244,10 +241,7 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
-    unawaited(() async {
-      await _migrateLegacyLightningCardDesign();
-      loadCardDesigns();
-    }());
+    loadCardDesigns();
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -366,11 +360,11 @@ abstract class DashboardViewModelBase with Store {
 
     transactions.clear();
 
-    final allTransactions = wallet.transactionHistory.transactions.values;
-    final filteredTransactions = allTransactions
-        .where((tx) => bitcoin!.isTransactionForCurrentAccount(wallet, tx))
-        .toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final filteredTransactions = wallet.type == WalletType.bitcoin
+        ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
+        : wallet.transactionHistory.transactions.values.toList();
+    filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
+
 
     transactions.addAll(
       filteredTransactions.map(
@@ -513,22 +507,22 @@ abstract class DashboardViewModelBase with Store {
           : wallet.type == WalletType.wownero
               ? wow.wownero!.getCurrentAccount(wallet).id
               : null;
-      final List<TransactionInfo> relevantTxs = [];
 
-      for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
-        bool isRelevant = true;
+      final allTxs = appStore.wallet!.transactionHistory.transactions.values;
+      final List<TransactionInfo> relevantTxs;
 
-        if (wallet.type == WalletType.monero) {
-          isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
-        } else if (wallet.type == WalletType.wownero) {
-          isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
-        } else if (wallet.type == WalletType.bitcoin) {
-          isRelevant = bitcoin!.isTransactionForCurrentAccount(wallet, tx);
-        }
-
-        if (isRelevant) {
-          relevantTxs.add(tx);
-        }
+      if (wallet.type == WalletType.monero) {
+        relevantTxs = allTxs
+            .where((tx) => monero!.getTransactionInfoAccountId(tx) == currentAccountId)
+            .toList();
+      } else if (wallet.type == WalletType.wownero) {
+        relevantTxs = allTxs
+            .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId)
+            .toList();
+      } else if (wallet.type == WalletType.bitcoin) {
+        relevantTxs = bitcoin!.getCurrentAccountBitcoinTransactions(wallet);
+      } else {
+        relevantTxs = allTxs.toList();
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
@@ -1709,74 +1703,5 @@ abstract class DashboardViewModelBase with Store {
 
   Future<void> refreshDashboard() async {
     reconnect();
-  }
-
-  static final Map<int, Future<void>> _legacyCardMigrations = {};
-
-  Future<void> _migrateLegacyLightningCardDesign() {
-    if (wallet.type != WalletType.bitcoin) return Future.value();
-
-    final walletInfo = wallet.walletInfo;
-    final walletInfoId = walletInfo.internalId;
-
-    return _legacyCardMigrations.putIfAbsent(
-      walletInfoId,
-      () => _runLegacyCardMigration(walletInfo).catchError((Object e) {
-        _legacyCardMigrations.remove(walletInfoId);
-        printV('Legacy card style migration failed: $e');
-      }),
-    );
-  }
-
-  Future<void> _runLegacyCardMigration(WalletInfo walletInfo) async {
-    final walletInfoId = walletInfo.internalId;
-    final migratedKey = PreferencesKey.legacyBitcoinCardStyleMigratedForWallet(walletInfoId);
-
-    if (sharedPreferences.getBool(migratedKey) == true) return;
-
-    final accounts = await walletInfo.getAccounts();
-    if (accounts.length > 1) {
-      await sharedPreferences.setBool(migratedKey, true);
-      return;
-    }
-
-    final legacyBitcoin = await BalanceCardStyleSettings.get(walletInfoId, -1);
-    final legacyLightning = await BalanceCardStyleSettings.get(walletInfoId, 0);
-
-    if (legacyBitcoin == null && legacyLightning == null) {
-      await sharedPreferences.setBool(migratedKey, true);
-      return;
-    }
-
-    await BalanceCardStyleSettings.delete(walletInfoId, -1);
-    await BalanceCardStyleSettings.delete(walletInfoId, 0);
-
-    if (legacyBitcoin != null) {
-      await BalanceCardStyleSettings(
-        walletInfoId: walletInfoId,
-        accountIndex: 0,
-        gradientIndex: legacyBitcoin.gradientIndex,
-        useSpecialDesign: legacyBitcoin.useSpecialDesign,
-        backgroundImagePath: legacyBitcoin.backgroundImagePath,
-        iconStyleIndex: legacyBitcoin.iconStyleIndex,
-        isGradientOnly: legacyBitcoin.isGradientOnly,
-        cardOrder: 0,
-      ).insert();
-    }
-
-    if (legacyLightning != null) {
-      await BalanceCardStyleSettings(
-        walletInfoId: walletInfoId,
-        accountIndex: -2,
-        gradientIndex: legacyLightning.gradientIndex,
-        useSpecialDesign: legacyLightning.useSpecialDesign,
-        backgroundImagePath: legacyLightning.backgroundImagePath,
-        iconStyleIndex: legacyLightning.iconStyleIndex,
-        isGradientOnly: legacyLightning.isGradientOnly,
-        cardOrder: legacyLightning.cardOrder,
-      ).insert();
-    }
-
-    await sharedPreferences.setBool(migratedKey, true);
   }
 }

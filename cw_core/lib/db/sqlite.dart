@@ -3,6 +3,7 @@ import "dart:io";
 import "package:cw_core/db/sqlite_debug.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/foundation.dart";
 import "package:path/path.dart" as p;
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
@@ -10,11 +11,11 @@ import "package:sqflite_common_ffi/sqflite_ffi.dart";
 Database? db;
 
 Future<void> _addColumnIfNotExists(
-  Database db, {
-  required String table,
-  required String column,
-  required String definition,
-}) async {
+    Database db, {
+      required String table,
+      required String column,
+      required String definition,
+    }) async {
   final result = await db.rawQuery("PRAGMA table_info($table)");
   final columnExists = result.any((row) => row["name"] == column);
 
@@ -189,6 +190,8 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           column: "currentAccountIndex",
           definition: "INTEGER NOT NULL DEFAULT 0",
         );
+
+        await _migrateBitcoinCardStylesForAccounts(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -396,6 +399,26 @@ CREATE TABLE IF NOT EXISTS WalletInfoAccount (
 CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
 ON WalletInfoAccount(walletInfoId);
 """);
+}
+
+
+Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
+  const bitcoinWallets = 'SELECT walletInfoId FROM WalletInfo WHERE "type" = ?';
+  final btc = WalletType.bitcoin.index;
+
+  // Lightning: 0 -> -2 (first, so accountIndex 0 is free for the Bitcoin card)
+  await db.rawUpdate(
+    "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = -2 "
+        "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
+    [btc],
+  );
+
+  // Bitcoin: -1 -> 0 (primary account, first in order)
+  await db.rawUpdate(
+    "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = 0, cardOrder = 0 "
+        "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
+    [btc],
+  );
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

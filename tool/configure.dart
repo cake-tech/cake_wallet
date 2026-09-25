@@ -307,7 +307,7 @@ abstract class Bitcoin {
   ElectrumBalance balanceForAccount(Object wallet, int accountIndex);
   Map<int, Object> accountBalancesSnapshot(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);
-  bool isTransactionForCurrentAccount(Object wallet, Object transaction);
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
 }
   """;
 

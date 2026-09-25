@@ -936,6 +936,10 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
+      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
+
+  @override
   Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.setCurrentAccount(accountIndex);
@@ -949,32 +953,5 @@ class CWBitcoin extends Bitcoin {
         id: acc.accountIndex,
         label: acc.label,
         balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
-  }
-
-  @override
-  bool isTransactionForCurrentAccount(Object wallet, Object transaction) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final tx = transaction as ElectrumTransactionInfo;
-
-    if (bitcoinWallet.type != WalletType.bitcoin) {
-      return true;
-    }
-
-    // Locally created transactions store the account index explicitly,
-    // so use it first instead of checking the addresses.
-    if (tx.accountIndex != null) {
-      return tx.accountIndex == bitcoinWallet.currentAccountIndex;
-    }
-
-    final accountAddresses = bitcoinWallet.walletAddresses.allAddresses
-        .where((address) => address.accountIndex == bitcoinWallet.currentAccountIndex)
-        .map((address) => address.address)
-        .toSet();
-
-    final inputAddresses = tx.inputAddresses ?? <String>[];
-    final outputAddresses = tx.outputAddresses ?? <String>[];
-
-    return inputAddresses.any(accountAddresses.contains) ||
-        outputAddresses.any(accountAddresses.contains);
   }
 }

@@ -117,11 +117,6 @@ class PreferencesKey {
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
   static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
-
-  static const legacyBitcoinCardStyleMigrated = "legacy_bitcoin_card_style_migrated";
-  static String legacyBitcoinCardStyleMigratedForWallet(int walletInfoId) =>
-      "${PreferencesKey.legacyBitcoinCardStyleMigrated}_$walletInfoId";
-
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
