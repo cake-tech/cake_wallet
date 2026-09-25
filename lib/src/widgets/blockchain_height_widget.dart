@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/decred/decred.dart';
 
@@ -203,6 +204,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = await zcash!.getHeightByDate(date);
         } else if (widget.walletType == WalletType.zano) {
           height = zano!.getHeightByDate(date: date);
+        } else if (widget.walletType == WalletType.pivx) {
+          height = pivx!.getHeightByDate(date: date);
         } else {
           throw Exception("unknown currency in BlockchainHeightWidget");
         }

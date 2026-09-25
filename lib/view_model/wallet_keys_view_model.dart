@@ -232,6 +232,7 @@ abstract class WalletKeysViewModelBase with Store {
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;
+      case WalletType.pivx:
       case WalletType.none:
       case WalletType.haven:
         break;
@@ -335,6 +336,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
+      case WalletType.pivx:
+        return 'pivx-wallet';
       case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }

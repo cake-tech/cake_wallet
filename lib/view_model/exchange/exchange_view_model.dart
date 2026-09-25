@@ -68,6 +68,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -257,8 +258,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     } else {
       final currency = depositCurrency;
-      final sendingBalance = Money.fromInt(
-          await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any), currency);
+      // The deposit address is unknown before the trade; "any" quotes the pool
+      // the trade send sweeps to a plain transparent address.
+      final sending = wallet.type == WalletType.pivx
+          ? await pivx!.spendableAmount(wallet, UnspentCoinType.any, '')
+          : await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
+      final sendingBalance = Money.fromInt(sending, currency);
       final amount = _appStore.amountParsingProxy.asDisplayStringWithSymbol(sendingBalance);
       if (depositCurrency == currency) {
         depositAvailableAmount = amount;
@@ -286,7 +291,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.pivx
       ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
@@ -549,6 +555,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.litecoin,
       WalletType.bitcoinCash,
       WalletType.dogecoin,
+      WalletType.pivx,
     ].contains(wallet.type)) return (depositCurrency == wallet.currency);
 
     if (!isEVMCompatibleChain(wallet.type)) return false;
@@ -1375,6 +1382,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.bitcoin,
       WalletType.bitcoinCash,
       WalletType.dogecoin,
+      WalletType.pivx,
     ].contains(wallet.type)) {
       final priority = _settingsStore.getPriority(wallet.type)!;
 
@@ -1513,6 +1521,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.dogecoin:
         depositCurrency = CryptoCurrency.doge;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.pivx:
+        depositCurrency = CryptoCurrency.pivx;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.haven:

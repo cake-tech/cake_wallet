@@ -26,6 +26,7 @@ import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart"
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
 import "package:cake_wallet/zcash/zcash.dart";
+import "package:cake_wallet/pivx/pivx.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
@@ -113,6 +114,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
       }
       if (widget.dashboardViewModel.type == WalletType.zcash) {
         widget.addressListViewModel.setAddressType(zcash!.getOptionToType(option));
+        return;
+      }
+      if (widget.dashboardViewModel.type == WalletType.pivx &&
+          pivx!.isPivxReceivePageOption(option)) {
+        widget.addressListViewModel.setAddressType(pivx!.getOptionToType(option));
         return;
       }
 
@@ -334,9 +340,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
   /// Zcash is the only wallet type that also offers static address types, so
   /// the rotation notice must not be shown for it unless the disposable
   /// transparent type is the one currently selected.
+  // PIVX ps1 shielded addresses are static too.
   bool get _selectedAddressRotates =>
-      widget.addressListViewModel.type != WalletType.zcash ||
-      zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
+      !widget.addressListViewModel.isPivxShieldedReceiveAddress &&
+      (widget.addressListViewModel.type != WalletType.zcash ||
+          zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption));
 
   void _showLabelModal() {
     showMaterialModalBottomSheet(
