@@ -1760,7 +1760,6 @@ abstract class Zcash {
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   ReceivePageOption getSelectedAddressType(Object wallet);
-  bool isRotatingAddressOption(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
   bool showMissingFundsCard(WalletBase wallet);

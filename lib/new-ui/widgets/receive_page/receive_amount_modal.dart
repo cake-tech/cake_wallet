@@ -29,11 +29,14 @@ class ReceiveAmountModal extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
+          final amountAtOpenInInput =
+              amountAtOpen?.currency == state.inputCurrency ? amountAtOpen : null;
+
           return _AmountForm(
-            key: ValueKey(state.cryptoCurrency),
+            key: ValueKey(state.inputCurrency),
             bloc: bloc,
             state: state,
-            initialAmount: state.amountInInputCurrency ?? amountAtOpen,
+            initialAmount: state.amountInInputCurrency ?? amountAtOpenInInput,
             useBaseUnit: BaseUnit.useBaseUnitOf(context, state.inputCurrency),
           );
         },

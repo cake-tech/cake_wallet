@@ -94,7 +94,7 @@ void main() {
         fiatRateService: fiatRateService,
         initialToken: initialToken,
         initialAddressType: initialAddressType,
-      );
+      )..add(const Init());
 
   void stubPaymentUri(PaymentURI uri) => when(
         () => walletAddresses.paymentUriFor(any(), any(), token: any(named: "token")),
@@ -222,6 +222,49 @@ void main() {
         expect((bloc.state as ReceiveLoaded).addressType, _defaultType);
       },
     );
+
+    test("tells the user once when the requested type is not offered", () async {
+      wireDefaults(options: const [_defaultType]);
+      final bloc = ReceiveBloc(
+        wallet: wallet,
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        initialAddressType: _otherType,
+      );
+      final presented = <ReceivePresentation>[];
+      final sub = bloc.presentation.listen(presented.add);
+
+      bloc.add(const Init());
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(presented, hasLength(1));
+      final unavailable = presented.single as ReceiveAddressTypeUnavailable;
+      expect(unavailable.requested, _otherType);
+      expect(unavailable.shown, _defaultType);
+
+      await sub.cancel();
+      await bloc.close();
+    });
+
+    test("says nothing when the requested type is offered", () async {
+      wireDefaults();
+      final bloc = ReceiveBloc(
+        wallet: wallet,
+        addressService: addressService,
+        fiatRateService: fiatRateService,
+        initialAddressType: _otherType,
+      );
+      final presented = <ReceivePresentation>[];
+      final sub = bloc.presentation.listen(presented.add);
+
+      bloc.add(const Init());
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(presented, isEmpty);
+
+      await sub.cancel();
+      await bloc.close();
+    });
 
     blocTest<ReceiveBloc, ReceiveState>(
       "opening on a Lightning type receives in BTCLN",

@@ -60,8 +60,6 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState>
         add(const _PayjoinEndpointChanged());
       }
     });
-
-    add(const Init());
   }
 
   final WalletBase wallet;
@@ -122,7 +120,9 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState>
       }
 
       final requestedType = _initialAddressType;
-      final type = requestedType != null && addressTypeOptions.contains(requestedType)
+      final isRequestedTypeOffered =
+          requestedType == null || addressTypeOptions.contains(requestedType);
+      final type = isRequestedTypeOffered && requestedType != null
           ? requestedType
           : wallet.walletAddresses.defaultAddressType;
       final groups = wallet.walletAddresses.addressListFor(type);
@@ -150,6 +150,10 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState>
           paymentUri: uri,
         ),
       );
+
+      if (!isRequestedTypeOffered) {
+        emitPresentation(ReceiveAddressTypeUnavailable(requested: requestedType, shown: type));
+      }
     } catch (e) {
       printV("ReceiveBloc _init failed: $e");
       emit(const ReceiveFailure());
@@ -294,8 +298,13 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState>
         nextCrypto = walletCurrency;
       }
 
-      if (isLightningNow && loaded.requestedAmount != null) {
-        invoiceAmountToFetch = loaded.requestedAmount;
+      final requestedAmount = loaded.requestedAmount;
+      final amountInNextCrypto = requestedAmount != null && nextCrypto != loaded.cryptoCurrency
+          ? Money(requestedAmount.amount, nextCrypto)
+          : requestedAmount;
+
+      if (isLightningNow && amountInNextCrypto != null) {
+        invoiceAmountToFetch = amountInNextCrypto;
       }
 
       emit(
@@ -306,6 +315,7 @@ class ReceiveBloc extends Bloc<ReceiveEvent, ReceiveState>
           hasAddressRotation: _hasAddressRotation(type, groups),
           paymentUri: newUri,
           cryptoCurrency: nextCrypto,
+          requestedAmount: () => amountInNextCrypto,
           isFetchingInvoice: invoiceAmountToFetch != null,
         ),
       );

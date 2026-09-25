@@ -621,28 +621,29 @@ class _AddressRow extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      MergeSemantics(
-                        child: Row(
-                          spacing: 4,
-                          children: [
-                            Text(
-                              "${hasReceived ? S.of(context).received : S.of(context).balance}:",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      if (entry.balance != null)
+                        MergeSemantics(
+                          child: Row(
+                            spacing: 4,
+                            children: [
+                              Text(
+                                "${hasReceived ? S.of(context).received : S.of(context).balance}:",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                            MoneyText.optional(
-                              entry.balance,
-                              showSymbol: false,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              MoneyText.optional(
+                                entry.balance,
+                                showSymbol: false,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ],

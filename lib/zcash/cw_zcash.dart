@@ -166,14 +166,6 @@ class CWZcash extends Zcash {
     return ZcashReceivePageOption.fromType(type);
   }
 
-  /// The disposable transparent type is the only Zcash address type that
-  /// rotates. The public transparent address, both shielded types and the
-  /// unified address are all derived from the account and stay the same.
-  @override
-  bool isRotatingAddressOption(ReceivePageOption option) {
-    return option == ZcashReceivePageOption.transparentRotated;
-  }
-
   @override
   void unlockDatabase(String password) {
     return ZcashWalletBase.unlockDatabase(password);

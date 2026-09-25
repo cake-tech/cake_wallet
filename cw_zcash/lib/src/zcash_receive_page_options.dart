@@ -38,7 +38,7 @@ class ZcashReceivePageOption implements ReceivePageOption {
   final bool isCommon;
   final bool addAddressWord = false;
   @override
-  final bool canRotateAddress = true;
+  bool get canRotateAddress => type == ZcashAddressType.transparentRotated;
 
   static const transparent = ZcashReceivePageOption._(
     ZcashAddressType.transparent,

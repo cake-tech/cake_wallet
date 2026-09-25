@@ -13,6 +13,17 @@ final class ReceiveAddressTypeChangeFailed extends ReceivePresentation {
   String get message => S.current.receive_error_address_type;
 }
 
+final class ReceiveAddressTypeUnavailable extends ReceivePresentation {
+  const ReceiveAddressTypeUnavailable({required this.requested, required this.shown});
+
+  final ReceivePageOption requested;
+  final ReceivePageOption shown;
+
+  @override
+  String get message =>
+      S.current.receive_error_address_type_unavailable(requested.value, shown.value);
+}
+
 final class ReceiveAddressRotationFailed extends ReceivePresentation {
   const ReceiveAddressRotationFailed();
 

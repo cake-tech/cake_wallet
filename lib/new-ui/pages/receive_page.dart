@@ -21,9 +21,7 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/utils/share_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
-import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/receive_page_option.dart";
-import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -37,7 +35,7 @@ class ReceivePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider<ReceiveBloc>(
-        create: (_) => bloc,
+        create: (_) => bloc..add(const Init()),
         child: const _ReceivePageBody(),
       );
 }
@@ -175,8 +173,7 @@ class _LoadedWidget extends StatelessWidget {
       autoGenerateSubaddressStatus: state.isLightning
           ? AutoGenerateSubaddressStatus.disabled
           : bloc.autoGenerateSubaddressStatus,
-      addressRotates:
-          bloc.walletType != WalletType.zcash || zcash!.isRotatingAddressOption(state.addressType),
+      addressRotates: state.addressType.canRotateAddress,
     );
     final isRotationAvailable = state.hasAddressRotation;
 

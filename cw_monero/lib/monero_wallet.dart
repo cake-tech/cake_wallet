@@ -549,10 +549,11 @@ abstract class MoneroWalletBase
     if (index == null) {
       throw Exception("monero subaddress ${entry.address} has no index");
     }
+    final rawLabel = label.replaceFirst(RegExp("^#$index(?!\\d)\\s*"), "");
     await walletAddresses.subaddressList.setLabelSubaddress(
       accountIndex: walletAddresses.account?.id ?? 0,
       addressIndex: index,
-      label: label,
+      label: rawLabel,
     );
     await save();
   }
