@@ -25,13 +25,15 @@ const walletTypes = [
   WalletType.zcash,
   WalletType.bsc,
   WalletType.robinhood,
+  WalletType.pivx,
 ];
 
 const electrumWalletTypes = [
   WalletType.bitcoin,
   WalletType.litecoin,
   WalletType.bitcoinCash,
-  WalletType.dogecoin
+  WalletType.dogecoin,
+  WalletType.pivx
 ];
 
 const evmWalletTypes = [
@@ -107,6 +109,9 @@ enum WalletType {
 
   // @HiveField(20)
   robinhood,
+
+  // @HiveField(21)
+  pivx,
 }
 
 int serializeToInt(WalletType type) {
@@ -151,6 +156,8 @@ int serializeToInt(WalletType type) {
       return 18;
     case WalletType.robinhood:
       return 19;
+    case WalletType.pivx:
+      return 20;
     case WalletType.none:
       return -1;
   }
@@ -198,6 +205,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.bsc;
     case 19:
       return WalletType.robinhood;
+    case 20:
+      return WalletType.pivx;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -245,6 +254,8 @@ String walletTypeToString(WalletType type) {
       return 'BNB Smart Chain';
     case WalletType.robinhood:
       return "Robinhood Chain";
+    case WalletType.pivx:
+      return 'PIVX';
     case WalletType.none:
       return '';
   }
@@ -271,6 +282,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
       WalletType.robinhood => "Robinhood Chain",
+      WalletType.pivx => 'PIVX',
       WalletType.none => ''
     };
 
@@ -295,6 +307,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
       WalletType.robinhood => "",
+      WalletType.pivx => 'PIVX',
       WalletType.none => ''
     };
 
@@ -342,6 +355,8 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.zcash;
     case CryptoCurrency.robEth:
       return WalletType.robinhood;
+    case CryptoCurrency.pivx:
+      return WalletType.pivx;
     default:
       return null;
   }
