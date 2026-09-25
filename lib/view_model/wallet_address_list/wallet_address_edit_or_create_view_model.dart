@@ -49,7 +49,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.bitcoinCash ||
       _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.dogecoin;
+      _wallet.type == WalletType.dogecoin ||
+      _wallet.type == WalletType.pivx;
 
   String get derivationPath => _item?.derivationPath ?? '';
   String get index => _item?.id.toString() ?? '';

@@ -3,6 +3,7 @@ import "dart:developer" as dev;
 import "dart:math";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/pivx/pivx.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/core/wallet_change_listener_view_model.dart";
@@ -204,6 +205,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   WalletType get type => wallet.type;
+
+  @computed
+  bool get isPivxShieldedReceiveAddress =>
+      wallet.type == WalletType.pivx &&
+      RegExp(r'^(ps1|ptestsapling1)').hasMatch(address.address.trim().toLowerCase());
 
   @computed
   WalletAddressListItem get address =>
@@ -510,12 +516,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.decred,
         WalletType.dogecoin,
         WalletType.zcash,
+        WalletType.pivx,
       ].contains(wallet.type) &&
       !isLightning &&
       isZCashTransparent;
 
   @computed
-  bool get hasAddressRotation => hasAddressList && wallet.type != WalletType.zcash;
+  bool get hasAddressRotation =>
+      hasAddressList &&
+      wallet.type != WalletType.zcash &&
+      !isPivxShieldedReceiveAddress;
 
   @computed
   bool get isElectrumWallet => [
@@ -523,6 +533,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.dogecoin,
+        WalletType.pivx,
       ].contains(wallet.type);
 
   List<String> getWalletImages(int? chainId) {
@@ -689,6 +700,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     if (wallet.type == WalletType.zcash) {
       await zcash!.setAddressType(wallet, option);
+    }
+    if (wallet.type == WalletType.pivx) {
+      await pivx!.setAddressType(wallet, option);
     }
   }
 
