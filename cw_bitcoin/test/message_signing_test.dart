@@ -21,6 +21,14 @@ void main() {
       expect(result, isNull);
     });
 
+    test("returns null when the address field is blank", () {
+      final result = resolveMessageSigningAddress(
+        address: "",
+        allAddresses: [_record("bc1qknown")],
+      );
+      expect(result, isNull);
+    });
+
     test("returns the matching record when the address is in the list", () {
       final known = _record("bc1qknown");
       final result = resolveMessageSigningAddress(

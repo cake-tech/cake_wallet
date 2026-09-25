@@ -6,7 +6,7 @@ BitcoinAddressRecord? resolveMessageSigningAddress({
   required String? address,
   required List<BitcoinAddressRecord> allAddresses,
 }) {
-  if (address == null) {
+  if (address == null || address.trim().isEmpty) {
     return null;
   }
 
