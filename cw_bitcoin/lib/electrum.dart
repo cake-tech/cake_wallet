@@ -685,6 +685,15 @@ class ElectrumClient {
         id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
   }
 
+  // PIVX Sapling 0-conf mempool push feed: initial snapshot then the same
+  // envelope on every change.
+  BehaviorSubject<Object>? saplingMempoolSubscribe() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.sapling.mempool.subscribe',
+        method: 'blockchain.sapling.mempool.subscribe');
+  }
+
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object>(
@@ -858,6 +867,10 @@ class ElectrumClient {
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
         _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        break;
+      case 'blockchain.sapling.mempool.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks['blockchain.sapling.mempool.subscribe']?.subject?.add(params.last);
         break;
       default:
         break;
