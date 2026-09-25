@@ -94,6 +94,9 @@ class TransactionListItem extends ActionListItem with Keyable {
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
         if (isPegOut || fromPegOut) return 6;
+      case WalletType.pivx:
+        // Shielded txs carry the confirmations their notes need; transparent none.
+        return transaction.additionalInfo['pivxRequiredConfirmations'] as int? ?? 0;
       default:
         return 0;
     }
@@ -134,6 +137,12 @@ class TransactionListItem extends ActionListItem with Keyable {
           str += " (Unmask)";
         }
         return str;
+      case WalletType.pivx:
+        final needed = neededConfirmations;
+        if (transaction.confirmations >= 0 && transaction.confirmations < needed) {
+          return ' (${transaction.confirmations}/$needed)';
+        }
+        break;
       default:
         return '';
     }
@@ -147,6 +156,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.haven,
       WalletType.wownero,
       WalletType.litecoin,
+      WalletType.pivx,
       WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
@@ -198,6 +208,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.nano:
       case WalletType.decred:
       case WalletType.zcash:
+      case WalletType.pivx:
         amount = calculateFiatAmountRaw(
           cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,
