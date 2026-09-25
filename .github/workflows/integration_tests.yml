@@ -20,8 +20,6 @@ jobs:
   check-suites:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
-    outputs:
-      present: ${{ steps.suites.outputs.present }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,18 +27,14 @@ jobs:
           sparse-checkout: integration_test/suites
 
       - name: Check the branch has the test suites
-        id: suites
         run: |
-          if [[ -d integration_test/suites/tier0 ]]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::This branch has no integration test suites yet, sync it with dev to run them"
+          if [[ ! -d integration_test/suites/tier0 ]]; then
+            echo "::error::This branch has no integration test suites yet, sync it with dev to run them"
+            exit 1
           fi
 
   android-integration-tests:
     needs: check-suites
-    if: needs.check-suites.outputs.present == 'true'
     uses: ./.github/workflows/reusable-integration-test.yml
     with:
       ref: ${{ github.event.pull_request.head.sha || github.sha }}
