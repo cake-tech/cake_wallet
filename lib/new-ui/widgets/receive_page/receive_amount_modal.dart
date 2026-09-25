@@ -94,8 +94,8 @@ class _AmountFormState extends State<_AmountForm> {
   Future<void> _pickToken() => CurrencyPickerSheet.show(
         context: context,
         args: CurrencyPickerArgs(
-          items: widget.state.receivableTokens,
-          selected: widget.state.tokenCurrency,
+          items: widget.bloc.receivableTokens,
+          selected: widget.bloc.selectedToken(widget.state),
           onSelected: (currency) => widget.bloc.add(TokenSelected(currency)),
           symbolResolver: (c) => c.title,
         ),
@@ -135,7 +135,7 @@ class _AmountFormState extends State<_AmountForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 12,
                     children: [
-                      if (widget.state.hasTokens) ...[
+                      if (widget.bloc.hasTokens) ...[
                         // The caption is reused as the picker's semantics label,
                         // so it must not be announced as a separate node.
                         ExcludeSemantics(child: Text(S.of(context).token)),

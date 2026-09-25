@@ -1,8 +1,6 @@
 import "dart:ui";
 
 import "package:bloc_presentation/bloc_presentation.dart";
-import "package:cake_wallet/core/address_types.dart";
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
@@ -13,21 +11,19 @@ import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
-import "package:cake_wallet/src/widgets/base_text_form_field.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/debounce.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
-import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_mobx/flutter_mobx.dart";
-import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AddressesPage extends StatelessWidget {
@@ -129,6 +125,7 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
+    final bloc = context.read<AddressesBloc>();
     final isPicker = widget.isPicker;
     final groups = state.displayableGroups;
     final listStartsAtFirstRow = state.showHidden || isPicker || !state.hasHiddenAddresses;
@@ -143,10 +140,12 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                 child: Column(
                   spacing: 16,
                   children: [
-                    if (state.hasAccounts)
+                    if (bloc.accountLabel case final accountLabel?)
                       _AccountPreviewHeader(
-                        walletName: state.walletName,
-                        accountLabel: context.read<AddressesBloc>().accountLabel,
+                        walletName: bloc.walletName,
+                        accountLabel: accountLabel,
+                        design: bloc.accountCardDesign,
+                        balance: bloc.accountBalance,
                       ),
                     Text(
                       S.of(context).long_press_edit_address,
@@ -155,7 +154,7 @@ class _LoadedWidgetState extends State<_LoadedWidget> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    if (!isPicker && state.showAddManualAddresses) const _AddManualAddressButton(),
+                    if (!isPicker && bloc.showAddManualAddresses) const _AddManualAddressButton(),
                     if (!isPicker && state.hasHiddenAddresses) const _ShowHiddenButton(),
                   ],
                 ),
@@ -227,6 +226,7 @@ class _GroupSection extends StatelessWidget {
     if (group.entries.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
+    final bloc = context.read<AddressesBloc>();
     return SliverMainAxisGroup(
       slivers: [
         if (group.header != null) SliverToBoxAdapter(child: _GroupHeader(header: group.header!)),
@@ -241,15 +241,14 @@ class _GroupSection extends StatelessWidget {
                 selected: entry.address == state.activeAddress && !isPicker,
                 isFirst: isFirstGroup && index == 0 && listStartsAtFirstRow,
                 isLast: index == group.entries.length - 1,
-                walletType: state.walletType,
-                hasReceived: state.hasAccounts,
-                canSetLabel: state.canSetLabel,
-                canHide: state.canHide,
+                walletType: bloc.walletType,
+                hasReceived: bloc.hasAccounts,
+                canSetLabel: bloc.canGenerateAddresses,
+                canHide: bloc.canHide,
                 isPicker: isPicker,
                 onSelect: () => onEntrySelected(context, entry.address),
-                onAddressHidden: () => context
-                    .read<AddressesBloc>()
-                    .add(AddressHideToggled(entry.address, hidden: !entry.isHidden)),
+                onAddressHidden: () =>
+                    bloc.add(AddressHideToggled(entry.address, hidden: !entry.isHidden)),
               );
             },
             separatorBuilder: (_, __) => Padding(
@@ -378,14 +377,23 @@ class _AddressSearchBox extends StatelessWidget {
                 child: MergeSemantics(
                   child: Semantics(
                     label: controller.text.isEmpty ? null : S.of(context).search,
-                    child: BaseTextFormField(
+                    child: TextField(
                       controller: controller,
-                      hintText: S.of(context).search,
-                      placeholderTextStyle: const TextStyle(fontWeight: FontWeight.w600),
-                      prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
-                      fillColor: Colors.transparent,
-                      borderRadius: BorderRadius.circular(99999),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: InputDecoration(
+                        hintText: S.of(context).search,
+                        hintStyle: const TextStyle(fontWeight: FontWeight.w600),
+                        prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
+                        filled: false,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(99999),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(99999),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
                     ),
                   ),
                 ),
@@ -396,46 +404,18 @@ class _AddressSearchBox extends StatelessWidget {
       );
 }
 
-class _AccountPreviewHeader extends StatefulWidget {
-  const _AccountPreviewHeader({required this.walletName, required this.accountLabel});
+class _AccountPreviewHeader extends StatelessWidget {
+  const _AccountPreviewHeader({
+    required this.walletName,
+    required this.accountLabel,
+    required this.design,
+    required this.balance,
+  });
 
   final String walletName;
   final String accountLabel;
-
-  @override
-  State<_AccountPreviewHeader> createState() => _AccountPreviewHeaderState();
-}
-
-class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
-  final DashboardViewModel dashboardViewModel = getIt<DashboardViewModel>();
-  CardDesign? design;
-  ReactionDisposer? _designDisposer;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      _designDisposer = reaction<CardDesign?>(
-        (_) =>
-            dashboardViewModel.cardDesigns.isNotEmpty ? dashboardViewModel.cardDesigns.first : null,
-        (value) {
-          if (mounted) {
-            setState(() => design = value);
-          }
-        },
-        fireImmediately: true,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _designDisposer?.call();
-    super.dispose();
-  }
+  final CardDesign design;
+  final Money? balance;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -453,24 +433,20 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
               Row(
                 spacing: 10,
                 children: [
-                  BalanceCard(
-                    borderRadius: 5,
-                    width: 50,
-                    design: design ?? CardDesign.genericDefault,
-                  ),
+                  BalanceCard(borderRadius: 5, width: 50, design: design),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        widget.accountLabel,
+                        accountLabel,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Text(
-                        widget.walletName,
+                        walletName,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -490,14 +466,7 @@ class _AccountPreviewHeaderState extends State<_AccountPreviewHeader> {
                       color: Theme.of(context).colorScheme.surfaceContainerHigh,
                     ),
                   ),
-                  Observer(
-                    builder: (_) => Text(
-                      dashboardViewModel.balanceViewModel.balances.isNotEmpty
-                          ? dashboardViewModel
-                              .balanceViewModel.balances.values.first.availableBalance
-                          : "",
-                    ),
-                  ),
+                  MoneyText.optional(balance, showSymbol: false),
                 ],
               ),
             ],
@@ -522,7 +491,7 @@ class _ShowHiddenButton extends StatelessWidget {
                     onTap: () async {
                       final bloc = context.read<AddressesBloc>();
                       await Navigator.of(context)
-                          .pushNamed(Routes.receiveAddresses, arguments: true);
+                          .pushNamed(Routes.receiveAddresses, arguments: [bloc.addressType, true]);
                       if (!bloc.isClosed) {
                         bloc.add(const AddressListRefreshed());
                       }

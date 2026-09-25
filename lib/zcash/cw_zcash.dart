@@ -136,12 +136,6 @@ class CWZcash extends Zcash {
   }
 
   @override
-  List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
-    final zcashWallet = wallet as ZcashWallet;
-    return (zcashWallet.walletAddresses as ZcashWalletAddresses).getAddressInfos();
-  }
-
-  @override
   TransactionPriority getDefaultTransactionPriority() {
     return MoneroTransactionPriority.automatic;
   }
@@ -172,28 +166,12 @@ class CWZcash extends Zcash {
     return ZcashReceivePageOption.fromType(type);
   }
 
-  bool hasSelectedTransparentAddress(Object wallet) {
-    return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
-  }
-
   /// The disposable transparent type is the only Zcash address type that
   /// rotates. The public transparent address, both shielded types and the
   /// unified address are all derived from the account and stay the same.
   @override
   bool isRotatingAddressOption(ReceivePageOption option) {
     return option == ZcashReceivePageOption.transparentRotated;
-  }
-
-  @override
-  Future<void> setAddressType(Object wallet, dynamic option) async {
-    final zcashWallet = wallet as ZcashWallet;
-    await (zcashWallet.walletAddresses as ZcashWalletAddresses)
-        .setAddressType(option as ZcashAddressType);
-  }
-
-  @override
-  dynamic getOptionToType(ReceivePageOption option) {
-    return (option as ZcashReceivePageOption).toType();
   }
 
   @override

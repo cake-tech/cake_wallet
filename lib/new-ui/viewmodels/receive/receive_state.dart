@@ -13,35 +13,27 @@ final class ReceiveLoading extends ReceiveState {
 
 final class ReceiveLoaded extends ReceiveState {
   const ReceiveLoaded({
-    required this.addressEntry,
     required this.addressType,
-    required this.addressTypeOptions,
+    required this.addressEntry,
+    required this.hasAddressList,
+    required this.hasAddressRotation,
     required this.cryptoCurrency,
     required this.fiatCurrency,
-    required this.receivableTokens,
     required this.requestedAmount,
     required this.fiatEquivalent,
     required this.isInfoboxDismissed,
     required this.isFetchingInvoice,
     required this.isRotatingAddress,
     required this.paymentUri,
-    required this.isSilentPayments,
-    required this.isLightning,
-    required this.isZCashTransparent,
-    required this.walletId,
-    required this.walletType,
-    required this.walletCurrency,
-    required this.hasTokens,
-    this.isChangingAddressType = false,
   });
 
-  final AddressEntry addressEntry;
   final ReceivePageOption addressType;
-  final List<ReceivePageOption> addressTypeOptions;
+  final AddressEntry addressEntry;
+  final bool hasAddressList;
+  final bool hasAddressRotation;
 
   final CryptoCurrency cryptoCurrency;
   final FiatCurrency? fiatCurrency;
-  final List<CryptoCurrency> receivableTokens;
 
   final Money? requestedAmount;
   final Money? fiatEquivalent;
@@ -49,66 +41,22 @@ final class ReceiveLoaded extends ReceiveState {
   final bool isInfoboxDismissed;
   final bool isFetchingInvoice;
   final bool isRotatingAddress;
-  final bool isChangingAddressType;
 
   final PaymentURI paymentUri;
 
-  final bool isSilentPayments;
-  final bool isLightning;
-  final bool isZCashTransparent;
-
-  final String walletId;
-  final WalletType walletType;
-  final CryptoCurrency walletCurrency;
-  final bool hasTokens;
-
   Currency get inputCurrency => fiatCurrency ?? cryptoCurrency;
 
-  CryptoCurrency? get tokenCurrency => cryptoCurrency == walletCurrency ? null : cryptoCurrency;
+  bool get isLightning => paymentUri is LightningPaymentRequest;
 
-  bool get hasPayjoin =>
-      walletType == WalletType.bitcoin &&
-      !isLightning &&
-      !isSilentPayments &&
-      paymentUri.toString().contains("pj=");
-
-  bool get hasAddressList {
-    if (isLightning) {
-      return false;
-    }
-    if (walletType == WalletType.zcash && !isZCashTransparent) {
-      return false;
-    }
-    return const {
-      WalletType.monero,
-      WalletType.bitcoinCash,
-      WalletType.bitcoin,
-      WalletType.litecoin,
-      WalletType.decred,
-      WalletType.dogecoin,
-      WalletType.zcash,
-    }.contains(walletType);
-  }
-
-  bool get hasAddressRotation =>
-      hasAddressList && walletType != WalletType.zcash && addressType.canRotateAddress;
+  bool get hasPayjoin => paymentUri.toString().contains("pj=");
 
   Money? get amountInInputCurrency => fiatCurrency != null ? fiatEquivalent : requestedAmount;
 
-  String get qrEmbeddedIcon {
-    final token = tokenCurrency;
-    if (token != null && token != CryptoCurrency.btcln) {
-      return token.iconPath ?? getQrImage(walletType);
-    }
-    if (isLightning) {
-      return "assets/images/btc_chain_qr_lightning.svg";
-    }
-    return getQrImage(walletType);
-  }
-
   ReceiveLoaded copyWith({
-    AddressEntry? addressEntry,
     ReceivePageOption? addressType,
+    AddressEntry? addressEntry,
+    bool? hasAddressList,
+    bool? hasAddressRotation,
     CryptoCurrency? cryptoCurrency,
     ValueGetter<FiatCurrency?>? fiatCurrency,
     ValueGetter<Money?>? requestedAmount,
@@ -116,57 +64,38 @@ final class ReceiveLoaded extends ReceiveState {
     bool? isInfoboxDismissed,
     bool? isFetchingInvoice,
     bool? isRotatingAddress,
-    bool? isChangingAddressType,
     PaymentURI? paymentUri,
-    bool? isSilentPayments,
-    bool? isLightning,
-    bool? isZCashTransparent,
   }) =>
       ReceiveLoaded(
-        addressEntry: addressEntry ?? this.addressEntry,
         addressType: addressType ?? this.addressType,
-        addressTypeOptions: addressTypeOptions,
+        addressEntry: addressEntry ?? this.addressEntry,
+        hasAddressList: hasAddressList ?? this.hasAddressList,
+        hasAddressRotation: hasAddressRotation ?? this.hasAddressRotation,
         cryptoCurrency: cryptoCurrency ?? this.cryptoCurrency,
         fiatCurrency: fiatCurrency != null ? fiatCurrency() : this.fiatCurrency,
-        receivableTokens: receivableTokens,
         requestedAmount: requestedAmount != null ? requestedAmount() : this.requestedAmount,
         fiatEquivalent: fiatEquivalent != null ? fiatEquivalent() : this.fiatEquivalent,
         isInfoboxDismissed: isInfoboxDismissed ?? this.isInfoboxDismissed,
         isFetchingInvoice: isFetchingInvoice ?? this.isFetchingInvoice,
         isRotatingAddress: isRotatingAddress ?? this.isRotatingAddress,
-        isChangingAddressType: isChangingAddressType ?? this.isChangingAddressType,
         paymentUri: paymentUri ?? this.paymentUri,
-        isSilentPayments: isSilentPayments ?? this.isSilentPayments,
-        isLightning: isLightning ?? this.isLightning,
-        isZCashTransparent: isZCashTransparent ?? this.isZCashTransparent,
-        walletId: walletId,
-        walletType: walletType,
-        walletCurrency: walletCurrency,
-        hasTokens: hasTokens,
       );
 
   @override
   List<Object?> get props => [
-        addressEntry,
         addressType,
-        addressTypeOptions,
+        addressEntry.address,
+        addressEntry.label,
+        hasAddressList,
+        hasAddressRotation,
         cryptoCurrency,
         fiatCurrency,
-        receivableTokens,
         requestedAmount,
         fiatEquivalent,
         isInfoboxDismissed,
         isFetchingInvoice,
         isRotatingAddress,
-        isChangingAddressType,
         paymentUri.toString(),
-        isSilentPayments,
-        isLightning,
-        isZCashTransparent,
-        walletId,
-        walletType,
-        walletCurrency,
-        hasTokens,
       ];
 }
 

@@ -141,6 +141,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -401,8 +402,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
           (context) => getIt.get<LightningUsernamePage>(param1: settings.arguments as bool?));
 
     case Routes.receiveAddresses:
+      final args = settings.arguments as List<dynamic>;
       return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<AddressesPage>(param1: settings.arguments as bool));
+        (context) => getIt.get<AddressesPage>(
+          param1: args[0] as ReceivePageOption,
+          param2: args[1] as bool,
+        ),
+      );
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
@@ -635,7 +641,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<String>(
         builder: (_) => AddressesPage(
-          bloc: getIt.get<AddressesBloc>(param1: false),
+          bloc: getIt.get<AddressesBloc>(param2: false),
           popOnSelection: true,
         ),
       );

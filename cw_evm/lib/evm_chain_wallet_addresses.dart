@@ -1,6 +1,9 @@
 import "dart:developer";
 
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
+import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_addresses.dart";
 import "package:mobx/mobx.dart";
 
@@ -44,4 +47,19 @@ abstract class EVMChainWalletAddressesBase extends WalletAddresses with Store {
         chainId: _selectedChainId,
         contractAddress: null,
       );
+
+  @override
+  PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) {
+    if (token is! Erc20Token) {
+      return getPaymentUri(amount);
+    }
+
+    return ERC681URI(
+      address: address,
+      amount: amount,
+      chainId: _selectedChainId,
+      contractAddress: token.contractAddress,
+      tokenDecimals: token.decimal,
+    );
+  }
 }

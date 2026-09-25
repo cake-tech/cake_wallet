@@ -253,15 +253,15 @@ class AssetDetailsModal extends StatelessWidget {
                     AssetDetailsModalBottomButton(
                       iconPath: "assets/new-ui/receive.svg",
                       title: S.of(context).receive,
-                      onPressed: () async {
-                        if (mode == AssetDetailsModalModes.ltcPrivate) {
-                          await bitcoin!.setAddressType(
-                              wallet,
-                              bitcoin!
-                                  .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
-                        }
-                        openPage<ReceivePage>(context, param1: asset);
-                      },
+                      onPressed: () => openPage<ReceivePage>(
+                        context,
+                        param1: asset,
+                        param2: asset == CryptoCurrency.btcln
+                            ? bitcoin!.getBitcoinLightningReceivePageOption()
+                            : mode == AssetDetailsModalModes.ltcPrivate
+                                ? bitcoin!.getLitecoinMwebReceivePageOption()
+                                : null,
+                      ),
                     ),
                   ],
                 ),

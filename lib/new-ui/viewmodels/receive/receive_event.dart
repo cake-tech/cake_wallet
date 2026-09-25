@@ -50,10 +50,6 @@ final class AddressesPageClosed extends ReceiveEvent {
   const AddressesPageClosed();
 }
 
-final class _WalletChanged extends ReceiveEvent {
-  const _WalletChanged();
-}
-
 final class _FiatRateChanged extends ReceiveEvent {
   const _FiatRateChanged(this.fiat);
 

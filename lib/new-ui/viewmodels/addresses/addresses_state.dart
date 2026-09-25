@@ -14,13 +14,6 @@ final class AddressesLoaded extends AddressesState {
     required this.activeAddress,
     required this.searchTerm,
     required this.showHidden,
-    required this.hasAccounts,
-    required this.walletId,
-    required this.walletType,
-    required this.walletName,
-    required this.showAddManualAddresses,
-    required this.canSetLabel,
-    required this.canHide,
     this.isSaving = false,
   });
 
@@ -28,13 +21,6 @@ final class AddressesLoaded extends AddressesState {
   final String activeAddress;
   final String searchTerm;
   final bool showHidden;
-  final bool hasAccounts;
-  final String walletId;
-  final WalletType walletType;
-  final String walletName;
-  final bool showAddManualAddresses;
-  final bool canSetLabel;
-  final bool canHide;
   final bool isSaving;
 
   bool get hasHiddenAddresses => groups.any((g) => g.entries.any((e) => e.isHidden));
@@ -71,13 +57,6 @@ final class AddressesLoaded extends AddressesState {
         activeAddress: activeAddress ?? this.activeAddress,
         searchTerm: searchTerm ?? this.searchTerm,
         showHidden: showHidden,
-        hasAccounts: hasAccounts,
-        walletId: walletId,
-        walletType: walletType,
-        walletName: walletName,
-        showAddManualAddresses: showAddManualAddresses,
-        canSetLabel: canSetLabel,
-        canHide: canHide,
         isSaving: isSaving ?? this.isSaving,
       );
 }

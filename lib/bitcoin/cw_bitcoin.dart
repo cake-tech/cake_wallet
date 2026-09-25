@@ -129,22 +129,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<String> generateNewAddress(Object wallet, String label) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final record = bitcoinWallet.walletAddresses.generateNewAddress(label: label);
-    await Future<void>.delayed(Duration.zero);
-    await wallet.save();
-    return record.address;
-  }
-
-  @override
-  Future<void> updateAddress(Object wallet, String address, String label) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.walletAddresses.updateAddress(address, label);
-    await wallet.save();
-  }
-
-  @override
   Object createBitcoinTransactionCredentials(
     List<Output> outputs, {
     required TransactionPriority priority,
@@ -172,23 +156,6 @@ class CWBitcoin extends Bitcoin {
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
         payjoinUri: payjoinUri);
-  }
-
-  @override
-  @computed
-  List<ElectrumSubAddress> getSubAddresses(Object wallet) {
-    final electrumWallet = wallet as ElectrumWallet;
-    return electrumWallet.walletAddresses.addressesByReceiveType
-        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isHidden,
-            isLegacyDerivation: addr.isLegacyDerivation,
-            derivationPath: addr.derivationPath))
-        .toList();
   }
 
   @override
@@ -302,27 +269,9 @@ class CWBitcoin extends Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
 
   @override
-  Future<void> setAddressType(Object wallet, dynamic option) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
-  }
-
-  @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
-  }
-
-  @override
-  bool hasSelectedSilentPayments(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
-  }
-
-  @override
-  bool hasSelectedLightning(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressPageType is LightningAddressType;
   }
 
   @override
@@ -547,38 +496,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.silentAddresses
-        .where((addr) => addr.type != SegwitAddresType.p2tr)
-        .map((addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isHidden,
-            derivationPath: addr.derivationPath))
-        .toList();
-  }
-
-  @override
-  List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.silentAddresses
-        .where((addr) => addr.type == SegwitAddresType.p2tr)
-        .map((addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isHidden,
-            derivationPath: addr.derivationPath))
-        .toList();
-  }
-
-  @override
   bool isBitcoinReceivePageOption(ReceivePageOption option) {
     return option is BitcoinReceivePageOption;
   }
@@ -586,11 +503,6 @@ class CWBitcoin extends Bitcoin {
   @override
   bool isPayjoinAvailable(Object wallet) =>
       (wallet is BitcoinWallet) && (wallet as BitcoinWallet).isPayjoinAvailable;
-
-  @override
-  BitcoinAddressType getOptionToType(ReceivePageOption option) {
-    return (option as BitcoinReceivePageOption).toType();
-  }
 
   @override
   @computed

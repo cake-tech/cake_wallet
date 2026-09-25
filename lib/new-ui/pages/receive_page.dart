@@ -164,18 +164,19 @@ class _LoadedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasAddressTypeSelector = state.addressTypeOptions.length > 1;
+    final bloc = context.read<ReceiveBloc>();
+    final hasAddressTypeSelector = bloc.addressTypeOptions.length > 1;
     final hasLabel = state.addressEntry.label != null && state.addressEntry.label!.isNotEmpty;
     final infobox = ReceiveInfoBox.forWalletType(
       context,
-      state.walletType,
-      supportedCurrencies: state.receivableTokens,
-      onDismissed: () => context.read<ReceiveBloc>().add(const InfoboxDismissed()),
+      bloc.walletType,
+      supportedCurrencies: bloc.receivableTokens,
+      onDismissed: () => bloc.add(const InfoboxDismissed()),
       autoGenerateSubaddressStatus: state.isLightning
           ? AutoGenerateSubaddressStatus.disabled
-          : context.read<ReceiveBloc>().autoGenerateSubaddressStatus,
+          : bloc.autoGenerateSubaddressStatus,
       addressRotates:
-          state.walletType != WalletType.zcash || zcash!.isRotatingAddressOption(state.addressType),
+          bloc.walletType != WalletType.zcash || zcash!.isRotatingAddressOption(state.addressType),
     );
     final isRotationAvailable = state.hasAddressRotation;
 
@@ -227,28 +228,27 @@ class _LoadedWidget extends StatelessWidget {
               ),
               ReceiveQrCode(
                 qrData: state.paymentUri.toString(),
-                embeddedIconAsset: state.qrEmbeddedIcon,
+                embeddedIconAsset: bloc.qrEmbeddedIconOf(state),
                 hasPayjoin: state.hasPayjoin,
                 largeQrMode: largeQrMode,
                 onTap: onQrTap,
                 isFetching: state.isFetchingInvoice,
               ),
-              if (state.tokenCurrency != null && !state.isLightning)
+              if (bloc.selectedToken(state) case final token? when !state.isLightning)
                 ReceiveTokenDisplay(
-                  token: state.tokenCurrency!,
-                  walletType: state.walletType,
+                  token: token,
+                  walletType: bloc.walletType,
                 ),
               if (hasAddressTypeSelector)
                 ReceiveAddressTypeDisplay(
                   selected: state.addressType,
-                  walletType: state.walletType,
+                  walletType: bloc.walletType,
                   largeQrMode: largeQrMode,
                   onTap: () => _showAddressTypePicker(context, state),
-                  isLoading: state.isChangingAddressType,
                 ),
               ReceiveAddressWidget(
                 address: state.addressEntry.address,
-                walletType: state.walletType,
+                walletType: bloc.walletType,
               ),
               // The label chip animates to zero height when there is no
               // label (or in large QR mode); keep it out of the semantics
@@ -273,7 +273,7 @@ class _LoadedWidget extends StatelessWidget {
                 largeQrMode: largeQrMode,
                 copyData: state.hasPayjoin ? null : ClipboardData(text: _copyText(state)),
                 showAddressesButton: state.hasAddressList,
-                showLabelButton: state.hasAddressList && !hasLabel,
+                showLabelButton: state.hasAddressList && bloc.canGenerateAddresses && !hasLabel,
                 onCopyButtonPressed: () => _showPayjoinCopyModal(context, state),
                 onAmountButtonPressed: () => _showAmountModal(context, state),
                 onLabelButtonPressed: () => _showLabelModal(context, state),
@@ -346,9 +346,9 @@ class _LoadedWidget extends StatelessWidget {
       barrierColor: Colors.black.withAlpha(80),
       builder: (_) => Material(
         child: ReceiveAddressTypeSelector(
-          options: state.addressTypeOptions,
+          options: bloc.addressTypeOptions,
           selected: state.addressType,
-          walletType: state.walletType,
+          walletType: bloc.walletType,
         ),
       ),
     );
@@ -364,7 +364,8 @@ class _LoadedWidget extends StatelessWidget {
 
   Future<void> _openAddressesPage(BuildContext context, ReceiveLoaded state) async {
     final bloc = context.read<ReceiveBloc>();
-    await Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
+    await Navigator.of(context)
+        .pushNamed(Routes.receiveAddresses, arguments: [state.addressType, false]);
     if (!bloc.isClosed) {
       bloc.add(const AddressesPageClosed());
     }

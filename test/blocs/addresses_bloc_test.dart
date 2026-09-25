@@ -1,10 +1,12 @@
 import "dart:async";
 
 import "package:bloc_test/bloc_test.dart";
-import "package:cake_wallet/core/active_wallet_service.dart";
 import "package:cake_wallet/core/address_service.dart";
-import "package:cake_wallet/core/address_types.dart";
 import "package:cake_wallet/new-ui/viewmodels/addresses/addresses_bloc.dart";
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/address_generation_wallet.dart";
+import "package:cw_core/receive_page_option.dart";
+import "package:cw_core/wallet_addresses.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -12,11 +14,31 @@ import "package:mocktail/mocktail.dart";
 
 class _MockAddressService extends Mock implements AddressService {}
 
-class _MockActiveWalletService extends Mock implements ActiveWalletService {}
-
-class _FakeWallet extends Fake implements WalletBase {}
-
 class _MockWallet extends Mock implements WalletBase {}
+
+class _MockGeneratingWallet extends Mock implements WalletBase, AddressGenerationWallet {}
+
+class _MockWalletAddresses extends Mock implements WalletAddresses {}
+
+class _Option implements ReceivePageOption {
+  const _Option(this.value);
+
+  @override
+  final String value;
+  @override
+  String? get iconPath => null;
+  @override
+  String? get description => null;
+  @override
+  bool get isCommon => false;
+  @override
+  bool get addAddressWord => false;
+  @override
+  bool get canRotateAddress => true;
+}
+
+const _defaultType = _Option("default-type");
+const _pickedType = _Option("picked-type");
 
 AddressGroup _group(List<AddressEntry> entries, {AddressGroupHeader? header}) =>
     AddressGroup(header: header, entries: entries);
@@ -35,51 +57,53 @@ AddressEntry _entry(
 void main() {
   setUpAll(() {
     registerFallbackValue(const AddressEntry(address: "fallback"));
+    registerFallbackValue(_defaultType);
+    registerFallbackValue(_MockWallet());
   });
 
   late _MockAddressService addressService;
-  late _MockActiveWalletService activeWalletService;
-  late StreamController<WalletBase> walletChangesController;
+  late _MockWalletAddresses walletAddresses;
+  late WalletBase wallet;
+  late Set<String> hiddenAddresses;
 
-  AddressesBloc buildBloc({bool showHidden = false}) => AddressesBloc(
+  AddressesBloc buildBloc({bool showHidden = false, ReceivePageOption? addressType}) =>
+      AddressesBloc(
+        wallet: wallet,
         addressService: addressService,
-        activeWalletService: activeWalletService,
+        addressType: addressType,
         showHidden: showHidden,
       );
 
   void wireDefaults({
     List<AddressGroup> groups = const [],
     String currentAddress = "addr1",
-    bool hasAccounts = false,
     WalletType walletType = WalletType.bitcoin,
     bool isAutoGenerateSubaddressEnabled = false,
-    bool canSetLabel = true,
     bool canHide = true,
+    bool canGenerate = true,
+    String? accountLabel,
   }) {
-    final wallet = _MockWallet();
-    when(() => wallet.id).thenReturn("wallet-a");
-    when(() => wallet.type).thenReturn(walletType);
-    when(() => wallet.name).thenReturn("wallet-a");
-    when(() => addressService.wallet).thenReturn(wallet);
-    when(() => addressService.computeAddressList()).thenReturn(groups);
-    when(() => addressService.currentAddress).thenReturn(currentAddress);
-    when(() => addressService.hasAccounts).thenReturn(hasAccounts);
-    when(
-      () => addressService.isAutoGenerateSubaddressEnabled,
-    ).thenReturn(isAutoGenerateSubaddressEnabled);
-    when(() => addressService.canSetLabel).thenReturn(canSetLabel);
-    when(() => addressService.canHide).thenReturn(canHide);
-    when(() => activeWalletService.walletChanges).thenAnswer((_) => walletChangesController.stream);
+    final WalletBase mockWallet = canGenerate ? _MockGeneratingWallet() : _MockWallet();
+    when(() => mockWallet.type).thenReturn(walletType);
+    when(() => mockWallet.name).thenReturn("wallet-a");
+    when(() => mockWallet.walletAddresses).thenReturn(walletAddresses);
+    wallet = mockWallet;
+
+    when(() => walletAddresses.defaultAddressType).thenReturn(_defaultType);
+    when(() => walletAddresses.addressListFor(any())).thenReturn(groups);
+    when(() => walletAddresses.addressFor(any())).thenReturn(currentAddress);
+    when(() => walletAddresses.canHideAddresses).thenReturn(canHide);
+    when(() => walletAddresses.hiddenAddresses).thenReturn(hiddenAddresses);
+    when(walletAddresses.saveAddressesInBox).thenAnswer((_) async {});
+    when(() => addressService.isAutoGenerateSubaddressEnabled(any(), any()))
+        .thenReturn(isAutoGenerateSubaddressEnabled);
+    when(() => walletAddresses.accountLabel).thenReturn(accountLabel);
   }
 
   setUp(() {
     addressService = _MockAddressService();
-    activeWalletService = _MockActiveWalletService();
-    walletChangesController = StreamController<WalletBase>.broadcast();
-  });
-
-  tearDown(() async {
-    await walletChangesController.close();
+    walletAddresses = _MockWalletAddresses();
+    hiddenAddresses = <String>{};
   });
 
   Future<void> waitForLoaded(AddressesBloc bloc) =>
@@ -104,14 +128,107 @@ void main() {
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "emits Failure when service throws",
+      "emits Failure when the wallet list throws",
       setUp: () {
         wireDefaults();
-        when(() => addressService.computeAddressList()).thenThrow(Exception("boom"));
+        when(() => walletAddresses.addressListFor(any())).thenThrow(Exception("boom"));
       },
       build: buildBloc,
       expect: () => [isA<AddressesLoading>(), isA<AddressesFailure>()],
     );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "lists the wallet's default type when none is passed",
+      setUp: () => wireDefaults(groups: [
+        _group([_entry("addr1")]),
+      ]),
+      build: buildBloc,
+      verify: (bloc) {
+        expect(bloc.addressType, _defaultType);
+        verify(() => walletAddresses.addressListFor(_defaultType)).called(1);
+        verify(() => walletAddresses.addressFor(_defaultType)).called(1);
+      },
+    );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "offers the wallet's one address when the type has no list",
+      setUp: () => wireDefaults(currentAddress: "0xsingleaddress"),
+      build: buildBloc,
+      verify: (bloc) {
+        final groups = (bloc.state as AddressesLoaded).groups;
+        expect(groups, hasLength(1));
+        expect(groups.single.entries.map((e) => e.address), ["0xsingleaddress"]);
+      },
+    );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "lists the type passed in by the receive page",
+      setUp: wireDefaults,
+      build: () => buildBloc(addressType: _pickedType),
+      verify: (bloc) {
+        expect(bloc.addressType, _pickedType);
+        verify(() => walletAddresses.addressListFor(_pickedType)).called(1);
+        verifyNever(() => walletAddresses.addressListFor(_defaultType));
+      },
+    );
+  });
+
+  group("capabilities", () {
+    test("canGenerateAddresses follows AddressGenerationWallet", () {
+      wireDefaults(canGenerate: false);
+      final plain = buildBloc();
+      expect(plain.canGenerateAddresses, isFalse);
+      plain.close();
+
+      wireDefaults(canGenerate: true);
+      final generating = buildBloc();
+      expect(generating.canGenerateAddresses, isTrue);
+      generating.close();
+    });
+
+    test("canHide reads walletAddresses.canHideAddresses", () {
+      wireDefaults(canHide: false);
+      final bloc = buildBloc();
+      expect(bloc.canHide, isFalse);
+      bloc.close();
+    });
+
+    test("hasAccounts follows the wallet's account label", () {
+      wireDefaults(accountLabel: "Primary account");
+      final withAccounts = buildBloc();
+      expect(withAccounts.hasAccounts, isTrue);
+      expect(withAccounts.accountLabel, "Primary account");
+      withAccounts.close();
+
+      wireDefaults();
+      final withoutAccounts = buildBloc();
+      expect(withoutAccounts.hasAccounts, isFalse);
+      withoutAccounts.close();
+    });
+
+    test("showAddManualAddresses needs generation and auto-generate off", () {
+      wireDefaults(isAutoGenerateSubaddressEnabled: false);
+      final manual = buildBloc();
+      expect(manual.showAddManualAddresses, isTrue);
+      manual.close();
+
+      wireDefaults(isAutoGenerateSubaddressEnabled: true);
+      final autoGen = buildBloc();
+      expect(autoGen.showAddManualAddresses, isFalse);
+      autoGen.close();
+
+      wireDefaults(isAutoGenerateSubaddressEnabled: false, canGenerate: false);
+      final noGeneration = buildBloc();
+      expect(noGeneration.showAddManualAddresses, isFalse);
+      noGeneration.close();
+    });
+
+    test("showAddManualAddresses stays on for account wallets with auto-generate on", () {
+      wireDefaults(accountLabel: "Primary account", isAutoGenerateSubaddressEnabled: true);
+      final bloc = buildBloc();
+      expect(bloc.showAddManualAddresses, isTrue);
+      bloc.close();
+    });
   });
 
   group("search", () {
@@ -168,29 +285,24 @@ void main() {
 
   group("mutations", () {
     blocTest<AddressesBloc, AddressesState>(
-      "ActiveAddressSet delegates and refreshes activeAddress",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.setActiveAddress(any())).thenAnswer((_) async {});
-      },
-      build: buildBloc,
+      "ActiveAddressSet writes the wallet address and reads back the type's current one",
+      setUp: () => wireDefaults(currentAddress: "addr1"),
+      build: () => buildBloc(addressType: _pickedType),
       act: (bloc) async {
         await waitForLoaded(bloc);
+        when(() => walletAddresses.addressFor(_pickedType)).thenReturn("addr2");
         bloc.add(const ActiveAddressSet("addr2"));
       },
       wait: const Duration(milliseconds: 20),
-      verify: (_) {
-        verify(() => addressService.setActiveAddress("addr2")).called(1);
+      verify: (bloc) {
+        verify(() => walletAddresses.address = "addr2").called(1);
+        expect((bloc.state as AddressesLoaded).activeAddress, "addr2");
       },
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "AddressHideToggled delegates and refreshes groups",
-      setUp: () {
-        wireDefaults();
-        when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
-            .thenAnswer((_) async {});
-      },
+      "AddressHideToggled adds to hiddenAddresses and saves",
+      setUp: wireDefaults,
       build: buildBloc,
       act: (bloc) async {
         await waitForLoaded(bloc);
@@ -198,15 +310,35 @@ void main() {
       },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
-        verify(() => addressService.setHidden("addr1", hidden: true)).called(1);
+        expect(hiddenAddresses, {"addr1"});
+        verify(walletAddresses.saveAddressesInBox).called(1);
       },
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "AddressLabelSet delegates",
+      "AddressHideToggled with hidden = false removes from hiddenAddresses",
       setUp: () {
         wireDefaults();
-        when(() => addressService.setLabel(any(), any())).thenAnswer((_) async {});
+        hiddenAddresses.addAll({"addr1", "addr2"});
+      },
+      build: buildBloc,
+      act: (bloc) async {
+        await waitForLoaded(bloc);
+        bloc.add(const AddressHideToggled("addr1", hidden: false));
+      },
+      wait: const Duration(milliseconds: 20),
+      verify: (_) {
+        expect(hiddenAddresses, {"addr2"});
+        verify(walletAddresses.saveAddressesInBox).called(1);
+      },
+    );
+
+    blocTest<AddressesBloc, AddressesState>(
+      "AddressLabelSet goes to the wallet",
+      setUp: () {
+        wireDefaults();
+        when(() => (wallet as AddressGenerationWallet).setAddressLabel(any(), any()))
+            .thenAnswer((_) async {});
       },
       build: buildBloc,
       act: (bloc) async {
@@ -216,7 +348,7 @@ void main() {
       wait: const Duration(milliseconds: 20),
       verify: (_) {
         verify(
-          () => addressService.setLabel(
+          () => (wallet as AddressGenerationWallet).setAddressLabel(
             any(that: isA<AddressEntry>().having((e) => e.address, "address", "addr1")),
             "Donations",
           ),
@@ -225,19 +357,29 @@ void main() {
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "AddressAdded delegates",
+      "AddressAdded generates an address of the page's type, not set as active",
       setUp: () {
         wireDefaults();
-        when(() => addressService.addManualAddress(any())).thenAnswer((_) async {});
+        when(
+          () => (wallet as AddressGenerationWallet).generateNewAddress(
+            any(),
+            label: any(named: "label"),
+          ),
+        ).thenAnswer((_) async => "addr-new");
       },
-      build: buildBloc,
+      build: () => buildBloc(addressType: _pickedType),
       act: (bloc) async {
         await waitForLoaded(bloc);
         bloc.add(const AddressAdded("Savings"));
       },
       wait: const Duration(milliseconds: 20),
       verify: (_) {
-        verify(() => addressService.addManualAddress("Savings")).called(1);
+        verify(
+          () => (wallet as AddressGenerationWallet).generateNewAddress(
+            _pickedType,
+            label: "Savings",
+          ),
+        ).called(1);
       },
     );
 
@@ -245,9 +387,14 @@ void main() {
       "AddressAdded is droppable: rapid taps add once",
       setUp: () {
         wireDefaults();
-        final completer = Completer<void>();
-        when(() => addressService.addManualAddress(any())).thenAnswer((_) => completer.future);
-        Future.delayed(const Duration(milliseconds: 20), completer.complete);
+        final completer = Completer<String>();
+        when(
+          () => (wallet as AddressGenerationWallet).generateNewAddress(
+            any(),
+            label: any(named: "label"),
+          ),
+        ).thenAnswer((_) => completer.future);
+        Future.delayed(const Duration(milliseconds: 20), () => completer.complete("addr-new"));
       },
       build: buildBloc,
       act: (bloc) async {
@@ -258,7 +405,12 @@ void main() {
       },
       wait: const Duration(milliseconds: 100),
       verify: (_) {
-        verify(() => addressService.addManualAddress("Savings")).called(1);
+        verify(
+          () => (wallet as AddressGenerationWallet).generateNewAddress(
+            any(),
+            label: "Savings",
+          ),
+        ).called(1);
       },
     );
 
@@ -269,8 +421,12 @@ void main() {
       setUp: () {
         wireDefaults();
         presented.clear();
-        when(() => addressService.addManualAddress(any()))
-            .thenThrow(const AddressServiceException("no new address"));
+        when(
+          () => (wallet as AddressGenerationWallet).generateNewAddress(
+            any(),
+            label: any(named: "label"),
+          ),
+        ).thenThrow(Exception("no new address"));
       },
       build: buildBloc,
       act: (bloc) async {
@@ -287,10 +443,11 @@ void main() {
     );
 
     blocTest<AddressesBloc, AddressesState>(
-      "AddressHideToggled re-emits with fresh groups from service",
+      "AddressHideToggled re-emits with fresh groups from the wallet",
       setUp: () {
-        var call = 0;
-        when(() => addressService.computeAddressList()).thenAnswer((_) {
+        wireDefaults();
+        int call = 0;
+        when(() => walletAddresses.addressListFor(any())).thenAnswer((_) {
           call += 1;
           return call == 1
               ? [
@@ -300,20 +457,6 @@ void main() {
                   _group([_entry("addr1", isHidden: true), _entry("addr2")]),
                 ];
         });
-        final wallet = _MockWallet();
-        when(() => wallet.id).thenReturn("wallet-a");
-        when(() => wallet.type).thenReturn(WalletType.bitcoin);
-        when(() => wallet.name).thenReturn("wallet-a");
-        when(() => addressService.wallet).thenReturn(wallet);
-        when(() => addressService.currentAddress).thenReturn("addr1");
-        when(() => addressService.hasAccounts).thenReturn(false);
-        when(() => addressService.isAutoGenerateSubaddressEnabled).thenReturn(false);
-        when(() => addressService.canSetLabel).thenReturn(true);
-        when(() => addressService.canHide).thenReturn(true);
-        when(() => addressService.setHidden(any(), hidden: any(named: "hidden")))
-            .thenAnswer((_) async {});
-        when(() => activeWalletService.walletChanges)
-            .thenAnswer((_) => walletChangesController.stream);
       },
       build: buildBloc,
       act: (bloc) async {
@@ -325,21 +468,6 @@ void main() {
         final state = bloc.state as AddressesLoaded;
         expect(state.groups.first.entries.first.isHidden, isTrue);
       },
-    );
-  });
-
-  group("wallet change", () {
-    blocTest<AddressesBloc, AddressesState>(
-      "re-initialises on wallet change",
-      setUp: wireDefaults,
-      build: buildBloc,
-      act: (_) async {
-        await Future.delayed(const Duration(milliseconds: 20));
-        walletChangesController.add(_FakeWallet());
-        await Future.delayed(const Duration(milliseconds: 30));
-      },
-      skip: 2,
-      expect: () => [isA<AddressesLoading>(), isA<AddressesLoaded>()],
     );
   });
 }

@@ -43,7 +43,3 @@ final class AddressAdded extends AddressesEvent {
 final class AddressListRefreshed extends AddressesEvent {
   const AddressListRefreshed();
 }
-
-final class _WalletChanged extends AddressesEvent {
-  const _WalletChanged();
-}

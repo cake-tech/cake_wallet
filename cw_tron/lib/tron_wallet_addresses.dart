@@ -1,6 +1,9 @@
 import 'dart:developer';
 
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/payment_uris.dart';
+import "package:cw_core/receive_page_option.dart";
+import "package:cw_core/tron_token.dart";
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -40,4 +43,12 @@ abstract class TronWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   PaymentURI getPaymentUri(String amount) => TronURI(amount: amount, address: address);
+
+  @override
+  PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) =>
+      TronURI(
+        amount: amount,
+        address: address,
+        contractAddress: token is TronToken ? token.contractAddress : null,
+      );
 }

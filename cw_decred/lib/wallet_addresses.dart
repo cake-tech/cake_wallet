@@ -1,4 +1,5 @@
 import 'dart:convert';
+import "package:cw_core/address_entry.dart";
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -110,11 +111,13 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  Future<String> generateNewAddress(String label) async {
+  Future<String> generateNewAddress(String label, {required bool setAsActive}) async {
     // NOTE: This will ignore the gap limit and may cause problems when restoring from seed if too
     // many addresses are taken and not used.
     final addr = await _libwallet.newExternalAddress(walletInfo.name) ?? '';
-    if (addr == "") return addr;
+    if (addr == "") {
+      throw Exception("libdcrwallet returned no new address");
+    }
 
     if (!addressesMap.containsKey(addr)) {
       addressesMap[addr] = "";
@@ -129,10 +132,27 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
         ),
       );
     }
-    selectedAddr = addr;
+    if (setAsActive) {
+      selectedAddr = addr;
+    }
     await saveAddressesInBox();
     return addr;
   }
+
+  @override
+  List<AddressGroup> addressListFor(ReceivePageOption type) => [
+        AddressGroup(
+          entries: getAddressInfos()
+              .map(
+                (info) => AddressEntry(
+                  address: info.address,
+                  label: info.label,
+                  isHidden: hiddenAddresses.contains(info.address),
+                ),
+              )
+              .toList(),
+        ),
+      ];
 
   @override
   List<ReceivePageOption> get receivePageOptions => isTestnet

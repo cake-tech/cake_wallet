@@ -1,3 +1,4 @@
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
@@ -85,8 +86,9 @@ class CoinActionRow extends StatelessWidget {
             ),
             label: S.of(context).receive,
             action: () async {
-              final page =
-                  getIt.get<ReceivePage>(param1: lightningMode ? CryptoCurrency.btcln : null);
+              final page = getIt.get<ReceivePage>(
+                param2: lightningMode ? bitcoin!.getBitcoinLightningReceivePageOption() : null,
+              );
               CupertinoScaffold.showCupertinoModalBottomSheet(
                 context: context,
                 barrierColor: Colors.black.withAlpha(60),

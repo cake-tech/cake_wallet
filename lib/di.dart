@@ -6,7 +6,6 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
-import "package:cake_wallet/core/active_wallet_service.dart";
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
@@ -501,32 +500,30 @@ Future<void> setup({
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
-  getIt
-      .registerLazySingleton<ActiveWalletService>(() => ActiveWalletService(getIt.get<AppStore>()));
-
   getIt.registerLazySingleton<FiatRateService>(() => FiatRateService(
         fiatConversionStore: getIt.get<FiatConversionStore>(),
         settingsStore: getIt.get<SettingsStore>(),
       ));
 
-  getIt.registerLazySingleton<AddressService>(() => AddressService(
-        activeWalletService: getIt.get<ActiveWalletService>(),
-        settingsStore: getIt.get<SettingsStore>(),
-      ));
+  getIt.registerLazySingleton<AddressService>(
+    () => AddressService(settingsStore: getIt.get<SettingsStore>()),
+  );
 
-  getIt.registerFactoryParam<ReceiveBloc, CryptoCurrency?, void>(
-    (initialToken, _) => ReceiveBloc(
+  getIt.registerFactoryParam<ReceiveBloc, CryptoCurrency?, ReceivePageOption?>(
+    (initialToken, initialAddressType) => ReceiveBloc(
+      wallet: getIt.get<AppStore>().wallet!,
       addressService: getIt.get<AddressService>(),
       fiatRateService: getIt.get<FiatRateService>(),
-      activeWalletService: getIt.get<ActiveWalletService>(),
       initialToken: initialToken,
+      initialAddressType: initialAddressType,
     ),
   );
 
-  getIt.registerFactoryParam<AddressesBloc, bool, void>(
-    (showHidden, _) => AddressesBloc(
+  getIt.registerFactoryParam<AddressesBloc, ReceivePageOption?, bool>(
+    (addressType, showHidden) => AddressesBloc(
+      wallet: getIt.get<AppStore>().wallet!,
       addressService: getIt.get<AddressService>(),
-      activeWalletService: getIt.get<ActiveWalletService>(),
+      addressType: addressType,
       showHidden: showHidden,
     ),
   );
@@ -789,8 +786,10 @@ Future<void> setup({
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
 
-  getIt.registerFactoryParam<ReceivePage, CryptoCurrency?, void>(
-    (initialToken, _) => ReceivePage(bloc: getIt.get<ReceiveBloc>(param1: initialToken)),
+  getIt.registerFactoryParam<ReceivePage, CryptoCurrency?, ReceivePageOption?>(
+    (initialToken, initialAddressType) => ReceivePage(
+      bloc: getIt.get<ReceiveBloc>(param1: initialToken, param2: initialAddressType),
+    ),
   );
 
   getIt.registerFactoryParam<SendViewModel, UnspentCoinType?, void>(
@@ -984,8 +983,10 @@ Future<void> setup({
     return NodeListViewModel(appStore, isPow);
   });
 
-  getIt.registerFactoryParam<AddressesPage, bool, void>(
-    (showHidden, _) => AddressesPage(bloc: getIt.get<AddressesBloc>(param1: showHidden)),
+  getIt.registerFactoryParam<AddressesPage, ReceivePageOption, bool>(
+    (addressType, showHidden) => AddressesPage(
+      bloc: getIt.get<AddressesBloc>(param1: addressType, param2: showHidden),
+    ),
   );
 
   getIt.registerFactory(

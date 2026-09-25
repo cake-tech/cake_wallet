@@ -65,23 +65,6 @@ class CWDecred extends Decred {
         priority: priority as DecredTransactionPriority,
       );
 
-  List<WalletInfoAddressInfo> getAddressInfos(Object wallet) {
-    final decredWallet = wallet as DecredWallet;
-    return decredWallet.walletAddresses.getAddressInfos();
-  }
-
-  @override
-  Future<void> updateAddress(Object wallet, String address, String label) async {
-    final decredWallet = wallet as DecredWallet;
-    await decredWallet.walletAddresses.updateAddress(address, label);
-  }
-
-  @override
-  Future<String> generateNewAddress(Object wallet, String label) {
-    final decredWallet = wallet as DecredWallet;
-    return decredWallet.walletAddresses.generateNewAddress(label);
-  }
-
   @override
   List<Unspent> getUnspents(Object wallet) {
     final decredWallet = wallet as DecredWallet;
