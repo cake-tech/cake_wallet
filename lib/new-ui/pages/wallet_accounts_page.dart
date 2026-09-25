@@ -224,8 +224,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                 sections: {
                   "": [
                     ListItemToggle(
-                        keyValue: "Multiple Accounts",
-                        label: "Multiple Accounts",
+                        keyValue: S.of(context).multiple_accounts,
+                        label: S.of(context).multiple_accounts,
                         value: isToggleEnabled,
                         onChanged: (val) async {
                           await widget.dashboardViewModel.setMultiAccountsEnabled(val);
