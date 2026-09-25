@@ -1,0 +1,145 @@
+{
+ "success": true,
+ "contract": "pivx.sapling.electrumx.v1",
+ "version": 1,
+ "server_version": "ElectrumX 1.19.0",
+ "pivx_core_version": "PIVX Core:5.6.1",
+ "coin": "PIVX",
+ "network": "mainnet",
+ "sapling_activation_height": 2700500,
+ "max_block_range": 100,
+ "required_methods": [
+  "blockchain.sapling.get_block_range",
+  "blockchain.sapling.get_best_anchor",
+  "blockchain.sapling.get_witness",
+  "blockchain.sapling.get_nullifier_status",
+  "blockchain.sapling.get_commitment_info"
+ ],
+ "range_response": "envelope",
+ "range_response_format": {
+  "type": "envelope",
+  "global_output_positions": true,
+  "block_hashes": true,
+  "structured_errors": true,
+  "empty_success": true,
+  "partial_failures": true
+ },
+ "features": {
+  "global_output_positions": true,
+  "block_hashes": true,
+  "structured_errors": true,
+  "canonical_witnesses": true,
+  "consistent_db_height": true,
+  "supports_mempool": true,
+  "supports_mempool_subscribe": true
+ },
+ "release_contract_ready": true,
+ "index_status": {
+  "ready": true,
+  "state": "ready",
+  "db_height": 5598158,
+  "daemon_height": 5598158,
+  "lag": 0,
+  "sapling_output_count": 46857,
+  "retryable": false,
+  "consistent_db_height": true
+ },
+ "hex_byte_order": "display",
+ "consensus_anchors": true,
+ "supports_active_height_index": true,
+ "active_heights_max_limit": 50000,
+ "range_error_types": [
+  "invalid_range",
+  "daemon_error",
+  "backend_timeout",
+  "index_not_ready",
+  "missing_block",
+  "index_incomplete",
+  "index_error",
+  "unsupported_method",
+  "server_error"
+ ],
+ "witness_response": "canonical_path",
+ "witness_backend": "/root/electrumx/contrib/pivx_sapling_witness/target/release/pivx_sapling_witness",
+ "witness_path_length": 32,
+ "witness_path_order": "leaf_to_root",
+ "witness_path_encoding": "sapling_node_to_bytes_hex",
+ "witness_error_types": [
+  "witness_backend_unavailable",
+  "witness_backend_timeout",
+  "witness_backend_error",
+  "commitment_not_found",
+  "anchor_not_found",
+  "anchor_mismatch",
+  "index_incomplete",
+  "backend_timeout"
+ ],
+ "methods": [
+  "blockchain.sapling.capabilities",
+  "blockchain.sapling.get_block_range",
+  "blockchain.sapling.get_active_heights",
+  "blockchain.sapling.get_mempool",
+  "blockchain.sapling.mempool.subscribe",
+  "blockchain.sapling.mempool.unsubscribe",
+  "blockchain.sapling.get_nullifier_status",
+  "blockchain.sapling.check_nullifiers",
+  "blockchain.sapling.get_commitment_info",
+  "blockchain.sapling.get_outputs",
+  "blockchain.sapling.get_best_anchor",
+  "blockchain.sapling.get_anchor_height",
+  "blockchain.sapling.get_tree_state",
+  "blockchain.sapling.get_witness",
+  "blockchain.sapling.get_witnesses"
+ ],
+ "aliases": {
+  "blockchain.sapling.capabilities": [
+   "blockchain.sapling.get_capabilities",
+   "server.sapling.capabilities",
+   "sapling.capabilities",
+   "get_capabilities"
+  ],
+  "blockchain.sapling.get_block_range": [
+   "blockchain.sapling.get_blocks",
+   "get_block_range",
+   "sapling.get_block_range"
+  ],
+  "blockchain.sapling.get_active_heights": [
+   "sapling.get_active_heights"
+  ],
+  "blockchain.sapling.get_mempool": [
+   "sapling.get_mempool"
+  ],
+  "blockchain.sapling.mempool.subscribe": [
+   "sapling.mempool.subscribe"
+  ],
+  "blockchain.sapling.mempool.unsubscribe": [
+   "sapling.mempool.unsubscribe"
+  ],
+  "blockchain.sapling.get_nullifier_status": [
+   "blockchain.sapling.check_nullifier",
+   "sapling.get_nullifier_status"
+  ],
+  "blockchain.sapling.check_nullifiers": [],
+  "blockchain.sapling.get_commitment_info": [
+   "blockchain.sapling.get_commitment",
+   "blockchain.commitment.get_info",
+   "sapling.get_commitment_info"
+  ],
+  "blockchain.sapling.get_best_anchor": [
+   "blockchain.sapling.best_anchor",
+   "sapling.get_best_anchor"
+  ],
+  "blockchain.sapling.get_anchor_height": [
+   "blockchain.anchor.get_height",
+   "sapling.get_anchor_height"
+  ],
+  "blockchain.sapling.get_tree_state": [
+   "blockchain.sapling.get_treestate",
+   "sapling.get_tree_state"
+  ],
+  "blockchain.sapling.get_witness": [
+   "sapling.get_witness"
+  ],
+  "blockchain.sapling.get_witnesses": []
+ }
+}
