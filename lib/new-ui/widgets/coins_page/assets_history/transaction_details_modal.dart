@@ -5,9 +5,11 @@ import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_advanced_info_modal.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
+import "package:cake_wallet/src/widgets/fee_fetch_progress_indicator.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
@@ -17,8 +19,7 @@ import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal(
-      {
+  const TransactionDetailsModal({
     required this.transactionDetailsViewModel,
     this.highlightNoteField = false,
     super.key,
@@ -88,60 +89,110 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                           ),
                           Observer(
-                            builder: (_) => CopyWrapper(
-                              requireLongPress: true,
-                              data: ClipboardData(
-                                text: widget.transactionDetailsViewModel.transactionCopyAmount,
-                              ),
-                              builder: (context, copied) => AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                child: Text(
-                                  key: ValueKey(copied),
-                                  copied
-                                      ? S.of(context).copied
-                                      : widget.transactionDetailsViewModel.transactionAmount,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    color: copied
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.onSurface,
+                            builder: (context) {
+                              final vm = widget.transactionDetailsViewModel;
+                              // isAmountPending is only true for a partially-owned
+                              // send (see fromElectrumBundle) - reading
+                              // isFetchingFee/feeFetchFailed here (the same
+                              // observables the fee row reacts to) is what makes
+                              // this rebuild once resolution actually progresses,
+                              // since transactionInfo.amount itself isn't observable.
+                              if (vm.isAmountPending) {
+                                if (vm.isFetchingFee) {
+                                  return FeeFetchProgressIndicator(
+                                    resolved: vm.feeFetchResolvedInputs,
+                                    total: vm.feeFetchTotalInputs,
+                                    diameter: 40,
+                                  );
+                                }
+                                if (vm.feeFetchFailed) {
+                                  return Text(
+                                    "…",
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  );
+                                }
+                              }
+                              return CopyWrapper(
+                                requireLongPress: true,
+                                data: ClipboardData(text: vm.transactionCopyAmount),
+                                builder: (context, copied) => AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: Text(
+                                    key: ValueKey(copied),
+                                    copied ? S.of(context).copied : vm.transactionAmount,
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: copied
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Theme.of(context).colorScheme.onSurface,
+                                    ),
                                   ),
+                                ),
+                              );
+                            },
+                          ),
+                          if (widget.transactionDetailsViewModel.transactionFiatAmount.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                widget.transactionDetailsViewModel.transactionFiatAmount,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
-                          ),
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               spacing: 12,
                               children: [
-                                NewListSections(
-                                  sections: {
-                                    "": widget.transactionDetailsViewModel.items
-                                        .map((item) {
-                                          if (item.value.isEmpty) {
-                                            return null;
-                                          }
+                                Observer(
+                                  builder: (_) => NewListSections(
+                                    sections: {
+                                      "": widget.transactionDetailsViewModel.items
+                                          .map((item) {
+                                            if (item.value.isEmpty) {
+                                              return null;
+                                            }
 
-                                          final shouldBuildBottomWidget = item.value.length > 25;
+                                            final shouldBuildBottomWidget = item.value.length > 25;
+                                            final keyValue =
+                                                ((item.key as ValueKey?)?.value as String?) ??
+                                                    item.title;
 
-                                          return ListItemRegularRow(
-                                            copyableText: item.value,
-                                            showArrow: false,
-                                            keyValue: ((item.key as ValueKey?)?.value as String?) ??
-                                                item.title,
-                                            label: item.title,
-                                            trailingWidget: shouldBuildBottomWidget
-                                                ? null
-                                                : _buildTrailingWidget(item),
-                                            bottomWidget: shouldBuildBottomWidget
-                                                ? _buildBottomWidget(item)
-                                                : null,
-                                          );
-                                        })
-                                        .whereType<ListItem>()
-                                        .toList(),
-                                  },
+                                            return ListItemRegularRow(
+                                              copyableText: item.value,
+                                              showArrow: false,
+                                              keyValue: keyValue,
+                                              label: _isFeeRow(item)
+                                                  ? widget.transactionDetailsViewModel.feeTitle
+                                                  : item.title,
+                                              trailingWidget: shouldBuildBottomWidget
+                                                  ? null
+                                                  // Nested Observer: isFetchingFee/feeFetch*
+                                                  // change on every fee-fetch progress tick.
+                                                  // Reading them here instead of in the outer
+                                                  // Observer keeps those ticks from also
+                                                  // re-running _buildSendBreakdownRows() (an
+                                                  // O(all wallet transactions) scan) on every
+                                                  // single chunk.
+                                                  : Observer(
+                                                      builder: (_) => _buildTrailingWidget(item),
+                                                    ),
+                                              bottomWidget: shouldBuildBottomWidget
+                                                  ? _buildBottomWidget(item)
+                                                  : null,
+                                            );
+                                          })
+                                          .whereType<ListItem>()
+                                          .toList()
+                                        ..addAll(_buildSendBreakdownRows()),
+                                    },
+                                  ),
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
@@ -174,6 +225,36 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                 Observer(
                                   builder: (_) => NewListSections(
                                     sections: {
+                                      if (widget.transactionDetailsViewModel.hasAdvancedInfo)
+                                        "advanced": [
+                                          ListItemRegularRow(
+                                            keyValue: "advanced info",
+                                            label: S.of(context).advanced_info,
+                                            onTap: () {
+                                              widget.transactionDetailsViewModel
+                                                  .ensureFeeResolutionWatched();
+                                              showModalBottomSheet<void>(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                backgroundColor: Colors.transparent,
+                                                // Matches the heightFactor cap this transaction
+                                                // details modal itself is shown with (see
+                                                // history_section.dart) - without it this sheet
+                                                // has nothing capping its height, so it grows all
+                                                // the way to the top of the screen.
+                                                builder: (_) => FractionallySizedBox(
+                                                  heightFactor: 0.9,
+                                                  child: TransactionAdvancedInfoModal(
+                                                    transactionDetailsViewModel:
+                                                        widget.transactionDetailsViewModel,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            trailingIconPath: "assets/new-ui/link_arrow.svg",
+                                            trailingIconSize: 8,
+                                          ),
+                                        ],
                                       "view tx": [
                                         ListItemRegularRow(
                                           keyValue: "view tx on",
@@ -236,11 +317,99 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                   ),
               ],
             ),
-          _ => Text(
-              item.value,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            )
+          _ => _isFeeRow(item) && widget.transactionDetailsViewModel.isFetchingFee
+              ? FeeFetchProgressIndicator(
+                  resolved: widget.transactionDetailsViewModel.feeFetchResolvedInputs,
+                  total: widget.transactionDetailsViewModel.feeFetchTotalInputs,
+                )
+              : _isFeeRow(item) && widget.transactionDetailsViewModel.feeFiatAmount.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          item.value,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.transactionDetailsViewModel.feeFiatAmount,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      item.value,
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    )
         },
+      );
+
+  bool _isFeeRow(TransactionDetailsListItem item) =>
+      (item.key as ValueKey?)?.value == "standard_list_item_transaction_details_fee_key";
+
+  List<ListItem> _buildSendBreakdownRows() {
+    final vm = widget.transactionDetailsViewModel;
+    if (!vm.isConfidentSend || vm.totalSentAmount.isEmpty) {
+      return [];
+    }
+
+    final rows = <ListItem>[];
+
+    // "Total paid" (amount + fee) needs a known fee for this wallet's share.
+    // For a co-spend/consolidation transaction (see hasForeignInputs) that
+    // share can't be known for certain, and the fee row itself is hidden.
+    if (!vm.hasForeignInputs) {
+      rows.add(
+        ListItemRegularRow(
+          keyValue: "standard_list_item_transaction_details_total_sent_key",
+          showArrow: false,
+          label: S.of(context).total_paid,
+          trailingWidget: _buildAmountFiatColumn(
+            vm.totalSentAmount,
+            vm.totalSentFiatAmount,
+          ),
+        ),
+      );
+    }
+
+    if (vm.changeReceivedAmount.isNotEmpty) {
+      rows.add(
+        ListItemRegularRow(
+          keyValue: "standard_list_item_transaction_details_change_received_key",
+          showArrow: false,
+          label: S.of(context).change_received,
+          trailingWidget: _buildAmountFiatColumn(
+            vm.changeReceivedAmount,
+            vm.changeReceivedFiatAmount,
+          ),
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  Widget _buildAmountFiatColumn(String amount, String fiatAmount) => Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            amount,
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+          if (fiatAmount.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              fiatAmount,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
       );
 
   Widget _buildBottomWidget(TransactionDetailsListItem item) {
