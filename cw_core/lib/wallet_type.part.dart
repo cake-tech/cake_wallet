@@ -53,6 +53,8 @@ class WalletTypeAdapter extends TypeAdapter<WalletType> {
         return WalletType.zcash;
       case 19:
         return WalletType.bsc;
+      case 20:
+        return WalletType.pivx;
       default:
         return WalletType.monero;
     }
@@ -120,6 +122,9 @@ class WalletTypeAdapter extends TypeAdapter<WalletType> {
         break;
       case WalletType.bsc:
         writer.writeByte(19);
+        break;
+      case WalletType.pivx:
+        writer.writeByte(20);
         break;
     }
   }
