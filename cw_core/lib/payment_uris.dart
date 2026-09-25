@@ -248,6 +248,21 @@ class ZcashURI extends PaymentURI {
   }
 }
 
+class PivxURI extends PaymentURI {
+  PivxURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'pivx:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class ERC681URI extends PaymentURI {
   ERC681URI({
     required this.chainId,
