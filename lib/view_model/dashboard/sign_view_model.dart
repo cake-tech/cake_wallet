@@ -25,6 +25,7 @@ abstract class SignViewModelBase with Store {
         WalletType.bitcoinCash,
         WalletType.litecoin,
         WalletType.dogecoin,
+        WalletType.pivx,
         WalletType.haven,
       ].contains(wallet.type);
 
