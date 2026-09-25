@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -18,7 +19,9 @@ abstract class ReceiveOptionViewModelBase with Store {
                     ? ReceivePageOption.testnet
                     : _wallet.type == WalletType.zcash
                         ? zcash!.getSelectedAddressType(_wallet)
-                        : ReceivePageOption.mainnet) {
+                        : _wallet.type == WalletType.pivx
+                            ? pivx!.getSelectedAddressType(_wallet)
+                            : ReceivePageOption.mainnet) {
     if (_wallet.type == WalletType.zcash) {
       reaction<bool>(
         (_) => zcash!.ironwoodActive(_wallet.walletAddresses),
