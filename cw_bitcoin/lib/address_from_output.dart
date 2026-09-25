@@ -1,6 +1,16 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 
+/// A network with output scripts bitcoin_base cannot decode (PIVX exchange
+/// addresses) decodes them itself; null falls through to bitcoin_base.
+abstract class OutputScriptDecoder {
+  BitcoinBaseAddress? decodeOutputScript(Script script);
+}
+
 String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
+  if (network is OutputScriptDecoder) {
+    final address = (network as OutputScriptDecoder).decodeOutputScript(script);
+    if (address != null) return address.toAddress(network);
+  }
   try {
     return addressFromScript(script, network).toAddress(network);
   } catch (_) {}

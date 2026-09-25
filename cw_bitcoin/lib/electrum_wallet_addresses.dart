@@ -73,6 +73,10 @@ int firstFreeIndex(Set<int> takenIndexes) {
   return index;
 }
 
+const List<BitcoinAddressType> PIVX_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+];
+
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -426,6 +430,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     } else if (walletInfo.type == WalletType.dogecoin) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    } else if (walletInfo.type == WalletType.pivx) {
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       for (final accountIndex in effectiveAccountIndexes) {
 
@@ -438,6 +444,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     updateAddressesByMatch();
+    // pivx: fix isHidden before the lists below partition on it.
+    if (walletInfo.type == WalletType.pivx) {
+      await Future.wait(_addresses.map(_reconcileAddressMetadata));
+    }
     updateReceiveAddresses();
     updateChangeAddresses();
     await _validateAddresses();
@@ -739,6 +749,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         case WalletType.dogecoin:
           addP2PKHAddressTypes();
           break;
+        case WalletType.pivx:
+          addP2PKHAddressTypes();
+          break;
         default:
           break;
       }
@@ -1020,6 +1033,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const _validationTimeSlice = Duration(milliseconds: 16);
 
   Future<void> _validateAddresses() async {
+    if (walletInfo.type == WalletType.pivx) return;
     final addresses = _addresses.toList();
     final slice = Stopwatch()..start();
 
@@ -1062,6 +1076,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       element.isHiddenChecked = true;
     } on UnsupportedAddressTypeForAccountException catch (e) {
       printV("_validateAddresses: skipping ${element.address}: $e");
+    }
+  }
+
+  // The _validateAddresses flip sets isHidden without re-deriving, leaving records
+  // whose key can't sign. Apply only a branch/derivation combo that re-derives.
+  Future<void> _reconcileAddressMetadata(BitcoinAddressRecord element) async {
+    for (final isLegacyDerivation in <bool>[
+      element.isLegacyDerivation,
+      !element.isLegacyDerivation,
+    ]) {
+      for (final isHidden in <bool>[element.isHidden, !element.isHidden]) {
+        final hd = _hdForAddressGeneration(
+            isHidden: isHidden,
+            type: element.type,
+            isLegacyDerivation: isLegacyDerivation);
+        final derived = await getAddressAsync(
+            index: element.index, hd: hd, addressType: element.type);
+        if (element.address == derived) {
+          if (element.isHidden != isHidden) element.isHidden = isHidden;
+          if (element.isLegacyDerivation != isLegacyDerivation) {
+            element.isLegacyDerivation = isLegacyDerivation;
+          }
+          return;
+        }
+      }
     }
   }
 
