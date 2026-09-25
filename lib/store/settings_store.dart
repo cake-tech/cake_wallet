@@ -804,7 +804,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenMinutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
-  static const defaultShouldSaveRecipientAddress = false;
+  static const defaultShouldSaveRecipientAddress = true;
   static const defaultFiatApiMode = FiatApiMode.enabled;
 
   static const defaultExchangeStatus = ExchangeApiMode.enabled;
