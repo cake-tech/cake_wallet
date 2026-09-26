@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/wallet_connect/utils/dapp_icon.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
@@ -90,8 +91,7 @@ class MethodsUtils {
             title: resolvedTitle,
             swipeLabel: swipeLabel,
             dappName: dAppMetadata?.name ?? '',
-            dappIconUrl:
-                (dAppMetadata?.icons.isNotEmpty ?? false) ? dAppMetadata!.icons.first : null,
+            dappIconUrl: wcDappIconUrl(dAppMetadata),
             dappSubtitle: method ?? dAppMetadata?.url ?? '',
             message: text,
             walletName: appStore.wallet?.name ?? '',

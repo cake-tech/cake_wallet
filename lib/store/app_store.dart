@@ -82,6 +82,14 @@ abstract class AppStoreBase with Store {
     _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
   }
 
+  /// Recreates the WalletConnect client so its relay connection follows the
+  /// current Tor setting.
+  void reconnectWalletConnect() {
+    if (wallet != null && isWalletConnectCompatibleChain(wallet!.type)) {
+      _queueWalletConnectAction(_setupWalletConnect);
+    }
+  }
+
   Future<void> _setupWalletConnect() async {
     try {
       final wcService = getIt.get<WalletKitService>();

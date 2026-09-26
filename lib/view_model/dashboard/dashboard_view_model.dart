@@ -1473,6 +1473,7 @@ abstract class DashboardViewModelBase with Store {
         }
         await wallet.connectToNode(
             node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
+        appStore.reconnectWalletConnect();
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
@@ -1484,6 +1485,7 @@ abstract class DashboardViewModelBase with Store {
         }
         await wallet.connectToNode(
             node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
+        appStore.reconnectWalletConnect();
       }));
     }
   }
