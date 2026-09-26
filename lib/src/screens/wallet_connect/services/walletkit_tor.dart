@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:reown_core/relay_client/websocket/i_http_client.dart';
@@ -71,6 +72,9 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
 
   IOWebSocketChannel? _socket;
 
+  // dart:io never closes a customClient passed to WebSocket.connect.
+  HttpClient? _httpClient;
+
   @override
   int? get closeCode => _socket?.closeCode;
   @override
@@ -102,11 +106,9 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
       if (!uri.hasPort) {
         uri = uri.replace(port: uri.isScheme('wss') ? 443 : 80);
       }
-      _socket = IOWebSocketChannel.connect(
-        uri,
-        // ignore: deprecated_member_use
-        customClient: ProxyWrapper().getHttpClient(),
-      );
+      // ignore: deprecated_member_use
+      _httpClient = ProxyWrapper().getHttpClient();
+      _socket = IOWebSocketChannel.connect(uri, customClient: _httpClient);
     } catch (e) {
       throw ReownCoreError(
         code: -1,
@@ -144,6 +146,8 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
       }
     } catch (_) {}
     _socket = null;
+    _httpClient?.close();
+    _httpClient = null;
   }
 
   @override
