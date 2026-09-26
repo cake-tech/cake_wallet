@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:blockchain_utils/base58/base58.dart';
 import 'package:blockchain_utils/blockchain_utils.dart' as blockchain_utils;
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_transaction_list.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import 'package:flutter/material.dart';
 import 'package:on_chain/solana/solana.dart';
@@ -213,7 +214,7 @@ class SolanaChainService {
 
       if (isApproved) {
         if (params.containsKey('transactions')) {
-          final transactions = params['transactions'] as List<String>;
+          final transactions = readSolanaSignAllTransactions(params["transactions"]);
 
           List<String> signedTransactions = [];
           for (var transaction in transactions) {
