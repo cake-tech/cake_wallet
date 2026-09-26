@@ -42,8 +42,6 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
         }
       });
 
-      updateBleState();
-
       if (!Platform.isIOS) {
         ledgerPlusUSB = sdk.LedgerInterface.usb();
       }
@@ -121,6 +119,14 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   @override
   Future<List<HardwareWalletDevice>> getAllUsbDevices() =>
       ledgerPlusUSB.devices.then((devices) => devices.map(LedgerHardwareWalletDevice.new).toList());
+
+  @override
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async {
+    if (!_bleIsInitialized) {
+      return const [];
+    }
+    return (await ledgerPlusBLE.devices).map(LedgerHardwareWalletDevice.new).toList();
+  }
 
   @override
   Future<void> stopScanning() async {

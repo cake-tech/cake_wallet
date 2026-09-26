@@ -18,6 +18,22 @@ class AnyPaySwapFooter extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Observer(
       builder: (_) {
+        if (exchangeViewModel.noProviderForPair) {
+          return Container(
+            alignment: Alignment.center,
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: colors.error),
+            ),
+            child: Text(
+              S.of(context).no_providers_available,
+              style: textTheme.bodyMedium?.copyWith(color: colors.error, letterSpacing: -0.07),
+            ),
+          );
+        }
+
         if (exchangeViewModel.depositAmount.isEmpty) {
           return const SizedBox.shrink();
         }

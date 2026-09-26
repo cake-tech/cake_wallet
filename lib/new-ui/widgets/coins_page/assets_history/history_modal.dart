@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/csv_export_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_filters_page.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_section.dart';
@@ -17,6 +18,7 @@ class HistoryModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: const ValueKey("history_modal_key"),
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
@@ -33,13 +35,15 @@ class HistoryModal extends StatelessWidget {
             ),
             trailingSemanticLabel: S.of(context).export_csv,
             onTrailingPressed: () =>
-                CsvExportService().exportToCsv(dashboardViewModel.items, context),
+                getIt.get<CsvExportService>().exportToCsv(dashboardViewModel.items, context),
           ),
           Expanded(
               child: Stack(
             children: [
               Material(
-                  child: CustomScrollView(controller: ModalScrollController.of(context), slivers: [
+                  child: CustomScrollView(physics: ClampingScrollPhysics(),
+                      controller: ModalScrollController.of(context),
+                      slivers: [
                 HistorySection(
                     detailsAsPage: true,
                     dashboardViewModel: dashboardViewModel,
@@ -50,23 +54,25 @@ class HistoryModal extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    height: MediaQuery.of(context).viewPadding.bottom + 168,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: <Color>[
-                          Theme.of(context).colorScheme.surface.withAlpha(200),
-                          Theme.of(context).colorScheme.surface.withAlpha(175),
-                          Theme.of(context).colorScheme.surface.withAlpha(150),
-                          Theme.of(context).colorScheme.surface.withAlpha(100),
-                          Theme.of(context).colorScheme.surface.withAlpha(50),
-                          Theme.of(context).colorScheme.surface.withAlpha(25),
-                          Theme.of(context).colorScheme.surface.withAlpha(5),
-                        ],
+                child: IgnorePointer(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      height: MediaQuery.of(context).viewPadding.bottom + 168,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: <Color>[
+                            Theme.of(context).colorScheme.surface.withAlpha(200),
+                            Theme.of(context).colorScheme.surface.withAlpha(175),
+                            Theme.of(context).colorScheme.surface.withAlpha(150),
+                            Theme.of(context).colorScheme.surface.withAlpha(100),
+                            Theme.of(context).colorScheme.surface.withAlpha(50),
+                            Theme.of(context).colorScheme.surface.withAlpha(25),
+                            Theme.of(context).colorScheme.surface.withAlpha(5),
+                          ],
+                        ),
                       ),
                     ),
                   ),

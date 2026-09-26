@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -205,7 +206,10 @@ class _CardsViewState extends State<CardsView> {
                             label: S.current.buy,
                             icon: Icons.arrow_forward_ios_rounded,
                             iconSize: 12,
-                            onTap: () => Navigator.of(context).pushNamed(Routes.buySellPage),
+                            onTap: () {
+                            showModalBottomSheet(
+                                context: context, builder: (context) => BuySellSelectorModal());
+                          },
                           )
                         ]
                       : [];
@@ -351,7 +355,7 @@ class _CardsViewState extends State<CardsView> {
       }
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
         initialPaymentRequest: paymentRequest,
@@ -398,7 +402,7 @@ class _CardsViewState extends State<CardsView> {
       unspentCoinType = UnspentCoinType.lightning;
     }
 
-    if (FeatureFlag.hasNewUiExtraPages && widget.dashboardViewModel.type == WalletType.bitcoin) {
+    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
         initialPaymentRequest: paymentRequest,

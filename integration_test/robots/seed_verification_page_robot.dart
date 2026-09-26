@@ -1,22 +1,19 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import '../components/common_test_cases.dart';
+import "../core/base_robot.dart";
 
-class SeedVerificationPageRobot {
-  SeedVerificationPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class SeedVerificationPageRobot extends BaseRobot {
+  SeedVerificationPageRobot(super.tester);
 
-  final WidgetTester tester;
-  final CommonTestCases commonTestCases;
-
-  Future<void> isSeedVerificationPage() async {
-    await commonTestCases.isSpecificPage<SeedVerificationPage>();
-    await commonTestCases.takeScreenshots('seed_verification_page');
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<SeedVerificationPage>();
   }
 
   void hasTitle() {
-    commonTestCases.hasText(S.current.verify_seed);
+    hasText(S.current.verify_seed);
   }
 
   Future<void> verifyWalletSeeds() async {
@@ -28,18 +25,23 @@ class SeedVerificationPageRobot {
     while (!walletSeedViewModel.isVerificationComplete &&
         walletSeedViewModel.verificationWordCount != 0) {
       final currentCorrectWord = walletSeedViewModel.currentCorrectWord;
+      final currentStep = walletSeedViewModel.currentStepIndex;
 
-      commonTestCases.hasTextAtLestOnce(currentCorrectWord);
+      hasTextAtLeastOnce(currentCorrectWord);
 
-      await commonTestCases.tapItemByKey(
-        'seed_verification_option_${currentCorrectWord}_button_key',
+      await tapByKey("seed_verification_option_${currentCorrectWord}_button_key");
+
+      final hasMovedOn = await pumpUntil(
+        () =>
+            walletSeedViewModel.isVerificationComplete ||
+            walletSeedViewModel.currentStepIndex != currentStep,
       );
 
-      await commonTestCases.defaultSleepTime(seconds: 1);
+      if (!hasMovedOn) {
+        throw TestFailure("Seed verification never moved past step $currentStep");
+      }
     }
 
-    await commonTestCases.tapItemByKey('wallet_seed_page_open_wallet_button_key');
-
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("wallet_seed_page_open_wallet_button_key");
   }
 }
