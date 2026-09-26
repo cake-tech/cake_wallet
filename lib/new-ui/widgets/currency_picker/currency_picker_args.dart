@@ -118,6 +118,7 @@ class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
     required this.items,
+    this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
     required this.onSelected,
@@ -129,6 +130,7 @@ class CurrencyPickerArgs {
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;

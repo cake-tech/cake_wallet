@@ -196,6 +196,38 @@ void main() {
       });
     });
 
+    group("Zcash Address Detection", () {
+      test("detects Zcash transparent address", () {
+        const address = "t1V9mnyk5Z5cTNMCkLbaDwSskgJZucTLdgW";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+        expect(result.address, address);
+      });
+
+      test("detects Zcash shielded address", () {
+        const address =
+            "zsab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efab12cd34efgh56kl";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+      });
+
+      test("detects Zcash unified address", () {
+        const address =
+            "u1z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5z9y8x7w6v5";
+        final result = UniversalAddressDetector.detectAddress(address);
+
+        expect(result.isValid, true);
+        expect(result.detectedCurrency, CryptoCurrency.zec);
+        expect(result.detectedWalletType, WalletType.zcash);
+      });
+    });
+
     group('Wownero Address Detection', () {
       test('detects Wownero address', () {
         const address =

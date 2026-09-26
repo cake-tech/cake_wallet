@@ -66,8 +66,13 @@ class Transfer {
             ? []
             : (json['remote_aliases'] as List<dynamic>).cast<String>(),
         showSender: json['show_sender'] as bool? ?? false,
-        subtransfers: (json['subtransfers'] as List<dynamic>? ?? [])
-            .map((e) => Subtransfer.fromJson(e as Map<String, dynamic>))
+        subtransfers: (json['subtransfers_by_pid'] as List<dynamic>? ?? [])
+            .whereType<Map<String, dynamic>>()
+            .expand(
+              (group) => (group['subtransfers'] as List<dynamic>? ?? [])
+                  .whereType<Map<String, dynamic>>()
+                  .map(Subtransfer.fromJson),
+            )
             .toList(),
         timestamp: json['timestamp'] as int? ?? 0,
         transferInternalIndex: json['transfer_internal_index'] == null

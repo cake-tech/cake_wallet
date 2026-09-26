@@ -80,12 +80,25 @@ class AddressFormatter {
       spans.add(TextSpan(text: '${chunks[i]} ', style: style));
     }
 
-    return RichText(
-      text: TextSpan(children: spans),
-      textAlign: textAlign ?? TextAlign.start,
-      overflow: TextOverflow.visible,
+    return _withAddressSemantics(
+      address: address,
+      child: RichText(
+        text: TextSpan(children: spans),
+        textAlign: textAlign ?? TextAlign.start,
+        overflow: TextOverflow.visible,
+      ),
     );
   }
+
+  /// The visual segmentation turns an address into space-separated pseudo-words
+  /// (and, when truncated, into a literal "..."), which cannot be used to verify
+  /// an address by ear. Announce the full address instead, exactly the way
+  /// `Text.semanticsLabel` does.
+  static Widget _withAddressSemantics({required String address, required Widget child}) =>
+      Semantics(
+        label: address,
+        child: ExcludeSemantics(child: child),
+      );
 
   static Widget _buildTruncatedAddress({
     required String address,
@@ -112,10 +125,13 @@ class AddressFormatter {
         TextSpan(text: lastChunk, style: evenTextStyle),
       ];
 
-      return RichText(
-        text: TextSpan(children: spans),
-        textAlign: textAlign ?? TextAlign.start,
-        overflow: TextOverflow.visible,
+      return _withAddressSemantics(
+        address: address,
+        child: RichText(
+          text: TextSpan(children: spans),
+          textAlign: textAlign ?? TextAlign.start,
+          overflow: TextOverflow.visible,
+        ),
       );
     } else {
       final int digitCount = chunkSize;
@@ -142,10 +158,13 @@ class AddressFormatter {
         TextSpan(text: lastPart, style: evenTextStyle),
       ];
 
-      return RichText(
-        text: TextSpan(children: spans),
-        textAlign: textAlign ?? TextAlign.start,
-        overflow: TextOverflow.visible,
+      return _withAddressSemantics(
+        address: address,
+        child: RichText(
+          text: TextSpan(children: spans),
+          textAlign: textAlign ?? TextAlign.start,
+          overflow: TextOverflow.visible,
+        ),
       );
     }
   }
