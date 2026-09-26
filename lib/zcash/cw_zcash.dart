@@ -172,6 +172,9 @@ class CWZcash extends Zcash {
     return ZcashReceivePageOption.fromType(type);
   }
 
+  @override
+  ReceivePageOption getDefaultReceivePageOption() => ZcashReceivePageOption.shieldedOrchard();
+
   bool hasSelectedTransparentAddress(Object wallet) {
     return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
   }
