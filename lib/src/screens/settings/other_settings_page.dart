@@ -60,7 +60,10 @@ class OtherSettingsPage extends BasePage {
                 ? ListItemSelector(
                     keyValue: "fee_priority",
                     label: S.of(context).settings_fee_priority,
-                    options: [_otherSettingsViewModel.transactionPriority.title],
+                    options: [
+                      _otherSettingsViewModel
+                          .localizedPriorityTitle(_otherSettingsViewModel.transactionPriority)
+                    ],
                     onTap: () async {
                       final items = priorityForWalletType(_otherSettingsViewModel.walletType);
 
@@ -102,7 +105,10 @@ class OtherSettingsPage extends BasePage {
                 : ListItemSelector(
                     keyValue: "fee_priority",
                     label: S.of(context).settings_fee_priority,
-                    options: [_otherSettingsViewModel.transactionPriority.title],
+                    options: [
+                      _otherSettingsViewModel
+                          .localizedPriorityTitle(_otherSettingsViewModel.transactionPriority)
+                    ],
                     onTap: () async {
                       final selectedAtIndex =
                           priorityForWalletType(_otherSettingsViewModel.walletType).indexOf(
