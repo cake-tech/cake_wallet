@@ -12,7 +12,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
-import 'package:payjoin_flutter/receive.dart' as payjoin;
 
 import 'lightning/utils.dart';
 
@@ -40,8 +39,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }) : super(walletInfo);
 
   final PayjoinManager payjoinManager;
-
-  payjoin.Receiver? currentPayjoinReceiver;
 
   @observable
   String? payjoinEndpoint = null;
@@ -74,24 +71,42 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<void> initPayjoin() async {
     try {
       await payjoinManager.initPayjoin();
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
-
-      payjoinManager.resumeSessions();
     } catch (e) {
       printV(e);
-      // Ignore Connectivity errors
       if (!_isPayjoinConnectivityError(e.toString())) rethrow;
     }
   }
 
   @action
-  Future<void> newPayjoinReceiver() async {
-    try {
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(payjoinCompatibleAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+  Future<void> ensurePayjoinReceiver() async {
+    await newPayjoinReceiver();
+  }
 
-      payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
+  @action
+  Future<void> newPayjoinReceiver({bool shouldSaveRecipientAddress = false}) async {
+    // Soft guard: skip silently when the wallet has no spendable UTXOs, so the
+    // receive page can render without surfacing a receiver-creation error.
+    // PayjoinManager.initReceiver also enforces this as a hard guard.
+    if (!payjoinManager.canCreateReceiver) {
+      printV('Skipping payjoin receiver creation: no spendable UTXOs available');
+      return;
+    }
+    try {
+      // Derive the receiver output address once and reuse it for both
+      // initReceiver (which embeds it in the pj endpoint / original PSBT) and
+      // spawnReceiver (which drives proposal processing). Re-deriving would
+      // burn two indices and yield mismatched addresses, breaking output
+      // ownership identification.
+      final address = generatePayjoinCompatibleAddress();
+      final endpoint = await payjoinManager.initReceiver(
+          address, false, 0, shouldSaveRecipientAddress);
+      if (endpoint.isNotEmpty) {
+        payjoinEndpoint = endpoint;
+        await payjoinManager.spawnReceiver(
+          pjEndpoint: endpoint,
+          address: address,
+        );
+      }
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors

@@ -85,6 +85,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               ReceivePageOption.mainnet,
         );
         widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
+        _ensurePayjoinSession();
       }
     });
 
@@ -124,6 +125,20 @@ class _NewReceivePageState extends State<NewReceivePage> {
         widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  void _ensurePayjoinSession() {
+    if (!widget.dashboardViewModel.settingsStore.usePayjoin) {
+      return;
+    }
+    final wallet = widget.addressListViewModel.wallet;
+    if (wallet.type == WalletType.bitcoin) {
+      bitcoin!.ensurePayjoinSession(
+        wallet,
+        shouldSaveRecipientAddress:
+            widget.dashboardViewModel.settingsStore.shouldSaveRecipientAddress,
+      );
+    }
   }
 
   @override
@@ -191,7 +206,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           semanticLabel: _largeQrMode
                               ? S.of(context).share_address
                               : S.of(context).rotate_address,
-                          onPressed: () {
+                          onPressed: () async {
                             if (_largeQrMode) {
                               ShareUtil.share(
                                 text: widget.addressListViewModel.uri.toString(),
@@ -199,7 +214,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               );
                             } else {
                               if (widget.addressListViewModel.hasAddressRotation) {
-                                widget.addressListViewModel.rotateAddress();
+                                await widget.addressListViewModel.rotateAddress();
+                                _ensurePayjoinSession();
                               }
                             }
                           },
