@@ -6,4 +6,4 @@ cd "$(dirname "$0")"
 
 cd ../torch_dart
 
-# ./build.sh x86_64-linux-gnu
+./build.sh x86_64-linux-gnu

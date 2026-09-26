@@ -48,8 +48,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
   static const clearNetAuthority = 'api.trocador.app';
-  static const onionApiAuthority = clearNetAuthority;
-  // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
+  static const onionApiAuthority = '65bsisadnxvw4kfz7h7a3jwcyenrhluuj3kd5toslfzxbk5q4m3wy6qd.onion';
   static const markup = secrets.trocadorExchangeMarkup;
   static const newRatePath = '/new_rate';
   static const createTradePath = '/new_trade';
@@ -539,7 +538,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
-    final uri = Uri.https(onionApiAuthority, path, queryParams);
+    final uri = Uri.http(onionApiAuthority, path, queryParams);
 
     if (useTorOnly) return uri;
 

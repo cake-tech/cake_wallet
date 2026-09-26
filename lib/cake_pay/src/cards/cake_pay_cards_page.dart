@@ -168,12 +168,10 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               child: TabViewWrapper(
                   labelStyle: TextStyle(
                       color: titleColor,
-                      fontFamily: 'Lato',
                       fontSize: 20,
                       fontWeight: FontWeight.w600),
                   unselectedLabelStyle: TextStyle(
                       color: titleColor?.withAlpha(150) ?? Colors.white70,
-                      fontFamily: 'Lato',
                       fontSize: 20,
                       fontWeight: FontWeight.w400),
                   indicatorColor: titleColor,
@@ -477,11 +475,18 @@ class _ShopTabState extends State<_ShopTab> {
                     if (i >= vendors.length) return const _Loading();
                     final vendor = vendors[i];
                     return CardItem(
-                        logoUrl: vendor.card?.cardImageUrl,
-                        title: vendor.name,
-                        subTitle: vendor.card?.description ?? '',
-                        onTap: () => Navigator.pushNamed(context, Routes.cakePayBuyCardPage,
-                            arguments: [vendor]));
+                      logoUrl: vendor.card?.cardImageUrl,
+                      title: vendor.name,
+                      subTitle: vendor.card?.description ?? '',
+                      onTap: () async {
+                        await Navigator.pushNamed(
+                          context,
+                          Routes.cakePayBuyCardPage,
+                          arguments: [vendor],
+                        );
+                        await viewModel.checkAuth();
+                      },
+                    );
                   },
                 ),
               ],

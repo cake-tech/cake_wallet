@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class QrImage extends StatelessWidget {
     this.errorCorrectionLevel = qr.QrErrorCorrectLevel.H,
     this.embeddedImagePath,
     this.badgeImageOnEmbeddedImagePath,
+    this.semanticsLabel,
   });
 
   final double? size;
@@ -23,6 +25,11 @@ class QrImage extends StatelessWidget {
   final int errorCorrectionLevel;
   final String? embeddedImagePath;
   final String? badgeImageOnEmbeddedImagePath;
+
+  /// Accessible name announced for the code itself. Defaults to a generic
+  /// localized "QR code" so the code is always discoverable; pass a more
+  /// specific label when the host screen knows what the code encodes.
+  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +75,13 @@ class QrImage extends StatelessWidget {
           foregroundColor: foregroundColor,
           backgroundColor: backgroundColor,
           padding: const EdgeInsets.all(12.0),
+          // The package default is a hardcoded English "qr code"; use the
+          // localized string so the code is announced in the user's language.
+          semanticsLabel: semanticsLabel ?? S.of(context).scan_qr_code,
         ),
-        centerImageToUse,
+        // The embedded logo and its badge are purely decorative — the node
+        // above already announces the code — so keep them out of the tree.
+        ExcludeSemantics(child: centerImageToUse),
       ],
     );
   }
