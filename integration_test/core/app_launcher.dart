@@ -3,11 +3,15 @@ import "dart:async";
 import "package:cake_wallet/main.dart" as app;
 import "package:flutter/foundation.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
 
 import "benign_errors.dart";
 
 void integrationTest(String description, Future<void> Function(WidgetTester tester) body) {
   testWidgets(description, (tester) async {
+    IntegrationTestWidgetsFlutterBinding.instance.framePolicy =
+        LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+
     final completer = Completer<void>();
 
     final run = runZonedGuarded(() async {
