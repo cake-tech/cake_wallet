@@ -89,6 +89,7 @@ abstract class SettingsStoreBase with Store {
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
       required bool initialBuiltinTor,
+      required bool initialTorSwitchToOnionNodes,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -222,6 +223,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
+        torSwitchToOnionNodes = initialTorSwitchToOnionNodes,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
         evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
@@ -497,6 +499,10 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => currentBuiltinTor, (bool builtinTor) {
       sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
+    });
+
+    reaction((_) => torSwitchToOnionNodes, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.torSwitchToOnionNodesKey, value);
     });
 
     reaction(
@@ -1053,6 +1059,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool currentBuiltinTor;
 
+  @observable
+  bool torSwitchToOnionNodes;
+
   String appVersion;
 
   String deviceName;
@@ -1131,6 +1140,36 @@ abstract class SettingsStoreBase with Store {
 
     return node;
   }
+
+  Future<void> updateNodesForTor(bool torEnabled) async {
+    if (torEnabled && !torSwitchToOnionNodes) return;
+    final all = await Node.getAll();
+    final clearnetIds = _loadNodeIds(PreferencesKey.torClearnetNodeIdsKey);
+    final onionIds = _loadNodeIds(PreferencesKey.torOnionNodeIdsKey);
+    runInAction(() {
+      for (final type in nodes.keys.toList()) {
+        final current = nodes[type]!;
+        final isOnion = current.uri.host.endsWith('.onion');
+        Node? target;
+        if (torEnabled && !isOnion) {
+          target = all.firstWhereOrNull((n) => n.id == onionIds[type.name]) ??
+              all.firstWhereOrNull(
+                  (n) => n.type == type && n.isBuiltin && n.uri.host.endsWith('.onion'));
+          if (target != null) clearnetIds[type.name] = current.id;
+        } else if (!torEnabled && isOnion) {
+          target = all.firstWhereOrNull((n) => n.id == clearnetIds[type.name]);
+          if (target != null) onionIds[type.name] = current.id;
+        }
+        if (target != null) nodes[type] = target;
+      }
+    });
+    await _sharedPreferences.setString(
+        PreferencesKey.torClearnetNodeIdsKey, json.encode(clearnetIds));
+    await _sharedPreferences.setString(PreferencesKey.torOnionNodeIdsKey, json.encode(onionIds));
+  }
+
+  Map<String, dynamic> _loadNodeIds(String key) =>
+      json.decode(_sharedPreferences.getString(key) ?? '{}') as Map<String, dynamic>;
 
   String _getEVMNodePreferenceKey(int chainId) {
     switch (chainId) {
@@ -1569,6 +1608,8 @@ abstract class SettingsStoreBase with Store {
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
     final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
+    final torSwitchToOnionNodes =
+        sharedPreferences.getBool(PreferencesKey.torSwitchToOnionNodesKey) ?? false;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1794,6 +1835,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
+      initialTorSwitchToOnionNodes: torSwitchToOnionNodes,
       mwebAdDismissed: mwebAdDismissed,
       balanceHideCounter: balanceHideCounter,
       zcashMigrationModalViewed: zcashMigrationModalViewed

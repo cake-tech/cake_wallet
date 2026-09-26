@@ -58,6 +58,9 @@ import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
 
+const _mempoolOnionApi =
+    'http://cakememcninjdqbaub3tp2iswuigxqtdoevnpgzkolmy4gvhrrsub3yd.onion/api/v1';
+
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
 abstract class ElectrumWalletBase
@@ -794,7 +797,10 @@ abstract class ElectrumWalletBase
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
         final response = await ProxyWrapper()
-            .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
+            .get(
+              clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"),
+              onionUri: Uri.parse("$_mempoolOnionApi/fees/recommended"),
+            )
             .timeout(Duration(seconds: 15));
 
         final result = json.decode(response.body) as Map<String, dynamic>;
@@ -2487,6 +2493,7 @@ abstract class ElectrumWalletBase
                 clearnetUri: Uri.parse(
                   "https://mempool.cakewallet.com/api/v1/block-height/$height",
                 ),
+                onionUri: Uri.parse("$_mempoolOnionApi/block-height/$height"),
               )
               .timeout(Duration(seconds: 15));
 
@@ -2498,6 +2505,7 @@ abstract class ElectrumWalletBase
                   clearnetUri: Uri.parse(
                     "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
                   ),
+                  onionUri: Uri.parse("$_mempoolOnionApi/block/${blockHash.body}"),
                 )
                 .timeout(Duration(seconds: 15));
             if (blockResponse.statusCode == 200 &&
@@ -3332,6 +3340,7 @@ abstract class ElectrumWalletBase
               clearnetUri: Uri.parse(
                 'https://mempool.cakewallet.com/api/v1/block-height/$h',
               ),
+              onionUri: Uri.parse('$_mempoolOnionApi/block-height/$h'),
             )
             .timeout(const Duration(seconds: 15));
 
@@ -3345,6 +3354,7 @@ abstract class ElectrumWalletBase
               clearnetUri: Uri.parse(
                 'https://mempool.cakewallet.com/api/v1/block/$blockHash',
               ),
+              onionUri: Uri.parse('$_mempoolOnionApi/block/$blockHash'),
             )
             .timeout(const Duration(seconds: 15));
 

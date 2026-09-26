@@ -1467,6 +1467,7 @@ abstract class DashboardViewModelBase with Store {
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
+        await settingsStore.updateNodesForTor(true);
         int? chainId;
         if (isEVMWallet) {
           chainId = evm!.getSelectedChainId(wallet);
@@ -1478,6 +1479,7 @@ abstract class DashboardViewModelBase with Store {
       unawaited(ensureTorStopped(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == true)
           return; // return when tor got enabled in the meantime;
+        await settingsStore.updateNodesForTor(false);
         int? chainId;
         if (isEVMWallet) {
           chainId = evm!.getSelectedChainId(wallet);

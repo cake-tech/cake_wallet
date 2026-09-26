@@ -1580,5 +1580,6 @@
   "zcash_network_upgrade": "Nadogradnja Zcash mreže",
   "zcash_network_upgrade_desc_1": "Zcash je prošao mrežnu nadogradnju pod nazivom Ironwood koja zahtijeva migraciju sredstava prije nego što se mogu potrošiti. Ova migracija je automatska, čuva privatnost i počinje čim otvorite svoj Zcash novčanik.",
   "zcash_network_upgrade_desc_2": "Kada migracija završi, vaš će se raspoloživi saldo vratiti u normalu i možete nastaviti slati i primati Zcash kao i obično.",
-  "zcash_network_upgrade_desc_3": "Dopustite svom Zcash novčaniku da dovrši sinkronizaciju, a zatim ostavite aplikaciju otvorenom dok migracija ne završi što može potrajati nekoliko minuta ovisno o stanju."
+  "zcash_network_upgrade_desc_3": "Dopustite svom Zcash novčaniku da dovrši sinkronizaciju, a zatim ostavite aplikaciju otvorenom dok migracija ne završi što može potrajati nekoliko minuta ovisno o stanju.",
+  "tor_switch_to_onion_nodes": "Prebaci na onion čvorove dok je Tor uključen"
 }

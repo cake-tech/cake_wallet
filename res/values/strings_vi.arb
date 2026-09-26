@@ -1581,5 +1581,6 @@
   "zcash_network_upgrade": "Nâng cấp mạng Zcash",
   "zcash_network_upgrade_desc_1": "Zcash đã trải qua quá trình nâng cấp mạng có tên Ironwood, yêu cầu di chuyển tiền trước khi chúng có thể được chi tiêu. Quá trình di chuyển này diễn ra tự động, bảo vệ quyền riêng tư và bắt đầu ngay khi bạn mở ví Zcash của mình.",
   "zcash_network_upgrade_desc_2": "Khi quá trình di chuyển kết thúc, Số dư khả dụng của bạn sẽ trở lại bình thường và bạn có thể tiếp tục gửi và nhận Zcash như bình thường.",
-  "zcash_network_upgrade_desc_3": "Vui lòng cho phép ví Zcash của bạn hoàn tất đồng bộ hóa, sau đó để ứng dụng mở cho đến khi quá trình di chuyển hoàn tất, quá trình này có thể mất vài phút tùy thuộc vào số dư."
+  "zcash_network_upgrade_desc_3": "Vui lòng cho phép ví Zcash của bạn hoàn tất đồng bộ hóa, sau đó để ứng dụng mở cho đến khi quá trình di chuyển hoàn tất, quá trình này có thể mất vài phút tùy thuộc vào số dư.",
+  "tor_switch_to_onion_nodes": "Chuyển sang các nút onion khi Tor được bật"
 }

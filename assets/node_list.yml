@@ -8,7 +8,9 @@
   isEnabledForAutoSwitching: true
 -
   label: "Cake Wallet (Onion)"
-  uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
+  uri: cakexmrkbd7ptshw7vfzhzqgg77xgeavdrxm6zbu57lppfkj3fczbrqd.onion:18081
+  isOfficial: true
+  trusted: true
 -
   label: "Seth For Privacy"
   uri: node.sethforprivacy.com:443

@@ -1582,5 +1582,6 @@
   "zcash_network_upgrade": "Actualización de la red Zcash",
   "zcash_network_upgrade_desc_1": "Zcash ha experimentado una actualización de red llamada Ironwood que requiere la migración de fondos antes de que puedan gastarse. Esta migración es automática, preserva la privacidad y comienza tan pronto como abre su billetera Zcash.",
   "zcash_network_upgrade_desc_2": "Cuando finalice la migración, su Saldo disponible volverá a la normalidad y podrá continuar enviando y recibiendo Zcash como de costumbre.",
-  "zcash_network_upgrade_desc_3": "Permita que su billetera Zcash termine de sincronizarse y luego deje la aplicación abierta hasta que finalice la migración, lo que puede demorar unos minutos dependiendo del saldo."
+  "zcash_network_upgrade_desc_3": "Permita que su billetera Zcash termine de sincronizarse y luego deje la aplicación abierta hasta que finalice la migración, lo que puede demorar unos minutos dependiendo del saldo.",
+  "tor_switch_to_onion_nodes": "Cambiar a nodos onion mientras Tor esté activado"
 }

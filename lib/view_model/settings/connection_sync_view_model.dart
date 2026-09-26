@@ -88,6 +88,9 @@ abstract class ConnectionSyncViewModelBase with Store {
   @computed
   bool get builtinTor => _settingsStore.currentBuiltinTor;
 
+  @computed
+  bool get torSwitchToOnionNodes => _settingsStore.torSwitchToOnionNodes;
+
   List<AddressSource> get domainLookupSources => AddressResolverService.supportedSources;
 
   bool lookupValue(AddressSource source) {
@@ -290,6 +293,19 @@ abstract class ConnectionSyncViewModelBase with Store {
   }
 
   @action
+  Future<void> setTorSwitchToOnionNodes(bool value) async {
+    _settingsStore.torSwitchToOnionNodes = value;
+    if (!_settingsStore.currentBuiltinTor) return;
+    await _settingsStore.updateNodesForTor(value);
+    int? chainId;
+    if (isEVMCompatibleChain(_wallet.type)) {
+      chainId = evm!.getSelectedChainId(_wallet);
+    }
+    await _wallet.connectToNode(
+        node: _settingsStore.getCurrentNode(_wallet.type, chainId: chainId));
+  }
+
+  @action
   void setBuiltinTor(bool value, BuildContext context) {
     if (value) {
       unawaited(
@@ -310,6 +326,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;
+        await _settingsStore.updateNodesForTor(true);
         int? chainId;
         if (isEVMCompatibleChain(_wallet.type)) {
           chainId = evm!.getSelectedChainId(_wallet);
@@ -320,6 +337,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == true) return;
+        await _settingsStore.updateNodesForTor(false);
         int? chainId;
         if (isEVMCompatibleChain(_wallet.type)) {
           chainId = evm!.getSelectedChainId(_wallet);

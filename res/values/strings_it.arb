@@ -1583,5 +1583,6 @@
   "zcash_network_upgrade": "Aggiornamento della rete Zcash",
   "zcash_network_upgrade_desc_1": "Zcash ha subito un aggiornamento della rete chiamato Ironwood che richiede la migrazione dei fondi prima che possano essere spesi. Questa migrazione è automatica, rispetta la privacy e inizia non appena apri il tuo portafoglio Zcash.",
   "zcash_network_upgrade_desc_2": "Al termine della migrazione, il tuo saldo disponibile tornerà alla normalità e potrai continuare a inviare e ricevere Zcash come al solito.",
-  "zcash_network_upgrade_desc_3": "Consenti al tuo portafoglio Zcash di completare la sincronizzazione, quindi lascia l'app aperta fino al termine della migrazione, che può richiedere alcuni minuti a seconda del saldo."
+  "zcash_network_upgrade_desc_3": "Consenti al tuo portafoglio Zcash di completare la sincronizzazione, quindi lascia l'app aperta fino al termine della migrazione, che può richiedere alcuni minuti a seconda del saldo.",
+  "tor_switch_to_onion_nodes": "Passa ai nodi onion mentre Tor è attivo"
 }

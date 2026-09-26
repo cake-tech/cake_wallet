@@ -6,6 +6,10 @@
   isEnabledForAutoSwitching: true
   label: "Cake Wallet"
 -
+  uri: cakeltcnzbdxhk3dhlzxjnnylxbfhhbx2njegaluyh35t7dca35vcnqd.onion:50001
+  isOfficial: true
+  label: "Cake Wallet (Onion)"
+-
   uri: litecoin.stackwallet.com:20063
   useSSL: true
   isEnabledForAutoSwitching: true
