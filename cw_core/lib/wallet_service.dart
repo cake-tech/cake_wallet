@@ -6,12 +6,15 @@ import 'package:cw_core/imported_nft.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_rename.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
 import 'package:path/path.dart' as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
@@ -42,15 +45,19 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       throw Exception("Wallet not found");
     }
 
+    final oldWalletId = currentWalletInfo.id;
+    final newWalletId = WalletBase.idFor(newName, getType());
+
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());
     await saveBackup(newName);
 
     final typeDir = await pathForWalletTypeDir(type: getType());
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
+    currentWalletInfo.id = newWalletId;
     currentWalletInfo.name = newName;
     currentWalletInfo.dirPath = p.join(typeDir, newName);
     currentWalletInfo.path = await pathForWallet(name: newName, type: getType());
     await currentWalletInfo.save();
+    await _rekeyUnspentCoins(oldWalletId: oldWalletId, newWalletId: newWalletId);
 
     final staleRows = await WalletInfo.selectList(
       'name = ? AND type = ?',
@@ -71,6 +78,25 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       } catch (e) {
         printV('rename: failed to delete old wallet dir "$currentName": $e');
       }
+    }
+  }
+
+  Future<void> _rekeyUnspentCoins({
+    required String oldWalletId,
+    required String newWalletId,
+  }) async {
+    if (!Hive.isBoxOpen(UnspentCoinsInfo.boxName)) {
+      return;
+    }
+
+    final box = Hive.box<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    final updated = rekeyUnspentCoinWalletIds(
+      box.values,
+      oldWalletId: oldWalletId,
+      newWalletId: newWalletId,
+    );
+    for (final coin in updated) {
+      await coin.save();
     }
   }
 
