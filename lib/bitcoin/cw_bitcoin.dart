@@ -498,6 +498,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  int? getTransactionFeeRate(Object transactionInfo) {
+    if (transactionInfo is ElectrumTransactionInfo) {
+      return transactionInfo.feeRateSatsPerVbyte;
+    }
+    return null;
+  }
+
+  @override
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isChangeSufficientForFee(txId, int.parse(newFee));
