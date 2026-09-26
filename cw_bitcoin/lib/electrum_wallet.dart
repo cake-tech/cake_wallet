@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/coin_selection.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -260,6 +263,29 @@ abstract class ElectrumWalletBase
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
 
+  // vbytes an input of the given script type adds to a transaction. The generic
+  // estimate above assumes P2WPKH (68); legacy and taproot inputs differ enough
+  // to break changeless-match arithmetic if not accounted for.
+  static int estimatedInputSize(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 148;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 91;
+    if (type == SegwitAddresType.p2tr) return 58;
+    if (type == SegwitAddresType.p2wsh) return 105;
+    if (type == SilentPaymentsAddresType.p2sp) return 58; // spent via taproot
+    return 68;
+  }
+
+  // vbytes an output of the given script type adds to a transaction. Silent
+  // payment outputs are delivered as taproot.
+  static int estimatedOutputSize(BitcoinAddressType type) {
+    if (type == P2pkhAddressType.p2pkh) return 34;
+    if (type == P2shAddressType.p2wpkhInP2sh) return 32;
+    if (type == SegwitAddresType.p2tr) return 43;
+    if (type == SegwitAddresType.p2wsh) return 43;
+    if (type == SilentPaymentsAddresType.p2sp) return 43;
+    return 31;
+  }
+
   // Parses the account index from a BIP-44/49/84/86 derivation path.
   // e.g. "m/84'/0'/1'" → 1.  Returns 0 for unrecognised formats.
   static int _parseAccountIndex(String? derivationPath) {
@@ -381,6 +407,7 @@ abstract class ElectrumWalletBase
   @override
   bool isTestnet;
 
+  @override
   bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
   @observable
@@ -446,6 +473,15 @@ abstract class ElectrumWalletBase
       currentChainTip = newTip;
     }
     return currentChainTip ?? 0;
+  }
+
+  /// Anti-fee-sniping locktime (current tip, exact-tip), LE-encoded for
+  /// `BitcoinTransactionBuilder`.
+  Future<List<int>> _antiFeeSnipingLocktime() async {
+    return locktimeToBytes(antiFeeSnipingLocktime(
+      chainTip: await getCurrentChainTip(),
+      synced: syncStatus is SyncedSyncStatus,
+    ));
   }
 
   @override
@@ -750,6 +786,9 @@ abstract class ElectrumWalletBase
     }
   }
 
+  static bool _isValidFeeRates(List<int> feeRates) =>
+      feeRates.length == 3 && feeRates.every((rate) => rate > 0);
+
   @action
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
@@ -776,7 +815,7 @@ abstract class ElectrumWalletBase
     }
 
     final feeRates = await electrumClient.feeRates(network: network);
-    if (feeRates != [0, 0, 0]) {
+    if (_isValidFeeRates(feeRates)) {
       _feeRates = feeRates;
     } else if (isTestnet) {
       _feeRates = [1, 1, 1];
@@ -868,11 +907,23 @@ abstract class ElectrumWalletBase
   bool _isBelowDust(BigInt amount) =>
       amount <= networkDustAmount && network != BitcoinNetwork.testnet;
 
+  // Random draw priority per outpoint. Assigned lazily with a secure RNG and kept
+  // until the next createTransaction call, so the recursive estimate passes of one
+  // transaction build all see the same input order (reshuffling between passes made
+  // fee estimation unstable). Cleared per transaction so each send is a fresh draw.
+  final Random _coinSelectionRng = Random.secure();
+  final Map<String, int> _coinSelectionOrder = {};
+
+  int _coinSelectionPriority(BitcoinUnspent utx) => _coinSelectionOrder.putIfAbsent(
+      '${utx.hash}:${utx.vout}', () => _coinSelectionRng.nextInt(1 << 32));
+
   UtxoDetails _createUTXOS({
     required bool sendAll,
     required bool paysToSilentPayment,
     int credentialsAmount = 0,
     int? inputsCount,
+    int feeRate = 0,
+    int? outputsVBytes,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     List<UtxoWithAddress> utxos = [];
@@ -901,8 +952,52 @@ abstract class ElectrumWalletBase
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
-    // sort the unconfirmed coins so that mweb coins are last:
-    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? 1 : -1);
+    // Single Random Draw: order the pool by each coin's random priority so selection is
+    // non-deterministic, removing the predictable address/scan order (a fingerprint).
+    // The priority is stable across the repeated calls of one transaction build.
+    // MWEB coins are kept last afterwards.
+    availableInputs.sort((a, b) {
+      final byPriority = _coinSelectionPriority(a).compareTo(_coinSelectionPriority(b));
+      if (byPriority != 0) return byPriority;
+      return '${a.hash}:${a.vout}'.compareTo('${b.hash}:${b.vout}');
+    });
+    availableInputs = [
+      ...availableInputs.where((u) => u.bitcoinAddressRecord.type != SegwitAddresType.mweb),
+      ...availableInputs.where((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb),
+    ];
+
+    // Branch-and-bound: prefer an input set whose excess over the amount plus its own fee
+    // stays below dust, so the caller drops the change output and the send is changeless.
+    // When no such set exists, the shuffled pool below acts as a single random draw.
+    final canTryChangeless = !sendAll &&
+        inputsCount == null &&
+        credentialsAmount > 0 &&
+        feeRate > 0 &&
+        outputsVBytes != null &&
+        outputsVBytes > 0 &&
+        !availableInputs.any((u) => u.bitcoinAddressRecord.type == SegwitAddresType.mweb);
+    if (canTryChangeless) {
+      final match = changelessMatch(
+        values: [for (final u in availableInputs) u.value],
+        // estimatedTransactionSize(0, 0) is the fixed tx overhead (version,
+        // counters, locktime); the outputs' own vbytes come pre-computed per type.
+        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
+        inputCosts: [
+          for (final u in availableInputs)
+            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+        ],
+        window: networkDustAmount.toInt(),
+      );
+      if (match != null) {
+        final chosen = match.indices.toSet();
+        availableInputs = [
+          for (final i in match.indices) availableInputs[i],
+          for (var i = 0; i < availableInputs.length; i++)
+            if (!chosen.contains(i)) availableInputs[i],
+        ];
+        inputsCount = match.indices.length;
+      }
+    }
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -1024,7 +1119,7 @@ abstract class ElectrumWalletBase
       vinOutpoints: utxoDetails.vinOutpoints,
     );
 
-    if (fee == 0) {
+    if (fee <= 0) {
       throw BitcoinTransactionNoFeeException();
     }
 
@@ -1118,10 +1213,25 @@ abstract class ElectrumWalletBase
       }
     }
 
+    // Per-type output sizes for the changeless target. MWEB outputs follow a
+    // different size model entirely, so they disable the changeless path (null).
+    int? outputsVBytes = 0;
+    for (final out in outputs) {
+      final type =
+          out.isSilentPayment == true ? SilentPaymentsAddresType.p2sp : _getScriptType(out.address);
+      if (type == SegwitAddresType.mweb) {
+        outputsVBytes = null;
+        break;
+      }
+      outputsVBytes = outputsVBytes! + estimatedOutputSize(type);
+    }
+
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount.amount.toInt(),
       inputsCount: inputsCount,
+      feeRate: feeRate,
+      outputsVBytes: outputsVBytes,
       paysToSilentPayment: hasSilentPayment,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
@@ -1173,8 +1283,11 @@ abstract class ElectrumWalletBase
     final changeDerivationPath = "${_hardenedDerivationPath(changeBaseDerivationPath)}"
         "/${changeAddress.isHidden ? "1" : "0"}"
         "/${changeAddress.index}";
+    final changeHd = _hdFor(record: changeAddress).childKey(Bip32KeyIndex(changeAddress.index));
+    final changePubKeyHex = changeHd.publicKey.toHex();
+
     utxoDetails.publicKeys[address.pubKeyHash()] =
-        PublicKeyWithDerivationPath('', changeDerivationPath);
+        PublicKeyWithDerivationPath(changePubKeyHex, changeDerivationPath);
 
     // calcFee updates the silent payment outputs to calculate the tx size accounting
     // for taproot addresses, but if more inputs are needed to make up for fees,
@@ -1205,7 +1318,7 @@ abstract class ElectrumWalletBase
       ));
     }
 
-    if (fee == 0) {
+    if (fee <= 0) {
       throw BitcoinTransactionNoFeeException();
     }
 
@@ -1384,6 +1497,10 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
+      // New transaction, new random draw: drop the previous input ordering so this
+      // build gets fresh priorities, then keep them fixed for all estimate passes.
+      _coinSelectionOrder.clear();
+
       // start by updating unspent coins
       await updateAllUnspents();
 
@@ -1513,6 +1630,8 @@ abstract class ElectrumWalletBase
           });
       }
 
+      final locktime = await _antiFeeSnipingLocktime();
+
       BasedBitcoinTransacationBuilder txb;
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
@@ -1537,6 +1656,7 @@ abstract class ElectrumWalletBase
           inputOrdering: BitcoinOrdering.shuffle,
           outputOrdering: BitcoinOrdering.shuffle,
           enableRBF: !estimatedTx.spendsUnconfirmedTX,
+          locktime: locktime,
         );
       }
 
@@ -1620,7 +1740,7 @@ abstract class ElectrumWalletBase
   HardwareWalletService? hardwareWalletService;
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -2204,11 +2324,13 @@ abstract class ElectrumWalletBase
         }
       }
 
-      // If still not enough, add UTXOs until the fee is covered
+      // If still not enough, add UTXOs until the fee is covered, drawing them at
+      // random instead of in the predictable wallet scan order (address, then age).
       if (remainingFee > BigInt.zero) {
         final unusedUtxos = unspentCoins
             .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
-            .toList();
+            .toList()
+          ..shuffle(Random.secure());
 
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
@@ -2303,6 +2425,7 @@ abstract class ElectrumWalletBase
         inputOrdering: BitcoinOrdering.shuffle,
         outputOrdering: BitcoinOrdering.shuffle,
         enableRBF: true,
+        locktime: await _antiFeeSnipingLocktime(),
       );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
@@ -2513,16 +2636,16 @@ abstract class ElectrumWalletBase
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
     BitcoinAddressType type,
   ) async {
-
     final addressesByType =
-    walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
+        walletAddresses.allAddresses.where((addr) => addr.type == type).toList();
 
     final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
-    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true, legacy: false, type: type);
     final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
-    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true, legacy: true, type: type);
 
-    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
+    walletAddresses.hiddenAddresses
+        .addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
     await Future.wait(addressesByType.map((addressRecord) async {
       final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
@@ -2637,13 +2760,13 @@ abstract class ElectrumWalletBase
 
   Future<void> fetchTransactionsForAddressTypeBatch(
       Map<String, ElectrumTransactionInfo> historiesWithDetails, BitcoinAddressType type) async {
-
     final receiveStandard = getAddressBranchByType(hidden: false, legacy: false, type: type);
-    final changeStandard = getAddressBranchByType(hidden: true,  legacy: false, type: type);
+    final changeStandard = getAddressBranchByType(hidden: true, legacy: false, type: type);
     final receiveLegacy = getAddressBranchByType(hidden: false, legacy: true, type: type);
-    final changeLegacy = getAddressBranchByType(hidden: true,  legacy: true, type: type);
+    final changeLegacy = getAddressBranchByType(hidden: true, legacy: true, type: type);
 
-    walletAddresses.hiddenAddresses.addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
+    walletAddresses.hiddenAddresses
+        .addAll([...changeStandard, ...changeLegacy].map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     await fetchTransactionsForAddressesBranchBatch(
@@ -2665,7 +2788,7 @@ abstract class ElectrumWalletBase
     await fetchTransactionsForAddressesBranchBatch(
       historiesWithDetails,
       type,
-       receiveLegacy,
+      receiveLegacy,
       isHidden: false,
       isLegacyDerivation: true,
     );
@@ -2749,10 +2872,13 @@ abstract class ElectrumWalletBase
     }
   }
 
-  List<BitcoinAddressRecord> getAddressBranchByType({required bool hidden, required bool legacy, required BitcoinAddressType
-  type}) => walletAddresses.allAddresses.where((addr) => addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
-        .toList()
-      ..sort((a, b) => a.index.compareTo(b.index));
+  List<BitcoinAddressRecord> getAddressBranchByType(
+          {required bool hidden, required bool legacy, required BitcoinAddressType type}) =>
+      walletAddresses.allAddresses
+          .where((addr) =>
+              addr.type == type && addr.isHidden == hidden && addr.isLegacyDerivation == legacy)
+          .toList()
+        ..sort((a, b) => a.index.compareTo(b.index));
 
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {

@@ -231,6 +231,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   return item.isCurrent
                                       ? SizedBox.shrink()
                                       : EditWalletButtonWidget(
+                                          key: ValueKey("wallet_list_edit_${item.name}_button_key"),
                                           width: 64,
                                           onTap: () => Navigator.of(context).pushNamed(
                                             Routes.walletEdit,
@@ -314,6 +315,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 trailingWidget: wallet.isCurrent
                                     ? null
                                     : EditWalletButtonWidget(
+                                        key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
                                         width: 64,
                                         onTap: () {
                                           Navigator.of(context).pushNamed(
@@ -339,45 +341,26 @@ class WalletListBodyState extends State<WalletListBody> {
             Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                !FeatureFlag.hasNewUi
-                    ? IgnorePointer(
-                        child: Container(
-                          alignment: Alignment.bottomCenter,
-                          height: 185,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: <Color>[
-                                Theme.of(context).colorScheme.surface.withAlpha(10),
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context).colorScheme.surface
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : IgnorePointer(
-                        child: Container(
-                          height: 275,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: <Color>[
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
-                              ],
-                            ),
-                          ),
-                        ),
+                IgnorePointer(
+                  child: Container(
+                    height: 275,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
+                        ],
                       ),
+                    ),
+                  ),
+                ),
                 Container(
                   height: 240,
                   width: MediaQuery.of(context).size.width,
@@ -464,7 +447,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                      if (FeatureFlag.hasNewUi) SizedBox(height: 52.0)
+                      SizedBox(height: 52.0)
                     ],
                   ),
                 ),

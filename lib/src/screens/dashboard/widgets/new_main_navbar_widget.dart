@@ -51,7 +51,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const iconColorChangeDuration = Duration(milliseconds: 200);
 
   static const pillTextStyle = TextStyle(
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: FontWeight.w500,
   );
 
@@ -193,6 +193,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     inMutuallyExclusiveGroup: true,
                                     label: visibleActions[i].name(context),
                                     child: InkWell(
+                                      key: visibleActions[i].key,
                                       splashFactory: NoSplash.splashFactory,
                                       splashColor: Colors.transparent,
                                       borderRadius: BorderRadius.circular(pillBorderRadius),

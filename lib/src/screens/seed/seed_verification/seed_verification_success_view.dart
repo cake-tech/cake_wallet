@@ -1,17 +1,23 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/new-ui/pages/seed/open_wallet_after_seed_flow.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import "package:cake_wallet/view_model/wallet_seed_view_model.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class SeedVerificationSuccessView extends StatelessWidget {
-  const SeedVerificationSuccessView(
-      {required this.currentTheme, super.key, required this.walletType});
+  const SeedVerificationSuccessView({
+    required this.walletSeedViewModel,
+    required this.isNewWalletCreated,
+    required this.currentTheme,
+    super.key,
+  });
 
+  final WalletSeedViewModel walletSeedViewModel;
+  final bool isNewWalletCreated;
   final MaterialThemeBase currentTheme;
-  final WalletType walletType;
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +71,20 @@ class SeedVerificationSuccessView extends StatelessWidget {
           Spacer(),
           PrimaryButton(
             key: ValueKey('wallet_seed_page_open_wallet_button_key'),
-            onPressed: () {
-              if (walletType == WalletType.bitcoin) {
-                Navigator.of(context).pushNamed(Routes.lightningUsernamePage, arguments: true);
+            onPressed: () async {
+              await walletSeedViewModel.markSeedVerified();
+
+              if (!context.mounted) {
+                return;
+              }
+
+              if (isNewWalletCreated) {
+                openWalletAfterSeedFlow(context, walletSeedViewModel.walletType);
               } else {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }
             },
-            text: (walletType == WalletType.bitcoin)
+            text: isNewWalletCreated && walletSeedViewModel.walletType == WalletType.bitcoin
                 ? S.current.continue_text
                 : S.current.open_wallet,
             color: Theme.of(context).colorScheme.primary,

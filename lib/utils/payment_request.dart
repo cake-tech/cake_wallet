@@ -125,6 +125,31 @@ class PaymentRequest {
     );
   }
 
+  PaymentRequest copyWith({
+    String? address,
+    String? amount,
+    String? note,
+    String? scheme,
+    String? pjUri,
+    String? callbackUrl,
+    String? callbackMessage,
+    String? contractAddress,
+    int? chainId,
+    String? rawTokenAmount,
+  }) =>
+      PaymentRequest(
+        address ?? this.address,
+        amount ?? this.amount,
+        note ?? this.note,
+        scheme ?? this.scheme,
+        pjUri ?? this.pjUri,
+        callbackUrl: callbackUrl ?? this.callbackUrl,
+        callbackMessage: callbackMessage ?? this.callbackMessage,
+        contractAddress: contractAddress ?? this.contractAddress,
+        chainId: chainId ?? this.chainId,
+        rawTokenAmount: rawTokenAmount ?? this.rawTokenAmount,
+      );
+
   final String address;
   final String amount;
   final String note;
