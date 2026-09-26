@@ -2,7 +2,7 @@ name: Cake Wallet Linux
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 on: [pull_request]
 
@@ -11,11 +11,47 @@ defaults:
     shell: bash
 
 jobs:
-  PR_test_build:
-    # Fork PRs don't have access to repository secrets, so the generated
-    # lib/.secrets.g.dart would be empty and the build fails to compile.
-    # Skip for forks, mirroring the Android workflow's internal-build guard.
+  # Builds and pushes the native dependency images on a cache miss, so the jobs below only
+  # ever pull them. On a cache hit this takes about a minute and a half.
+  deps:
+    # Fork PRs don't have access to repository secrets or a token that can push to ghcr.
+    # Skip for forks, mirroring the Android workflow's internal-build guard. Every other
+    # job needs this one, so they are skipped with it.
     if: github.event.pull_request.head.repo.fork == false
+    runs-on: [Linux, amd64, forlinux]
+    permissions:
+      contents: read
+      packages: write
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Build dependencies utilizing ghcr cache
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_USE_CLOUD=true \
+            ./scripts/linux/docker/build.sh
+
+  PR_test_build:
+    needs: deps
     runs-on: [Linux, amd64, forlinux]
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
@@ -88,12 +124,13 @@ jobs:
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
-      - name: Build dependencies utilizing ghcr cache
+      - name: Pull prebuilt dependencies from ghcr
         run: |
           env \
             CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
-            CW_DOCKER_USE_CLOUD=true \
-            ./scripts/linux/docker/build.sh
+            CW_DOCKER_PULL_ONLY=true \
+            ./scripts/linux/docker/build.sh \
+          || { echo "::error::Could not pull the dependency image the deps job published, see the build.sh output above."; exit 1; }
 
       - name: Execute Build and Setup Commands
         run: |
@@ -134,11 +171,96 @@ jobs:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
 
-      # Integration tests moved to integration_tests.yml
-      - name: Test [cw_core]
-        timeout-minutes: 15
-        run: cd cw_core && flutter test
+  unit_tests:
+    needs: deps
+    runs-on: [Linux, amd64, forlinux]
+    timeout-minutes: 90
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      env:
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+      volumes:
+        - /opt/cw_cache_linux/root/.cache:/root/.cache
+        - /opt/cw_cache_linux/root/.ccache:/root/.ccache
+        - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
+        - /var/run/docker.sock:/var/run/docker.sock
 
-      - name: Test [cw_monero]
-        timeout-minutes: 15
-        run: cd cw_monero && flutter test
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+
+      - name: Pull prebuilt dependencies from ghcr
+        run: |
+          env \
+            CW_DOCKER_REGISTRY=ghcr.io/cake-tech/cake_wallet \
+            CW_DOCKER_PULL_ONLY=true \
+            ./scripts/linux/docker/build.sh \
+          || { echo "::error::Could not pull the dependency image the deps job published, see the build.sh output above."; exit 1; }
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Generate placeholder secrets
+        run: |
+          dart run tool/generate_new_secrets.dart
+
+      - name: Build generated code
+        run: |
+          ./model_generator.sh async
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
+
+      - name: Run unit tests
+        run: |
+          failed=()
+          printf "| Package | Result |\n|---|---|\n" >> "$GITHUB_STEP_SUMMARY"
+          for pkg in . cw_*; do
+            if [[ ! -d "$pkg/test" ]]; then
+              continue
+            fi
+            name=$(basename "$(cd "$pkg" && pwd)")
+            echo "=== flutter test: $name ==="
+            if (cd "$pkg" && flutter test); then
+              echo "| $name | passed |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              failed+=("$name")
+              echo "| $name | FAILED |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          if (( ${#failed[@]} > 0 )); then
+            echo "::error::Unit tests failed in: ${failed[*]}"
+            exit 1
+          fi
+          echo "All unit tests passed"
