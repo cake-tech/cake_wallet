@@ -1,6 +1,10 @@
+import "dart:io";
+
+import "package:cw_core/cake_hive.dart";
 import "package:cw_core/unspent_coins_info.dart";
 import "package:cw_core/wallet_rename.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:hive/hive.dart";
 
 UnspentCoinsInfo _coin(String walletId, {required bool isFrozen}) => UnspentCoinsInfo(
       walletId: walletId,
@@ -32,5 +36,27 @@ void main() {
     expect(frozen.walletId, "bitcoin_new");
     expect(frozen.isFrozen, isTrue);
     expect(other.walletId, "bitcoin_other");
+  });
+
+  test("rekeys unspent coins stored on CakeHive", () async {
+    final dir = await Directory.systemTemp.createTemp("unspent_rekey");
+    CakeHive.init(dir.path);
+    if (!CakeHive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+      CakeHive.registerAdapter(UnspentCoinsInfoAdapter());
+    }
+
+    final box = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    final frozen = _coin("bitcoin_old", isFrozen: true);
+    await box.add(frozen);
+
+    expect(Hive.isBoxOpen(UnspentCoinsInfo.boxName), isFalse);
+
+    await rekeyOpenUnspentCoins(oldWalletId: "bitcoin_old", newWalletId: "bitcoin_new");
+
+    expect(frozen.walletId, "bitcoin_new");
+    expect(frozen.isFrozen, isTrue);
+
+    await box.close();
+    await dir.delete(recursive: true);
   });
 }
