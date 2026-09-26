@@ -3,13 +3,17 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:flutter/cupertino.dart";
@@ -33,80 +37,100 @@ class SyncKeyImagesSheet extends StatefulWidget {
 
 class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet> {
   _KeyImageSyncState _state = _KeyImageSyncState.initial;
+  bool _dontShowAgain = false;
+
+  SettingsStore get settingsStore => widget.appStore.settingsStore;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (!settingsStore.shouldShowTrezorResyncInfo) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _onContinuePressed();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
         canPop: false,
-        child: SafeArea(
-          bottom: false,
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: Column(
-                  children: [
-                    ModalTopBar(
-                      title: S.of(context).resync_device,
-                      leadingIcon: Icon(
-                        Icons.close,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      onLeadingPressed: () => showPopUp(
-                        context: context,
-                        builder: (context) => AlertWithTwoActions(
-                          alertTitle: S.of(context).are_you_sure_exit,
-                          alertContent: S.of(context).resync_device_cancel_warning_desc,
-                          leftButtonText: S.of(context).cancel,
-                          rightButtonText: S.of(context).yes_exit,
-                          rightAlertButtonStyle: AlertButtonStyle.error(context),
-                          actionLeftButton: Navigator.of(context).pop,
-                          actionRightButton: () {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                          },
+        // This is pushed as a plain route (no Scaffold), so provide the
+        // Material ancestor ourselves or every Text without an explicit colour
+        // renders in Flutter's red/yellow "no Material" fallback style.
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(
+            bottom: false,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      ModalTopBar(
+                        title: S.of(context).resync_device,
+                        leadingIcon: Icon(
+                          Icons.close,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        onLeadingPressed: () => showPopUp(
+                          context: context,
+                          builder: (context) => AlertWithTwoActions(
+                            alertTitle: S.of(context).are_you_sure_exit,
+                            alertContent: S.of(context).resync_device_cancel_warning_desc,
+                            leftButtonText: S.of(context).cancel,
+                            rightButtonText: S.of(context).yes_exit,
+                            rightAlertButtonStyle: AlertButtonStyle.error(context),
+                            actionLeftButton: Navigator.of(context).pop,
+                            actionRightButton: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        spacing: 12,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CakeImageWidget(
-                            imageUrl: hardwareWalletIcon,
-                            width: 100,
-                            colorFilter: ColorFilter.mode(
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                              BlendMode.srcIn,
+                      Expanded(
+                        child: Column(
+                          spacing: 12,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CakeImageWidget(
+                              imageUrl: hardwareWalletIcon,
+                              width: 100,
+                              colorFilter: ColorFilter.mode(
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          DirectionalAnimatedSwitcher(
-                            duration: const Duration(milliseconds: 400),
-                            child: content,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: AnimatedOpacity(
-                        curve: Curves.easeOutQuad,
-                        opacity: _state == _KeyImageSyncState.initial ? 1 : 0,
-                        duration: const Duration(milliseconds: 300),
-                        child: PrimaryButton(
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary,
-                          onPressed: _onContinuePressed,
+                            DirectionalAnimatedSwitcher(
+                              duration: const Duration(milliseconds: 400),
+                              child: content,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: AnimatedOpacity(
+                          curve: Curves.easeOutQuad,
+                          opacity: _state == _KeyImageSyncState.initial ? 1 : 0,
+                          duration: const Duration(milliseconds: 300),
+                          child: PrimaryButton(
+                            text: S.of(context).continue_text,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            onPressed: _onContinuePressed,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -156,65 +180,131 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => _dontShowAgain = !_dontShowAgain),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 12,
+                children: [
+                  NewSimpleCheckbox(
+                    value: _dontShowAgain,
+                    onChanged: (value) => setState(() => _dontShowAgain = value),
+                  ),
+                  Flexible(
+                    child: Text(
+                      S.of(context).do_not_show_me,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       );
 
   Widget _syncingKeyImages() => Column(
-    key: const ValueKey(1),
-    spacing: 12,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        S.of(context).proceed_on_device,
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text(
-          S.of(context).proceed_on_device_description,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        key: const ValueKey(1),
+        spacing: 12,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            S.of(context).proceed_on_device,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            ),
           ),
-        ),
-      )
-    ],
-  );
-
-  Future<void> _onContinuePressed() async {
-    setState(() => _state = _KeyImageSyncState.syncing);
-
-    if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-      await Navigator.of(context).pushNamed(
-        Routes.connectDevices,
-        arguments: ConnectDevicePageParams(
-          walletType: widget.wallet.type,
-          hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
-          onConnectDevice: (_, __) {
-            widget.trezorConnectVM.initWallet(widget.wallet);
-            Navigator.of(context).pop();
-          },
-          isReconnect: false,
-        ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              S.of(context).trezor_step_key_image_sync,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        ],
       );
 
-      // Recheck to handle tap-backs
-      if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-        setState(() => _state = _KeyImageSyncState.initial);
-        return;
-      }
-    } else {
-      await widget.trezorConnectVM.initWallet(widget.wallet);
+  Future<void> _onContinuePressed() async {
+    if (_dontShowAgain) settingsStore.shouldShowTrezorResyncInfo = false;
+
+    setState(() => _state = _KeyImageSyncState.syncing);
+
+    final initialised = await _initWallet();
+    if (!mounted) return;
+    if (!initialised) {
+      // Backed out of the connect page, exited the passphrase prompt, or the
+      // session could not be bound (the view model has shown why). Back to
+      // the explanation with the Continue button instead of a dead spinner.
+      setState(() => _state = _KeyImageSyncState.initial);
+      return;
     }
 
     final result = await widget.trezorConnectVM.syncKeyImages(widget.wallet);
-    if (result && context.mounted) {
+    if (!mounted) return;
+    if (result) {
       Navigator.of(context).pop();
+      return;
     }
+
+    // Leave the sheet usable instead of stuck on the syncing state: back to
+    // the explanation with the Continue button, and say what happened.
+    setState(() => _state = _KeyImageSyncState.initial);
+    await showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithOneAction(
+        alertTitle: S.of(dialogContext).error,
+        alertContent:
+            widget.trezorConnectVM.lastSyncError ?? S.of(dialogContext).trezor_error_disconnected,
+        buttonText: S.of(dialogContext).ok,
+        buttonAction: () => Navigator.of(dialogContext).pop(),
+      ),
+    );
+  }
+
+  /// Binds the device session to this wallet, reconnecting first when needed.
+  /// False when the user backed out or the session could not be bound.
+  Future<bool> _initWallet() async {
+    var initialised = false;
+    Future<void> init() async {
+      try {
+        await widget.trezorConnectVM.initWallet(widget.wallet);
+        initialised = true;
+      } catch (e) {
+        printV(e);
+      }
+    }
+
+    if (widget.trezorConnectVM.isConnected(widget.wallet.type)) {
+      await init();
+      return initialised;
+    }
+
+    await Navigator.of(context).pushNamed(
+      Routes.connectDevices,
+      arguments: ConnectDevicePageParams(
+        walletType: widget.wallet.type,
+        hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
+        onConnectDevice: (_, __) async {
+          await init();
+          if (mounted) Navigator.of(context).pop();
+        },
+        isReconnect: false,
+        reconnectWallet: widget.wallet,
+      ),
+    );
+    // A tap-back never runs the callback, so `initialised` stays false.
+    return initialised;
   }
 }
 

@@ -192,7 +192,10 @@ abstract class BaseRobot {
       return null;
     }
 
-    return tester.widget<Text>(finder.first).data;
+    final text = tester.widget<Text>(finder.first);
+    // A Text.rich (e.g. the wallet name with its inline hardware-wallet icon)
+    // carries its content in the span, not in `data`.
+    return text.data ?? text.textSpan?.toPlainText(includePlaceholders: false);
   }
 
   static bool _surfaceConverted = false;
