@@ -4,31 +4,44 @@ String formatFixed(BigInt value, int? decimals, {int? fractionalDigits, bool tri
   decimals ??= 0;
   fractionalDigits ??= decimals;
 
-  final multiplier = multiplierOf(decimals);
-  var negative = value.isNegative;
-  if (negative) value = -value;
+  final multiplier = getMultiplier(decimals);
+  // Make sure wei is a big number (convert as necessary)
+  final negative = value.isNegative;
+  if (negative) {
+    value = -value;
+  }
 
-  var fraction = (value % multiplier).toString().padLeft(decimals, "0");
+  var fraction =
+      value.modPow(BigInt.one, BigInt.parse(multiplier)).toString().padLeft(decimals, "0");
 
-  if (fractionalDigits < 0) fractionalDigits = 0;
-  if (fractionalDigits > decimals) fractionalDigits = decimals;
+  if (fractionalDigits < 0) {
+    fractionalDigits = 0;
+  }
+  if (fractionalDigits > decimals) {
+    fractionalDigits = decimals;
+  }
   fraction = fraction.substring(0, fractionalDigits);
 
   if (trimZeros) {
     fraction = removeTrailing("0", fraction);
   }
 
-  final whole = value ~/ multiplier;
+  final whole = value ~/ BigInt.parse(multiplier);
 
   final valString = fraction.isEmpty ? "$whole" : "$whole.$fraction";
 
-  if (negative) return "-$valString";
+  if (negative) {
+    return "-$valString";
+  }
 
   return valString;
 }
 
 String removeTrailing(String pattern, String from) {
-  if (pattern.isEmpty) return from;
+  if (pattern.isEmpty) {
+    return from;
+  }
+
   var i = from.length;
   while (i > 0 && from.startsWith(pattern, i - pattern.length)) {
     i -= pattern.length;
