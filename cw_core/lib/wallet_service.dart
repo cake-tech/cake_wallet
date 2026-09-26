@@ -57,7 +57,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     currentWalletInfo.dirPath = p.join(typeDir, newName);
     currentWalletInfo.path = await pathForWallet(name: newName, type: getType());
     await currentWalletInfo.save();
-    await _rekeyUnspentCoins(oldWalletId: oldWalletId, newWalletId: newWalletId);
+    await rekeyUnspentCoinsAfterRename(oldWalletId: oldWalletId, newWalletId: newWalletId);
 
     final staleRows = await WalletInfo.selectList(
       'name = ? AND type = ?',
@@ -81,7 +81,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
   }
 
-  Future<void> _rekeyUnspentCoins({
+  Future<void> rekeyUnspentCoinsAfterRename({
     required String oldWalletId,
     required String newWalletId,
   }) async {
