@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cw_core/wallet_rename.dart";
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:mobx/mobx.dart';
@@ -50,12 +51,19 @@ abstract class WalletEditViewModelBase with Store {
 
       _walletManager.setGroupName(walletGroupKey!, newName);
     } else {
-      await _walletLoadingService.renameWallet(
+      final renamed = await _walletLoadingService.renameWallet(
         walletItem.type,
         walletItem.name,
         newName,
         password: password,
       );
+      if (shouldSyncOpenedWalletAfterRename(renameSucceeded: renamed)) {
+        await _walletListViewModel.syncOpenedWalletAfterRename(
+          walletItem.type,
+          walletItem.name,
+          newName,
+        );
+      }
     }
 
     _walletListViewModel.updateList();
