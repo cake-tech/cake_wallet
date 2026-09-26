@@ -17,6 +17,4 @@ class FeatureFlag {
   static const bool duressPinEnabled = true;
   static const bool isEVMChainSwitcherEnabled = false;
   static const bool isAutomaticNodeSwitchingEnabled = false;
-  static const bool hasNewUi = true;
-  static const bool hasNewUiExtraPages = true;
 }

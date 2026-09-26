@@ -5,13 +5,26 @@ class CWDecred extends Decred {
 
   @override
   WalletCredentials createDecredNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      DecredNewWalletCredentials(name: name, walletInfo: walletInfo);
+          {required String name,
+          String? password,
+          String? passphrase,
+          String? mnemonic,
+          WalletInfo? walletInfo}) =>
+      DecredNewWalletCredentials(
+          name: name,
+          password: password,
+          passphrase: passphrase,
+          mnemonic: mnemonic,
+          walletInfo: walletInfo);
 
   @override
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
-      DecredRestoreWalletFromSeedCredentials(name: name, mnemonic: mnemonic, password: password);
+          {required String name,
+          required String mnemonic,
+          required String password,
+          String? passphrase}) =>
+      DecredRestoreWalletFromSeedCredentials(
+          name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
   @override
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
@@ -19,8 +32,8 @@ class CWDecred extends Decred {
       DecredRestoreWalletFromPubkeyCredentials(name: name, pubkey: pubkey, password: password);
 
   @override
-  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      DecredWalletService(unspentCoinSource);
+  WalletService createDecredWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) =>
+      DecredWalletService(unspentCoinSource, isDirect);
 
   @override
   List<TransactionPriority> getTransactionPriorities() => DecredTransactionPriority.all;

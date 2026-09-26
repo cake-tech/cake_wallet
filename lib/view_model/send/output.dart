@@ -338,10 +338,21 @@ abstract class OutputBase with Store {
           ? CryptoCurrency.btc
           : cryptoCurrencyHandler();
 
+      final price = _fiatConversationStore.prices[cryptoCurrency];
+      if (price == null || !price.isFinite || price <= 0) {
+        printV('_updateCryptoAmount: invalid fiat rate $price for $cryptoCurrency');
+        cryptoAmount = '';
+        return;
+      }
+
       final decimals = min(20, cryptoCurrencyHandler().decimals);
-      final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
-              _fiatConversationStore.prices[cryptoCurrency]!)
-          .toStringAsFixed(decimals);
+      final rawCrypto = double.parse(fiatAmount.replaceAll(',', '.')) / price;
+      if (!rawCrypto.isFinite) {
+        cryptoAmount = '';
+        return;
+      }
+
+      final crypto = rawCrypto.toStringAsFixed(decimals);
 
       if (cryptoAmount != crypto) cryptoAmount = crypto;
     } catch (e) {

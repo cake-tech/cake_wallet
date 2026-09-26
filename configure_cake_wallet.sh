@@ -35,6 +35,7 @@ fi
 
 source ./app_env.sh cakewallet
 ./app_config.sh
+echo "flutter pub get may take a while, please wait..."
 cd ../.. && flutter pub get
 dart run tool/generate_localization.dart
 ./compile_graphics.sh

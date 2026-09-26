@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 enum ProviderRecommendation { bestRate, lowKyc, successRate }
@@ -13,11 +14,11 @@ extension RecommendationTitle on ProviderRecommendation {
   String get title {
     switch (this) {
       case ProviderRecommendation.bestRate:
-        return 'BEST RATE';
+        return S.current.best_rate;
       case ProviderRecommendation.lowKyc:
-        return 'LOW KYC';
+        return S.current.low_kyc;
       case ProviderRecommendation.successRate:
-        return 'HIGHEST SUCCESS RATE';
+        return S.current.highest_success_rate;
     }
   }
 }

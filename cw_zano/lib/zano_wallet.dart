@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:math';
@@ -6,6 +7,7 @@ import 'dart:math';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -15,6 +17,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/model/destination.dart';
@@ -32,7 +35,10 @@ import 'package:cw_zano/zano_wallet_addresses.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
+import 'package:cw_zano/zano_utils.dart';
 import 'package:cw_zano/api/model/balance.dart';
+import 'package:cw_zano/bip39_seed.dart';
+import 'package:path/path.dart' as p;
 
 import 'package:mobx/mobx.dart';
 
@@ -42,10 +48,12 @@ class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 
 abstract class ZanoWalletBase
     extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo>
-    with Store, ZanoWalletApi {
+    with Store, ZanoWalletApi, WalletKeysFile {
   static const int _autoSaveIntervalSeconds = 30;
   static const int _pollIntervalMilliseconds = 5000;
   static const int _maxLoadAssetsRetries = 5;
+  static const int _walletStateReady = 2;
+  static const String _cakeKeysFileSuffix = '.cw.keys';
 
   @override
   void setPassword(String password) {
@@ -54,9 +62,22 @@ abstract class ZanoWalletBase
   }
 
   String _password;
+  final EncryptionFileUtils _encryptionFileUtils;
+  bool _didSyncSecrets = false;
 
   @override
   String get password => _password;
+
+  @override
+  Future<String> makeKeysFilePath() async => "${await makePath()}$_cakeKeysFileSuffix";
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _hasSeed ? seed : null,
+        passphrase: (passphrase ?? '').isEmpty ? null : passphrase,
+      );
+
+  bool get _hasSeed => seed.trim().isNotEmpty;
 
   @override
   Future<String> signMessage(String message, {String? address = null}) =>
@@ -105,7 +126,8 @@ abstract class ZanoWalletBase
   /// number of transactions in each request
   static final int _txChunkSize = (pow(2, 32) - 1).toInt();
 
-  ZanoWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password)
+  ZanoWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password,
+      this._encryptionFileUtils)
       : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance.empty(CryptoCurrency.zano)}),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
@@ -126,74 +148,138 @@ abstract class ZanoWalletBase
   @override
   Future<void> changePassword(String password) async {
     setPassword(password);
+    if (_hasSeed) {
+      await saveKeysFile(_password, _encryptionFileUtils);
+      saveKeysFile(_password, _encryptionFileUtils, true);
+    }
   }
 
-  static Future<ZanoWallet> create({required WalletCredentials credentials}) async {
+  static Future<ZanoWallet> create({
+    required WalletCredentials credentials,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
     final wallet = ZanoWallet(credentials.walletInfo!,
-        await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
+        await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
-    final createWalletResult = await wallet.createWallet(path, credentials.password!);
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+    final providedMnemonic =
+        credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
+    final mnemonic = providedMnemonic ?? generateBip39Mnemonic(strength: strength);
+    final passphrase = credentials.passphrase ?? '';
+    final secretDerivation = getSecretDerivationFromBip39(mnemonic, passphrase: passphrase);
+    final creationTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final createWalletResult = await wallet.restoreWalletFromDerivations(
+      path,
+      credentials.password!,
+      secretDerivation,
+      creationTimestamp: creationTimestamp,
+    );
     await wallet.initWallet();
+    wallet.seed = mnemonic;
+    wallet.passphrase = passphrase;
     await wallet.parseCreateWalletResult(createWalletResult);
-    if (credentials.passphrase != null) {
-      await wallet.setPassphrase(credentials.passphrase!);
-      wallet.seed = await createWalletResult.seed(wallet);
-      wallet.passphrase = await wallet.getPassphrase();
-    }
+    await wallet._syncSecretsAndDerivation();
     await wallet.init(createWalletResult.wi.address);
+    await wallet.save();
     return wallet;
   }
 
-  static Future<ZanoWallet> restore(
-      {required ZanoRestoreWalletFromSeedCredentials credentials}) async {
+  static Future<ZanoWallet> restore({
+    required ZanoRestoreWalletFromSeedCredentials credentials,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
     final wallet = ZanoWallet(credentials.walletInfo!,
-        await credentials.walletInfo!.getDerivationInfo(), credentials.password!);
+        await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
-    final createWalletResult = await wallet.restoreWalletFromSeed(
-        path, credentials.password!, credentials.mnemonic, credentials.passphrase);
-    await wallet.initWallet();
-    await wallet.parseCreateWalletResult(createWalletResult);
-    if (credentials.passphrase != null) {
-      await wallet.setPassphrase(credentials.passphrase!);
-      wallet.seed = await createWalletResult.seed(wallet);
-      wallet.passphrase = await wallet.getPassphrase();
+    final passphrase = credentials.passphrase ?? '';
+    final CreateWalletResult createWalletResult;
+    final isBip39 = isBip39Seed(credentials.mnemonic);
+    final creationTimestamp = ZanoUtils.creationTimestampFromHeight(credentials.height ?? 0);
+    if (isBip39) {
+      final secretDerivation =
+          getSecretDerivationFromBip39(credentials.mnemonic, passphrase: passphrase);
+      createWalletResult = await wallet.restoreWalletFromDerivations(
+        path,
+        credentials.password!,
+        secretDerivation,
+        creationTimestamp: creationTimestamp,
+      );
+    } else {
+      createWalletResult = await wallet.restoreWalletFromSeed(
+        path,
+        credentials.password!,
+        credentials.mnemonic,
+        credentials.passphrase,
+        creationTimestamp: creationTimestamp,
+      );
     }
+    await wallet.initWallet();
+    wallet.seed = credentials.mnemonic;
+    wallet.passphrase = passphrase;
+    await wallet.parseCreateWalletResult(createWalletResult);
+    if (!isBip39) {
+      try {
+        if (passphrase.isNotEmpty) {
+          await wallet.setPassphrase(passphrase);
+        }
+        final nativeSeed = await createWalletResult.seed(wallet);
+        if (nativeSeed.isNotEmpty) {
+          wallet.seed = nativeSeed;
+        }
+      } catch (e) {
+        printV('native seed not available yet: $e');
+      }
+    }
+    await wallet._syncSecretsAndDerivation();
     await wallet.init(createWalletResult.wi.address);
+    await wallet.save();
     return wallet;
   }
 
   static Future<ZanoWallet> open(
-      {required String name, required String password, required WalletInfo walletInfo}) async {
+      {required String name,
+      required String password,
+      required WalletInfo walletInfo,
+      required EncryptionFileUtils encryptionFileUtils}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
+    final wallet =
+        ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
+
+    await wallet._loadKeysFileIfPresent();
+
+    late final CreateWalletResult createWalletResult;
     if (ZanoWalletApi.openWalletCache[path] != null) {
-      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
-      await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
-        unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
-      });
-      return wallet;
+      createWalletResult = ZanoWalletApi.openWalletCache[path]!;
     } else {
-      final wallet = ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password);
       await wallet.initWallet();
-      final createWalletResult = await wallet.loadWallet(path, password);
-      await wallet.parseCreateWalletResult(createWalletResult).then((_) {
-        unawaited(wallet.init(createWalletResult.wi.address));
-      });
-      return wallet;
+      createWalletResult = await wallet.loadWallet(path, password);
     }
+    await wallet.parseCreateWalletResult(createWalletResult);
+    if (!wallet._hasSeed) {
+      await wallet._loadSeedIfAvailable();
+    }
+    await wallet._syncSecretsAndDerivation();
+    unawaited(wallet.init(createWalletResult.wi.address));
+    return wallet;
   }
 
   Future<void> parseCreateWalletResult(CreateWalletResult result) async {
     hWallet = result.walletId;
-    seed = await result.seed(this);
     keys = ZanoWalletKeys(
       privateSpendKey: result.privateSpendKey,
       privateViewKey: result.privateViewKey,
       publicSpendKey: result.publicSpendKey,
       publicViewKey: result.publicViewKey,
     );
-    passphrase = await getPassphrase();
+    if ((passphrase ?? '').isEmpty) {
+      try {
+        passphrase = await getPassphrase();
+      } catch (e) {
+        printV('passphrase not available yet: $e');
+      }
+    }
 
     printV('setting hWallet = ${result.walletId}');
     walletAddresses.address = result.wi.address;
@@ -212,6 +298,126 @@ abstract class ZanoWalletBase
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
     }
+  }
+
+  bool _isWalletReady(GetWalletStatusResult walletStatus) =>
+      !walletStatus.isInLongRefresh && walletStatus.walletState == _walletStateReady;
+
+  Future<bool> _hasKeysFile() async {
+    try {
+      final path = await makeKeysFilePath();
+      return File(path).existsSync() || File('$path.backup').existsSync();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _loadKeysFileIfPresent() async {
+    if (!await _hasKeysFile()) {
+      return;
+    }
+    final path = await makeKeysFilePath();
+    Future<WalletKeysData> read(String readPath) async {
+      final jsonSource = await _encryptionFileUtils.read(path: readPath, password: _password);
+      return WalletKeysData.fromJSON(json.decode(jsonSource) as Map<String, dynamic>);
+    }
+
+    try {
+      WalletKeysData keysData;
+      if (File(path).existsSync()) {
+        keysData = await read(path);
+      } else {
+        keysData = await read('$path.backup');
+        await saveKeysFile(_password, _encryptionFileUtils);
+      }
+      if (keysData.mnemonic != null && keysData.mnemonic!.trim().isNotEmpty) {
+        seed = keysData.mnemonic!;
+      }
+      if (keysData.passphrase != null && keysData.passphrase!.isNotEmpty) {
+        passphrase = keysData.passphrase;
+      }
+    } catch (e) {
+      printV('error reading zano keys file $e');
+    }
+  }
+
+  Future<void> _saveKeysFileIfNeeded() async {
+    if (!_hasSeed || await _hasKeysFile()) {
+      return;
+    }
+    await saveKeysFile(_password, _encryptionFileUtils);
+    saveKeysFile(_password, _encryptionFileUtils, true);
+  }
+
+  Future<void> _loadSeedIfAvailable() async {
+    if (!isBip39Seed(seed)) {
+      try {
+        final loaded = await getSeed();
+        if (loaded.isNotEmpty) {
+          seed = loaded;
+        }
+      } catch (e) {
+        printV('seed not available yet: $e');
+      }
+    }
+    if ((passphrase ?? '').isEmpty) {
+      try {
+        passphrase = await getPassphrase() ?? passphrase;
+      } catch (e) {
+        printV('passphrase not available yet: $e');
+      }
+    }
+  }
+
+  Future<void> _syncSecretsAndDerivation() async {
+    if (!_hasSeed || _didSyncSecrets) {
+      return;
+    }
+    try {
+      await _persistSecretsIfNeeded();
+      await _setDerivationForSeed();
+      await _saveKeysFileIfNeeded();
+      _didSyncSecrets = true;
+    } catch (e) {
+      printV('error persisting zano secrets $e');
+    }
+  }
+
+  Future<void> _persistSecretsIfNeeded() async {
+    if (isBip39Seed(seed) && await getBip39Mnemonic() == null) {
+      await setBip39Secrets(
+        mnemonic: seed,
+        creationTimestamp: walletInfo.restoreHeight > 0
+            ? ZanoUtils.creationTimestampFromHeight(walletInfo.restoreHeight)
+            : DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      );
+    }
+    if ((passphrase ?? '').isNotEmpty && await getPassphrase() == null) {
+      await setPassphrase(passphrase!);
+    }
+  }
+
+  Future<void> _setDerivationForSeed() async {
+    if (!_hasSeed) {
+      return;
+    }
+    final di = await walletInfo.getDerivationInfo();
+    if (isBip39Seed(seed)) {
+      if (di.derivationType == DerivationType.bip39 &&
+          (di.derivationPath ?? '').isNotEmpty) {
+        return;
+      }
+      di.derivationType = DerivationType.bip39;
+      di.derivationPath = "m/44'/128'/0'/0/0";
+      await di.save();
+      return;
+    }
+    if (di.derivationType != DerivationType.bip39 && di.derivationPath == 'legacy') {
+      return;
+    }
+    di.derivationType = DerivationType.unknown;
+    di.derivationPath = 'legacy';
+    await di.save();
   }
 
   @override
@@ -310,12 +516,13 @@ abstract class ZanoWalletBase
   Future<Map<String, ZanoTransactionInfo>> fetchTransactions() async {
     try {
       final transfers = <Transfer>[];
+      var offset = 0;
       late GetRecentTxsAndInfoResult result;
       do {
-        result = await getRecentTxsAndInfo(offset: 0, count: _txChunkSize);
-        // _lastTxIndex += result.transfers.length;
+        result = await getRecentTxsAndInfo(offset: offset, count: _txChunkSize);
         transfers.addAll(result.transfers);
-      } while (result.lastItemIndex + 1 < result.totalTransfers);
+        offset = result.lastItemIndex + 1;
+      } while (offset < result.totalTransfers);
       return Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
     } catch (e) {
       printV((e.toString()));
@@ -334,12 +541,18 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: name, type: type);
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    final currentWalletPath = '$currentWalletDirPath/$name';
     final currentCacheFile = File(currentWalletPath);
     final currentKeysFile = File('$currentWalletPath.keys');
     final currentAddressListFile = File('$currentWalletPath.address.txt');
+    final currentPendingKiFile = File('$currentWalletPath.outkey2ki');
+    final currentSecretsFile = File(p.join(currentWalletDirPath, 'zano-secrets.json.bin'));
+    final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
+    final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
 
-    final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+    final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+    final newWalletPath = '$newWalletDirPath/$newWalletName';
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentCacheFile.existsSync()) {
@@ -351,9 +564,22 @@ abstract class ZanoWalletBase
     if (currentAddressListFile.existsSync()) {
       await currentAddressListFile.copy('$newWalletPath.address.txt');
     }
+    if (currentPendingKiFile.existsSync()) {
+      await currentPendingKiFile.copy('$newWalletPath.outkey2ki');
+    }
+    if (currentSecretsFile.existsSync()) {
+      await currentSecretsFile.copy(p.join(newWalletDirPath, 'zano-secrets.json.bin'));
+    }
+    if (currentCakeKeysFile.existsSync()) {
+      await currentCakeKeysFile.copy('$newWalletPath$_cakeKeysFileSuffix');
+    }
+    if (currentCakeKeysBackupFile.existsSync()) {
+      await currentCakeKeysBackupFile.copy('$newWalletPath$_cakeKeysFileSuffix.backup');
+    }
 
-    // Delete old name's dir and files
-    await Directory(currentWalletPath).delete(recursive: true);
+    // Delete the old wallet *directory*. pathForWallet() is the wallet file
+    // (.../<name>/<name>); Directory(filePath).delete leaves seed sidecars.
+    await Directory(currentWalletDirPath).delete(recursive: true);
   }
 
   @override
@@ -362,6 +588,7 @@ abstract class ZanoWalletBase
   @override
   Future<void> save() async {
     try {
+      await _saveKeysFileIfNeeded();
       await store();
       await walletAddresses.updateAddressesInBox();
     } catch (e) {
@@ -544,9 +771,12 @@ abstract class ZanoWalletBase
     _updateSyncProgress(walletStatus);
 
     // we can call getWalletInfo ONLY if getWalletStatus returns NOT is in long refresh and wallet state is 2 (ready)
-    if (!walletStatus.isInLongRefresh && walletStatus.walletState == 2) {
+    if (_isWalletReady(walletStatus)) {
+      if (!_hasSeed) {
+        await _loadSeedIfAvailable();
+      }
+      await _syncSecretsAndDerivation();
       final walletInfo = await getWalletInfo();
-      seed = await walletInfo.wiExtended.seed(this);
       keys = ZanoWalletKeys(
         privateSpendKey: walletInfo.wiExtended.spendPrivateKey,
         privateViewKey: walletInfo.wiExtended.viewPrivateKey,
