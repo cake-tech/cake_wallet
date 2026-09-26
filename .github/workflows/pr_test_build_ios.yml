@@ -1,0 +1,382 @@
+name: Cake Wallet iOS
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ios-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  testflight:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: macos-26
+
+    outputs:
+      build_number: ${{ steps.config.outputs.build_number }}
+      app_version: ${{ steps.config.outputs.app_version }}
+
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      FLUTTER_VERSION: "3.41.9"
+      GO_VERSION: "1.24.1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Configure git
+        run: |
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+          
+
+      - name: Identify the build
+        run: |
+          BRANCH="${BRANCH_NAME#origin/}"
+          # cw-1234-something -> 1234
+          TICKET="$(printf '%s' "$BRANCH" | tr 'A-Z' 'a-z' \
+            | grep -oE '(^|[^a-z0-9])cw-?[0-9]+' | head -1 | grep -oE '[0-9]+' || true)"
+
+          if [[ -n "$TICKET" ]]; then
+            TICKET=$((10#$TICKET))  # drop leading zeros, Apple dislikes them
+            echo "APP_DISPLAY_NAME=CW-$TICKET" >> $GITHUB_ENV
+            echo "APP_VERSION=6.$TICKET" >> $GITHUB_ENV
+          else
+            echo "APP_DISPLAY_NAME=Cake (CI)" >> $GITHUB_ENV
+            echo "APP_VERSION=" >> $GITHUB_ENV
+          fi
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Add Rust iOS target
+        run: |
+          rustup target add aarch64-apple-ios
+
+      - name: Install protoc
+        env:
+          PROTOC_VERSION: "35.1"
+        run: |
+          set -euo pipefail
+          curl -sSL --retry 3 --retry-delay 5 -o "$RUNNER_TEMP/protoc.zip" \
+            "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-universal_binary.zip"
+          unzip -q -o "$RUNNER_TEMP/protoc.zip" -d "$RUNNER_TEMP/protoc"
+          rm -f "$RUNNER_TEMP/protoc.zip"
+          echo "$RUNNER_TEMP/protoc/bin" >> $GITHUB_PATH
+          "$RUNNER_TEMP/protoc/bin/protoc" --version
+
+      - name: Add secrets
+        run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
+
+      - name: Fetch prebuilt torch xcframework
+        env:
+          CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+        run: |
+          set -euo pipefail
+          IMAGE="$(./scripts/ios/docker/build.sh --image torch)"
+
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          command -v crane >/dev/null || go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          crane manifest "$IMAGE" >/dev/null 2>&1 || {
+            echo "no prebuilt torch at $IMAGE" >&2
+            echo "run the 'Create iOS torch cache' workflow, then re-run this build" >&2
+            exit 1
+          }
+
+          TMP="$(mktemp -d)"
+          crane export "$IMAGE" - | tar -x -C "$TMP"
+          rsync -a "$TMP/w/" .
+          rm -rf "$TMP"
+
+          test -d scripts/torch_dart/ios/LibTorch.xcframework/ios-arm64 \
+            || { echo "restored xcframework has no ios-arm64 slice" >&2; exit 1; }
+
+      - name: Prepare bitbox_flutter
+        run: |
+          pushd scripts
+            ./build_bitbox_flutter.sh clone-only
+          popd
+
+      - name: Prepare reown_flutter
+        run: ./scripts/prepare_reown.sh
+
+
+      - name: Execute Build and Setup Commands
+        id: config
+        run: |
+          pushd scripts/ios
+            source ./app_env.sh cakewallet
+            export APP_IOS_BUNDLE_ID="${{ vars.IOS_BUNDLE_ID }}"
+            export APP_IOS_NAME="$APP_DISPLAY_NAME"
+            export APP_IOS_BUILD_NUMBER="$BUILD_NUMBER"
+            if [[ -n "$APP_VERSION" ]]; then
+              export APP_IOS_VERSION="$APP_VERSION"
+            fi
+            ./app_config.sh
+          popd
+
+          for key in CFBundleDisplayName CFBundleIdentifier CFBundleShortVersionString CFBundleVersion; do
+            echo "$key = $(/usr/libexec/PlistBuddy -c "Print :$key" ios/Runner/Info.plist)"
+          done
+
+          {
+            echo "app_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' ios/Runner/Info.plist)"
+            echo "build_number=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' ios/Runner/Info.plist)"
+          } >> $GITHUB_OUTPUT
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Download prebuilt monero_c and generate xcframeworks
+        run: dart run tool/download_moneroc_prebuilds.dart
+
+      - name: Build mwebd
+        run: |
+          pushd cw_mweb
+            flutter pub get
+          popd
+          pushd scripts/ios
+            ./build_mwebd.sh
+          popd
+
+      - name: Build decred
+        run: |
+          pushd cw_decred
+            flutter pub get
+          popd
+          pushd scripts/ios
+            ./build_decred.sh
+          popd
+
+      - name: Build generated code
+        run: ./model_generator.sh
+
+      - name: Generate localization
+        run: dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: ./compile_graphics.sh
+
+      - name: Replace email address
+        run: |
+          PATTERN1="support@cakewallet.com"
+          PATTERN1REP="dev.testflight.cakewallet@mrcyjanek.net"
+          for file in lib/utils/exception_handler.dart lib/view_model/support_view_model.dart; do
+            sed -i.bak -e "s|$PATTERN1|$PATTERN1REP|g" "$file"
+            rm -f "$file.bak"
+          done
+
+      - name: Install signing certificate and provisioning profile
+        env:
+          DIST_CERT_P12: ${{ secrets.IOS_DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+        run: |
+          set -euo pipefail
+
+          KEYCHAIN_PATH="$RUNNER_TEMP/cw-ios.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> $GITHUB_ENV
+
+          echo -n "$DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          echo -n "$PROVISIONING_PROFILE" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          security import "$RUNNER_TEMP/dist.p12" \
+            -P "$DIST_CERT_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
+
+          security list-keychain -d user -s "$KEYCHAIN_PATH" login.keychain-db
+
+          PROFILE_NAME="$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | plutil -extract Name raw -)"
+          PROFILE_UUID="$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | plutil -extract UUID raw -)"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$RUNNER_TEMP/profile.mobileprovision" \
+             "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+
+          rm -f "$RUNNER_TEMP/dist.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+
+      - name: Switch project to manual signing
+        run: |
+          set -euo pipefail
+          PBX=ios/Runner.xcodeproj/project.pbxproj
+
+          sed -i '' \
+            -e 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' \
+            -e 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' \
+            -e 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer";/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";/g' \
+            -e "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = ${{ vars.APPLE_TEAM_ID }};/g" \
+            -e "s|PROVISIONING_PROFILE_SPECIFIER = \"\";|PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";|g" \
+            "$PBX"
+
+          grep -nE 'CODE_SIGN_STYLE|CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|PROVISIONING_PROFILE_SPECIFIER|PRODUCT_BUNDLE_IDENTIFIER' "$PBX"
+
+      - name: Write ExportOptions.plist
+        run: |
+          cat > ios/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>teamID</key>
+            <string>${{ vars.APPLE_TEAM_ID }}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${{ vars.IOS_BUNDLE_ID }}</key>
+              <string>$PROFILE_NAME</string>
+            </dict>
+            <key>uploadSymbols</key>
+            <true/>
+            <key>stripSwiftSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+          cat ios/ExportOptions.plist
+
+      - name: Build IPA
+        run: |
+          flutter build ipa \
+            --release \
+            --dart-define=CI_COMMIT="$(git rev-parse HEAD)" \
+            --dart-define=CI_BRANCH="$BRANCH_NAME" \
+            --dart-define=hasDevOptions=true \
+            --export-options-plist=ios/ExportOptions.plist
+
+      - name: Locate IPA
+        run: |
+          IPA_PATH="$(ls build/ios/ipa/*.ipa 2>/dev/null | head -1 || true)"
+          echo "IPA_PATH=$IPA_PATH" >> $GITHUB_ENV
+          ls -lh "$IPA_PATH"
+
+      - name: Upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          echo -n "$ASC_KEY_P8" | base64 --decode \
+            > "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
+
+          rm -f "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Upload IPA artifact to GitHub
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: build/ios/ipa/*.ipa
+
+      - name: Clean up keychain and profiles
+        if: always()
+        run: |
+          security delete-keychain "$KEYCHAIN_PATH" || true
+          rm -rf "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          rm -rf "$HOME/.appstoreconnect/private_keys" || true
+
+  # posts the changelog to testflight
+  # this is a separate runner as the script waits for ocasionally 20+ minutes for the build to appear
+  changelog:
+    needs: testflight
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Set TestFlight changelog
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
+          BUILD_NUMBER: ${{ needs.testflight.outputs.build_number }}
+          APP_VERSION: ${{ needs.testflight.outputs.app_version }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          export ASC_KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          trap 'rm -f "$ASC_KEY_PATH"' EXIT
+          echo -n "$ASC_KEY_P8" | base64 --decode > "$ASC_KEY_PATH"
+
+          {
+            printf '%s @ %s (PR #%s, build %s)\n\n' \
+              "$BRANCH_NAME" \
+              "$(git rev-parse --short=8 HEAD)" \
+              "${{ github.event.pull_request.number }}" \
+              "$BUILD_NUMBER"
+            git log -1 --pretty=%B
+          } | dart run tool/set_testflight_changelog.dart
