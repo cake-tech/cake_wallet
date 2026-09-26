@@ -55,7 +55,6 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
-import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
@@ -131,6 +130,7 @@ import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
+import 'package:cake_wallet/new-ui/pages/wallet_accounts_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -214,11 +214,14 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/nano_account_list/nano_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
@@ -248,6 +251,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -290,6 +294,9 @@ import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
+import 'src/screens/buy/buy_sell_page.dart';
+import "src/screens/settings/widgets/account_creation_modal.dart";
+
 
 final getIt = GetIt.instance;
 
@@ -535,6 +542,13 @@ Future<void> setup({
   getIt.registerFactory(() => DashboardViewModel(
       tradeMonitor: getIt.get<TradeMonitor>(),
       balanceViewModel: getIt.get<BalanceViewModel>(),
+      accountListViewModelFactory: () {
+        final wallet = getIt.get<AppStore>().wallet;
+        if (wallet == null) return null;
+        final hasAccounts = wallet.hasAccountsSupport;
+        if (!hasAccounts) return null;
+        return getIt.get<WalletAccountListViewModel>();
+      },
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
       ordersStore: getIt.get<OrdersStore>(),
@@ -560,21 +574,11 @@ Future<void> setup({
   getIt.registerLazySingleton<PriceStore>(() => PriceStore());
 
   getIt.registerFactory<ChartsBloc>(
-      () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
+          () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
 
   getIt.registerFactory<ChartsPage>(() => ChartsPage(
-        chartsBloc: getIt.get<ChartsBloc>(),
-      ));
-
-  getIt.registerFactory<AccountCreationModal>(() => AccountCreationModal(
-      accountEditOrCreateViewModel: getIt.get<MoneroAccountEditOrCreateViewModel>()));
-
-  getIt.registerFactoryParam<AccountCustomizer, DashboardViewModel, void>(
-    (dashboardViewModel, _) => AccountCustomizer(
-      accountListViewModel: getIt.get<MoneroAccountListViewModel>(),
-      dashboardViewModel: dashboardViewModel,
-    ),
-  );
+    chartsBloc: getIt.get<ChartsBloc>(),
+  ));
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
@@ -898,12 +902,42 @@ Future<void> setup({
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
   });
 
+  getIt.registerFactory<BitcoinAccountListViewModel>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    if (wallet.type == WalletType.bitcoin) {
+      return BitcoinAccountListViewModel(wallet, getIt.get<SettingsStore>());
+    }
+    throw Exception(
+        'Unexpected wallet type: ${wallet.type} for generate Bitcoin AccountListViewModel');
+  });
+
+  getIt.registerFactory<WalletAccountListViewModel>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+        return getIt.get<BitcoinAccountListViewModel>();
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.haven:
+        return getIt.get<MoneroAccountListViewModel>();
+      default:
+        throw Exception('Unsupported wallet type for WalletAccountListViewModel: ${wallet.type}');
+    }
+  });
+
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
           wownero?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
+
+  getIt.registerFactory<BitcoinAccountEditOrCreateViewModel>(
+        () => BitcoinAccountEditOrCreateViewModel(
+      wallet: getIt.get<AppStore>().wallet!,
+    ),
+  );
 
   getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
       (NanoAccount? account, _) =>
@@ -1001,6 +1035,31 @@ Future<void> setup({
 
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(),
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
+
+
+  getIt.registerFactory<WalletAccountEditOrCreateViewModel>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+        return getIt.get<BitcoinAccountEditOrCreateViewModel>();
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.haven:
+        return getIt.get<MoneroAccountEditOrCreateViewModel>();
+      default:
+        throw Exception(
+            'Unsupported wallet type for WalletAccountEditOrCreateViewModel: ${wallet.type}');
+    }
+  });
+
+  getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
+        (dashboardViewModel, _) => WalletAccountsPage(
+      dashboardViewModel: dashboardViewModel,
+      accountListViewModel:
+      dashboardViewModel.accountListViewModel ?? getIt.get<WalletAccountListViewModel>(),
+      accountEditOrCreateViewModel: getIt.get<WalletAccountEditOrCreateViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
 

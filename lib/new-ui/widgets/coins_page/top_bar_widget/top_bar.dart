@@ -16,14 +16,12 @@ import 'package:mobx/mobx.dart';
 
 class TopBar extends StatefulWidget {
   const TopBar({
-    required this.lightningMode,
     required this.onLightningSwitchPress,
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
     super.key,
   });
 
-  final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
   final VoidCallback onSettingsButtonPress;
   final DashboardViewModel dashboardViewModel;
@@ -73,8 +71,8 @@ class _TopBarState extends State<TopBar> {
 
   void _bindStatusReaction() {
     _statusReactionDisposer = reaction(
-      (_) => widget.dashboardViewModel.status.runtimeType,
-      (status) {
+          (_) => widget.dashboardViewModel.status.runtimeType,
+          (status) {
         syncedMessageTimer?.cancel();
         syncedMessageTimer = null;
 
@@ -107,78 +105,77 @@ class _TopBarState extends State<TopBar> {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.only(left: 18, right: 18, top: 10 + _additionalTopPadding(context)),
-        child: Observer(
-          builder: (_) => Row(
-            spacing: 12,
-            children: [
-              widget.dashboardViewModel.hasLightning
-                  ? LightningSwitcher(
-                      lightningMode: widget.lightningMode,
-                      onLightningSwitchPress: widget.onLightningSwitchPress,
-                    )
-                  : ChainIcon(
-                      iconPath: widget.dashboardViewModel.wallet.currency.flatIconPath ?? "",
-                      dashboardViewModel: widget.dashboardViewModel,
-                      isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
-                      showSyncedMessage: showSyncedMessage,
+    padding: EdgeInsets.only(
+        bottom: 10, left: 18, right: 18, top: 10 + _additionalTopPadding(context)),
+    child: Observer(
+      builder: (_) => Row(
+        spacing: 12,
+        children: [
+          widget.dashboardViewModel.hasLightning
+              ? LightningSwitcher(
+            lightningMode: widget.dashboardViewModel.lightningMode,
+            onLightningSwitchPress: widget.onLightningSwitchPress,
+          )
+              : ChainIcon(
+            iconPath: widget.dashboardViewModel.wallet.currency.flatIconPath ?? "",
+            dashboardViewModel: widget.dashboardViewModel,
+            isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+            showSyncedMessage: showSyncedMessage,
+          ),
+          Expanded(
+            child: SizedBox(
+              height: 36,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 150),
+                reverseDuration: Duration.zero,
+                layoutBuilder: (currentChild, previousChildren) => Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                ),
+                child: replacesWalletName
+                    ? SyncBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+                  showSyncedMessage: showSyncedMessage,
+                )
+                    : Row(
+                  children: [
+                    Expanded(
+                      child: WalletInfoBar(
+                        name: widget.dashboardViewModel.wallet.name,
+                        hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
+                      ),
                     ),
-              Expanded(
-                child: SizedBox(
-                  height: 36,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 150),
-                    reverseDuration: Duration.zero,
-                    layoutBuilder: (currentChild, previousChildren) => Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        ...previousChildren,
-                        if (currentChild != null) currentChild,
-                      ],
-                    ),
-                    child: replacesWalletName
-                        ? SyncBar(
-                            dashboardViewModel: widget.dashboardViewModel,
-                            isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
-                            showSyncedMessage: showSyncedMessage,
-                          )
-                        : Row(
-                            children: [
-                              Expanded(
-                                child: WalletInfoBar(
-                                  name: widget.dashboardViewModel.wallet.name,
-                                  hardwareWalletType:
-                                      widget.dashboardViewModel.wallet.hardwareWalletType,
-                                ),
-                              ),
-                              if (widget.dashboardViewModel.isTorEnabled) ...[
-                                const SizedBox(width: 6),
-                                SyncBar(
-                                  dashboardViewModel: widget.dashboardViewModel,
-                                  isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
-                                  showSyncedMessage: showSyncedMessage,
-                                ),
-                              ],
-                            ],
-                          ),
-                  ),
+                    if (widget.dashboardViewModel.isTorEnabled) ...[
+                      const SizedBox(width: 6),
+                      SyncBar(
+                        dashboardViewModel: widget.dashboardViewModel,
+                        isSyncHeavy: widget.dashboardViewModel.isSyncHeavy,
+                        showSyncedMessage: showSyncedMessage,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              ModernButton.svg(
-                key: const ValueKey("home_page_settings_button_key"),
-                iconColor: Theme.of(context).colorScheme.primary,
-                size: 36,
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  widget.onSettingsButtonPress();
-                },
-                svgPath: "assets/new-ui/top-settings.svg",
-                semanticLabel: S.of(context).settings_title,
-              ),
-            ],
+            ),
           ),
-        ),
-      );
+          ModernButton.svg(
+            iconColor: Theme.of(context).colorScheme.primary,
+            size: 36,
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              widget.onSettingsButtonPress();
+            },
+            svgPath: "assets/new-ui/top-settings.svg",
+            semanticLabel: S.of(context).settings_title,
+          ),
+        ],
+      ),
+    ),
+  );
 
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {

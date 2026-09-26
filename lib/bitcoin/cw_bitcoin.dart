@@ -256,7 +256,10 @@ class CWBitcoin extends Bitcoin {
   List<BitcoinUnspent> getUnspents(Object wallet,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
+
+    final coins = bitcoinWallet.unspentCoinsForCurrentAccount;
+
+    return coins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
@@ -918,5 +921,37 @@ class CWBitcoin extends Bitcoin {
       return (exception as SdkError_Generic).field0.toString();
     }
     return null;
+  }
+
+  @override
+  ElectrumBalance balanceForAccount(Object wallet, int accountIndex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.balanceForAccount(accountIndex);
+  }
+
+  @override
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
+  }
+
+  @override
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
+      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
+
+  @override
+  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.setCurrentAccount(accountIndex);
+  }
+
+  @override
+  Future<Account> getCurrentAccount(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final acc = await electrumWallet.loadCurrentAccount();
+    return Account(
+        id: acc.accountIndex,
+        label: acc.label,
+        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
   }
 }
