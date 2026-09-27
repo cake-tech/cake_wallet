@@ -4111,6 +4111,8 @@ abstract class ElectrumWalletBase
         .toSet();
 
     return all.where((tx) {
+
+      if (tx.additionalInfo["isLightning"] == true) return true;
       // Locally created transactions store the account index explicitly,
       // so use it first instead of checking the addresses.
       if (tx.accountIndex != null) return tx.accountIndex == accountIndex;
