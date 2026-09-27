@@ -417,15 +417,14 @@ abstract class ElectrumWalletBase
   }
 
   void _updateCurrentAccountBalance({int? accountIndex}) {
-    if (type != WalletType.bitcoin) {
-      return;
-    }
+    if (type != WalletType.bitcoin) return;
 
     final targetAccountIndex = accountIndex ?? currentAccountIndex;
     final newBalance = accountBalances[targetAccountIndex];
 
     if (newBalance == null) {
-      printV("no balance for account $targetAccountIndex, keeping existing");
+      // If the account balance is not found, set it to zero for the current currency.
+      balance[currency] = ElectrumBalance.zero(currency);
       return;
     }
 
@@ -4135,12 +4134,17 @@ abstract class ElectrumWalletBase
     }
 
     try {
-      balance[currency] = await fetchBalances();
+      final fetchedTotal = await fetchBalances();
 
-      // For Bitcoin wallets, we also update the current account balance after fetching the overall balance.
-      // because fetchBalances() only updates the overall wallet balance, not the individual account balances.
-      if (type == WalletType.bitcoin) {
-        _updateCurrentAccountBalance();
+      if (type == WalletType.bitcoin && hasAccountsSupport) {
+        // If the wallet has accounts support, we only want to update the balance for the current account.
+        final accountBalance = accountBalances[currentAccountIndex];
+        if (accountBalance == null) {
+          return;
+        }
+        balance[currency] = accountBalance;
+      } else {
+        balance[currency] = fetchedTotal;
       }
 
       await save();

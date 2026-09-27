@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'dart:math';
+import "package:collection/collection.dart";
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -597,45 +598,54 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void addBitcoinAddressTypes() {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
-            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-        .toList()
-        .last;
-    if (lastP2wpkh.address != address) {
-      addressesMap[lastP2wpkh.address] = 'P2WPKH';
-    } else {
-      addressesMap[address] = 'Active - P2WPKH';
+        _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+        .lastOrNull;
+    if (lastP2wpkh != null) {
+      if (lastP2wpkh.address != address) {
+        addressesMap[lastP2wpkh.address] = 'P2WPKH';
+      } else {
+        addressesMap[address] = 'Active - P2WPKH';
+      }
     }
 
-    final lastP2pkh = _addresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
-    if (lastP2pkh.address != address) {
-      addressesMap[lastP2pkh.address] = 'P2PKH';
-    } else {
-      addressesMap[address] = 'Active - P2PKH';
+    final lastP2pkh = _addresses.firstWhereOrNull(
+            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+    if (lastP2pkh != null) {
+      if (lastP2pkh.address != address) {
+        addressesMap[lastP2pkh.address] = 'P2PKH';
+      } else {
+        addressesMap[address] = 'Active - P2PKH';
+      }
     }
 
-    final lastP2sh = _addresses.firstWhere((addressRecord) =>
+    final lastP2sh = _addresses.firstWhereOrNull((addressRecord) =>
         _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
-    if (lastP2sh.address != address) {
-      addressesMap[lastP2sh.address] = 'P2SH';
-    } else {
-      addressesMap[address] = 'Active - P2SH';
+    if (lastP2sh != null) {
+      if (lastP2sh.address != address) {
+        addressesMap[lastP2sh.address] = 'P2SH';
+      } else {
+        addressesMap[address] = 'Active - P2SH';
+      }
     }
 
-    final lastP2tr = _addresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
-    if (lastP2tr.address != address) {
-      addressesMap[lastP2tr.address] = 'P2TR';
-    } else {
-      addressesMap[address] = 'Active - P2TR';
+    final lastP2tr = _addresses.firstWhereOrNull(
+            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
+    if (lastP2tr != null) {
+      if (lastP2tr.address != address) {
+        addressesMap[lastP2tr.address] = 'P2TR';
+      } else {
+        addressesMap[address] = 'Active - P2TR';
+      }
     }
 
-    final lastP2wsh = _addresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
-    if (lastP2wsh.address != address) {
-      addressesMap[lastP2wsh.address] = 'P2WSH';
-    } else {
-      addressesMap[address] = 'Active - P2WSH';
+    final lastP2wsh = _addresses.firstWhereOrNull(
+            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
+    if (lastP2wsh != null) {
+      if (lastP2wsh.address != address) {
+        addressesMap[lastP2wsh.address] = 'P2WSH';
+      } else {
+        addressesMap[address] = 'Active - P2WSH';
+      }
     }
 
     final firstSilentAddressRecord = silentAddresses.firstOrNull;
