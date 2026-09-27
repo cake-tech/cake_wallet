@@ -49,16 +49,27 @@ class CardsView extends StatefulWidget {
 class _CardsViewState extends State<CardsView> {
   late int _selectedIndex;
   bool isFirstBuild = true;
+  ReactionDisposer? _cardOrderReaction;
+
+  int get _fallbackSelectedIndex =>
+      max(0, widget.dashboardViewModel.cardOrder.length - 1);
 
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
-    reaction(
-            (_) => widget.dashboardViewModel.cardOrder.values.toList(),
-            (_) => setState(() {
-          _selectedIndex = widget.dashboardViewModel.cardOrder.length - 1;
-        }));
+    _selectedIndex = _fallbackSelectedIndex;
+    _cardOrderReaction = reaction(
+          (_) => widget.dashboardViewModel.cardOrder.values.toList(),
+          (_) => setState(() {
+        _selectedIndex = _fallbackSelectedIndex;
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    _cardOrderReaction?.call();
+    super.dispose();
   }
 
   static const Duration animDuration = Duration(milliseconds: 200);
@@ -276,8 +287,7 @@ class _CardsViewState extends State<CardsView> {
           overlapAmount * ((numCards) - 1);
   }
 
-  /// Bitcoin: one card for Lightning or when multi-accounts are off, otherwise one per account.
-  /// Other wallets: unchanged.
+
   int _visibleCardsCount() {
     if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
       return widget.dashboardViewModel.cardDesigns.length;
@@ -290,16 +300,29 @@ class _CardsViewState extends State<CardsView> {
     return widget.accountListViewModel?.accounts.length ?? 1;
   }
 
+  int? _visualIndexForSelectedAccount(Map<int, int> order) {
+    final vm = widget.accountListViewModel;
+    if (vm == null || _hideAccountInfo) return null;
+
+    final selectedId = vm.selectedAccount?.id;
+    final realIndex = vm.accounts.indexWhere((a) => a.id == selectedId);
+    if (realIndex < 0) return null;
+
+    for (final entry in order.entries) {
+      if (entry.value == realIndex) return entry.key;
+    }
+    return null;
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Observer(builder: (context) {
+  Widget build(BuildContext context) => Observer(builder: (context) {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
       int numCards = _visibleCardsCount();
       if (numCards == 0) numCards = 1;
 
-      if (_selectedIndex >= (numCards)) {
+      if (_selectedIndex >= numCards) {
         _selectedIndex = 0;
       }
 
@@ -318,20 +341,15 @@ class _CardsViewState extends State<CardsView> {
         }
       }
 
+      final followIndex = _visualIndexForSelectedAccount(order);
+      if (followIndex != null) _selectedIndex = followIndex;
+
       final bool compactMode = numCards >= compactModeTreshold;
       final double overlapAmount = compactMode ? 5.0 : 46.0;
       for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
         int visualIndex = (_selectedIndex - i + numCards) % numCards;
 
         int realIndex = order[visualIndex]!;
-
-        if (visualIndex == _selectedIndex &&
-            widget.accountListViewModel != null &&
-            realIndex < widget.accountListViewModel!.accounts.length &&
-            widget.accountListViewModel?.selectedAccount?.id !=
-                widget.accountListViewModel?.accounts[realIndex].id) {
-          widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
-        }
 
         children.add(_buildCard(
             visualIndex, realIndex, numCards, parentWidth, order, compactMode, overlapAmount));
@@ -350,7 +368,6 @@ class _CardsViewState extends State<CardsView> {
         ),
       );
     });
-  }
 
   Future<void> depositToL2() async {
     PaymentRequest? paymentRequest = null;
