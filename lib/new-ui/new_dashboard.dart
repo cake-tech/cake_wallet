@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import "package:cake_wallet/new-ui/page_open_listener.dart";
@@ -134,6 +135,10 @@ class _NewDashboardState extends State<NewDashboard> {
   }
 
   void _showChangelog(BuildContext context) async {
+    if(CiBuildOverlay.isCiBuild) {
+      return;
+    }
+
     final sharedPrefs = await SharedPreferences.getInstance();
     final currentAppVersion = VersionComparator.getExtendedVersionNumber(
         widget.dashboardViewModel.settingsStore.appVersion);
