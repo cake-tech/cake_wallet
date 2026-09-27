@@ -174,7 +174,7 @@ dependency_overrides:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: 3aba867dcab6737f6707782f5db15d71f303db38
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   characters:
     git:
       url: https://github.com/dart-lang/core
