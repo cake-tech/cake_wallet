@@ -193,6 +193,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     inMutuallyExclusiveGroup: true,
                                     label: visibleActions[i].name(context),
                                     child: InkWell(
+                                      key: visibleActions[i].key,
                                       splashFactory: NoSplash.splashFactory,
                                       splashColor: Colors.transparent,
                                       borderRadius: BorderRadius.circular(pillBorderRadius),

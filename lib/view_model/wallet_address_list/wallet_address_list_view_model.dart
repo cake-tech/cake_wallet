@@ -90,6 +90,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void setTokenCurrency(Currency curr) {
     _amount = null;
 
+    if (curr == CryptoCurrency.btcln) {
+      tokenCurrency = null;
+      selectedCurrency = CryptoCurrency.btcln;
+      return;
+    }
     if (curr == wallet.currency) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;

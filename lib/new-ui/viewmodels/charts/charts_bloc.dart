@@ -57,7 +57,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       ChartsLoading(
         pinnedCurrency: assets.firstWhere((item) => item.isFavorite).asset,
         currencies: assets.map((item) => item.asset).toList(),
-        range: ChartRange.all,
+        range: ChartRange.thirtyDays,
         sortCriterium: PriceDataSortCriterium.all.first,
       ),
     );

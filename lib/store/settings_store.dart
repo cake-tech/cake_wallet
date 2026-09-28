@@ -59,6 +59,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
@@ -199,6 +200,7 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
         exchangeStatus = initialExchangeStatus,
         pinCodeLength = initialPinLength,
@@ -451,6 +453,10 @@ abstract class SettingsStoreBase with Store {
         (_) => showAddressBookPopupEnabled,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
+
+    reaction(
+        (_) => showCiBuildOverlay,
+        (bool value) => sharedPreferences.setBool(PreferencesKey.showCiBuildOverlay, value));
 
     reaction(
         (_) => syncStatusDisplayMode,
@@ -821,6 +827,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  bool showCiBuildOverlay;
 
   @observable
   SyncStatusDisplayMode syncStatusDisplayMode;
@@ -1300,6 +1309,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
     final forceDecentralizedExchanges =
         await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
     final decentralizedExchangesPromptDismissed =
@@ -1671,6 +1681,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
       nodes: nodes,
       powNodes: powNodes,
@@ -1919,6 +1930,8 @@ abstract class SettingsStoreBase with Store {
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
+    showCiBuildOverlay =
+        sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? showCiBuildOverlay;
     syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
             SyncStatusDisplayMode.blocksRemaining.name);
