@@ -40,6 +40,11 @@ const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
   P2shAddressType.p2wpkhInP2sh,
 ];
 
+const List<BitcoinAddressType> LEGACY_DUPLICATE_ADDRESS_TYPES = [
+  SegwitAddresType.p2wpkh,
+  SegwitAddresType.p2wsh,
+];
+
 const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
   SegwitAddresType.p2wpkh,
   SegwitAddresType.mweb,
@@ -501,8 +506,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (shouldSkipHardwareWalletType) continue;
 
       await _generateInitialAddresses(accountIndex: accountIndex, type: type);
-
-      if (includeLegacy) {
+      
+      // Legacy derivation for these types is identical to the standard one.
+      if (includeLegacy && !LEGACY_DUPLICATE_ADDRESS_TYPES.contains(type)) {
         await _generateInitialAddresses(
           accountIndex: accountIndex,
           type: type,
