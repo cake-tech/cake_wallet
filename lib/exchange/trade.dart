@@ -327,7 +327,7 @@ class Trade {
 
   CryptoMoney? get amountMoney => from?.parseAmount(amount.withMaxDecimals(from!.decimals));
 
-  CryptoMoney? get receiveMoney => receiveAmount != null || to != null
+  CryptoMoney? get receiveMoney => receiveAmount != null && to != null
       ? to!.parseAmount(receiveAmount!.withMaxDecimals(to!.decimals))
       : null;
 }

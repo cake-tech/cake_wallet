@@ -65,7 +65,8 @@ class CWNano extends Nano {
   @override
   void setCurrentAccount(Object wallet, int id, String label, Money? balance) {
     final nanoWallet = wallet as NanoWallet;
-    nanoWallet.walletAddresses.account = NanoAccount(id: id, label: label, balance: balance.toString());
+    nanoWallet.walletAddresses.account =
+        NanoAccount(id: id, label: label, balance: balance?.toString());
     nanoWallet.regenerateAddress();
   }
 
