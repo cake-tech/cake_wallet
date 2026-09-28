@@ -20,7 +20,7 @@ class LightTheme extends MaterialThemeBase {
   Color get tertiaryColor => const Color(0xFFBFCBDE);
 
   @override
-  Color get errorColor => const Color(0xFFBA1A1A);
+  Color get errorColor => const Color(0xFFF9434C);
 
   @override
   Color get surfaceColor => const Color(0xFFEDEDFA);
@@ -41,7 +41,7 @@ class LightTheme extends MaterialThemeBase {
         onTertiaryContainer: const Color(0xFFC5D7E5),
         error: errorColor,
         onError: const Color(0xFFFFFFFF),
-        errorContainer: const Color(0xFFFFBDBD),
+        errorContainer: const Color(0x18F9434C),
         onErrorContainer: const Color(0xFFE43D3D),
         surface: surfaceColor,
         surfaceDim: const Color(0xFFE7E7FD),
