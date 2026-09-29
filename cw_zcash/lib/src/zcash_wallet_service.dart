@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -83,23 +82,21 @@ class ZcashWalletService
   }
 
   @override
-  Future<bool> isWalletExit(final String name) async {
-    final oldPath = (await pathForWallet(name: name, type: getType()));
-    final path = (await pathForWallet(name: name, type: getType())) + ".v2";
+  Future<bool> isWalletExit(final WalletInfo walletInfo) async {
+    final oldPath = walletInfo.path;
+    final path = walletInfo.path + ".v2";
     return File(path).existsSync() || File(oldPath).existsSync();
   }
 
   @override
-  Future<ZcashWallet> openWallet(final String name, final String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<ZcashWallet> openWallet(final WalletInfo walletInfo, final String password) async {
+    final name = walletInfo.name;
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
-    if (await isWalletExit(name)) {
-      final path = (await pathForWallet(name: name, type: getType())) + ".v2";
+
+    if (await isWalletExit(walletInfo)) {
+      final path = walletInfo.path + ".v2";
       if (!File(path).existsSync()) {
-        await migrateOldSqliteToZkool2(walletName: name);
+        await migrateOldSqliteToZkool2(walletInfo: walletInfo);
       }
     }
 
@@ -111,10 +108,10 @@ class ZcashWalletService
         walletInfo: walletInfo,
       );
       await wallet.init();
-      await saveBackup(name);
+      await saveBackup(walletInfo);
       return wallet;
     } catch (e) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await ZcashWalletBase.open(
         name: name,
         password: password,
@@ -123,42 +120,6 @@ class ZcashWalletService
       await wallet.init();
       return wallet;
     }
-  }
-
-  @override
-  Future<void> remove(final String wallet) async {
-    final path = (await pathForWalletDir(name: wallet, type: getType()));
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @override
-  Future<void> rename(final String currentName, final String password, final String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    if (!await isWalletExit(currentName)) {
-      throw Exception('Wallet not found');
-    }
-
-    await ZcashWalletBase.renameWalletFilesForName(fromName: currentName, toName: newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
   }
 
   @override

@@ -98,6 +98,14 @@ class BalanceCardStyleSettings {
   }
 
   Future<void> insert() async {
-    db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  static Future<void> delete(int walletInfoId, int accountIndex) async {
+    await db!.delete(
+      tableName,
+      where: "walletInfoId = ? AND accountIndex = ?",
+      whereArgs: [walletInfoId, accountIndex],
+    );
   }
 }

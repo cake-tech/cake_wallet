@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import "package:cake_wallet/themes/core/theme_extension.dart";
@@ -16,12 +17,14 @@ class SyncBar extends StatelessWidget {
     required this.dashboardViewModel,
     required this.isSyncHeavy,
     required this.showSyncedMessage,
+    this.forceCompact = false,
     super.key,
   });
 
   final DashboardViewModel dashboardViewModel;
   final bool isSyncHeavy;
   final bool showSyncedMessage;
+  final bool forceCompact;
 
   static const failStatuses = [
     FailedSyncStatus,
@@ -47,85 +50,85 @@ class SyncBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Observer(
-        builder: (_) {
-          final status = dashboardViewModel.status;
-          if (!_showFullBar) {
-            return _buildCompactBar(context);
-          }
+    builder: (_) {
+      final status = dashboardViewModel.status;
+      if (!_showFullBar || forceCompact) {
+        return _buildCompactBar(context);
+      }
 
-          final Widget? icon = _getIcon(context, status.runtimeType);
-          final statusTitle = _statusTitle(context, status);
-          final silentPaymentsProgress = _silentPaymentsProgress(status);
-          final barHeight = silentPaymentsProgress == null ? 36.0 : 40.0;
+      final Widget? icon = _getIcon(context, status.runtimeType);
+      final statusTitle = _statusTitle(context, status);
+      final silentPaymentsProgress = _silentPaymentsProgress(status);
+      final barHeight = silentPaymentsProgress == null ? 36.0 : 40.0;
 
-          // A single node: the localized status text (plus any active
-          // Tor/MWEB/Silent Payments badge) is the label, and the hint says
-          // where tapping leads. Everything inside is redundant with it.
-          return Semantics(
-            button: true,
-            label: _statusSemanticsLabel(context, status, statusTitle),
-            value: silentPaymentsProgress,
-            hint: S.of(context).manage_nodes,
+      // A single node: the localized status text (plus any active
+      // Tor/MWEB/Silent Payments badge) is the label, and the hint says
+      // where tapping leads. Everything inside is redundant with it.
+      return Semantics(
+        button: true,
+        label: _statusSemanticsLabel(context, status, statusTitle),
+        value: silentPaymentsProgress,
+        hint: S.of(context).manage_nodes,
+        onTap: () => _openNodeManagement(context),
+        child: ExcludeSemantics(
+          child: GestureDetector(
             onTap: () => _openNodeManagement(context),
-            child: ExcludeSemantics(
-              child: GestureDetector(
-                onTap: () => _openNodeManagement(context),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 100),
-                  child: OverflowBox(
-                    key: ValueKey(status.runtimeType),
-                    alignment: Alignment.center,
-                    minHeight: barHeight,
-                    maxHeight: barHeight,
-                    child: Container(
-                      height: barHeight,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(9999),
-                        border: _getBorder(context, status.runtimeType),
-                        color: _getBackgroundColor(context, status.runtimeType),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        spacing: 8,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          if (icon != null) icon,
-                          if (silentPaymentsProgress != null) ...[
-                            Text(
-                              silentPaymentsProgress,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: context.customColors.warningOutlineColor,
-                              ),
-                            ),
-                            Text(
-                              "·",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                          Flexible(
-                            child: Text(
-                              statusTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: _getTextStyle(context, status.runtimeType),
-                            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 100),
+              child: OverflowBox(
+                key: ValueKey(status.runtimeType),
+                alignment: Alignment.center,
+                minHeight: barHeight,
+                maxHeight: barHeight,
+                child: Container(
+                  height: barHeight,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9999),
+                    border: _getBorder(context, status.runtimeType),
+                    color: _getBackgroundColor(context, status.runtimeType),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    spacing: 8,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      if (icon != null) icon,
+                      if (silentPaymentsProgress != null) ...[
+                        Text(
+                          silentPaymentsProgress,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.customColors.warningOutlineColor,
                           ),
-                        ],
+                        ),
+                        Text(
+                          "·",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                      Flexible(
+                        child: Text(
+                          statusTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: _getTextStyle(context, status.runtimeType),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ),
+        ),
       );
+    },
+  );
 
   void _openNodeManagement(BuildContext context) {
     CupertinoScaffold.showCupertinoModalBottomSheet(
@@ -154,11 +157,11 @@ class SyncBar extends StatelessWidget {
             height: 20,
           ),
         if (_showDot())
-          CupertinoActivityIndicator(
-            key: ValueKey(dashboardViewModel.status.runtimeType),
-            radius: 8,
-          ),
-        if (_showLightSyncCheck()) const Icon(Icons.check, color: syncedColor, size: 18),
+          const PulsingDot()
+        else if (_showLightSyncCheck())
+          const Icon(Icons.check, color: syncedColor, size: 18)
+        else
+          const SizedBox(width: 5, height: 5),
       ],
     );
 
@@ -270,7 +273,7 @@ class SyncBar extends StatelessWidget {
         CakeImageWidget(
           imageUrl: "assets/new-ui/mweb_sync.svg",
           colorFilter:
-              ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+          ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
         ),
       );
     }

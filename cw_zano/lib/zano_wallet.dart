@@ -9,7 +9,6 @@ import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -38,7 +37,6 @@ import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_utils.dart';
 import 'package:cw_zano/api/model/balance.dart';
 import 'package:cw_zano/bip39_seed.dart';
-import 'package:path/path.dart' as p;
 
 import 'package:mobx/mobx.dart';
 
@@ -73,9 +71,9 @@ abstract class ZanoWalletBase
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(
-        mnemonic: _hasSeed ? seed : null,
-        passphrase: (passphrase ?? '').isEmpty ? null : passphrase,
-      );
+    mnemonic: _hasSeed ? seed : null,
+    passphrase: (passphrase ?? '').isEmpty ? null : passphrase,
+  );
 
   bool get _hasSeed => seed.trim().isNotEmpty;
 
@@ -161,10 +159,10 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = credentials.walletInfo!.path;
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final providedMnemonic =
-        credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
+    credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
     final mnemonic = providedMnemonic ?? generateBip39Mnemonic(strength: strength);
     final passphrase = credentials.passphrase ?? '';
     final secretDerivation = getSecretDerivationFromBip39(mnemonic, passphrase: passphrase);
@@ -192,14 +190,14 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = credentials.walletInfo!.path;
     final passphrase = credentials.passphrase ?? '';
     final CreateWalletResult createWalletResult;
     final isBip39 = isBip39Seed(credentials.mnemonic);
     final creationTimestamp = ZanoUtils.creationTimestampFromHeight(credentials.height ?? 0);
     if (isBip39) {
       final secretDerivation =
-          getSecretDerivationFromBip39(credentials.mnemonic, passphrase: passphrase);
+      getSecretDerivationFromBip39(credentials.mnemonic, passphrase: passphrase);
       createWalletResult = await wallet.restoreWalletFromDerivations(
         path,
         credentials.password!,
@@ -240,12 +238,12 @@ abstract class ZanoWalletBase
 
   static Future<ZanoWallet> open(
       {required String name,
-      required String password,
-      required WalletInfo walletInfo,
-      required EncryptionFileUtils encryptionFileUtils}) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+        required String password,
+        required WalletInfo walletInfo,
+        required EncryptionFileUtils encryptionFileUtils}) async {
+    final path = walletInfo.path;
     final wallet =
-        ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
+    ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
 
     await wallet._loadKeysFileIfPresent();
 
@@ -445,7 +443,7 @@ abstract class ZanoWalletBase
     final unlockedBalanceCurrency =
         balance[credentials.currency]?.unlocked ?? Money.zero(credentials.currency);
     final fee =
-        Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
+    Money(BigInt.from(calculateEstimatedFee(credentials.priority)), CryptoCurrency.zano);
 
     var totalAmount = Money.zero(credentials.currency);
     void checkForEnoughBalances() {
@@ -477,10 +475,10 @@ abstract class ZanoWalletBase
       checkForEnoughBalances();
       destinations = outputs
           .map((output) => Destination(
-                amount: output.cryptoAmount.amount,
-                address: output.isParsedAddress ? output.extractedAddress! : output.address,
-                assetId: assetId,
-              ))
+        amount: output.cryptoAmount.amount,
+        address: output.isParsedAddress ? output.extractedAddress! : output.address,
+        assetId: assetId,
+      ))
           .toList();
     } else {
       final output = outputs.first;
@@ -539,48 +537,53 @@ abstract class ZanoWalletBase
     });
   }
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    final currentWalletPath = '$currentWalletDirPath/$name';
-    final currentCacheFile = File(currentWalletPath);
-    final currentKeysFile = File('$currentWalletPath.keys');
-    final currentAddressListFile = File('$currentWalletPath.address.txt');
-    final currentPendingKiFile = File('$currentWalletPath.outkey2ki');
-    final currentSecretsFile = File(p.join(currentWalletDirPath, 'zano-secrets.json.bin'));
-    final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
-    final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
-
-    final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
-    final newWalletPath = '$newWalletDirPath/$newWalletName';
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentCacheFile.existsSync()) {
-      await currentCacheFile.copy(newWalletPath);
-    }
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy('$newWalletPath.keys');
-    }
-    if (currentAddressListFile.existsSync()) {
-      await currentAddressListFile.copy('$newWalletPath.address.txt');
-    }
-    if (currentPendingKiFile.existsSync()) {
-      await currentPendingKiFile.copy('$newWalletPath.outkey2ki');
-    }
-    if (currentSecretsFile.existsSync()) {
-      await currentSecretsFile.copy(p.join(newWalletDirPath, 'zano-secrets.json.bin'));
-    }
-    if (currentCakeKeysFile.existsSync()) {
-      await currentCakeKeysFile.copy('$newWalletPath$_cakeKeysFileSuffix');
-    }
-    if (currentCakeKeysBackupFile.existsSync()) {
-      await currentCakeKeysBackupFile.copy('$newWalletPath$_cakeKeysFileSuffix.backup');
-    }
-
-    // Delete the old wallet *directory*. pathForWallet() is the wallet file
-    // (.../<name>/<name>); Directory(filePath).delete leaves seed sidecars.
-    await Directory(currentWalletDirPath).delete(recursive: true);
-  }
+  // Deliberately left as a no-op / not reimplemented. Directories no longer
+  // move on rename (id/path stay fixed for the wallet's lifetime), and
+  // .keys-style files are addressed via WalletKeysFile using walletInfo.id,
+  // which also never changes on rename. This method's file-copying logic
+  // (kept here only as a reference for the full set of Zano side-files —
+  // .keys, .address.txt, .outkey2ki, zano-secrets.json.bin, .cw.keys,
+  // .cw.keys.backup) still assumed a name-based directory move and is no
+  // longer needed:
+  //
+  // Future<void> renameWalletFiles(String newWalletName) async {
+  //   final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+  //   final currentWalletPath = '$currentWalletDirPath/$name';
+  //   final currentCacheFile = File(currentWalletPath);
+  //   final currentKeysFile = File('$currentWalletPath.keys');
+  //   final currentAddressListFile = File('$currentWalletPath.address.txt');
+  //   final currentPendingKiFile = File('$currentWalletPath.outkey2ki');
+  //   final currentSecretsFile = File(p.join(currentWalletDirPath, 'zano-secrets.json.bin'));
+  //   final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
+  //   final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
+  //
+  //   final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+  //   final newWalletPath = '$newWalletDirPath/$newWalletName';
+  //
+  //   if (currentCacheFile.existsSync()) {
+  //     await currentCacheFile.copy(newWalletPath);
+  //   }
+  //   if (currentKeysFile.existsSync()) {
+  //     await currentKeysFile.copy('$newWalletPath.keys');
+  //   }
+  //   if (currentAddressListFile.existsSync()) {
+  //     await currentAddressListFile.copy('$newWalletPath.address.txt');
+  //   }
+  //   if (currentPendingKiFile.existsSync()) {
+  //     await currentPendingKiFile.copy('$newWalletPath.outkey2ki');
+  //   }
+  //   if (currentSecretsFile.existsSync()) {
+  //     await currentSecretsFile.copy(p.join(newWalletDirPath, 'zano-secrets.json.bin'));
+  //   }
+  //   if (currentCakeKeysFile.existsSync()) {
+  //     await currentCakeKeysFile.copy('$newWalletPath$_cakeKeysFileSuffix');
+  //   }
+  //   if (currentCakeKeysBackupFile.existsSync()) {
+  //     await currentCakeKeysBackupFile.copy('$newWalletPath$_cakeKeysFileSuffix.backup');
+  //   }
+  //
+  //   await Directory(currentWalletDirPath).delete(recursive: true);
+  // }
 
   @override
   Future<void> rescan({required int height}) => throw UnimplementedError();

@@ -52,7 +52,7 @@ abstract class WalletSwitcherViewModelBase with Store {
     try {
       isProcessing = true;
 
-      final wallet = await walletLoadingService.load(selectedWallet!.type, selectedWallet!.name);
+      final wallet = await walletLoadingService.load(selectedWallet!);
 
       await appStore.changeCurrentWallet(wallet);
 

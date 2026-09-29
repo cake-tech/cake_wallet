@@ -34,7 +34,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
   Future<void> save() async {
     String transactionsHistoryFileNameForWallet = 'tron_transactions.json';
     try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = await pathForWalletDir(id: walletInfo.id, type: walletInfo.type);
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
       final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
       final data = json.encode({'transactions': transactionMaps});
@@ -54,7 +54,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
 
   Future<Map<String, dynamic>> _read() async {
     String transactionsHistoryFileNameForWallet = 'tron_transactions.json';
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final dirPath = await pathForWalletDir(id: walletInfo.id, type: walletInfo.type);
     String path = '$dirPath/$transactionsHistoryFileNameForWallet';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {
