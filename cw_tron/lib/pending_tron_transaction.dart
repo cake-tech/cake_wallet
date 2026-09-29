@@ -5,6 +5,7 @@ import 'package:web3dart/crypto.dart';
 class PendingTronTransaction with PendingTransaction {
   final Function sendTransaction;
   final List<int> signedTransaction;
+  final String? serializedTransaction;
 
   PendingTronTransaction({
     required this.sendTransaction,
@@ -12,6 +13,7 @@ class PendingTronTransaction with PendingTransaction {
     required this.fee,
     required this.amount,
     required this.id,
+    this.serializedTransaction,
   });
 
   @override
@@ -27,7 +29,7 @@ class PendingTronTransaction with PendingTransaction {
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get hex => bytesToHex(signedTransaction);
+  String get hex => serializedTransaction ?? bytesToHex(signedTransaction);
 
   @override
   String id;

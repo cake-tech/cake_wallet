@@ -7,6 +7,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/solana_serialized_transaction_credentials.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -21,6 +22,7 @@ import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_client.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
+import 'package:cw_solana/prepare_serialized_transaction.dart';
 import 'package:cw_solana/solana_transaction_history.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
@@ -243,6 +245,19 @@ abstract class SolanaWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (credentials is SolanaSerializedTransactionCredentials) {
+      final provider = solanaProvider;
+      if (provider == null) throw StateError('Solana wallet is disconnected');
+      await updateTokenBalance();
+      final source = resolveTransactionCurrency(credentials.amount.currency as CryptoCurrency, balance.keys);
+      if (balance[source]!.available.amount < credentials.amount.amount) {
+        throw SolanaTransactionWrongBalanceException(source);
+      }
+      return prepareSerializedSolanaTransaction(credentials: credentials,
+        privateKey: _solanaPrivateKey, provider: provider,
+        isCurrentProvider: () => identical(solanaProvider, provider),
+        nativeBalance: balance[CryptoCurrency.sol]!.available);
+    }
     final solCredentials = credentials as SolanaTransactionCredentials;
 
     final outputs = solCredentials.outputs;

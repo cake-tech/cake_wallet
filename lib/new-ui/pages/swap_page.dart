@@ -962,6 +962,9 @@ class SwapProviderPreview extends StatelessWidget {
           final rate = exchangeViewModel.forcedProvider == null
               ? exchangeViewModel.bestRate
               : exchangeViewModel.forcedProviderRate;
+          final unavailable = provider == null && exchangeViewModel.noProviderForPair;
+          var providerLabel = provider?.title ?? "${S.of(context).finding_provider}...";
+          if (unavailable) providerLabel = S.of(context).no_providers_available;
 
           return GestureDetector(
             onTap: () {
@@ -995,9 +998,9 @@ class SwapProviderPreview extends StatelessWidget {
                             width: 28,
                             height: 28,
                           ),
-                        if (provider == null) const CupertinoActivityIndicator(),
+                        if (provider == null && !unavailable) const CupertinoActivityIndicator(),
                         Text(
-                          provider?.title ?? "${S.of(context).finding_provider}...",
+                          providerLabel,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -1008,6 +1011,11 @@ class SwapProviderPreview extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (unavailable)
+                      TextButton(
+                        onPressed: exchangeViewModel.calculateBestRate,
+                        child: Text(S.of(context).try_again),
+                      ),
                     if (provider != null)
                       Row(
                         children: [

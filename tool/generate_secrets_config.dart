@@ -9,6 +9,7 @@ const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const tronConfigPath = 'tool/.tron-secrets-config.json';
 const bitcoinConfigPath = 'tool/.bitcoin-secrets-config.json';
+const removedClientSecretKeys = {'pegarouteApiKey', 'pegaRouteApiKey'};
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
 
@@ -18,6 +19,7 @@ Future<void> writeConfig(
   Map<String, dynamic>? existingSecrets,
 }) async {
   final secrets = existingSecrets ?? <String, dynamic>{};
+  secrets.removeWhere((key, _) => removedClientSecretKeys.contains(key));
   newSecrets.forEach((sec) {
     if (secrets[sec.name] != null) {
       return;
@@ -58,6 +60,8 @@ Future<void> generateSecretsConfig(List<String> args) async {
     if (extraInfo['--force'] == 1) {
       await baseConfigFile.delete();
     } else {
+      final existing = json.decode(baseConfigFile.readAsStringSync()) as Map<String, dynamic>;
+      await writeConfig(baseConfigFile, SecretKey.base, existingSecrets: existing);
       return;
     }
   }

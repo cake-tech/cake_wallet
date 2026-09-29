@@ -1,5 +1,8 @@
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/exchange/trade.dart";
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_record.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_provider_label.dart';
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/dashboard/action_list_item.dart";
 
@@ -8,7 +11,15 @@ class TradeListItem extends ActionListItem {
     required this.trade,
     required this.appStore,
     required super.key,
-  });
+  }) {
+    if (trade.provider == ExchangeProviderDescription.pegaRoute) {
+      try { PegarouteTradeRecord.read(trade); }
+      catch (_) { /* Unavailable records cannot authorize sending. */ }
+    }
+  }
+
+  String? get providerDisplayName => trade.provider == ExchangeProviderDescription.pegaRoute
+      ? tradeProviderDisplayName(trade) : null;
 
   final Trade trade;
   final AppStore appStore;

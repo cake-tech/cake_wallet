@@ -1,10 +1,21 @@
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_priority.dart';
 
 class TransactionWrongBalanceException implements Exception {
-  TransactionWrongBalanceException(this.currency, {this.amount});
+  TransactionWrongBalanceException(this.currency,
+      {this.amount, this.requiredBalance, this.availableBalance, this.fee, this.feePriority});
 
   final CryptoCurrency currency;
   final int? amount;
+
+  /// Exact funding requirement and spendable balance in [currency].
+  final Money? requiredBalance;
+  final Money? availableBalance;
+
+  /// Maximum fee budget, not a realized charge or token principal.
+  final Money? fee;
+  final TransactionPriority? feePriority;
 }
 
 class TransactionNoInputsException implements Exception {}

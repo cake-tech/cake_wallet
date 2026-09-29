@@ -1,0 +1,42 @@
+{
+  "transactionId": "transaction-fixture",
+  "status": "pending",
+  "providerType": "api-provider",
+  "route": {
+    "provider": "instaswap",
+    "subprovider": "partner-fixture",
+    "private": false,
+    "expectedOutput": "0.99",
+    "estimatedTimeSeconds": 120,
+    "fees": {
+      "affiliate": "0",
+      "liquidity": "0.01",
+      "outbound": "0",
+      "total": "0.01"
+    }
+  },
+  "execution": {
+    "family": "evm",
+    "mode": "native-transfer",
+    "chainId": 1,
+    "to": "0x0000000000000000000000000000000000000001",
+    "data": null,
+    "value": {"display": "1", "baseUnits": "1"},
+    "gasLimit": null,
+    "memo": null,
+    "approval": null,
+    "transferAmount": null
+  },
+  "provider": {
+    "name": "instaswap",
+    "referenceId": "provider-reference-fixture",
+    "details": {
+      "instaswapSwapLite": {
+        "txid": "provider-reference-fixture",
+        "depositAddress": "0x0000000000000000000000000000000000000001",
+        "depositAmountExact": "1",
+        "depositTokenSymbol": "ETH"
+      }
+    }
+  }
+}

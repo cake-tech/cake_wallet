@@ -56,11 +56,19 @@ class EVMChainTransactionInfo extends TransactionInfo {
   factory EVMChainTransactionInfo.fromJson(Map<String, dynamic> data, int chainId) {
     final decimals = data['exponent'] as int? ?? 18;
     final tokenSymbol = data['tokenSymbol'] as String;
-    final currency =
-        Erc20Token(name: '', symbol: tokenSymbol, contractAddress: '', decimal: decimals);
-
     final feeCurrency =
         EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency ?? CryptoCurrency.eth;
+    final contract = data['contractAddress'] as String?;
+    final currency = (contract == null || contract.isEmpty) &&
+            tokenSymbol == feeCurrency.title &&
+            decimals == feeCurrency.decimals
+        ? feeCurrency
+        : Erc20Token(
+            name: '',
+            symbol: tokenSymbol,
+            contractAddress: contract ?? '',
+            decimal: decimals,
+            chainId: chainId);
 
     return EVMChainTransactionInfo(
       id: data['id'] as String,
@@ -84,8 +92,11 @@ class EVMChainTransactionInfo extends TransactionInfo {
   Map<String, dynamic> toJson() => {
         'id': id,
         'height': height,
+        // History persists integer units, not human display amounts.
+        // ignore: cw_custom_lints/no_money_amount_to_string
         'amount': amount.amount.toString(),
         'exponent': exponent,
+        // ignore: cw_custom_lints/no_money_amount_to_string
         'fee': fee.amount.toString(),
         'direction': direction.index,
         'date': date.millisecondsSinceEpoch,

@@ -1,0 +1,13 @@
+<svg width="40" height="40" viewBox="0 0 190 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pegaroute-wing" gradientUnits="userSpaceOnUse" x1="20" y1="150" x2="180" y2="20">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="1" stop-color="#7C5CFF"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0 15)" stroke="url(#pegaroute-wing)" stroke-width="20" stroke-linecap="round">
+    <path d="M32 140 L94 33"/>
+    <path d="M82 126 L132 39"/>
+    <path d="M132 112 L170 46"/>
+  </g>
+</svg>

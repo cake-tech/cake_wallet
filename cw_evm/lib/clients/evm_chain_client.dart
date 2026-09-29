@@ -207,9 +207,9 @@ class EVMChainClient {
     // });
   }
 
-  Future<EtherAmount> getBalance(EthereumAddress address) async {
+  Future<EtherAmount> getBalance(EthereumAddress address, {BlockNum? atBlock}) async {
     try {
-      return await _client!.getBalance(address);
+      return await _client!.getBalance(address, atBlock: atBlock);
     } catch (_) {
       rethrow;
     }

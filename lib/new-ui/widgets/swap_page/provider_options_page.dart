@@ -3,6 +3,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
+import 'package:cake_wallet/new-ui/widgets/swap_page/pegaroute_providers_settings.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/trocador_providers_settings.dart';
@@ -107,6 +109,12 @@ class ProviderOptionsPage extends StatelessWidget {
                                   iconPath: item.description.image,
                                   keyValue: item.title,
                                   label: item.title,
+                                  showArrow: item is PegaRouteExchangeProvider && item.isAvailable,
+                                  subtitle: item is PegaRouteExchangeProvider
+                                      ? (item.isAvailable ? S.of(context).manage_providers
+                                          : S.of(context).buy_provider_unavailable) : null,
+                                  onTap: item is PegaRouteExchangeProvider && item.isAvailable
+                                      ? () => _openPegarouteProvidersPage(context) : null,
                                   value: exchangeViewModel.selectedProviders.contains(item),
                                   onChanged: (val) {
                                     _switchProviderStatus(item, val, context);
@@ -202,7 +210,8 @@ class ProviderOptionsPage extends StatelessWidget {
       showPopUp<void>(
           builder: (BuildContext popUpContext) => AlertWithOneAction(
               alertTitle: 'Error',
-              alertContent: 'The exchange is blocked in your region.',
+              alertContent: provider is PegaRouteExchangeProvider
+                  ? S.of(context).buy_provider_unavailable : 'The exchange is blocked in your region.',
               buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop()),
           context: context);
@@ -215,6 +224,14 @@ class ProviderOptionsPage extends StatelessWidget {
     }
 
     exchangeViewModel.saveSelectedProviders();
+  }
+
+  void _openPegarouteProvidersPage(BuildContext context) {
+    Navigator.of(context).push(CupertinoPageRoute(
+        builder: (context) => Material(child: PegarouteProvidersSettings(
+          preferences: exchangeViewModel.pegarouteProviderPreferences,
+          decentralizedOnly: () => exchangeViewModel.forceDecentralizedExchanges,
+        ))));
   }
 
   void _openTrocadorProvidersPage(BuildContext context) {

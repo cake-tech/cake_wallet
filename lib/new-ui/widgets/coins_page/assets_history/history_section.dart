@@ -142,6 +142,7 @@ class HistorySection extends StatelessWidget {
                                 from: tradeFrom,
                                 to: tradeTo,
                                 provider: trade.provider,
+                                providerDisplayName: item.providerDisplayName,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
                                 amount: dashboardViewModel.balanceDisplayMode ==

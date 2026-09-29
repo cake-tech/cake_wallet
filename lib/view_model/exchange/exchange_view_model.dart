@@ -30,6 +30,10 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_provider_preferences.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_max_amount.dart';
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
@@ -161,7 +165,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) {
       if (tradeState is! TradeIsCreating) {
-        calculateBestRate();
+        if (_comparisonPending == null) calculateBestRate();
+        if (forcedProvider is PegaRouteExchangeProvider && _forcedPending == null) {
+          calculateForcedProviderRate();
+        }
       }
     });
 
@@ -220,6 +227,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         bestRate = 0.0;
         loadLimits();
       }
+    }));
+
+    _disposers.add(reaction((_) => [forceDecentralizedExchanges,
+      ...pegarouteProviderPreferences.states.values].join(','), (_) {
+      _sortedAvailableProviders.removeWhere((rate, provider) => provider is PegaRouteExchangeProvider);
+      if (bestRateProvider is PegaRouteExchangeProvider) { bestRateProvider = null; bestRate = 0; }
+      if (forcedProvider is PegaRouteExchangeProvider) forcedProviderRate = 0;
+      loadLimits();
+      calculateBestRate();
+      calculateForcedProviderRate();
     }));
 
     if (isElectrumWallet) {
@@ -299,6 +316,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
+  late final pegarouteProviderPreferences = PegarouteProviderPreferences(sharedPreferences);
 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
@@ -312,6 +330,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SwapsXyzExchangeProvider(),
         JupiterExchangeProvider(),
         NearIntentsExchangeProvider(),
+        PegaRouteExchangeProvider(providerPreferences: pegarouteProviderPreferences),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
@@ -548,6 +567,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get hasAllAmount {
+    if (_hasPegarouteMax) return true;
     if ([
       WalletType.monero,
       WalletType.bitcoin,
@@ -604,6 +624,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void setForcedProvider(ExchangeProvider? provider) {
     forcedProvider = provider;
     forcedProviderRate = 0.0;
+    _updateLimits();
     calculateForcedProviderRate();
   }
 
@@ -886,7 +907,29 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return true;
   }
 
+  // Pegaroute comparisons must not install an older wallet/asset/preference
+  // response over a newer selection. Other-provider-only comparisons keep
+  // their existing path.
+  int _pegarouteComparisonRequest = 0;
+  int _pegarouteForcedRequest = 0;
+  int? _comparisonPending;
+  int? _forcedPending;
+  static const _pegarouteQuoteTimeout = Duration(seconds: 20);
+  Object _pegarouteRateAsset(CryptoCurrency asset) => (
+      identityHashCode(asset), asset.tag, asset.decimals,
+      asset is Erc20Token ? (asset.contractAddress, asset.chainId) : null,
+      asset is SPLToken ? asset.mint : null);
+  Object get _pegarouteRateContext => (
+      wallet, wallet.id, wallet.chainId, wallet.walletAddresses.address,
+      _pegarouteRateAsset(depositCurrency), _pegarouteRateAsset(receiveCurrency),
+      isFixedRateMode ? _receiveAmount?.toString() : depositAmountCanonical,
+      isFixedRateMode, isSendAllEnabled, _pegarouteMax, isSendFromExternal, receiveAddressExtraId,
+      forcedProvider, forceDecentralizedExchanges,
+      selectedProviders.map((p) => p.description.raw).join(','),
+      jsonEncode(pegarouteProviderPreferences.states));
+
   Future<void> calculateForcedProviderRate() async {
+    final requestId = ++_pegarouteForcedRequest;
     if (forcedProvider == null || depositCurrency == receiveCurrency) {
       forcedProviderRate = 0.0;
       return;
@@ -896,6 +939,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         double.tryParse(isFixedRateMode ? _receiveAmount.toString() : _depositAmount.toString()) ??
             initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
+    if (forcedProvider is PegaRouteExchangeProvider) {
+      if (!_canUsePegaroute) {
+        forcedProviderRate = 0;
+        return;
+      }
+      final context = _pegarouteRateContext;
+      final provider = forcedProvider as PegaRouteExchangeProvider;
+      Limits? quoteLimits;
+      _forcedPending = requestId;
+      final rate = await provider.fetchRateExact(
+          from: depositCurrency, to: receiveCurrency, amount: depositAmountCanonical,
+          onLimits: (value) => quoteLimits = value)
+          .timeout(_pegarouteQuoteTimeout, onTimeout: () => 0.0)
+          .whenComplete(() { if (_forcedPending == requestId) _forcedPending = null; });
+      if (requestId == _pegarouteForcedRequest && context == _pegarouteRateContext) {
+        forcedProviderRate = rate;
+        _providerLimits[provider] = quoteLimits;
+        _updateLimits();
+      }
+      return;
+    }
     forcedProviderRate = await forcedProvider!.fetchRate(
         from: depositCurrency,
         to: receiveCurrency,
@@ -913,6 +977,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
 
   Future<void> calculateBestRate() async {
+    final requestId = ++_pegarouteComparisonRequest;
+    final hasPegaroute = selectedProviders.any((p) => p is PegaRouteExchangeProvider) ||
+        bestRateProvider is PegaRouteExchangeProvider;
+    final context = hasPegaroute ? _pegarouteRateContext : null;
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
       bestRateProvider = null;
@@ -925,6 +993,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       if (_excludeProviderForSwapAll(provider)) return false;
       if (_excludeProviderForReceiveExtraId(provider)) return false;
+      // A previous minimum must not prevent a fresh Pegaroute quote.
+      if (provider is PegaRouteExchangeProvider) return _canUsePegaroute;
 
       final limits = _providerLimits[provider];
 
@@ -939,21 +1009,40 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
+    final quoteLimits = <ExchangeProvider, Limits?>{};
+    _comparisonPending = requestId;
     final result = await Future.wait<double>(
       _providers.map(
-        (element) => element
-            .fetchRate(
-                from: depositCurrency,
-                to: receiveCurrency,
-                amount: amount,
-                isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: isFixedRateMode)
-            .timeout(
-              Duration(seconds: 7),
-              onTimeout: () => 0.0,
-            ),
+        (element) {
+          if (element is PegaRouteExchangeProvider) {
+            if (!_canUsePegaroute) return Future.value(0.0);
+            quoteLimits[element] = null;
+            return element
+                .fetchRateExact(
+                    from: depositCurrency, to: receiveCurrency, amount: depositAmountCanonical,
+                    onLimits: (value) => quoteLimits[element] = value)
+                .timeout(_pegarouteQuoteTimeout, onTimeout: () => 0.0)
+                .onError((error, stackTrace) => 0.0);
+          }
+          return element
+              .fetchRate(
+                  from: depositCurrency,
+                  to: receiveCurrency,
+                  amount: amount,
+                  isFixedRateMode: isFixedRateMode,
+                  isReceiveAmount: isFixedRateMode)
+              .timeout(
+                Duration(seconds: 7),
+                onTimeout: () => 0.0,
+              )
+              // One unavailable provider must not stop the remaining quotes.
+              .onError((error, stackTrace) => 0.0);
+        },
       ),
-    );
+    ).whenComplete(() { if (_comparisonPending == requestId) _comparisonPending = null; });
+
+    if (hasPegaroute &&
+        (requestId != _pegarouteComparisonRequest || context != _pegarouteRateContext)) return;
 
     // We'll use a new SplayTreeMap to avoid concurrent modification issues
     final newSortedProviders =
@@ -976,82 +1065,155 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     // Replace the old map with the new one
     _sortedAvailableProviders.clear();
     _sortedAvailableProviders.addAll(newSortedProviders);
+    // Empty results must clear the previous quote, including other providers.
+    bestRate = 0;
+    bestRateProvider = null;
 
     if (_sortedAvailableProviders.isNotEmpty) {
       bestRate = _sortedAvailableProviders.keys.first;
       bestRateProvider = _sortedAvailableProviders.values.first;
     }
     noProviderForPair = _sortedAvailableProviders.isEmpty;
+    // The forced quote owns its limits, independently of the automatic comparison.
+    _providerLimits.addEntries(quoteLimits.entries.where((entry) => entry.key != forcedProvider));
+    _updateLimits(fromQuotes: true);
   }
+
+  int _limitsRequest = 0;
+  Object get _limitsContext => (
+      _pegarouteRateAsset(depositCurrency), _pegarouteRateAsset(receiveCurrency), isFixedRateMode,
+      selectedProviders.map(identityHashCode).join(','),
+      jsonEncode(pegarouteProviderPreferences.states));
 
   @action
   Future<void> loadLimits() async {
-    if (depositCurrency == receiveCurrency) {
-      limitsState = LimitsLoadedSuccessfully(limits: Limits(min: 0, max: 0));
+    final requestId = ++_limitsRequest;
+    final context = _limitsContext;
+    _providerLimits.clear();
+    limits = Limits(min: 0, max: null);
+    if (depositCurrency == receiveCurrency || selectedProviders.isEmpty) {
+      _updateLimits();
       return;
     }
-    if (selectedProviders.isEmpty) return;
-
     limitsState = LimitsIsLoading();
 
     final from = isFixedRateMode ? receiveCurrency : depositCurrency;
     final to = isFixedRateMode ? depositCurrency : receiveCurrency;
+    final providers = selectedProviders
+        .where((provider) => providerList.contains(provider))
+        .where((provider) => !_excludeProviderForReceiveExtraId(provider)).toList();
+    final entries = await Future.wait(providers.map((provider) async {
+      final limits = await provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode)
+          .onError((error, stackTrace) => null)
+          .timeout(Duration(seconds: 7), onTimeout: () => null);
+      return MapEntry(provider, limits);
+    }));
+    if (requestId != _limitsRequest || context != _limitsContext) return;
+    for (final entry in entries) {
+      // A current quote may finish while other providers still load their limits.
+      if (entry.key is PegaRouteExchangeProvider && _providerLimits.containsKey(entry.key)) continue;
+      _providerLimits[entry.key] = entry.value;
+    }
+    _updateLimits();
+    calculateBestRate();
+  }
 
+  void _updateLimits({bool fromQuotes = false}) {
     double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
-
-    try {
-      final futures = selectedProviders
-          .where((provider) => providerList.contains(provider))
-          .where((provider) => !_excludeProviderForReceiveExtraId(provider))
-          .map((provider) async {
-        final limits = await provider
-            .fetchLimits(
-              from: from,
-              to: to,
-              isFixedRateMode: isFixedRateMode,
-            )
-            .onError((error, stackTrace) => null)
-            .timeout(
-              Duration(seconds: 7),
-              onTimeout: () => null,
-            );
-        return MapEntry(provider, limits);
-      }).toList();
-
-      final entries = await Future.wait(futures);
-      _providerLimits = Map.fromEntries(entries);
-
-      _providerLimits.values.whereType<Limits>().forEach((tempLimits) {
-        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
-          lowestMin = tempLimits.min;
-        }
-
-        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax!) {
-          highestMax = tempLimits.max;
-        }
-      });
-    } on ConcurrentModificationError {
-      /// if user changed the selected providers while fetching limits
-      /// then delay the fetching limits a bit and try again
-      ///
-      /// this is because the limitation of collections that
-      /// you can't modify it while iterating through it
-      Future.delayed(Duration(milliseconds: 200), loadLimits);
+    final amount = double.tryParse(isFixedRateMode ? _receiveAmount.toString() : depositAmountCanonical);
+    final ranges = selectedProviders
+        .where((provider) => providerList.contains(provider))
+        .where((provider) => forcedProvider == null || provider == forcedProvider)
+        .where((provider) => !_excludeProviderForSwapAll(provider) &&
+            !_excludeProviderForReceiveExtraId(provider))
+        .where((provider) => provider is! PegaRouteExchangeProvider || _canUsePegaroute)
+        .where((provider) {
+          if (!fromQuotes || forcedProvider != null || amount == null ||
+              _sortedAvailableProviders.containsValue(provider)) return true;
+          final range = _providerLimits[provider];
+          // Keep amount limits, but not a zero minimum from a failed quote.
+          return (range?.min != null && amount < range!.min!) ||
+              (range?.max != null && amount > range!.max!);
+        })
+        .map((provider) => _providerLimits[provider]).whereType<Limits>();
+    for (final range in ranges) {
+      if (lowestMin != null && (range.min ?? -1) < lowestMin) lowestMin = range.min;
+      if (highestMax != null && (range.max ?? double.maxFinite) > highestMax) highestMax = range.max;
     }
+    limits = lowestMin == double.maxFinite
+        ? Limits(min: 0, max: null)
+        : Limits(min: lowestMin, max: highestMax);
+    limitsState = lowestMin == double.maxFinite
+        ? LimitsLoadedFailure(error: 'Limits loading failed')
+        : LimitsLoadedSuccessfully(limits: limits);
+  }
 
-    if (lowestMin != double.maxFinite) {
-      limits = Limits(min: lowestMin, max: highestMax);
-      limitsState = LimitsLoadedSuccessfully(limits: limits);
-    } else {
-      limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
+  bool get _hasPegarouteMax =>
+      selectedProviders.any((p) => p is PegaRouteExchangeProvider) &&
+      PegaRouteExchangeProvider.supportsMax(wallet, depositCurrency);
+
+  int _pegarouteMaxRequest = 0;
+  ({Object context, BigInt balance, String amount})? _pegarouteMax;
+  Object get _pegarouteMaxContext => (wallet, wallet.id, wallet.chainId,
+      wallet.walletAddresses.address, _pegarouteRateAsset(depositCurrency),
+      isSendAllEnabled, isFixedRateMode);
+  bool get _pegarouteMaxIsCurrent => _hasPegarouteMax &&
+      _pegarouteMax?.context == _pegarouteMaxContext &&
+      _pegarouteMax?.amount == depositAmountCanonical &&
+      _pegarouteMax?.balance == PegaRouteExchangeProvider.sourceBalance(wallet, depositCurrency)?.amount;
+
+  bool get _canUsePegaroute =>
+      !isFixedRateMode && (!isSendAllEnabled || _pegarouteMaxIsCurrent) &&
+      (PegaRouteExchangeProvider.allowsExternal(ExchangeProviderDescription.pegaRoute) ||
+          !isSendFromExternal) &&
+      PegaRouteExchangeProvider.supportsWallet(wallet, depositCurrency) &&
+      receiveAddressExtraId.trim().isEmpty &&
+      PegaRouteExchangeProvider.supportsPair(depositCurrency, receiveCurrency);
+
+  // One Pegaroute-only snapshot; the predicate is reused across every await and installation.
+  ({Future<Trade> Function(PegaRouteExchangeProvider) create,
+    bool Function(PegaRouteExchangeProvider) current}) _capturePegarouteCreation() {
+    final boundWallet = wallet;
+    final preferences = Map<String, bool>.from(pegarouteProviderPreferences.states);
+    final decentralizedOnly = forceDecentralizedExchanges;
+    final walletId = wallet.id;
+    final sender = wallet.walletAddresses.address;
+    final chainId = wallet.chainId;
+    final sendAll = isSendAllEnabled;
+    final maxBalance = _pegarouteMax?.balance;
+    final request = TradeRequest(fromCurrency: depositCurrency, toCurrency: receiveCurrency,
+        fromAmount: depositAmountCanonical, toAddress: receiveAddress, refundAddress: depositAddress);
+    final principal = Money.parse(request.fromAmount, request.fromCurrency);
+    bool hasPrincipal() {
+      final balance = PegaRouteExchangeProvider.sourceBalance(boundWallet, request.fromCurrency);
+      return balance != null && balance.amount >= principal.amount &&
+          (!sendAll || balance.amount == maxBalance);
     }
-
-    calculateBestRate();
+    bool current(PegaRouteExchangeProvider provider) =>
+        _canUsePegaroute && sendAll == isSendAllEnabled && selectedProviders.contains(provider) &&
+        decentralizedOnly == forceDecentralizedExchanges &&
+        const MapEquality<String, bool>().equals(preferences, pegarouteProviderPreferences.states) &&
+        identical(wallet, boundWallet) && wallet.id == walletId &&
+        wallet.walletAddresses.address == sender && wallet.chainId == chainId &&
+        PegaRouteExchangeProvider.sameAsset(depositCurrency, request.fromCurrency) &&
+        PegaRouteExchangeProvider.sameAsset(receiveCurrency, request.toCurrency) &&
+        depositAmountCanonical == request.fromAmount && receiveAddress == request.toAddress &&
+        depositAddress == request.refundAddress && hasPrincipal();
+    return (current: current, create: (provider) async {
+      if (!hasPrincipal()) throw StateError('Source balance changed or is insufficient. Request a new quote.');
+      if (!current(provider)) throw StateError('Wallet or quote intent changed');
+      return provider.createBoundTrade(request: request, walletId: walletId, sender: sender,
+          chainId: chainId, isFixedRateMode: false, isSendAll: false,
+          isCurrent: () => current(provider));
+    });
   }
 
   @action
   Future<void> createTrade() async {
+    final pegarouteIntent = selectedProviders.any((p) => p is PegaRouteExchangeProvider)
+        ? _capturePegarouteCreation()
+        : null;
     final depositAmountValue = _depositAmount ?? Money.zero(depositCurrency);
     final receiveAmountValue = _receiveAmount ?? Money.zero(receiveCurrency);
 
@@ -1228,6 +1390,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           continue;
         }
 
+        if (provider is PegaRouteExchangeProvider && !_canUsePegaroute) {
+          continue;
+        }
+
         // Skip Swaps.xyz when sending from external
         if (isSendFromExternal && provider.description == ExchangeProviderDescription.swapsXyz) {
           printV('Skipping Swaps.xyz for external send');
@@ -1258,6 +1424,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
 
         var amount = isFixedRateMode ? _receiveAmount.toString() : _depositAmount.toString();
+
+        if (provider is PegaRouteExchangeProvider) {
+          // Creation rechecks the exact quote. UI limits are not funding authority.
+          try {
+            tradeState = TradeIsCreating();
+            if (pegarouteIntent == null) throw StateError('Missing Pegaroute creation intent');
+            final trade = await pegarouteIntent.create(provider);
+            if (!pegarouteIntent.current(provider)) {
+              throw StateError('Order saved for previous wallet intent; do not repay');
+            }
+            tradesStore.setTrade(trade); // Already persisted by the provider.
+            tradeState = TradeIsCreatedSuccessfully(trade: trade);
+          } catch (error) {
+            // Creation/persistence may have succeeded: never fall back or log intent.
+            tradeState = TradeIsCreatedFailure(title: S.current.trade_not_created, error: error.toString());
+          }
+          return;
+        }
 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) {
@@ -1375,6 +1559,35 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> calculateDepositAllAmount() async {
+    if (_hasPegarouteMax) {
+      final request = ++_pegarouteMaxRequest;
+      final context = _pegarouteMaxContext;
+      final boundWallet = wallet;
+      final currency = depositCurrency;
+      final balance = PegaRouteExchangeProvider.sourceBalance(boundWallet, currency)!;
+      _pegarouteMax = null;
+      bool current() => request == _pegarouteMaxRequest && context == _pegarouteMaxContext &&
+          _hasPegarouteMax &&
+          PegaRouteExchangeProvider.sourceBalance(boundWallet, currency)?.amount == balance.amount;
+      String amount = '0';
+      try {
+        final priority = _settingsStore.getPriority(boundWallet.type, chainId: boundWallet.chainId);
+        final maximum = await pegarouteMaxAmount(boundWallet, balance, priority);
+        if (!current()) return;
+        amount = maximum.toString();
+        _pegarouteMax = (context: context, balance: balance.amount, amount: amount);
+      } catch (_) {
+        if (!current()) return;
+        // Do not use the full native balance when a fee estimate fails.
+      }
+      await changeDepositAmount(amount: amount, isCanonical: true);
+      if (!current()) return;
+      await calculateBestRate();
+      if (current() && forcedProvider is PegaRouteExchangeProvider) {
+        await calculateForcedProviderRate();
+      }
+      return;
+    }
     if ([
       WalletType.litecoin,
       WalletType.bitcoin,

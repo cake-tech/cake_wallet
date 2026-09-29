@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -22,6 +23,7 @@ import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_record.dart';
 
 class TradeMonitor {
   static const int _tradeCheckIntervalMinutes = 5;
@@ -31,14 +33,20 @@ class TradeMonitor {
     required this.tradesStore,
     required this.appStore,
     required this.preferences,
-  });
+    DateTime Function()? clock,
+    ExchangeProvider? Function(ExchangeProviderDescription)? providerFactory,
+  }) : _clock = clock ?? DateTime.now, _providerFactory = providerFactory;
 
   final TradesStore tradesStore;
   final AppStore appStore;
   final Map<String, Timer> _tradeTimers = {};
   final SharedPreferences preferences;
+  final DateTime Function() _clock;
+  final ExchangeProvider? Function(ExchangeProviderDescription)? _providerFactory;
+  final Set<String> _checksInFlight = {};
 
   ExchangeProvider? _getProviderByDescription(ExchangeProviderDescription description) {
+    if (_providerFactory != null) return _providerFactory(description);
     switch (description) {
       case ExchangeProviderDescription.changeNow:
         return ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
@@ -68,6 +76,8 @@ class TradeMonitor {
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
         return NearIntentsExchangeProvider();
+      case ExchangeProviderDescription.pegaRoute:
+        return PegaRouteExchangeProvider();
     }
     return null;
   }
@@ -77,6 +87,8 @@ class TradeMonitor {
     // i.e the user has not disabled the exchange api mode or the status updates
     final isTradeMonitoringPermitted = _isTradeMonitoringPermitted();
     if (!isTradeMonitoringPermitted) {
+      _cancelMultipleTradeTimers(_tradeTimers.keys.where((id) => tradesStore.trades.any((item) =>
+          item.trade.id == id && item.trade.provider == ExchangeProviderDescription.pegaRoute)).toList());
       return;
     }
 
@@ -128,17 +140,19 @@ class TradeMonitor {
     }
 
     final createdAt = trade.createdAt;
-    if (createdAt == null) {
+    final fundedPegaroute = _isFundedPegaroute(trade);
+    if (createdAt == null && !fundedPegaroute) {
       printV('Skipping trade ${trade.id} because it has no createdAt');
       return true;
     }
 
-    if (DateTime.now().difference(createdAt).inHours > _maxTradeAgeHours) {
+    if (!fundedPegaroute && createdAt != null &&
+        _clock().difference(createdAt).inHours > _maxTradeAgeHours) {
       printV('Skipping trade ${trade.id} because it\'s older than ${_maxTradeAgeHours} hours');
       return true;
     }
 
-    if (_isFinalState(trade.state)) {
+    if (_isFinalStateForTrade(trade)) {
       return true;
     }
 
@@ -162,17 +176,34 @@ class TradeMonitor {
       (_) => _checkTradeStatus(trade, provider),
     );
 
-    _checkTradeStatus(trade, provider);
-
     _tradeTimers[trade.id] = timer;
+    _checkTradeStatus(trade, provider);
   }
 
   Future<void> _checkTradeStatus(Trade trade, ExchangeProvider provider) async {
+    final isPegaroute = trade.provider == ExchangeProviderDescription.pegaRoute;
+    if (isPegaroute) {
+      if (!_isTradeMonitoringPermitted() || provider is! PegaRouteExchangeProvider) {
+        _cancelSingleTradeTimer(trade.id);
+        return;
+      }
+      // A timer may have captured the row before funding. Reread its bound
+      // identity rather than applying the age/terminal gate to that stale copy.
+      try { trade = await provider.store.latest(trade); }
+      catch (_) { _cancelSingleTradeTimer(trade.id); return; }
+      if (!_isTradeMonitoringPermitted() ||
+          _shouldSkipTrade(trade, appStore.wallet?.id ?? '', provider)) {
+        _cancelSingleTradeTimer(trade.id);
+        return;
+      }
+    }
     final lastUpdatedAtFromPrefs = preferences.getString('trade_${trade.id}_updated_at');
 
     if (lastUpdatedAtFromPrefs != null) {
-      final lastUpdatedAtDateTime = DateTime.parse(lastUpdatedAtFromPrefs);
-      final timeSinceLastUpdate = DateTime.now().difference(lastUpdatedAtDateTime).inMinutes;
+      final lastUpdatedAtDateTime = isPegaroute
+          ? DateTime.tryParse(lastUpdatedAtFromPrefs) : DateTime.parse(lastUpdatedAtFromPrefs);
+      final timeSinceLastUpdate = lastUpdatedAtDateTime == null ? _tradeCheckIntervalMinutes
+          : _clock().difference(lastUpdatedAtDateTime).inMinutes;
 
       if (timeSinceLastUpdate < _tradeCheckIntervalMinutes) {
         printV(
@@ -182,24 +213,43 @@ class TradeMonitor {
       }
     }
 
+    if (isPegaroute && !_checksInFlight.add(trade.id)) return;
     try {
       final updated = await provider.findTradeById(id: trade.id);
-      trade.mergeFindTradeByIdResult(updated);
+      if (isPegaroute) {
+        // Another stale generic save could erase Pegaroute's already-persisted funding claim.
+        trade = updated;
+      } else {
+        trade.mergeFindTradeByIdResult(updated);
+        await trade.save();
+      }
       printV('Trade ${trade.id} updated: ${trade.state}');
-      await trade.save();
 
-      await preferences.setString('trade_${trade.id}_updated_at', DateTime.now().toIso8601String());
-      printV('Trade ${trade.id} updated at: ${DateTime.now().toIso8601String()}');
+      await preferences.setString('trade_${trade.id}_updated_at', _clock().toIso8601String());
+      printV('Trade ${trade.id} updated at: ${_clock().toIso8601String()}');
 
       // If the updated trade is in a final state, we cancel the timer
-      if (_isFinalState(updated.state)) {
+      if (_isFinalStateForTrade(updated)) {
         printV('Trade ${trade.id} is in final state');
         _cancelSingleTradeTimer(trade.id);
       }
     } catch (e) {
       printV('Error fetching status for ${trade.id}: $e');
+    } finally {
+      if (isPegaroute) _checksInFlight.remove(trade.id);
     }
   }
+
+  bool _isFundedPegaroute(Trade trade) {
+    if (trade.provider != ExchangeProviderDescription.pegaRoute || trade.txId == null) return false;
+    try { return PegarouteTradeRecord.read(trade).attempt != null; }
+    catch (_) { return false; }
+  }
+
+  bool _isFinalStateForTrade(Trade trade) =>
+      trade.provider == ExchangeProviderDescription.pegaRoute
+          ? const {'success', 'failed', 'refunded'}.contains(trade.stateRaw)
+          : _isFinalState(trade.state);
 
   bool _isFinalState(TradeState state) {
     return {

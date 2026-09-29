@@ -7,11 +7,13 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
+import 'package:cake_wallet/new-ui/widgets/swap_page/pegaroute_preparation_retry_button.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/amount/money.dart';
@@ -260,14 +262,7 @@ class SwapTransactionDetails extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: exchangeViewModel.isSendFromExternal
-                      ? NewPrimaryButton(
-                          onPressed: () => _showExternalSendModal(context),
-                          text: S.of(context).continue_text,
-                          color: Theme.of(context).colorScheme.primary,
-                          textColor: Theme.of(context).colorScheme.onPrimary)
-                      : SendConfirmBottomWidget(
-                          sendViewModel: exchangeTradeViewModel.sendViewModel),
+                  child: _confirmationAction(context),
                 ),
               ],
             ),
@@ -277,7 +272,37 @@ class SwapTransactionDetails extends StatelessWidget {
     );
   }
 
+  Widget _confirmationAction(BuildContext context) {
+    if (exchangeViewModel.isSendFromExternal) {
+      if (!PegaRouteExchangeProvider.allowsExternal(exchangeTradeViewModel.trade.provider)) {
+        return const SizedBox.shrink();
+      }
+      return NewPrimaryButton(
+          onPressed: () => _showExternalSendModal(context),
+          text: S.of(context).continue_text,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary);
+    }
+    return Observer(builder: (_) {
+      final approval = exchangeTradeViewModel.pegarouteApprovalDescription;
+      return Column(mainAxisSize: MainAxisSize.min, children: [
+        if (approval != null) Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(approval, textAlign: TextAlign.center),
+        ),
+        SendConfirmBottomWidget(sendViewModel: exchangeTradeViewModel.sendViewModel),
+        if (exchangeTradeViewModel.canRetryPegaroutePreparation)
+          PegaroutePreparationRetryButton(
+            key: ValueKey(exchangeTradeViewModel.sendViewModel.state),
+            readAction: exchangeTradeViewModel.readPegaroutePreparationRetryAction,
+            onRetry: exchangeTradeViewModel.retryPegaroutePreparation,
+          ),
+      ]);
+    });
+  }
+
   void _showExternalSendModal(BuildContext context) {
+    if (!PegaRouteExchangeProvider.allowsExternal(exchangeTradeViewModel.trade.provider)) return;
     if (context.mounted) {
       showMaterialModalBottomSheet(
           context: context,

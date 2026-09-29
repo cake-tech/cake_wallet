@@ -8,6 +8,8 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/evm_call_data_transaction_credentials.dart';
+import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -829,6 +831,18 @@ abstract class EVMChainWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (credentials is EvmCallDataTransactionCredentials) {
+      return createCallDataTransaction(
+        credentials.to,
+        credentials.data,
+        credentials.value,
+        credentials.priority as EVMChainTransactionPriority?,
+        credentials.sourceTokenAddress,
+        credentials.sourceTokenAmount,
+        gasLimit: credentials.gasLimit,
+        useBlinkProtection: credentials.useBlinkProtection,
+      );
+    }
     final _credentials = credentials as EVMChainTransactionCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
@@ -976,7 +990,11 @@ abstract class EVMChainWalletBase
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount, {
     bool useBlinkProtection = true,
+    int? gasLimit,
   }) async {
+    if (gasLimit != null && gasLimit < 21000) {
+      throw EVMChainTransactionFeesException('Invalid supplied gas limit');
+    }
     // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
       137 => CryptoCurrency.maticpoly,
@@ -997,20 +1015,43 @@ abstract class EVMChainWalletBase
         data: _client.hexToBytes(dataHex),
       );
     } catch (_) {
+      // A supplied gas limit cannot substitute for unavailable fee pricing.
+      if (gasLimit != null) rethrow;
       // If estimation fails, we proceed but will use a safe gas limit below.
       // This is common for complex swaps that depend on block state.
       gas = GasParamsHandler.zero();
     }
 
-    final nativeBal = balance[nativeCurrency]?.available ?? Money.zero(nativeCurrency);
-    var requiredNative = Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+    final gasUnits = gasLimit == null
+        ? (gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits)
+        : (gas.estimatedGasUnits > gasLimit ? gas.estimatedGasUnits : gasLimit);
+    final gasFee = gasLimit == null
+        ? Money.fromInt(gas.estimatedGasFee, nativeCurrency)
+        : Money(BigInt.from(gasUnits) * BigInt.from(gas.maxFeePerGas), nativeCurrency);
+    if (gasLimit != null && gas.maxFeePerGas <= 0) {
+      throw EVMChainTransactionFeesException('Gas price is unavailable');
+    }
+    // Approval fees or pending payments can make the UI's cached balance stale.
+    // Funding requires a successful node read, not a background-sync fallback.
+    final nativeBal = Money(
+        (await _client.getBalance(_evmChainPrivateKey.address, atBlock: const BlockNum.pending()))
+            .getInWei,
+        nativeCurrency);
+    balance[nativeCurrency] = EVMChainERC20Balance(nativeBal);
+    var requiredNative = gasFee;
 
     if (valueWei.currency == nativeCurrency) {
       requiredNative += valueWei;
     }
 
     if (requiredNative > nativeBal) {
-      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+      throw TransactionWrongBalanceException(
+        nativeCurrency,
+        requiredBalance: requiredNative,
+        availableBalance: nativeBal,
+        fee: gasFee,
+        feePriority: priority,
+      );
     }
 
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
@@ -1020,9 +1061,15 @@ abstract class EVMChainWalletBase
         cleanAddress == '0x0000000000000000000000000000000000000000';
 
     if (!isNativeSource && sourceTokenAmount != null && sourceTokenAmount > BigInt.zero) {
-      final matchingTokens = balance.keys
-          .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
+      final matchingTokens = balance.keys.where((k) => k is Erc20Token &&
+          k.contractAddress.toLowerCase() == cleanAddress &&
+          (gasLimit == null || k.chainId == null || k.chainId == selectedChainId));
 
+      // Bound supplied calls must not borrow another network's balance or pick
+      // the first of ambiguous contract entries. Keep legacy no-limit behavior.
+      if (gasLimit != null && matchingTokens.length > 1) {
+        throw StateError('Ambiguous source token balance');
+      }
       if (matchingTokens.isEmpty) {
         throw Exception('Insufficient token balance (Token not found in wallet).');
       }
@@ -1030,21 +1077,22 @@ abstract class EVMChainWalletBase
       final tokenKey = matchingTokens.first;
       final tokenBalance = balance[tokenKey]?.available ?? Money.zero(tokenKey);
 
-      if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
-        throw Exception('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
+      final requiredToken = Money(sourceTokenAmount, tokenKey);
+      if (tokenBalance < requiredToken) {
+        throw TransactionWrongBalanceException(
+          tokenKey,
+          requiredBalance: requiredToken,
+          availableBalance: tokenBalance,
+        );
       }
     }
-
-    // Final Safe Gas Limit
-    // If estimation failed (0), use 300,000 as a safe default for swaps.
-    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits;
 
     try {
       return _client.signTransaction(
         privateKey: _evmChainPrivateKey,
         toAddress: to,
         amount: valueWei,
-        gasFee: Money.fromInt(gas.estimatedGasFee, currency),
+        gasFee: gasFee,
         estimatedGasUnits: gasUnits,
         maxFeePerGas: gas.maxFeePerGas,
         priority: priority,

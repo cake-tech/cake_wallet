@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_deposit.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_message.dart';
@@ -43,12 +44,14 @@ class SendConfirmBottomWidget extends StatelessWidget {
   Widget _buildBottomWidget(BuildContext context, Type state) {
     switch (state) {
       case ExecutedSuccessfullyState:
+        final pending = sendViewModel.pendingTransaction;
+        final approval = pending is PegaroutePendingDeposit && pending.isApproval;
         return ConfirmSwiper(
             onConfirmed: () {
               sendViewModel.commitTransaction(context);
             },
-            swiperText: "${S.of(context).swipe_to_send}",
-            accessibleNavigationModeButtonText: S.of(context).send);
+            swiperText: approval ? S.of(context).swipe_for_contract_approval : S.of(context).swipe_to_send,
+            accessibleNavigationModeButtonText: approval ? S.of(context).approve : S.of(context).send);
       case IsExecutingState:
         return LoadingBottomWidget(
           text: "${S.of(context).generating_transaction}...",

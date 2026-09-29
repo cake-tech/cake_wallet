@@ -1,0 +1,27 @@
+{
+  "quoteId": "quote-fixture",
+  "expiresAt": "2026-09-01T12:00:00.000Z",
+  "routes": [
+    {
+      "provider": "instaswap",
+      "subprovider": "partner-fixture",
+      "private": "zk",
+      "providerType": "api-provider",
+      "expectedOutput": "0.99",
+      "estimatedTimeSeconds": 120,
+      "expiry": null,
+      "memo": null,
+      "inboundAddress": null,
+      "router": null,
+      "gasRate": null,
+      "minAmount": "0.01",
+      "fees": { "affiliate": "0", "liquidity": "0.01", "outbound": "0", "total": "0.01" },
+      "resolvedFee": { "feeBps": 0 }
+    }
+  ],
+  "warnings": [
+    { "provider": "thorchain", "code": "UNSUPPORTED_PAIR", "message": "Private mode unsupported", "userMessage": "No confidential route" },
+    { "provider": "maya", "code": "UNSUPPORTED_PAIR", "message": "Private mode unsupported", "userMessage": "No confidential route" },
+    { "provider": "openocean", "code": "UNSUPPORTED_PAIR", "message": "Private mode unsupported", "userMessage": "No confidential route" }
+  ]
+}

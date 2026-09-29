@@ -64,6 +64,8 @@ import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
@@ -1000,8 +1002,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.exchangeTradeExternalSendPage:
+      final model = getIt.get<ExchangeTradeViewModel>();
+      if (!PegaRouteExchangeProvider.allowsExternal(model.trade.provider)) {
+        model.timer?.cancel();
+        throw StateError('Pegaroute deposits require the bound Cake wallet');
+      }
       return MaterialPageRoute<void>(
-        builder: (_) => getIt.get<ExchangeTradeExternalSendPage>(),
+        builder: (_) => ExchangeTradeExternalSendPage(exchangeTradeViewModel: model),
       );
 
     case Routes.backgroundSync:

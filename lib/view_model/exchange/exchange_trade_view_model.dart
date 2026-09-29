@@ -11,6 +11,11 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_record.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_store.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_deposit.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_preparation_retry.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
@@ -49,6 +54,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.sendViewModel,
     required this.feesViewModel,
     required this.fiatConversionStore,
+    PegaRouteExchangeProvider? pegarouteProvider,
   })  : trade = tradesStore.trade!,
         isSwapsXYZCanSendFromExternal =
             _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
@@ -95,6 +101,9 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case ExchangeProviderDescription.pegaRoute:
+        _provider = pegarouteProvider ?? PegaRouteExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -128,6 +137,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   /// Returns true if the current provider should hide the external send button
   bool get shouldHideExternalSendButton {
+    if (!PegaRouteExchangeProvider.allowsExternal(trade.provider)) return true;
     if (_provider == null) return false;
 
     if (!isSwapsXYZCanSendFromExternal) return true;
@@ -204,9 +214,17 @@ abstract class ExchangeTradeViewModelBase with Store {
   void setUpOutput() {
     sendViewModel.clearOutputs();
     output = sendViewModel.outputs.first;
-    output.address = trade.inputAddress ?? '';
+    final isPegaroute = trade.provider == ExchangeProviderDescription.pegaRoute;
+    if (isPegaroute) {
+      try { PegarouteTradeRecord.read(trade); }
+      catch (_) {
+        sendViewModel.state = FailureState('Pegaroute order is unavailable');
+        return;
+      }
+    }
+    output.address = trade.inputAddress ?? (isPegaroute ? trade.payoutAddress ?? '' : '');
     output.setCryptoAmount(trade.amount);
-    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo ?? "";
+    if (_provider is ThorChainExchangeProvider || isPegaroute) output.memo = trade.memo ?? "";
     if (trade.isSendAll == true) output.sendAll = true;
   }
 
@@ -227,6 +245,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     }
 
     sendViewModel.selectedCryptoCurrency = selected;
+    if (trade.provider == ExchangeProviderDescription.pegaRoute) output.setCryptoAmount(trade.amount);
 
     final pendingTransaction =
         await sendViewModel.createTransaction(provider: _provider, trade: trade);
@@ -246,10 +265,19 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider!.findTradeById(id: trade.id);
+      final requestedTrade = trade;
+      final requestedId = trade.id;
+      final isPegaroute = trade.provider == ExchangeProviderDescription.pegaRoute;
+      final updatedTrade = await _provider!.findTradeById(id: requestedId);
 
-      trade.mergeFindTradeByIdResult(updatedTrade);
-      await trade.save();
+      if (isPegaroute) {
+        if (!identical(trade, requestedTrade) || trade.id != requestedId) return;
+        // Pegaroute refresh already merged progress transactionally with its claim.
+        trade = updatedTrade;
+      } else {
+        trade.mergeFindTradeByIdResult(updatedTrade);
+        await trade.save();
+      }
       tradesStore.setTrade(trade);
 
       _updateItems();
@@ -353,8 +381,44 @@ abstract class ExchangeTradeViewModelBase with Store {
     );
   }
 
+  String? get pegarouteApprovalDescription {
+    final pending = sendViewModel.pendingTransaction;
+    return pending is PegaroutePendingDeposit ? pending.approvalDescription : null;
+  }
+
+  bool get canRetryPegaroutePreparation {
+    if (trade.provider != ExchangeProviderDescription.pegaRoute ||
+        sendViewModel.state is! FailureState || checkIfCanSend(trade, wallet) != null) return false;
+    final pending = sendViewModel.pendingTransaction;
+    return pending == null || pending is PegaroutePendingDeposit && (!pending.started || pending.isApproval);
+  }
+
+  Future<PegaroutePreparationRetryAction?> readPegaroutePreparationRetryAction() async {
+    if (!canRetryPegaroutePreparation) return null;
+    final action = await pegaroutePreparationRetryAction(trade: trade, wallet: sendViewModel.wallet);
+    return canRetryPegaroutePreparation ? action : null;
+  }
+
+  Future<void> retryPegaroutePreparation() async {
+    if (await readPegaroutePreparationRetryAction() == null) {
+      throw StateError('Preparation cannot be retried');
+    }
+    await confirmSending();
+  }
+
   String? checkIfCanSend(Trade? trade, WalletBase wallet) {
     if (trade == null) return 'Trade is null';
+    if (trade.provider == ExchangeProviderDescription.pegaRoute) {
+      try {
+        PegarouteTradeRecord.read(trade);
+        PegarouteTradeStore.eligible(trade);
+        if (trade.walletId != wallet.id || trade.fromWalletAddress != wallet.walletAddresses.address ||
+            trade.chainId != wallet.chainId || !PegaRouteExchangeProvider.supportsWallet(wallet, trade.from!)) {
+          return 'Return to the bound Pegaroute wallet';
+        }
+        return null;
+      } catch (_) { return 'Pegaroute order is unavailable, attempted or progressed'; }
+    }
 
     final tradeFrom = trade.from;
     if (tradeFrom == null) return 'Trade from currency is null';

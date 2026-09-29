@@ -8,6 +8,9 @@ import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_record.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_provider_label.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
@@ -84,6 +87,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case ExchangeProviderDescription.pegaRoute:
+        _provider = PegaRouteExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -143,10 +149,18 @@ abstract class TradeDetailsViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider!.findTradeById(id: trade.id);
+      final requestedTrade = trade;
+      final requestedId = trade.id;
+      final isPegaroute = trade.provider == ExchangeProviderDescription.pegaRoute;
+      final updatedTrade = await _provider!.findTradeById(id: requestedId);
 
-      trade.mergeFindTradeByIdResult(updatedTrade);
-      await trade.save();
+      if (isPegaroute) {
+        if (!identical(trade, requestedTrade) || trade.id != requestedId) return;
+        trade = updatedTrade;
+      } else {
+        trade.mergeFindTradeByIdResult(updatedTrade);
+        await trade.save();
+      }
 
       _updateItems();
     } catch (e) {
@@ -158,6 +172,11 @@ abstract class TradeDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal(reverse: true);
 
     items.clear();
+    PegarouteTradeRecord? pegaroute;
+    if (trade.provider == ExchangeProviderDescription.pegaRoute) {
+      try { pegaroute = PegarouteTradeRecord.read(trade); }
+      catch (_) { items.add(TradeProviderUnsupportedItem(error: 'Pegaroute order is unavailable')); }
+    }
 
     if (_provider == null)
       items.add(TradeProviderUnsupportedItem(
@@ -194,7 +213,7 @@ abstract class TradeDetailsViewModelBase with Store {
     }
 
     items.add(StandartListItem(
-        title: S.current.trade_details_provider, value: trade.provider.toString()));
+        title: S.current.trade_details_provider, value: tradeProviderDisplayName(trade)));
 
     final trackUrl = TradeDetailsViewModelBase.getTrackUrl(trade.provider, trade);
     if (trackUrl != null) {
@@ -202,7 +221,35 @@ abstract class TradeDetailsViewModelBase with Store {
           title: S.current.track, value: trackUrl, onTap: () => _launchUrl(trackUrl)));
     }
 
-    if (trade.isRefund == true) {
+    if (pegaroute != null) {
+      if (trade.txId != null) items.add(StandartListItem(title: 'Funding transaction', value: trade.txId!));
+      if (trade.txId == null && pegaroute.proposedHash != null) {
+        items.add(StandartListItem(title: 'Funding attempt (submission unconfirmed)',
+            value: pegaroute.proposedHash!));
+      }
+      if (trade.outputTransaction != null) {
+        items.add(StandartListItem(title: 'Payout transaction', value: trade.outputTransaction!));
+      }
+      for (final entry in pegaroute.approvals.entries) {
+        final evidence = entry.value as Map;
+        items.add(StandartListItem(title: '${entry.key == 'reset' ? 'Reset' : 'Approval'} transaction',
+            value: '${evidence['hash']} (${evidence['state']})'));
+      }
+      if (trade.isRefund == true) {
+        items.add(StandartListItem(title: 'Configured refund address', value: trade.refundAddress ?? ''));
+      }
+      final refund = pegaroute.refund;
+      if (refund != null) {
+        const labels = {'status': 'Refund status', 'refundAddress': 'Observed refund address',
+          'amount': 'Refund amount', 'originalAmount': 'Original refund amount',
+          'feeDeducted': 'Refund fee', 'feeDescription': 'Refund fee description',
+          'txHash': 'Refund transaction', 'completedAt': 'Refund completed'};
+        for (final entry in labels.entries) {
+          if (refund[entry.key] != null) items.add(StandartListItem(
+              title: entry.value, value: refund[entry.key] as String));
+        }
+      }
+    } else if (trade.isRefund == true) {
       items.add(StandartListItem(title: 'Refund', value: trade.refundAddress ?? ''));
     }
 

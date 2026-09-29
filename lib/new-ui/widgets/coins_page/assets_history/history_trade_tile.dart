@@ -17,12 +17,14 @@ class HistoryTradeTile extends StatelessWidget {
       required this.bottomSeparator,
       this.from,
       this.to,
+      this.providerDisplayName,
       required this.swapState,
       required this.provider});
 
   final CryptoCurrency? from;
   final CryptoCurrency? to;
   final ExchangeProviderDescription provider;
+  final String? providerDisplayName;
   final String date;
   final String amount;
   final String receiveAmount;
@@ -81,6 +83,7 @@ class HistoryTradeTile extends StatelessWidget {
         ],
       ),
       date: date,
+      subtitle: providerDisplayName,
       amountFiatWidget: Row(
         spacing: 4,
         children: [

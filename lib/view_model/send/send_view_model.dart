@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_deposit.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute/pegaroute_trade_record.dart';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
@@ -7,6 +9,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/transaction_wrong_balance_message.dart';
 import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
@@ -28,6 +31,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/pegaroute_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -68,6 +72,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -149,6 +154,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
   Trade? _currentTrade;
+  int _pegaroutePreparationGeneration = 0;
   ExchangeProvider? _currentProvider;
 
   @observable
@@ -691,9 +697,52 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     _currentTrade = trade;
     _currentProvider = provider;
     pendingTransaction = null;
+    final preparationGeneration = ++_pegaroutePreparationGeneration;
 
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
+
+      if (trade?.provider == ExchangeProviderDescription.pegaRoute ||
+          provider is PegaRouteExchangeProvider) {
+        if (trade == null || provider is! PegaRouteExchangeProvider) {
+          throw StateError('Missing bound Pegaroute provider/order');
+        }
+        final boundWallet = wallet;
+        final record = PegarouteTradeRecord.read(trade);
+        final deposit = trade.inputAddress ?? trade.payoutAddress;
+        final principal = trade.amount;
+        void checkDepositContext() {
+          if (preparationGeneration != _pegaroutePreparationGeneration ||
+              !identical(wallet, boundWallet) ||
+              !identical(_currentTrade, trade) ||
+              !record.matchesSource(selectedCryptoCurrency) ||
+              ocpRequest != null ||
+              outputs.length != 1) {
+            throw StateError('Pegaroute send context changed');
+          }
+          final output = outputs.single;
+          if (output.address != deposit ||
+              (output.extractedAddress.isNotEmpty && output.extractedAddress != deposit) ||
+              output.sendAll ||
+              output.memo != (trade.memo ?? '') ||
+              output.isParsedAddress ||
+              record.sourceUnits(output.cryptoAmount) != record.sourceUnits(principal)) {
+            throw StateError('Pegaroute deposit output changed');
+          }
+        }
+
+        checkDepositContext();
+        final prepared = await preparePegarouteDeposit(
+            trade: trade,
+            wallet: boundWallet,
+            priority: _settingsStore.getPriority(boundWallet.type, chainId: boundWallet.chainId),
+            provider: provider,
+            checkContext: checkDepositContext);
+        checkDepositContext();
+        pendingTransaction = prepared;
+        state = ExecutedSuccessfullyState();
+        return prepared;
+      }
 
       if (wallet.isHardwareWallet) {
         if (walletType == WalletType.monero) {
@@ -1025,11 +1074,50 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<void> commitTransaction(BuildContext context) async {
+    final capturedPending = pendingTransaction;
+    if (capturedPending is PegaroutePendingDeposit ||
+        _currentTrade?.provider == ExchangeProviderDescription.pegaRoute) {
+      try {
+        if (capturedPending is! PegaroutePendingDeposit) {
+          throw StateError('Missing bound Pegaroute preparation');
+        }
+        final boundWallet = wallet;
+        final boundTrade = _currentTrade;
+        final boundProvider = _currentProvider;
+        final generation = _pegaroutePreparationGeneration;
+        final complete = _captureSendCompletion(capturedPending, boundDeposit: true);
+        state = TransactionCommitting();
+        await capturedPending.commit();
+        if (!capturedPending.isApproval) state = TransactionCommitted();
+        if (capturedPending.bookkeepingError != null) {
+          printV('Pegaroute transaction submitted; bookkeeping requires attention: '
+              '${capturedPending.bookkeepingError.runtimeType}');
+        }
+        try {
+          await complete();
+        } catch (error) {
+          printV('Pegaroute transaction submitted; completion bookkeeping failed: ${error.runtimeType}');
+        }
+        if (capturedPending.isApproval) {
+          // Prepare only: the next approval/funding step needs its own confirmation.
+          if (!identical(wallet, boundWallet) || !identical(_currentTrade, boundTrade) ||
+              generation != _pegaroutePreparationGeneration) {
+            state = FailureState('Approval submitted. Return to the bound wallet to continue.');
+            return;
+          }
+          await createTransaction(provider: boundProvider, trade: boundTrade);
+        }
+      } catch (error) {
+        state = FailureState(error.toString());
+      }
+      return;
+    }
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
     try {
+      final complete = _captureSendCompletion(pendingTransaction!);
       state = wallet.isHardwareWallet && walletType == WalletType.monero
           ? IsAwaitingDeviceResponseState()
           : TransactionCommitting();
@@ -1121,75 +1209,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      // Immediate transaction update for EVM chains, Tron, and Nano
-      if (isEVMWallet ||
-          [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano]
-              .contains(walletType)) {
-        Future.delayed(Duration(seconds: 4), () async {
-          try {
-            await Future.wait([
-              wallet.updateTransactionsHistory(),
-              wallet.updateBalance() as Future<void>,
-            ]);
-          } catch (e) {
-            printV('Failed to update transactions after send: $e');
-          }
-        });
-      }
-
-      // FIXME(malik) ideally, this should be done wallet-side.
-      // it is required because evm, solana and tron don't actually save the transaction info when you send something.
-      // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
-      if (isEVMWallet) {
-        final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
-              (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
-            );
-
-        wallet.transactionHistory.addOne(evm!.getTransactionInfo(
-          id: pendingTransaction!.evmTxHashFromRawHex!,
-          height: 0,
-          amount: outputs.first.cryptoAmountMoney,
-          fee: pendingTransaction!.fee,
-          tokenSymbol: selectedCryptoCurrency.title,
-          direction: TransactionDirection.outgoing,
-          isPending: true,
-          date: DateTime.now(),
-          confirmations: 0,
-          chainId: wallet.chainId ?? 0,
-          contractAddress: selectedToken?.contractAddress,
-        ));
-      }
-
-      if (walletType == WalletType.solana) {
-        wallet.transactionHistory.addOne(solana!.getTransactionInfo(
-          id: pendingTransaction!.id,
-          blockTime: DateTime.now(),
-          to: "",
-          from: "",
-          direction: TransactionDirection.outgoing,
-          amount: pendingTransaction!.amount,
-          isPending: true,
-          fee: pendingTransaction!.fee,
-        ));
-      }
-
-      if (walletType == WalletType.tron) {
-        wallet.transactionHistory.addOne(tron!.getTransactionInfo(
-          id: pendingTransaction!.id,
-          blockTime: DateTime.now(),
-          direction: TransactionDirection.outgoing,
-          amount: outputs.first.cryptoAmountMoney,
-          isPending: true,
-          fee: outputs.first.estimatedFee,
-        ));
-      }
-
-      if (pendingTransaction!.id.isNotEmpty) {
-        _addTransactionDescription();
-      }
-      final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
-          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
+      await complete();
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
 
@@ -1215,7 +1235,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> updateWalletBalance() async => await wallet.updateBalance();
 
-  Future<void> _addTransactionDescription() async {
+  // Shared completion, captured before commit so neither a switched wallet nor a
+  // replacement pending/output can redirect history, descriptions or preferences.
+  Future<void> Function() _captureSendCompletion(PendingTransaction pending,
+      {bool boundDeposit = false}) {
+    final sentWallet = wallet;
+    final type = walletType;
+    final evmWallet = isEVMWallet;
+    final pegaroute = pending is PegaroutePendingDeposit ? pending : null;
+    final approval = pegaroute?.isApproval ?? false;
+    final currency = approval ? pending.amount.currency as CryptoCurrency
+        : pegaroute?.sourceCurrency ?? selectedCryptoCurrency;
+    final fee = pending.fee;
+    final amount = pending.amount;
+    final outputAmount = pegaroute == null ? outputs.first.cryptoAmountMoney : pending.amount;
+    final outputFee = type == WalletType.tron ? outputs.first.estimatedFee : fee;
+    final chainId = sentWallet.chainId ?? 0;
+    final walletName = sentWallet.name;
+    final primaryAddress = sentWallet.walletAddresses.primaryAddress;
+    final saveRecipient = _settingsStore.shouldSaveRecipientAddress;
     String address = outputs.fold('', (acc, value) {
       final canonical = value.extractedAddress.trim().isNotEmpty
           ? value.extractedAddress.trim()
@@ -1231,16 +1269,75 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     String note = outputs.fold('', (acc, value) => '$acc${value.note}\n');
 
     note = note.trim();
-
-    TransactionInfo? tx;
-    if (walletType == WalletType.monero) {
-      await Future.delayed(Duration(milliseconds: 450));
-      await wallet.fetchTransactions();
-      final txhistory = monero!.getTransactionHistory(wallet);
-      tx = txhistory.transactions.values.last;
+    if (approval) {
+      address = pegaroute!.approvalTarget!;
+      note = '${pegaroute.approvalDescription!}${note.isEmpty ? '' : '\n$note'}';
     }
-    final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
-    _settingsStore.shouldSaveRecipientAddress
+    final boundTokenAddress = approval ? null : pegaroute?.sourceTokenAddress;
+
+    return () async {
+      // Some other wallets obtain their ID only at commit. Read the captured
+      // pending object, never the VM's possibly replaced pendingTransaction.
+      final id = pending.id;
+      final evmHash = pending.evmTxHashFromRawHex;
+      if (evmWallet || [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano]
+          .contains(type)) {
+        Future.delayed(Duration(seconds: 4), () async {
+          try {
+            await Future.wait([sentWallet.updateTransactionsHistory(),
+              sentWallet.updateBalance() as Future<void>]);
+          } catch (e) {
+            printV('Failed to update transactions after send: $e');
+          }
+        });
+      }
+      // Indexer discovery can lag: preserve the ordinary immediate pending entry.
+      if (evmWallet) {
+        final token = evm!.getERC20Currencies(sentWallet).firstWhereOrNull(
+            (token) => token.title.toUpperCase() == currency.title.toUpperCase());
+        sentWallet.transactionHistory.addOne(evm!.getTransactionInfo(
+          id: evmHash!, height: 0, amount: outputAmount, fee: fee,
+          tokenSymbol: currency.title, direction: TransactionDirection.outgoing,
+          isPending: true, date: DateTime.now(), confirmations: 0,
+          chainId: chainId, contractAddress: pegaroute == null ? token?.contractAddress : boundTokenAddress));
+      }
+      if (type == WalletType.solana) {
+        sentWallet.transactionHistory.addOne(solana!.getTransactionInfo(
+          id: id, blockTime: DateTime.now(), to: "", from: "",
+          direction: TransactionDirection.outgoing, amount: amount, isPending: true, fee: fee));
+      }
+      if (type == WalletType.tron) {
+        sentWallet.transactionHistory.addOne(tron!.getTransactionInfo(
+          id: id, blockTime: DateTime.now(), direction: TransactionDirection.outgoing,
+          amount: outputAmount, isPending: true, fee: outputFee));
+      }
+      if (id.isNotEmpty) {
+        final description = _addTransactionDescription(sentWallet, id, primaryAddress,
+            address, note, saveRecipient, exactHash: boundDeposit);
+        if (boundDeposit) await description;
+      }
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(PreferencesKey.backgroundSyncLastTrigger(walletName),
+          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
+      if (boundDeposit && type == WalletType.monero) {
+        await sentWallet.updateTransactionsHistory();
+        await sentWallet.updateBalance();
+      }
+    };
+  }
+
+  Future<void> _addTransactionDescription(WalletBase sentWallet, String id,
+      String primaryAddress, String address, String note, bool saveRecipient,
+      {required bool exactHash}) async {
+    TransactionInfo? tx;
+    if (sentWallet.type == WalletType.monero) {
+      await Future.delayed(Duration(milliseconds: 450));
+      await sentWallet.fetchTransactions();
+      final txhistory = monero!.getTransactionHistory(sentWallet);
+      tx = exactHash ? txhistory.transactions[id] : txhistory.transactions.values.last;
+    }
+    final descriptionKey = '${id}_$primaryAddress';
+    saveRecipient
         ? await transactionDescriptionBox.add(TransactionDescription(
             id: descriptionKey,
             recipientAddress: address,
@@ -1479,6 +1576,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     CryptoCurrency currency,
   ) {
     String errorMessage = error.toString();
+    // Typed core affordability evidence takes precedence over wallet-specific
+    // string parsers, including the EVM/Solana early-return branches.
+    if (error is TransactionWrongBalanceException &&
+        error.requiredBalance != null && error.availableBalance != null) {
+      return transactionWrongBalanceMessage(error);
+    }
 
     if (walletType == WalletType.solana) {
       if (errorMessage.contains('insufficient lamports')) {

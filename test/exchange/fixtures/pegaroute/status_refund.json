@@ -1,0 +1,55 @@
+{
+  "transactionId": "transaction-fixture",
+  "status": "fail",
+  "internalStatus": "refunded",
+  "route": {
+    "provider": "instaswap",
+    "private": false,
+    "expectedOutput": "0.99",
+    "estimatedTimeSeconds": 120,
+    "fees": {
+      "affiliate": "0",
+      "liquidity": "0.01",
+      "outbound": "0",
+      "total": "0.01"
+    }
+  },
+  "input": {
+    "chain": "ETH",
+    "token": "ETH",
+    "amount": "1",
+    "address": "0x0000000000000000000000000000000000000002",
+    "refundAddress": "0x0000000000000000000000000000000000000003"
+  },
+  "output": {
+    "chain": "BTC",
+    "token": "BTC",
+    "address": "bc1qfixture",
+    "amount": "0.01",
+    "txHash": "output-hash-fixture"
+  },
+  "fees": {
+    "affiliate": "0",
+    "liquidity": "0.01",
+    "outbound": "0",
+    "total": "0.01"
+  },
+  "affiliateFeeBreakdown": {
+    "configuredPegasusShareBps": 20,
+    "configuredIntegratorFeeBps": 5,
+    "providerAffiliateCapBps": 100,
+    "effectiveAffiliateFeeBps": 25,
+    "realizedPegasusFeeBps": 20,
+    "realizedIntegratorFeeBps": 5,
+    "feeSource": "fixture",
+    "pegasusNetBps": 20,
+    "pegasusNetUsd": "0.01"
+  },
+  "timestamps": {
+    "created": "2026-09-01T12:00:00.000Z",
+    "completed": "2026-09-01T12:01:00.000Z"
+  },
+  "error": null,
+  "refund": null,
+  "streamingProgress": null
+}

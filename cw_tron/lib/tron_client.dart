@@ -321,14 +321,13 @@ class TronClient {
     }
 
     final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
-
-    sendTx() async => await sendTransaction(
-          rawTransaction: rawTransaction,
-          signature: signature,
-        );
+    final serialized = BytesUtils.toHexString(
+        Transaction(rawData: rawTransaction, signature: [signature]).toBuffer());
+    sendTx() async => await _broadcastHexTransaction(serialized);
 
     return PendingTronTransaction(
         signedTransaction: signature,
+        serializedTransaction: serialized,
         amount: totalAmount,
         fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
         sendTransaction: sendTx,
@@ -430,11 +429,11 @@ class TronClient {
   Future<String> sendTransaction({
     required TransactionRaw rawTransaction,
     required List<int> signature,
-  }) async {
-    try {
-      final transaction = Transaction(rawData: rawTransaction, signature: [signature]);
+  }) => _broadcastHexTransaction(BytesUtils.toHexString(
+      Transaction(rawData: rawTransaction, signature: [signature]).toBuffer()));
 
-      final raw = BytesUtils.toHexString(transaction.toBuffer());
+  Future<String> _broadcastHexTransaction(String raw) async {
+    try {
 
       final txBroadcastResult = await _provider!.request(TronRequestBroadcastHex(transaction: raw));
 

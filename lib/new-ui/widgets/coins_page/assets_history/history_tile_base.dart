@@ -7,6 +7,7 @@ class HistoryTileBase extends StatelessWidget {
     this.title,
     this.titleWidget,
     required this.date,
+    this.subtitle,
     this.amount,
     required this.leadingIcon,
     this.amountFiat,
@@ -26,6 +27,7 @@ class HistoryTileBase extends StatelessWidget {
   final String? title;
   final Widget? titleWidget;
   final String date;
+  final String? subtitle;
   final String? amount;
   final Widget? amountWidget;
   final String? amountFiat;
@@ -120,6 +122,9 @@ class HistoryTileBase extends StatelessWidget {
                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
                             else if (titleWidget != null)
                               titleWidget!,
+                            if (subtitle != null) Text(subtitle!, maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             Text(date,
                                 style: TextStyle(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
