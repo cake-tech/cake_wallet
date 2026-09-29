@@ -1388,9 +1388,6 @@ Future<void> setup({
 
   getIt.registerFactory<PreSeedPage>(() => PreSeedPage(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
-      (content, _) => TransactionSuccessPage(content: content));
-
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>(
       (trade, _) => TradeDetailsViewModel(tradeForDetails: trade, appStore: getIt.get<AppStore>()));
 

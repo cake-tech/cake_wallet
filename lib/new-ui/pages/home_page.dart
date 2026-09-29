@@ -198,7 +198,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                               await widget.dashboardViewModel.loadCardDesigns();
                               if (mounted) setState(() {});
                             });
-                          }, lightningMode: null,
+                          }, lightningMode: _lightningMode
                         ),
                         if (widget.dashboardViewModel.hasLightning)
                           LightningSwitcher(
@@ -231,8 +231,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                     accountListViewModel:
                                     widget.dashboardViewModel.accountListViewModel,
                                     onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                                    lightningMode: _lightningMode,
-                                    actions: actions),
+                                    lightningMode: _lightningMode),
                               ),
                             ),
                             Observer(
@@ -370,7 +369,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
     if (!mounted) return;
 
-    if (FeatureFlag.hasNewUiExtraPages && dashboardVM.type == WalletType.bitcoin) {
+    if (dashboardVM.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
             initialPaymentRequest: paymentRequest,
@@ -418,7 +417,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
     if (!mounted) return;
 
-    if (FeatureFlag.hasNewUiExtraPages && dashboardVM.type == WalletType.bitcoin) {
+    if (dashboardVM.type == WalletType.bitcoin) {
       final page = getIt.get<NewSendPage>(
           param1: SendPageParams(
             initialPaymentRequest: paymentRequest,
