@@ -1,7 +1,7 @@
 import "package:cake_wallet/new-ui/model/charts/price_api_client.dart";
 import "package:cake_wallet/new-ui/model/charts/price_data.dart";
 import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
 abstract class PriceSource {
