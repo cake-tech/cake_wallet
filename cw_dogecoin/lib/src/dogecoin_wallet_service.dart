@@ -1,22 +1,23 @@
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:bip39/bip39.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_dogecoin/cw_dogecoin.dart';
-import 'package:hive/hive.dart';
+import "package:bip39/bip39.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_dogecoin/cw_dogecoin.dart";
+import "package:hive/hive.dart";
 
 class DogeCoinWalletService extends WalletService<
     DogeCoinNewWalletCredentials,
     DogeCoinRestoreWalletFromSeedCredentials,
     DogeCoinRestoreWalletFromWIFCredentials,
     DogeCoinNewWalletCredentials> {
-  DogeCoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  DogeCoinWalletService(this.unspentCoinsInfoSource, {required this.isDirect});
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
@@ -51,7 +52,7 @@ class DogeCoinWalletService extends WalletService<
   Future<DogeCoinWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw Exception("Wallet not found");
     }
     try {
       final wallet = await DogeCoinWalletBase.open(
@@ -62,7 +63,7 @@ class DogeCoinWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
-      saveBackup(name);
+      unawaited(saveBackup(name));
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
@@ -80,10 +81,10 @@ class DogeCoinWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    unawaited(File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true));
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw Exception("Wallet not found");
     }
     await WalletInfo.delete(walletInfo);
 
@@ -101,30 +102,34 @@ class DogeCoinWalletService extends WalletService<
   @override
   Future<DogeCoinWallet> restoreFromHardwareWallet(DogeCoinNewWalletCredentials credentials) {
     throw UnimplementedError(
-        "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
+      "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!",
+    );
   }
 
   @override
   Future<DogeCoinWallet> restoreFromKeys(credentials, {bool? isTestnet}) {
     // TODO: implement restoreFromKeys
-    throw UnimplementedError('restoreFromKeys() is not implemented');
+    throw UnimplementedError("restoreFromKeys() is not implemented");
   }
 
   @override
-  Future<DogeCoinWallet> restoreFromSeed(DogeCoinRestoreWalletFromSeedCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<DogeCoinWallet> restoreFromSeed(
+    DogeCoinRestoreWalletFromSeedCredentials credentials, {
+    bool? isTestnet,
+  }) async {
     if (!validateMnemonic(credentials.mnemonic)) {
-      throw Exception('Invalid mnemonic: ${credentials.mnemonic}');
+      throw Exception("Invalid mnemonic: ${credentials.mnemonic}");
     }
 
     final wallet = await DogeCoinWalletBase.create(
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!,
-        derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        passphrase: credentials.passphrase);
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+      derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      passphrase: credentials.passphrase,
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
