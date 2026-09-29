@@ -3,8 +3,8 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 class NanoBalance extends Balance {
-  final Money currentBalance;
-  final Money receivableBalance;
+  final CryptoMoney currentBalance;
+  final CryptoMoney receivableBalance;
 
   NanoBalance({required this.currentBalance, required this.receivableBalance})
       : super(currentBalance, receivableBalance);

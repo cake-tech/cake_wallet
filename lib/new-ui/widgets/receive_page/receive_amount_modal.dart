@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart';
@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:mobx/mobx.dart";
 
 class ReceiveAmountModal extends StatefulWidget {
   const ReceiveAmountModal(
@@ -26,15 +27,29 @@ class ReceiveAmountModal extends StatefulWidget {
 
 class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   final TextEditingController _amountController = TextEditingController();
+  ReactionDisposer? _reactionDisposer;
 
   @override
   void initState() {
     super.initState();
     if (widget.walletAddressListViewModel.selectedCurrency is FiatCurrency) {
-      _amountController.text = widget.walletAddressListViewModel.fiatAmount;
+      _amountController.text = widget.walletAddressListViewModel.fiatAmount?.toString() ?? "";
     } else {
-      _amountController.text = widget.walletAddressListViewModel.displayAmount;
+      _amountController.text = widget.walletAddressListViewModel.displayAmount?.toString() ?? "";
     }
+
+    _reactionDisposer = reaction(
+      (_) => widget.walletAddressListViewModel.selectedCurrency,
+      (_) => _amountController.text = "",
+    );
+  }
+
+  @override
+  void dispose() {
+    if (_reactionDisposer?.reaction.isDisposed == false) {
+      _reactionDisposer!.reaction.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -269,7 +284,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
         items: items,
         selected: widget.walletAddressListViewModel.tokenCurrency,
         onSelected: widget.walletAddressListViewModel.setTokenCurrency,
-        symbolResolver: widget.walletAddressListViewModel.amountParsingProxy.getCryptoSymbol,
+        fiatCurrency: widget.walletAddressListViewModel.fiatCurrency,
       ),
     );
   }

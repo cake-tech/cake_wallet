@@ -311,7 +311,7 @@ class CWWownero extends Wownero {
   }
 
   @override
-  void setCurrentAccount(Object wallet, int id, String label, String? balance) {
+  void setCurrentAccount(Object wallet, int id, String label, Money? balance) {
     final wowneroWallet = wallet as WowneroWallet;
     wowneroWallet.walletAddresses.account =
         wownero_account.Account(id: id, label: label, balance: balance);

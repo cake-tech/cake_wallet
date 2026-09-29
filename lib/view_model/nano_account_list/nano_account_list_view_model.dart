@@ -47,7 +47,7 @@ abstract class NanoAccountListViewModelBase with Store {
         _wallet,
         item.id,
         item.label,
-        item.balance,
+        item.balanceMoney,
       );
     }
   }

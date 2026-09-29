@@ -62,10 +62,10 @@ class PendingBitcoinTransaction with PendingTransaction {
   Uint8List? unsignedPsbt;
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   String get id => idOverride ?? _tx.txId();

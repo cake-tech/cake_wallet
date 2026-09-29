@@ -26,10 +26,10 @@ class TronTransactionInfo extends TransactionInfo {
   final String? from;
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money? fee;
+  final CryptoMoney? fee;
 
   @override
   final bool isPending;

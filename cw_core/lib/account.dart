@@ -1,12 +1,9 @@
-class Account {
-  Account({required this.id, required this.label, this.balance});
+import "package:cw_core/amount/money.dart";
 
-  Account.fromMap(Map<String, Object> map)
-      : this.id = map['id'] == null ? 0 : int.parse(map['id'] as String),
-        this.label = (map['label'] ?? '') as String,
-        this.balance = (map['balance'] ?? '0.00') as String;
+class Account {
+  const Account({required this.id, required this.label, this.balance});
 
   final int id;
   final String label;
-  final String? balance;
+  final Money? balance;
 }

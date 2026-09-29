@@ -1,8 +1,8 @@
-import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/model/charts/datetime_extension.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
+import "package:cw_core/currency/fiat_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:sqflite/sqflite.dart";
 

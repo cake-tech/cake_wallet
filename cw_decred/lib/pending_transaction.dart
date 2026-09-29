@@ -10,11 +10,15 @@ class DecredPendingTransaction with PendingTransaction {
     required this.send,
   });
 
-  final Money amount;
-  final Money fee;
   final String txId;
   final String rawHex;
   final Future<void> Function() send;
+
+  @override
+  final CryptoMoney amount;
+
+  @override
+  final CryptoMoney fee;
 
   @override
   String get id => txId;

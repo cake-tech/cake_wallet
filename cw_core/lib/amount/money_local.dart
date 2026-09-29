@@ -1,7 +1,8 @@
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/currency/currency.dart";
 
-extension WithLocalSeparator on Money {
+extension WithLocalSeparator<T extends Currency> on Money<T> {
   String toLocalStringWithSymbol({
     int? fractionalDigits,
     bool trimZeros = true,

@@ -1,13 +1,13 @@
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cw_core/amount/amount_sanitizer.dart';
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -19,55 +19,44 @@ import 'base_bottom_sheet_widget.dart';
 
 class ConfirmSendingBottomSheet extends BaseBottomSheet {
   ConfirmSendingBottomSheet({
-    required String titleText,
-    required FooterType footerType,
-    String? titleIconPath,
-    String? slideActionButtonText,
-    VoidCallback? onSlideActionComplete,
-    bool isSlideActionEnabled = true,
-    String? accessibleNavigationModeSlideActionButtonText,
+    required super.titleText,
+    required super.footerType,
     required this.currency,
+    required this.amount,
+    required this.amountValue,
+    required this.fee,
+    required this.feeValue,
+    required this.outputs,
+    required this.walletType,
+    super.slideActionButtonText = "Swipe to send",
+    super.key,
+    super.titleIconPath,
+    super.onSlideActionComplete,
+    super.isSlideActionEnabled,
+    super.accessibleNavigationModeSlideActionButtonText,
+    this.fiatAmountValue,
+    this.feeFiatAmount,
     this.paymentId,
     this.paymentIdValue,
     this.expirationTime,
-    required this.amount,
-    required this.amountValue,
-    required this.fiatAmountValue,
-    required this.fee,
-    required this.feeValue,
-    required this.feeFiatAmount,
-    required this.outputs,
-    required this.walletType,
-    this.amountParsingProxy,
     this.change,
     this.explanation,
     this.isOpenCryptoPay = false,
     this.cakePayBuyCardViewModel,
     this.quantity,
-    Key? key,
   })  : showScrollbar = outputs.length > 3,
-        super(
-            titleText: titleText,
-            maxHeight: 900,
-            titleIconPath: titleIconPath,
-            footerType: footerType,
-            slideActionButtonText: slideActionButtonText ?? 'Swipe to send',
-            onSlideActionComplete: onSlideActionComplete,
-            isSlideActionEnabled: isSlideActionEnabled,
-            accessibleNavigationModeSlideActionButtonText:
-                accessibleNavigationModeSlideActionButtonText,
-            key: key);
+        super(maxHeight: 900);
 
   final CryptoCurrency currency;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
   final String amount;
-  final String amountValue;
-  final String fiatAmountValue;
+  final Money amountValue;
+  final Money? fiatAmountValue;
   final String fee;
-  final String feeValue;
-  final String feeFiatAmount;
+  final Money feeValue;
+  final Money? feeFiatAmount;
   final List<Output> outputs;
   final WalletType walletType;
   final PendingChange? change;
@@ -75,7 +64,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CakePayBuyCardViewModel? cakePayBuyCardViewModel;
   final String? quantity;
   final String? explanation;
-  final AmountParsingProxy? amountParsingProxy;
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
@@ -100,7 +88,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         ? context.customColors.backgroundGradientColor.withAlpha(140)
         : context.customColors.cardGradientColorPrimary;
 
-    Widget content = Padding(
+    final content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
       child: Column(
         children: [
@@ -113,9 +101,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                         itemTitleTextStyle: itemTitleTextStyle,
                         amountTextStyle: itemSubTitleTextStyle,
                         walletType: walletType,
-                        amount: expirationTime != null
-                            ? S.current.offer_expires_in +
-                                ' ${cakePayBuyCardViewModel!.formattedRemainingTime}'
+                        expirationTime: expirationTime != null
+                            ? '${S.current.offer_expires_in} ${cakePayBuyCardViewModel!.formattedRemainingTime}'
                             : null,
                         address: paymentIdValue!,
                         itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -168,14 +155,13 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     final batchContactTitle =
                         '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                     final _address = item.isParsedAddress ? item.extractedAddress : item.address;
-                    final _amount =
-                        '${item.cryptoAmount.sanitized()} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}';
+
                     return isBatchSending || (contactName.isNotEmpty && !isCakePayName)
                         ? ExpansionAddressTile(
                             contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
                             name: isBatchSending ? batchContactTitle : contactName,
                             address: _address,
-                            amount: _amount,
+                            amount: item.cryptoAmountMoney,
                             walletType: walletType,
                             isBatchSending: isBatchSending,
                             itemTitleTextStyle: itemTitleTextStyle,
@@ -189,7 +175,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                             imagePath: isCakePayName ? item.parsedAddress.profileImageUrl : null,
                             itemTitleTextStyle: itemTitleTextStyle,
                             walletType: walletType,
-                            amount: isCakePayName ? item.fiatAmount : _amount,
+                            amount: isCakePayName ? item.fiatAmountMoney : item.cryptoAmountMoney,
                             address: _address,
                             itemSubTitle: isCakePayName ? quantity : null,
                             itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -204,8 +190,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     contactType: 'Change',
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
-                    amount:
-                        '${amountParsingProxy?.getDisplayCryptoString(change!.amount.toInt(), currency)} ${amountParsingProxy?.getCryptoSymbol(currency) ?? currency.title}',
+                    amount: Money(change!.amount, currency),
                     isBatchSending: true,
                     walletType: walletType,
                     itemTitleTextStyle: itemTitleTextStyle,
@@ -241,19 +226,19 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
 
 class StandardTile extends StatelessWidget {
   const StandardTile({
-    super.key,
     required this.itemTitle,
     required this.itemValue,
     required this.itemTitleTextStyle,
-    this.itemSubTitle,
     required this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
+    super.key,
+    this.itemSubTitle,
   });
 
   final String itemTitle;
-  final String itemValue;
+  final Money itemValue;
   final TextStyle itemTitleTextStyle;
-  final String? itemSubTitle;
+  final Money? itemSubTitle;
   final TextStyle itemSubTitleTextStyle;
   final Color tileBackgroundColor;
 
@@ -275,10 +260,8 @@ class StandardTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(itemValue, style: itemTitleTextStyle),
-                itemSubTitle == null
-                    ? Container()
-                    : Text(itemSubTitle!, style: itemSubTitleTextStyle),
+                MoneyText(itemValue, style: itemTitleTextStyle),
+                MoneyText.optional(itemSubTitle, trimZeros: false, style: itemSubTitleTextStyle),
               ],
             ),
           ],
@@ -329,12 +312,14 @@ class AddressTile extends StatelessWidget {
       this.applyAddressFormatting = true,
       this.imagePath,
       this.amount,
+      this.expirationTime,
       this.itemSubTitle,
       this.copyButton = false});
 
   final String itemTitle;
   final TextStyle itemTitleTextStyle;
-  final String? amount;
+  final Money? amount;
+  final String? expirationTime;
   final String address;
   final TextStyle itemSubTitleTextStyle;
   final TextStyle? amountTextStyle;
@@ -385,7 +370,9 @@ class AddressTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (amount != null) Text(amount!, style: amountTextStyle ?? itemTitleTextStyle),
+              if (expirationTime != null)
+                Text(expirationTime!, style: amountTextStyle ?? itemTitleTextStyle),
+              if (amount != null) MoneyText(amount!, style: amountTextStyle ?? itemTitleTextStyle),
             ],
           ),
           address.isEmpty
@@ -405,7 +392,7 @@ class AddressTile extends StatelessWidget {
                             style: copyButton
                                 ? itemTitleTextStyle.copyWith(fontSize: 12)
                                 : itemTitleTextStyle),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         if (copyButton)
                           RoundedIconButton(
                             icon: Icons.copy_all_outlined,
@@ -433,7 +420,6 @@ class AddressTile extends StatelessWidget {
 
 class ExpansionAddressTile extends StatelessWidget {
   const ExpansionAddressTile({
-    super.key,
     required this.contactType,
     required this.name,
     required this.address,
@@ -443,12 +429,13 @@ class ExpansionAddressTile extends StatelessWidget {
     required this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
     required this.walletType,
+    super.key,
   });
 
   final String contactType;
   final String name;
   final String address;
-  final String amount;
+  final Money amount;
   final bool isBatchSending;
   final TextStyle itemTitleTextStyle;
   final TextStyle itemSubTitleTextStyle;
@@ -462,7 +449,7 @@ class ExpansionAddressTile extends StatelessWidget {
       label: name,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           color: tileBackgroundColor,
         ),
         child: Theme(
@@ -485,12 +472,26 @@ class ExpansionAddressTile extends StatelessWidget {
                       softWrap: true,
                     ),
                   ),
-                  Text(
-                    isBatchSending ? amount : name,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.none,
-                        ),
+                  if (isBatchSending)
+                    MoneyText(amount, style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                    ),)
+                  else
+                    Text(
+                      name,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.none,
+                      ),
                   ),
                 ],
               ),

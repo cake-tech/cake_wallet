@@ -1,4 +1,4 @@
-import 'package:cw_core/amount/money.dart';
+import "package:cw_core/amount/money.dart";
 
 class OutputInfo {
   const OutputInfo({
@@ -14,7 +14,7 @@ class OutputInfo {
   });
 
   final String? fiatAmount;
-  final Money cryptoAmount;
+  final CryptoMoney cryptoAmount;
   final String address;
   final String? note;
   final String? extractedAddress;

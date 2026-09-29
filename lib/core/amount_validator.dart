@@ -1,8 +1,8 @@
-import 'package:cake_wallet/core/amount_parsing_proxy.dart';
-import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
+import "package:cake_wallet/core/amount_parsing_proxy.dart";
+import "package:cake_wallet/core/validator.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency/currency.dart";
 
 class AmountValidator extends TextValidator {
   AmountValidator({

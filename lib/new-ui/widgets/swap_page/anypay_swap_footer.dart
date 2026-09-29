@@ -1,10 +1,13 @@
 import "package:auto_size_text/auto_size_text.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
+import "package:cw_core/amount/money.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 
 class AnyPaySwapFooter extends StatelessWidget {
@@ -39,11 +42,9 @@ class AnyPaySwapFooter extends StatelessWidget {
         }
 
         final provider = exchangeViewModel.forcedProvider ?? exchangeViewModel.providerDisplay;
-        final depositAmount = exchangeViewModel.depositAmount;
-        final depositSymbol =
-            exchangeViewModel.amountParsingProxy.getCryptoSymbol(exchangeViewModel.depositCurrency);
-        final depositFiat = exchangeViewModel.roundedDepositAmountFiat(2);
-        final showFiat = !exchangeViewModel.isFiatDisabled && depositFiat.isNotEmpty;
+        final depositAmount = exchangeViewModel.depositMoney;
+        final depositFiat = exchangeViewModel.depositMoneyFiat;
+        final showFiat = !exchangeViewModel.isFiatDisabled && depositFiat != null;
         return Row(
           children: [
             Expanded(
@@ -55,21 +56,27 @@ class AnyPaySwapFooter extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: colors.primary),
                 ),
-                child: AutoSizeText.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: "$depositAmount $depositSymbol"),
-                      if (showFiat)
+                child: BlocBuilder<MoneySettingsCubit, MoneySettingsState>(
+                  builder: (context, state) => AutoSizeText.rich(
+                    TextSpan(
+                      children: [
                         TextSpan(
-                          text: "  ≈ ${exchangeViewModel.fiat.symbol}$depositFiat",
-                          style: TextStyle(color: colors.onSurfaceVariant),
+                          text: depositAmount.toLocalStringWithSymbol(
+                            useBaseUnit: state.useBaseUnit(depositAmount.currency),
+                          ),
                         ),
-                    ],
+                        if (showFiat)
+                          TextSpan(
+                            text: "  ≈ ${depositFiat.toStringWithSymbol(withSymbolPrefix: true)}",
+                            style: TextStyle(color: colors.onSurfaceVariant),
+                          ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    minFontSize: 10,
+                    style: textTheme.bodySmall
+                        ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.06),
                   ),
-                  maxLines: 1,
-                  minFontSize: 10,
-                  style: textTheme.bodySmall
-                      ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.06),
                 ),
               ),
             ),

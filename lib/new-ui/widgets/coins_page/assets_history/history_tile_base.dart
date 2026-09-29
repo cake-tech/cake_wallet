@@ -1,3 +1,5 @@
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -19,16 +21,14 @@ class HistoryTileBase extends StatelessWidget {
     this.amountFiatWidget,
   })  : assert((title != null || titleWidget != null) && (title == null || titleWidget == null)),
         assert(
-            (amountWidget != null || amount != null) && (amountWidget == null || amount == null)),
-        assert((amountFiatWidget != null || amountFiat != null) &&
-            (amountFiatWidget == null || amountFiat == null));
+            (amountWidget != null || amount != null) && (amountWidget == null || amount == null));
 
   final String? title;
   final Widget? titleWidget;
   final String date;
-  final String? amount;
+  final Money? amount;
   final Widget? amountWidget;
-  final String? amountFiat;
+  final Money? amountFiat;
   final Widget? amountFiatWidget;
   final Widget leadingIcon;
   final bool roundedTop;
@@ -129,16 +129,24 @@ class HistoryTileBase extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             if (amount != null)
-                              Text(amount!,
-                                  style: TextStyle(
-                                      color: primaryTextColor ??
-                                          Theme.of(context).colorScheme.onSurface))
+                              MoneyText(
+                                amount!,
+                                trimZeros: false,
+                                style: TextStyle(
+                                  color:
+                                      primaryTextColor ?? Theme.of(context).colorScheme.onSurface,
+                                ),
+                              )
                             else if (amountWidget != null)
                               amountWidget!,
                             if (amountFiat != null)
-                              Text(amountFiat!,
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant))
+                              MoneyText(
+                                amountFiat!,
+                                trimZeros: false,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              )
                             else if (amountFiatWidget != null)
                               amountFiatWidget!
                           ],

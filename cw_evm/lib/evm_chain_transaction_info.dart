@@ -29,12 +29,12 @@ class EVMChainTransactionInfo extends TransactionInfo {
 
   final String id;
   final int height;
-  final Money amount;
+  final CryptoMoney amount;
   final int exponent;
   final TransactionDirection direction;
   final DateTime date;
   final bool isPending;
-  final Money fee;
+  final CryptoMoney fee;
   final int confirmations;
   final String tokenSymbol;
   String? _fiatAmount;

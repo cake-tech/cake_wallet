@@ -1,6 +1,7 @@
 import 'package:cw_core/amount/exchange_rate.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency/currency.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'utils.dart';
@@ -206,7 +207,7 @@ void main() {
       });
 
       test('round trip loses less than one quote base unit', () {
-        final original = Money.parse("0.12345678", CryptoCurrency.btc);
+        final original = Money<Currency>.parse("0.12345678", CryptoCurrency.btc);
         final back = rate.convert(rate.convert(original));
         final oneQuoteUnitInBaseUnits =
             BigInt.from(10).pow(CryptoCurrency.btc.decimals) ~/ rate.quote.amount;

@@ -1,11 +1,12 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:auto_size_text/auto_size_text.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
+import "package:cw_core/amount/money.dart";
+import "package:flutter/material.dart";
 
 class CoinControlListItem extends StatelessWidget {
-  CoinControlListItem({
+  const CoinControlListItem({
     required this.note,
     required this.amount,
     required this.fiatAmount,
@@ -17,13 +18,13 @@ class CoinControlListItem extends StatelessWidget {
     required this.isFirst,
     required this.isLast,
     required this.isLoading,
-    this.onCheckBoxTap,
     required this.hasCheckbox,
+    this.onCheckBoxTap,
   });
 
   final String note;
-  final String amount;
-  final String fiatAmount;
+  final Money amount;
+  final Money? fiatAmount;
   final String address;
   final bool isSending;
   final bool isFrozen;
@@ -42,12 +43,12 @@ class CoinControlListItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.vertical(
-            top: isFirst ? Radius.circular(12) : Radius.circular(0),
-            bottom: isLast ? Radius.circular(12) : Radius.circular(0),
+            top: isFirst ? const Radius.circular(12) : Radius.zero,
+            bottom: isLast ? const Radius.circular(12) : Radius.zero,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -64,15 +65,15 @@ class CoinControlListItem extends StatelessWidget {
                       Row(
                         spacing: 4,
                         children: [
-                          Text(
+                          MoneyText(
                             amount,
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurface),
+                                color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
-                          if (address.toLowerCase().contains(
-                              "mweb")) // hack carried over from old ui, we really should just have a boolean in the object
+                          if (address.toLowerCase().contains("mweb")) // hack carried over from old ui, we really should just have a boolean in the object
                             CakeImageWidget(
                               imageUrl: "assets/new-ui/address-type-picker-icons/mweb.svg",
                               width: 18,
@@ -91,27 +92,31 @@ class CoinControlListItem extends StatelessWidget {
                         ],
                       ),
                       AutoSizeText(
-                        '${address.substring(0, 5)}...${address.substring(address.length - 5)}',
+                        "${address.substring(0, 5)}...${address.substring(address.length - 5)}",
                         style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                         maxLines: 1,
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
               Row(
                 spacing: 8,
                 children: [
-                  Text(
-                    fiatAmount,
-                    style: TextStyle(
+                  if (fiatAmount != null)
+                    MoneyText(
+                      fiatAmount!,
+                      trimZeros: false,
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   CakeImageWidget(
                     imageUrl: "assets/new-ui/arrow_right.svg",
                     colorFilter: ColorFilter.mode(
@@ -121,28 +126,26 @@ class CoinControlListItem extends StatelessWidget {
               )
             ],
           ),
-        ));
+        ),
+    );
   }
 
   Widget _getLeading(BuildContext context) {
     if (isLoading) {
-      return CircularProgressIndicator(
-        color: Theme.of(context).colorScheme.primary,
-      );
+      return CircularProgressIndicator(color: Theme.of(context).colorScheme.primary);
     }
 
     if (isFrozen) {
-      return CakeImageWidget(imageUrl: "assets/new-ui/frozen.svg");
+      return const CakeImageWidget(imageUrl: "assets/new-ui/frozen.svg");
     }
 
     if (!hasCheckbox) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return NewSimpleCheckbox(
-        value: isSending,
-        onChanged: (value) {
-          onCheckBoxTap?.call();
-        });
+      value: isSending,
+      onChanged: (value) => onCheckBoxTap?.call(),
+    );
   }
 }

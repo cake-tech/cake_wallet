@@ -93,8 +93,7 @@ class TxDetailRowDefinition {
       title: S.current.transaction_details_fee,
       valueGetter: (vm) => vm.feeAmount,
       applicable: (vm) =>
-          vm.wallet.type != WalletType.nano &&
-          (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty,
+          vm.wallet.type != WalletType.nano && vm.transactionInfo.fee != null,
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_confirmations_key",
@@ -338,10 +337,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       _ => walletTypeToCryptoCurrency(wallet.type)
     };
   }
-
-  @computed
-  String get transactionAmount =>
-      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.amount);
 
   @computed
   String get feeAmount =>

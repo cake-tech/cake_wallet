@@ -78,7 +78,7 @@ class ChartsAssetGridHeader extends StatelessWidget {
           bloc.add(CurrencyAdded(currency: item));
         },
         showStablesHeader: false,
-        symbolResolver: (item) => item.symbol,
+        fiatCurrency: bloc.appStore.settingsStore.fiatCurrency,
       ),
     );
   }

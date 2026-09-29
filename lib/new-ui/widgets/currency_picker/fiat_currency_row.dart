@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 

@@ -4,7 +4,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/new-ui/model/charts/datetime_extension.dart";
 import "package:cake_wallet/new-ui/model/charts/price_data.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/currency.dart";
+import "package:cw_core/currency/currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 

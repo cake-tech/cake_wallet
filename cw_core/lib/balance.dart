@@ -10,11 +10,11 @@ abstract class Balance {
     this.frozen,
   });
 
-  final Money available;
-  final Money unavailable;
+  final CryptoMoney available;
+  final CryptoMoney unavailable;
 
-  final Money? secondAvailable;
-  final Money? secondUnavailable;
+  final CryptoMoney? secondAvailable;
+  final CryptoMoney? secondUnavailable;
 
-  final Money? frozen;
+  final CryptoMoney? frozen;
 }

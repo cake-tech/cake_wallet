@@ -20,10 +20,10 @@ class PendingZanoTransaction with PendingTransaction {
   final String assetId;
 
   @override
-  final Money amount;
+  final CryptoMoney amount;
 
   @override
-  final Money fee;
+  final CryptoMoney fee;
 
   @override
   String get id => transferResult?.txHash ?? '';

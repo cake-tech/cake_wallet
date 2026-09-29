@@ -26,7 +26,7 @@ class ZanoTransactionInfo extends TransactionInfo {
       {required int confirmations,
       required bool isIncome,
       required String assetId,
-      required Money amount,
+      required CryptoMoney amount,
       this.tokenSymbol = 'ZANO',
       this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
       : id = transfer.txHash,
@@ -53,8 +53,8 @@ class ZanoTransactionInfo extends TransactionInfo {
   final TransactionDirection direction;
   final DateTime date;
   final bool isPending;
-  final Money amount;
-  final Money fee;
+  final CryptoMoney amount;
+  final CryptoMoney fee;
   final int confirmations;
   final int decimalPoint;
   late String recipientAddress;

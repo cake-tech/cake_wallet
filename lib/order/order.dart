@@ -1,5 +1,8 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
@@ -104,5 +107,10 @@ class Order extends HiveObject {
     }
   }
 
-  String amountFormatted() => formatAmount(amount) + ' ${from ?? ''}';
+  CryptoCurrency? get fromCurrency => CryptoCurrency.safeParseCurrencyFromString(from);
+
+  String amountFormatted() => '${formatAmount(amount)} ${from ?? ''}';
+
+  Money? get amountMoney =>
+      fromCurrency?.parseAmount(amount.withMaxDecimals(fromCurrency!.decimals));
 }

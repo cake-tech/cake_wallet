@@ -1,7 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/currency/fiat_currency.dart';
 
 part 'buy_amount_view_model.g.dart';
 

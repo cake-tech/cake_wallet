@@ -27,9 +27,9 @@ class PendingMoneroTransaction with PendingTransaction {
   final PendingTransactionDescription pendingTransactionDescription;
   final MoneroWalletBase wallet;
 
-  Money get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.xmr);
+  CryptoMoney get amount => Money.fromInt(pendingTransactionDescription.amount, CryptoCurrency.xmr);
 
-  Money get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.xmr);
+  CryptoMoney get fee => Money.fromInt(pendingTransactionDescription.fee, CryptoCurrency.xmr);
 
   @override
   String get id => pendingTransactionDescription.hash;
