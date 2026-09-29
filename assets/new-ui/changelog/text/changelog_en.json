@@ -1,14 +1,14 @@
 [
   {
-    "title": "Trezor natively for Bitcoin",
-    "description": "Pair your device and sign Bitcoin transactions right in the app"
+    "title": "Trezor Enhancements",
+    "description": "now you can enter your passphrase on the Trezor device itself"
   },
   {
-    "title": "Solana and NFTs Improvements",
-    "description": "Send your Solana NFTs, keep imported ones saved, and see at a glance which ones this wallet holds"
+    "title": "Buy/Sell improvements",
+    "description": "Buy and Sell your crypto easier and smoother"
   },
   {
-    "title": "Monero sync improvements",
+    "title": "Monero improvements",
     "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
   },
   {

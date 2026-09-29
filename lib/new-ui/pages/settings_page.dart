@@ -29,11 +29,6 @@ bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
 
-bool _hasAccounts(DashboardViewModel vm) =>
-    hasAccountsWalletTypes.contains(vm.wallet.type) &&
-    !(vm.wallet.type == WalletType.bitcoin &&
-        vm.wallet.derivationInfo.derivationType == DerivationType.electrum);
-
 class SettingsListItem {
   const SettingsListItem(
     this.iconPath,
@@ -43,12 +38,14 @@ class SettingsListItem {
     this.use2fa = _falseFunc,
     this.condition = _trueFunc,
     this.routeArgs,
+    this.routeArgsBuilder,
   });
 
   final String iconPath;
   final String title;
   final String route;
   final Object? routeArgs;
+  final Object? Function(DashboardViewModel)? routeArgsBuilder;
   final bool requireAuth;
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
@@ -63,18 +60,19 @@ class SettingsSectionData {
 
   static SettingsSectionData walletSettings =
       SettingsSectionData(S.current.wallet_settings, "assets/new-ui/wallet-setting.svg", [
-    SettingsListItem("assets/new-ui/settings_row_icons/accounts.svg", S.current.accounts,
-        Routes.walletAccountsPage,
-        condition: _hasAccounts),
+    SettingsListItem(
+      "assets/new-ui/settings_row_icons/accounts.svg",
+      S.current.accounts,
+      Routes.walletAccountsPage,
+      condition: (vm) => vm.wallet.hasAccountsSupport,
+      routeArgsBuilder: (vm) => vm,
+    ),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
     SettingsListItem(
         "assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
-    SettingsListItem(
-        "assets/new-ui/settings_row_icons/seed.svg", S.current.seed_and_keys, Routes.showKeys,
-        routeArgs: true,
-        requireAuth: true,
-        use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+    SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.recovery_and_keys,
+        Routes.showKeysDisclaimer),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage,
         condition: _hasLightning),
@@ -146,7 +144,7 @@ class SettingsMainPage extends StatelessWidget {
     List<ListItem> buildItems(SettingsSectionData section) => section.items
         .map((item) => item.condition(dashboardViewModel)
             ? ListItemRegularRow(
-                keyValue: item.title,
+                keyValue: item.route,
                 label: item.title,
                 iconPath: item.iconPath,
                 onTap: () {
@@ -156,7 +154,11 @@ class SettingsMainPage extends StatelessWidget {
                           conditionToDetermineIfToUse2FA: item.use2fa(dashboardViewModel),
                           route: item.route);
                     } else {
-                      Navigator.of(context).pushNamed(item.route, arguments: item.routeArgs);
+                      Navigator.of(context).pushNamed(
+                        item.route,
+                        arguments:
+                            item.routeArgsBuilder?.call(dashboardViewModel) ?? item.routeArgs,
+                      );
                     }
                   }
                 })

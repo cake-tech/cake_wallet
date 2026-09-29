@@ -1,15 +1,19 @@
 import "dart:convert";
 import "dart:io";
 
+import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/imported_nft.dart";
 import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/utils/file.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
 import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_keys_file.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:path/path.dart" as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
@@ -88,7 +92,14 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
-      final jsonSource = await read(path: walletInfo.path, password: password);
+      final encryption = encryptionFileUtilsFor(Platform.isLinux);
+
+      if (await WalletKeysFile.hasKeysFile(walletInfo)) {
+        final keysData = await WalletKeysFile.readKeysFile(walletInfo, password, encryption);
+        return keysData.mnemonic ?? keysData.altMnemonic ?? keysData.privateKey ?? "";
+      }
+
+      final jsonSource = await encryption.read(path: walletInfo.path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
         return data["mnemonic"] as String? ?? "";

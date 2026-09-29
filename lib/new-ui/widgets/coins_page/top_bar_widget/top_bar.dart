@@ -4,7 +4,6 @@ import "dart:io";
 import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart";
-import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/wallet_info_bar.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
@@ -43,26 +42,63 @@ class _TopBarState extends State<TopBar> {
 
   bool showSyncedMessage = false;
   Timer? syncedMessageTimer;
-  late final ReactionDisposer? _statusReactionDisposer;
+  ReactionDisposer? _statusReactionDisposer;
+
+  bool get replacesWalletName {
+    final status = widget.dashboardViewModel.status.runtimeType;
+    if (status == SyncedSyncStatus) {
+      return showSyncedMessage;
+    }
+
+    return widget.dashboardViewModel.isSyncHeavy ||
+        SyncBar.progressStatuses.contains(status) ||
+        SyncBar.failStatuses.contains(status);
+  }
 
   @override
   void initState() {
     super.initState();
+    _bindStatusReaction();
+  }
 
+  @override
+  void didUpdateWidget(covariant TopBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (identical(oldWidget.dashboardViewModel, widget.dashboardViewModel)) {
+      return;
+    }
+
+    syncedMessageTimer?.cancel();
+    syncedMessageTimer = null;
+    showSyncedMessage = false;
+    _statusReactionDisposer?.call();
+    _bindStatusReaction();
+  }
+
+  void _bindStatusReaction() {
     _statusReactionDisposer = reaction(
           (_) => widget.dashboardViewModel.status.runtimeType,
           (status) {
         syncedMessageTimer?.cancel();
+        syncedMessageTimer = null;
 
         if (!mounted) return;
 
         if (status == SyncedSyncStatus) {
-          setState(() => showSyncedMessage = true);
+          if (mounted) {
+            setState(() => showSyncedMessage = true);
+          }
           syncedMessageTimer = Timer(syncedMessageDuration, () {
-            if (mounted) setState(() => showSyncedMessage = false);
+            syncedMessageTimer = null;
+            if (mounted) {
+              setState(() => showSyncedMessage = false);
+            }
           });
         } else {
-          setState(() => showSyncedMessage = false);
+          if (mounted) {
+            setState(() => showSyncedMessage = false);
+          }
         }
       },
     );
@@ -71,7 +107,8 @@ class _TopBarState extends State<TopBar> {
   @override
   void dispose() {
     syncedMessageTimer?.cancel();
-    _statusReactionDisposer?.reaction.dispose();
+    syncedMessageTimer = null;
+    _statusReactionDisposer?.call();
     super.dispose();
   }
 
@@ -111,9 +148,9 @@ class _TopBarState extends State<TopBar> {
         );
 
         final walletInfoBar = WalletInfoBar(
-          hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
-          walletIcon: dashboardViewModel.getGroupIcon(dashboardViewModel.wallet.walletInfo),
-          groupName: dashboardViewModel.getGroupName(dashboardViewModel.wallet.walletInfo) ?? ""
+            hardwareWalletType: dashboardViewModel.wallet.hardwareWalletType,
+            walletIcon: dashboardViewModel.getGroupIcon(dashboardViewModel.wallet.walletInfo),
+            groupName: dashboardViewModel.getGroupName(dashboardViewModel.wallet.walletInfo) ?? ""
         );
 
         final settingsButton = ModernButton.svg(
@@ -191,7 +228,9 @@ class _TopBarState extends State<TopBar> {
 
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {
-    if (Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) return 24;
+    if (Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) {
+      return 24;
+    }
 
     return 0;
   }

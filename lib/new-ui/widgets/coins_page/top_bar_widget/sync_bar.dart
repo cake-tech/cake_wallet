@@ -4,6 +4,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/pulsing_dot.dart";
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/themes/core/theme_extension.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:flutter/cupertino.dart";
@@ -12,12 +13,12 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SyncBar extends StatelessWidget {
-  SyncBar({
-    super.key,
+  const SyncBar({
     required this.dashboardViewModel,
     required this.isSyncHeavy,
     required this.showSyncedMessage,
     this.forceCompact = false,
+    super.key,
   });
 
   final DashboardViewModel dashboardViewModel;
@@ -51,88 +52,102 @@ class SyncBar extends StatelessWidget {
   Widget build(BuildContext context) => Observer(
     builder: (_) {
       final status = dashboardViewModel.status;
-      final Widget? icon = _getIcon(context, status.runtimeType);
-      final bool useFullBar = showFullBar && !forceCompact;
+      if (!_showFullBar || forceCompact) {
+        return _buildCompactBar(context);
+      }
 
-      return SizedBox(
-        height: 36,
-        width: useFullBar ? 220 : null,
-        child: Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            if (!useFullBar) _buildCompactBar(context),
-            if (useFullBar)
-            // A single node: the localized status text (plus any active
-            // Tor/MWEB/Silent Payments badge) is the label, and the hint says
-            // where tapping leads. Everything inside is redundant with it.
-              Semantics(
-                button: true,
-                label: _statusSemanticsLabel(context, status),
-                hint: S.of(context).manage_nodes,
-                onTap: () => _openNodeManagement(context),
-                child: ExcludeSemantics(
-                  child: GestureDetector(
-                    onTap: () => _openNodeManagement(context),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 100),
-                      child: Container(
-                        key: ValueKey(status.runtimeType),
-                        height: 36,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(9999),
-                          border: _getBorder(context, status.runtimeType),
-                          color: _getBackgroundColor(context, status.runtimeType),
+      final Widget? icon = _getIcon(context, status.runtimeType);
+      final statusTitle = _statusTitle(context, status);
+      final silentPaymentsProgress = _silentPaymentsProgress(status);
+      final barHeight = silentPaymentsProgress == null ? 36.0 : 40.0;
+
+      // A single node: the localized status text (plus any active
+      // Tor/MWEB/Silent Payments badge) is the label, and the hint says
+      // where tapping leads. Everything inside is redundant with it.
+      return Semantics(
+        button: true,
+        label: _statusSemanticsLabel(context, status, statusTitle),
+        value: silentPaymentsProgress,
+        hint: S.of(context).manage_nodes,
+        onTap: () => _openNodeManagement(context),
+        child: ExcludeSemantics(
+          child: GestureDetector(
+            onTap: () => _openNodeManagement(context),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 100),
+              child: OverflowBox(
+                key: ValueKey(status.runtimeType),
+                alignment: Alignment.center,
+                minHeight: barHeight,
+                maxHeight: barHeight,
+                child: Container(
+                  height: barHeight,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9999),
+                    border: _getBorder(context, status.runtimeType),
+                    color: _getBackgroundColor(context, status.runtimeType),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    spacing: 8,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      if (icon != null) icon,
+                      if (silentPaymentsProgress != null) ...[
+                        Text(
+                          silentPaymentsProgress,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.customColors.warningOutlineColor,
+                          ),
                         ),
-                        child: Row(
-                          spacing: 10,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            if (icon != null) icon,
-                            // if (dashboardViewModel.silentPaymentsScanningActive &&
-                            //     progressStatuses.contains(status.runtimeType)) ...[
-                            //   Text(
-                            //     "${(status.progress() * 100).toInt()}%",
-                            //     style: TextStyle(fontSize: 12, color: Color(0xFFEFBA5E)),
-                            //   ),
-                            //   Text(
-                            //     "·",
-                            //     style: TextStyle(fontSize: 12),
-                            //   )
-                            // ],
-                            Text(
-                              syncStatusTitle(status,
-                                  dashboardViewModel.settingsStore.syncStatusDisplayMode),
-                              style: _getTextStyle(context, status.runtimeType),
-                            ),
-                          ],
+                        Text(
+                          "·",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                      Flexible(
+                        child: Text(
+                          statusTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: _getTextStyle(context, status.runtimeType),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-          ],
+            ),
+          ),
         ),
       );
     },
   );
 
-  void _openNodeManagement(BuildContext context) =>
-      CupertinoScaffold.showCupertinoModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withAlpha(85),
-          builder: (context) => FractionallySizedBox(
-              child: Material(
-                child: getIt.get<ManageNodesPage>(param1: false),
-              )));
+  void _openNodeManagement(BuildContext context) {
+    CupertinoScaffold.showCupertinoModalBottomSheet(
+      context: context,
+      barrierColor: Colors.black.withAlpha(85),
+      builder: (context) => FractionallySizedBox(
+        child: Material(
+          child: getIt.get<ManageNodesPage>(param1: false),
+        ),
+      ),
+    );
+  }
 
   /// Compact mode shows sync state with a pulsing dot (and a Tor glyph) only, so
   /// the whole row needs a text equivalent.
   Widget _buildCompactBar(BuildContext context) {
     final row = Row(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
       spacing: 6,
       children: [
         if (dashboardViewModel.isTorEnabled)
@@ -153,12 +168,12 @@ class SyncBar extends StatelessWidget {
     final label = _joinLabels([
       if (dashboardViewModel.isTorEnabled) S.of(context).tor_connection,
       if (_showDot()) S.of(context).synchronizing,
-      if (_showLightSyncCheck())
-        syncStatusTitle(
-            dashboardViewModel.status, dashboardViewModel.settingsStore.syncStatusDisplayMode),
+      if (_showLightSyncCheck()) S.of(context).sync_synced,
     ]);
 
-    if (label.isEmpty) return row;
+    if (label.isEmpty) {
+      return row;
+    }
 
     return Semantics(label: label, child: ExcludeSemantics(child: row));
   }
@@ -166,11 +181,17 @@ class SyncBar extends StatelessWidget {
   bool get _isShowingSyncedMessage =>
       showSyncedMessage && dashboardViewModel.status.runtimeType == SyncedSyncStatus;
 
-  String _statusSemanticsLabel(BuildContext context, SyncStatus status) {
+  String _statusTitle(BuildContext context, SyncStatus status) {
+    final title = syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode);
+
+    return title.isNotEmpty ? title : S.of(context).synchronizing;
+  }
+
+  String _statusSemanticsLabel(BuildContext context, SyncStatus status, String statusTitle) {
     final isFailure = failStatuses.contains(status.runtimeType);
 
     return _joinLabels([
-      syncStatusTitle(status, dashboardViewModel.settingsStore.syncStatusDisplayMode),
+      statusTitle,
       if (!isFailure && dashboardViewModel.isTorEnabled) S.of(context).tor_connection,
       if (!isFailure && dashboardViewModel.hasMweb) S.of(context).litecoin_mweb,
       if (!isFailure && dashboardViewModel.hasSilentPayments) S.of(context).silent_payments,
@@ -178,6 +199,16 @@ class SyncBar extends StatelessWidget {
   }
 
   String _joinLabels(List<String> parts) => parts.where((part) => part.isNotEmpty).join(", ");
+
+  String? _silentPaymentsProgress(SyncStatus status) {
+    if (!dashboardViewModel.hasSilentPayments ||
+        !dashboardViewModel.silentPaymentsScanningActive ||
+        status is! SyncingSyncStatus) {
+      return null;
+    }
+
+    return "${(status.progress() * 100).toInt()}%";
+  }
 
   Color? _getBackgroundColor(BuildContext context, Type status) {
     if (failStatuses.contains(status)) {
@@ -210,7 +241,7 @@ class SyncBar extends StatelessWidget {
 
   Widget? _getIcon(BuildContext context, Type status) {
     if (status == SyncedSyncStatus) {
-      return Icon(Icons.check, color: syncedColor, size: 12);
+      return const Icon(Icons.check, color: syncedColor, size: 12);
     }
 
     if (status == LostConnectionSyncStatus) {
@@ -230,22 +261,35 @@ class SyncBar extends StatelessWidget {
     final List<Widget> children = [];
 
     if (dashboardViewModel.isTorEnabled) {
-      children.add(CakeImageWidget(
+      children.add(
+        const CakeImageWidget(
           imageUrl: "assets/new-ui/tor_sync.svg",
-          colorFilter: ColorFilter.mode(Color(0xFF8A38F5), BlendMode.srcIn)));
+          colorFilter: ColorFilter.mode(Color(0xFF8A38F5), BlendMode.srcIn),
+        ),
+      );
     }
     if (dashboardViewModel.hasMweb) {
-      children.add(CakeImageWidget(
-        imageUrl: "assets/new-ui/mweb_sync.svg",
-        colorFilter:
-        ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-      ));
+      children.add(
+        CakeImageWidget(
+          imageUrl: "assets/new-ui/mweb_sync.svg",
+          colorFilter:
+          ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+        ),
+      );
     }
     if (dashboardViewModel.hasSilentPayments) {
-      children.add(CakeImageWidget(
-        imageUrl: "assets/new-ui/silent_sync.svg",
-        colorFilter: ColorFilter.mode(Color(0xFFEFBA5E), BlendMode.srcIn),
-      ));
+      children.add(
+        CakeImageWidget(
+          imageUrl: "assets/new-ui/silent_sync.svg",
+          width: 16,
+          height: 16,
+          colorFilter: ColorFilter.mode(context.customColors.warningOutlineColor, BlendMode.srcIn),
+        ),
+      );
+    }
+
+    if (children.isEmpty) {
+      return null;
     }
 
     return Row(
@@ -254,10 +298,11 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  bool get showFullBar {
+  bool get _showFullBar {
     if (dashboardViewModel.status.runtimeType == SyncedSyncStatus) {
       return isSyncHeavy && _isShowingSyncedMessage;
     }
+
     return isSyncHeavy || failStatuses.contains(dashboardViewModel.status.runtimeType);
   }
 

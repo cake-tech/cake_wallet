@@ -4,11 +4,11 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/address_resolver/yat/yat_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import "package:cake_wallet/entities/wallet_group_manager.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -30,6 +30,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_direction.dart';
+import "package:cw_core/utils/file.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -59,7 +60,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -90,7 +91,6 @@ abstract class DashboardViewModelBase with Store {
       required this.orderFilterStore,
       required this.transactionFilterStore,
       required this.settingsStore,
-      required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
@@ -113,6 +113,8 @@ abstract class DashboardViewModelBase with Store {
         wallet = appStore.wallet! {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
 
     name = wallet.name;
     type = wallet.type;
@@ -131,8 +133,7 @@ abstract class DashboardViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(_wallet).label;
 
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).account,
+      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
@@ -160,7 +161,7 @@ abstract class DashboardViewModelBase with Store {
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
 
@@ -188,7 +189,7 @@ abstract class DashboardViewModelBase with Store {
         ),
       );
     } else {
-      subname = '';
+      subname = "";
       _reloadTransactions();
     }
 
@@ -208,6 +209,7 @@ abstract class DashboardViewModelBase with Store {
       loadCardDesigns();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+      loadSeedBackupReminder();
 
       tradeMonitor.stopTradeMonitoring();
       tradeMonitor.monitorActiveTrades(wallet!.id);
@@ -367,14 +369,11 @@ abstract class DashboardViewModelBase with Store {
 
     transactions.clear();
 
-    final allTransactions = wallet.transactionHistory.transactions.values;
-    final filteredTransactions = allTransactions.where((tx) {
-      if (wallet.type == WalletType.bitcoin) {
-        return bitcoin!.isTransactionForCurrentAccount(wallet, tx);
-      }
-      return true;
-    }).toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final filteredTransactions = wallet.type == WalletType.bitcoin
+        ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
+        : wallet.transactionHistory.transactions.values.toList();
+    filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
+
 
     transactions.addAll(
       filteredTransactions.map(
@@ -454,6 +453,8 @@ abstract class DashboardViewModelBase with Store {
       numAccounts = btcAccounts!.length + 1; // adding 1 for the lightning account
     }
 
+    final usesAccountIndices = wallet.type == WalletType.bitcoin || balanceViewModel.hasAccounts;
+
     cardDesigns.clear();
     final newOrder = <int, int>{};
 
@@ -463,15 +464,17 @@ abstract class DashboardViewModelBase with Store {
       late final int index;
       final isLightning = wallet.type == WalletType.bitcoin && i == lightningCardIndex;
       if (isLightning) {
-        index =
-            -2; // using -2 to differentiate lightning card from regular accounts, which use 0, 1, 2, etc.
-      } else if (balanceViewModel.hasAccounts) {
+        index = -2;
+      } else if (usesAccountIndices) {
         index = i;
       } else {
         index = -1;
       }
 
-      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull;
+      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull ??
+          (index == 0 && wallet.type != WalletType.bitcoin
+              ? walletCardStyleSettings.where((e) => e.accountIndex == -1).firstOrNull
+              : null);
 
       final curr = isLightning ? CryptoCurrency.btcln : wallet.currency;
 
@@ -513,22 +516,22 @@ abstract class DashboardViewModelBase with Store {
           : wallet.type == WalletType.wownero
               ? wow.wownero!.getCurrentAccount(wallet).id
               : null;
-      final List<TransactionInfo> relevantTxs = [];
 
-      for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
-        bool isRelevant = true;
+      final allTxs = appStore.wallet!.transactionHistory.transactions.values;
+      final List<TransactionInfo> relevantTxs;
 
-        if (wallet.type == WalletType.monero) {
-          isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
-        } else if (wallet.type == WalletType.wownero) {
-          isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
-        } else if (wallet.type == WalletType.bitcoin) {
-          isRelevant = bitcoin!.isTransactionForCurrentAccount(wallet, tx);
-        }
-
-        if (isRelevant) {
-          relevantTxs.add(tx);
-        }
+      if (wallet.type == WalletType.monero) {
+        relevantTxs = allTxs
+            .where((tx) => monero!.getTransactionInfoAccountId(tx) == currentAccountId)
+            .toList();
+      } else if (wallet.type == WalletType.wownero) {
+        relevantTxs = allTxs
+            .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId)
+            .toList();
+      } else if (wallet.type == WalletType.bitcoin) {
+        relevantTxs = bitcoin!.getCurrentAccountBitcoinTransactions(wallet);
+      } else {
+        relevantTxs = allTxs.toList();
       }
       // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
@@ -919,6 +922,65 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @observable
+  late bool showSeedBackupReminder;
+
+  @observable
+  late bool multiAccountsToggleValue;
+
+  @computed
+  bool get hasNativeAccounts => wallet.walletInfo.hasNativeAccounts;
+
+  @computed
+  bool get canToggleMultiAccounts => wallet.walletInfo.canToggleMultiAccounts;
+
+  @computed
+  bool get isMultiAccountsEnabled =>
+      hasNativeAccounts || (canToggleMultiAccounts && multiAccountsToggleValue);
+
+  @computed
+  List<AccountListItem> get visibleAccounts {
+    final all = accountListViewModel?.accounts;
+    if (all == null || all.isEmpty) return const <AccountListItem>[];
+    if (isMultiAccountsEnabled) return all.toList(growable: false);
+    final primary = all.where((a) => a.id == 0).firstOrNull ?? all.first;
+    return <AccountListItem>[primary];
+  }
+
+  @action
+  Future<void> setMultiAccountsEnabled(bool value) async {
+    if (!canToggleMultiAccounts) {
+      return;
+    }
+
+    if (!value) {
+      await _selectPrimaryAccount();
+    }
+
+    wallet.walletInfo.isMultiAccountsEnabled = value;
+    await wallet.walletInfo.save();
+    multiAccountsToggleValue = value;
+    await accountListViewModel?.reload();
+    await loadCardDesigns();
+
+    if (value) {
+      unawaited(wallet.startSync());
+    }
+  }
+
+  @computed
+  bool get hasBalance => wallet.balance.values.any(
+        (balance) =>
+            !balance.available.isZero ||
+            !balance.unavailable.isZero ||
+            !(balance.secondAvailable?.isZero ?? true) ||
+            !(balance.secondUnavailable?.isZero ?? true) ||
+            !(balance.frozen?.isZero ?? true),
+      );
+
+  @computed
+  bool get shouldShowSeedBackupReminder => showSeedBackupReminder && hasBalance;
+
   @computed
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
@@ -1149,6 +1211,17 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
+  void loadSeedBackupReminder() {
+    showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
+  }
+
+  @action
+  Future<void> dismissSeedBackupReminder() async {
+    showSeedBackupReminder = false;
+    await wallet.walletInfo.clearSeedBackupReminder();
+  }
+
+  @action
   void dismissPayjoin() {
     settingsStore.showPayjoinCard = false;
   }
@@ -1170,7 +1243,6 @@ abstract class DashboardViewModelBase with Store {
 
   SettingsStore settingsStore;
 
-  YatStore yatStore;
 
   TradesStore tradesStore;
 
@@ -1219,11 +1291,9 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
 
-  ReactionDisposer? _onMoneroAccountChangeReaction;
+  ReactionDisposer? _onAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
-
-  ReactionDisposer? _onBitcoinAccountChangeReaction;
 
   ReactionDisposer? _transactionDisposer;
 
@@ -1296,7 +1366,26 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void toggleLightningMode() => lightningMode = !lightningMode;
+  void toggleLightningMode() {
+    lightningMode = !lightningMode;
+
+    // Lightning belongs to the primary account only
+    if (lightningMode) {
+      unawaited(_selectPrimaryAccount());
+    }
+  }
+
+  Future<void> _selectPrimaryAccount() async {
+    if (wallet.type != WalletType.bitcoin) return;
+
+    final vm = accountListViewModel;
+    if (vm == null || vm.selectedAccount?.id == 0) return;
+
+    final primary = vm.accounts.where((a) => a.id == 0).firstOrNull;
+    if (primary != null) {
+      await vm.select(primary);
+    }
+  }
 
   @action
   void resetLightningMode() => lightningMode = false;
@@ -1312,19 +1401,18 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     name = wallet.name;
     unawaited(walletGroupManager.updateWalletGroups());
-
-    _onBitcoinAccountChangeReaction?.reaction.dispose();
-    _onBitcoinAccountChangeReaction = null;
+    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
+    _onAccountChangeReaction?.reaction.dispose();
+    _onAccountChangeReaction = null;
     loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
 
-      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).account,
+      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(wallet));
 
       _onMoneroBalanceChangeReaction = reaction(
@@ -1335,10 +1423,10 @@ abstract class DashboardViewModelBase with Store {
     } else if (wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(wallet).label;
 
-      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
 
-      _onMoneroAccountChangeReaction = reaction(
+      _onAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(wallet));
 
@@ -1399,8 +1487,8 @@ abstract class DashboardViewModelBase with Store {
       return;
     }
 
-    _onBitcoinAccountChangeReaction?.reaction.dispose();
-    _onBitcoinAccountChangeReaction = reaction(
+    _onAccountChangeReaction?.reaction.dispose();
+    _onAccountChangeReaction = reaction(
       (_) => accountListViewModel?.selectedAccount?.id,
       (_) {
         _reloadTransactions();

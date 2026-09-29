@@ -1,44 +1,51 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/new-ui/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
 import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/long_press_menu.dart';
+import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart";
+import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/new_search_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-import 'package:cake_wallet/utils/list_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+
+class AddressesPageArgs {
+  AddressesPageArgs({required this.showHidden, this.popOnSelection = false});
+
+  final bool showHidden;
+  final bool popOnSelection;
+}
+
 
 class NewAddressesPage extends StatefulWidget {
   const NewAddressesPage(
       {super.key,
       required this.addressListViewModel,
       required this.dashboardViewModel,
-      required this.showHidden});
+      required this.showHidden, required this.popOnSelection});
 
   final WalletAddressListViewModel addressListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool showHidden;
+  final bool popOnSelection;
 
   @override
   State<NewAddressesPage> createState() => _NewAddressesPageState();
@@ -122,8 +129,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
-                            if (widget.dashboardViewModel.type == WalletType.monero ||
-                                widget.dashboardViewModel.type == WalletType.wownero)
+                            if (widget.dashboardViewModel.isMultiAccountsEnabled)
                               Observer(
                                   builder: (_) => AccountPreviewHeader(
                                         dashboardViewModel: widget.dashboardViewModel,
@@ -135,6 +141,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                                   fontSize: 10,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
+                            if(!widget.popOnSelection)
                             ShowHiddenButton()
                           ],
                         ),
@@ -150,11 +157,15 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                               builder: (_) => AddressRow(
                                 selected:
                                     item.address == widget.addressListViewModel.address.address,
-                                first: widget.showHidden && index == 0,
+                                first: (widget.showHidden || widget.popOnSelection) && index == 0,
                                 last: index == filteredItems.length - 1,
                                 item: item,
                                 onSelect: () {
-                                  widget.addressListViewModel.setAddress(item);
+                                  if(widget.popOnSelection) {
+                                    Navigator.of(context).pop(item.address);
+                                  } else {
+                                    widget.addressListViewModel.setAddress(item);
+                                  }
                                 },
                                 onLabelChanged: updateItems,
                                 onAddressHidden: () async {
@@ -259,8 +270,7 @@ class AccountPreviewHeader extends StatelessWidget {
   final CardDesign? design;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: 64,
       width: MediaQuery.of(context).size.width * 0.9,
       decoration: BoxDecoration(
@@ -283,9 +293,7 @@ class AccountPreviewHeader extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          "",
+                      dashboardViewModel.accountListViewModel?.selectedAccount?.label ?? '',
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(
@@ -313,7 +321,6 @@ class AccountPreviewHeader extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class AddressRow extends StatelessWidget {

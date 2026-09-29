@@ -161,6 +161,12 @@ abstract class OtherSettingsViewModelBase with Store {
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
 
+  @computed
+  bool get showCiBuildOverlay => _settingsStore.showCiBuildOverlay;
+
+  @action
+  void setShowCiBuildOverlay(bool value) => _settingsStore.showCiBuildOverlay = value;
+
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
     final customItem = priorities

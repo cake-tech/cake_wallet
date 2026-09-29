@@ -4,19 +4,19 @@ import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AccountCreationModal extends StatefulWidget {
   const AccountCreationModal({
+    required this.viewModel,
     super.key,
-    required this.onPressed,
-    required this.state,
   });
 
-  final Future<void> Function(String label) onPressed;
-  final ExecutionState Function() state;
+  final WalletAccountEditOrCreateViewModel viewModel;
 
   @override
   State<AccountCreationModal> createState() => _AccountCreationModalState();
@@ -30,8 +30,9 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   @override
   void initState() {
     super.initState();
+    _controller.text = widget.viewModel.label;
     _controller.addListener(() {
-      setState(() {});
+      widget.viewModel.label = _controller.text;
     });
   }
 
@@ -41,9 +42,21 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
     super.dispose();
   }
 
+  Future<void> _onSubmit() async {
+    if (widget.viewModel.state is IsExecutingState) return;
+    if (_controller.text.trim().isEmpty || _controller.text.length > maxAccountNameLength) return;
+
+    await widget.viewModel.save();
+
+    if (!mounted) return;
+
+    if (widget.viewModel.state is ExecutedSuccessfullyState) {
+      Navigator.of(context).pop(true);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
@@ -54,8 +67,12 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ModalGrabHandle(),
-                ModalTopBar(title: S.of(context).create_account),
+                const ModalGrabHandle(),
+                ModalTopBar(
+                  title: widget.viewModel.isEdit
+                      ? S.of(context).edit_account
+                      : S.of(context).create_account,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: Column(
@@ -105,25 +122,18 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                           ],
                         ),
                       ),
-                      NewPrimaryButton(
-                        onPressed: () async {
-                          if (widget.state() is IsExecutingState) return;
-                          if (_controller.text.isEmpty ||
-                              _controller.text.length > maxAccountNameLength) return;
-
-                          final future = widget.onPressed(_controller.text);
-                          setState(() {});
-                          await future;
-
-                          if (!mounted) return;
-                          setState(() {});
-                        },
-                        text: S.of(context).continue_text,
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabled: _controller.text.isEmpty ||
-                            _controller.text.length > maxAccountNameLength,
-                        isLoading: widget.state() is IsExecutingState,
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) => Observer(
+                          builder: (_) => NewPrimaryButton(
+                            onPressed: _onSubmit,
+                            text: S.of(context).continue_text,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                            disabled: value.text.trim().isEmpty || value.text.length > maxAccountNameLength,
+                            isLoading: widget.viewModel.state is IsExecutingState,
+                          ),
+                        ),
                       ),
                       SizedBox(),
                     ],
@@ -132,6 +142,6 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
               ],
             ),
           ),
-        ));
-  }
+        ),
+      );
 }

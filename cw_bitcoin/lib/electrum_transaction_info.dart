@@ -24,7 +24,7 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
-  final int? accountIndex;
+  int? accountIndex;
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;

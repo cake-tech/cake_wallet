@@ -55,6 +55,7 @@ class WalletEditPage extends BasePage {
             Expanded(
               child: Center(
                 child: BaseTextFormField(
+                  key: ValueKey("wallet_edit_page_name_input_key"),
                   controller: _labelController,
                   hintText: S.of(context).wallet_list_wallet_name,
                   validator: WalletNameValidator(),
@@ -73,6 +74,7 @@ class WalletEditPage extends BasePage {
                         child: Container(
                           padding: EdgeInsets.only(right: 8.0),
                           child: LoadingPrimaryButton(
+                            key: ValueKey("wallet_edit_page_delete_button_key"),
                             isDisabled: isLoading,
                             onPressed: () => _removeWallet(context),
                             text: S.of(context).delete,
@@ -85,6 +87,7 @@ class WalletEditPage extends BasePage {
                       child: Container(
                         padding: EdgeInsets.only(left: 8.0),
                         child: LoadingPrimaryButton(
+                          key: ValueKey("wallet_edit_page_save_button_key"),
                           onPressed: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (!pageArguments.isWalletGroup &&
@@ -93,12 +96,17 @@ class WalletEditPage extends BasePage {
                                 showPopUp<void>(
                                   context: context,
                                   builder: (_) => AlertWithOneAction(
+                                      buttonKey:
+                                      ValueKey("wallet_edit_page_name_taken_ok_button_key"),
                                       alertTitle: '',
-                                      alertContent: S.of(context).wallet_name_exists,
-                                      buttonText: S.of(context).ok,
+                                      alertContent: S
+                                          .of(context)
+                                          .wallet_name_exists,
+                                      buttonText: S
+                                          .of(context)
+                                          .ok,
                                       buttonAction: () => Navigator.of(context).pop(),
-                                    ),
-                                );
+                                    ));
                               } else {
                                 try {
                                   bool confirmed = false;
@@ -178,6 +186,8 @@ class WalletEditPage extends BasePage {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertWithTwoActions(
+          alertRightActionButtonKey: ValueKey("wallet_edit_page_confirm_delete_button_key"),
+          alertLeftActionButtonKey: ValueKey("wallet_edit_page_cancel_delete_button_key"),
           alertTitle: S.of(context).delete_wallet,
           alertContent:
               S.of(context).delete_wallet_confirm_message(pageArguments.editingWallet.name),

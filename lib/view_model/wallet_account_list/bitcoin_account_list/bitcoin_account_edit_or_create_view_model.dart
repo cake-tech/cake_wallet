@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -18,24 +17,22 @@ class BitcoinAccountEditOrCreateViewModel = BitcoinAccountEditOrCreateViewModelB
 abstract class BitcoinAccountEditOrCreateViewModelBase
     with Store
     implements WalletAccountEditOrCreateViewModel {
-  BitcoinAccountEditOrCreateViewModelBase({
-    required WalletBase wallet,
-    AccountListItem? accountListItem,
-  })  : state = InitialExecutionState(),
-        isEdit = accountListItem != null,
-        label = accountListItem?.label ?? '',
-        _accountListItem = accountListItem,
+  BitcoinAccountEditOrCreateViewModelBase({required WalletBase wallet})
+      : state = InitialExecutionState(),
+        label = "",
         _wallet = wallet;
 
-  final bool isEdit;
+  @override
+  bool get isEdit => false;
 
+  @override
   @observable
   ExecutionState state;
 
+  @override
   @observable
   String label;
 
-  final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
   Future<List<Gradient>> _getUsableCardGradients() async {
@@ -61,16 +58,13 @@ abstract class BitcoinAccountEditOrCreateViewModelBase
         .insert();
   }
 
+  @override
   Future<void> save() async {
     try {
       state = IsExecutingState();
 
-      if (_accountListItem != null) {
-        await _renameAccount(_accountListItem.id, label);
-      } else {
-        final accountIndex = await _createAccount(label);
-        await _saveRandomCardDesign(accountIndex);
-      }
+      final accountIndex = await _createAccount(label);
+      await _saveRandomCardDesign(accountIndex);
 
       await _wallet.save();
       state = ExecutedSuccessfullyState();
@@ -94,12 +88,5 @@ abstract class BitcoinAccountEditOrCreateViewModelBase
     await bitcoin!.setCurrentAccount(_wallet, nextIndex);
 
     return nextIndex;
-  }
-
-  Future<void> _renameAccount(int accountIndex, String label) async {
-    await _wallet.walletInfo.renameAccount(
-      accountIndex: accountIndex,
-      label: label.isEmpty ? 'Account $accountIndex' : label,
-    );
   }
 }

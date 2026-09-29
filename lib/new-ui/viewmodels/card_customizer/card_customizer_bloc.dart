@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -29,6 +30,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
     add(_Init());
   }
+
+  bool get _accountNameEnabled =>
+      !lightningMode && _wallet.hasAccountsSupport && _wallet.walletInfo.multiAccountsActive;
 
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
@@ -114,6 +118,16 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       return (accountName: "", accountIndex: -2);
     }
 
+    final account = await _resolveCurrentAccount();
+
+    if (!_accountNameEnabled) {
+      return (accountName: "", accountIndex: account.accountIndex);
+    }
+
+    return account;
+  }
+
+  Future<({String accountName, int accountIndex})> _resolveCurrentAccount() async {
     if (_wallet.type == WalletType.monero) {
       final account = monero!.getCurrentAccount(_wallet);
       return (accountName: account.label, accountIndex: account.id);
@@ -125,15 +139,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
 
     if (_wallet.type == WalletType.bitcoin) {
-      final selectedAccountIndex = _wallet.walletInfo.selectedAccount ?? 0;
-      final accounts = await _wallet.walletInfo.getAccounts();
-      final account =
-          accounts.where((account) => account.accountIndex == selectedAccountIndex).firstOrNull;
-
-      return (
-        accountName: account?.label ?? "",
-        accountIndex: selectedAccountIndex,
-      );
+      final account = await bitcoin!.getCurrentAccount(_wallet);
+      return (accountName: account.label, accountIndex: account.id);
     }
 
     return (accountName: "", accountIndex: -1);
@@ -168,7 +175,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     emit(state.copyWith(accountName: event.newAccountName));
   }
 
-  void _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
+  Future<void> _onDesignSaved(DesignSaved event, Emitter<CardCustomizerState> emit) async {
     await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
             accountIndex: state.accountIndex,
@@ -194,6 +201,8 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<void> saveAccountName() async {
+    if (!_accountNameEnabled) return;
+
     if (_wallet.type == WalletType.monero) {
       await saveMoneroAccountName();
     }

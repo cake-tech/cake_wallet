@@ -930,13 +930,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String accountBalancesKey(Object wallet) {
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.accountBalances.entries
-        .map((entry) =>
-            '${entry.key}:${entry.value.confirmed}:${entry.value.unconfirmed}:${entry.value.frozen}')
-        .join('|');
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
   }
+
+  @override
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
+      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
 
   @override
   Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
@@ -945,29 +946,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isTransactionForCurrentAccount(Object wallet, Object transaction) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final tx = transaction as ElectrumTransactionInfo;
-
-    if (bitcoinWallet.type != WalletType.bitcoin) {
-      return true;
-    }
-
-    // Locally created transactions store the account index explicitly,
-    // so use it first instead of checking the addresses.
-    if (tx.accountIndex != null) {
-      return tx.accountIndex == bitcoinWallet.currentAccountIndex;
-    }
-
-    final accountAddresses = bitcoinWallet.walletAddresses.allAddresses
-        .where((address) => address.accountIndex == bitcoinWallet.currentAccountIndex)
-        .map((address) => address.address)
-        .toSet();
-
-    final inputAddresses = tx.inputAddresses ?? <String>[];
-    final outputAddresses = tx.outputAddresses ?? <String>[];
-
-    return inputAddresses.any(accountAddresses.contains) ||
-        outputAddresses.any(accountAddresses.contains);
+  Future<Account> getCurrentAccount(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final acc = await electrumWallet.loadCurrentAccount();
+    return Account(
+        id: acc.accountIndex,
+        label: acc.label,
+        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
   }
 }

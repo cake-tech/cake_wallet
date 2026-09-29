@@ -7,6 +7,10 @@ String calculateFiatAmountRaw({required double cryptoAmount, double? price}) {
 
   final result = price * cryptoAmount;
 
+  if (!result.isFinite) {
+    return '0.00';
+  }
+
   if (result == 0.0) {
     return '0.00';
   }
