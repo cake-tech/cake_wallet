@@ -719,33 +719,41 @@ abstract class WowneroAccountList {
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
-import 'dart:typed_data';
-
-import 'package:cw_core/unspent_transaction_output.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:hive/hive.dart";
 """;
   const bitcoinCashCWHeaders = """
-import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import "package:cw_bitcoin_cash/cw_bitcoin_cash.dart";
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
 """;
-  const bitcoinCashCwPart = "part 'cw_bitcoin_cash.dart';";
+  const bitcoinCashCwPart = "part \"cw_bitcoin_cash.dart\";";
   const bitcoinCashContent = """
 abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+    Box<UnspentCoinsInfo> unspentCoinSource, {
+    required bool isDirect,
+  });
 
-  WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
+  WalletCredentials createBitcoinCashNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+  });
 
-  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials({
+    required String name,
+    required String mnemonic,
+    required String password,
+    String? passphrase,
+  });
 
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
 
@@ -757,14 +765,14 @@ abstract class BitcoinCash {
 }
   """;
 
-  const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashEmptyDefinition = "BitcoinCash? bitcoinCash;\n";
+  const bitcoinCashCWDefinition = "BitcoinCash? bitcoinCash = CWBitcoinCash();\n";
 
-  final output = '$bitcoinCashCommonHeaders\n' +
-      (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
-      (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
+  final output = "$bitcoinCashCommonHeaders\n" +
+      (hasImplementation ? "$bitcoinCashCWHeaders\n" : "\n") +
+      (hasImplementation ? "$bitcoinCashCwPart\n\n" : "\n") +
       (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
-      '\n' +
+      "\n" +
       bitcoinCashContent;
 
   if (outputFile.existsSync()) {

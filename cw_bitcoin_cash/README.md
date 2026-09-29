@@ -45,5 +45,5 @@ final txHash = await pending.commit();
 
 ### Additional information
 
-- See `lib/src/` for: `BitcoinCashWallet`, `BitcoinCashWalletAddresses`, and helpers in `bitcoin_cash_base.dart`.
+- See `lib/src/` for: `BitcoinCashWallet`, `BitcoinCashWalletAddresses`, and helpers in `cw_bitcoin_cash.dart`.
 - Snapshot migration and CashAddr normalization are handled during open.
