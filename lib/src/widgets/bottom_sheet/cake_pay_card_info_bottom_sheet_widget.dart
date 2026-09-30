@@ -299,14 +299,12 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
                   children: [
                     Text('Gift Card Number',
                         style: TextStyle(
-                            fontFamily: 'Lato',
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
                             color: Color.fromRGBO(207, 207, 207, 1))),
                     const SizedBox(height: 4),
                     Text(cardNumber,
                         style: TextStyle(
-                            fontFamily: 'Lato',
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: Color.fromRGBO(146, 146, 146, 1))),
@@ -317,14 +315,12 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
                   children: [
                     Text('PIN Number',
                         style: TextStyle(
-                            fontFamily: 'Lato',
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
                             color: Color.fromRGBO(207, 207, 207, 1))),
                     const SizedBox(height: 4),
                     Text(pin,
                         style: TextStyle(
-                            fontFamily: 'Lato',
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                             color: Color.fromRGBO(146, 146, 146, 1))),
