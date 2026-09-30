@@ -20,10 +20,12 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
   KeychainRestoreBloc(
       {required WalletSwitchService walletSwitchService,
       required WalletCreationService creationService,
-      required CwKeychain keychain})
+      required CwKeychain keychain,
+      String? preselectedWalletName})
       : _walletSwitchService = walletSwitchService,
         _creationService = creationService,
         _keychain = keychain,
+        _preselectedWalletName = preselectedWalletName,
         super(const KeychainRestoreNotLoaded()) {
     on<Init>(_init);
     on<WalletToggled>(_onWalletToggled, transformer: sequential());
@@ -35,6 +37,7 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
   final CwKeychain _keychain;
   final WalletSwitchService _walletSwitchService;
   final WalletCreationService _creationService;
+  final String? _preselectedWalletName;
 
   Future<void> _init(Init event, Emitter<KeychainRestoreState> emit) async {
     if (!(await _keychain.available())) {
@@ -57,7 +60,8 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
     emit(KeychainRestoreSelection(
         walletsAvailable: keychainData,
         walletsUnsupported: unsupportedKeychainData,
-        walletsSelected: {}));
+        walletsSelected:
+            keychainData.where((item) => item.name == _preselectedWalletName).toSet(),),);
   }
 
   Future<void> _onWalletToggled(WalletToggled event, Emitter<KeychainRestoreState> emit) async {

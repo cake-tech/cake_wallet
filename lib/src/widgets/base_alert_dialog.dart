@@ -40,6 +40,8 @@ class BaseAlertDialog extends StatelessWidget {
 
   Widget? get contentTextWidget => null;
 
+  Widget? get child => null;
+
   String get leftActionButtonText => '';
 
   String get rightActionButtonText => '';
@@ -101,16 +103,20 @@ class BaseAlertDialog extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        spacing: 24,
         children: [
-          contentTextWidget ??
-              Text(
-                contentText,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      decoration: TextDecoration.none,
-                    ),
-              ),
+          if (contentTextWidget != null)
+            contentTextWidget!
+          else if (contentText.isNotEmpty || child == null)
+            Text(
+              contentText,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    decoration: TextDecoration.none,
+                  ),
+            ),
+          if (child != null) child!,
         ],
       ),
     );

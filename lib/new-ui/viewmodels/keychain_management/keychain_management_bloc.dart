@@ -17,6 +17,7 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
         _keychain = keychain,
         super(const KeychainManagementNotLoaded()) {
     on<_Init>(_init);
+    on<KeychainReloaded>(_init);
     on<ItemSaved>(_onItemSaved);
     on<ItemUnsaved>(_onItemUnsaved);
     on<KeychainCleared>(_onKeychainCleared);
@@ -26,7 +27,7 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
   final CwKeychain _keychain;
   final WalletLoadingService _walletLoadingService;
 
-  Future<void> _init(_Init event, Emitter<KeychainManagementState> emit) async {
+  Future<void> _init(KeychainManagementEvent event, Emitter<KeychainManagementState> emit) async {
     if (!(await _keychain.available())) {
       emit(const KeychainManagementUnavailable());
       return;

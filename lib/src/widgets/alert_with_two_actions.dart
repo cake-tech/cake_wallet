@@ -4,8 +4,9 @@ import 'package:flutter/cupertino.dart';
 class AlertWithTwoActions extends BaseAlertDialog {
   AlertWithTwoActions({
     required this.alertTitle,
-    required this.alertContent,
+    this.alertContent = "",
     this.alertContentTextWidget,
+    this.child,
     required this.leftButtonText,
     required this.rightButtonText,
     required this.actionLeftButton,
@@ -24,6 +25,8 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final String alertTitle;
   final String alertContent;
   final Widget? alertContentTextWidget;
+  @override
+  final Widget? child;
   final String leftButtonText;
   final String rightButtonText;
   final VoidCallback actionLeftButton;

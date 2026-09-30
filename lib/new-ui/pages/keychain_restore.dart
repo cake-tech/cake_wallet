@@ -19,9 +19,10 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 class KeychainRestorePageParams {
-  KeychainRestorePageParams({required this.isInitial});
+  KeychainRestorePageParams({required this.isInitial, this.preselectedWalletName});
 
   final bool isInitial;
+  final String? preselectedWalletName;
 }
 
 class KeychainRestorePage extends StatefulWidget {

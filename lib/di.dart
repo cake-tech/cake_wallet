@@ -405,13 +405,17 @@ Future<void> setup({
   getIt.registerFactory<BackupTypeSelectionPage>(
       () => BackupTypeSelectionPage(bloc: getIt.get<KeychainCreationBloc>()));
 
-  getIt.registerFactory<KeychainRestoreBloc>(() => KeychainRestoreBloc(
-      walletSwitchService: getIt.get<WalletSwitchService>(),
-      creationService: getIt.get<WalletCreationService>(param1: WalletType.monero),
-      keychain: getIt.get<CwKeychain>(),),);
+  getIt.registerFactoryParam<KeychainRestoreBloc, KeychainRestorePageParams, void>((params, _) =>
+      KeychainRestoreBloc(
+        walletSwitchService: getIt.get<WalletSwitchService>(),
+        creationService: getIt.get<WalletCreationService>(param1: WalletType.monero),
+        keychain: getIt.get<CwKeychain>(),
+        preselectedWalletName: params.preselectedWalletName,
+      ),);
 
   getIt.registerFactoryParam<KeychainRestorePage, KeychainRestorePageParams, void>((params, _) =>
-      KeychainRestorePage(bloc: getIt.get<KeychainRestoreBloc>(), isInitial: params.isInitial));
+      KeychainRestorePage(
+          bloc: getIt.get<KeychainRestoreBloc>(param1: params), isInitial: params.isInitial));
 
   getIt.registerFactory<KeychainManagementBloc>(() => KeychainManagementBloc(
       keychain: getIt.get<CwKeychain>(),

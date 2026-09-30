@@ -24,3 +24,7 @@ final class ItemSaved extends KeychainManagementEvent {
 final class KeychainCleared extends KeychainManagementEvent {
   const KeychainCleared();
 }
+
+final class KeychainReloaded extends KeychainManagementEvent {
+  const KeychainReloaded();
+}
