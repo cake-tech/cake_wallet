@@ -237,7 +237,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
 
   String getDescriptionText(Type stateType) => switch (stateType) {
         KeychainRestoreSelection =>
-          !widget.isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
+          widget.isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
         KeychainRestoring => "${S.current.restoring_your_wallets}...",
         KeychainRestoreComplete => S.current.restore_complete_select_wallet,
         KeychainRestoreNoWallets => S.current.no_wallets_found_to_restore,
