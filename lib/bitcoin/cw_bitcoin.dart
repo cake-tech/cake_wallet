@@ -191,9 +191,10 @@ class CWBitcoin extends Bitcoin {
 
   @override
   @computed
-  List<ElectrumSubAddress> getAllAddressRecords(Object wallet) {
+  List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.allAddresses
+        .where((addr) => addresses.contains(addr.address))
         .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,

@@ -1,10 +1,7 @@
 import "package:flutter/material.dart";
 
 /// A small ring progress indicator with a "resolved/total" count in the
-/// center - the same visual language as the sync-progress ring shown around
-/// the wallet's coin icon on the dashboard (see ChainIcon), adapted with a
-/// label here since resolving a transaction's fee can mean fetching hundreds
-/// of inputs, and a bare spinner gives no sense of how far along it is.
+/// center.
 class FeeFetchProgressIndicator extends StatelessWidget {
   const FeeFetchProgressIndicator({
     required this.resolved,

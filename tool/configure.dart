@@ -220,7 +220,7 @@ abstract class Bitcoin {
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
-  List<ElectrumSubAddress> getAllAddressRecords(Object wallet);
+  List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses);
 
   String formatterBitcoinAmountToString({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);

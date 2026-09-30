@@ -73,8 +73,6 @@ class TransactionAddressBreakdownItem {
   final int rawAmount;
   final bool isChange;
 
-  /// Only meaningful for change entries: whether this output is still
-  /// sitting unspent in the wallet's current UTXO set.
   final bool? isUnspent;
   final int? txCount;
   final String? balanceDisplay;
@@ -126,7 +124,8 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_fee_key",
       title: S.current.transaction_details_fee,
-      valueGetter: (vm) => vm.transactionInfo.fee != null ? vm.feeAmount : "…",
+      valueGetter: (vm) =>
+          vm.transactionInfo.fee != null ? vm.feeAmount : S.current.loading_three_dots,
       applicable: (vm) =>
           vm.wallet.type != WalletType.nano &&
           vm.transactionInfo.direction != TransactionDirection.incoming &&
@@ -136,8 +135,8 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_advanced_fee_key",
       title: S.current.tx_fee,
-      // See the non-advanced fee row above for why this must be non-empty.
-      valueGetter: (vm) => vm.transactionInfo.fee != null ? vm.feeAmount : "…",
+      valueGetter: (vm) =>
+          vm.transactionInfo.fee != null ? vm.feeAmount : S.current.loading_three_dots,
       applicable: (vm) =>
           electrumWalletTypes.contains(vm.wallet.type) &&
           (vm.transactionInfo.fee != null || vm.isFetchingFee),
@@ -326,28 +325,31 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     // Watches this tx's resolution so the view refreshes once cw_bitcoin's
     // ElectrumTransactionResolver background loop reaches it.
-    if (isFetchingFee && transactionInfo.direction != TransactionDirection.incoming) {
+    // Skip this eagerly for a receive (receives don't need to wait for fee
+    // amounts to load, but will also start watching fee resolution upon
+    // opening the Advanced Info page see [ensureFeeResolutionWatched]).
+    if (transactionInfo.direction != TransactionDirection.incoming) {
       _startWatchingFeeResolution();
     }
   }
 
   bool _feeResolutionWatchStarted = false;
 
+  /// Starts watching this tx's resolution if it hasn't already - the
+  /// constructor skips this eagerly for a receive (see above); called once
+  /// Advanced Info is opened.
   void _startWatchingFeeResolution() {
-    if (_feeResolutionWatchStarted) {
+    if (!isFetchingFee || _feeResolutionWatchStarted) {
       return;
     }
     _feeResolutionWatchStarted = true;
     _watchFeeResolution();
   }
 
-  /// Starts watching this tx's resolution if it hasn't already - the
-  /// constructor skips this eagerly for a receive (see above); called once
-  /// Advanced Info is opened.
+  /// Starts watching this tx's resolution if it hasn't already.
+  /// Called once Advanced Info is opened.
   void ensureFeeResolutionWatched() {
-    if (isFetchingFee) {
-      _startWatchingFeeResolution();
-    }
+    _startWatchingFeeResolution();
   }
 
   /// (Re)builds [items]/[advancedItems] from [TxDetailRowDefinition.defs].
@@ -527,22 +529,34 @@ abstract class TransactionDetailsViewModelBase with Store {
   @computed
   String get feeFiatAmount {
     final fee = transactionInfo.fee;
+
     if (fee == null) {
       return "";
     }
+
     final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
     final fiatValue =
         calculateFiatAmountRaw(cryptoAmount: double.parse(fee.toString()), price: price)
             .withLocalSeperator(_appStore.settingsStore.languageCode);
+
     return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
   }
 
+  /// Whether we are certain this wallet funded the tx: it is outgoing, the
+  /// wallet owns at least one input, and every input's ownership has been
+  /// resolved. Only then is the recorded fee known to be what this wallet paid.
   bool get isConfidentSend {
     final ownedInputs = transactionInfo.additionalInfo['ownedInputs'] as List?;
+    // true if ownedInputs is not empty
+    final hasOwnedInputs = ownedInputs?.isNotEmpty ?? false;
+
     final unresolvedInputTxids = transactionInfo.additionalInfo['unresolvedInputTxids'] as List?;
+    // true if unresolvedInputTxids is null or is empty
+    final isFullyResolved = unresolvedInputTxids?.isEmpty ?? true;
+
     return transactionInfo.direction == TransactionDirection.outgoing &&
-        (ownedInputs?.isNotEmpty ?? false) &&
-        (unresolvedInputTxids?.isEmpty ?? true);
+        hasOwnedInputs &&
+        isFullyResolved;
   }
 
   String get feeTitle => isConfidentSend ? S.current.fee_paid : S.current.transaction_details_fee;
@@ -556,100 +570,82 @@ abstract class TransactionDetailsViewModelBase with Store {
     return totalInputCount != null && ownedInputCount > 0 && ownedInputCount < totalInputCount;
   }
 
-  // Mirrors fromElectrumBundle's partial-ownership correction. Not
-  // Bitcoin-specific in principle, but isWalletDisplayAmountExact is only
-  // ever written by ElectrumTransactionInfo, so this is naturally false
-  // (never pending) for every other wallet type.
-  bool get isAmountPending {
-    // A partially-owned send's amount only grows as more inputs resolve, so
-    // it's not final yet - only relevant for outgoing txs.
-    if (transactionInfo.direction != TransactionDirection.outgoing) {
-      return false;
-    }
-    final inputsOwnershipFullyResolved =
-        transactionInfo.additionalInfo['inputsOwnershipFullyResolved'] as bool?;
-    // Checked first: every input being resolved guarantees the amount is
-    // exact, even over a stale isWalletDisplayAmountExact:false left by an
-    // older buggy formula - safe since this tx will never be re-fetched
-    // again to correct it.
-    if (inputsOwnershipFullyResolved == true) {
-      return false;
-    }
-    final isWalletDisplayAmountExact =
-        transactionInfo.additionalInfo['isWalletDisplayAmountExact'] as bool?;
-    // A fully self-owned send is exact once inputs are *locally* confirmed
-    // ours, before inputsOwnershipFullyResolved (which waits on the fee too).
-    if (isWalletDisplayAmountExact != null) {
-      return !isWalletDisplayAmountExact;
-    }
-    // Old signal, for history persisted before isWalletDisplayAmountExact
-    // existed - keeps it from looking pending again after an upgrade.
-    return inputsOwnershipFullyResolved == false;
-  }
+  bool get isAmountPending => transactionInfo.isAmountPending;
 
   @computed
   bool get feeFetchFailed => !isFetchingFee && isAmountPending;
 
+  String _formatCrypto(Money money) =>
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(money);
+
+  String _formatFiat(Money money) {
+    final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
+    final fiatValue = calculateFiatAmountRaw(
+      cryptoAmount: double.parse(money.toString()),
+      price: price,
+    ).withLocalSeperator(_appStore.settingsStore.languageCode);
+
+    return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
+  }
+
+  /// Amount plus fee, or null when the fee is unknown.
+  Money? get _totalSent {
+    final fee = transactionInfo.fee;
+
+    if (fee == null) {
+      return null;
+    }
+
+    return Money.fromInt(
+      transactionInfo.amount.amount.toInt() + fee.amount.toInt(),
+      transactionAsset,
+    );
+  }
+
   @computed
   String get totalSentAmount {
-    final fee = transactionInfo.fee;
-    if (fee == null) {
-      return "";
-    }
-    final total =
-        Money.fromInt(transactionInfo.amount.amount.toInt() + fee.amount.toInt(), transactionAsset);
-    return _appStore.amountParsingProxy.asDisplayStringWithSymbol(total);
+    final total = _totalSent;
+    return total == null ? "" : _formatCrypto(total);
   }
 
   @computed
   String get totalSentFiatAmount {
-    final fee = transactionInfo.fee;
-    if (fee == null) {
-      return "";
-    }
-    final total = double.parse(transactionInfo.amount.toString()) + double.parse(fee.toString());
-    final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
-    final fiatValue = calculateFiatAmountRaw(cryptoAmount: total, price: price)
-        .withLocalSeperator(_appStore.settingsStore.languageCode);
-    return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
+    final total = _totalSent;
+    return total == null ? "" : _formatFiat(total);
   }
 
-  int get _changeReceivedRawAmount => addressBreakdown
-      .where((entry) => entry.isChange)
-      .fold<int>(0, (sum, entry) => sum + entry.rawAmount);
+  /// Sum of change outputs, or null when there is none.
+  Money? get _changeReceived {
+    final rawAmount = addressBreakdown
+        .where((entry) => entry.isChange)
+        .fold<int>(0, (sum, entry) => sum + entry.rawAmount);
+
+    return rawAmount > 0 ? Money.fromInt(rawAmount, transactionAsset) : null;
+  }
 
   @computed
   String get changeReceivedAmount {
-    final rawAmount = _changeReceivedRawAmount;
-    if (rawAmount <= 0) {
-      return "";
-    }
-    return _appStore.amountParsingProxy
-        .asDisplayStringWithSymbol(Money.fromInt(rawAmount, transactionAsset));
+    final change = _changeReceived;
+    return change == null ? "" : _formatCrypto(change);
   }
 
   @computed
   String get changeReceivedFiatAmount {
-    final rawAmount = _changeReceivedRawAmount;
-    if (rawAmount <= 0) {
-      return "";
-    }
-    final price = getIt.get<FiatConversionStore>().prices[transactionAsset];
-    final fiatValue = calculateFiatAmountRaw(
-      cryptoAmount: double.parse(Money.fromInt(rawAmount, transactionAsset).toString()),
-      price: price,
-    ).withLocalSeperator(_appStore.settingsStore.languageCode);
-    return "${_appStore.settingsStore.fiatCurrency.title} $fiatValue";
+    final change = _changeReceived;
+    return change == null ? "" : _formatFiat(change);
   }
 
   @computed
   String get feeRate {
     final txSize = transactionInfo.additionalInfo['txSize'] as int?;
     final fee = transactionInfo.fee;
+
     if (txSize == null || txSize == 0 || fee == null) {
       return "";
     }
+
     final satPerVByte = fee.amount.toInt() / txSize;
+
     return "${satPerVByte.toStringAsFixed(2)} sat/vB";
   }
 
@@ -664,9 +660,11 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   List<TransactionAddressBreakdownItem> get addressBreakdown {
     final historyLength = wallet.transactionHistory.transactions.length;
+
     if (_addressBreakdownCache != null && _addressBreakdownCacheHistoryLength == historyLength) {
       return _addressBreakdownCache!;
     }
+
     final result = _computeAddressBreakdown();
     _addressBreakdownCache = result;
     _addressBreakdownCacheHistoryLength = historyLength;
@@ -699,15 +697,20 @@ abstract class TransactionDetailsViewModelBase with Store {
     // Per-address transaction count comes from the wallet's own address
     // records (already incrementally maintained during sync), not
     // re-derived here by rescanning the whole transaction history.
-    final subAddressesByAddress = {
-      for (final a in bitcoin!.getAllAddressRecords(wallet)) a.address: a,
+    // Only the addresses involved in this transaction are looked up.
+    final txAddresses = {
+      for (final i in ownedInputs) i['address'] as String,
+      for (final o in ownedOutputs) o['address'] as String,
+    };
+    final addressRecordsByAddress = {
+      for (final a in bitcoin!.getAddressRecords(wallet, txAddresses)) a.address: a,
     };
 
     final items = <TransactionAddressBreakdownItem>[];
 
     for (final input in ownedInputs) {
       final address = input['address'] as String;
-      final subAddress = subAddressesByAddress[address];
+      final addressRecord = addressRecordsByAddress[address];
       items.add(
         TransactionAddressBreakdownItem(
           address: address,
@@ -715,9 +718,9 @@ abstract class TransactionDetailsViewModelBase with Store {
               .asDisplayStringWithSymbol(Money.fromInt(input['amount'] as int, currency)),
           rawAmount: input['amount'] as int,
           isChange: false,
-          txCount: subAddress?.txCount,
-          balanceDisplay: subAddress != null
-              ? _appStore.amountParsingProxy.getDisplayCryptoString(subAddress.balance, currency)
+          txCount: addressRecord?.txCount,
+          balanceDisplay: addressRecord != null
+              ? _appStore.amountParsingProxy.getDisplayCryptoString(addressRecord.balance, currency)
               : null,
         ),
       );
@@ -727,7 +730,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       final vout = output['vout'] as int;
       final address = output['address'] as String;
       final isUnspent = unspentKeys?.contains("${transactionInfo.txHash}:$vout") ?? false;
-      final subAddress = subAddressesByAddress[address];
+      final addressRecord = addressRecordsByAddress[address];
       items.add(
         TransactionAddressBreakdownItem(
           address: address,
@@ -736,9 +739,9 @@ abstract class TransactionDetailsViewModelBase with Store {
           rawAmount: output['amount'] as int,
           isChange: true,
           isUnspent: isUnspent,
-          txCount: subAddress?.txCount,
-          balanceDisplay: subAddress != null
-              ? _appStore.amountParsingProxy.getDisplayCryptoString(subAddress.balance, currency)
+          txCount: addressRecord?.txCount,
+          balanceDisplay: addressRecord != null
+              ? _appStore.amountParsingProxy.getDisplayCryptoString(addressRecord.balance, currency)
               : null,
         ),
       );

@@ -661,6 +661,7 @@
   "live_fee_rates": "Live fee rates via API",
   "load_more": "Load more",
   "loading": "Loading",
+  "loading_three_dots": "Loading...",
   "loading_rates": "Loading rates...",
   "loading_your_wallet": "Loading your wallet",
   "login": "Login",
