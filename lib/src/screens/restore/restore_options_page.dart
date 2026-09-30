@@ -96,7 +96,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final imageRestoreQR = Image.asset(imageRestoreQRPath, width: 55);
     final imageSeedKeys = Image.asset(imageRestoreHotWalletPath, width: 55);
     final imageRestoreBackup = Image.asset(imageRestoreBackupPath, width: 55);
-    final imageKeychain = CakeImageWidget(imageUrl: "assets/new-ui/key_hero.svg", width:55);
+    final imageKeychain = CakeImageWidget(imageUrl: "assets/new-ui/cloud_keys.svg", width:55);
     final keychainName = Platform.isAndroid ? "Keystore" : "Keychain";
 
     return Center(
