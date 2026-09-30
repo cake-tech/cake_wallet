@@ -97,6 +97,15 @@ class TxDetailRowDefinition {
           (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty,
     ),
     TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_fee_rate_key",
+      title: S.current.transaction_details_fee_rate,
+      valueGetter: (vm) => vm.feeRateDisplayValue,
+      applicable: (vm) =>
+          vm.wallet.type == WalletType.bitcoin &&
+          !isLightning(vm.transactionInfo) &&
+          bitcoin?.getTransactionFeeRate(vm.transactionInfo) != null,
+    ),
+    TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_confirmations_key",
       title: S.current.confirmations,
       valueGetter: (vm) => "${vm.transactionInfo.confirmations}/${vm.neededConfirmations}",
@@ -346,6 +355,17 @@ abstract class TransactionDetailsViewModelBase with Store {
   @computed
   String get feeAmount =>
       _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.fee!);
+
+  /// Actual paid fee rate in sat/vB for Bitcoin on-chain transactions,
+  /// derived from the total fee and the transaction's virtual size. Null
+  /// when the fee or vsize is unavailable (e.g. legacy cached records) or in
+  /// non-Bitcoin builds, in which case no rate must be displayed.
+  int? get feeRateSatPerVByte => bitcoin?.getTransactionFeeRate(transactionInfo);
+
+  String get feeRateDisplayValue {
+    final rate = feeRateSatPerVByte;
+    return rate != null ? "$rate sat/vB" : "";
+  }
 
   @computed
   String get transactionCopyAmount =>
