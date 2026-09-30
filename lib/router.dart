@@ -86,6 +86,7 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
+import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -427,7 +428,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.seed:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool),
+        (context) => getIt.get<WalletSeedPage>(param1: settings.arguments as WalletSeedPageParams),
       );
 
     case Routes.restoreWallet:

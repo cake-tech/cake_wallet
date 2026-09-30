@@ -104,7 +104,9 @@ class KeychainRestoreFromWalletsStep extends StatelessWidget {
 }
 
 class KeychainWalletNotRestoredContent extends StatelessWidget {
-  const KeychainWalletNotRestoredContent({super.key});
+  const KeychainWalletNotRestoredContent({this.onViewRecoveryPhrase, super.key});
+
+  final VoidCallback? onViewRecoveryPhrase;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +140,7 @@ class KeychainWalletNotRestoredContent extends StatelessWidget {
                 keyValue: "view recovery phrase",
                 label: S.of(context).view_wallet_recovery_phrase,
                 iconPath: "assets/new-ui/manual_backup.svg",
+                onTap: onViewRecoveryPhrase,
               ),
             ],
           },

@@ -2,21 +2,26 @@ part of "keychain_management_bloc.dart";
 
 class KeychainManagementItem {
   KeychainManagementItem(
-      {required this.name, required this.type, required this.dateSaved, required this.isRestored});
+      {required this.name,
+      required this.type,
+      required this.dateSaved,
+      required this.isRestored,
+      this.seed});
 
   final String name;
   final WalletType type;
   final DateTime? dateSaved;
   final bool isRestored;
+  final String? seed;
 
   bool get isBackedUp => dateSaved != null;
 
 
   @override
-  bool operator ==(Object other) => other is KeychainManagementItem && other.name == name && other.type == type && other.dateSaved ==dateSaved && other.isRestored == isRestored;
+  bool operator ==(Object other) => other is KeychainManagementItem && other.name == name && other.type == type && other.dateSaved ==dateSaved && other.isRestored == isRestored && other.seed == seed;
 
   @override
-  int get hashCode => name.hashCode ^ type.hashCode ^ dateSaved.hashCode ^ isRestored.hashCode;
+  int get hashCode => name.hashCode ^ type.hashCode ^ dateSaved.hashCode ^ isRestored.hashCode ^ seed.hashCode;
 
 }
 
@@ -52,7 +57,8 @@ final class KeychainManagementLoaded extends KeychainManagementState {
           name: wallet.name,
           type: deserializeFromInt(wallet.walletTypeRaw),
           dateSaved: DateTime.fromMillisecondsSinceEpoch(wallet.creationTime),
-          isRestored: _localWallets.any((item) => item.name == wallet.name)));
+          isRestored: _localWallets.any((item) => item.name == wallet.name),
+          seed: wallet.seed));
     }
 
     for (final wallet in _localWallets) {

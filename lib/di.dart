@@ -973,7 +973,8 @@ Future<void> setup({
   getIt.registerFactory(
       () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
-  getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<WalletSeedViewModel, WalletSeedPageParams?, void>((params, _) =>
+      WalletSeedViewModel(getIt.get<AppStore>().wallet!, params: params));
 
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
@@ -984,8 +985,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevSecurePreferences());
 
-  getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
-      WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
+  getIt.registerFactoryParam<WalletSeedPage, WalletSeedPageParams, void>((params, _) =>
+      WalletSeedPage(getIt.get<WalletSeedViewModel>(param1: params),
+          isNewWalletCreated: params.isNewWalletCreated));
 
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 

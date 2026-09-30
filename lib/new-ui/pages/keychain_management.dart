@@ -18,6 +18,7 @@ import "package:cake_wallet/src/widgets/standard_switch.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/date_formatter.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/wallet_seed_view_model.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -288,7 +289,11 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
             textColor: theme.colorScheme.onPrimary,
             fontWeight: FontWeight.w500,
           ),
-          child: const KeychainWalletNotRestoredContent(),
+          child: KeychainWalletNotRestoredContent(
+            onViewRecoveryPhrase: item.seed == null
+                ? null
+                : () => _showRecoveryPhrase(dialogContext, item.seed!),
+          ),
         );
       },
     );
@@ -303,6 +308,11 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
     );
     bloc.add(const KeychainReloaded());
   }
+
+  void _showRecoveryPhrase(BuildContext context, String seed) => Navigator.of(context).pushNamed(
+        Routes.seed,
+        arguments: WalletSeedPageParams(isNewWalletCreated: false, seedOverride: seed),
+      );
 
   void _showUnrestoredInfo(BuildContext context) => showMaterialModalBottomSheet<void>(
         backgroundColor: Colors.transparent,
