@@ -185,7 +185,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     emoji: "🇹🇭",
   );
   static const twd =
-      FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Thaiwan Dollar", emoji: "🇹🇼");
+      FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Taiwan Dollar", emoji: "🇹🇼");
   static const uah =
       FiatCurrency(symbol: "UAH", countryCode: "ukr", fullName: "Ukrainian Hryvnia", emoji: "🇺🇦");
   static const usd = FiatCurrency(

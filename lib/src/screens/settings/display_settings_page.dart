@@ -67,8 +67,14 @@ class DisplaySettingsPage extends StatelessWidget {
                       onItemSelected: (ThemeMode themeMode) =>
                           _displaySettingsViewModel.setThemeMode(themeMode),
                       displayItem: (ThemeMode themeMode) {
-                        return themeMode.name[0].toUpperCase() +
-                            themeMode.name.substring(1).toLowerCase();
+                        switch (themeMode) {
+                          case ThemeMode.system:
+                            return S.of(context).use_device_theme;
+                          case ThemeMode.light:
+                            return S.of(context).light_theme;
+                          case ThemeMode.dark:
+                            return S.of(context).dark_theme;
+                        }
                       },
                     ),
                     useGenericColor: false,
