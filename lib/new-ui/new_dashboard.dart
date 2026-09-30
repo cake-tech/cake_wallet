@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import "package:cake_wallet/new-ui/page_open_listener.dart";
+import "package:cake_wallet/new-ui/page_open_listener.dart";
+import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -36,7 +38,7 @@ class NewDashboard extends StatefulWidget {
     getIt.get<WalletListPage>(),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
-    Placeholder(),
+    getIt.get<ChartsPage>()
   ];
 
   @override
@@ -69,6 +71,7 @@ class _NewDashboardState extends State<NewDashboard> {
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
         body: Material(
+          key: ValueKey("new_dashboard_page_key"),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [

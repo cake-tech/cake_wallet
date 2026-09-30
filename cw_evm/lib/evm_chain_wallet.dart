@@ -268,7 +268,13 @@ abstract class EVMChainWalletBase
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
-    return (await sharedPrefs.future).getBool(key) ?? true;
+
+    try {
+      return (await sharedPrefs.future).getBool(key) ?? true;
+    } catch (e) {
+      printV("Could not read the $key preference: $e");
+      return false;
+    }
   }
 
   EVMChainTransactionInfo getTransactionInfo(
@@ -1127,6 +1133,10 @@ abstract class EVMChainWalletBase
 
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return {};
+    }
+
     final List<EVMChainTransactionModel> transactions = [];
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -1560,8 +1570,6 @@ abstract class EVMChainWalletBase
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 

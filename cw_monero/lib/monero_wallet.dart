@@ -402,30 +402,20 @@ abstract class MoneroWalletBase
 
   MoneroTrezorService? trezorService;
 
-  Future<Trezor> _getTrezor() async {
-    if (trezorService == null) throw Exception("Trezor not connected");
-
-    final trezor = Trezor(trezorService!);
-    await trezor.newPassphraseSession(passphrase);
-    return trezor;
-  }
+  Trezor _getTrezor() => Trezor(trezorService ?? (throw Exception("Trezor not connected")));
 
   Future<void> syncTrezor() async {
     if (trezorService == null) throw Exception("Trezor not connected");
 
     final ptr = Pointer<Void>.fromAddress(currentWallet!.ffiAddress());
     final tdis = monero.Wallet_exportTrezorTdis(ptr);
-    final trezor = await _getTrezor();
-    final response = await trezor.keyImageSync(tdis);
+    final response = await _getTrezor().keyImageSync(tdis);
     final success = monero.Wallet_importTrezorEncryptedKeyImagesJson(ptr, response);
 
     if (!success) throw Exception(monero.Wallet_errorString(ptr));
   }
 
-  Future<String> signTrezorTransaction(String json) async {
-    final trezor = await _getTrezor();
-    return trezor.signTransaction(json);
-  }
+  Future<String> signTrezorTransaction(String json) => _getTrezor().signTransaction(json);
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
@@ -517,7 +507,10 @@ abstract class MoneroWalletBase
           paymentId: '');
     }
 
-    // final status = monero.PendingTransaction_status(pendingTransactionDescription);
+    if (pendingTransactionDescription.txCount != 1) {
+      throw MoneroTransactionCreationException(
+          "This payment would be split into ${pendingTransactionDescription.txCount} transactions. Send smaller transaction to yourself first.",);
+    }
 
     return PendingMoneroTransaction(pendingTransactionDescription, this);
   }
@@ -678,7 +671,14 @@ abstract class MoneroWalletBase
     await walletInfo.save();
   }
 
-  Future<void> updateUnspent() async {
+  Future<void>? _updateUnspentInFlight;
+
+  /// Concurrent callers share one run: two runs at once work on the same [unspentCoins] list, and
+  /// the clean up of the one then deletes the coin infos of the other.
+  Future<void> updateUnspent() => _updateUnspentInFlight ??=
+      _updateUnspent().whenComplete(() => _updateUnspentInFlight = null);
+
+  Future<void> _updateUnspent() async {
     try {
       await refreshCoins(walletAddresses.account!.id);
 
@@ -705,12 +705,21 @@ abstract class MoneroWalletBase
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
-            final tx = await transaction_history.getTransaction(unspent.hash);
-            unspent.isChange = tx.isSpend == true;
+            try {
+              final tx = await transaction_history.getTransaction(unspent.hash);
+              unspent.isChange = tx.isSpend == true;
+            } catch (e) {
+              // The transaction may not be in the (not yet refreshed) history, that must not
+              // keep the output, and all the ones after it, out of coin control.
+              printV("isChange lookup failed for ${unspent.hash}: $e");
+            }
           }
           unspentCoins.add(unspent);
         }
       }
+      this.unspentCoins
+        ..clear()
+        ..addAll(unspentCoins);
 
       await _askForUpdateBalance();
     } catch (e, s) {

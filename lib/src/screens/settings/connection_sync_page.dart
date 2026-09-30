@@ -89,7 +89,7 @@ class ConnectionSyncPage extends BasePage {
                         ListItemToggle(
                             keyValue: "can_use_basescan",
                             label: S.of(context).basescan_history,
-                            value: _connectionSyncViewModel.canUseBaseScan,
+                            value: _connectionSyncViewModel.useBaseScan,
                             onChanged: (val) {
                               _connectionSyncViewModel.setUseBaseScan(val);
                             }),
