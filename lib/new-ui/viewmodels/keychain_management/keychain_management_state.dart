@@ -1,5 +1,25 @@
 part of "keychain_management_bloc.dart";
 
+class KeychainManagementItem {
+  KeychainManagementItem(
+      {required this.name, required this.type, required this.dateSaved, required this.isRestored});
+
+  final String name;
+  final WalletType type;
+  final DateTime? dateSaved;
+  final bool isRestored;
+
+  bool get isBackedUp => dateSaved != null;
+
+
+  @override
+  bool operator ==(Object other) => other is KeychainManagementItem && other.name == name && other.type == type && other.dateSaved ==dateSaved && other.isRestored == isRestored;
+
+  @override
+  int get hashCode => name.hashCode ^ type.hashCode ^ dateSaved.hashCode ^ isRestored.hashCode;
+
+}
+
 @immutable
 sealed class KeychainManagementState {
   const KeychainManagementState();
@@ -15,37 +35,48 @@ final class KeychainManagementUnavailable extends KeychainManagementState {
 
 final class KeychainManagementLoaded extends KeychainManagementState {
   const KeychainManagementLoaded(
-      {required this.localWallets,
-        required this.keychainWallets,
-        required this.unsupportedKeychainItems});
+      {required List<WalletInfo> localWallets,
+      required List<KeychainDataV1> keychainWallets,
+      required this.unsupportedKeychainItems,})
+      : _localWallets = localWallets,
+        _keychainWallets = keychainWallets;
 
-  final List<WalletInfo> localWallets;
-  final List<KeychainDataV1> keychainWallets;
-  final List<UnsupportedKeychainData> unsupportedKeychainItems;
+  final List<WalletInfo> _localWallets;
+  final List<KeychainDataV1> _keychainWallets;
 
-  // localWallets that don't have the same names as an existing keychain entry
-  // in other words, ones that can be saved to the keychain
-  // note that you cannot create a wallet that has the same name as a keychain entry
-  List<WalletInfo> get savableWallets {
-    final unsavableNames = {
-      ...keychainWallets.map((item) => item.name),
-      ...unsupportedKeychainItems.map((item) => item.name),
-    };
+  List<KeychainManagementItem> get items {
+    final List<KeychainManagementItem> ret = [];
 
-    return localWallets
-        .where((item) => !unsavableNames.contains(item.name))
-        .toList();
+    for (final wallet in _keychainWallets) {
+      ret.add(KeychainManagementItem(
+          name: wallet.name,
+          type: deserializeFromInt(wallet.walletTypeRaw),
+          dateSaved: DateTime.fromMillisecondsSinceEpoch(wallet.creationTime),
+          isRestored: _localWallets.any((item) => item.name == wallet.name)));
+    }
+
+    for (final wallet in _localWallets) {
+      if (!_keychainWallets.any((item) => item.name == wallet.name)) {
+        ret.add(KeychainManagementItem(
+            name: wallet.name, type: wallet.type, dateSaved: null, isRestored: true));
+      }
+    }
+    ret.sort((a, b)=>a.name.compareTo(b.name));
+    return ret;
   }
+
+  bool get hasUnrestoredWallets => items.any((item)=>!item.isRestored);
+
+  final List<UnsupportedKeychainData> unsupportedKeychainItems;
 
   KeychainManagementLoaded copyWith({
     List<WalletInfo>? localWallets,
     List<KeychainDataV1>? keychainWallets,
     List<UnsupportedKeychainData>? unsupportedKeychainItems,
-  }) => KeychainManagementLoaded(
-      localWallets: localWallets ?? this.localWallets,
-      keychainWallets: keychainWallets ?? this.keychainWallets,
-      unsupportedKeychainItems:
-      unsupportedKeychainItems ?? this.unsupportedKeychainItems,
-    );
-
+  }) =>
+      KeychainManagementLoaded(
+        localWallets: localWallets ?? _localWallets,
+        keychainWallets: keychainWallets ?? _keychainWallets,
+        unsupportedKeychainItems: unsupportedKeychainItems ?? this.unsupportedKeychainItems,
+      );
 }

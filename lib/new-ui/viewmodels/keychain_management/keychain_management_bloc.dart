@@ -2,6 +2,7 @@ import "package:bloc/bloc.dart";
 import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_wallet_extension.dart";
 import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:cw_keychain/cw_keychain.dart";
 import "package:meta/meta.dart";
 
@@ -39,8 +40,8 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
 
   Future<void> _onItemSaved(ItemSaved event, Emitter<KeychainManagementState> emit) async {
     if (state case final KeychainManagementLoaded s) {
-      final wi = s.savableWallets[event.index];
-      final wallet = await _walletLoadingService.load(wi.type, wi.name);
+      final item = s.items[event.index];
+      final wallet = await _walletLoadingService.load(item.type, item.name);
       await _keychain.put(wallet.keychainData);
 
       emit(s.copyWith(keychainWallets: await _keychain.getAll()));
@@ -49,18 +50,22 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
 
   Future<void> _onItemUnsaved(ItemUnsaved event, Emitter<KeychainManagementState> emit) async {
     if (state case final KeychainManagementLoaded s) {
-      final item = s.keychainWallets[event.index];
-      final id = "${item.name}_${item.walletTypeRaw}";
+      final item = s.items[event.index];
+      final id = "${item.name}_${serializeToInt(item.type)}";
       await _keychain.delete(id);
       emit(s.copyWith(keychainWallets: await _keychain.getAll()));
     }
   }
 
   Future<void> _onKeychainCleared(
-      KeychainCleared event, Emitter<KeychainManagementState> emit,) async {
+    KeychainCleared event,
+    Emitter<KeychainManagementState> emit,
+  ) async {
     if (state case final KeychainManagementLoaded s) {
       final ids = [
-        ...s.keychainWallets.map((item) => "${item.name}_${item.walletTypeRaw}"),
+        ...s.items
+            .where((item) => item.isBackedUp)
+            .map((item) => "${item.name}_${serializeToInt(item.type)}"),
         ...s.unsupportedKeychainItems.map((item) => "${item.name}_${item.walletTypeRaw}"),
       ];
 
@@ -68,10 +73,12 @@ class KeychainManagementBloc extends Bloc<KeychainManagementEvent, KeychainManag
         await _keychain.delete(id);
       }
 
-      emit(s.copyWith(
-        keychainWallets: await _keychain.getAll(),
-        unsupportedKeychainItems: await _keychain.getUnsupported(),
-      ),);
+      emit(
+        s.copyWith(
+          keychainWallets: await _keychain.getAll(),
+          unsupportedKeychainItems: await _keychain.getUnsupported(),
+        ),
+      );
     }
   }
 }

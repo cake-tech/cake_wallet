@@ -63,7 +63,7 @@ class _RecoveryPageState extends State<RecoveryPage> {
                           subtitle: S.of(context).manual_backup_desc,
                           iconPath: "assets/new-ui/manual_backup.svg",
                           onTap: () =>
-                              Navigator.of(context).pushNamed(Routes.seed, arguments: true)),
+                              Navigator.of(context).pushNamed(Routes.showKeysDisclaimer, arguments: true)),
                       if (_keychainAvailable)
                         ListItemRegularRow(
                             keyValue: "cloud",

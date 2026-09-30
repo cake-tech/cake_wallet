@@ -27,6 +27,7 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
         super(const KeychainRestoreNotLoaded()) {
     on<Init>(_init);
     on<WalletToggled>(_onWalletToggled, transformer: sequential());
+    on<AllWalletsToggled>(_onAllWalletsToggled, transformer: sequential());
     on<RestoreInitiated>(_onRestoreInitiated, transformer: droppable());
     on<WalletOpenSelected>(_onWalletOpenSelected, transformer: droppable());
   }
@@ -69,6 +70,12 @@ class KeychainRestoreBloc extends Bloc<KeychainRestoreEvent, KeychainRestoreStat
         walletsSelected.add(item);
       }
       emit(s.copyWith(walletsSelected: walletsSelected));
+    }
+  }
+
+  Future<void> _onAllWalletsToggled(AllWalletsToggled event, Emitter<KeychainRestoreState> emit) async {
+    if (state case final KeychainRestoreSelection s) {
+      emit(s.copyWith(walletsSelected: event.value ? s.walletsAvailable.toSet() : {}));
     }
   }
 

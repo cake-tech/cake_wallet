@@ -15,6 +15,12 @@ final class WalletToggled extends KeychainRestoreEvent {
   final int index;
 }
 
+final class AllWalletsToggled extends KeychainRestoreEvent {
+  const AllWalletsToggled(this.value);
+
+  final bool value;
+}
+
 final class RestoreInitiated extends KeychainRestoreEvent {
   const RestoreInitiated();
 }

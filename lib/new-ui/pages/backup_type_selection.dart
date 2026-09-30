@@ -28,6 +28,8 @@ class BackupTypeSelectionPage extends StatefulWidget {
   final KeychainCreationBloc bloc;
 
   static final keychainLabel = Platform.isAndroid ? "Keystore" : "Keychain";
+
+  static final cloudServiceName = Platform.isAndroid ? "Google Drive" : "iCloud Keychain";
 }
 
 class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
@@ -128,25 +130,26 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                               sections: {
                                 "": [
                                   ListItemRegularRow(
-                                    keyValue: "keychain",
-                                    showArrow: false,
-                                    label: BackupTypeSelectionPage.keychainLabel,
-                                    onTap: () => widget.bloc
-                                        .add(const KeychainModeChanged(useKeychain: true)),
-                                    tickable: true,
-                                    ticked: useKeychain,
-                                    iconPath: "assets/new-ui/settings_row_icons/seed.svg",
-                                    subtitle: S.of(context).recommended,
-                                  ),
-                                  ListItemRegularRow(
                                     keyValue: "seed",
                                     showArrow: false,
-                                    label: S.of(context).seed_phrase,
+                                    label: S.of(context).manual_backup,
                                     onTap: () => widget.bloc
                                         .add(const KeychainModeChanged(useKeychain: false)),
                                     tickable: true,
                                     ticked: !useKeychain,
-                                    iconPath: "assets/new-ui/settings_row_icons/backup.svg",
+                                    subtitle: S.of(context).most_compatible,
+                                    iconPath: "assets/new-ui/manual_backup.svg",
+                                  ),
+                                  ListItemRegularRow(
+                                    keyValue: "keychain",
+                                    showArrow: false,
+                                    label: S.of(context).cloud_keys,
+                                    onTap: () => widget.bloc
+                                        .add(const KeychainModeChanged(useKeychain: true)),
+                                    tickable: true,
+                                    ticked: useKeychain,
+                                    iconPath: "assets/new-ui/cloud_keys.svg",
+                                    subtitle: S.of(context).keychain_backup_desc(BackupTypeSelectionPage.cloudServiceName),
                                   ),
                                 ],
                               },
@@ -160,11 +163,15 @@ class BackupTypeSelectionPageState extends State<BackupTypeSelectionPage> {
                       child: Column(
                         spacing: 16,
                         children: [
-                          Text(
-                            S.of(context).see_seed_phrase_in_settings,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              S.of(context).see_seed_phrase_in_settings,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ),
                           NewPrimaryButton(

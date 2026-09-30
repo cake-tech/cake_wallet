@@ -1,13 +1,16 @@
 import "package:bloc_presentation/bloc_presentation.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_restore/keychain_restore_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_restore/keychain_restore_presentation_event.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/select_deselect_all.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:cw_keychain/cw_keychain.dart";
@@ -90,58 +93,73 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                         spacing: 24,
                         children: [
                           const CakeImageWidget(
-                            imageUrl: "assets/new-ui/key_hero.svg",
-                            width: 175,
-                            height: 175,
+                            imageUrl: "assets/new-ui/cloud_keys.svg",
+                            width: 100,
+                            height: 100,
                           ),
                           Text(
                             getDescriptionText(state.runtimeType),
                             textAlign: TextAlign.center,
                           ),
+                            const SizedBox.shrink(),
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 32),
-                                child: SingleChildScrollView(
-                                  child: NewListSections(
-                                    sections: {
-                                      if (state is KeychainRestoreStateWithWallets)
-                                        "": state.walletsAvailable
-                                          .map((item) {
-                                            final iconPath = deserializeFromInt(item.walletTypeRaw).iconPath;
-
-                                            if (state is KeychainRestoreStateWithWalletProgress &&
-                                                !state.walletsSelected.contains(item)) {
-                                              return null;
-                                            }
-
-                                            return ListItemRegularRow(
-                                              keyValue: item.name,
-                                              iconPath: iconPath,
-                                              label: item.name,
-                                              showArrow: state is KeychainRestoreComplete,
-                                              trailingWidget:
-                                                  trailingWidgetForItem(context, item, state),
-                                              onTap: () => widget.bloc.add(
-                                                state is KeychainRestoreComplete
-                                                    ? WalletOpenSelected(
-                                                        state.walletsAvailable.indexOf(item))
-                                                    : WalletToggled(
-                                                        state.walletsAvailable.indexOf(item)),
-                                              ),
-                                            );
-                                          })
-                                          .whereType<ListItemRegularRow>()
-                                          .toList(),
-                                      if (state is KeychainRestoreStateWithUnsupportedWallets)
-                                        "unsupported": state.walletsUnsupported.map((item) {
-
-                                        final walletType = deserializeFromInt(item.walletTypeRaw);
-                                        final iconPath =
-                                            walletTypeToCryptoCurrency(walletType).iconPath;
-                                        return ListItemRegularRow(showArrow: false, keyValue: item.name, label: item.name, iconPath: iconPath, subtitle: S.of(context).unsupported_keychain_item);
-                                      }).toList()
-                                    },
-                                  ),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
+                                  spacing: 12,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      child: SelectDeselectAllBar(
+                                      title: S.of(context).detected_wallets,
+                                      onSelected: (val) => widget.bloc.add(AllWalletsToggled(val)),
+                                                                        ),
+                                    ),
+                                  Expanded(
+                                      child: SingleChildScrollView(
+                                        child: NewListSections(
+                                          sections: {
+                                            if (state is KeychainRestoreStateWithWallets)
+                                              "": state.walletsAvailable
+                                                .map((item) {
+                                                  final iconPath = deserializeFromInt(item.walletTypeRaw).iconPath;
+                                        
+                                                  if (state is KeychainRestoreStateWithWalletProgress &&
+                                                      !state.walletsSelected.contains(item)) {
+                                                    return null;
+                                                  }
+                                        
+                                                  return ListItemRegularRow(
+                                                    keyValue: item.name,
+                                                    iconPath: iconPath,
+                                                    label: item.name,
+                                                    showArrow: state is KeychainRestoreComplete,
+                                                    trailingWidget:
+                                                        trailingWidgetForItem(context, item, state),
+                                                    onTap: () => widget.bloc.add(
+                                                      state is KeychainRestoreComplete
+                                                          ? WalletOpenSelected(
+                                                              state.walletsAvailable.indexOf(item))
+                                                          : WalletToggled(
+                                                              state.walletsAvailable.indexOf(item)),
+                                                    ),
+                                                  );
+                                                })
+                                                .whereType<ListItemRegularRow>()
+                                                .toList(),
+                                            if (state is KeychainRestoreStateWithUnsupportedWallets)
+                                              "unsupported": state.walletsUnsupported.map((item) {
+                                        
+                                              final walletType = deserializeFromInt(item.walletTypeRaw);
+                                              final iconPath =
+                                                  walletTypeToCryptoCurrency(walletType).iconPath;
+                                              return ListItemRegularRow(showArrow: false, keyValue: item.name, label: item.name, iconPath: iconPath, subtitle: S.of(context).unsupported_keychain_item);
+                                            }).toList()
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -191,8 +209,8 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
     KeychainDataV1 item,
     KeychainRestoreState state,
   ) {
-    if (state is KeychainRestoreSelection && state.walletsSelected.contains(item)) {
-      return Icon(Icons.check, size: 16, color: Theme.of(context).colorScheme.primary);
+    if (state is KeychainRestoreSelection) {
+      return NewSimpleCheckbox(value: state.walletsSelected.contains(item), onChanged: (_){},);
     }
 
     if (state is KeychainRestoreStateWithWalletProgress) {
@@ -218,7 +236,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
 
   String getDescriptionText(Type stateType) => switch (stateType) {
         KeychainRestoreSelection =>
-          widget.isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
+          !widget.isInitial ? S.current.restore_existing_desc : S.current.restore_existing_desc_non_initial,
         KeychainRestoring => "${S.current.restoring_your_wallets}...",
         KeychainRestoreComplete => S.current.restore_complete_select_wallet,
         KeychainRestoreNoWallets => S.current.no_wallets_found_to_restore,
