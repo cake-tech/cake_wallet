@@ -1,13 +1,11 @@
 import "dart:io";
 
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
-import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import "package:cake_wallet/new-ui/viewmodels/keychain_management/keychain_management_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/keychain_management/keychain_management_steps.dart";
 import "package:cake_wallet/new-ui/widgets/modal_header.dart";
-import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
@@ -238,10 +236,7 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
   Future<void> _confirmSave(BuildContext context, int index) async {
     final confirmed = await showPopUp<bool>(
       context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-
-        return AlertWithTwoActions(
+      builder: (dialogContext) => AlertWithTwoActions(
           alertTitle: S.of(dialogContext).save_to_keychain_question,
           alertContent: S.of(dialogContext).keychain_save_wallet_desc,
           leftButtonText: S.of(dialogContext).cancel,
@@ -249,22 +244,21 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
           actionLeftButton: () => Navigator.of(dialogContext).pop(false),
           actionRightButton: () => Navigator.of(dialogContext).pop(true),
           leftAlertButtonStyle: AlertButtonStyle(
-            backgroundColor: theme.colorScheme.surfaceContainerHigh,
-            textColor: theme.colorScheme.onSurfaceVariant,
+            backgroundColor: Theme.of(dialogContext).colorScheme.surfaceContainerHigh,
+            textColor: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
           ),
           rightAlertButtonStyle: AlertButtonStyle(
-            backgroundColor: theme.colorScheme.primary,
-            textColor: theme.colorScheme.onPrimary,
+            backgroundColor: Theme.of(dialogContext).colorScheme.primary,
+            textColor: Theme.of(dialogContext).colorScheme.onPrimary,
             fontWeight: FontWeight.w500,
           ),
           child: KeychainManualBackupStep(
             iconSize: 36,
             faded: false,
             title: S.of(dialogContext).keychain_save_manual_backup_hint,
-            titleColor: theme.colorScheme.primary,
+            titleColor: Theme.of(dialogContext).colorScheme.primary,
           ),
-        );
-      },
+        ),
     );
 
     if (confirmed ?? false) {
@@ -275,27 +269,29 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
   Future<void> _showNotRestored(BuildContext context, KeychainManagementItem item) async {
     final confirmed = await showPopUp<bool>(
       context: context,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-
-        return AlertWithTwoActions(
+      builder: (dialogContext) => AlertWithTwoActions(
           alertTitle: S.of(dialogContext).wallet_not_restored,
           leftButtonText: S.of(dialogContext).cancel,
           rightButtonText: S.of(dialogContext).continue_text,
           actionLeftButton: () => Navigator.of(dialogContext).pop(false),
           actionRightButton: () => Navigator.of(dialogContext).pop(true),
           rightAlertButtonStyle: AlertButtonStyle(
-            backgroundColor: theme.colorScheme.primary,
-            textColor: theme.colorScheme.onPrimary,
+            backgroundColor: Theme.of(dialogContext).colorScheme.primary,
+            textColor: Theme.of(dialogContext).colorScheme.onPrimary,
             fontWeight: FontWeight.w500,
           ),
           child: KeychainWalletNotRestoredContent(
             onViewRecoveryPhrase: item.seed == null
                 ? null
-                : () => _showRecoveryPhrase(dialogContext, item.seed!),
+                : () {
+              Navigator.of(dialogContext).pop();
+                  Navigator.of(context).pushNamed(
+              Routes.seed,
+              arguments: WalletSeedPageParams(isNewWalletCreated: false, seedOverride: item.seed),
+            );
+                },
           ),
-        );
-      },
+        ),
     );
 
     if (!(confirmed ?? false) || !context.mounted) {
@@ -309,10 +305,6 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
     bloc.add(const KeychainReloaded());
   }
 
-  void _showRecoveryPhrase(BuildContext context, String seed) => Navigator.of(context).pushNamed(
-        Routes.seed,
-        arguments: WalletSeedPageParams(isNewWalletCreated: false, seedOverride: seed),
-      );
 
   void _showUnrestoredInfo(BuildContext context) => showMaterialModalBottomSheet<void>(
         backgroundColor: Colors.transparent,

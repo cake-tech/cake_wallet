@@ -109,45 +109,41 @@ class KeychainWalletNotRestoredContent extends StatelessWidget {
   final VoidCallback? onViewRecoveryPhrase;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      spacing: 24,
-      children: [
-        const KeychainNotRestoredIcon(),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: "${S.of(context).wallet_not_restored_on_device}\n\n",
-                style: TextStyle(color: context.currentTheme.customColors.warningOutlineColor),
-              ),
-              TextSpan(text: "${S.of(context).import_wallet_now_question}\n\n"),
-              TextSpan(
-                text: S.of(context).view_recovery_phrase_without_restoring,
-                style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ],
+  Widget build(BuildContext context) => Column(
+        spacing: 24,
+        children: [
+          const KeychainNotRestoredIcon(),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "${S.of(context).wallet_not_restored_on_device}\n\n",
+                  style: TextStyle(color: context.currentTheme.customColors.warningOutlineColor),
+                ),
+                TextSpan(text: "${S.of(context).import_wallet_now_question}\n\n"),
+                TextSpan(
+                  text: S.of(context).view_recovery_phrase_without_restoring,
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
           ),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14),
-        ),
-        NewListSections(
-          sections: {
-            "": [
-              ListItemRegularRow(
-                keyValue: "view recovery phrase",
-                label: S.of(context).view_wallet_recovery_phrase,
-                iconPath: "assets/new-ui/manual_backup.svg",
-                onTap: onViewRecoveryPhrase,
-              ),
-            ],
-          },
-        ),
-      ],
-    );
-  }
+          NewListSections(
+            sections: {
+              "": [
+                ListItemRegularRow(
+                  keyValue: "view recovery phrase",
+                  label: S.of(context).view_wallet_recovery_phrase,
+                  iconPath: "assets/new-ui/manual_backup.svg",
+                  onTap: onViewRecoveryPhrase,
+                ),
+              ],
+            },
+          ),
+        ],
+      );
 }
 
 class KeychainUnrestoredWalletsInfo extends StatelessWidget {

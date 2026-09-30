@@ -295,7 +295,8 @@ class _CloudKeysPage extends StatelessWidget {
                     width: 75,
                     height: 75,
                   ),
-                const CakeImageWidget(imageUrl: "assets/new-ui/key_blue.svg", width: 75, height: 75),
+                const CakeImageWidget(
+                    imageUrl: "assets/new-ui/key_blue.svg", width: 75, height: 75),
               ],
             ),
             _ExplainerText([
@@ -423,49 +424,45 @@ class _SummaryCard extends StatelessWidget {
   final String description;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        spacing: 24,
-        children: [
-          icon,
-          Column(
-            spacing: 12,
-            children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: "$title: "),
-                    TextSpan(text: badge, style: const TextStyle(color: badgeColor)),
-                  ],
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          spacing: 24,
+          children: [
+            icon,
+            Column(
+              spacing: 12,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: "$title: "),
+                      TextSpan(text: badge, style: const TextStyle(color: badgeColor)),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.onSurface,
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
-              ),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+              ],
+            ),
+          ],
+        ),
+      );
 }
