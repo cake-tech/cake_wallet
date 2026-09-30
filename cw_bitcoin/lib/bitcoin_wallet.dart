@@ -190,6 +190,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
+    bool? alwaysScan,
   }) async {
     late Uint8List seedBytes;
 
@@ -227,6 +228,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       networkParam: network,
       payjoinBox: payjoinBox,
       useLightning: true,
+      alwaysScan: alwaysScan,
     );
   }
 

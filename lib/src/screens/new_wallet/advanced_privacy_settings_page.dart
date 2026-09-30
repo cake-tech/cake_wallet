@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.da
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -32,6 +33,10 @@ class AdvancedPrivacySettingsPage extends BasePage {
     required this.toggleUseTestnet,
     required this.zcashNetwork,
     required this.setZcashNetwork,
+    required this.alwaysScanSilentPayments,
+    required this.toggleAlwaysScanSilentPayments,
+    required this.silentPaymentsScanHeight,
+    required this.setSilentPaymentsScanHeight,
     required this.advancedPrivacySettingsViewModel,
     required this.nodeViewModel,
     required this.seedSettingsViewModel,
@@ -50,6 +55,10 @@ class AdvancedPrivacySettingsPage extends BasePage {
   final Function(bool? val) toggleUseTestnet;
   final int zcashNetwork;
   final void Function(int network) setZcashNetwork;
+  final bool alwaysScanSilentPayments;
+  final Function(bool? val) toggleAlwaysScanSilentPayments;
+  final int silentPaymentsScanHeight;
+  final void Function(int height) setSilentPaymentsScanHeight;
 
   @override
   Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(
@@ -59,6 +68,10 @@ class AdvancedPrivacySettingsPage extends BasePage {
         toggleUseTestnet,
         zcashNetwork,
         setZcashNetwork,
+        alwaysScanSilentPayments,
+        toggleAlwaysScanSilentPayments,
+        silentPaymentsScanHeight,
+        setSilentPaymentsScanHeight,
         advancedPrivacySettingsViewModel,
         nodeViewModel,
         seedSettingsViewModel,
@@ -73,6 +86,10 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.toggleUseTestnet,
     this.zcashNetwork,
     this.setZcashNetwork,
+    this.alwaysScanSilentPayments,
+    this.toggleAlwaysScanSilentPayments,
+    this.silentPaymentsScanHeight,
+    this.setSilentPaymentsScanHeight,
     this.privacySettingsViewModel,
     this.nodeViewModel,
     this.seedTypeViewModel,
@@ -88,6 +105,10 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
   final Function(bool? val) toggleUseTestnet;
   final int zcashNetwork;
   final void Function(int network) setZcashNetwork;
+  final bool alwaysScanSilentPayments;
+  final Function(bool? val) toggleAlwaysScanSilentPayments;
+  final int silentPaymentsScanHeight;
+  final void Function(int height) setSilentPaymentsScanHeight;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -96,9 +117,11 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
   final TextEditingController confirmPassphraseController = TextEditingController();
+  final TextEditingController silentPaymentsHeightController = TextEditingController();
   final _formKey = GlobalKey<NodeFormState>();
   final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
+  bool? alwaysScanSilentPaymentsValue;
   int? zcashNetworkValue;
 
   bool obscurePassphrase = true;
@@ -107,6 +130,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   void initState() {
     passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
     confirmPassphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
+    if (widget.silentPaymentsScanHeight > 0) {
+      silentPaymentsHeightController.text = widget.silentPaymentsScanHeight.toString();
+    }
 
     if (widget.isChildWallet) {
       if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
@@ -124,6 +150,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   Widget build(BuildContext context) {
     if (testnetValue == null && widget.useTestnet) {
       testnetValue = widget.useTestnet;
+    }
+    if (alwaysScanSilentPaymentsValue == null && widget.alwaysScanSilentPayments) {
+      alwaysScanSilentPaymentsValue = widget.alwaysScanSilentPayments;
     }
     zcashNetworkValue ??= widget.zcashNetwork;
 
@@ -322,6 +351,34 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       });
                       widget.toggleUseTestnet.call(testnetValue);
                     });
+              }),
+            if (widget.isFromRestore && widget.privacySettingsViewModel.type == WalletType.bitcoin)
+              Builder(builder: (_) {
+                final val = alwaysScanSilentPaymentsValue ?? false;
+                return Column(
+                  children: [
+                    SettingsSwitcherCell(
+                        title: S.current.silent_payments_always_scan,
+                        value: val,
+                        onValueChange: (_, __) {
+                          setState(() {
+                            alwaysScanSilentPaymentsValue = !val;
+                          });
+                          widget.toggleAlwaysScanSilentPayments.call(alwaysScanSilentPaymentsValue);
+                        }),
+                    if (val)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24, right: 24),
+                        child: BlockchainHeightWidget(
+                          heightController: silentPaymentsHeightController,
+                          walletType: widget.privacySettingsViewModel.type,
+                          isSilentPaymentsScan: true,
+                          hasDatePicker: true,
+                          onHeightChange: widget.setSilentPaymentsScanHeight,
+                        ),
+                      ),
+                  ],
+                );
               }),
           ],
         ),
