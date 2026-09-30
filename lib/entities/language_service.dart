@@ -1,13 +1,18 @@
-import 'package:cake_wallet/generated/locales.dart';
-import 'package:devicelocale/devicelocale.dart';
+import "package:cake_wallet/generated/locales.dart";
+import "package:devicelocale/devicelocale.dart";
 import "package:flutter/widgets.dart";
-import 'package:intl/intl.dart';
+import "package:intl/intl.dart";
 
-// Flutter's Material delegates match on the language subtag, so "pt_BR" must be split into two
+// Flutter's Material delegates match on the language subtag, so codes like "pt_BR" must be
+// split into language + country. GlobalMaterialLocalizations rejects the underscored form as
+// an invalid ISO 639-1 code and crashes the app on locale switch. Empty parts (`pt_`, `_BR`)
+// also fail the same check, so both parts must be non-empty before we hand back a country.
 Locale localeFromLanguageCode(String code) {
   final parts = code.split("_");
-
-  return parts.length == 2 ? Locale(parts[0], parts[1]) : Locale(code);
+  if (parts.length == 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+    return Locale(parts[0], parts[1]);
+  }
+  return Locale(code);
 }
 
 class LanguageService {

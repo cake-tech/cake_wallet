@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/address_generation_wallet.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -13,6 +15,7 @@ import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pending_transaction.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -53,7 +56,8 @@ const MIN_RESTORE_HEIGHT = 1000;
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase
-    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo>
+    with Store, AddressGenerationWallet {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,
@@ -519,6 +523,39 @@ abstract class MoneroWalletBase
     }
 
     return 0;
+  }
+
+  @override
+  Future<String> generateNewAddress(
+    ReceivePageOption type, {
+    String label = "",
+    bool setAsActive = false,
+  }) async {
+    final subaddress = await walletAddresses.subaddressList.addSubaddress(
+      accountIndex: walletAddresses.account?.id ?? 0,
+      label: label,
+    );
+    walletAddresses.manualAddresses.add(subaddress.address);
+    if (setAsActive) {
+      walletAddresses.address = subaddress.address;
+    }
+    await save();
+    return subaddress.address;
+  }
+
+  @override
+  Future<void> setAddressLabel(AddressEntry entry, String label) async {
+    final index = entry.id;
+    if (index == null) {
+      throw Exception("monero subaddress ${entry.address} has no index");
+    }
+    final rawLabel = label.replaceFirst(RegExp("^#$index(?!\\d)\\s*"), "");
+    await walletAddresses.subaddressList.setLabelSubaddress(
+      accountIndex: walletAddresses.account?.id ?? 0,
+      addressIndex: index,
+      label: rawLabel,
+    );
+    await save();
   }
 
   @override

@@ -162,20 +162,14 @@ class LinkViewModel {
         }
       }
 
-      // Quick actions must reset navigation to Dashboard → TargetPage
-      if (isQuickActionLink) {
-        currentLink = null;
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          route,
-          ModalRoute.withName(Routes.dashboard),
-          arguments: args,
-        );
-        return;
-      }
-
-      // Normal navigation flow
+      // Links reset navigation to Dashboard -> TargetPage, AnyPay can switch wallets from Send
+      // and pages left under it would keep the old one
       currentLink = null;
-      navigatorKey.currentState?.pushNamed(route, arguments: args);
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        route,
+        ModalRoute.withName(Routes.dashboard),
+        arguments: args,
+      );
     }
   }
 }

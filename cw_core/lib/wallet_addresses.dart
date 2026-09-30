@@ -1,3 +1,5 @@
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -88,6 +90,28 @@ abstract class WalletAddresses {
       addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
 
   List<ReceivePageOption> get receivePageOptions => ReceivePageOptions;
+
+  ReceivePageOption get defaultAddressType => receivePageOptions.first;
+
+  String addressFor(ReceivePageOption type) => address;
+
+  List<AddressGroup> addressListFor(ReceivePageOption type) => const [];
+
+  bool autoGeneratesAddresses(ReceivePageOption type) => true;
+
+  bool get canHideAddresses => true;
+
+  String? get accountLabel => null;
+
+  PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) =>
+      getPaymentUri(amount);
+
+  Future<PaymentURI> paymentRequestUriFor(
+    ReceivePageOption type,
+    String amount, {
+    CryptoCurrency? token,
+  }) async =>
+      paymentUriFor(type, amount, token: token);
 
   /// Get a [PaymentURI] for the current [address]
   /// e.g. ethereum:0x0

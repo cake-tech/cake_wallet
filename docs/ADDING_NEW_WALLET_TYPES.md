@@ -708,7 +708,9 @@ case WalletType.walletx:
 
 ## Step 9: Receive Functionality
 
-**File**: `lib/view_model/wallet_address_list/wallet_address_list_view_model.dart`
+**Files**: `lib/core/address_service.dart` (fan-out in `computeAddressList`, plus per-chain
+URI arms in `buildPaymentUri`) and `cw_core/lib/wallet_addresses.dart`
+(`getPaymentUri` / `getPaymentRequestUri` on the wallet base).
 
 ### 9.1 Create PaymentUri Implementation
 
