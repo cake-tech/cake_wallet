@@ -197,7 +197,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   Widget build(BuildContext context) {
     final showResetButton = _isMultiAccountsEnabled && _items.length > 1;
     final showAccountsToggle = widget.dashboardViewModel.canToggleMultiAccounts;
-    final isToggleEnabled = widget.dashboardViewModel.multiAccountsToggleValue;
+    final isToggleEnabled = widget.dashboardViewModel.isMultiAccountsEnabled;
 
     if (_items.isEmpty && !showAccountsToggle) return const SizedBox.shrink();
 

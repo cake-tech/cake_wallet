@@ -159,7 +159,7 @@ abstract class BalanceViewModelBase with Store {
   bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
 
   @computed
-  bool get hasAccounts => hasAccountsWalletTypes.contains(wallet.type);
+  bool get hasAccounts => wallet.hasAccountsSupport;
 
   @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;

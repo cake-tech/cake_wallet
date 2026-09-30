@@ -110,8 +110,7 @@ abstract class DashboardViewModelBase with Store {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
-    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
-
+    isMultiAccountsEnabled = wallet.walletInfo.isMultiAccountsEnabled == true;
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
@@ -916,18 +915,11 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showSeedBackupReminder;
 
+  @computed
+  bool get canToggleMultiAccounts => wallet.canToggleMultiAccounts;
+
   @observable
-  late bool multiAccountsToggleValue;
-
-  @computed
-  bool get hasNativeAccounts => wallet.walletInfo.hasNativeAccounts;
-
-  @computed
-  bool get canToggleMultiAccounts => wallet.walletInfo.canToggleMultiAccounts;
-
-  @computed
-  bool get isMultiAccountsEnabled =>
-      hasNativeAccounts || (canToggleMultiAccounts && multiAccountsToggleValue);
+  late bool isMultiAccountsEnabled;
 
   @computed
   List<AccountListItem> get visibleAccounts {
@@ -950,7 +942,7 @@ abstract class DashboardViewModelBase with Store {
 
     wallet.walletInfo.isMultiAccountsEnabled = value;
     await wallet.walletInfo.save();
-    multiAccountsToggleValue = value;
+    isMultiAccountsEnabled = value;
     await accountListViewModel?.reload();
     await loadCardDesigns();
 
@@ -1389,7 +1381,7 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    multiAccountsToggleValue = wallet.walletInfo.isMultiAccountsEnabled == true;
+    isMultiAccountsEnabled = wallet.walletInfo.isMultiAccountsEnabled == true;
 
     _onAccountChangeReaction?.reaction.dispose();
     _onAccountChangeReaction = null;

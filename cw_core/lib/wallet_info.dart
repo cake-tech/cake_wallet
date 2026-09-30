@@ -252,10 +252,10 @@ class WalletInfoAccount {
   });
 
   factory WalletInfoAccount.fromJson(Map<String, dynamic> json) => WalletInfoAccount(
-    walletInfoId: json["walletInfoId"] as int,
-    accountIndex: json["accountIndex"] as int,
-    label: json["label"] as String,
-  );
+        walletInfoId: json["walletInfoId"] as int,
+        accountIndex: json["accountIndex"] as int,
+        label: json["label"] as String,
+      );
 
   int walletInfoId;
   int accountIndex;
@@ -274,34 +274,36 @@ class WalletInfoAccount {
     return List.generate(query.length, (index) => WalletInfoAccount.fromJson(query[index]));
   }
 
-  static Future<int> deleteByWalletInfoId(int walletInfoId) async => await db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
+  static Future<int> deleteByWalletInfoId(int walletInfoId) async =>
+      await db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
 
   static Future<int> insertOrUpdate({
     required int walletInfoId,
     required int accountIndex,
     required String label,
-  }) async => await db!.transaction((txn) async {
-      final updated = await txn.update(
-        tableName,
-        {"label": label},
-        where: "walletInfoId = ? AND accountIndex = ?",
-        whereArgs: [walletInfoId, accountIndex],
-      );
+  }) async =>
+      await db!.transaction((txn) async {
+        final updated = await txn.update(
+          tableName,
+          {"label": label},
+          where: "walletInfoId = ? AND accountIndex = ?",
+          whereArgs: [walletInfoId, accountIndex],
+        );
 
-      if (updated > 0) return updated;
+        if (updated > 0) return updated;
 
-      return await txn.insert(tableName, {
+        return await txn.insert(tableName, {
+          "walletInfoId": walletInfoId,
+          "accountIndex": accountIndex,
+          "label": label,
+        });
+      });
+
+  Map<String, dynamic> toJson() => {
         "walletInfoId": walletInfoId,
         "accountIndex": accountIndex,
         "label": label,
-      });
-    });
-
-  Map<String, dynamic> toJson() => {
-      "walletInfoId": walletInfoId,
-      "accountIndex": accountIndex,
-      "label": label,
-    };
+      };
 }
 
 class DerivationInfo {
@@ -414,55 +416,65 @@ class WalletInfo {
       this.showSeedBackupReminder)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
-  factory WalletInfo.external(
-      {required String id,
-      required String name,
-      required WalletType type,
-      required bool isRecovery,
-      required int restoreHeight,
-      required DateTime date,
-      required String dirPath,
-      required String path,
-      required String address,
-      bool? showIntroCakePayCard,
-      String yatEid = '',
-      String yatLastUsedAddressRaw = '',
-      int? derivationInfoId,
-      HardwareWalletType? hardwareWalletType,
-      String? parentAddress,
-      String? hashedWalletIdentifier,
-      bool? isNonSeedWallet,
-      int? sortOrder,
-      int currentAccountIndex = 0,
-      bool? receiveInfoboxDismissed,
-      bool? showCombinedBalance,
-      String? favoriteTokenAddress}) {
-    return WalletInfo(
-        0,
-        id,
-        name,
-        type,
-        isRecovery,
-        restoreHeight,
-        date.millisecondsSinceEpoch,
-        dirPath,
-        path,
-        address,
-        yatEid,
-        yatLastUsedAddressRaw,
-        showIntroCakePayCard,
-        derivationInfoId ?? -1,
-        hardwareWalletType,
-        parentAddress,
-        hashedWalletIdentifier,
-        isNonSeedWallet ?? false,
-        sortOrder ?? 0,
-        currentAccountIndex,
-        null,
-        receiveInfoboxDismissed ?? false,
-        showCombinedBalance ?? true,
-        favoriteTokenAddress,
-        false);
+  factory WalletInfo.external({
+    required String id,
+    required String name,
+    required WalletType type,
+    required bool isRecovery,
+    required int restoreHeight,
+    required DateTime date,
+    required String dirPath,
+    required String path,
+    required String address,
+    bool? showIntroCakePayCard,
+    String yatEid = "",
+    String yatLastUsedAddressRaw = "",
+    int? derivationInfoId,
+    HardwareWalletType? hardwareWalletType,
+    String? parentAddress,
+    String? hashedWalletIdentifier,
+    bool? isNonSeedWallet,
+    int? sortOrder,
+    int currentAccountIndex = 0,
+    bool? receiveInfoboxDismissed,
+    bool? showCombinedBalance,
+    String? favoriteTokenAddress,
+  }) {
+    final wi = WalletInfo(
+      0,
+      id,
+      name,
+      type,
+      isRecovery,
+      restoreHeight,
+      date.millisecondsSinceEpoch,
+      dirPath,
+      path,
+      address,
+      yatEid.isNotEmpty ? yatEid : null,
+      yatLastUsedAddressRaw.isNotEmpty ? yatLastUsedAddressRaw : null,
+      showIntroCakePayCard ?? false,
+      derivationInfoId ?? -1,
+      hardwareWalletType,
+      parentAddress,
+      hashedWalletIdentifier,
+      isNonSeedWallet ?? false,
+      sortOrder ?? 0,
+      currentAccountIndex,
+      null,
+      receiveInfoboxDismissed ?? false,
+      showCombinedBalance ?? true,
+      favoriteTokenAddress?.isNotEmpty == true ? favoriteTokenAddress : null,
+      false,
+    );
+
+    if (type == WalletType.bitcoin) {
+      wi.isMultiAccountsEnabled = false;
+    } else if (type == WalletType.monero || type == WalletType.wownero) {
+      wi.isMultiAccountsEnabled = true;
+    }
+
+    return wi;
   }
 
   static String get tableName => 'walletInfo';
@@ -608,8 +620,7 @@ class WalletInfo {
       );
     }
 
-    if (accounts.isNotEmpty &&
-        !accounts.any((a) => a.accountIndex == currentAccountIndex)) {
+    if (accounts.isNotEmpty && !accounts.any((a) => a.accountIndex == currentAccountIndex)) {
       currentAccountIndex = accounts.first.accountIndex;
       await save();
     }
@@ -641,16 +652,6 @@ class WalletInfo {
   String? network;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
-
-  bool get hasNativeAccounts =>
-      type == WalletType.monero || type == WalletType.wownero;
-
-  bool get canToggleMultiAccounts =>
-      type == WalletType.bitcoin && hardwareWalletType == null;
-
-  bool get multiAccountsActive =>
-      hasNativeAccounts ||
-      (canToggleMultiAccounts && isMultiAccountsEnabled == true);
 
   int derivationInfoId;
   DerivationInfo? _derivationInfo;

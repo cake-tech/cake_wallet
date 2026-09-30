@@ -558,7 +558,7 @@ abstract class ElectrumWalletBase
 
   bool get isInitialBitcoinAccountsSync =>
       hasAccountsSupport &&
-          walletInfo.multiAccountsActive &&
+          walletInfo.isMultiAccountsEnabled == true &&
           (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override

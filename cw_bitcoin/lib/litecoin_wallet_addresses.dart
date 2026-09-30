@@ -70,7 +70,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @override
   Future<void> init({List<int> accountIndexes = const []}) async {
     if (!isHardwareWallet) await initMwebAddresses();
-    await super.init();
+    await super.init(accountIndexes: accountIndexes);
   }
 
   @computed
