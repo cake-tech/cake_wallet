@@ -38,7 +38,7 @@ sealed class CardCustomizerState {
       design = baseDesign.withGradientAndColorCombination(gradient, textColors);
     }
 
-    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
+    if (design.backgroundType != CardDesignBackgroundTypes.gradientOnly &&
         availableIconPaths.isNotEmpty) {
       design = design.withIcon(availableIconPaths[selectedIconIndex]);
     }

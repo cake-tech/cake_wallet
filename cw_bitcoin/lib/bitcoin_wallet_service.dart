@@ -5,6 +5,7 @@ import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_bitcoin/lightning/spark_token.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
@@ -120,6 +121,7 @@ class BitcoinWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
+    await SparkToken.deleteAllForWallet(wallet);
 
     final unspentCoinsToDelete = unspentCoinsInfoSource.values
         .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)

@@ -111,6 +111,7 @@ class Routes {
   static const modify2FAPage = '/modify_2fa_page';
   static const setup2faInfoPage = '/setup_2fa_info_page';
   static const homeSettings = '/home_settings';
+  static const sparkSettingsPage = '/spark_settings_page';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';

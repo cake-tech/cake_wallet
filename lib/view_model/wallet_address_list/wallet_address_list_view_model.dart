@@ -21,6 +21,7 @@ import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/utils/list_item.dart";
 import "package:cake_wallet/utils/qr_util.dart";
+import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart";
@@ -91,12 +92,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
+      _refreshLnPaymentRequest();
       return;
     }
 
     tokenCurrency = curr as CryptoCurrency;
     if (selectedCurrency is CryptoCurrency) {
       selectedCurrency = curr;
+    }
+    _refreshLnPaymentRequest();
+  }
+
+  void _refreshLnPaymentRequest() {
+    if (isLightning || (bitcoin?.isSparkToken(tokenCurrency) ?? false)) {
+      wallet.walletAddresses
+          .getPaymentRequestUri(_amount, tokenCurrency: tokenCurrency)
+          .then((uri) => _lnPaymentRequest = uri);
     }
   }
 
@@ -489,7 +500,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  bool get hasTokensList => hasTokens(type);
+  bool get hasTokensList => hasTokens(type) || TokenUtilities.walletHasEnabledSparkTokens(wallet);
 
   @computed
   String get walletTypeName => walletTypeToString(type);
@@ -738,9 +749,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _amount = _appStore.amountParsingProxy
           .getCanonicalCryptoAmount(amount, selectedCurrency as CryptoCurrency);
     }
-    if (isLightning) {
-      wallet.walletAddresses.getPaymentRequestUri(_amount).then((uri) => _lnPaymentRequest = uri);
-    }
+    _refreshLnPaymentRequest();
   }
 
   @action

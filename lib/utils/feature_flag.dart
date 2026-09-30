@@ -19,4 +19,5 @@ class FeatureFlag {
   static const bool isAutomaticNodeSwitchingEnabled = false;
   static const bool hasNewUi = true;
   static const bool hasNewUiExtraPages = true;
+  static const bool isSparkTokensEnabled = true; // TODO(rafael): revert to false before commit
 }

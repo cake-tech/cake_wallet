@@ -3,8 +3,10 @@ import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
+import 'package:cw_bitcoin/lightning/spark_token.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -122,7 +124,18 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
   }
 
-  Future<PaymentURI> getPaymentRequestUri(String amount) async {
+  Future<PaymentURI> getPaymentRequestUri(String amount, {CryptoCurrency? tokenCurrency}) async {
+    if (tokenCurrency is SparkToken && lightningWallet != null) {
+      final amountBaseUnits =
+          amount.isNotEmpty ? tryParseFixed(amount, tokenCurrency.decimals) : null;
+
+      final sparkInvoice = await lightningWallet!.getSparkInvoice(
+        tokenIdentifier: tokenCurrency.tokenIdentifier,
+        amount: amountBaseUnits,
+      );
+      return SparkPaymentRequest(sparkInvoice: sparkInvoice, sparkInvoiceAmount: amount);
+    }
+
     if (addressPageType is LightningAddressType && lightningWallet != null) {
       final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;
       final lnUrl = getLnurlOfLightningAddress(address);

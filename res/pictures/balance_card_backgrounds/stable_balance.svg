@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 200" fill="none">
+  <!-- SKETCH PLACEHOLDER - swap for real design art (tracked on ticket 12) -->
+  <g transform="rotate(-12 255 70)">
+    <circle cx="255" cy="70" r="150" fill="white" fill-opacity="0.10"/>
+    <circle cx="255" cy="70" r="118" stroke="white" stroke-opacity="0.30" stroke-width="7"/>
+    <text x="255" y="100" font-size="90" font-weight="700" text-anchor="middle"
+          fill="white" fill-opacity="0.30" font-family="sans-serif">$</text>
+  </g>
+</svg>

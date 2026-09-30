@@ -85,7 +85,11 @@ class TransactionsPage extends StatelessWidget {
                             final item = items[index];
 
                             if (item is DateSectionItem) {
-                              return DateSectionRaw(date: item.date, key: item.key);
+                              return DateSectionRaw(
+                                date: item.date,
+                                text: item is PendingTransactionItem ? item.text : null,
+                                key: item.key,
+                              );
                             }
 
                             if (item is TransactionListItem) {

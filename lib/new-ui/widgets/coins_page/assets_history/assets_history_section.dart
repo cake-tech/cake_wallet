@@ -6,6 +6,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_top
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
+import "package:cake_wallet/utils/token_utilities.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +33,25 @@ class AssetsHistorySectionTab {
 }
 
 class AssetsHistorySection extends StatefulWidget {
-  AssetsHistorySection({super.key, required this.dashboardViewModel, required this.nftViewModel});
+  AssetsHistorySection({
+    super.key,
+    required this.dashboardViewModel,
+    required this.nftViewModel,
+    this.lightningMode = false,
+  });
 
   final DashboardViewModel dashboardViewModel;
   final NFTViewModel nftViewModel;
+  final bool lightningMode;
+
+  /// The Tokens tab (Spark tokens, e.g. USDB) only ever shows while the
+  /// dashboard's Bitcoin/Lightning view toggle is set to Lightning view —
+  /// never in Bitcoin view, even for the same underlying wallet.
+  static bool shouldShowSparkTokensTab({
+    required bool lightningMode,
+    required bool hasEnabledSparkTokens,
+  }) =>
+      lightningMode && hasEnabledSparkTokens;
 
   @override
   State<AssetsHistorySection> createState() => _AssetsHistorySectionState();
@@ -47,9 +63,17 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
 
   void reloadTabs() {
     final oldTabLength = tabs.length;
+    final hasSparkTokensInLightningView = AssetsHistorySection.shouldShowSparkTokensTab(
+      lightningMode: widget.lightningMode,
+      hasEnabledSparkTokens:
+          TokenUtilities.walletHasEnabledSparkTokens(widget.dashboardViewModel.wallet),
+    );
     final hasAssetsTab = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled ||
-        (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled);
-    final hasAssetsButton = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled;
+        (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled) ||
+        hasSparkTokensInLightningView;
+    final hasAssetsButton =
+        widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled ||
+            hasSparkTokensInLightningView;
     final hasNftTab = isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
         chainId: widget.dashboardViewModel.wallet.chainId);
     tabs = [
@@ -59,13 +83,15 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
             ),
-           hasAssetsButton ? AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
-
-              () {Navigator.of(context).pushNamed(
-                Routes.homeSettings,
-                arguments: widget.dashboardViewModel.balanceViewModel,
-              );
-            }): null),
+            hasAssetsButton
+                ? AssetsHistorySectionActionButton(
+                    S.current.tokens, "assets/new-ui/options_slider.svg", () {
+                    Navigator.of(context).pushNamed(
+                      Routes.homeSettings,
+                      arguments: widget.dashboardViewModel.balanceViewModel,
+                    );
+                  })
+                : null),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
@@ -98,6 +124,14 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       reloadTabs();
     });
     reaction((_) => widget.dashboardViewModel.mwebEnabled, (_) => reloadTabs());
+  }
+
+  @override
+  void didUpdateWidget(covariant AssetsHistorySection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.lightningMode != widget.lightningMode) {
+      reloadTabs();
+    }
   }
 
   @override

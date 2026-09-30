@@ -61,6 +61,7 @@ import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
+import 'package:cake_wallet/new-ui/pages/spark_deposit_to_stable.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
@@ -69,6 +70,8 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
+import 'package:cake_wallet/new-ui/viewmodels/spark_deposit_to_stable/spark_deposit_to_stable_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/spark_stable_balance_send/spark_stable_balance_send_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
@@ -95,6 +98,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/new-ui/pages/spark_settings.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
@@ -194,6 +198,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
+import 'package:cake_wallet/store/dashboard/pending_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -399,6 +404,8 @@ Future<void> setup({
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
   getIt
       .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
+  getIt.registerLazySingleton<PendingConversionStore>(
+      () => PendingConversionStore(getIt.get<SharedPreferences>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
@@ -588,6 +595,7 @@ Future<void> setup({
       yatStore: getIt.get<YatStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
+      pendingConversionStore: getIt.get<PendingConversionStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
@@ -613,6 +621,17 @@ Future<void> setup({
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
+
+  if (isBitcoinEnabled) {
+    getIt.registerFactory<SparkDepositToStableBloc>(() => SparkDepositToStableBloc(
+        getIt.get<AppStore>().wallet!,
+        getIt.get<FiatConversionStore>(),
+        getIt.get<SettingsStore>(),
+        getIt.get<PendingConversionStore>()));
+
+    getIt.registerFactory<SparkDepositToStablePage>(
+        () => SparkDepositToStablePage(bloc: getIt.get<SparkDepositToStableBloc>()));
+  }
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -932,6 +951,9 @@ Future<void> setup({
 
   getIt.registerFactoryParam<NewSendPage, SendPageParams?, void>((params, _) {
     params ??= SendPageParams();
+    final wallet = getIt.get<AppStore>().wallet!;
+    final hasStableBalanceSend =
+        isBitcoinEnabled && wallet.type == WalletType.bitcoin && wallet.hasLightningSupport;
     return NewSendPage(
       sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
       authService: getIt.get<AuthService>(),
@@ -940,8 +962,20 @@ Future<void> setup({
       anyPayService: getIt.get<AnyPayService>(),
       linkViewModel: getIt.get<LinkViewModel>(),
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
+      stableBalanceSendBloc: hasStableBalanceSend ? getIt.get<SparkStableBalanceSendBloc>() : null,
     );
   });
+
+  if (isBitcoinEnabled) {
+    getIt.registerFactory<SparkStableBalanceSendBloc>(() {
+      final wallet = getIt.get<AppStore>().wallet!;
+      return SparkStableBalanceSendBloc(
+        wallet: wallet,
+        quote: (address, amount, {sendAll = false}) =>
+            bitcoin!.quoteLightningSend(wallet, address, amount, sendAll: sendAll),
+      );
+    });
+  }
 
   getIt.registerFactory(
       () => SendTemplatePage(sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
@@ -1703,6 +1737,11 @@ Future<void> setup({
 
   getIt.registerFactoryParam<HomeSettingsViewModel, BalanceViewModel, void>(
       (balanceViewModel, _) => HomeSettingsViewModel(getIt.get<SettingsStore>(), balanceViewModel));
+
+  getIt.registerFactoryParam<SparkSettingsPage, BalanceViewModel, void>(
+    (balanceViewModel, _) =>
+        SparkSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)),
+  );
 
   getIt.registerFactoryParam<EditTokenPage, HomeSettingsViewModel, Map<String, dynamic>>(
     (homeSettingsViewModel, arguments) => EditTokenPage(

@@ -68,6 +68,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -83,10 +84,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
-    selectedCryptoCurrency =
-        coinTypeToSpendFrom == UnspentCoinType.lightning ? CryptoCurrency.btcln : wallet.currency;
-    hasMultipleTokens =
-        isEVMWallet || [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type);
+    selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
+        ? _lightningSendCurrency(wallet, balanceViewModel)
+        : wallet.currency;
+    hasMultipleTokens = isEVMWallet ||
+        [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type) ||
+        TokenUtilities.walletHasEnabledSparkTokens(wallet);
 
     for (final output in outputs) {
       output.updateWallet(wallet);
@@ -98,6 +101,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Update sending balance to reflect the new wallet's balance
     updateSendingBalance();
   }
+
+  /// The currency a Lightning-coin-type send defaults to: the active Stable Balance token while
+  /// it's on - with it on, the user never actually holds a spendable sats balance, only the
+  /// token it's immediately converted to - or [CryptoCurrency.btcln] otherwise. A static method
+  /// (rather than an instance one) so the constructor's initializer list can call it before the
+  /// object exists.
+  static CryptoCurrency _lightningSendCurrency(
+          WalletBase wallet, BalanceViewModel balanceViewModel) =>
+      balanceViewModel.stableBalanceActive
+          ? (TokenUtilities.stableBalanceTokenFor(wallet) ?? CryptoCurrency.btcln)
+          : CryptoCurrency.btcln;
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
 
@@ -116,10 +130,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   })  : state = InitialExecutionState(),
         currencies = _appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
-            ? CryptoCurrency.btcln
+            ? _lightningSendCurrency(_appStore.wallet!, balanceViewModel)
             : _appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
-            [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type),
+            [WalletType.solana, WalletType.tron, WalletType.zano]
+                .contains(_appStore.wallet!.type) ||
+            TokenUtilities.walletHasEnabledSparkTokens(_appStore.wallet!),
         selectedChainId = _appStore.wallet!.chainId,
         outputs = ObservableList<Output>(),
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
@@ -243,9 +259,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (pendingTransaction == null) return '0.00';
 
     try {
-      final selectedCurrency = selectedCryptoCurrency == CryptoCurrency.btcln
-          ? CryptoCurrency.btc
+      // A Stable Balance-funded Lightning send pays out sats even while the stablecoin is the
+      // selected currency, so it's priced at the Bitcoin rate, not the stablecoin's.
+      final pricedCurrency = bitcoin?.getLightningSendConversion(pendingTransaction!) != null
+          ? CryptoCurrency.btcln
           : selectedCryptoCurrency;
+      final selectedCurrency =
+          pricedCurrency == CryptoCurrency.btcln ? CryptoCurrency.btc : pricedCurrency;
       var currency = _fiatConversationStore.prices.keys
           .firstWhere((k) => k.titleAndTagEqual(selectedCurrency));
 
@@ -306,8 +326,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
+  /// The currency a fee/amount fold should be seeded with for the currently selected asset.
+  /// [CryptoCurrency.btcln] and a selected Spark token (e.g. USDB) both keep their own currency -
+  /// a Spark token payment's fee comes back from the SDK denominated in the token's own base
+  /// units, not sats (see `LightningWallet.createTransaction`'s `SendPaymentMethod_SparkAddress`/
+  /// `_SparkInvoice` handling) - anything else falls back to the wallet's native currency.
   CryptoCurrency get currency =>
-      selectedCryptoCurrency == CryptoCurrency.btcln ? CryptoCurrency.btcln : wallet.currency;
+      selectedCryptoCurrency == CryptoCurrency.btcln ||
+          (bitcoin?.isSparkToken(selectedCryptoCurrency) ?? false)
+          ? selectedCryptoCurrency
+          : wallet.currency;
 
   String get currencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
 
@@ -884,10 +912,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
             final fromCurrency = trade.from ?? CryptoCurrency.sol;
             final amount = Money.tryParse(
-              trade.amount.sanitized(),
-              fromCurrency,
-              strictParsing: false,
-            ) ?? Money.zero(fromCurrency);
+                  trade.amount.sanitized(),
+                  fromCurrency,
+                  strictParsing: false,
+                ) ??
+                Money.zero(fromCurrency);
 
             pendingTransaction = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -1292,6 +1321,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
           payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
+          currency: selectedCryptoCurrency,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(

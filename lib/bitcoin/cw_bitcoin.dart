@@ -149,27 +149,32 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    CryptoCurrency? currency,
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmountMoney,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  memo: out.memo.isNotEmpty ? out.memo : null,
-                  extra: out.extra,
-                ))
-            .toList(),
-        priority: priority as BitcoinTransactionPriority,
-        feeRate: bitcoinFeeRate,
-        coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+      outputs
+          .map(
+            (out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmountMoney,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              memo: out.memo.isNotEmpty ? out.memo : null,
+              extra: out.extra,
+            ),
+          )
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+      payjoinUri: payjoinUri,
+      currency: currency,
+    );
   }
 
   @override
@@ -888,6 +893,320 @@ class CWBitcoin extends Bitcoin {
     if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       return electrumWallet.lightningWallet!.getBolt11Invoice(amount, "Send to CakeWallet");
     }
+    return null;
+  }
+
+  @override
+  List<CryptoCurrency> getSparkTokenCurrencies(WalletBase wallet) =>
+      (wallet as BitcoinWallet).sparkTokenCurrencies;
+
+  @override
+  Future<void> addSparkToken(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as BitcoinWallet).addSparkToken(token as SparkToken);
+
+  @override
+  Future<void> deleteSparkToken(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as BitcoinWallet).deleteSparkToken(token as SparkToken);
+
+  @override
+  bool isSparkTokenAlreadyAdded(WalletBase wallet, String tokenIdentifier) =>
+      (wallet as BitcoinWallet)
+          .sparkTokenCurrencies
+          .any((t) => t.tokenIdentifier == tokenIdentifier);
+
+  @override
+  Future<CryptoCurrency?> getSparkToken(WalletBase wallet, String tokenIdentifier) async {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    if (!bitcoinWallet.hasLightningSupport) {
+      return null;
+    }
+
+    final metadata = await bitcoinWallet.lightningWallet!.getTokensMetadata([tokenIdentifier]);
+    if (metadata.isEmpty) {
+      return null;
+    }
+
+    final tokenMetadata = metadata.first;
+    return SparkToken(
+      name: tokenMetadata.name,
+      symbol: tokenMetadata.ticker,
+      tokenIdentifier: tokenMetadata.identifier,
+      decimal: tokenMetadata.decimals,
+    );
+  }
+
+  @override
+  Future<String?> getSparkInvoice(Object wallet, CryptoCurrency token, BigInt? amount) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      return electrumWallet.lightningWallet!.getSparkInvoice(
+        tokenIdentifier: token is SparkToken ? token.tokenIdentifier : null,
+        amount: amount,
+        description: "Send to CakeWallet",
+      );
+    }
+    return null;
+  }
+
+  @override
+  bool isSparkToken(CryptoCurrency? currency) => currency is SparkToken;
+
+  @override
+  String? getSparkTokenIdentifier(CryptoCurrency? currency) =>
+      currency is SparkToken ? currency.tokenIdentifier : null;
+
+  @override
+  bool isDefaultSparkStablecoin(CryptoCurrency? currency) =>
+      DefaultSparkTokens.isDefaultStablecoin(currency);
+
+  @override
+  CryptoCurrency createSparkToken({
+    required String name,
+    required String symbol,
+    required int decimals,
+    required String tokenIdentifier,
+    String? iconPath,
+    bool isPotentialScam = false,
+  }) =>
+      SparkToken(
+        name: name,
+        symbol: symbol,
+        decimal: decimals,
+        tokenIdentifier: tokenIdentifier,
+        iconPath: iconPath,
+        isPotentialScam: isPotentialScam,
+      );
+
+  @override
+  Future<String?> getActiveStableBalanceLabel(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      return electrumWallet.lightningWallet!.getActiveStableBalanceLabel();
+    }
+
+    return null;
+  }
+
+  @override
+  bool isStableBalanceActive(Object wallet) =>
+      wallet is BitcoinWallet ? wallet.lightningWallet?.stableBalanceActive.value ?? false : false;
+
+  @override
+  Future<LightningSendQuote> quoteLightningSend(
+    Object wallet,
+    String address,
+    Money amount, {
+    bool sendAll = false,
+  }) async {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    final token = amount.currency is SparkToken ? amount.currency as SparkToken : null;
+    final quote = await bitcoinWallet.lightningWallet!.quoteSend(
+      address,
+      amount.amount,
+      tokenIdentifier: token?.tokenIdentifier,
+      tokenCurrency: token,
+      sendAll: sendAll,
+      maxSlippageBps: bitcoinWallet.stableBalanceMaxSlippageBps,
+    );
+    return LightningSendQuote(
+      amount: quote.amount,
+      fee: quote.fee,
+      isOnChain: quote.isOnChain,
+      conversion: _sendConversionFrom(quote.conversion),
+    );
+  }
+
+  @override
+  StableBalanceSendConversion? getLightningSendConversion(PendingTransaction transaction) =>
+      transaction is PendingLightningTransaction
+          ? _sendConversionFrom(transaction.conversion)
+          : null;
+
+  StableBalanceSendConversion? _sendConversionFrom(cw_spark.StableBalanceSendConversion? c) =>
+      c == null
+          ? null
+          : StableBalanceSendConversion(
+              amountIn: c.amountIn,
+              amountOut: c.amountOut,
+              fee: c.fee,
+              amountAdjustment:
+                  ConversionAmountAdjustment.values.asNameMap()[c.amountAdjustment?.name],
+            );
+
+  SparkConversionLimits? _limitsFrom(cw_spark.SparkConversionLimits? l) => l == null
+      ? null
+      : SparkConversionLimits(minAmountIn: l.minAmountIn, minAmountOut: l.minAmountOut);
+
+  SparkConversionQuote? _quoteFrom(cw_spark.SparkConversionQuote? q) => q == null
+      ? null
+      : SparkConversionQuote(
+          amountIn: q.amountIn,
+          amountOut: q.amountOut,
+          fee: q.fee,
+          commit: q.commit,
+        );
+
+  @override
+  bool isOnChainLightningSend(PendingTransaction transaction) =>
+      transaction is PendingLightningTransaction && transaction.isOnChain;
+
+  @override
+  Future<void> setStableBalanceActive(Object wallet, String? label) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      await electrumWallet.lightningWallet!.setStableBalanceActive(label);
+    }
+  }
+
+  @override
+  BigInt? getStableBalanceThresholdSats(Object wallet) =>
+      wallet is BitcoinWallet ? wallet.stableBalanceThresholdSats : null;
+
+  @override
+  int? getStableBalanceMaxSlippageBps(Object wallet) =>
+      wallet is BitcoinWallet ? wallet.stableBalanceMaxSlippageBps : null;
+
+  @override
+  Future<void> saveStableBalanceSettings(
+    Object wallet, {
+    BigInt? thresholdSats,
+    int? maxSlippageBps,
+  }) async {
+    if (wallet is! BitcoinWallet) return;
+    wallet.stableBalanceThresholdSats = thresholdSats;
+    wallet.stableBalanceMaxSlippageBps = maxSlippageBps;
+    await wallet.save();
+  }
+
+  @override
+  Future<bool> reconnectStableBalanceSettings(
+    Object wallet, {
+    BigInt? thresholdSats,
+    int? maxSlippageBps,
+  }) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet) {
+      return electrumWallet.reconnectStableBalanceSettings(
+        thresholdSats: thresholdSats,
+        maxSlippageBps: maxSlippageBps,
+      );
+    }
+
+    return false;
+  }
+
+  @override
+  Future<bool> refundPendingConversions(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      final response = await electrumWallet.lightningWallet!.refundPendingConversions();
+      return response.refunded > 0;
+    }
+
+    return false;
+  }
+
+  @override
+  Future<SparkConversionLimits?> fetchStableConversionLimits(
+    Object wallet,
+    CryptoCurrency token,
+  ) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
+
+      if (tokenIdentifier == null) {
+        return null;
+      }
+
+      return _limitsFrom(await electrumWallet.lightningWallet!.fetchBitcoinToTokenConversionLimits(
+        tokenIdentifier: tokenIdentifier,
+        tokenCurrency: token,
+      ));
+    }
+
+    return null;
+  }
+
+  @override
+  Future<SparkConversionQuote?> prepareBitcoinToStableConversion(
+    Object wallet, {
+    required BigInt tokenAmount,
+    required CryptoCurrency token,
+    int? maxSlippageBps,
+  }) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
+
+      if (tokenIdentifier == null) {
+        return null;
+      }
+
+      return _quoteFrom(await electrumWallet.lightningWallet!.prepareBitcoinToTokenConversion(
+        tokenAmount: tokenAmount,
+        tokenIdentifier: tokenIdentifier,
+        tokenCurrency: token,
+        maxSlippageBps: maxSlippageBps,
+      ));
+    }
+
+    return null;
+  }
+
+  @override
+  Future<SparkConversionLimits?> fetchReverseStableConversionLimits(
+    Object wallet,
+    CryptoCurrency token,
+  ) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
+
+      if (tokenIdentifier == null) {
+        return null;
+      }
+
+      return _limitsFrom(await electrumWallet.lightningWallet!.fetchTokenToBitcoinConversionLimits(
+        tokenIdentifier: tokenIdentifier,
+        tokenCurrency: token,
+      ));
+    }
+
+    return null;
+  }
+
+  @override
+  Future<SparkConversionQuote?> prepareTokenToBitcoinConversion(
+    Object wallet, {
+    required BigInt satsAmount,
+    required CryptoCurrency token,
+    int? maxSlippageBps,
+  }) async {
+    final electrumWallet = wallet as ElectrumWallet;
+
+    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+      final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
+
+      if (tokenIdentifier == null) {
+        return null;
+      }
+
+      return _quoteFrom(await electrumWallet.lightningWallet!.prepareTokenToBitcoinConversion(
+        satsAmount: satsAmount,
+        tokenIdentifier: tokenIdentifier,
+        tokenCurrency: token,
+        maxSlippageBps: maxSlippageBps,
+      ));
+    }
+
     return null;
   }
 

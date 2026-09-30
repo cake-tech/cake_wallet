@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
@@ -16,6 +17,7 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/spark_stable_balance_send/spark_stable_balance_send_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
@@ -38,6 +40,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/spark_stable_balance_send_summary.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
@@ -65,6 +68,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
@@ -75,12 +79,14 @@ class SendPageHelpContent {
     required this.imagePath,
     required this.description,
     this.disclaimer,
+    this.imageWidget,
   });
 
   final String imagePath;
   final String title;
   final String description;
   final String? disclaimer;
+  final Widget? imageWidget;
 }
 
 class SendPageModes {
@@ -181,6 +187,7 @@ class NewSendPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
+    this.stableBalanceSendBloc,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
@@ -197,6 +204,9 @@ class NewSendPage extends StatefulWidget {
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+
+  /// Null for wallets without Stable Balance.
+  final SparkStableBalanceSendBloc? stableBalanceSendBloc;
   final PaymentRequest? initialPaymentRequest;
   final String? initialRawInput;
   final SendPageModes mode;
@@ -256,6 +266,39 @@ class _NewSendPageState extends State<NewSendPage> {
       }),
     );
 
+    _disposers.add(
+      reaction(
+        (_) {
+          if (!_showsStableBalanceSummary) {
+            return (address: "", amount: null, sendAll: false);
+          }
+
+          final output = widget.sendViewModel.outputs.first;
+
+          // "ALL" leaves the amount field showing the literal word, not a parseable number - ask
+          // the wallet for its current balance in the selected currency instead.
+          final amount = output.sendAll
+              ? widget.sendViewModel.wallet.balance[widget.sendViewModel.selectedCryptoCurrency]
+                  ?.available
+              : output.cryptoAmountMoney;
+
+          return (
+            address: output.isParsedAddress ? output.extractedAddress : output.address,
+            amount: amount,
+            sendAll: output.sendAll,
+          );
+        },
+        (details) => widget.stableBalanceSendBloc?.add(
+          SendDetailsChanged(
+            address: details.address,
+            amount: details.amount,
+            sendAll: details.sendAll,
+          ),
+        ),
+        fireImmediately: true,
+      ),
+    );
+
     if (widget.initialRawInput != null || widget.initialPaymentRequest != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) {
@@ -299,8 +342,43 @@ class _NewSendPageState extends State<NewSendPage> {
     });
   }
 
+  /// Paying from the Breez side (Lightning or Spark) while Stable Balance is on - either sats the
+  /// SDK may fund by converting from the stablecoin, or the stablecoin itself (the currency picker
+  /// no longer offers plain sats while it's on - see [_presentCurrencyPicker]) - worth spelling
+  /// out either way, since the amount field alone doesn't say which balance actually pays or what
+  /// the recipient gets.
+  bool get _showsStableBalanceSummary {
+    final stableToken = widget.stableBalanceSendBloc?.stableToken;
+
+    return widget.sendViewModel.balanceViewModel.stableBalanceActive &&
+        stableToken != null &&
+        widget.sendViewModel.outputs.length == 1 &&
+        (widget.sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln ||
+            widget.sendViewModel.selectedCryptoCurrency == stableToken);
+  }
+
+  /// Spark: Only a first guess for the summary's label - the SDK's own quote settles it.
+  static bool _looksLikeBitcoinAddress(String address) {
+    final value = address.trim();
+
+    return value.toLowerCase().startsWith("bitcoin:") ||
+        BitcoinAddressUtils.validateAddress(address: value, network: BitcoinNetwork.mainnet);
+  }
+
+  /// Spark: While the Stable Balance summary is showing, blocks Continue until a quote has actually
+  /// come back with something to send - otherwise tapping it would send a stale or wrong amount,
+  /// or fail outright on the error the summary itself already shows.
+  bool _stableBalanceSendBlocksContinue(SparkStableBalanceSendState? state) {
+    if (!_showsStableBalanceSummary) {
+      return false;
+    }
+
+    return state is! SparkStableBalanceSendQuoted || state.quote.amount.amount <= BigInt.zero;
+  }
+
   @override
   void dispose() {
+    widget.stableBalanceSendBloc?.close();
     _deepLinkSubscription?.cancel();
     for (final disposer in _disposers) {
       disposer();
@@ -346,6 +424,10 @@ class _NewSendPageState extends State<NewSendPage> {
   Widget build(BuildContext context) => Observer(
         builder: (_) {
           final output = widget.sendViewModel.outputs[_selectedOutput];
+          final stableToken =
+              _showsStableBalanceSummary ? widget.stableBalanceSendBloc?.stableToken : null;
+          final stableTokenBalance =
+              stableToken == null ? null : widget.stableBalanceSendBloc?.stableTokenBalance;
           final recipientChain = widget.sendViewModel.isEVMWallet
               ? evm!.getChainInfoByChainId(_currentEvmChainIdOrMainnet())
               : null;
@@ -574,6 +656,25 @@ class _NewSendPageState extends State<NewSendPage> {
                                               await output.calculateEstimatedFee();
                                             },
                                           ),
+                                          if (stableToken != null)
+                                            BlocBuilder<SparkStableBalanceSendBloc,
+                                                SparkStableBalanceSendState>(
+                                              bloc: widget.stableBalanceSendBloc,
+                                              builder: (context, state) => SparkStableBalanceSendSummary(
+                                                state: state,
+                                                token: stableToken,
+                                                tokenBalance: stableTokenBalance,
+                                                maxSlippageBps:
+                                                    widget.stableBalanceSendBloc!.maxSlippageBps,
+                                                formatAmount: widget.sendViewModel
+                                                    .amountParsingProxy.asDisplayStringWithSymbol,
+                                                recipientLooksOnChain: _looksLikeBitcoinAddress(
+                                                  output.isParsedAddress
+                                                      ? output.extractedAddress
+                                                      : output.address,
+                                                ),
+                                              ),
+                                            ),
                                         ],
                                       ),
                                       if (widget.sendViewModel.isMwebAvailable &&
@@ -656,64 +757,71 @@ class _NewSendPageState extends State<NewSendPage> {
                                         onSelected: _setOutput,
                                         selectedDot: _selectedOutput,
                                       ),
-                                    Observer(
-                                      builder: (_) => NewFuturePrimaryButton(
-                                        key: const ValueKey("send_page_send_button_key"),
-                                        onPressed: () async {
-                                          //Request dummy node to get the focus out of the text fields
-                                          FocusScope.of(context).requestFocus(FocusNode());
+                                    _StableBalanceSendStateBuilder(
+                                      bloc: widget.stableBalanceSendBloc,
+                                      builder: (context, stableBalanceSendState) => Observer(
+                                        builder: (_) => NewFuturePrimaryButton(
+                                          key: const ValueKey("send_page_send_button_key"),
+                                          onPressed: () async {
+                                            //Request dummy node to get the focus out of the text fields
+                                            FocusScope.of(context).requestFocus(FocusNode());
 
-                                          if (widget.sendViewModel.state is IsExecutingState) {
-                                            return;
-                                          }
+                                            if (widget.sendViewModel.state is IsExecutingState) {
+                                              return;
+                                            }
 
-                                          if (widget.mode == SendPageModes.normal) {
-                                            await _handleSend();
-                                          } else if (widget.mode ==
-                                                  SendPageModes.lightningDeposit ||
-                                              widget.mode == SendPageModes.mwebDeposit) {
-                                            await Navigator.of(context).push(
-                                              CupertinoPageRoute(
-                                                builder: (context) => Material(
-                                                  child: L2ActionWalletSelector(
-                                                    showOtherWallets: false,
-                                                    action: L2Actions.deposit,
-                                                    sendViewModel: widget.sendViewModel,
-                                                    contactListViewModel:
-                                                        widget.contactListViewModel,
-                                                    walletSwitcherViewModel:
-                                                        widget.walletSwitcherViewModel,
-                                                    onSendInitiated: _handleSend,
+                                            if (widget.mode == SendPageModes.normal) {
+                                              await _handleSend();
+                                            } else if (widget.mode ==
+                                                    SendPageModes.lightningDeposit ||
+                                                widget.mode == SendPageModes.mwebDeposit) {
+                                              await Navigator.of(context).push(
+                                                CupertinoPageRoute(
+                                                  builder: (context) => Material(
+                                                    child: L2ActionWalletSelector(
+                                                      showOtherWallets: false,
+                                                      action: L2Actions.deposit,
+                                                      sendViewModel: widget.sendViewModel,
+                                                      contactListViewModel:
+                                                          widget.contactListViewModel,
+                                                      walletSwitcherViewModel:
+                                                          widget.walletSwitcherViewModel,
+                                                      onSendInitiated: _handleSend,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          } else if (widget.mode ==
-                                                  SendPageModes.lightningWithdrawal ||
-                                              widget.mode == SendPageModes.mwebWithdrawal) {
-                                            await Navigator.of(context).push(
-                                              CupertinoPageRoute(
-                                                builder: (context) => Material(
-                                                  child: L2ActionWalletSelector(
-                                                    showOtherWallets: false,
-                                                    action: L2Actions.withdraw,
-                                                    sendViewModel: widget.sendViewModel,
-                                                    contactListViewModel:
-                                                        widget.contactListViewModel,
-                                                    walletSwitcherViewModel:
-                                                        widget.walletSwitcherViewModel,
-                                                    onSendInitiated: _handleSend,
+                                              );
+                                            } else if (widget.mode ==
+                                                    SendPageModes.lightningWithdrawal ||
+                                                widget.mode == SendPageModes.mwebWithdrawal) {
+                                              await Navigator.of(context).push(
+                                                CupertinoPageRoute(
+                                                  builder: (context) => Material(
+                                                    child: L2ActionWalletSelector(
+                                                      showOtherWallets: false,
+                                                      action: L2Actions.withdraw,
+                                                      sendViewModel: widget.sendViewModel,
+                                                      contactListViewModel:
+                                                          widget.contactListViewModel,
+                                                      walletSwitcherViewModel:
+                                                          widget.walletSwitcherViewModel,
+                                                      onSendInitiated: _handleSend,
+                                                    ),
                                                   ),
                                                 ),
+                                              );
+                                            }
+                                          },
+                                          text: S.of(context).continue_text,
+                                          color: Theme.of(context).colorScheme.primary,
+                                          textColor: Theme.of(context).colorScheme.onPrimary,
+                                          disabled: !widget.sendViewModel.isReadyForSend ||
+                                              widget.sendViewModel.state
+                                                  is ExecutedSuccessfullyState ||
+                                              _stableBalanceSendBlocksContinue(
+                                                stableBalanceSendState,
                                               ),
-                                            );
-                                          }
-                                        },
-                                        text: S.of(context).continue_text,
-                                        color: Theme.of(context).colorScheme.primary,
-                                        textColor: Theme.of(context).colorScheme.onPrimary,
-                                        disabled: !widget.sendViewModel.isReadyForSend ||
-                                            widget.sendViewModel.state is ExecutedSuccessfullyState,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(),
@@ -975,10 +1083,18 @@ class _NewSendPageState extends State<NewSendPage> {
         ),
     };
 
+    // With Stable Balance on, the user never actually holds a spendable Lightning/sats balance -
+    // it's immediately converted to the stablecoin - so it isn't offered as something to send.
+    final items = widget.sendViewModel.balanceViewModel.stableBalanceActive
+        ? widget.sendViewModel.currencies
+            .where((currency) => currency != CryptoCurrency.btcln)
+            .toList()
+        : widget.sendViewModel.currencies;
+
     CurrencyPickerSheet.show(
       context: context,
       args: CurrencyPickerArgs(
-        items: widget.sendViewModel.currencies,
+        items: items,
         selected: widget.sendViewModel.selectedCryptoCurrency,
         filterByNetwork: widget.sendViewModel.walletType,
         balanceByAsset: balanceByAsset,
@@ -1348,7 +1464,7 @@ class SendHelpPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CakeImageWidget(imageUrl: content.imagePath),
+                  content.imageWidget ?? CakeImageWidget(imageUrl: content.imagePath),
                   Text(
                     content.description,
                     textAlign: TextAlign.center,
@@ -1409,4 +1525,24 @@ Future<bool> showParsedAddressConfirmationAlert(
   );
 
   return confirmed ?? false;
+}
+
+/// Rebuilds with [bloc]'s state, or builds once with null when there's no Stable Balance bloc.
+class _StableBalanceSendStateBuilder extends StatelessWidget {
+  const _StableBalanceSendStateBuilder({required this.bloc, required this.builder});
+
+  final SparkStableBalanceSendBloc? bloc;
+  final Widget Function(BuildContext context, SparkStableBalanceSendState? state) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = this.bloc;
+    if (bloc == null) {
+      return builder(context, null);
+    }
+    return BlocBuilder<SparkStableBalanceSendBloc, SparkStableBalanceSendState>(
+      bloc: bloc,
+      builder: builder,
+    );
+  }
 }

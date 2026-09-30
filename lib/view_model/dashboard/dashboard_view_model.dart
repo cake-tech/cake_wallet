@@ -22,9 +22,12 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/pending_conversion_store.dart';
+import 'package:cake_wallet/view_model/dashboard/pending_conversion_list_item.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import 'package:cake_wallet/entities/conversion_twin_collapser.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
@@ -50,6 +53,7 @@ import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
+import 'package:cake_wallet/utils/stable_balance_card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
@@ -89,6 +93,7 @@ abstract class DashboardViewModelBase with Store {
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
+      required this.pendingConversionStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -196,6 +201,15 @@ abstract class DashboardViewModelBase with Store {
       );
     }
 
+    // Reconciles as soon as this wallet's transactions load, then again on every change (a
+    // fresh sync, a live SDK event, etc.) - see PendingConversionStore.reconcile's doc comment
+    // for why this only removes an entry once the real record's conversion status is terminal.
+    pendingConversionStore.reconcile(_wallet.id, transactions.map((t) => t.transaction));
+    reaction(
+      (_) => transactions.map((t) => t.transaction).toList(),
+      (List<TransactionInfo> txs) => pendingConversionStore.reconcile(_wallet.id, txs),
+    );
+
     // TODO: nano sub-account generation is disabled:
     // if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
     //   subname = nano!.getCurrentAccount(_wallet).label;
@@ -215,27 +229,8 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer =
+        reaction((_) => _transactionHistoryFingerprint(), _transactionDisposerCallback, delay: 300);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -246,6 +241,11 @@ abstract class DashboardViewModelBase with Store {
     }
 
     loadCardDesigns();
+
+    // The card's design depends on whether Stable Balance is active, which resolves
+    // asynchronously (a real SDK check) - reload once it's known, rather than leaving the card
+    // showing the wrong look until something else happens to call loadCardDesigns() again.
+    reaction((_) => balanceViewModel.stableBalanceActive, (_) => loadCardDesigns());
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -449,7 +449,10 @@ abstract class DashboardViewModelBase with Store {
       if (balanceViewModel.hasAccounts) {
         index = i;
       } else if (wallet.type == WalletType.bitcoin && i == 1) {
-        index = 0;
+        // A separate persisted style per Stable-Balance on/off state, so toggling it swaps to
+        // (and remembers) its own look instead of sharing one style - mirrors
+        // CardCustomizerBloc._accountIndexFor.
+        index = balanceViewModel.stableBalanceActive ? 1 : 0;
       } else {
         index = -1;
       }
@@ -463,7 +466,11 @@ abstract class DashboardViewModelBase with Store {
         curr = wallet.currency;
       }
 
-      cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
+      cardDesigns.add(StableBalanceCardDesign.fromStyleSettings(
+        setting,
+        curr,
+        stableBalanceActive: balanceViewModel.stableBalanceActive,
+      ));
       if (setting?.cardOrder != null) {
         newOrder[setting!.cardOrder] = i;
       }
@@ -484,6 +491,31 @@ abstract class DashboardViewModelBase with Store {
       }
     }
     cardOrder = newOrder.asObservable();
+  }
+
+  /// Changes whenever the history list needs rebuilding - including a row in the middle flipping
+  /// out of pending or changing conversion status, which neither the length nor the first/last
+  /// rows' confirmations would reveal.
+  int _transactionHistoryFingerprint() {
+    final txs = appStore.wallet!.transactionHistory.transactions.values;
+    final length = txs.length;
+    if (length == 0) {
+      return 0;
+    }
+    int confirmations = 1;
+    if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+      try {
+        confirmations = txs.first.confirmations + txs.last.confirmations + 1;
+      } catch (_) {}
+    }
+    var state = 0;
+    for (final tx in txs) {
+      final conversionStatus = tx.additionalInfo["conversionStatus"];
+      if (tx.isPending || conversionStatus != null) {
+        state = Object.hash(state, tx.id, tx.isPending, conversionStatus);
+      }
+    }
+    return Object.hash(length * confirmations, state);
   }
 
   void _transactionDisposerCallback(int _) async {
@@ -517,21 +549,15 @@ abstract class DashboardViewModelBase with Store {
       // TODO(malik) update this in a saner way during the vm refactor
       String _txIdentityString(String txHash, TransactionDirection direction) =>
           "${txHash}_$direction";
-      String _txIdentityStringConfirmations(
-              String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
-          "${txHash}_${direction}_${confirmations}_$isPending";
+      String _txIdentityStringConfirmations(TransactionInfo tx) =>
+          "${tx.txHash}_${tx.direction}_${tx.confirmations}_${tx.isPending}_"
+          "${tx.additionalInfo["conversionStatus"]}";
 
-      final existingKeys = transactions
-          .map((item) => _txIdentityStringConfirmations(
-              item.transaction.txHash,
-              item.transaction.direction,
-              item.transaction.confirmations,
-              item.transaction.isPending))
-          .toSet();
+      final existingKeys =
+          transactions.map((item) => _txIdentityStringConfirmations(item.transaction)).toSet();
 
       final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
-              tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
+          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(tx)))
           .map((tx) => TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
@@ -724,8 +750,18 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
+    // Presentation-only: collapses the twin send+receive records a self-paid conversion invoice
+    // creates (see ConversionTwinCollapser) before anything downstream (filtering, date
+    // sectioning, rounded-corner grouping) ever sees them, rather than filtering later once
+    // neighboring items' rounding/separators already depend on the fuller list.
+    final dropIds =
+        ConversionTwinCollapser.transactionIdsToDrop(transactions.map((t) => t.transaction));
+    final dedupedTransactions = dropIds.isEmpty
+        ? transactions
+        : transactions.where((t) => !dropIds.contains(t.transaction.id));
+
+    _items.addAll(transactionFilterStore
+        .filtered(transactions: [...dedupedTransactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orderFilterStore.filtered(orders: orders, wallet: wallet));
 
@@ -743,8 +779,19 @@ abstract class DashboardViewModelBase with Store {
           _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)));
     }
 
+    _items.addAll(pendingConversions);
+
     return formattedItemsList(_items);
   }
+
+  @computed
+  List<PendingConversionListItem> get pendingConversions =>
+      pendingConversionStore.forWallet(wallet.id).map((conversion) {
+        return PendingConversionListItem(
+          conversion: conversion,
+          key: ValueKey('pending_conversion_${conversion.paymentId}_key'),
+        );
+      }).toList();
 
   static const shortHistoryLength = 3;
 
@@ -1187,6 +1234,8 @@ abstract class DashboardViewModelBase with Store {
 
   PayjoinTransactionsStore payjoinTransactionsStore;
 
+  PendingConversionStore pendingConversionStore;
+
   // Map<String, List<FilterItem>> filterItems;
 
   List<FilterItem> filterItems;
@@ -1358,27 +1407,8 @@ abstract class DashboardViewModelBase with Store {
       _chainChangeDisposer = null;
     }
 
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer =
+        reaction((_) => _transactionHistoryFingerprint(), _transactionDisposerCallback, delay: 300);
   }
 
   @action

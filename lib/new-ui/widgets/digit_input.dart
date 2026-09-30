@@ -175,4 +175,6 @@ class _DigitInputState extends State<DigitInput> implements TextInputClient {
 
   @override
   void insertContent(KeyboardInsertedContent content) {}
+
+  bool onFocusReceived() => false;
 }

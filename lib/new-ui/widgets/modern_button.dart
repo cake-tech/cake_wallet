@@ -90,6 +90,9 @@ class ModernButton extends StatelessWidget {
               ExcludeSemantics(
                 child: Text(
                   label!,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

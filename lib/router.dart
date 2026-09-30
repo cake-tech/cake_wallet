@@ -17,6 +17,7 @@ import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
+import 'package:cake_wallet/new-ui/pages/spark_settings.dart';
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -951,6 +952,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<HomeSettingsPage>(param1: settings.arguments),
+      );
+
+    case Routes.sparkSettingsPage:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<SparkSettingsPage>(param1: settings.arguments),
       );
 
     case Routes.editToken:

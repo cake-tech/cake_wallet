@@ -14,25 +14,28 @@ class BalanceCardAction {
 }
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard(
-      {super.key,
-      required this.width,
-      required this.design,
-      this.gradient,
-      this.borderRadius = 20,
-      this.selected = false,
-      this.accountName = "",
-      this.accountBalance = "",
-      this.balance = "",
-      this.fiatBalance = "",
-      this.assetName = "",
-      this.fiatCurrencyTitle = "",
-      this.designSwitchDuration = const Duration(),
-      this.actions = const [],
-      this.capitalizeAssetName = true,
-      this.onCustomizeTapped,
-      this.accountIndex,
-      this.fiatFirst = false});
+  const BalanceCard({
+    super.key,
+    required this.width,
+    required this.design,
+    this.gradient,
+    this.borderRadius = 20,
+    this.selected = false,
+    this.accountName = "",
+    this.accountBalance = "",
+    this.balance = "",
+    this.fiatBalance = "",
+    this.assetName = "",
+    this.fiatCurrencyTitle = "",
+    this.designSwitchDuration = const Duration(),
+    this.actions = const [],
+    this.capitalizeAssetName = true,
+    this.onCustomizeTapped,
+    this.accountIndex,
+    this.fiatFirst = false,
+    this.badgeText,
+    this.topAction,
+  });
 
   final double width;
   final double borderRadius;
@@ -51,6 +54,18 @@ class BalanceCard extends StatelessWidget {
   final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
   final VoidCallback? onCustomizeTapped;
+
+  /// A small pill shown above the action row when set - e.g. "Auto-converts to USD on arrival"
+  /// while Stable Balance is active. Null (the default) shows nothing. Mutually exclusive with
+  /// [topAction] in practice (callers only ever set one at a time), but not enforced here.
+  final String? badgeText;
+
+  /// A tappable pill shown in the same slot as [badgeText], for when there's an action to offer
+  /// instead of just information - e.g. "Deposit to Stable" while Stable Balance is off. Takes
+  /// priority over [badgeText] when both are set. Rendered green (see
+  /// [getBalanceCardTopActionButton]) to stand out from the plain [badgeText] pill and from the
+  /// action-row buttons below, regardless of [design]'s own colors.
+  final BalanceCardAction? topAction;
 
   @override
   Widget build(BuildContext context) {
@@ -233,43 +248,73 @@ class BalanceCard extends StatelessWidget {
                   )
                 else
                   Container(),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    AnimatedSwitcher(
-                      duration: designSwitchDuration,
-                      switchInCurve: Curves.easeInOut,
-                      switchOutCurve: Curves.easeInOut,
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.centerLeft,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                      child: Row(
-                        key: ValueKey(actions.toString()),
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: actions.map(getBalanceCardActionButton).toList(),
-                      ),
-                    ),
-                    AnimatedSwitcher(
-                      duration: designSwitchDuration,
-                      switchInCurve: Curves.easeInOut,
-                      switchOutCurve: Curves.easeInOut,
-                      child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          // Purely decorative card artwork.
-                          ? ExcludeSemantics(
-                              child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
-                            )
-                          : const SizedBox.shrink(
-                              key: ValueKey('svgIconOff'),
+                    if (topAction != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: getBalanceCardTopActionButton(topAction!),
+                      )
+                    else if (badgeText != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: design.colors.textColor.withAlpha(40),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            badgeText!,
+                            style: TextStyle(
+                              color: design.colors.textColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
+                        ),
+                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        AnimatedSwitcher(
+                          duration: designSwitchDuration,
+                          switchInCurve: Curves.easeInOut,
+                          switchOutCurve: Curves.easeInOut,
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: Row(
+                            key: ValueKey(actions.toString()),
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: actions.map(getBalanceCardActionButton).toList(),
+                          ),
+                        ),
+                        AnimatedSwitcher(
+                          duration: designSwitchDuration,
+                          switchInCurve: Curves.easeInOut,
+                          switchOutCurve: Curves.easeInOut,
+                          child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
+                              // Purely decorative card artwork.
+                              ? ExcludeSemantics(
+                                  child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
+                                )
+                              : const SizedBox.shrink(
+                                  key: ValueKey('svgIconOff'),
+                                ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -311,6 +356,50 @@ class BalanceCard extends StatelessWidget {
             ),
           )
         ],
+      ),
+    );
+  }
+
+  /// Green, not [design]-tinted like [getBalanceCardActionButton] - this sits in the same slot
+  /// as the plain [badgeText] pill, so it needs its own strong color to read as "an offer to act
+  /// on" rather than just more card chrome. The background carries the opacity (readable against
+  /// every card gradient); the label/icon stay fully opaque so they never wash out.
+  Widget getBalanceCardTopActionButton(BalanceCardAction action) {
+    const green = Color(0xFF1B873F);
+    return Semantics(
+      button: true,
+      label: action.label,
+      onTap: action.onTap,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: action.onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: green.withAlpha(60),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 6,
+              children: [
+                Text(
+                  action.label,
+                  style: const TextStyle(color: green, fontSize: 11, fontWeight: FontWeight.w600),
+                ),
+                // A bare Icons.attach_money glyph reads as plain text, not a control - the
+                // filled circle behind it (matching the app's own USDB token icon styling)
+                // makes it legible as an icon at this small size.
+                Container(
+                  width: (action.iconSize ?? 16) + 6,
+                  height: (action.iconSize ?? 16) + 6,
+                  decoration: const BoxDecoration(color: green, shape: BoxShape.circle),
+                  child: Icon(action.icon, color: Colors.white, size: (action.iconSize ?? 16) - 3),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

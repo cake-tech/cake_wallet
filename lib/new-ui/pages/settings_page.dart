@@ -7,6 +7,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import "package:cw_core/wallet_type.dart";
@@ -30,6 +31,11 @@ bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
+
+bool _hasSparkStableBalance(DashboardViewModel vm) =>
+    FeatureFlag.isSparkTokensEnabled &&
+    vm.wallet.type == WalletType.bitcoin &&
+    vm.wallet.hasLightningSupport;
 
 class SettingsListItem {
   const SettingsListItem(
@@ -78,6 +84,13 @@ class SettingsSectionData {
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage,
         condition: _hasLightning),
+    SettingsListItem(
+      "assets/new-ui/settings_row_icons/lightning_username.svg",
+      S.current.spark_settings,
+      Routes.sparkSettingsPage,
+      condition: _hasSparkStableBalance,
+      routeArgsBuilder: (vm) => vm.balanceViewModel,
+    ),
     SettingsListItem("assets/new-ui/settings_row_icons/wc.svg", S.current.walletConnect,
         Routes.walletConnectConnectionsListing,
         condition: _hasWalletConnect),
