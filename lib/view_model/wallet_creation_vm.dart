@@ -128,7 +128,14 @@ abstract class WalletCreationVMBase with Store {
       );
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
-      final wallet = await process(credentials);
+
+      final WalletBase wallet;
+      try {
+        wallet = await process(credentials);
+      } catch (_) {
+        await WalletInfo.delete(credentials.walletInfo!);
+        rethrow;
+      }
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
