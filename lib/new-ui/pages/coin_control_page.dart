@@ -127,8 +127,7 @@ class NewCoinControlPage extends StatelessWidget {
                                 spacing: 20,
                                 children: [
                                   GestureDetector(
-                                    onTap: () => context
-                                        .read<CoinControlBloc>()
+                                    onTap: () => bloc
                                         .add(SelectAllChanged(value: true)),
                                     child: Text(S.of(context).select_all,
                                         style: TextStyle(
@@ -137,8 +136,7 @@ class NewCoinControlPage extends StatelessWidget {
                                             fontWeight: FontWeight.w400,),),
                                   ),
                                   GestureDetector(
-                                    onTap: () => context
-                                        .read<CoinControlBloc>()
+                                    onTap: () => bloc
                                         .add(SelectAllChanged(value: false)),
                                     child: Text(S.of(context).unselect_all,
                                         style: TextStyle(
