@@ -111,7 +111,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         setState(() {
           popped = true;
         });
-        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
+        Navigator.of(context).pop(_barcode!.rawValue);
       }
     }
   }

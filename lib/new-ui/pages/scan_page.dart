@@ -12,6 +12,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:ur/ur_decoder.dart';
@@ -296,26 +297,14 @@ class _ScanPageState extends State<ScanPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: 8,
                     children: [
-                      // "not mvp"
-                      // ScanPageButton(
-                      //     onTap: () async {
-                      //       FilePickerResult? res = await FilePicker.platform.pickFiles(
-                      //         type: FileType.image,
-                      //         allowMultiple: false,
-                      //         withData: false,
-                      //       );
-                      //
-                      //       if (res != null && res.paths.isNotEmpty && res.paths.first != null) {
-                      //         final capture = await controller.analyzeImage(res.paths.first!);
-                      //         if (capture != null) {
-                      //           _handleBarcode(capture);
-                      //         }
-                      //       }
-                      //     },
-                      //     icon: Icons.photo_outlined,
-                      //     label: S.of(context).gallery,
-                      //     buttonColor: buttonColor,
-                      //     buttonIconColor: buttonIconColor),
+                      if (widget.showManualInput)
+                        ScanPageButton(
+                            onTap: _scanFromGallery,
+                            icon: Icons.photo_outlined,
+                            semanticsLabel: S.of(context).gallery,
+                            buttonColor: buttonColor,
+                            buttonIconColor: buttonIconColor,
+                          ),
                       if (widget.showManualInput)
                         ScanPageButton(
                             onTap: () {
@@ -419,6 +408,45 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
+  Future<void> _scanFromGallery() async {
+    if (_textInputMode) {
+      return;
+    }
+    await controller.stop();
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (!mounted || image == null) {
+        return;
+      }
+      final capture = await controller.analyzeImage(image.path);
+      if (!mounted) {
+        return;
+      }
+      if (capture != null &&
+          capture.barcodes.any((barcode) => barcode.rawValue?.trim().isNotEmpty ?? false)) {
+        _handleBarcode(capture);
+        return;
+      }
+      await _showErrorNoCode();
+    } catch (e, st) {
+      printV('$e\n$st');
+      if (mounted) await _showErrorNoCode(e.toString());
+    } finally {
+      if (mounted && !popped) await controller.start();
+    }
+  }
+
+  Future<void> _showErrorNoCode([String? message]) => showPopUp<void>(
+        context: context,
+        useRootNavigator: false,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).error,
+          alertContent: message ?? S.of(context).no_qr_code_found,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
+      );
+
   void _handleBarcode(BarcodeCapture barcodes) {
     try {
       _handleBarcodeInternal(barcodes);
@@ -470,7 +498,7 @@ class _ScanPageState extends State<ScanPage> {
         setState(() {
           popped = true;
         });
-        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
+        Navigator.of(context).pop(_barcode!.rawValue);
       }
     }
   }

@@ -384,7 +384,7 @@ dependency_overrides:
   fast_scanner:
     git:
       url: https://github.com/MrCyjaneK/fast_scanner
-      ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
+      ref: d53afcca247ed4a700d90368fe71b3880c816990
   ffi:
     git:
       url: https://github.com/dart-lang/native

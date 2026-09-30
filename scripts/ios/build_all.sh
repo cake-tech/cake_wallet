@@ -8,6 +8,7 @@ fi
 DIR=$(dirname "$0")
 
 $DIR/build_torch.sh
+$DIR/build_scanqr.sh
 
 case $APP_IOS_TYPE in
 	"monero.com") $DIR/build_monero_all.sh ;;
