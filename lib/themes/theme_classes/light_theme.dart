@@ -41,7 +41,7 @@ class LightTheme extends MaterialThemeBase {
         onTertiaryContainer: const Color(0xFFC5D7E5),
         error: errorColor,
         onError: const Color(0xFFFFFFFF),
-        errorContainer: const Color(0x18F9434C),
+        errorContainer: const Color(0x2EF9434C),
         onErrorContainer: const Color(0xFFE43D3D),
         surface: surfaceColor,
         surfaceDim: const Color(0xFFE7E7FD),
