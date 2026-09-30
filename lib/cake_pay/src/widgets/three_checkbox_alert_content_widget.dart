@@ -172,7 +172,6 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
                 S.of(context).settings_terms_and_conditions,
                 style: TextStyle(
                   fontSize: 16,
-                  fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
                   color: Colors.blueAccent,
                   decoration: TextDecoration.none,
@@ -190,7 +189,6 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
                 style: TextStyle(
                   color: Colors.red,
                   fontSize: 14,
-                  fontFamily: 'Lato',
                   fontWeight: FontWeight.w400,
                   decoration: TextDecoration.none,
                 ),

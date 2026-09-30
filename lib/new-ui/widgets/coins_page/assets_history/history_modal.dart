@@ -18,6 +18,7 @@ class HistoryModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: const ValueKey("history_modal_key"),
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
@@ -53,23 +54,25 @@ class HistoryModal extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    height: MediaQuery.of(context).viewPadding.bottom + 168,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: <Color>[
-                          Theme.of(context).colorScheme.surface.withAlpha(200),
-                          Theme.of(context).colorScheme.surface.withAlpha(175),
-                          Theme.of(context).colorScheme.surface.withAlpha(150),
-                          Theme.of(context).colorScheme.surface.withAlpha(100),
-                          Theme.of(context).colorScheme.surface.withAlpha(50),
-                          Theme.of(context).colorScheme.surface.withAlpha(25),
-                          Theme.of(context).colorScheme.surface.withAlpha(5),
-                        ],
+                child: IgnorePointer(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      height: MediaQuery.of(context).viewPadding.bottom + 168,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: <Color>[
+                            Theme.of(context).colorScheme.surface.withAlpha(200),
+                            Theme.of(context).colorScheme.surface.withAlpha(175),
+                            Theme.of(context).colorScheme.surface.withAlpha(150),
+                            Theme.of(context).colorScheme.surface.withAlpha(100),
+                            Theme.of(context).colorScheme.surface.withAlpha(50),
+                            Theme.of(context).colorScheme.surface.withAlpha(25),
+                            Theme.of(context).colorScheme.surface.withAlpha(5),
+                          ],
+                        ),
                       ),
                     ),
                   ),

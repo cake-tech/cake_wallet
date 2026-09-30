@@ -310,4 +310,7 @@ class Money implements Comparable<Money> {
     }
     return currency.symbol;
   }
+
+  /// new [Money] with absolute value of this instance
+  Money abs() => copyWith(amount: amount.abs());
 }
