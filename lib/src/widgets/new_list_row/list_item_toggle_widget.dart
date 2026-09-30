@@ -53,6 +53,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                 child: Row(
                   spacing: 8,
                   children: [
+                    if(widget.iconPath != null && widget.iconPath!.isNotEmpty)
                     CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24,),
                     Flexible(
                       child: Column(

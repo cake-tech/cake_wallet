@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import "dart:typed_data";
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
@@ -7,6 +8,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/solana_rpc_http_service.dart';
+import "package:cw_core/utils/ipfs_url.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
@@ -108,6 +110,62 @@ class SolanaWalletClient {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<Set<String>> _mintsToWithholdFromTokenList(Set<String> mints) async {
+    const batchSize = 10;
+    final ordered = mints.toList();
+    final withheld = <String>{};
+
+    Future<bool> isUnconfirmedFungible(String mint) async {
+      try {
+        return await isSupplyOfOne(mint, throwOnError: true);
+      } catch (_) {
+        return true;
+      }
+    }
+
+    for (var i = 0; i < ordered.length; i += batchSize) {
+      final batch = ordered.skip(i).take(batchSize).toList();
+      final results = await Future.wait(batch.map(isUnconfirmedFungible));
+
+      for (var j = 0; j < batch.length; j++) {
+        if (results[j]) {
+          withheld.add(batch[j]);
+        }
+      }
+    }
+
+    return withheld;
+  }
+
+  Future<Set<String>> fetchHeldTokenMints(String walletAddress) async {
+    final owner = SolAddress(walletAddress);
+
+    final responses = await Future.wait([
+      _provider!.request(
+        SolanaRPCGetTokenAccountsByOwner(
+          account: owner,
+          programId: SPLTokenProgramConst.tokenProgramId,
+          commitment: Commitment.confirmed,
+          encoding: SolanaRPCEncoding.base64,
+        ),
+      ),
+      _provider!.request(
+        SolanaRPCGetTokenAccountsByOwner(
+          account: owner,
+          programId: SPLTokenProgramConst.token2022ProgramId,
+          commitment: Commitment.confirmed,
+          encoding: SolanaRPCEncoding.base64,
+        ),
+      ),
+    ]);
+
+    return {
+      for (final accounts in responses)
+        for (final account in accounts)
+          if (account.tokenAccount.amount > BigInt.zero) account.tokenAccount.mint.address,
+    };
   }
 
   Future<SolanaBalance?> getSplTokenBalance(SPLToken token, String walletAddress,
@@ -1162,6 +1220,43 @@ class SolanaWalletClient {
     }
   }
 
+  int _parseMoralisDecimals(Object? raw) {
+    if (raw == null) {
+      return 0;
+    }
+
+    if (raw is num) {
+      return raw.toInt();
+    }
+
+    final parsed = int.tryParse(raw.toString());
+
+    if (parsed == null) {
+      printV("Unexpected decimals value from Moralis: $raw");
+      return 0;
+    }
+
+    return parsed;
+  }
+
+  Future<bool> isSupplyOfOne(String mintAddress, {bool throwOnError = false}) async {
+    try {
+      final supply = await _provider!.request(
+        SolanaRPCGetTokenSupply(account: SolAddress(mintAddress)),
+      );
+
+      return supply.amount == "1" && supply.decimals == 0;
+    } catch (e) {
+      printV("Could not read supply for mint $mintAddress: ${e.toString()}");
+
+      if (throwOnError) {
+        rethrow;
+      }
+
+      return false;
+    }
+  }
+
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
     try {
       final uri = Uri.https(
@@ -1252,6 +1347,101 @@ class SolanaWalletClient {
     }
   }
 
+  // This is the exact size for an spl token, anything larger is Token-2022
+  // carrying extensions
+  static const _baseTokenAccountSize = 165;
+
+  static const _maxOffChainMetadataBytes = 256 * 1024;
+
+  Future<String?> _readOffChainMetadata(Uri uri) async {
+    final httpClient = ProxyWrapper().getHttpClient();
+
+    try {
+      final request = await httpClient.getUrl(uri);
+      request.maxRedirects = 3;
+
+      final response = await request.close().timeout(const Duration(seconds: 30));
+
+      if (response.redirects.any((redirect) => redirect.location.scheme != "https")) {
+        return null;
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return null;
+      }
+
+      if (response.contentLength > _maxOffChainMetadataBytes) {
+        return null;
+      }
+
+      final bytes = BytesBuilder(copy: false);
+
+      await for (final chunk in response) {
+        bytes.add(chunk);
+
+        if (bytes.length > _maxOffChainMetadataBytes) {
+          return null;
+        }
+      }
+
+      return utf8.decode(bytes.takeBytes(), allowMalformed: true);
+    } finally {
+      httpClient.close(force: true);
+    }
+  }
+
+  Future<NFTOnChainMetadata?> getNFTOnChainMetadata(String mintAddress) async {
+    try {
+      final programAddress =
+          MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
+
+      final token = await _provider!.request(
+        SolanaRPCGetMetadataAccount(
+          account: programAddress.address,
+          commitment: Commitment.confirmed,
+        ),
+      );
+
+      if (token == null) {
+        return null;
+      }
+
+      final metadata = token.data;
+
+      String stripNulls(String value) => value.replaceAll("\u0000", "").trim();
+      String? stringOrNull(Object? value) => value is String ? value : null;
+
+      final metadataUri = stripNulls(metadata.uri);
+      final metadataUrl = tryNormalizeIpfsUrl(metadataUri);
+      final offChainUri = metadataUrl == null ? null : Uri.tryParse(metadataUrl);
+
+      String? imageUrl;
+
+      if (offChainUri != null && offChainUri.scheme == "https") {
+        try {
+          final body = await _readOffChainMetadata(offChainUri);
+
+          if (body != null) {
+            imageUrl = stringOrNull((jsonDecode(body) as Map<String, dynamic>)["image"]);
+          }
+        } catch (e) {
+          printV("Off-chain NFT metadata fetch failed: ${e.toString()}");
+        }
+      }
+
+      return NFTOnChainMetadata(
+        mint: mintAddress,
+        name: stripNulls(metadata.name),
+        symbol: stripNulls(metadata.symbol),
+        metadataUri: metadataUri,
+        imageUrl: imageUrl,
+      );
+    } catch (e) {
+      printV("Error fetching on-chain NFT metadata: $e");
+      return null;
+    }
+  }
+
   void stop() => _isStopped = true;
 
   SolanaRPC? get getSolanaProvider => _provider;
@@ -1263,6 +1453,7 @@ class SolanaWalletClient {
     required bool isSendAll,
     required Money solBalance,
     String? tokenMint,
+    bool closeSenderAccountWhenEmptied = false,
     List<String> references = const [],
   }) async {
     const commitment = Commitment.confirmed;
@@ -1285,6 +1476,7 @@ class SolanaWalletClient {
         destinationAddress: destinationAddress,
         commitment: commitment,
         solBalance: solBalance,
+        closeSenderAccountWhenEmptied: closeSenderAccountWhenEmptied,
       );
     }
   }
@@ -1589,6 +1781,7 @@ class SolanaWalletClient {
     required SolanaPrivateKey ownerPrivateKey,
     required Commitment commitment,
     required Money solBalance,
+    bool closeSenderAccountWhenEmptied = false,
   }) async {
     final mintAddress = SolAddress(tokenMint);
     final tokenProgramId = await _getTokenProgramId(mintAddress);
@@ -1716,6 +1909,30 @@ class SolanaWalletClient {
       transferInstructions,
     ];
 
+    final senderAccountHasExtensions = senderAccountSpace != _baseTokenAccountSize;
+
+    if (closeSenderAccountWhenEmptied && !senderAccountHasExtensions) {
+      try {
+        final senderBalance = await _provider!.request(
+          SolanaRPCGetTokenAccountBalance(
+            account: associatedSenderAccount.address,
+            commitment: commitment,
+          ),
+        );
+
+        if (BigInt.tryParse(senderBalance.amount) == inputAmount.amount) {
+          instructions.add(SPLTokenProgram.closeAccount(
+            account: associatedSenderAccount.address,
+            destination: ownerPrivateKey.publicKey().toAddress(),
+            authority: ownerPrivateKey.publicKey().toAddress(),
+            programId: senderTokenProgramId,
+          ));
+        }
+      } catch (e) {
+        printV("Skipping rent reclaim, could not check sender balance: ${e.toString()}");
+      }
+    }
+
     final latestBlockHash = await _getLatestBlockhash(commitment);
 
     final transaction = SolanaTransaction(
@@ -1838,24 +2055,42 @@ class SolanaWalletClient {
       final decodedResponse = jsonDecode(response.body) as List;
 
       final List<MoralisSolanaTokenBalance> tokens = [];
+      final nftCandidates = <String>{};
 
       for (final item in decodedResponse) {
-        final tokenData = item as Map<String, dynamic>;
+        try {
+          final tokenData = item as Map<String, dynamic>;
 
-        final amountStr = tokenData['amount'] as String? ?? '0';
-        final amount = double.tryParse(amountStr) ?? 0.0;
+          final amountStr = tokenData["amount"] as String? ?? "0";
+          final amount = double.tryParse(amountStr) ?? 0.0;
 
-        if (amount <= 0) continue;
+          if (amount <= 0) continue;
 
-        final mint = tokenData['mint'] as String? ?? '';
-        if (mint.isEmpty) continue;
+          final mint = tokenData["mint"] as String? ?? "";
+          if (mint.isEmpty) continue;
 
-        tokens.add(
-          MoralisSolanaTokenBalance(
-            mint: mint,
-            amount: amount,
-          ),
-        );
+          final amountRaw = tokenData["amountRaw"]?.toString() ?? "0";
+
+          final decimals = _parseMoralisDecimals(tokenData["decimals"]);
+
+          if (decimals == 0 && amountRaw == "1") {
+            nftCandidates.add(mint);
+          }
+
+          tokens.add(
+            MoralisSolanaTokenBalance(
+              mint: mint,
+              amount: amount,
+            ),
+          );
+        } catch (e) {
+          printV("Skipping malformed Moralis token entry: ${e.toString()}");
+        }
+      }
+
+      if (nftCandidates.isNotEmpty) {
+        final withheld = await _mintsToWithholdFromTokenList(nftCandidates);
+        tokens.removeWhere((token) => withheld.contains(token.mint));
       }
 
       return tokens;
@@ -1906,6 +2141,22 @@ class SolanaWalletClient {
       return null;
     }
   }
+}
+
+class NFTOnChainMetadata {
+  const NFTOnChainMetadata({
+    required this.mint,
+    required this.name,
+    required this.symbol,
+    required this.metadataUri,
+    this.imageUrl,
+  });
+
+  final String mint;
+  final String name;
+  final String symbol;
+  final String metadataUri;
+  final String? imageUrl;
 }
 
 class MoralisSolanaTokenBalance {

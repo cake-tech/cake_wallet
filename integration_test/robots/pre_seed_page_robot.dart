@@ -1,21 +1,20 @@
-import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 
-import '../components/common_test_cases.dart';
+import "../core/base_robot.dart";
 
-class PreSeedPageRobot {
-  PreSeedPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+class PreSeedPageRobot extends BaseRobot {
+  PreSeedPageRobot(super.tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
-
-  Future<void> isPreSeedPage() async {
-    await commonTestCases.isSpecificPage<PreSeedPage>();
-    await commonTestCases.takeScreenshots('pre_seed_page');
+  @override
+  Future<void> isDisplayed() async {
+    await isSpecificPage<PreSeedPage>();
   }
 
+  // The button is only built once all three boxes are ticked
   Future<void> onConfirmButtonPressed() async {
-    await commonTestCases.tapItemByKey('pre_seed_page_button_key');
-    await commonTestCases.defaultSleepTime();
+    await tapByKey("pre_seed_page_only_way_checkbox_key");
+    await tapByKey("pre_seed_page_write_down_checkbox_key");
+    await tapByKey("pre_seed_page_never_share_checkbox_key");
+    await tapByKey("pre_seed_page_button_key");
   }
 }

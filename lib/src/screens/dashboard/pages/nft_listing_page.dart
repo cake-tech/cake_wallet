@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/solana_nft_tile_widget
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:mobx/mobx.dart";
 
 class NFTListingPage extends StatefulWidget {
   final NFTViewModel nftViewModel;
@@ -18,11 +19,24 @@ class NFTListingPage extends StatefulWidget {
 }
 
 class _NFTListingPageState extends State<NFTListingPage> {
+  late final ReactionDisposer _walletDisposer;
+
   @override
   void initState() {
     super.initState();
 
+    _walletDisposer = reaction(
+      (_) => widget.nftViewModel.appStore.wallet,
+      (_) => widget.nftViewModel.onWalletChanged(),
+    );
+
     fetchNFTsForWallet();
+  }
+
+  @override
+  void dispose() {
+    _walletDisposer();
+    super.dispose();
   }
 
   Future<void> fetchNFTsForWallet() async {
@@ -30,11 +44,9 @@ class _NFTListingPageState extends State<NFTListingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Observer(
-        builder: (context) {
-          return Column(
+  Widget build(BuildContext context) => SliverToBoxAdapter(
+        child: Observer(
+          builder: (context) => Column(
             children: [
               const SizedBox(height: 16),
               Padding(
@@ -50,6 +62,17 @@ class _NFTListingPageState extends State<NFTListingPage> {
                   ),
                 ),
               ),
+              if (widget.nftViewModel.unresolvedNFTCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                  child: Text(
+                    S.current.nft_some_not_loaded,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
               if (widget.nftViewModel.isLoading)
                 Center(
                   child: CircularProgressIndicator(
@@ -62,11 +85,9 @@ class _NFTListingPageState extends State<NFTListingPage> {
               else
                 NFTListWidget(nftViewModel: widget.nftViewModel)
             ],
-          );
-        },
-      ),
-    );
-  }
+          ),
+        ),
+      );
 }
 
 class NFTListWidget extends StatelessWidget {
@@ -103,7 +124,7 @@ class NFTListWidget extends StatelessWidget {
               itemCount: nftViewModel.solanaNftAssetModels.length,
               itemBuilder: (context, index) {
                 final nftAsset = nftViewModel.solanaNftAssetModels[index];
-                return SolanaNFTTileWidget(nftAsset: nftAsset);
+                return SolanaNFTTileWidget(nftAsset: nftAsset, nftViewModel: nftViewModel);
               },
             ),
           );

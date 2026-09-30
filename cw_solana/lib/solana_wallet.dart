@@ -323,6 +323,38 @@ abstract class SolanaWalletBase
     return matches.first;
   }
 
+  Future<Set<String>> heldTokenMints() => _client.fetchHeldTokenMints(walletAddresses.address);
+
+  Future<PendingTransaction> sendNFT({
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  }) async {
+    if (!await _client.isSupplyOfOne(mintAddress, throwOnError: true)) {
+      throw SolanaNotAnNFTException();
+    }
+
+    final nftCurrency = SPLToken(
+      name: name ?? "NFT",
+      symbol: "NFT",
+      mintAddress: mintAddress,
+      decimal: 0,
+      mint: mintAddress,
+    );
+
+    final solBalance = await _client.getBalance(walletAddresses.address, throwOnError: true);
+
+    return _client.signSolanaTransaction(
+      tokenMint: mintAddress,
+      inputAmount: Money(BigInt.one, nftCurrency),
+      ownerPrivateKey: _solanaPrivateKey,
+      destinationAddress: destinationAddress,
+      isSendAll: false,
+      solBalance: solBalance,
+      closeSenderAccountWhenEmptied: true,
+    );
+  }
+
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 

@@ -25,22 +25,26 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.foregroundColor,
       this.trailingIconSize,
       this.bottomWidget,
+      this.subtitleColor,
       this.trailingWidget,
       this.copyableText,
       this.leadingIconErrorWidget,
       this.leadingIconSize,
       this.badgeIconSize,
-      this.iconColor});
+      this.iconColor,
+      this.secondaryLabel});
 
   final String keyValue;
   final String label;
   final String? subtitle;
   final String? trailingText;
+  final String? secondaryLabel;
   final String? iconPath;
   final String? badgeIconPath;
   final VoidCallback? onTap;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final Color? subtitleColor;
   final bool showArrow;
   final String? trailingIconPath;
   final Widget? bottomWidget;
@@ -152,16 +156,28 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                           color: Theme.of(context).colorScheme.primary),
                                     )
                                   else
-                                    Text(label,
-                                        style: foregroundColor == null
-                                            ? textStyle
-                                            : textStyle.copyWith(color: foregroundColor)),
+                                    Row(
+                                      spacing: 4,
+                                      children: [
+                                        Text(label,
+                                            style: foregroundColor == null
+                                                ? textStyle
+                                                : textStyle.copyWith(color: foregroundColor)),
+                                        if (secondaryLabel != null)
+                                          Text(
+                                            secondaryLabel!,
+                                            style: textStyle.copyWith(
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant),
+                                          )
+                                      ],
+                                    ),
                                   if (subtitle != null)
                                     Padding(
                                       padding: const EdgeInsets.only(right: 8),
                                       child: Text(
                                         subtitle!,
-                                        style: labelStyle.copyWith(fontSize: 12),
+                                        style: labelStyle.copyWith(fontSize: 12, color: subtitleColor),
                                       ),
                                     ),
                                 ],
