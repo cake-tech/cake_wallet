@@ -54,6 +54,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
         } else {
           state = FailureState(e.toString() + "\n" + s.toString());
         }
+        return;
       }
 
       try {
@@ -61,6 +62,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       } catch (e, s) {
         state = FailureState('Failed app initialization, please try again');
         ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
+        return;
       }
 
       final store = getIt.get<AppStore>();
