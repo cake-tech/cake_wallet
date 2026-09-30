@@ -490,7 +490,6 @@ abstract class ZcashWalletBase
               srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
-              mode: 0,
             ),
             c: coin,
           );
@@ -1282,7 +1281,6 @@ abstract class ZcashWalletBase
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -1753,7 +1751,7 @@ abstract class ZcashWalletBase
         folder: '',
         useInternal: true,
         internal: false,
-        ledger: false,
+        hw: 0,
       ),
       c: c,
     );
@@ -1781,7 +1779,7 @@ abstract class ZcashWalletBase
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
     newC = await newC.setLwd(serverType: c.serverType, url: c.url);
-    newC = await newC.setUseTor(useTor: c.useTor);
+    newC = await newC.setTransport(transport: c.transport);
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");
