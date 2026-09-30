@@ -282,6 +282,7 @@ abstract class Bitcoin {
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
   Future<void> setMwebEnabled(Object wallet, bool enabled);
+  Future<void> setMwebNodeUri(Object wallet, String uri);
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
@@ -1802,6 +1803,7 @@ abstract class Zcash {
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   ReceivePageOption getSelectedAddressType(Object wallet);
+  ReceivePageOption getDefaultReceivePageOption();
   dynamic getZcashAddressType(ReceivePageOption option);
   bool hasSelectedTransparentAddress(Object wallet);
   bool isRotatingAddressOption(ReceivePageOption option);

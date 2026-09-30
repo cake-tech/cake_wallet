@@ -1426,6 +1426,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await startSync();
   }
 
+  Future<void> setMwebNodeUri(String uri) => CwMweb.setNodeUriOverride(uri);
+
   Future<StatusResponse> getStatusRequest() async {
     final resp = await CwMweb.status(StatusRequest());
     return resp;

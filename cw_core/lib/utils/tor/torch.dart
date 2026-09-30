@@ -26,7 +26,7 @@ class CakeTorTorch implements CakeTorInstance {
   bool get bootstrapped => isTorRunning;
 
   @override
-  bool get enabled => isTorRunning;
+  bool get enabled => started;
 
   @override
   int get port => 52142;

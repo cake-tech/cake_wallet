@@ -23,7 +23,26 @@ class RescanPage extends StatefulWidget {
 }
 
 class _RescanPageState extends State<RescanPage> {
-  final TextEditingController _heightController = TextEditingController();
+  late final TextEditingController _heightController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final initialRestoreHeight = widget._rescanViewModel.initialRestoreHeight;
+
+    _heightController = TextEditingController(
+      text: initialRestoreHeight?.toString() ?? "",
+    );
+
+    widget._rescanViewModel.isButtonEnabled = initialRestoreHeight != null;
+  }
+
+  @override
+  void dispose() {
+    _heightController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

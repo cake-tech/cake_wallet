@@ -147,7 +147,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final Bip32Slip10Secp256k1 legacyMainHd;
   final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;
-  final LightningWallet? lightningWallet;
+  LightningWallet? lightningWallet;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -936,18 +936,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> setLightningAddress(String walletName, {String newAddress = ""}) async {
+    final lightningWallet = this.lightningWallet;
     if (lightningWallet == null) return;
 
     try {
       final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
-      final initialized = await lightningWallet!.init(path);
+      final initialized = await lightningWallet.init(path);
 
       if (!initialized) {
         printV("Failed to initialize the lightning wallet");
         return;
       }
 
-      lightningAddress = await lightningWallet!.getAddress();
+      lightningAddress = await lightningWallet.getAddress();
 
       late final String username;
 
@@ -963,7 +964,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       try {
         printV(username);
-        lightningAddress = await lightningWallet!.registerAddress(username);
+        lightningAddress = await lightningWallet.registerAddress(username);
       } catch (e) {
         printV(e);
         printV(username);
@@ -973,7 +974,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     } on SdkError_SparkError catch (e) {
       if (!e.field0.contains("dns") && !e.field0.contains("TimedOut")) rethrow;
     } finally {
-      lightningAddress ??= lightningWallet!.cachedAddress;
+      lightningAddress ??= lightningWallet.cachedAddress;
     }
   }
 }
