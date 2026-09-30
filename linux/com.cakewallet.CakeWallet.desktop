@@ -6,4 +6,4 @@ Comment=A noncustodial multi-currency wallet
 Categories=Office;Finance;
 Terminal=false
 Icon=com.cakewallet.CakeWallet
-Exec=cake_wallet
+Exec=env NO_AT_BRIDGE=1 GTK_A11Y=none GTK_MODULES= cake_wallet
