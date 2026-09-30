@@ -250,6 +250,7 @@ class MoneroWalletService extends WalletService<
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
     }
+    final oldWalletId = currentWalletInfo.id;
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
       derivationInfo: await currentWalletInfo.getDerivationInfo(),
@@ -264,6 +265,10 @@ class MoneroWalletService extends WalletService<
     newWalletInfo.name = newName;
 
     await newWalletInfo.save();
+    await rekeyUnspentCoinsAfterRename(
+      oldWalletId: oldWalletId,
+      newWalletId: newWalletInfo.id,
+    );
   }
 
   @override

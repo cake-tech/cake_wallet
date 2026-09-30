@@ -7,9 +7,12 @@ import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:path/path.dart' as p;
 
 part 'wallet_list_view_model.g.dart';
 
@@ -239,6 +242,20 @@ abstract class WalletListViewModelBase with Store {
         await reorderAccordingToWalletList();
         break;
     }
+  }
+
+  Future<void> syncOpenedWalletAfterRename(WalletType type, String oldName, String newName) async {
+    final wallet = _appStore.wallet;
+    if (wallet == null || wallet.type != type || wallet.name != oldName) {
+      return;
+    }
+
+    final typeDir = await pathForWalletTypeDir(type: type);
+    wallet.walletInfo.name = newName;
+    wallet.walletInfo.id = WalletBase.idFor(newName, type);
+    wallet.walletInfo.dirPath = p.join(typeDir, newName);
+    wallet.walletInfo.path = await pathForWallet(name: newName, type: type);
+    await wallet.walletInfo.save();
   }
 
   WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {

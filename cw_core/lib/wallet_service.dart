@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_rename.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:path/path.dart' as p;
 
@@ -42,12 +43,29 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       throw Exception("Wallet not found");
     }
 
+    final oldWalletId = currentWalletInfo.id;
+    final newWalletId = WalletBase.idFor(newName, getType());
+
     await copyWalletFilesTo(fromName: currentName, toName: newName, type: getType());
     await saveBackup(newName);
 
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
+    final typeDir = await pathForWalletTypeDir(type: getType());
+    currentWalletInfo.id = newWalletId;
     currentWalletInfo.name = newName;
+    currentWalletInfo.dirPath = p.join(typeDir, newName);
+    currentWalletInfo.path = await pathForWallet(name: newName, type: getType());
     await currentWalletInfo.save();
+    await rekeyUnspentCoinsAfterRename(oldWalletId: oldWalletId, newWalletId: newWalletId);
+
+    final staleRows = await WalletInfo.selectList(
+      'name = ? AND type = ?',
+      [currentName, getType().index],
+    );
+    for (final stale in staleRows) {
+      if (stale.internalId != currentWalletInfo.internalId) {
+        await WalletInfo.delete(stale);
+      }
+    }
 
     await _renameTokenRows(currentName, newName);
 
@@ -60,6 +78,12 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       }
     }
   }
+
+  Future<void> rekeyUnspentCoinsAfterRename({
+    required String oldWalletId,
+    required String newWalletId,
+  }) =>
+      rekeyOpenUnspentCoins(oldWalletId: oldWalletId, newWalletId: newWalletId);
 
   Future<void> _renameTokenRows(String currentName, String newName) async {
     if (getType() == WalletType.solana) {
