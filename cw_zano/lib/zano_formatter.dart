@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class ZanoFormatter {
@@ -42,12 +41,7 @@ class ZanoFormatter {
       ..minimumFractionDigits = 1;
     return numberFormat
         .format(
-          DecimalIntl(
-            _bigIntDivision(
-              amount: amount,
-              divider: BigInt.from(pow(10, decimalPoint)),
-            ),
-          ),
+          DecimalIntl(_bigIntDivision(amount: amount, divider: BigInt.from(pow(10, decimalPoint)))),
         )
         .replaceAll(',', '');
   }
@@ -62,11 +56,7 @@ class ZanoFormatter {
     final resultBigInt =
         (Decimal.parse(amount) * Decimal.fromBigInt(BigInt.from(10).pow(decimalPoint))).toBigInt();
     if (!resultBigInt.isValidInt) {
-      try {
-        Fluttertoast.showToast(
-            msg:
-                'Cannot transfer $amount. Maximum is ${intAmountToString(resultBigInt.toInt(), decimalPoint)}.');
-      } catch (_) {}
+      throw ArgumentError('Cannot transfer $amount. The amount does not fit in an integer.');
     }
     return resultBigInt.toInt();
   }
