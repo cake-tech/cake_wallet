@@ -14,6 +14,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 
 enum BackupVersion {
   unknown, // index 0
@@ -382,16 +383,16 @@ class BackupServiceV3 extends $BackupService {
     final zipEncoder = ZipFileEncoder();
     final appDir = await getAppDir();
     final now = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
-    final archivePath = '${tmpDir.path}/backup_${now}.tmp.zip';
-    final archivePathExport = '${tmpDir.path}/backup_${now}.zip';
+    final tmpDir = Directory(p.join(appDir.path, '~_BACKUP_TMP'));
+    final archivePath = p.join(tmpDir.path, 'backup_$now.tmp.zip');
+    final archivePathExport = p.join(tmpDir.path, 'backup_$now.zip');
     final fileEntities = appDir.listSync(recursive: false);
     final keychainDump = await super.exportKeychainDumpV2(password);
     final preferencesDump = await super.exportPreferencesJSON();
-    final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
-    final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
+    final preferencesDumpFile = File(p.join(tmpDir.path, '~_preferences_dump_TMP'));
+    final keychainDumpFile = File(p.join(tmpDir.path, '~_keychain_dump_TMP'));
     final transactionDescriptionDumpFile =
-        File('${tmpDir.path}/~_transaction_descriptions_dump_TMP');
+        File(p.join(tmpDir.path, '~_transaction_descriptions_dump_TMP'));
 
     final transactionDescriptionData = super
         .transactionDescriptionBox
@@ -404,6 +405,7 @@ class BackupServiceV3 extends $BackupService {
     }
 
     tmpDir.createSync();
+    try {
     zipEncoder.create(archivePath);
     outer:
     for (var entity in fileEntities) {
@@ -434,7 +436,7 @@ class BackupServiceV3 extends $BackupService {
 
     final dataBinUnencrypted = File(archivePath);
 
-    final dataBin = File('${tmpDir.path}/data.bin');
+    final dataBin = File(p.join(tmpDir.path, 'data.bin'));
     dataBin.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
     final dataBinWriter = dataBin.openWrite();
 
@@ -490,15 +492,16 @@ class BackupServiceV3 extends $BackupService {
       printV("Writing completed in ${stopwatch.elapsed}");
     }
     await raf.close();
+    await dataBinWriter.close();
 
     // Give the file to the user
 
-    final metadataFile = File('${tmpDir.path}/metadata.json');
+    final metadataFile = File(p.join(tmpDir.path, 'metadata.json'));
     final packageInfo = await PackageInfo.fromPlatform();
     metadata.cakeVersion = packageInfo.version;
 
     metadataFile.writeAsStringSync(JsonEncoder.withIndent('    ').convert(metadata.toJson()));
-    final readmeFile = File('${tmpDir.path}/README.txt');
+    final readmeFile = File(p.join(tmpDir.path, 'README.txt'));
     readmeFile
         .writeAsStringSync('''This is a ${packageInfo.appName} backup. Do not modify this archive.
 
@@ -513,9 +516,21 @@ This backup was created on ${DateTime.now().toIso8601String()}
     await zip.addFile(metadataFile, 'metadata.json');
     await zip.addFile(readmeFile, 'README.txt');
     await zip.close();
-    // tmpDir.deleteSync(recursive: true);
-    final file = File(archivePathExport);
-    return file;
+    final exportFile = File(p.join(appDir.path, 'backup_$now.zip'));
+    if (exportFile.existsSync()) {
+      exportFile.deleteSync();
+    }
+    await File(archivePathExport).copy(exportFile.path);
+    return exportFile;
+    } finally {
+      if (tmpDir.existsSync()) {
+        try {
+          tmpDir.deleteSync(recursive: true);
+        } catch (e) {
+          printV('Failed to delete backup temp directory: $e');
+        }
+      }
+    }
   }
 
   Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {
