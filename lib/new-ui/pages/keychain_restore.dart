@@ -98,10 +98,19 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
                             width: 100,
                             height: 100,
                           ),
-                          Text(
-                            getDescriptionText(state.runtimeType),
-                            textAlign: TextAlign.center,
-                          ),
+                          Column(spacing:12, children:[
+                            Text(
+                              getDescriptionText(state.runtimeType),
+                              textAlign: TextAlign.center,
+                            ),
+                            if(state is KeychainRestoreSelection && !widget.isInitial)
+                              Text(
+                                S.of(context).select_what_you_want_to_restore,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                              ),
+                          ]),
+
                             const SizedBox.shrink(),
                             Expanded(
                               child: Padding(
