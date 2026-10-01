@@ -1604,18 +1604,14 @@ abstract class DashboardViewModelBase with Store {
   ];
 
   Future<bool> shouldShowRemovalPopup() async {
-    if(walletTypesToBeRemoved.contains(wallet.type)) {
-      // if user is actively using a wallet type that's about to be removed, keep nagging them
-      return true;
-    }
-
     final show = (await WalletInfo.getAll()).any((item) =>
         walletTypesToBeRemoved.contains(item.type) &&
-        !(sharedPreferences.getBool(PreferencesKey.deprecationPopupViewed(type)) ?? false),);
+        !(sharedPreferences.getBool(PreferencesKey.deprecationPopupViewed(item.type)) ?? false),);
     for (final type in walletTypesToBeRemoved) {
       await sharedPreferences.setBool(PreferencesKey.deprecationPopupViewed(type), true);
     }
-    return show;
+    // if user is actively using a wallet type that's about to be removed, keep nagging them
+    return show || walletTypesToBeRemoved.contains(wallet.type);
   }
 
   Future<List<WalletInfo>> get walletsToBeRemoved async => (await WalletInfo.getAll())
