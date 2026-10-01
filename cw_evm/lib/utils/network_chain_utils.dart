@@ -8,7 +8,6 @@ class ChainConfig {
   final String caip2; // e.g., "eip155:1"
   final CryptoCurrency nativeCurrency;
   final ChainCapabilities capabilities;
-  final List<String> defaultRpcEndpoints;
   final List<String> explorerUrls;
   final FeeModel feeModel;
 
@@ -19,7 +18,6 @@ class ChainConfig {
     required this.caip2,
     required this.nativeCurrency,
     required this.capabilities,
-    required this.defaultRpcEndpoints,
     required this.explorerUrls,
     required this.feeModel,
   });
@@ -46,6 +44,7 @@ class ChainCapabilities {
 enum FeeType {
   legacy,
   eip1559,
+  eip1559OrLegacy,
 }
 
 /// Fee model configuration for an EVM chain

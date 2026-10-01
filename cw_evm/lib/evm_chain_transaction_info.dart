@@ -1,6 +1,5 @@
 // ignore_for_file: overridden_fields, annotate_overrides
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -25,6 +24,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
     this.evmSignatureName,
     this.contractAddress,
     required this.chainId,
+    this.nonce,
   });
 
   final String id;
@@ -43,6 +43,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
   final String? evmSignatureName;
   final String? contractAddress;
   final int chainId;
+  final int? nonce;
 
   /// Get fee currency symbol based on wallet type
   String get feeCurrency => EVMChainUtils.getFeeCurrency(chainId);
@@ -59,8 +60,10 @@ class EVMChainTransactionInfo extends TransactionInfo {
     final currency =
         Erc20Token(name: '', symbol: tokenSymbol, contractAddress: '', decimal: decimals);
 
-    final feeCurrency =
-        EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency ?? CryptoCurrency.eth;
+    final feeCurrency = EvmChainRegistry().getChainConfig(chainId)?.nativeCurrency;
+    if (feeCurrency == null) {
+      throw Exception("No EVM network registered for chain ID $chainId");
+    }
 
     return EVMChainTransactionInfo(
       id: data['id'] as String,
@@ -78,8 +81,28 @@ class EVMChainTransactionInfo extends TransactionInfo {
       evmSignatureName: data['evmSignatureName'] as String?,
       contractAddress: data['contractAddress'] as String?,
       chainId: chainId,
+      nonce: data["nonce"] as int?,
     );
   }
+
+  EVMChainTransactionInfo confirmed({required int height}) => EVMChainTransactionInfo(
+        id: id,
+        height: height,
+        amount: amount,
+        fee: fee,
+        tokenSymbol: tokenSymbol,
+        exponent: exponent,
+        direction: direction,
+        isPending: false,
+        date: date,
+        confirmations: 1,
+        to: to,
+        from: from,
+        evmSignatureName: evmSignatureName,
+        contractAddress: contractAddress,
+        chainId: chainId,
+        nonce: nonce,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -97,5 +120,6 @@ class EVMChainTransactionInfo extends TransactionInfo {
         'evmSignatureName': evmSignatureName,
         'contractAddress': contractAddress,
         'chainId': chainId,
+        "nonce": nonce,
       };
 }

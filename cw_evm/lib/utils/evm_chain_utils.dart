@@ -1,15 +1,18 @@
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_evm/evm_chain_exceptions.dart";
+import "package:cw_evm/evm_chain_registry.dart";
 import "package:cw_evm/evm_chain_transaction_priority.dart";
 import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
-  static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) => switch (chainId) {
+  static int? getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) => switch (chainId) {
       1 => _ethereumPriorityFee(priority),
       137 => _polygonPriorityFee(priority),
       8453 => _basePriorityFee(priority),
       56 => _ethereumPriorityFee(priority),
       42161 => 0, // Arbitrum doesn't use priority fees
-      _ => _ethereumPriorityFee(priority),
+      _ => null,
     };
 
   static bool hasPriorityFee(int chainId) => switch (chainId) {
@@ -23,15 +26,26 @@ class EVMChainUtils {
     required int priorityFeeWei,
     required bool chainHasPriorityFee,
   }) {
+    final priorityFee = BigInt.from(priorityFeeWei);
     if (gasBaseFee != null && gasBaseFee > 0) {
-      final baseFeeWithPriority = gasBaseFee + priorityFeeWei;
-      final bufferMultiplier = chainHasPriorityFee ? 115 : 105;
-      final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
-      final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
-      return bufferPercent > bufferMin ? bufferPercent : bufferMin;
+      final baseFeeWithPriority = BigInt.from(gasBaseFee) + priorityFee;
+      final bufferMultiplier = BigInt.from(chainHasPriorityFee ? 115 : 105);
+      final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ BigInt.from(100);
+      final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ BigInt.from(100));
+      return weiAsInt(bufferPercent > bufferMin ? bufferPercent : bufferMin);
     }
-    return gasPrice + priorityFeeWei;
+    return weiAsInt(BigInt.from(gasPrice) + priorityFee);
   }
+
+  static int weiAsInt(BigInt wei) {
+    if (wei.isNegative || !wei.isValidInt) {
+      throw EVMChainTransactionFeesException("Fee out of range: $wei wei");
+    }
+
+    return wei.toInt();
+  }
+
+  static String hexChainId(int chainId) => "0x${chainId.toRadixString(16)}";
 
   static String getTransactionHistoryFileName(int chainId) => switch (chainId) {
       1 => "transactions.json", // Ethereum
@@ -49,7 +63,7 @@ class EVMChainUtils {
       8453 => "use_base_scan",
       42161 => "use_arbitrum_scan",
       56 => "use_bscscan",
-      _ => "use_etherscan",
+      _ => "use_evm_scan_$chainId",
     };
 
   static String getDefaultTokenTag(int chainId) => switch (chainId) {
@@ -58,7 +72,7 @@ class EVMChainUtils {
       8453 => "BASE",
       42161 => "ARB",
       56 => "BSC",
-      _ => "ETH",
+      _ => _getNativeCurrency(chainId).tag ?? _getNativeCurrency(chainId).title,
     };
 
   static String getFeeCurrency(int chainId) => switch (chainId) {
@@ -67,7 +81,7 @@ class EVMChainUtils {
       8453 => "ETH",
       42161 => "ETH",
       56 => "BNB",
-      _ => "ETH",
+      _ => _getNativeCurrency(chainId).title,
     };
 
   static String getDefaultTokenSymbol(int chainId) => switch (chainId) {
@@ -76,8 +90,17 @@ class EVMChainUtils {
       8453 => "BASE",
       42161 => "ARBITRUM",
       56 => "BSC",
-      _ => "ETH",
+      _ => _getNativeCurrency(chainId).title,
     };
+
+  static CryptoCurrency _getNativeCurrency(int chainId) {
+    final config = EvmChainRegistry().getChainConfig(chainId);
+    if (config == null) {
+      throw Exception("No EVM network registered for chain ID $chainId");
+    }
+
+    return config.nativeCurrency;
+  }
 
   static int _ethereumPriorityFee(EVMChainTransactionPriority priority) => EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
 
