@@ -29,8 +29,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
   WalletHardwareRestoreViewModelBase(this.hardwareWalletVM, AppStore appStore,
       WalletCreationService walletCreationService, SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type})
+      {required WalletType type, this.chainId})
       : super(appStore, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
+
+  final int? chainId;
 
   @observable
   String name = "";
@@ -77,9 +79,11 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.evm:
         credentials = evm!.createEVMHardwareWalletCredentials(
           name: name,
           hwAccountData: selectedAccount!,
+          chainId: chainId,
         );
         break;
       case WalletType.monero:

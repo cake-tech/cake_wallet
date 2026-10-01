@@ -225,7 +225,7 @@ abstract class WalletCreationVMBase with Store {
     var list = <DerivationInfo>[];
     final walletType = restoreWallet.type;
     var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
+    var node = appStore.settingsStore.getCurrentNode(walletType, chainId: restoreWallet.chainId);
 
     switch (walletType) {
       case WalletType.bitcoin:

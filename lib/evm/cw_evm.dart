@@ -16,6 +16,7 @@ class CWEVM extends EVM {
     String? password,
     String? mnemonic,
     String? passphrase,
+    int? chainId,
   }) {
     return EVMChainNewWalletCredentials(
       name: name,
@@ -23,6 +24,7 @@ class CWEVM extends EVM {
       password: password,
       mnemonic: mnemonic,
       passphrase: passphrase,
+      chainId: chainId,
     );
   }
 
@@ -32,12 +34,14 @@ class CWEVM extends EVM {
     required String mnemonic,
     required String password,
     String? passphrase,
+    int? chainId,
   }) {
     return EVMChainRestoreWalletFromSeedCredentials(
       name: name,
       password: password,
       mnemonic: mnemonic,
       passphrase: passphrase,
+      chainId: chainId,
     );
   }
 
@@ -46,11 +50,13 @@ class CWEVM extends EVM {
     required String name,
     required String privateKey,
     required String password,
+    int? chainId,
   }) {
     return EVMChainRestoreWalletFromPrivateKey(
       name: name,
       password: password,
       privateKey: privateKey,
+      chainId: chainId,
     );
   }
 
@@ -59,11 +65,13 @@ class CWEVM extends EVM {
     required String name,
     required HardwareAccountData hwAccountData,
     WalletInfo? walletInfo,
+    int? chainId,
   }) {
     return EVMChainRestoreWalletFromHardware(
       name: name,
       hwAccountData: hwAccountData,
       walletInfo: walletInfo,
+      chainId: chainId,
     );
   }
 
@@ -159,6 +167,7 @@ class CWEVM extends EVM {
     String? evmSignatureName,
     String? contractAddress,
     required int chainId,
+    int? nonce,
   }) =>
       EVMChainTransactionInfo(
           id: id,
@@ -175,7 +184,8 @@ class CWEVM extends EVM {
           from: from,
           evmSignatureName: evmSignatureName,
           contractAddress: contractAddress,
-          chainId: chainId);
+          chainId: chainId,
+          nonce: nonce);
 
   @override
   int formatterEVMParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
@@ -199,8 +209,8 @@ class CWEVM extends EVM {
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) {
     final evmWallet = wallet as EVMChainWallet;
-    final chainName = EVMChainUtils.getDefaultTokenSymbol(evmWallet.selectedChainId).toLowerCase();
-    return evmWallet.getErc20Token(contractAddress, chainName);
+    return evmWallet.getErc20Token(
+        contractAddress, EVMChainUtils.hexChainId(evmWallet.selectedChainId));
   }
 
   @override
@@ -240,6 +250,13 @@ class CWEVM extends EVM {
   @override
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled) =>
       (wallet as EVMChainWallet).updateScanProviderUsageState(isEnabled);
+
+  @override
+  String getScanProviderPreferenceKey(int chainId) =>
+      EVMChainUtils.getScanProviderPreferenceKey(chainId);
+
+  @override
+  String getHexChainId(int chainId) => EVMChainUtils.hexChainId(chainId);
 
   @override
   Web3Client? getWeb3Client(WalletBase wallet) => (wallet as EVMChainWallet).getWeb3Client();
@@ -466,41 +483,39 @@ class CWEVM extends EVM {
   // Registry helper methods
   static final EvmChainRegistry _registry = EvmChainRegistry();
 
+  ChainConfig _getChainConfigOrThrow(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    if (config == null) {
+      throw Exception("No EVM network registered for chain ID $chainId");
+    }
+    return config;
+  }
+
   @override
   int getChainIdByWalletType(WalletType walletType) {
-    final config = _registry.getChainConfigByWalletType(walletType);
-    return config?.chainId ?? 1; // Default to Ethereum
+    final chainId = _registry.getChainIdByWalletType(walletType);
+    if (chainId == null) {
+      throw Exception("$walletType has no single chain ID");
+    }
+    return chainId;
   }
 
   @override
-  String getChainNameByWalletType(WalletType walletType) {
-    final config = _registry.getChainConfigByWalletType(walletType);
-    return config?.shortCode ?? 'eth';
-  }
+  String getChainNameByWalletType(WalletType walletType) =>
+      _getChainConfigOrThrow(getChainIdByWalletType(walletType)).shortCode;
 
   @override
-  String getTokenNameByWalletType(WalletType walletType) {
-    final config = _registry.getChainConfigByWalletType(walletType);
-    return config?.nativeCurrency.title ?? 'ETH';
-  }
+  String getTokenNameByWalletType(WalletType walletType) =>
+      _getChainConfigOrThrow(getChainIdByWalletType(walletType)).nativeCurrency.title;
 
   @override
-  String getCaip2ByChainId(int chainId) {
-    final config = _registry.getChainConfig(chainId);
-    return config?.caip2 ?? 'eip155:1';
-  }
+  String getCaip2ByChainId(int chainId) => _getChainConfigOrThrow(chainId).caip2;
 
   @override
-  String getChainNameByChainId(int chainId) {
-    final config = _registry.getChainConfig(chainId);
-    return config?.shortCode ?? 'eth';
-  }
+  String getChainNameByChainId(int chainId) => _getChainConfigOrThrow(chainId).shortCode;
 
   @override
-  String getTokenNameByChainId(int chainId) {
-    final config = _registry.getChainConfig(chainId);
-    return config?.nativeCurrency.title ?? 'ETH';
-  }
+  String getTokenNameByChainId(int chainId) => _getChainConfigOrThrow(chainId).nativeCurrency.title;
 
   @override
   int? getChainIdByTag(String tag) {
@@ -523,30 +538,37 @@ class CWEVM extends EVM {
     return _registry.getWalletTypeByChainId(chainId);
   }
 
-  @override
-  List<ChainInfo> getAllChains() {
-    final allChains = _registry.getAllChains();
-    return allChains
-        .map((config) => ChainInfo(
-              chainId: config.chainId,
-              name: config.name,
-              shortCode: config.shortCode,
-              currency: config.nativeCurrency,
-            ))
-        .toList();
-  }
-
-  @override
-  ChainInfo? getChainInfoByChainId(int chainId) {
-    final config = _registry.getChainConfig(chainId);
-    if (config == null) return null;
+  ChainInfo _toChainInfo(ChainConfig config) {
+    final network = _registry.getAddedNetwork(config.chainId);
+    final ChainSource source;
+    if (network == null) {
+      source = ChainSource.builtin;
+    } else if (network.isManual) {
+      source = ChainSource.manual;
+    } else {
+      source = ChainSource.chainlist;
+    }
 
     return ChainInfo(
       chainId: config.chainId,
       name: config.name,
       shortCode: config.shortCode,
       currency: config.nativeCurrency,
+      source: source,
+      iconPath: network == null ? config.nativeCurrency.iconPath : network.iconUrl,
+      explorerUrl: config.explorerUrls.firstOrNull,
     );
+  }
+
+  @override
+  List<ChainInfo> getAllChains() => _registry.getAllChains().map(_toChainInfo).toList();
+
+  @override
+  ChainInfo? getChainInfoByChainId(int chainId) {
+    final config = _registry.getChainConfig(chainId);
+    if (config == null) return null;
+
+    return _toChainInfo(config);
   }
 
   @override
@@ -554,14 +576,36 @@ class CWEVM extends EVM {
     if (wallet is EVMChainWallet) {
       final config = wallet.selectedChainConfig;
       if (config == null) return null;
-      return ChainInfo(
-        chainId: config.chainId,
-        name: config.name,
-        shortCode: config.shortCode,
-        currency: config.nativeCurrency,
-      );
+      return _toChainInfo(config);
     }
     return null;
+  }
+
+  @override
+  Future<void> loadNetworks() async {
+    final networks = await EvmNetwork.getAll();
+
+    _registry.unregisterAllAddedNetworks();
+    for (final network in networks) {
+      registerNetwork(network);
+    }
+  }
+
+  @override
+  void registerNetwork(EvmNetwork network) {
+    if (network.isEnabled) {
+      _registry.registerAddedNetworkChain(network);
+      return;
+    }
+
+    _registry.registerAddedNetworkCurrency(network);
+    _registry.unregisterAddedNetworkChain(network.chainId);
+  }
+
+  @override
+  void unregisterNetwork(int chainId) {
+    _registry.unregisterAddedNetworkChain(chainId);
+    _registry.unregisterAddedNetworkCurrency(chainId);
   }
 
   @override
@@ -596,6 +640,14 @@ class CWEVM extends EVM {
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
 
   @override
+  bool isMoralisSupportedChain(int chainId) =>
+      MoralisHistoryProvider.supportedChainIds.contains(chainId);
+
+  @override
+  Uri? getContractSourceCodeUri(int chainId, String contractAddress) =>
+      EVMChainClientFactory.contractSourceCodeUri(chainId, contractAddress);
+
+  @override
   bool isUSDT0Token(WalletBase wallet, CryptoCurrency token) {
     if (token is! Erc20Token) return false;
 
@@ -613,12 +665,7 @@ class CWEVM extends EVM {
     final result = <ChainInfo>[];
     for (final config in _registry.getAllChains()) {
       if (USDT0Config.isChainSupported(config.chainId) && config.chainId != currentChainId) {
-        result.add(ChainInfo(
-          chainId: config.chainId,
-          name: config.name,
-          shortCode: config.shortCode,
-          currency: config.nativeCurrency,
-        ));
+        result.add(_toChainInfo(config));
       }
     }
     return result;

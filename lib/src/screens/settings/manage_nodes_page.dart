@@ -5,6 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -32,6 +33,22 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
     super.initState();
     Future.delayed(Duration(milliseconds: 300))
         .then((_) => widget.nodeListViewModel.speedTestNodes());
+  }
+
+  Future<void> _showNodeTestFailed() async {
+    if (!mounted) {
+      return;
+    }
+
+    await showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).new_node_testing,
+        alertContent: S.of(context).node_connection_failed,
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 
   @override
@@ -139,8 +156,13 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                                     rightButtonText: S.of(context).change,
                                     actionLeftButton: () => Navigator.of(context).pop(),
                                     actionRightButton: () async {
-                                      await widget.nodeListViewModel.setAsCurrent(node);
-                                      Navigator.of(context).pop();
+                                      try {
+                                        await widget.nodeListViewModel.setAsCurrent(node);
+                                        Navigator.of(context).pop();
+                                      } on NodeOnAnotherChainException {
+                                        Navigator.of(context).pop();
+                                        await _showNodeTestFailed();
+                                      }
                                     },
                                   );
                                 },

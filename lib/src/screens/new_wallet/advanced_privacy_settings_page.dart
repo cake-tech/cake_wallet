@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/execution_state.dart";
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -350,6 +351,20 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   }
 
                   await widget.nodeViewModel.save();
+                  if (widget.nodeViewModel.walletType == WalletType.evm &&
+                      widget.nodeViewModel.state is FailureState) {
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (context) => AlertWithOneAction(
+                        alertTitle: S.of(context).new_node_testing,
+                        alertContent: S.of(context).node_connection_failed,
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop(),
+                      ),
+                    );
+                    return;
+                  }
+
                   widget.nodeViewModel.setAsCurrent(widget.nodeViewModel.editingNode!);
                 }
                 if (testnetValue == true &&

@@ -39,9 +39,11 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
@@ -123,7 +125,7 @@ abstract class SettingsStoreBase with Store {
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
-      required List<int> initialEvmHiddenChainIds,
+      required List<WalletType> initialHiddenBuiltinNetworks,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -153,7 +155,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
       required this.balanceHideCounter,
-        required this.zcashMigrationModalViewed,
+      required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
       required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
@@ -224,7 +226,10 @@ abstract class SettingsStoreBase with Store {
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
-        evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
+        hiddenBuiltinNetworks = ObservableSet.of(initialHiddenBuiltinNetworks),
+        evmChainNodes = ObservableMap<int, Node>(),
+        evmNetworks = ObservableMap<int, ChainInfo>(),
+        evmScanUsage = ObservableMap<int, bool>(),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -262,6 +267,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialBscTransactionPriority != null) {
       priority[WalletType.bsc] = initialBscTransactionPriority;
+    }
+
+    if (initialEVMTransactionPriority != null) {
+      priority[WalletType.evm] = initialEVMTransactionPriority;
     }
 
     if (initialBitcoinCashTransactionPriority != null) {
@@ -342,6 +351,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.bsc:
           key = PreferencesKey.bscTransactionPriority;
+          break;
+        case WalletType.evm:
+          key = PreferencesKey.evmTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -454,8 +466,7 @@ abstract class SettingsStoreBase with Store {
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
-    reaction(
-        (_) => showCiBuildOverlay,
+    reaction((_) => showCiBuildOverlay,
         (bool value) => sharedPreferences.setBool(PreferencesKey.showCiBuildOverlay, value));
 
     reaction(
@@ -728,9 +739,10 @@ abstract class SettingsStoreBase with Store {
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
 
     reaction(
-        (_) => evmHiddenChainIds.toList(growable: false),
-        (List<int> hiddenIds) => _sharedPreferences.setStringList(
-            PreferencesKey.evmHiddenChainIds, hiddenIds.map((id) => id.toString()).toList()));
+        (_) => hiddenBuiltinNetworks.toList(growable: false),
+        (List<WalletType> hiddenTypes) => _sharedPreferences.setStringList(
+            PreferencesKey.hiddenBuiltinNetworks,
+            hiddenTypes.map((type) => serializeToInt(type).toString()).toList()));
 
     reaction(
         (_) => mwebCardDisplay,
@@ -793,6 +805,15 @@ abstract class SettingsStoreBase with Store {
     this.powNodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentPowNode(change.newValue!, change.key!);
+      }
+    });
+
+    this.evmChainNodes.observe((change) {
+      final node = change.newValue;
+      final chainId = change.key;
+      if (node != null && chainId != null) {
+        unawaited(
+            _sharedPreferences.setInt(PreferencesKey.currentEvmChainNodeIdKey(chainId), node.id));
       }
     });
   }
@@ -985,7 +1006,16 @@ abstract class SettingsStoreBase with Store {
   bool useMempoolFeeAPI;
 
   @observable
-  ObservableSet<int> evmHiddenChainIds;
+  ObservableSet<WalletType> hiddenBuiltinNetworks;
+
+  @observable
+  ObservableMap<int, Node> evmChainNodes;
+
+  @observable
+  ObservableMap<int, ChainInfo> evmNetworks;
+
+  @observable
+  ObservableMap<int, bool> evmScanUsage;
 
   @observable
   String defaultNanoRep;
@@ -1106,6 +1136,14 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType, {int? chainId}) {
+    if (walletType == WalletType.evm) {
+      final node = chainId == null ? null : evmChainNodes[chainId];
+      if (node == null) {
+        throw Exception("No node found for EVM network with chainId: $chainId");
+      }
+      return node;
+    }
+
     if (chainId != null && isEVMCompatibleChain(walletType)) {
       final preferenceKey = _getEVMNodePreferenceKey(chainId);
       final nodeId = _sharedPreferences.getInt(preferenceKey);
@@ -1132,6 +1170,24 @@ abstract class SettingsStoreBase with Store {
     return node;
   }
 
+  Node getCurrentNodeForWallet(WalletBase wallet) =>
+      getCurrentNode(wallet.type, chainId: wallet.chainId);
+
+  @action
+  void setCurrentNode(Node node) {
+    if (node.type != WalletType.evm) {
+      nodes[node.type] = node;
+      return;
+    }
+
+    final chainId = node.chainId;
+    if (chainId == null) {
+      throw Exception("An EVM network node needs its chain ID");
+    }
+
+    evmChainNodes[chainId] = node;
+  }
+
   String _getEVMNodePreferenceKey(int chainId) {
     switch (chainId) {
       case 1:
@@ -1145,8 +1201,7 @@ abstract class SettingsStoreBase with Store {
       case 56:
         return PreferencesKey.currentBscNodeIdKey;
       default:
-        // Default to Ethereum for unknown chainIds
-        return PreferencesKey.currentEthereumNodeIdKey;
+        return PreferencesKey.currentEvmChainNodeIdKey(chainId);
     }
   }
 
@@ -1169,7 +1224,7 @@ abstract class SettingsStoreBase with Store {
     return priority[walletType];
   }
 
-  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) =>
+  void setPriority(WalletType walletType, TransactionPriority priority) =>
       this.priority[walletType] = priority;
 
   bool isBitcoinBuyEnabled;
@@ -1224,8 +1279,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       ethereumTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.evmTransactionPriority) != null) {
       evmTransactionPriority = evm?.deserializeEVMTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+          sharedPreferences.getInt(PreferencesKey.evmTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       polygonTransactionPriority = evm?.deserializeEVMTransactionPriority(
@@ -1341,10 +1398,7 @@ abstract class SettingsStoreBase with Store {
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
-    final evmHiddenChainIdsRaw =
-        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
-    final evmHiddenChainIds =
-        evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
+    final hiddenBuiltinNetworks = _readHiddenBuiltinNetworks(sharedPreferences);
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1381,7 +1435,8 @@ abstract class SettingsStoreBase with Store {
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
     final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
-    final zcashMigrationModalViewed = sharedPreferences.getBool(PreferencesKey.zcashMigrationModalViewed) ?? false;
+    final zcashMigrationModalViewed =
+        sharedPreferences.getBool(PreferencesKey.zcashMigrationModalViewed) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1676,128 +1731,130 @@ abstract class SettingsStoreBase with Store {
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
-    return SettingsStore(
-      secureStorage: secureStorage,
-      sharedPreferences: sharedPreferences,
-      initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
-      initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
-      initialShowCiBuildOverlay: showCiBuildOverlay,
-      initialSyncStatusDisplayMode: syncStatusDisplayMode,
-      nodes: nodes,
-      powNodes: powNodes,
-      appVersion: packageInfo.version,
-      deviceName: deviceName,
-      displayAmountsInSatoshi: displayAmountsInSatoshi,
-      isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-      initialFiatCurrency: currentFiatCurrency,
-      initialCakePayCountry: currentCakePayCountry,
-      initialBalanceDisplayMode: currentBalanceDisplayMode,
-      initialSaveRecipientAddress: shouldSaveRecipientAddress,
-      initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
-      initialMoneroSeedType: moneroSeedType,
-      initialBitcoinSeedType: bitcoinSeedType,
-      initialNanoSeedType: nanoSeedType,
-      initialAppSecure: isAppSecure,
-      initialDisableTrade: disableTradeOption,
-      initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
-      initialDisableBulletin: disableBulletin,
-      initialWalletListOrder: walletListOrder,
-      initialWalletListAscending: walletListAscending,
-      initialContactListOrder: contactListOrder,
-      initialContactListAscending: contactListAscending,
-      initialFiatMode: currentFiatApiMode,
-      initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-      initialEnableDuressPin: enableDuressPin,
-      initialCake2FAPresetOptions: selectedCake2FAPreset,
-      initialUseTOTP2FA: useTOTP2FA,
-      initialTotpSecretKey: totpSecretKey,
-      initialFailedTokenTrial: tokenTrialNumber,
-      initialExchangeStatus: exchangeStatus,
-      actionlistDisplayMode: actionListDisplayMode,
-      initialPinLength: pinLength,
-      pinTimeOutDuration: pinCodeTimeOutDuration,
-      seedPhraseLength: seedPhraseWordCount,
-      initialLanguageCode: savedLanguageCode,
-      sortBalanceBy: sortBalanceBy,
-      pinNativeTokenAtTop: pinNativeTokenAtTop,
-      useEtherscan: useEtherscan,
-      usePolygonScan: usePolygonScan,
-      useBaseScan: useBaseScan,
-      useArbiScan: useArbiScan,
-      useBscScan: useBscScan,
-      useTronGrid: useTronGrid,
-      useMempoolFeeAPI: useMempoolFeeAPI,
-      useBlinkProtection: useBlinkProtection,
-      initialEvmHiddenChainIds: evmHiddenChainIds,
-      defaultNanoRep: defaultNanoRep,
-      defaultBananoRep: defaultBananoRep,
-      lookupsTwitter: lookupsTwitter,
-      lookupsZanoAlias: lookupsZanoAlias,
-      lookupsMastodon: lookupsMastodon,
-      lookupsYatService: lookupsYatService,
-      lookupsUnstoppableDomains: lookupsUnstoppableDomains,
-      lookupsOpenAlias: lookupsOpenAlias,
-      lookupsENS: lookupsENS,
-      lookupsZcashNames: lookupsZcashNames,
-      lookupsZcashAddress: lookupsZcashAddress,
-      lookupsWellKnown: lookupsWellKnown,
-      lookupsFio: lookupsFio,
-      lookupsNostr: lookupsNostr,
-      lookupsThorChain: lookupsThorChain,
-      lookupsBip353: lookupsBip353,
-      lookupsLNUrl: lookupsLNUrl,
-      usePayjoin: usePayjoin,
-      showPayjoinCard: showPayjoinCard,
-      customBitcoinFeeRate: customBitcoinFeeRate,
-      silentPaymentsCardDisplay: silentPaymentsCardDisplay,
-      mwebAlwaysScan: mwebAlwaysScan,
-      mwebCardDisplay: mwebCardDisplay,
-      showZcashMissingFundsCard: showZcashMissingFundsCard,
-      mwebEnabled: mwebEnabled,
-      mwebNodeUri: mwebNodeUri,
-      hasEnabledMwebBefore: hasEnabledMwebBefore,
-      forceDecentralizedExchanges: forceDecentralizedExchanges,
-      decentralizedExchangesPromptDismissed: decentralizedExchangesPromptDismissed,
-      initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
-      initialBackgroundImage: backgroundImage,
-      initialMoneroTransactionPriority: moneroTransactionPriority,
-      initialWowneroTransactionPriority: wowneroTransactionPriority,
-      initialZanoTransactionPriority: zanoTransactionPriority,
-      initialBitcoinTransactionPriority: bitcoinTransactionPriority,
-      initialHavenTransactionPriority: havenTransactionPriority,
-      initialLitecoinTransactionPriority: litecoinTransactionPriority,
-      initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
-      initialDecredTransactionPriority: decredTransactionPriority,
-      initialZcashTransactionPriority: zcashTransactionPriority,
-      initialDogecoinTransactionPriority: dogecoinTransactionPriority,
-      initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
-      initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
-      initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
-      initialShouldRequireTOTP2FAForSendsToInternalWallets:
-          shouldRequireTOTP2FAForSendsToInternalWallets,
-      initialShouldRequireTOTP2FAForExchangesToInternalWallets:
-          shouldRequireTOTP2FAForExchangesToInternalWallets,
-      initialShouldRequireTOTP2FAForExchangesToExternalWallets:
-          shouldRequireTOTP2FAForExchangesToExternalWallets,
-      initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
-      initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
-      initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
-          shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-      initialEthereumTransactionPriority: ethereumTransactionPriority,
-      initialEVMTransactionPriority: evmTransactionPriority,
-      initialPolygonTransactionPriority: polygonTransactionPriority,
-      initialBaseTransactionPriority: baseTransactionPriority,
-      initialBscTransactionPriority: bscTransactionPriority,
-      initialSyncMode: savedSyncMode,
-      initialSyncAll: savedSyncAll,
-      shouldShowYatPopup: shouldShowYatPopup,
-      shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
-      shouldShowRepWarning: shouldShowRepWarning,
-      initialBuiltinTor: builtinTor,
-      mwebAdDismissed: mwebAdDismissed,
-      balanceHideCounter: balanceHideCounter,
-      zcashMigrationModalViewed: zcashMigrationModalViewed
-    );
+    final settingsStore = SettingsStore(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+        initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+        initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+        initialShowCiBuildOverlay: showCiBuildOverlay,
+        initialSyncStatusDisplayMode: syncStatusDisplayMode,
+        nodes: nodes,
+        powNodes: powNodes,
+        appVersion: packageInfo.version,
+        deviceName: deviceName,
+        displayAmountsInSatoshi: displayAmountsInSatoshi,
+        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+        initialFiatCurrency: currentFiatCurrency,
+        initialCakePayCountry: currentCakePayCountry,
+        initialBalanceDisplayMode: currentBalanceDisplayMode,
+        initialSaveRecipientAddress: shouldSaveRecipientAddress,
+        initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
+        initialMoneroSeedType: moneroSeedType,
+        initialBitcoinSeedType: bitcoinSeedType,
+        initialNanoSeedType: nanoSeedType,
+        initialAppSecure: isAppSecure,
+        initialDisableTrade: disableTradeOption,
+        initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
+        initialDisableBulletin: disableBulletin,
+        initialWalletListOrder: walletListOrder,
+        initialWalletListAscending: walletListAscending,
+        initialContactListOrder: contactListOrder,
+        initialContactListAscending: contactListAscending,
+        initialFiatMode: currentFiatApiMode,
+        initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
+        initialEnableDuressPin: enableDuressPin,
+        initialCake2FAPresetOptions: selectedCake2FAPreset,
+        initialUseTOTP2FA: useTOTP2FA,
+        initialTotpSecretKey: totpSecretKey,
+        initialFailedTokenTrial: tokenTrialNumber,
+        initialExchangeStatus: exchangeStatus,
+        actionlistDisplayMode: actionListDisplayMode,
+        initialPinLength: pinLength,
+        pinTimeOutDuration: pinCodeTimeOutDuration,
+        seedPhraseLength: seedPhraseWordCount,
+        initialLanguageCode: savedLanguageCode,
+        sortBalanceBy: sortBalanceBy,
+        pinNativeTokenAtTop: pinNativeTokenAtTop,
+        useEtherscan: useEtherscan,
+        usePolygonScan: usePolygonScan,
+        useBaseScan: useBaseScan,
+        useArbiScan: useArbiScan,
+        useBscScan: useBscScan,
+        useTronGrid: useTronGrid,
+        useMempoolFeeAPI: useMempoolFeeAPI,
+        useBlinkProtection: useBlinkProtection,
+        initialHiddenBuiltinNetworks: hiddenBuiltinNetworks,
+        defaultNanoRep: defaultNanoRep,
+        defaultBananoRep: defaultBananoRep,
+        lookupsTwitter: lookupsTwitter,
+        lookupsZanoAlias: lookupsZanoAlias,
+        lookupsMastodon: lookupsMastodon,
+        lookupsYatService: lookupsYatService,
+        lookupsUnstoppableDomains: lookupsUnstoppableDomains,
+        lookupsOpenAlias: lookupsOpenAlias,
+        lookupsENS: lookupsENS,
+        lookupsZcashNames: lookupsZcashNames,
+        lookupsZcashAddress: lookupsZcashAddress,
+        lookupsWellKnown: lookupsWellKnown,
+        lookupsFio: lookupsFio,
+        lookupsNostr: lookupsNostr,
+        lookupsThorChain: lookupsThorChain,
+        lookupsBip353: lookupsBip353,
+        lookupsLNUrl: lookupsLNUrl,
+        usePayjoin: usePayjoin,
+        showPayjoinCard: showPayjoinCard,
+        customBitcoinFeeRate: customBitcoinFeeRate,
+        silentPaymentsCardDisplay: silentPaymentsCardDisplay,
+        mwebAlwaysScan: mwebAlwaysScan,
+        mwebCardDisplay: mwebCardDisplay,
+        showZcashMissingFundsCard: showZcashMissingFundsCard,
+        mwebEnabled: mwebEnabled,
+        mwebNodeUri: mwebNodeUri,
+        hasEnabledMwebBefore: hasEnabledMwebBefore,
+        forceDecentralizedExchanges: forceDecentralizedExchanges,
+        decentralizedExchangesPromptDismissed: decentralizedExchangesPromptDismissed,
+        initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
+        initialBackgroundImage: backgroundImage,
+        initialMoneroTransactionPriority: moneroTransactionPriority,
+        initialWowneroTransactionPriority: wowneroTransactionPriority,
+        initialZanoTransactionPriority: zanoTransactionPriority,
+        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+        initialHavenTransactionPriority: havenTransactionPriority,
+        initialLitecoinTransactionPriority: litecoinTransactionPriority,
+        initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+        initialDecredTransactionPriority: decredTransactionPriority,
+        initialZcashTransactionPriority: zcashTransactionPriority,
+        initialDogecoinTransactionPriority: dogecoinTransactionPriority,
+        initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
+        initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
+        initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
+        initialShouldRequireTOTP2FAForSendsToInternalWallets:
+            shouldRequireTOTP2FAForSendsToInternalWallets,
+        initialShouldRequireTOTP2FAForExchangesToInternalWallets:
+            shouldRequireTOTP2FAForExchangesToInternalWallets,
+        initialShouldRequireTOTP2FAForExchangesToExternalWallets:
+            shouldRequireTOTP2FAForExchangesToExternalWallets,
+        initialShouldRequireTOTP2FAForAddingContacts: shouldRequireTOTP2FAForAddingContacts,
+        initialShouldRequireTOTP2FAForCreatingNewWallets: shouldRequireTOTP2FAForCreatingNewWallets,
+        initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings:
+            shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        initialEthereumTransactionPriority: ethereumTransactionPriority,
+        initialEVMTransactionPriority: evmTransactionPriority,
+        initialPolygonTransactionPriority: polygonTransactionPriority,
+        initialBaseTransactionPriority: baseTransactionPriority,
+        initialBscTransactionPriority: bscTransactionPriority,
+        initialSyncMode: savedSyncMode,
+        initialSyncAll: savedSyncAll,
+        shouldShowYatPopup: shouldShowYatPopup,
+        shouldShowDEuroDisclaimer: shouldShowDEuroDisclaimer,
+        shouldShowRepWarning: shouldShowRepWarning,
+        initialBuiltinTor: builtinTor,
+        mwebAdDismissed: mwebAdDismissed,
+        balanceHideCounter: balanceHideCounter,
+        zcashMigrationModalViewed: zcashMigrationModalViewed);
+
+    await settingsStore.loadEvmNetworks();
+    return settingsStore;
   }
 
   Future<void> reload() async {
@@ -1849,6 +1906,10 @@ abstract class SettingsStoreBase with Store {
     if (evm != null && sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       priority[WalletType.base] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
+    }
+    if (evm != null && sharedPreferences.getInt(PreferencesKey.evmTransactionPriority) != null) {
+      priority[WalletType.evm] = evm!.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.evmTransactionPriority)!);
     }
     if (evm != null && sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
       priority[WalletType.bsc] = evm!.deserializeEVMTransactionPriority(
@@ -1975,11 +2036,9 @@ abstract class SettingsStoreBase with Store {
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
-    final hiddenChainIdsRaw =
-        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
-    evmHiddenChainIds
+    hiddenBuiltinNetworks
       ..clear()
-      ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
+      ..addAll(_readHiddenBuiltinNetworks(sharedPreferences));
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -2209,6 +2268,8 @@ abstract class SettingsStoreBase with Store {
           key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         ) ??
         false;
+
+    await loadEvmNetworks();
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
@@ -2235,6 +2296,8 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(preferenceKey, node.id);
         nodes[node.type] = node;
         break;
+      case WalletType.evm:
+        throw Exception("An added network's node is set through setCurrentNode");
       case WalletType.bitcoinCash:
         await _sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
         break;
@@ -2284,10 +2347,80 @@ abstract class SettingsStoreBase with Store {
   }
 
   @action
-  void setEvmHiddenChainIds(Set<int> chainIds) {
-    evmHiddenChainIds
+  void setHiddenBuiltinNetworks(Set<WalletType> types) {
+    hiddenBuiltinNetworks
       ..clear()
-      ..addAll(chainIds);
+      ..addAll(types);
+  }
+
+  @action
+  void setEvmScanUsage(int chainId, bool isEnabled) {
+    evmScanUsage[chainId] = isEnabled;
+    unawaited(_sharedPreferences.setBool(evm!.getScanProviderPreferenceKey(chainId), isEnabled));
+  }
+
+  static List<WalletType> _readHiddenBuiltinNetworks(SharedPreferences sharedPreferences) {
+    final storedValues =
+        sharedPreferences.getStringList(PreferencesKey.hiddenBuiltinNetworks) ?? const [];
+    final types = <WalletType>[];
+
+    for (final value in storedValues) {
+      try {
+        types.add(deserializeFromInt(int.parse(value)));
+      } catch (e) {
+        printV("Skipping hidden network value $value: $e");
+      }
+    }
+
+    return types;
+  }
+
+  int _evmNetworksLoadGeneration = 0;
+
+  @action
+  Future<void> loadEvmNetworks() async {
+    final generation = ++_evmNetworksLoadGeneration;
+    final chains = evm?.getAllChains() ?? const <ChainInfo>[];
+
+    evmNetworks
+      ..clear()
+      ..addEntries(chains.map((chain) => MapEntry(chain.chainId, chain)));
+
+    evmChainNodes.removeWhere((chainId, _) => !evmNetworks.containsKey(chainId));
+
+    for (final chain in chains) {
+      if (chain.source == ChainSource.builtin) {
+        continue;
+      }
+
+      evmScanUsage[chain.chainId] =
+          _sharedPreferences.getBool(evm!.getScanProviderPreferenceKey(chain.chainId)) ?? true;
+
+      List<Node> nodes = await Node.getAllForEvmChain(chain.chainId);
+      if (nodes.isEmpty) {
+        // Manage Nodes can delete every node, which would leave the wallet nothing to connect to
+        await EvmNetwork.restoreNodesIfNone(chain.chainId);
+        nodes = await Node.getAllForEvmChain(chain.chainId);
+      }
+
+      if (generation != _evmNetworksLoadGeneration) {
+        return;
+      }
+
+      final currentNodeId =
+          _sharedPreferences.getInt(PreferencesKey.currentEvmChainNodeIdKey(chain.chainId));
+      final node = nodes.firstWhereOrNull((item) => item.id == currentNodeId) ??
+          nodes.firstWhereOrNull((item) => item.isDefault) ??
+          nodes.firstOrNull;
+
+      if (node == null) {
+        printV("No node stored for EVM network ${chain.chainId}");
+        evmChainNodes.remove(chain.chainId);
+        continue;
+      }
+
+      evmChainNodes[chain.chainId] = node;
+    }
   }
 
   @action

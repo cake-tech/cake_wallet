@@ -11,7 +11,8 @@ import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -145,14 +146,23 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                   builder: (context) => Column(
                     children: _walletHardwareRestoreVM.availableAccounts.map((acc) {
                       final address = acc.address;
+                      final addedNetwork =
+                          AddedNetworkCurrency.tryFromChainId(_walletHardwareRestoreVM.chainId);
                       return Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: SelectButton(
                           image: CakeImageWidget(
                             imageUrl: getCryptoCurrencyIconForWalletListItem(
-                                _walletHardwareRestoreVM.type),
+                              _walletHardwareRestoreVM.type,
+                              chainId: _walletHardwareRestoreVM.chainId,
+                            ),
                             height: 24,
                             width: 24,
+                            isRoundedSquare: addedNetwork != null,
+                            outlineColor: addedNetwork?.isManual == true
+                                ? Theme.of(context).colorScheme.onSurface
+                                : null,
+                            fallbackName: addedNetwork?.fullName,
                           ),
                           text:
                               "${acc.accountIndex} - ${address.substring(0, 6)}...${address.substring(address.length - 6)}",

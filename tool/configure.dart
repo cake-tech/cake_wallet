@@ -1402,6 +1402,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/evm_network.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/output_info.dart';
@@ -1431,6 +1432,9 @@ import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
+import 'package:cw_evm/history/moralis_history_provider.dart';
+import 'package:cw_evm/evm_chain_client_factory.dart';
+import 'package:cw_evm/utils/network_chain_utils.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
@@ -1476,6 +1480,7 @@ abstract class EVM {
     String? password,
     String? mnemonic,
     String? passphrase,
+    int? chainId,
   });
   
   WalletCredentials createEVMRestoreWalletFromSeedCredentials({
@@ -1483,18 +1488,21 @@ abstract class EVM {
     required String mnemonic,
     required String password,
     String? passphrase,
+    int? chainId,
   });
   
   WalletCredentials createEVMRestoreWalletFromPrivateKey({
     required String name,
     required String privateKey,
     required String password,
+    int? chainId,
   });
   
   WalletCredentials createEVMHardwareWalletCredentials({
     required String name,
     required HardwareAccountData hwAccountData,
     WalletInfo? walletInfo,
+    int? chainId,
   });
   
   // Generic methods that work for all EVM chains
@@ -1532,6 +1540,8 @@ abstract class EVM {
   
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
   void updateScanProviderUsageState(WalletBase wallet, bool isEnabled);
+  String getScanProviderPreferenceKey(int chainId);
+  String getHexChainId(int chainId);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
@@ -1607,6 +1617,11 @@ abstract class EVM {
   ChainInfo? getCurrentChain(WalletBase wallet);
   ChainInfo? getChainInfoByChainId(int chainId);
 
+  /// Registers every stored network's currency, and the enabled ones as chains
+  Future<void> loadNetworks();
+  void registerNetwork(EvmNetwork network);
+  void unregisterNetwork(int chainId);
+
 
   int? getSelectedChainId(WalletBase wallet);
   Future<void> selectChain(WalletBase wallet, int chainId, {required Node node});
@@ -1616,6 +1631,8 @@ abstract class EVM {
   Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash);
 
   bool hasPriorityFee(int chainId);
+  bool isMoralisSupportedChain(int chainId);
+  Uri? getContractSourceCodeUri(int chainId, String contractAddress);
 
   bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
   List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
@@ -1661,10 +1678,13 @@ abstract class EVM {
     String? evmSignatureName,
     String? contractAddress,
     required int chainId,
+    int? nonce,
   });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
 }
+
+enum ChainSource { builtin, chainlist, manual }
 
 class ChainInfo {
   const ChainInfo({
@@ -1672,12 +1692,18 @@ class ChainInfo {
     required this.name,
     required this.shortCode,
     required this.currency,
+    required this.source,
+    this.iconPath,
+    this.explorerUrl,
   });
   
   final int chainId;
   final String name;
   final String shortCode;
   final CryptoCurrency currency;
+  final ChainSource source;
+  final String? iconPath;
+  final String? explorerUrl;
 
   @override
   bool operator ==(Object other) =>
@@ -2073,6 +2099,10 @@ Future<void> generateWalletTypes({
 
   if (hasPolygon) {
     outputContent += '\tWalletType.polygon,\n';
+  }
+
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc) {
+    outputContent += "\tWalletType.evm,\n";
   }
 
   if (hasNano) {

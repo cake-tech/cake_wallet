@@ -342,7 +342,7 @@ void main() {
         final result = UniversalAddressDetector.detectAddress(uri);
 
         expect(result.isValid, true);
-        expect(result.detectedWalletType, WalletType.ethereum);
+        expect(result.detectedWalletType, isNull);
         expect(result.chainId, 999999);
         expect(result.address, recipient);
       });

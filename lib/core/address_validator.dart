@@ -5,6 +5,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/erc20_token.dart';
 
 const BEFORE_REGEX = '(^|\\s)';
@@ -66,6 +67,10 @@ class AddressValidator extends TextValidator {
   ];
 
   static String? getPattern(CryptoCurrency type, {bool isTestnet = false, String? network}) {
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(type)) {
+      return "$BEFORE_REGEX(0x[0-9a-zA-Z]+)$AFTER_REGEX";
+    }
+
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
@@ -209,6 +214,10 @@ class AddressValidator extends TextValidator {
   }
 
   static List<int>? getLength(CryptoCurrency type) {
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(type)) {
+      return [42];
+    }
+
     if (type is Erc20Token) {
       return [42];
     }
@@ -358,6 +367,10 @@ class AddressValidator extends TextValidator {
 
   // NOTE: not needed to check for network here as it's a general address catcher, validation is separate
   static String? getAddressFromStringPattern(CryptoCurrency type) {
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(type)) {
+      return "(0x[0-9a-zA-Z]+)";
+    }
+
     String? pattern = null;
 
     switch (type) {

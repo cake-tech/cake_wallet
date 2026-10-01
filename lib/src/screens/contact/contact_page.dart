@@ -178,7 +178,8 @@ class ContactPage extends BasePage {
     showPopUp<void>(
       builder: (_) => CurrencyPicker(
         selectedAtIndex: contactViewModel.currency != null
-            ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
+            ? contactViewModel.currencies
+                .indexWhere((currency) => currency.raw == contactViewModel.currency!.raw)
             : -1,
         items: contactViewModel.currencies,
         title: S.of(context).please_select,

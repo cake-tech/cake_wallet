@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -21,7 +22,11 @@ class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 abstract class ContactViewModelBase with Store {
   ContactViewModelBase(this._contacts, this.appStore, this.adrResService, {ContactRecord? contact})
       : state = InitialExecutionState(),
-        currencies = CryptoCurrency.all,
+        currencies = [
+          ...CryptoCurrency.all,
+          for (final chain in evm?.getAllChains() ?? const <ChainInfo>[])
+            if (chain.source != ChainSource.builtin) chain.currency,
+        ],
         _contact = contact,
         name = contact?.name ?? '',
         address = contact?.address ?? '',

@@ -21,6 +21,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.litecoin:
       return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.ethereum:
+    case WalletType.evm:
     case WalletType.polygon:
     case WalletType.base:
     case WalletType.bsc:

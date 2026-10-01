@@ -1,6 +1,9 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
+import "package:cw_core/wallet_type.dart";
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -167,6 +170,52 @@ void main() {
       test('returns a non-empty pattern', () {
         final pattern = AddressValidator.mWebAddressPattern;
         expect(pattern, isNotEmpty);
+      });
+    });
+
+    group("an added network's native", () {
+      // OP Mainnet as an added network, its tag matches no case in the validator
+      const opChainId = 10;
+      final opNative = AddedNetworkCurrency(
+        EvmNetwork(
+          chainId: opChainId,
+          name: "OP Mainnet",
+          symbol: "ETH",
+          decimals: 18,
+          tag: "OETH",
+          rpcUrl: "https://rpc.example",
+        ),
+      );
+      final evmAddress = "0x${"a" * 40}";
+
+      setUp(() => EvmNativeCurrencies.register(opChainId, opNative, WalletType.evm));
+
+      tearDown(() => EvmNativeCurrencies.unregister(opChainId));
+
+      test("takes the same address rules as Ethereum's ETH", () {
+        expect(AddressValidator.getPattern(opNative),
+            AddressValidator.getPattern(CryptoCurrency.eth));
+        expect(AddressValidator.getLength(opNative), [42]);
+        expect(AddressValidator.getAddressFromStringPattern(opNative),
+            AddressValidator.getAddressFromStringPattern(CryptoCurrency.eth));
+      });
+
+      test("accepts an EVM address and refuses a short one or one without 0x", () {
+        final validator = AddressValidator(type: opNative);
+
+        expect(validator.isValid(evmAddress), isTrue);
+        expect(validator.isValid("0xabc"), isFalse);
+        expect(validator.isValid("ab${"a" * 40}"), isFalse);
+      });
+
+      test("does not accept a name, so the send page resolves it", () {
+        expect(AddressValidator(type: opNative).isValid("vitalik.eth"), isFalse);
+      });
+
+      test("the built-in natives keep their answers", () {
+        expect(AddressValidator.getPattern(CryptoCurrency.bnb), isEmpty);
+        expect(AddressValidator.getAddressFromStringPattern(CryptoCurrency.bnb), isNull);
+        expect(AddressValidator.getLength(CryptoCurrency.bnb), [42]);
       });
     });
   });
