@@ -385,7 +385,9 @@ class MoonPayProvider extends BuyProvider {
 
     for (final item in _currencies) {
       final metadata = item["metadata"];
-      if (metadata is! Map<String, dynamic> || metadata["chainId"]?.toString() != "$chainId") {
+      if (metadata is! Map<String, dynamic> ||
+          metadata["chainId"]?.toString() != "$chainId" ||
+          item["isSuspended"] == true) {
         continue;
       }
 
