@@ -2,6 +2,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class RecipientNetworkItem {
@@ -199,6 +200,9 @@ class RecipientNetworkListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final addedNetwork = AddedNetworkCurrency.tryFromChainId(item.chainId);
+    final iconPath =
+        addedNetwork != null ? addedNetwork.iconPath ?? "" : imageOverride ?? item.iconPath;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -206,11 +210,14 @@ class RecipientNetworkListRow extends StatelessWidget {
         child: Row(
           children: [
             CakeImageWidget(
-              imageUrl: imageOverride ?? item.iconPath,
+              imageUrl: iconPath,
               width: 24,
               height: 24,
               fit: BoxFit.cover,
-              color: isMonochromeSymbolIcon(imageOverride ?? item.iconPath) ? colors.primary : null,
+              color: isMonochromeSymbolIcon(iconPath) ? colors.primary : null,
+              isRoundedSquare: addedNetwork != null,
+              outlineColor: addedNetwork?.isManual == true ? colors.onSurface : null,
+              fallbackName: addedNetwork?.fullName,
             ),
             const SizedBox(width: 12),
             Expanded(

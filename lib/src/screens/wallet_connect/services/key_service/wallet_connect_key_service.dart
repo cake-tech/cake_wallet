@@ -12,33 +12,27 @@ abstract class WalletConnectKeyService {
 
 class KeyServiceImpl implements WalletConnectKeyService {
   static String _getPrivateKeyForWallet(WalletBase wallet) {
-    switch (wallet.type) {
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.base:
-      case WalletType.arbitrum:
-      case WalletType.bsc:
-        return evm!.getPrivateKey(wallet);
-      case WalletType.solana:
-        return solana!.getPrivateKey(wallet);
-      default:
-        return '';
+    if (isEVMCompatibleChain(wallet.type)) {
+      return evm!.getPrivateKey(wallet);
     }
+
+    if (wallet.type == WalletType.solana) {
+      return solana!.getPrivateKey(wallet);
+    }
+
+    return "";
   }
 
   static String _getPublicKeyForWallet(WalletBase wallet) {
-    switch (wallet.type) {
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.base:
-      case WalletType.arbitrum:
-      case WalletType.bsc:
-        return evm!.getPublicKey(wallet);
-      case WalletType.solana:
-        return solana!.getPublicKey(wallet);
-      default:
-        return '';
+    if (isEVMCompatibleChain(wallet.type)) {
+      return evm!.getPublicKey(wallet);
     }
+
+    if (wallet.type == WalletType.solana) {
+      return solana!.getPublicKey(wallet);
+    }
+
+    return "";
   }
 
   @override
@@ -46,13 +40,8 @@ class KeyServiceImpl implements WalletConnectKeyService {
     if (isEVMCompatibleChain(wallet.type)) {
       return [
         ChainKeyModel(
-          chains: [
-            'eip155:1',
-            'eip155:56',
-            'eip155:137',
-            'eip155:8453',
-            'eip155:42161',
-          ],
+          chains:
+              evm!.getAllChains().map((chain) => evm!.getCaip2ByChainId(chain.chainId)).toList(),
           privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),
         ),

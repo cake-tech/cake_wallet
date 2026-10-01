@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
@@ -24,7 +23,14 @@ import "package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bott
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
+
+JsonRpcError unsupportedChainError(String caip2ChainId) {
+  final error = Errors.getSdkError(
+    Errors.UNSUPPORTED_CHAINS,
+    context: "The chain $caip2ChainId is not supported",
+  );
+  return JsonRpcError(code: error.code, message: error.message);
+}
 
 class EvmChainServiceImpl {
   Map<String, dynamic Function(String, dynamic)> get sessionRequestHandlers => {
@@ -40,30 +46,29 @@ class EvmChainServiceImpl {
       };
 
   EvmChainServiceImpl({
-    required this.reference,
+    required this.chainId,
     required this.appStore,
     required this.wcKeyService,
     required this.bottomSheetService,
     required this.walletKit,
-    Web3Client? web3Client,
-  }) : ethClient = web3Client ?? _createWeb3Client(reference, appStore) {
+  }) : caip2ChainId = evm!.getCaip2ByChainId(chainId) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
-        chainId: getChainId(),
+        chainId: caip2ChainId,
         event: event,
       );
     }
 
     for (var handler in methodRequestHandlers.entries) {
       walletKit.registerRequestHandler(
-        chainId: getChainId(),
+        chainId: caip2ChainId,
         method: handler.key,
         handler: handler.value,
       );
     }
     for (var handler in sessionRequestHandlers.entries) {
       walletKit.registerRequestHandler(
-        chainId: getChainId(),
+        chainId: caip2ChainId,
         method: handler.key,
         handler: handler.value,
       );
@@ -73,27 +78,16 @@ class EvmChainServiceImpl {
   }
 
   final AppStore appStore;
-  final EVMChainId reference;
-  final Web3Client ethClient;
+  final int chainId;
+  final String caip2ChainId;
   final ReownWalletKit walletKit;
   final WalletConnectKeyService wcKeyService;
   final BottomSheetService bottomSheetService;
 
-  String getChainId() => reference.chain();
+  static final _walletNotConnectedError =
+      JsonRpcError.serverError("The wallet is not connected to a node");
 
-  static Web3Client _createWeb3Client(EVMChainId reference, AppStore appStore) {
-    if (appStore.wallet != null && isEVMCompatibleChain(appStore.wallet!.type)) {
-      final walletClient = evm?.getWeb3Client(appStore.wallet!);
-
-      if (walletClient != null) {
-        return walletClient;
-      }
-    }
-
-    final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-
-    return Web3Client(node.uri.toString(), ProxyWrapper().getHttpIOClient());
-  }
+  bool get _isCurrentWalletChain => appStore.wallet?.chainId == chainId;
 
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');
@@ -346,6 +340,11 @@ class EvmChainServiceImpl {
       return;
     }
 
+    if (!_isCurrentWalletChain) {
+      await _rejectOtherNetworkRequest(topic, pRequest.id);
+      return;
+    }
+
     final address = EthUtils.getAddressFromSessionRequest(pRequest);
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
@@ -360,20 +359,25 @@ class EvmChainServiceImpl {
     );
 
     if (transaction is Transaction) {
+      if (!_isCurrentWalletChain) {
+        await _rejectOtherNetworkRequest(topic, pRequest.id);
+        return;
+      }
+
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
 
-        final chainId = getChainId().split(':').last;
-
-        final signature = await ethClient.signTransaction(
+        final client = evm!.getWeb3Client(appStore.wallet!);
+        final signature = await client?.signTransaction(
           credentials,
           transaction,
-          chainId: int.parse(chainId),
+          chainId: chainId,
         );
 
-        final signedTx = bytesToHex(signature, include0x: true);
-        response = response.copyWith(result: signedTx);
+        response = signature == null
+            ? response.copyWith(error: _walletNotConnectedError)
+            : response.copyWith(result: bytesToHex(signature, include0x: true));
       } on RPCError catch (e) {
         debugPrint('ethSignTransaction error $e');
         response = response.copyWith(
@@ -411,6 +415,11 @@ class EvmChainServiceImpl {
       return;
     }
 
+    if (!_isCurrentWalletChain) {
+      await _rejectOtherNetworkRequest(topic, pRequest.id);
+      return;
+    }
+
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     final transaction = await _approveTransaction(
@@ -422,18 +431,25 @@ class EvmChainServiceImpl {
       verifyContext: pRequest.verifyContext,
     );
     if (transaction is Transaction) {
+      if (!_isCurrentWalletChain) {
+        await _rejectOtherNetworkRequest(topic, pRequest.id);
+        return;
+      }
+
       try {
         final keys = wcKeyService.getKeysForChain(appStore.wallet!);
         final credentials = EthPrivateKey.fromHex(keys[0].privateKey);
-        final chainId = getChainId().split(':').last;
 
-        final signedTx = await ethClient.sendTransaction(
+        final client = evm!.getWeb3Client(appStore.wallet!);
+        final signedTx = await client?.sendTransaction(
           credentials,
           transaction,
-          chainId: int.parse(chainId),
+          chainId: chainId,
         );
 
-        response = response.copyWith(result: signedTx);
+        response = signedTx == null
+            ? response.copyWith(error: _walletNotConnectedError)
+            : response.copyWith(result: signedTx);
       } on RPCError catch (e) {
         debugPrint('ethSendTransaction error $e');
         response = response.copyWith(
@@ -524,6 +540,31 @@ class EvmChainServiceImpl {
     }
   }
 
+  Future<void> _rejectOtherNetworkRequest(String topic, int requestId) async {
+    final networkName = evm!.getChainInfoByChainId(chainId)?.name ?? caip2ChainId;
+    unawaited(
+      bottomSheetService.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          message: S.current.wc_request_for_other_network(networkName),
+        ),
+      ),
+    );
+
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: unsupportedChainError(caip2ChainId),
+        ),
+      );
+    } catch (e) {
+      printV("rejectOtherNetworkRequest: $e");
+    }
+  }
+
   void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {
     final session = walletKit.sessions.get(topic);
 
@@ -566,6 +607,13 @@ class EvmChainServiceImpl {
     VerifyContext? verifyContext,
     required String transportType,
   }) async {
+    final nativeCurrency = appStore.wallet!.currency;
+
+    final client = evm!.getWeb3Client(appStore.wallet!);
+    if (client == null) {
+      return _walletNotConnectedError;
+    }
+
     Transaction transaction = transactionJson.toTransaction();
 
     if (transactionJson.containsKey('gas') && transaction.maxGas == null) {
@@ -582,15 +630,14 @@ class EvmChainServiceImpl {
     }
 
     try {
-      transaction = await _ensureWCTransactionHasGasLimit(transaction);
+      transaction = await _ensureWCTransactionHasGasLimit(transaction, client);
     } on RPCError catch (e) {
       return JsonRpcError(code: e.errorCode, message: e.message);
     }
 
-    transaction = await _applyWCBufferedFees(transaction);
+    transaction = await _applyWCBufferedFees(transaction, client);
 
-    final nativeCurrency = evm?.getChainInfoByChainId(reference.chainId ?? 1)?.currency;
-    final nativeSymbol = nativeCurrency?.title ?? 'ETH';
+    final nativeSymbol = nativeCurrency.title;
 
     final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
 
@@ -691,15 +738,18 @@ class EvmChainServiceImpl {
     return value.toStringAsExponential(4);
   }
 
-  Future<Transaction> _ensureWCTransactionHasGasLimit(Transaction transaction) async {
+  Future<Transaction> _ensureWCTransactionHasGasLimit(
+    Transaction transaction,
+    Web3Client client,
+  ) async {
     final hasGasLimit = transaction.maxGas != null && transaction.maxGas! > 0;
     if (hasGasLimit) {
       return transaction;
     }
 
-    final hint = transaction.gasPrice ?? transaction.maxFeePerGas ?? await ethClient.getGasPrice();
+    final hint = transaction.gasPrice ?? transaction.maxFeePerGas ?? await client.getGasPrice();
 
-    final gasLimit = await ethClient.estimateGas(
+    final gasLimit = await client.estimateGas(
       sender: transaction.from,
       to: transaction.to,
       value: transaction.value,
@@ -717,13 +767,14 @@ class EvmChainServiceImpl {
     );
   }
 
-  Future<Transaction> _applyWCBufferedFees(Transaction transaction) async {
+  Future<Transaction> _applyWCBufferedFees(Transaction transaction, Web3Client client) async {
     try {
+      final wallet = appStore.wallet!;
       final storedPriority =
-          appStore.settingsStore.getPriority(appStore.wallet!.type, chainId: reference.chainId);
+          appStore.settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
       final priority = storedPriority ?? evm!.getDefaultTransactionPriority();
 
-      final quote = await evm!.getWCBufferedFeeQuote(appStore.wallet!, priority);
+      final quote = await evm!.getWCBufferedFeeQuote(wallet, priority);
       if (quote != null) {
         return _mergeWCBufferedFees(transaction, quote);
       }
@@ -732,7 +783,7 @@ class EvmChainServiceImpl {
     }
 
     if (!transaction.isEIP1559 && transaction.gasPrice == null) {
-      return transaction.copyWith(gasPrice: await ethClient.getGasPrice());
+      return transaction.copyWith(gasPrice: await client.getGasPrice());
     }
 
     return transaction;
@@ -778,7 +829,7 @@ class EvmChainServiceImpl {
   }
 
   void _onSessionRequest(SessionRequestEvent? args) async {
-    if (args != null && args.chainId == getChainId()) {
+    if (args != null && args.chainId == caip2ChainId) {
       debugPrint('_onSessionRequest ${args.toString()}');
       final handler = sessionRequestHandlers[args.method];
       if (handler != null) {

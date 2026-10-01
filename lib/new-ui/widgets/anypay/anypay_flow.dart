@@ -23,6 +23,7 @@ import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
@@ -153,6 +154,8 @@ class AnyPayFlow {
     final isEvmTarget = isEVMCompatibleChain(destinationType);
     final destinationNetworkName = networkDisplayName(destinationType, decision.targetChainId);
     final destinationNetworkIcon = symbolIconPathForWalletType(destinationType) ?? "";
+    final destinationAddedChainId =
+        destinationType == WalletType.evm ? decision.targetChainId : null;
 
     if (!decision.canSwap && !decision.hasCompatibleWallet) {
       _showError(
@@ -166,6 +169,7 @@ class AnyPayFlow {
     final currentChainId = isEVMCompatibleChain(currentType) ? _currentEvmChainId() : null;
     final currentNetworkName = networkDisplayName(currentType, currentChainId);
     final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? "";
+    final currentAddedChainId = currentType == WalletType.evm ? currentChainId : null;
 
     if (!decision.hasCompatibleWallet) {
       final swapConfirmTitle = isEvmTarget
@@ -185,6 +189,8 @@ class AnyPayFlow {
                 ),
             destinationIconPath: destinationNetworkIcon,
             currentIconPath: currentNetworkIcon,
+            destinationAddedChainId: destinationAddedChainId,
+            currentAddedChainId: currentAddedChainId,
             primaryText: swapConfirmPrimary,
             primaryIconPath: isEvmTarget ? null : "assets/new-ui/swap_arrows.svg",
             onPrimary: () => _openSwap(pageContext, request, decision),
@@ -210,6 +216,7 @@ class AnyPayFlow {
                   )
               : S.of(context).swap_unavailable_switch_to_network(destinationNetworkName),
           destinationIconPath: destinationNetworkIcon,
+          destinationAddedChainId: destinationAddedChainId,
           primaryText: S.of(context).switch_to_x_wallet(destinationNetworkName),
           primaryIconPath: "assets/new-ui/wallet_filled.svg",
           onPrimary: () => _pickDestinationWallet(pageContext, decision, destinationNetworkName),
@@ -240,6 +247,8 @@ class AnyPayFlow {
         context: pageContext,
         networkName: networkName,
         targetIconPath: symbolIconPathForWalletType(decision.targetWalletType) ?? "",
+        targetAddedChainId:
+            decision.targetWalletType == WalletType.evm ? decision.targetChainId : null,
         wallets: decision.wallets,
       );
     } else {

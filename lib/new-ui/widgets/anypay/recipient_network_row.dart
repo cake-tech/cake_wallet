@@ -1,6 +1,7 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class RecipientNetworkSelector extends StatelessWidget {
@@ -8,6 +9,7 @@ class RecipientNetworkSelector extends StatelessWidget {
     required this.networkName,
     required this.networkIconPath,
     required this.onTap,
+    this.addedNetworkChainId,
     super.key,
   });
 
@@ -15,9 +17,12 @@ class RecipientNetworkSelector extends StatelessWidget {
   final String networkIconPath;
   final VoidCallback onTap;
 
+  final int? addedNetworkChainId;
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final addedNetwork = AddedNetworkCurrency.tryFromChainId(addedNetworkChainId);
     return Semantics(
       button: true,
       label: "${S.of(context).network_prefix_on} $networkName",
@@ -36,11 +41,14 @@ class RecipientNetworkSelector extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               CakeImageWidget(
-                imageUrl: networkIconPath,
+                imageUrl: addedNetwork == null ? networkIconPath : addedNetwork.iconPath,
                 width: 16,
                 height: 16,
                 fit: BoxFit.cover,
                 color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,
+                isRoundedSquare: addedNetwork != null,
+                outlineColor: addedNetwork?.isManual == true ? colors.onSurface : null,
+                fallbackName: addedNetwork?.fullName,
               ),
               const SizedBox(width: 8),
               Text(
