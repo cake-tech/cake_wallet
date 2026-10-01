@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart' show WalletType;
 import 'package:flutter/material.dart';
@@ -110,8 +111,10 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                   !widget.exchangeViewModel.isSendFromExternal;
                             }
 
-                            final String currencyIconPath =
-                                getCryptoCurrencyIconForWalletListItem(item.type);
+                            final String currencyIconPath = getCryptoCurrencyIconForWalletListItem(
+                              item.type,
+                              chainId: item.chainId,
+                            );
 
                             final bool hasAccounts =
                                 item.type == WalletType.monero && widget.isSelectingReceiver;
@@ -246,6 +249,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
 
   @override
   Widget build(BuildContext context) {
+    final addedNetwork = AddedNetworkCurrency.tryFromChainId(widget.wallet.chainId);
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
@@ -273,7 +277,16 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                     Row(
                       spacing: 12,
                       children: [
-                        CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
+                        CakeImageWidget(
+                          imageUrl: widget.iconPath,
+                          width: 24,
+                          height: 24,
+                          isRoundedSquare: addedNetwork != null,
+                          outlineColor: addedNetwork?.isManual == true
+                              ? Theme.of(context).colorScheme.onSurface
+                              : null,
+                          fallbackName: addedNetwork?.fullName,
+                        ),
                         Text(widget.wallet.name)
                       ],
                     ),

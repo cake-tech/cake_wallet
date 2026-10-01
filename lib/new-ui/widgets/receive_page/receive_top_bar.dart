@@ -17,7 +17,8 @@ class ModalTopBar extends StatelessWidget {
       this.leadingWidget,
       this.trailingWidget,
       this.leadingSemanticLabel,
-      this.trailingSemanticLabel}) {
+      this.trailingSemanticLabel,
+      this.titleStyle}) {
     if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -36,6 +37,7 @@ class ModalTopBar extends StatelessWidget {
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
+  final TextStyle? titleStyle;
 
   /// Accessible name for the leading chrome button. Required (and must be
   /// non-empty) whenever a [leadingIcon] is supplied, because the icon alone
@@ -77,8 +79,9 @@ class ModalTopBar extends StatelessWidget {
                     headingLevel: title.isNotEmpty ? 1 : null,
                     child: Text(
                       title,
-                        style: TextStyle(
-                            fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
+                          style: titleStyle ??
+                              TextStyle(
+                                  fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
                       ),
                       ),
                     ),

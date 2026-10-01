@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/decimal_input_formatter.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -26,6 +27,11 @@ class ReceiveAmountModal extends StatefulWidget {
 
 class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   final TextEditingController _amountController = TextEditingController();
+
+  AddedNetworkCurrency? get _addedNetwork => AddedNetworkCurrency.of(
+        widget.walletAddressListViewModel.tokenCurrency ??
+            widget.walletAddressListViewModel.wallet.currency,
+      );
 
   @override
   void initState() {
@@ -94,14 +100,25 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                         spacing: 8,
                                         children: [
                                           ExcludeSemantics(
-                                            child: TokenImageWidget(
-                                              imageUrl: widget.walletAddressListViewModel
-                                                      .tokenCurrency?.iconPath ??
-                                                  widget.walletAddressListViewModel.currencies.first
-                                                      .iconPath ??
-                                                  "",
-                                              size: 32,
-                                            ),
+                                            child: _addedNetwork == null
+                                                ? TokenImageWidget(
+                                                    imageUrl: widget.walletAddressListViewModel
+                                                            .tokenCurrency?.iconPath ??
+                                                        widget.walletAddressListViewModel.currencies
+                                                            .first.iconPath ??
+                                                        "",
+                                                    size: 32,
+                                                  )
+                                                : CakeImageWidget(
+                                                    imageUrl: _addedNetwork?.iconPath,
+                                                    width: 32,
+                                                    height: 32,
+                                                    isRoundedSquare: true,
+                                                    outlineColor: _addedNetwork?.isManual == true
+                                                        ? Theme.of(context).colorScheme.onSurface
+                                                        : null,
+                                                    fallbackName: _addedNetwork?.fullName,
+                                                  ),
                                           ),
                                           Text((widget.walletAddressListViewModel.tokenCurrency ??
                                                   widget.walletAddressListViewModel.currencies.first

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
@@ -34,7 +35,8 @@ class AssetDetailsModal extends StatelessWidget {
       required this.wallet,
       required this.showSwap,
       required this.showBridgeButton,
-      this.asset});
+      this.asset,
+      this.addedNetwork});
 
   final String title;
   final CryptoCurrency? asset;
@@ -49,6 +51,7 @@ class AssetDetailsModal extends StatelessWidget {
   final bool showSwap;
   final bool showBridgeButton;
   final AssetDetailsModalModes mode;
+  final ChainInfo? addedNetwork;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +157,18 @@ class AssetDetailsModal extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              if (chainIconPath.isNotEmpty)
+                              if (addedNetwork != null)
+                                CakeImageWidget(
+                                  imageUrl: addedNetwork!.iconPath,
+                                  width: 16,
+                                  height: 16,
+                                  isRoundedSquare: true,
+                                  outlineColor: addedNetwork!.source == ChainSource.manual
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : null,
+                                  fallbackName: addedNetwork!.name,
+                                )
+                              else if (chainIconPath.isNotEmpty)
                                 CakeImageWidget(
                                   imageUrl: chainIconPath,
                                   width: 16,

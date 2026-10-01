@@ -356,11 +356,16 @@ class _CornerSvgIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addedNetwork = design.addedNetwork;
+
     return CakeImageWidget(
       imageUrl: design.imagePath,
       key: ValueKey(design.imagePath),
       height: iconWidth,
       width: iconWidth,
+      isRoundedSquare: addedNetwork != null,
+      fallbackName: addedNetwork?.fullName,
+      outlineColor: addedNetwork?.isManual == true ? Theme.of(context).colorScheme.onSurface : null,
       colorFilter: design.preColoredIcon
           ? null
           : ColorFilter.mode(

@@ -18,6 +18,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.subtitle,
     this.iconPath,
     this.showArrow = false,
+    this.isDense = false,
   });
 
   final String keyValue;
@@ -31,6 +32,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final bool isDense;
 
   @override
   State<ListItemCheckboxWidget> createState() => _ListItemCheckboxWidgetState();
@@ -40,15 +42,20 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
-      iconPath: widget.iconPath,
+      hasLeading: widget.iconPath != null,
       onTap: widget.onTap ??
           () {
             widget.onChanged(!widget.value);
           },
       isFirstInSection: widget.isFirstInSection,
-      height: widget.subtitle != null ? 64 : 50,
+      height: widget.isDense
+          ? (widget.subtitle != null ? 62 : 48)
+          : (widget.subtitle != null ? 64 : 50),
       isLastInSection: widget.isLastInSection,
+      isDense: widget.isDense,
       builder: (context, textStyle, labelStyle) {
+        final iconSize = widget.isDense ? 24.0 : 26.0;
+
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -58,11 +65,15 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                 children: [
                   if (widget.iconPath != null)
                     widget.iconPath!.toLowerCase().endsWith("svg")
-                        ? CakeImageWidget(imageUrl: widget.iconPath!, height: 26, width: 26)
+                        ? CakeImageWidget(
+                            imageUrl: widget.iconPath!,
+                            height: iconSize,
+                            width: iconSize,
+                          )
                         : Image.asset(
                             widget.iconPath!,
-                            width: 26,
-                            height: 26,
+                            width: iconSize,
+                            height: iconSize,
                           ),
                   Expanded(
                     child: Column(
@@ -72,7 +83,9 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                       children: [
                         Row(
                           children: [
-                            Flexible(child: Text(widget.label)),
+                            Flexible(
+                              child: Text(widget.label, style: widget.isDense ? textStyle : null),
+                            ),
                             if (widget.showArrow)
                               Icon(
                                 Icons.chevron_right,
@@ -81,7 +94,20 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                               )
                           ],
                         ),
-                        if (widget.subtitle != null)
+                        if (widget.subtitle != null && widget.isDense)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              widget.subtitle!,
+                              style: labelStyle.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -0.06,
+                                color: widget.subtitleColor,
+                              ),
+                            ),
+                          )
+                        else if (widget.subtitle != null)
                           Text(
                             widget.subtitle!,
                             style: TextStyle(
@@ -96,6 +122,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
               ),
             ),
             NewSimpleCheckbox(
+              checkIconSize: widget.isDense ? 16 : 20,
               value: widget.value,
               onChanged: (newValue) {
                 widget.onChanged(newValue);

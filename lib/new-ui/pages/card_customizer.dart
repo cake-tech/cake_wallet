@@ -223,6 +223,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                         const SizedBox(width: 8.0),
                                                     itemBuilder: (context, index) {
                                                       final icon = state.availableIconPaths[index];
+                                                      final addedNetwork = icon.addedNetwork;
                                                       final isSelected =
                                                           index == state.selectedIconIndex;
                                                       return GestureDetector(
@@ -259,7 +260,20 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                           child: Padding(
                                                             padding: const EdgeInsets.all(10.0),
                                                             child: CakeImageWidget(
-                                                                imageUrl: icon.path),
+                                                              imageUrl: icon.path,
+                                                              width:
+                                                                  addedNetwork == null ? null : 24,
+                                                              height:
+                                                                  addedNetwork == null ? null : 24,
+                                                              isRoundedSquare: addedNetwork != null,
+                                                              fallbackName: addedNetwork?.fullName,
+                                                              outlineColor:
+                                                                  addedNetwork?.isManual == true
+                                                                      ? Theme.of(context)
+                                                                          .colorScheme
+                                                                          .onSurface
+                                                                      : null,
+                                                            ),
                                                           ),
                                                         ),
                                                       );

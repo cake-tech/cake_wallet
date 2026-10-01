@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart";
@@ -6,7 +7,6 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import "package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 
@@ -24,7 +24,7 @@ class SingleNetworkCurrencyPicker extends StatefulWidget {
 
 class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicker> {
   CurrencyPickerArgs get _args => widget.args;
-  WalletType get _network => _args.filterByNetwork!;
+  WalletNetwork get _network => _args.filterByNetwork!;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -50,14 +50,11 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
 
   @override
   Widget build(BuildContext context) {
-    final native = walletTypeToCryptoCurrency(_network);
+    final native = _network.nativeCurrency;
     final query = _searchController.text.trim();
     final tokens = _args.items
         .where(
-          (c) =>
-              c != native &&
-              cryptoCurrencyOrTokenToWalletType(c) == _network &&
-              currencyMatchesQuery(c, query),
+          (c) => c != native && _network.isHomeNetworkOf(c) && currencyMatchesQuery(c, query),
         )
         .toList();
 
@@ -72,7 +69,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     });
     final nativeMatches = currencyMatchesQuery(native, query);
 
-    final showSectionHeaders = _network != WalletType.bitcoin;
+    final showSectionHeaders = _network.type != WalletType.bitcoin;
 
     return Column(
       mainAxisSize: MainAxisSize.max,
@@ -101,7 +98,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
                             PickerSectionHeader(
                               title: S
                                   .of(context)
-                                  .picker_section_tokens_standard(tokenStandardFor(_network)),
+                                  .picker_section_tokens_standard(tokenStandardFor(_network.type)),
                             ),
                             CurrencyPickerListContainer(
                               rows: [

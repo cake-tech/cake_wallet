@@ -4,6 +4,8 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_til
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 
 class HistoryTradeTile extends StatelessWidget {
@@ -37,6 +39,12 @@ class HistoryTradeTile extends StatelessWidget {
     }
 
     double currencyIconSize = 22.0;
+    final fromNetwork = AddedNetworkCurrency.of(from);
+    final toNetwork = AddedNetworkCurrency.of(to);
+    
+    final isFromAddedNetwork = from!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
+    final isToAddedNetwork = to!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
+    final outlineColor = Theme.of(context).colorScheme.onSurface;
 
     return SizedBox(
       height: 50,
@@ -44,19 +52,33 @@ class HistoryTradeTile extends StatelessWidget {
       child: Stack(
         children: [
           CakeImageWidget(
-              imageUrl: _getIconPath(from!), width: currencyIconSize, height: currencyIconSize),
+            imageUrl: fromNetwork == null ? _getIconPath(from!) : fromNetwork.iconPath,
+            width: currencyIconSize,
+            height: currencyIconSize,
+            isRoundedSquare: isFromAddedNetwork,
+            outlineColor: fromNetwork?.isManual == true ? outlineColor : null,
+            fallbackName: fromNetwork?.fullName ?? (isFromAddedNetwork ? from!.title : null),
+          ),
           Positioned(
             top: currencyIconSize / 2,
             left: currencyIconSize / 2,
             child: Container(
               decoration: BoxDecoration(
-                  border:
-                      Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainer),
-                  shape: BoxShape.circle),
+                border: Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainer),
+                shape: isToAddedNetwork ? BoxShape.rectangle : BoxShape.circle,
+                borderRadius: isToAddedNetwork
+                    ? BorderRadius.circular(
+                        currencyIconSize * CakeImageWidget.networkIconCornerRatio + 2,
+                      )
+                    : null,
+              ),
               child: CakeImageWidget(
-                imageUrl: _getIconPath(to!),
+                imageUrl: toNetwork == null ? _getIconPath(to!) : toNetwork.iconPath,
                 width: currencyIconSize,
                 height: currencyIconSize,
+                isRoundedSquare: isToAddedNetwork,
+                outlineColor: toNetwork?.isManual == true ? outlineColor : null,
+                fallbackName: toNetwork?.fullName ?? (isToAddedNetwork ? to!.title : null),
               ),
             ),
           ),
@@ -152,6 +174,11 @@ class HistoryTradeTile extends StatelessWidget {
 
   String? _getChainIcon(CryptoCurrency? currency) {
     if (currency == null) return null;
+
+    if (currency is AddedNetworkCurrency) {
+      return null;
+    }
+
     try {
       if (currency.title.isNotEmpty) {
         final parsedCurrency =

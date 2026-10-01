@@ -1,6 +1,8 @@
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
@@ -24,6 +26,11 @@ class ChainIcon extends StatelessWidget {
       builder: (_) {
         final progress = dashboardViewModel.status.progress();
         final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
+        final addedChainId =
+            EvmNativeCurrencies.getAddedNetworkChainId(dashboardViewModel.wallet.currency);
+        final addedNetwork = addedChainId == null
+            ? null
+            : dashboardViewModel.settingsStore.evmNetworks[addedChainId];
 
         return Stack(
           children: [
@@ -47,18 +54,33 @@ class ChainIcon extends StatelessWidget {
               scale: done ? 1 : 0.8,
               child: AnimatedSwitcher(
                 duration: Duration(milliseconds: 150),
-                child: CakeImageWidget(
-                  imageUrl: iconPath,
-                  key: ValueKey(progress >= 1),
-                  width: 36,
-                  height: 36,
-                  colorFilter: ColorFilter.mode(
-                    done
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                        : Theme.of(context).colorScheme.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
+                child: addedNetwork != null
+                    ? Opacity(
+                        key: ValueKey(progress >= 1),
+                        opacity: done ? 0.2 : 1,
+                        child: CakeImageWidget(
+                          imageUrl: addedNetwork.iconPath,
+                          width: 36,
+                          height: 36,
+                          isRoundedSquare: true,
+                          outlineColor: addedNetwork.source == ChainSource.manual
+                              ? Theme.of(context).colorScheme.onSurface
+                              : null,
+                          fallbackName: addedNetwork.name,
+                        ),
+                      )
+                    : CakeImageWidget(
+                        imageUrl: iconPath,
+                        key: ValueKey(progress >= 1),
+                        width: 36,
+                        height: 36,
+                        colorFilter: ColorFilter.mode(
+                          done
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                              : Theme.of(context).colorScheme.primary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
               ),
             ),
           ],

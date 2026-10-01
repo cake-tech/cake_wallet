@@ -10,10 +10,12 @@ class SwapSourceSelector extends StatelessWidget {
     required this.onTap,
     this.chainIconPath,
     this.walletName,
+    this.currencyIcon,
     super.key,
   });
 
   final String currencyIconPath;
+  final Widget? currencyIcon;
   final String currencyLabel;
   final String availableBalance;
   final VoidCallback onTap;
@@ -40,11 +42,12 @@ class SwapSourceSelector extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CakeImageWidget(
-                  imageUrl: currencyIconPath,
-                  width: 24,
-                  height: 24,
-                ),
+                currencyIcon ??
+                    CakeImageWidget(
+                      imageUrl: currencyIconPath,
+                      width: 24,
+                      height: 24,
+                    ),
                 const SizedBox(width: 8),
                 Text(
                   currencyLabel,

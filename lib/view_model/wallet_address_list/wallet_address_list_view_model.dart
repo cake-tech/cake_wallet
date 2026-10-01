@@ -30,7 +30,6 @@ import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
-import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/spl_token.dart";
@@ -196,6 +195,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get isFiatDisabled => _appStore.settingsStore.fiatApiMode == FiatApiMode.disabled;
 
+  bool get isCurrencyUnpriced =>
+      fiatConversionStore.isUnpricedAddedNetworkCurrency(tokenCurrency ?? wallet.currency);
+
   @computed
   WalletType get type => wallet.type;
 
@@ -299,7 +301,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: address.address,
             txCount: address.txCount,
             balance: _appStore.amountParsingProxy
-                .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
+                .getDisplayCryptoString(address.balance, wallet.currency),
             isChange: address.isChange,
             derivationPath: address.derivationPath,
           );
@@ -315,7 +317,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
                 address: address.address,
                 txCount: address.txCount,
                 balance: _appStore.amountParsingProxy
-                    .getDisplayCryptoString(address.balance, walletTypeToCryptoCurrency(type)),
+                    .getDisplayCryptoString(address.balance, wallet.currency),
                 isChange: address.isChange,
                 isOneTimeReceiveAddress: true,
                 derivationPath: address.derivationPath,
@@ -333,7 +335,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             address: subaddress.address,
             txCount: subaddress.txCount,
             balance: _appStore.amountParsingProxy
-                .getDisplayCryptoString(subaddress.balance, walletTypeToCryptoCurrency(type)),
+                .getDisplayCryptoString(subaddress.balance, wallet.currency),
             isChange: subaddress.isChange,
             isLegacyDerivation: subaddress.isLegacyDerivation,
             derivationPath: subaddress.derivationPath,
@@ -490,7 +492,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get hasTokensList => hasTokens(type);
 
   @computed
-  String get walletTypeName => walletTypeToString(type);
+  String get walletTypeName => networkDisplayName(type, wallet.walletInfo.chainId);
 
   @computed
   bool get hasAddressList =>
@@ -558,11 +560,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             "assets/images/more_tokens.svg",
           ];
         default:
-          return [
-            "assets/new-ui/crypto_full_icons/ethereum.svg",
-            "assets/images/usdc_icon.svg",
-            "assets/images/usdt_wallet_icon.svg",
-          ];
+          return [];
       }
     }
 
@@ -596,6 +594,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (isLightning) {
       return "assets/images/btc_chain_qr_lightning.svg";
     }
+
+    if (type == WalletType.evm) {
+      return wallet.currency.iconPath ?? getQrImage(type);
+    }
+
     return getQrImage(type);
   }
 

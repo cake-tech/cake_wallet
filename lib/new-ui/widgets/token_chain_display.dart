@@ -1,5 +1,6 @@
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class TokenChainDisplay extends StatelessWidget {
@@ -12,6 +13,8 @@ class TokenChainDisplay extends StatelessWidget {
 
   double get _chainIconSize => size * _chainIconSizeFactor;
 
+  AddedNetworkCurrency? get _addedNetwork => AddedNetworkCurrency.of(asset);
+
   @override
   Widget build(BuildContext context) => SizedBox(
         width: size+(_chainIconSize/2),
@@ -21,8 +24,12 @@ class TokenChainDisplay extends StatelessWidget {
             CakeImageWidget(
               imageUrl: asset.iconPath ?? "",
               width: size,
+              isRoundedSquare: _addedNetwork != null,
+              outlineColor:
+                  _addedNetwork?.isManual == true ? Theme.of(context).colorScheme.onSurface : null,
+              fallbackName: _addedNetwork?.fullName,
             ),
-            if ((asset.chainIconPath ?? "").isNotEmpty)
+            if (_addedNetwork == null && (asset.chainIconPath ?? "").isNotEmpty)
               Align(
                 alignment: Alignment.bottomRight,
                 child: Container(

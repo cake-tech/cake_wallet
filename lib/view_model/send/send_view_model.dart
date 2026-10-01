@@ -56,7 +56,6 @@ import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/lnurl.dart';
@@ -71,7 +70,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
@@ -289,6 +287,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   CryptoCurrency pendingTransactionFeeCurrency(WalletType type) {
     switch (type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -392,7 +391,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
         return _appStore.amountParsingProxy.getDisplayCryptoString(
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
+            wallet.currency);
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
@@ -401,7 +400,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+        return wallet.currency.formatAmount(BigInt.from(sendingBalance));
       default:
         return balance;
     }
@@ -410,13 +409,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
 
-  @computed
-  String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
+  bool get isSelectedCurrencyUnpriced =>
+      _fiatConversationStore.isUnpricedAddedNetworkCurrency(selectedCryptoCurrency);
+
+  bool get isFeeCurrencyUnpriced =>
+      _fiatConversationStore.isUnpricedAddedNetworkCurrency(wallet.currency);
 
   @computed
-  String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
+  String get pendingTransactionFiatAmountFormatted => isFiatDisabled || isSelectedCurrencyUnpriced
+      ? ""
+      : "$pendingTransactionFiatAmount ${fiat.title}";
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted => isFiatDisabled || isFeeCurrencyUnpriced
+      ? ""
+      : "$pendingTransactionFeeFiatAmount ${fiat.title}";
 
   @computed
   bool get isReadyForSend =>
@@ -1151,9 +1158,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // it is required because evm, solana and tron don't actually save the transaction info when you send something.
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if (isEVMWallet) {
-        final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
-              (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
-            );
+        final selectedCurrency = selectedCryptoCurrency;
+        final selectedToken = selectedCurrency is Erc20Token
+            ? evm!.getERC20Currencies(wallet).firstWhereOrNull(
+                  (token) =>
+                      token.chainId == selectedCurrency.chainId &&
+                      token.contractAddress.toLowerCase() ==
+                          selectedCurrency.contractAddress.toLowerCase(),
+                )
+            : null;
         wallet.transactionHistory.addOne(evm!.getTransactionInfo(
           id: pendingTransaction!.evmTxHashFromRawHex!,
           height: 0,
@@ -1166,6 +1179,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           confirmations: 0,
           chainId: wallet.chainId ?? 0,
           contractAddress: selectedToken?.contractAddress,
+          nonce: pendingTransaction!.evmNonce,
         ));
       }
 
@@ -1307,6 +1321,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -1569,11 +1584,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (errorMessage.contains('insufficient funds')) {
-        final feeCurrency = switch (walletType) {
-          WalletType.bsc => "BNB",
-          WalletType.polygon => "POL",
-          _ => "ETH",
-        };
+        final feeCurrency = wallet.currency.title;
 
         final parsedErrorMessageResult =
             EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
@@ -1742,19 +1753,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   String? payjoinUri;
-
-  @action
-  Future<void> fetchTokenForContractAddress(String contractAddress,
-      {WalletType? walletType}) async {
-    final token = await TokenUtilities.findTokenByAddress(
-      walletType: walletType ?? wallet.type,
-      address: contractAddress,
-    );
-
-    if (token != null) {
-      selectedCryptoCurrency = token;
-    }
-  }
 
   @action
   void applyAnyPayCurrency(CryptoCurrency currency) {

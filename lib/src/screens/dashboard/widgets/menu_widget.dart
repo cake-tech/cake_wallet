@@ -1,4 +1,6 @@
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
@@ -245,6 +247,19 @@ class MenuWidgetState extends State<MenuWidget> {
         return havenIcon;
       case WalletType.ethereum:
         return ethereumIcon;
+      case WalletType.evm:
+        final network = widget.dashboardViewModel.settingsStore
+            .evmNetworks[widget.dashboardViewModel.wallet.walletInfo.chainId];
+        return CakeImageWidget(
+          imageUrl: network?.iconPath,
+          width: 40,
+          height: 40,
+          isRoundedSquare: true,
+          outlineColor: network?.source == ChainSource.manual
+              ? Theme.of(context).colorScheme.onSurface
+              : null,
+          fallbackName: network?.name ?? "",
+        );
       case WalletType.bitcoinCash:
         return bitcoinCashIcon;
       case WalletType.nano:

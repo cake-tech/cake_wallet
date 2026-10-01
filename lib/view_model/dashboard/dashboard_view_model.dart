@@ -606,6 +606,10 @@ abstract class DashboardViewModelBase with Store {
   @computed
   String get address => wallet.walletAddresses.address;
 
+  String get walletCurrencyName => wallet.type == WalletType.evm
+      ? appStore.amountParsingProxy.getCryptoSymbol(wallet.currency)
+      : wallet.currency.name;
+
   @computed
   bool get isTorEnabled => settingsStore.currentBuiltinTor;
 
@@ -852,15 +856,6 @@ abstract class DashboardViewModelBase with Store {
   ChainInfo? get currentChain {
     if (!isEVMWallet) return null;
     return evm!.getCurrentChain(wallet);
-  }
-
-  @action
-  Future<void> selectChain(int chainId) async {
-    if (!isEVMWallet) return;
-
-    final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
-
-    await evm!.selectChain(wallet, chainId, node: node);
   }
 
   final KeyService keyService;
@@ -1239,6 +1234,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:

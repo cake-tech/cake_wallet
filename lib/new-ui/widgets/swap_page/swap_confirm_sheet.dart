@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/utilities.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/swap_send_external_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
@@ -19,7 +21,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currencies_with_memo.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -148,14 +150,17 @@ class SwapTransactionDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final depositNetwork = AddedNetworkCurrency.of(exchangeViewModel.depositCurrency);
+    final receiveNetwork = AddedNetworkCurrency.of(exchangeViewModel.receiveCurrency);
+    final outlineColor = Theme.of(context).colorScheme.onSurface;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
           title: "",
           leadingWidget: SwapModalHeader(
-              fromIconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
-              toIconPath: exchangeViewModel.receiveCurrency.iconPath ?? ""),
+              from: exchangeViewModel.depositCurrency, to: exchangeViewModel.receiveCurrency),
           trailingIcon: Icon(Icons.close),
           trailingSemanticLabel: S.of(context).close,
           onTrailingPressed: Navigator.of(context).maybePop,
@@ -175,6 +180,16 @@ class SwapTransactionDetails extends StatelessWidget {
                         keyValue: "send value",
                         label: exchangeViewModel.depositCurrency.fullName ?? "",
                         iconPath: exchangeViewModel.depositCurrency.iconPath ?? "",
+                        leadingWidget: depositNetwork == null
+                            ? null
+                            : CakeImageWidget(
+                                imageUrl: depositNetwork.iconPath,
+                                width: 24,
+                                height: 24,
+                                isRoundedSquare: true,
+                                outlineColor: depositNetwork.isManual ? outlineColor : null,
+                                fallbackName: depositNetwork.fullName,
+                              ),
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
                         trailingText: exchangeViewModel.amountParsingProxy
                             .asDisplayStringWithSymbol(
@@ -188,8 +203,10 @@ class SwapTransactionDetails extends StatelessWidget {
                             showArrow: false,
                             keyValue: "fee",
                             label: S.of(context).fee,
-                            trailingText:
-                                "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
+                            trailingText: exchangeTradeViewModel
+                                    .pendingTransactionFeeFiatAmountFormatted.isEmpty
+                                ? "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted}"
+                                : "${exchangeTradeViewModel.sendViewModel.pendingTransaction?.feeFormatted} (${exchangeTradeViewModel.pendingTransactionFeeFiatAmountFormatted})"),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
@@ -204,6 +221,16 @@ class SwapTransactionDetails extends StatelessWidget {
                         keyValue: "receive value",
                         label: exchangeViewModel.receiveCurrency.fullName ?? "",
                         iconPath: exchangeViewModel.receiveCurrency.iconPath ?? "",
+                        leadingWidget: receiveNetwork == null
+                            ? null
+                            : CakeImageWidget(
+                                imageUrl: receiveNetwork.iconPath,
+                                width: 24,
+                                height: 24,
+                                isRoundedSquare: true,
+                                outlineColor: receiveNetwork.isManual ? outlineColor : null,
+                                fallbackName: receiveNetwork.fullName,
+                              ),
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),
                         trailingText: (receiveAmount.withMaxDecimals(8)) +
                             " " +
@@ -297,8 +324,17 @@ class SwapTransactionDetails extends StatelessWidget {
 }
 
 String? _resolveChainBadgePath(CryptoCurrency currency) {
+  if (currency is AddedNetworkCurrency) {
+    return null;
+  }
+
   try {
     if (currency.chainIconPath != null) return currency.chainIconPath;
+
+    final network = WalletNetwork.tryFromCurrency(currency);
+    if (network != null && network.type == WalletType.evm) {
+      return network.nativeCurrency.chainIconPath;
+    }
 
     final tag = currency.tag;
     if (tag != null && tag.isNotEmpty) {
@@ -306,9 +342,8 @@ String? _resolveChainBadgePath(CryptoCurrency currency) {
       if (byTag.chainIconPath != null) return byTag.chainIconPath;
     }
 
-    final walletType = cryptoCurrencyOrTokenToWalletType(currency);
-    if (walletType != null) {
-      return walletTypeToCryptoCurrency(walletType).chainIconPath;
+    if (network != null) {
+      return network.nativeCurrency.chainIconPath;
     }
   } catch (_) {}
   return null;

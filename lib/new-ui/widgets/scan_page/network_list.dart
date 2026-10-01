@@ -1,9 +1,10 @@
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +28,9 @@ class ScanPageNetworkList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addedNetworkCount =
+        evm?.getAllChains().where((chain) => chain.source != ChainSource.builtin).length ?? 0;
+
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -69,7 +73,8 @@ class ScanPageNetworkList extends StatelessWidget {
                         showArrow: false,
                         iconPath: "assets/new-ui/navbar/wallets.svg",
                         iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                        subtitle: "${availableWalletTypes.length} ${S.of(context).networks}"),
+                        subtitle: "${builtinNetworkTypes.length + addedNetworkCount} "
+                            "${S.of(context).networks}"),
                     ListItemRegularRow(
                         keyValue: "invoices",
                         label: S.of(context).payment_invoices,

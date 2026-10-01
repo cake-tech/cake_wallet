@@ -194,15 +194,15 @@ abstract class HomeSettingsViewModelBase with Store {
         return false;
       }
 
-      bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
-        contractAddress,
-        getChainNameBasedOnWalletType(_balanceViewModel.wallet.type),
-      );
+      final chainId = evm!.getSelectedChainId(_balanceViewModel.wallet);
+      if (chainId == null) {
+        return false;
+      }
 
-      bool isUnverifiedContract = await _isContractUnverified(
-        contractAddress,
-        chainId: evm!.getSelectedChainId(_balanceViewModel.wallet).toString(),
-      );
+      final isPotentialScamViaMoralis = evm!.isMoralisSupportedChain(chainId) &&
+          await _isPotentialScamTokenViaMoralis(contractAddress, evm!.getHexChainId(chainId));
+
+      final isUnverifiedContract = await _isContractUnverified(contractAddress, chainId: chainId);
 
       final showWarningForContractAddress = isPotentialScamViaMoralis || isUnverifiedContract;
 
@@ -217,6 +217,7 @@ abstract class HomeSettingsViewModelBase with Store {
     List<String> defaultTokenAddresses = [];
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -258,6 +259,7 @@ abstract class HomeSettingsViewModelBase with Store {
     List<String> defaultTokenSymbols = [];
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -349,19 +351,13 @@ abstract class HomeSettingsViewModelBase with Store {
 
   Future<bool> _isContractUnverified(
     String contractAddress, {
-    required String chainId,
+    required int chainId,
   }) async {
-    final uri = Uri.https(
-      "api.etherscan.io",
-      "/v2/api",
-      {
-        "chainid": chainId,
-        "module": "contract",
-        "action": "getsourcecode",
-        "address": contractAddress,
-        "apikey": secrets.etherScanApiKey,
-      },
-    );
+    final uri = evm!.getContractSourceCodeUri(chainId, contractAddress);
+
+    if (uri == null) {
+      return false;
+    }
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri);
@@ -374,8 +370,10 @@ abstract class HomeSettingsViewModelBase with Store {
         return true;
       }
 
-      if (decodedResponse['status'] == '1' &&
-          decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
+      final isBlockscout = uri.host != "api.etherscan.io";
+      if (decodedResponse["status"] == "1" &&
+          [if (isBlockscout) null, "Contract source code not verified"]
+              .contains(decodedResponse["result"][0]["ABI"])) {
         printV('Call is valid but contract is not verified');
         return true; // Contract is not verified
       } else {
@@ -540,7 +538,8 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<void> _updateLocalFavoriteToken() async {
     favoriteToken = await TokenUtilities.findTokenByAddress(
             walletType: _balanceViewModel.wallet.type,
-            address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "") ??
+            address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "",
+            chainId: _balanceViewModel.wallet.walletInfo.chainId) ??
         _balanceViewModel.wallet.currency;
   }
 

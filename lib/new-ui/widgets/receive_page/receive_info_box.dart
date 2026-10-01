@@ -1,10 +1,13 @@
 import 'dart:math';
 
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +24,8 @@ class ReceiveInfoBox extends StatelessWidget {
   /// address types, so it defaults to true; Zcash also offers static types, for
   /// which the rotation notice would be wrong.
   static ReceiveInfoBox? forWalletType(WalletType type,
-      {required VoidCallback onDismissed,
+      {int? chainId,
+      required VoidCallback onDismissed,
       required AutoGenerateSubaddressStatus autoGenerateSubaddressStatus,
       List<CryptoCurrency>? supportedCurrencies,
       bool addressRotates = true}) {
@@ -29,6 +33,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.nano:
         return null;
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.base:
       case WalletType.solana:
       case WalletType.arbitrum:
@@ -37,14 +42,20 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.zano:
       case WalletType.bsc:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
+        final addedNetwork =
+            type == WalletType.evm && chainId != null ? evm!.getChainInfoByChainId(chainId) : null;
+
         return ReceiveInfoBox(
             iconPath: "",
-            message: "${S.current.infobox_multichain} ${walletTypeToString(type)}",
+            message: "${S.current.infobox_multichain} ${networkDisplayName(type, chainId)}",
             onDismissed: onDismissed,
             bottomWidget: InfoboxCurrencyRow(
               currencies: supportedCurrencies ?? [],
-              chainIconPath:
-                  "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+              // Added networks have no mono chain badge, they show their own icon
+              chainIconPath: type == WalletType.evm
+                  ? null
+                  : "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+              addedNetwork: addedNetwork,
             ));
       default:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
@@ -131,9 +142,11 @@ class ReceiveInfoBox extends StatelessWidget {
 }
 
 class InfoboxCurrencyRow extends StatelessWidget {
-  const InfoboxCurrencyRow({super.key, required this.currencies, required this.chainIconPath});
+  const InfoboxCurrencyRow(
+      {super.key, required this.currencies, required this.chainIconPath, this.addedNetwork});
 
-  final String chainIconPath;
+  final String? chainIconPath;
+  final ChainInfo? addedNetwork;
   final List<CryptoCurrency> currencies;
 
   static const overlap = 16.0;
@@ -148,6 +161,7 @@ class InfoboxCurrencyRow extends StatelessWidget {
         currenciesWithImage.sublist(0, min(currenciesWithImage.length, maxCurrencies));
 
     final double stackWidth = iconSize + (overlap * (currenciesLimited.length));
+    final addedNetwork = this.addedNetwork;
 
     // Purely illustrative: the meaning ("receive any token on <chain>") is
     // carried by the infobox message text next to it.
@@ -155,18 +169,32 @@ class InfoboxCurrencyRow extends StatelessWidget {
       child: Row(
         spacing: 8,
         children: [
-          CakeImageWidget(
-            imageUrl: chainIconPath,
-            width: 20,
-            height: 20,
-            colorFilter:
-                ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-          ),
-          Container(
-            height: 28,
-            width: 1,
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          ),
+          if (addedNetwork != null || chainIconPath != null) ...[
+            if (addedNetwork != null)
+              CakeImageWidget(
+                imageUrl: addedNetwork.iconPath,
+                width: 20,
+                height: 20,
+                isRoundedSquare: true,
+                outlineColor: addedNetwork.source == ChainSource.manual
+                    ? Theme.of(context).colorScheme.onSurface
+                    : null,
+                fallbackName: addedNetwork.name,
+              )
+            else
+              CakeImageWidget(
+                imageUrl: chainIconPath,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+              ),
+            Container(
+              height: 28,
+              width: 1,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            ),
+          ],
           SizedBox(
             height: iconSize + iconBorder * 2,
             width: stackWidth,
@@ -199,10 +227,22 @@ class InfoboxCurrencyRow extends StatelessWidget {
                                     color: Theme.of(context).colorScheme.surfaceContainer,
                                     width: iconBorder),
                                 borderRadius: BorderRadius.circular(9999999)),
-                            child: TokenImageWidget(
-                              imageUrl: entry.value.iconPath ?? '',
-                              size: 24,
-                            ),
+                            child: switch (entry.value) {
+                              final AddedNetworkCurrency currency => CakeImageWidget(
+                                  imageUrl: currency.iconPath,
+                                  width: iconSize,
+                                  height: iconSize,
+                                  isRoundedSquare: true,
+                                  outlineColor: currency.isManual
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : null,
+                                  fallbackName: currency.fullName,
+                                ),
+                              final currency => TokenImageWidget(
+                                  imageUrl: currency.iconPath ?? "",
+                                  size: iconSize,
+                                ),
+                            },
                           ),
                         ))
                     .toList()
