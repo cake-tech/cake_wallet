@@ -20,8 +20,9 @@ class TestConfig {
   ];
 
   static List<WalletType> get walletTypesUnderTest {
+    // A WalletType.evm wallet needs an added network first, only the evm_*_network suites add one
     if (_walletTypesOverride == "all") {
-      return availableWalletTypes;
+      return availableWalletTypes.where((type) => type != WalletType.evm).toList();
     }
 
     if (_walletTypesOverride.isNotEmpty) {

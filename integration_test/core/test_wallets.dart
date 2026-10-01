@@ -51,6 +51,7 @@ class TestWallets {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
+      case WalletType.evm:
         throw Exception("No test wallet seed available for ${type.name}");
     }
   }
@@ -90,6 +91,7 @@ class TestWallets {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
+      case WalletType.evm:
         return "";
     }
   }
