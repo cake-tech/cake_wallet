@@ -4,6 +4,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/generate_name.dart';
@@ -303,8 +304,12 @@ class Trade {
     if (title == null || title.isEmpty) return null;
 
     final tag = row['${prefix}Tag'] as String?;
+    final raw = row["${prefix}Raw"] as int? ?? -1;
 
-    final live = CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
+    final isAddedNetworkNative = raw >= EvmNativeCurrencies.addedNetworkRawOffset;
+    final live = isAddedNetworkNative
+        ? CryptoCurrency.safeDeserialize(raw: raw)
+        : CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);
     if (live != null) return live;
 
     return CryptoCurrency(
@@ -313,7 +318,7 @@ class Trade {
       tag: tag,
       fullName: row['${prefix}FullName'] as String?,
       decimals: row['${prefix}Decimals'] as int? ?? 1,
-      raw: row['${prefix}Raw'] as int? ?? -1,
+      raw: raw,
       iconPath: row['${prefix}IconPath'] as String?,
       flatIconPath: row['${prefix}FlatIconPath'] as String?,
       chainIconPath: row['${prefix}ChainIconPath'] as String?,

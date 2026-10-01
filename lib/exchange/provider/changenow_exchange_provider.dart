@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -14,6 +15,7 @@ import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
@@ -320,6 +322,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   String _networkFor(CryptoCurrency currency) {
+    final addedNetworkCode = evmExchangeProviderNetworkCode(currency, description);
+    if (addedNetworkCode != null) {
+      return addedNetworkCode;
+    }
+
     switch (currency) {
       case CryptoCurrency.usdt:
         return 'btc';
@@ -336,6 +343,12 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (currency.title == "USDC" && currency.tag == "POLY") {
       throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
     }
+
+    // ChangeNow lists native Monad (chain 143) as "monad" and rejects "mon"
+    if (currency.raw == EvmNativeCurrencies.addedNetworkRaw(143)) {
+      return "monad";
+    }
+
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';
