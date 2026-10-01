@@ -516,11 +516,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         );
       }
     }
-
-    updateAddressesByMatch();
-    updateReceiveAddresses();
-    updateChangeAddresses();
-    await updateAddressesInBox();
   }
 
   @action
@@ -1054,7 +1049,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (needsAccountScopedHd) {
       final accountIndex = walletInfo.type == WalletType.bitcoin ? currentAccountIndex : 0;
       if (!_isAddressTypeSupportedForAccount(type, accountIndex)) {
-        resolvedType = SegwitAddresType.p2wpkh;
+        resolvedType = EXTRA_ACCOUNT_ADDRESS_TYPES.first;
       }
     }
 
@@ -1091,11 +1086,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   // Remove all addresses associated with a specific account index.
   @action
-  void removeAddressesForAccount(int accountIndex) {
+  Future<void> removeAddressesForAccount(int accountIndex) async {
     _addresses.removeWhere((addr) => addr.accountIndex == accountIndex);
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
+    await updateAddressesInBox();
   }
 
 

@@ -508,12 +508,8 @@ abstract class ElectrumWalletBase
 
     walletAddresses.currentAccountIndex = accountIndex;
 
-
     final currentPageType = walletAddresses.addressPageType;
-    if (currentPageType is! LightningAddressType &&
-        currentPageType != SilentPaymentsAddresType.p2sp) {
-      await walletAddresses.setAddressType(currentPageType);
-    }
+    await walletAddresses.setAddressType(currentPageType);
 
     // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
     if (isNewAccount) {
@@ -521,9 +517,9 @@ abstract class ElectrumWalletBase
         accountIndex,
         types: accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES,
       );
+      await walletAddresses.updateAddressesInBox();
     }
 
-    walletAddresses.updateAddressesByMatch();
     walletAddresses.updateReceiveAddresses();
     walletAddresses.updateChangeAddresses();
 
@@ -534,7 +530,11 @@ abstract class ElectrumWalletBase
         if (isNewAccount && !_isSyncing) {
           final histories = <String, ElectrumTransactionInfo>{};
 
-          for (final addressType in BITCOIN_ADDRESS_TYPES) {
+          final typesToFetch = accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
+          // Explicit for clarity — fetchTransactionsForAddressTypeBatch already skips types
+          // with no addresses for this account, so this doesn't change RPC calls, just intent.
+
+          for (final addressType in typesToFetch) {
             if (shouldUseBatchFetching) {
               await fetchTransactionsForAddressTypeBatch(histories, addressType,
                   accountIndex: accountIndex);
@@ -4115,7 +4115,9 @@ abstract class ElectrumWalletBase
 
     return all.where((tx) {
 
-      if (tx.additionalInfo["isLightning"] == true) return true;
+      if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
+      if (tx.isReceivedSilentPayment) return accountIndex == 0;
+
       // Locally created transactions store the account index explicitly,
       // so use it first instead of checking the addresses.
       if (tx.accountIndex != null) return tx.accountIndex == accountIndex;

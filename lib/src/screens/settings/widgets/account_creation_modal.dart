@@ -1,14 +1,14 @@
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/modal_grab_handle.dart';
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/modal_grab_handle.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
+import "package:cw_core/generate_name.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class AccountCreationModal extends StatefulWidget {
   const AccountCreationModal({
@@ -59,7 +59,7 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30))),
         child: SafeArea(
           top: false,
           child: Padding(
@@ -74,15 +74,16 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                       : S.of(context).create_account,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     spacing: 50,
                     children: [
-                      SizedBox(),
+                      const SizedBox(),
                       Container(
                         decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            borderRadius: BorderRadius.circular(16)),
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         child: Row(
                           children: [
                             Expanded(
@@ -94,12 +95,12 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                                 ],
                                 decoration: InputDecoration(
                                   hintText: S.of(context).account_name,
-                                  counterText: '',
+                                  counterText: "",
                                 ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(12.0),
+                              padding: const EdgeInsets.all(12),
                               child: GestureDetector(
                                 onTap: () async {
                                   final generated = await generateName();
@@ -130,12 +131,13 @@ class _AccountCreationModalState extends State<AccountCreationModal> {
                             text: S.of(context).continue_text,
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
-                            disabled: value.text.trim().isEmpty || value.text.length > maxAccountNameLength,
+                            disabled: value.text.trim().isEmpty ||
+                                value.text.length > maxAccountNameLength,
                             isLoading: widget.viewModel.state is IsExecutingState,
                           ),
                         ),
                       ),
-                      SizedBox(),
+                      const SizedBox(),
                     ],
                   ),
                 )

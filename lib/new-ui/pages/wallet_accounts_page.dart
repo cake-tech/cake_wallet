@@ -1,12 +1,11 @@
 import "dart:async";
 import "dart:ui";
 
-import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/utils/show_card_customizer.dart";
+import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart";
@@ -84,7 +83,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
 
     _accountsReaction = reaction(
       (_) => accountListViewModel.accounts
-          .map((account) => "${account.id}:${account.label}")
+          .map((account) => "${account.id}:${account.label}:${account.balance}")
           .join(","),
       (_) {
         if (!mounted) return;
@@ -415,7 +414,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       return;
     }
 
-    await showCardCustomizer(
+    await CardCustomizer.show(
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
       lightningMode: widget.dashboardViewModel.lightningMode,

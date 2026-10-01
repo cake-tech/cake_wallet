@@ -82,7 +82,7 @@ abstract class BitcoinAccountEditOrCreateViewModelBase
 
     await _wallet.walletInfo.addAccount(
       accountIndex: nextIndex,
-      label: label.isEmpty ? 'Account $nextIndex' : label,
+      label: label.isEmpty ? "Account $nextIndex" : label,
     );
 
     await bitcoin!.setCurrentAccount(_wallet, nextIndex);
