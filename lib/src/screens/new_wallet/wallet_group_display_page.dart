@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -89,15 +90,25 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                               final index = walletGroupsDisplayViewModel.singleWalletsList
                                   .indexOf(singleWallet);
                               final wallet = walletGroupsDisplayViewModel.singleWalletsList[index];
+                              final addedNetwork =
+                                  AddedNetworkCurrency.tryFromChainId(wallet.chainId);
                               return GroupedWalletExpansionTile(
                                 borderRadius: BorderRadius.all(Radius.circular(16)),
                                 title: wallet.name,
                                 isSelected:
                                     walletGroupsDisplayViewModel.selectedSingleWallet == wallet,
                                 leadingWidget: CakeImageWidget(
-                                  imageUrl: getCryptoCurrencyIconForWalletListItem(wallet.type),
+                                  imageUrl: getCryptoCurrencyIconForWalletListItem(
+                                    wallet.type,
+                                    chainId: wallet.chainId,
+                                  ),
                                   width: 32,
                                   height: 32,
+                                  isRoundedSquare: addedNetwork != null,
+                                  outlineColor: addedNetwork?.isManual == true
+                                      ? Theme.of(context).colorScheme.onSurface
+                                      : null,
+                                  fallbackName: addedNetwork?.fullName,
                                 ),
                                 onTitleTapped: () =>
                                     walletGroupsDisplayViewModel.selectSingleWallet(wallet),
@@ -120,7 +131,10 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                     if (walletGroupsDisplayViewModel.hasNoFilteredWallet) {
                       Navigator.of(context).pushNamed(
                         Routes.newWallet,
-                        arguments: NewWalletArguments(type: walletGroupsDisplayViewModel.type),
+                        arguments: NewWalletArguments(
+                          type: walletGroupsDisplayViewModel.type,
+                          chainId: walletGroupsDisplayViewModel.chainId,
+                        ),
                       );
                     } else {
                       onTypeSelected(context);
@@ -152,6 +166,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
         Routes.newWallet,
         arguments: NewWalletArguments(
           type: walletGroupsDisplayViewModel.type,
+          chainId: walletGroupsDisplayViewModel.chainId,
           mnemonic: mnemonic,
           isChildWallet: true,
         ),

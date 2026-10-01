@@ -1,17 +1,17 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class WalletGroupDescriptionPage extends BasePage {
-  WalletGroupDescriptionPage({required this.selectedWalletType});
+  WalletGroupDescriptionPage({required this.network});
 
-  final WalletType selectedWalletType;
+  final WalletNetwork network;
 
   @override
   bool get gradientBackground => true;
@@ -89,7 +89,7 @@ class WalletGroupDescriptionPage extends BasePage {
             key: ValueKey('wallet_group_description_page_create_new_seed_button_key'),
             onPressed: () => Navigator.of(context).pushNamed(
               Routes.newWallet,
-              arguments: NewWalletArguments(type: selectedWalletType),
+              arguments: NewWalletArguments(type: network.type, chainId: network.chainId),
             ),
             text: S.of(context).create_new_seed,
             color: Theme.of(context).colorScheme.surfaceContainer,
@@ -100,7 +100,7 @@ class WalletGroupDescriptionPage extends BasePage {
             key: ValueKey('wallet_group_description_page_choose_wallet_group_button_key'),
             onPressed: () => Navigator.of(context).pushNamed(
               Routes.walletGroupsDisplayPage,
-              arguments: selectedWalletType,
+              arguments: network,
             ),
             text: S.of(context).choose_wallet_group,
             color: Theme.of(context).colorScheme.primary,
