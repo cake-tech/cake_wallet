@@ -1396,12 +1396,16 @@ Future<void> saveDeprecatedWalletSeeds(WalletType type) async {
   final flutterSecureStorage = secureStorageShared;
   final keyService = KeyService(flutterSecureStorage);
   for(final walletInfo in walletInfos) {
+try {
+  final password = await keyService.getWalletPassword(walletName: walletInfo.name);
+  final wallet = await walletService.openWallet(walletInfo.name, password);
+  final seed = wallet.seed ?? "unknown";
+  await wallet.close();
+  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed).save();
+} catch(e, st) {
+  printV("${walletInfo.name} seed backup FAIL: $e\n$st");
+}
 
-    final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-    final wallet = await walletService.openWallet(walletInfo.name, password);
-    final seed = wallet.seed ?? "unknown";
-    await wallet.close();
-    await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed).save();
   }
 }
 

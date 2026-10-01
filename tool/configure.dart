@@ -2083,9 +2083,9 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.decred,\n';
   }
 
-  if (hasZano) {
-    outputContent += '\tWalletType.zano,\n';
-  }
+  // if (hasZano) {
+  //   outputContent += '\tWalletType.zano,\n';
+  // }
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';

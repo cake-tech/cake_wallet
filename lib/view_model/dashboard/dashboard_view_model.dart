@@ -1603,5 +1603,17 @@ abstract class DashboardViewModelBase with Store {
     WalletType.zano,
   ];
 
+  Future<bool> shouldShowRemovalPopup() async {
+    final show = (await WalletInfo.getAll()).any((item) =>
+        walletTypesToBeRemoved.contains(item.type) &&
+        !(sharedPreferences.getBool(PreferencesKey.deprecationPopupViewed(type)) ?? false),);
+    for (final type in walletTypesToBeRemoved) {
+      await sharedPreferences.setBool(PreferencesKey.deprecationPopupViewed(type), true);
+    }
+    return show;
+  }
 
+  Future<List<WalletInfo>> get walletsToBeRemoved async => (await WalletInfo.getAll())
+      .where((item) => walletTypesToBeRemoved.contains(item.type))
+      .toList();
 }
