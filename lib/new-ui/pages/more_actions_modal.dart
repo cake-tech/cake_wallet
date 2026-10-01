@@ -124,56 +124,84 @@ class MoreActionsModal extends StatelessWidget {
   final DashboardViewModel dashboardViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    final actions = ExtraAction.all.where((item) => item.applicable(dashboardViewModel)).toList();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalTopBar(
-              title: S.of(context).more_actions,
-              leadingIcon: const Icon(Icons.close),
-              onLeadingPressed: Navigator.of(context).pop,
-              leadingSemanticLabel: S.of(context).close,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: GridView.builder(
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 24,
-                  mainAxisSpacing: 24,
-                  mainAxisExtent: 105,
-                ),
-                itemCount: actions.length,
-                itemBuilder: (context, index) => ExtraActionButton(
-                  actions[index],
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ModalTopBar(
+                title: S.of(context).more_actions,
+                leadingIcon: const Icon(Icons.close),
+                onLeadingPressed: Navigator.of(context).pop,
+                leadingSemanticLabel: S.of(context).close,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: MoreActionsGrid(
+                  actions:
+                      ExtraAction.all.where((item) => item.applicable(dashboardViewModel)).toList(),
                   dashboardViewModel: dashboardViewModel,
+                  onActionOpened: Navigator.of(context).pop,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+}
+
+class MoreActionsGrid extends StatelessWidget {
+  const MoreActionsGrid({
+    required this.actions,
+    required this.dashboardViewModel,
+    required this.onActionOpened,
+    super.key,
+  });
+
+  final List<ExtraAction> actions;
+  final DashboardViewModel dashboardViewModel;
+  final VoidCallback onActionOpened;
+
+  static const crossAxisCount = 2;
+  static const itemExtent = 105.0;
+  static const spacing = 12.0;
+
+  @override
+  Widget build(BuildContext context) => GridView.builder(
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          mainAxisExtent: itemExtent,
+        ),
+        itemCount: actions.length,
+        itemBuilder: (context, index) => ExtraActionButton(
+          actions[index],
+          dashboardViewModel: dashboardViewModel,
+          onOpened: onActionOpened,
+        ),
+      );
 }
 
 class ExtraActionButton extends StatelessWidget {
-  const ExtraActionButton(this.action, {required this.dashboardViewModel, super.key});
+  const ExtraActionButton(
+    this.action, {
+    required this.dashboardViewModel,
+    required this.onOpened,
+    super.key,
+  });
 
   final ExtraAction action;
   final DashboardViewModel dashboardViewModel;
+  final VoidCallback onOpened;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -209,7 +237,7 @@ class ExtraActionButton extends StatelessWidget {
     final page = await action.destinationBuilder(dashboardViewModel);
 
     if (action.isModal && context.mounted) {
-      Navigator.of(context).pop();
+      onOpened();
       await showMaterialModalBottomSheet(
           backgroundColor: Colors.transparent,
           context: context,
@@ -217,7 +245,7 @@ class ExtraActionButton extends StatelessWidget {
               heightFactor: action.modalHeightFactor ?? 1,
               child: ModalNavigator(parentContext: context, rootPage: page)));
     } else if (context.mounted) {
-      Navigator.of(context).pop();
+      onOpened();
       await Navigator.of(context).push(CupertinoPageRoute(builder: (context) => page));
     }
   }
