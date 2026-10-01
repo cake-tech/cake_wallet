@@ -134,121 +134,110 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
 
         final currentAction = visibleActions[widget.selectedIndex];
 
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: SafeArea(
-            bottom: !(Platform.isIOS),
-            top: false,
-            child: Padding(
-              // tux PLEASE consult me (malik) before removing this padding.
-              padding: EdgeInsets.only(bottom: NewMainNavBar.barBottomPadding),
-              child: AnimatedContainer(
-                duration: barResizeDuration,
-                curve: Curves.easeOutCubic,
-                width: barWidth,
-                child: ClipRSuperellipse(
-                  borderRadius: BorderRadius.circular(barBorderRadius),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                    child: Container(
-                        height: NewMainNavBar.barHeight,
-                        decoration: ShapeDecoration(
-                          color: backgroundColor,
-                          shape: RoundedSuperellipseBorder(
-                            borderRadius: BorderRadius.circular(barBorderRadius),
-                            side: const BorderSide(color: Color(0x14FFFFFF), width: 1),
-                          ),
+        return AnimatedContainer(
+          duration: barResizeDuration,
+          curve: Curves.easeOutCubic,
+          width: barWidth,
+          child: ClipRSuperellipse(
+            borderRadius: BorderRadius.circular(barBorderRadius),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: Container(
+                  height: NewMainNavBar.barHeight,
+                  decoration: ShapeDecoration(
+                    color: backgroundColor,
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(barBorderRadius),
+                      side: const BorderSide(color: Color(0x14FFFFFF), width: 1),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: barHorizontalPadding),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedPill(
+                          left: calcLeft(widget.selectedIndex, pillWidth),
+                          pillColor: pillColor,
+                          currentAction: currentAction,
+                          pillIconHeight: pillIconHeight,
+                          pillIconWidth: pillIconWidth,
+                          pillIconSpacing: pillIconSpacing,
+                          pillBorderRadius: pillBorderRadius,
+                          contentColor: activeColor,
+                          estimateWidthForAction: pillWidth,
+                          pillTextStyle: pillTextStyle,
+                          pillMoveDuration: pillMoveDuration,
+                          pillResizeDuration: pillResizeDuration,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: barHorizontalPadding),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedPill(
-                                left: calcLeft(widget.selectedIndex, pillWidth),
-                                pillColor: pillColor,
-                                currentAction: currentAction,
-                                pillIconHeight: pillIconHeight,
-                                pillIconWidth: pillIconWidth,
-                                pillIconSpacing: pillIconSpacing,
-                                pillBorderRadius: pillBorderRadius,
-                                contentColor: activeColor,
-                                estimateWidthForAction: pillWidth,
-                                pillTextStyle: pillTextStyle,
-                                pillMoveDuration: pillMoveDuration,
-                                pillResizeDuration: pillResizeDuration,
-                              ),
-                              for (int i = 0; i < visibleActions.length; i++)
-                                AnimatedPositioned(
-                                  duration: pillResizeDuration,
-                                  width: iconBoxWidth,
-                                  left: calcLeft(i, pillWidth) +
-                                      ((i == widget.selectedIndex)
-                                          ? iconHorizontalPadding / 100
-                                          : 0),
+                        for (int i = 0; i < visibleActions.length; i++)
+                          AnimatedPositioned(
+                            duration: pillResizeDuration,
+                            width: iconBoxWidth,
+                            left: calcLeft(i, pillWidth) +
+                                ((i == widget.selectedIndex)
+                                    ? iconHorizontalPadding / 100
+                                    : 0),
+                            curve: Curves.easeOutCubic,
+                            child: Semantics(
+                              button: true,
+                              selected: i == widget.selectedIndex,
+                              inMutuallyExclusiveGroup: true,
+                              label: visibleActions[i].name(context),
+                              child: InkWell(
+                                key: visibleActions[i].key,
+                                splashFactory: NoSplash.splashFactory,
+                                splashColor: Colors.transparent,
+                                borderRadius: BorderRadius.circular(pillBorderRadius),
+                                onTap: () => _onItemTap(i),
+                                child: AnimatedContainer(
+                                  duration:
+                                      _firstFrame ? Duration.zero : inactiveIconMoveDuration,
                                   curve: Curves.easeOutCubic,
-                                  child: Semantics(
-                                    button: true,
-                                    selected: i == widget.selectedIndex,
-                                    inMutuallyExclusiveGroup: true,
-                                    label: visibleActions[i].name(context),
-                                    child: InkWell(
-                                      key: visibleActions[i].key,
-                                      splashFactory: NoSplash.splashFactory,
-                                      splashColor: Colors.transparent,
-                                      borderRadius: BorderRadius.circular(pillBorderRadius),
-                                      onTap: () => _onItemTap(i),
-                                      child: AnimatedContainer(
-                                        duration:
-                                            _firstFrame ? Duration.zero : inactiveIconMoveDuration,
-                                        curve: Curves.easeOutCubic,
-                                        width: i == widget.selectedIndex ? pillWidth : iconBoxWidth,
-                                        alignment: Alignment.center,
-                                        child: AnimatedAlign(
-                                          duration: inactiveIconFadeDuration,
-                                          curve: Curves.easeOutCubic,
-                                          alignment: Alignment.center,
-                                          child: AnimatedScale(
-                                            duration: inactiveIconAppearDuration,
-                                            curve: Curves.easeOutCubic,
-                                            scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
-                                            child: TweenAnimationBuilder<Color?>(
-                                                tween: ColorTween(
-                                                  begin: (i == widget.selectedIndex)
-                                                      ? inactiveColor
-                                                      : activeColor,
-                                                  end: (i == widget.selectedIndex)
-                                                      ? activeColor
-                                                      : inactiveColor,
-                                                ),
-                                                duration: iconColorChangeDuration,
-                                                builder: (context, value, child) {
-                                                  return Container(
-                                                    height: NewMainNavBar.barHeight,
-                                                    child: CakeImageWidget(
-                                                      imageUrl: visibleActions[i].image,
-                                                      width: iconWidth,
-                                                      height: iconHeight,
-                                                      //fit: BoxFit.scaleDown,
-                                                      colorFilter: ColorFilter.mode(
-                                                        value ?? inactiveColor,
-                                                        BlendMode.srcIn,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
+                                  width: i == widget.selectedIndex ? pillWidth : iconBoxWidth,
+                                  alignment: Alignment.center,
+                                  child: AnimatedAlign(
+                                    duration: inactiveIconFadeDuration,
+                                    curve: Curves.easeOutCubic,
+                                    alignment: Alignment.center,
+                                    child: AnimatedScale(
+                                      duration: inactiveIconAppearDuration,
+                                      curve: Curves.easeOutCubic,
+                                      scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
+                                      child: TweenAnimationBuilder<Color?>(
+                                          tween: ColorTween(
+                                            begin: (i == widget.selectedIndex)
+                                                ? inactiveColor
+                                                : activeColor,
+                                            end: (i == widget.selectedIndex)
+                                                ? activeColor
+                                                : inactiveColor,
                                           ),
-                                        ),
-                                      ),
+                                          duration: iconColorChangeDuration,
+                                          builder: (context, value, child) {
+                                            return Container(
+                                              height: NewMainNavBar.barHeight,
+                                              child: CakeImageWidget(
+                                                imageUrl: visibleActions[i].image,
+                                                width: iconWidth,
+                                                height: iconHeight,
+                                                //fit: BoxFit.scaleDown,
+                                                colorFilter: ColorFilter.mode(
+                                                  value ?? inactiveColor,
+                                                  BlendMode.srcIn,
+                                                ),
+                                              ),
+                                            );
+                                          }),
                                     ),
                                   ),
                                 ),
-                            ],
+                              ),
+                            ),
                           ),
-                        )),
-                  ),
-                ),
-              ),
+                      ],
+                    ),
+                  )),
             ),
           ),
         );
