@@ -56,6 +56,7 @@ class _NewDashboardState extends State<NewDashboard> {
       setState(() {
         _selectedPage = 0;
       });
+      _showWalletRemovalPopup(context);
     });
 
     Future.delayed(Duration(milliseconds: 300)).then((_) {
