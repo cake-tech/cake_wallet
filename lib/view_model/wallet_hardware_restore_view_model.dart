@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
@@ -103,6 +104,12 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
-    return walletCreationService.restoreFromHardwareWallet(credentials);
+    final wallet = await walletCreationService.restoreFromHardwareWallet(credentials);
+
+    final hardwareWalletVM = this.hardwareWalletVM;
+    if (hardwareWalletVM is TrezorConnectViewModel && type == WalletType.bitcoin) {
+      hardwareWalletVM.bindSessionToWallet(wallet);
+    }
+    return wallet;
   }
 }

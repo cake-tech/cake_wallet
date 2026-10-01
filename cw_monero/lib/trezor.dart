@@ -1,12 +1,17 @@
 import "dart:convert";
 
 import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:mutex/mutex.dart";
 import "package:trezor_flutter/trezor_flutter.dart";
 
 class MoneroTrezorService extends HardwareWalletService {
   MoneroTrezorService(this.client);
 
   final TrezorClient client;
+
+  static final Mutex _mutex = Mutex();
+
+  static Future<T> runBlocking<T>(Future<T> Function() operation) => _mutex.protect(operation);
 }
 
 class MoneroTrezorWatchCredentials {
@@ -22,7 +27,7 @@ class Trezor {
   final MoneroTrezorService service;
 
   Future<MoneroTrezorWatchCredentials> getWatchCredentials() async {
-    final credentials = await TrezorMonero(service.client).getWatchCredentials();
+    final credentials = await MoneroTrezorService.runBlocking(TrezorMonero(service.client).getWatchCredentials);
 
     return MoneroTrezorWatchCredentials(credentials.$1, credentials.$2);
   }
@@ -45,11 +50,15 @@ class Trezor {
         ),
       );
     }
-    final keyImages = await TrezorMonero(service.client).syncKeyImages(txIds);
+    final keyImages = await MoneroTrezorService.runBlocking(
+      () => TrezorMonero(service.client).syncKeyImages(txIds),
+    );
 
     return jsonEncode(keyImages.toMap());
   }
 
-  Future<String> signTransaction(String json) =>
-      TrezorMonero(service.client).signTransaction(jsonDecode(json) as Map<String, dynamic>);
+  Future<String> signTransaction(String json) => MoneroTrezorService.runBlocking(
+        () =>
+            TrezorMonero(service.client).signTransaction(jsonDecode(json) as Map<String, dynamic>),
+      );
 }

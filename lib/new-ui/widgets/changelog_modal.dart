@@ -170,38 +170,41 @@ class ChangelogItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 12,
-      children: [
-        if (item.iconFilename.isNotEmpty)
-          CakeImageWidget(
-            imageUrl: "$changelogIconLocation/${item.iconFilename}.svg",
-            height: 36,
-            width: 36,
-            colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-          ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 4,
-            children: [
-              if (item.title.isNotEmpty)
-                Text(
-                  item.title,
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              if (item.description.isNotEmpty)
-                Text(
-                  item.description,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 18),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 12,
+        children: [
+          if (item.iconFilename.isNotEmpty)
+            CakeImageWidget(
+              imageUrl: "$changelogIconLocation/${item.iconFilename}.svg",
+              height: 36,
+              width: 36,
+              colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                if (item.title.isNotEmpty)
+                  Text(
+                    item.title,
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                )
-            ],
-          ),
-        )
-      ],
+                if (item.description.isNotEmpty)
+                  Text(
+                    item.description,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  )
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

@@ -1,0 +1,44 @@
+name: Integration Tests
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  pull_request:
+    branches: [dev]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  workflow_dispatch:
+
+concurrency:
+  group: integration-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-suites:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          sparse-checkout: integration_test/suites
+
+      - name: Check the branch has the test suites
+        run: |
+          if [[ ! -d integration_test/suites/tier0 ]]; then
+            echo "::error::This branch has no integration test suites yet, sync it with dev to run them"
+            exit 1
+          fi
+
+  android-integration-tests:
+    needs: check-suites
+    uses: ./.github/workflows/reusable-integration-test.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      suite_dir: integration_test/suites
+      test_tier: tier0
+      slack_notify: true
+    secrets: inherit

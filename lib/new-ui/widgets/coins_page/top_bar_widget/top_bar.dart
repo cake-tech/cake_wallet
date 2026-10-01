@@ -165,6 +165,7 @@ class _TopBarState extends State<TopBar> {
                 ),
               ),
               ModernButton.svg(
+                key: const ValueKey("home_page_settings_button_key"),
                 iconColor: Theme.of(context).colorScheme.primary,
                 size: 36,
                 onPressed: () {

@@ -18,6 +18,8 @@ abstract class HardwareWalletViewModel {
 
   Future<List<HardwareWalletDevice>> getAllUsbDevices();
 
+  Future<List<HardwareWalletDevice>> getConnectedBleDevices() async => [];
+
   Future<void> stopScanning();
 
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type);
