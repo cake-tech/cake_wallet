@@ -310,6 +310,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     }
     _settingsStore.currentBuiltinTor = value;
     if (value) {
+      _appStore.disconnectWalletConnect();
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;
         int? chainId;

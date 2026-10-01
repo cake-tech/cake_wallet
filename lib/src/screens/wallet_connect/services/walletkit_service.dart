@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -120,7 +119,7 @@ abstract class WalletKitServiceBase with Store {
     }
   }
 
-  bool _isTorRequired() => appStore.settingsStore.currentBuiltinTor || CakeTor.instance!.started;
+  bool _isTorRequired() => isWalletConnectTorRequired(appStore.settingsStore);
 
   void _logListener(String event) {
     debugPrint('[WalletKit] $event');

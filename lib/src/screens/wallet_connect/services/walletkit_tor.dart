@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:reown_core/relay_client/websocket/i_http_client.dart';
 import 'package:reown_core/relay_client/websocket/i_websocket_handler.dart';
@@ -10,6 +11,11 @@ import 'package:web_socket_channel/io.dart';
 
 /// Returns whether WalletConnect traffic has to go through Tor.
 typedef TorRequired = bool Function();
+
+/// WalletConnect traffic must not use clearnet once Tor is enabled in settings,
+/// even while Tor is still starting or if it failed to start.
+bool isWalletConnectTorRequired(SettingsStore settingsStore) =>
+    settingsStore.currentBuiltinTor || CakeTor.instance!.started;
 
 const _torStartTimeout = Duration(seconds: 60);
 
@@ -81,6 +87,11 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
   String? get closeReason => _socket?.closeReason;
 
   StreamChannel<String>? _channel;
+  StreamController<String>? _inputController;
+  StreamController<String>? _outputController;
+  StreamSubscription<String>? _inputSubscription;
+  StreamSubscription<String>? _outputSubscription;
+
   @override
   StreamChannel<String>? get channel => _channel;
 
@@ -120,15 +131,17 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
     // listeners, same as the default handler.
     final inputController = StreamController<String>.broadcast(sync: true);
     final outputController = StreamController<String>.broadcast(sync: true);
+    _inputController = inputController;
+    _outputController = outputController;
 
-    _socket!.stream.cast<String>().listen(
+    _inputSubscription = _socket!.stream.cast<String>().listen(
           inputController.add,
           onError: (Object error) => inputController.addError(error),
           onDone: inputController.close,
         );
 
-    outputController.stream.listen(
-      (data) => _socket!.sink.add(data),
+    _outputSubscription = outputController.stream.listen(
+      (data) => _socket?.sink.add(data),
       onError: (Object error) => _socket?.sink.addError(error),
       onDone: () => _socket?.sink.close(),
     );
@@ -140,6 +153,16 @@ class WalletKitWebSocketHandler implements IWebSocketHandler {
 
   @override
   Future<void> close() async {
+    await _inputSubscription?.cancel();
+    await _outputSubscription?.cancel();
+    _inputSubscription = null;
+    _outputSubscription = null;
+    await _inputController?.close();
+    await _outputController?.close();
+    _inputController = null;
+    _outputController = null;
+    _channel = null;
+
     try {
       if (_socket != null) {
         await _socket?.sink.close();

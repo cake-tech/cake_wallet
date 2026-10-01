@@ -1464,6 +1464,7 @@ abstract class DashboardViewModelBase with Store {
     }
     settingsStore.currentBuiltinTor = value;
     if (value) {
+      appStore.disconnectWalletConnect();
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
