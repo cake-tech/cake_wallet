@@ -26,7 +26,7 @@ class _MoreActionsButtonState extends State<MoreActionsButton> with SingleTicker
   final _portalController = OverlayPortalController();
   late final _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 450),
+    duration: const Duration(milliseconds: 300),
   )..addStatusListener((status) {
       if (status == AnimationStatus.dismissed) {
         setState(_portalController.hide);
