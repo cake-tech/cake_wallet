@@ -2,15 +2,18 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/clipboard_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/deprecated_wallet_seeds.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class WalletRemovalPopup extends StatelessWidget {
   const WalletRemovalPopup({required this.affectedWallets, super.key});
@@ -93,15 +96,38 @@ class WalletRemovalPopup extends StatelessWidget {
 
   Future<void> _showBackedUpSeed(BuildContext context, WalletInfo wi) async {
     final seed = await DeprecatedWalletSeeds.get(wi.internalId);
+
+    if(context.mounted) {
+      final confirmed = await showPopUp<bool>(context: context, builder: (context)=>AlertWithTwoActions(
+        alertTitle: "${wi.name} Seed",
+        alertContent: S.of(context).show_seed_confirmation,
+        leftButtonText: S.of(context).yes,
+        rightButtonText: S.of(context).no,
+        actionLeftButton: ()=>Navigator.of(context).pop(true),
+        actionRightButton: ()=>Navigator.of(context).pop(false),
+
+      ));
+
+      if(!(confirmed ?? false)) {
+        return;
+      }
+    }
+
     if (context.mounted) {
-      await showPopUp<void>(
+      final copied = await showPopUp<bool>(
           context: context,
-          builder: (context) => AlertWithOneAction(
+          builder: (context) => AlertWithTwoActions(
                 alertTitle: "${wi.name} Seed",
                 alertContent: seed?.seed ?? "backup failed, please open wallet to back up",
-                buttonText: S.of(context).close,
-                buttonAction: Navigator.of(context).pop,
+                rightButtonText: S.of(context).close,
+            leftButtonText: S.of(context).copy,
+            actionLeftButton: ()=>Navigator.of(context).pop(true),
+            actionRightButton: ()=>Navigator.of(context).pop(false),
               ));
+
+      if((copied ?? false) && seed != null) {
+        await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: seed.seed));
+      }
     }
   }
 }

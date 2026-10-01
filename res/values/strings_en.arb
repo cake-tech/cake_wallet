@@ -1180,6 +1180,7 @@
   "show_recovery_phrase": "Show me my Recovery Phrase",
   "show_recovery_phrase_and_keys": "Show my Recovery Phrase & Keys",
   "show_seed": "Show seed",
+  "show_seed_confirmation": "View seed of this wallet?",
   "show_zcash_card": "Show zcash missing funds card",
   "sign_all": "Sign All",
   "sign_message": "Sign Message",
