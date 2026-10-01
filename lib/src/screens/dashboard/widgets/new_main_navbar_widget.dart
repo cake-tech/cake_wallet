@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
+import "package:flutter/services.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cake_wallet/entities/new_main_actions.dart';
@@ -74,6 +75,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     //   widget.selectedIndex = index;
     // });
 
+    HapticFeedback.mediumImpact();
     widget.onItemTap(index);
 
     NewMainActions.all[index].onTap.call();

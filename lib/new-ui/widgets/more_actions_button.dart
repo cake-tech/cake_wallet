@@ -5,6 +5,7 @@ import "package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class MoreActionsButton extends StatelessWidget {
@@ -19,6 +20,7 @@ class MoreActionsButton extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
       child: GestureDetector(
             onTap: () {
+              HapticFeedback.mediumImpact();
               showMaterialModalBottomSheet(
                   backgroundColor: Colors.transparent,
                   context: context,
