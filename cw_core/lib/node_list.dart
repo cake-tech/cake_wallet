@@ -62,6 +62,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       path = 'assets/bsc_node_list.yml';
       break;
     case WalletType.banano:
+    case WalletType.evm:
     case WalletType.none:
       path = '';
       break;
@@ -162,7 +163,7 @@ Future<void> resetToDefault() async {
     } catch (e) {}
   }
 
-  await Node.deleteAll();
+  await Node.deleteAllExceptAddedNetworks();
   for (final node in nodes) {
     await node.save();
   }

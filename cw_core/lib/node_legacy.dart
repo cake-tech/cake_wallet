@@ -180,6 +180,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.bsc:
