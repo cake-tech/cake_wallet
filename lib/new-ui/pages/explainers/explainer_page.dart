@@ -22,15 +22,17 @@ abstract class ExplainerPage extends StatelessWidget {
 
   Widget? attribution(BuildContext context) => null;
 
+  Future<void> show(BuildContext context) => showMaterialModalBottomSheet<void>(
+        context: context,
+        useRootNavigator: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => this,
+      );
+
   Future<void> showIfNeeded(BuildContext context, SettingsStore settingsStore) async {
     if (!context.mounted || settingsStore.hasViewedExplainer(viewedPreferencesKey)) return;
 
-    await showMaterialModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => this,
-    );
+    await show(context);
     await settingsStore.setExplainerViewed(viewedPreferencesKey);
   }
 
