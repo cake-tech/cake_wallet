@@ -41,7 +41,7 @@ class ExtraAction {
   static final buy = ExtraAction(
     name: (vm) =>
         "${S.current.buy} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
-    iconPath: "assets/new-ui/buy_more_actions.svg",
+    iconPath: "assets/lottie/buy_bitcoin.lottie",
     isModal: true,
     destinationBuilder: (_) =>
         getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.buy)),
@@ -50,7 +50,7 @@ class ExtraAction {
   static final sell = ExtraAction(
     name: (vm) =>
         "${S.current.sell} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
-    iconPath: "assets/new-ui/buy.svg",
+    iconPath: "assets/lottie/sell_bitcoin.lottie",
     isModal: true,
     destinationBuilder: (_) =>
         getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.sell)),
@@ -58,7 +58,7 @@ class ExtraAction {
 
   static final depositFromOnChain = ExtraAction(
     name: (vm) => S.current.deposit_from_on_chain,
-    iconPath: "assets/new-ui/deposit_to_onchain.svg",
+    iconPath: "assets/lottie/deposit_from_onchain.lottie",
     isModal: true,
     modalHeightFactor: 0.6,
     applicable: (vm) => vm.wallet.type == WalletType.bitcoin,
@@ -80,7 +80,7 @@ class ExtraAction {
 
   static final withdrawToOnChain = ExtraAction(
     name: (vm) => S.current.withdraw_to_onchain,
-    iconPath: "assets/new-ui/withdraw_to_onchain.svg",
+    iconPath: "assets/lottie/withdraw_to_onchain.lottie",
     isModal: true,
     modalHeightFactor: 0.6,
     applicable: (vm) => vm.wallet.type == WalletType.bitcoin,
@@ -105,14 +105,14 @@ class ExtraAction {
     isModal: false,
     destinationBuilder: (_) => getIt.get<CakePayCardsPage>(),
     name: (_) => S.current.gift_cards_and_debit_cards,
-    iconPath: "assets/new-ui/cake_pay_more_actions.svg",
+    iconPath: "assets/lottie/giftcards_debit_cards.lottie",
   );
 
   static final contacts = ExtraAction(
     isModal: false,
     destinationBuilder: (_) => getIt.get<ContactListPage>(),
     name: (_) => S.current.contacts,
-    iconPath: "assets/new-ui/navbar/contacts.svg",
+    iconPath: "assets/lottie/contacts.lottie",
   );
 
   static final all = [buy, sell, depositFromOnChain, withdrawToOnChain, cakePay, contacts];

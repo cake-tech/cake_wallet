@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import "package:lottie/lottie.dart";
 import 'package:vector_graphics/vector_graphics.dart';
 
 class CakeImageWidget extends StatelessWidget {
@@ -44,6 +45,14 @@ class CakeImageWidget extends StatelessWidget {
 
   bool get _isDecorative => semanticsLabel == null;
 
+  static Future<LottieComposition?> _decodeDotLottie(List<int> bytes) =>
+      LottieComposition.decodeZip(
+        bytes,
+        filePicker: (files) => files
+            .where((f) => f.name.startsWith("animations/") && f.name.endsWith(".json"))
+            .firstOrNull,
+      );
+
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
@@ -51,6 +60,7 @@ class CakeImageWidget extends StatelessWidget {
     }
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
+    final isLottie = imageUrl!.toLowerCase().endsWith(".lottie");
     final isAsset = imageUrl!.startsWith('assets/');
     final effectiveColorFilter =
         colorFilter ?? (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
@@ -80,7 +90,18 @@ class CakeImageWidget extends StatelessWidget {
             fit: fit ?? BoxFit.contain,
           );
         });
-      } else {
+      } else if (isLottie) {
+        imageWidget = Lottie.asset(
+          imageUrl!,
+          width: width,
+          height: height,
+          decoder: _decodeDotLottie,
+          repeat: false,
+        );
+        if (effectiveColorFilter != null) {
+          imageWidget = ColorFiltered(colorFilter: effectiveColorFilter, child: imageWidget);
+        }
+      }else {
         imageWidget = Image.asset(
           imageUrl!,
           height: height,
