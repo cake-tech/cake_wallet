@@ -1597,4 +1597,11 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
+
+
+  static const walletTypesToBeRemoved = [
+    WalletType.zano,
+  ];
+
+
 }
