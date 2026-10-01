@@ -51,7 +51,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   static const iconColorChangeDuration = Duration(milliseconds: 200);
 
   static const pillTextStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   );
 
