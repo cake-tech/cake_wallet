@@ -28,6 +28,7 @@ import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/foundation.dart";
@@ -62,7 +63,8 @@ class TransactionAddressBreakdownItem {
     required this.address,
     required this.amount,
     required this.rawAmount,
-    required this.isChange,
+    required this.isOutput,
+    this.isChangeAddress = false,
     this.isUnspent,
     this.txCount,
     this.balanceDisplay,
@@ -71,7 +73,12 @@ class TransactionAddressBreakdownItem {
   final String address;
   final String amount;
   final int rawAmount;
-  final bool isChange;
+
+  /// Whether this entry is an owned output of the tx (otherwise an owned input).
+  final bool isOutput;
+
+  /// Whether the address is one of the wallet's internal (change) addresses.
+  final bool isChangeAddress;
 
   final bool? isUnspent;
   final int? txCount;
@@ -325,11 +332,33 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     // Watches this tx's resolution so the view refreshes once cw_bitcoin's
     // ElectrumTransactionResolver background loop reaches it.
-    // Skip this eagerly for a receive (receives don't need to wait for fee
-    // amounts to load, but will also start watching fee resolution upon
-    // opening the Advanced Info page see [ensureFeeResolutionWatched]).
-    if (transactionInfo.direction != TransactionDirection.incoming) {
+    // Skip this eagerly for a settled receive (receives don't need to wait for
+    // fee amounts to load, but will also start watching fee resolution upon
+    // opening the Advanced Info page see [ensureFeeResolutionWatched]). An
+    // incoming tx whose amount is still pending isn't settled - it may turn
+    // out to be a send - so it is watched right away.
+    if (transactionInfo.direction != TransactionDirection.incoming ||
+        transactionInfo.isAmountPending) {
       _startWatchingFeeResolution();
+    }
+
+    // A resolved tx can still have been classified before the wallet knew all
+    // its addresses; refresh it now rather than waiting for the sync-wide pass.
+    if (electrumWalletTypes.contains(wallet.type) && !isFetchingFee) {
+      _refreshIfStale();
+    }
+  }
+
+  @action
+  Future<void> _refreshIfStale() async {
+    try {
+      final refreshed = await bitcoin!.refreshTransactionIfStale(wallet, transactionInfo);
+      if (refreshed != null) {
+        _applyResolvedFee(refreshed);
+      }
+    } catch (e, stacktrace) {
+      printV("refreshing the transaction failed: $e");
+      printV(stacktrace);
     }
   }
 
@@ -614,27 +643,6 @@ abstract class TransactionDetailsViewModelBase with Store {
     return total == null ? "" : _formatFiat(total);
   }
 
-  /// Sum of change outputs, or null when there is none.
-  Money? get _changeReceived {
-    final rawAmount = addressBreakdown
-        .where((entry) => entry.isChange)
-        .fold<int>(0, (sum, entry) => sum + entry.rawAmount);
-
-    return rawAmount > 0 ? Money.fromInt(rawAmount, transactionAsset) : null;
-  }
-
-  @computed
-  String get changeReceivedAmount {
-    final change = _changeReceived;
-    return change == null ? "" : _formatCrypto(change);
-  }
-
-  @computed
-  String get changeReceivedFiatAmount {
-    final change = _changeReceived;
-    return change == null ? "" : _formatFiat(change);
-  }
-
   @computed
   String get feeRate {
     final txSize = transactionInfo.additionalInfo['txSize'] as int?;
@@ -717,7 +725,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           amount: _appStore.amountParsingProxy
               .asDisplayStringWithSymbol(Money.fromInt(input['amount'] as int, currency)),
           rawAmount: input['amount'] as int,
-          isChange: false,
+          isOutput: false,
           txCount: addressRecord?.txCount,
           balanceDisplay: addressRecord != null
               ? _appStore.amountParsingProxy.getDisplayCryptoString(addressRecord.balance, currency)
@@ -737,7 +745,8 @@ abstract class TransactionDetailsViewModelBase with Store {
           amount: _appStore.amountParsingProxy
               .asDisplayStringWithSymbol(Money.fromInt(output['amount'] as int, currency)),
           rawAmount: output['amount'] as int,
-          isChange: true,
+          isOutput: true,
+          isChangeAddress: addressRecord?.isChange ?? false,
           isUnspent: isUnspent,
           txCount: addressRecord?.txCount,
           balanceDisplay: addressRecord != null

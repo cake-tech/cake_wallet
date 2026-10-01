@@ -1,11 +1,11 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
 import "package:cake_wallet/src/widgets/fee_fetch_progress_indicator.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
-import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -40,127 +40,13 @@ class TransactionAdvancedInfoModal extends StatelessWidget {
                     child: Column(
                       spacing: 12,
                       children: [
-                        Observer(
-                          builder: (_) => NewListSections(
-                            sections: {
-                              "": transactionDetailsViewModel.advancedItems
-                                  .where((item) => item.value.isNotEmpty)
-                                  .map((item) {
-                                final keyValue =
-                                    ((item.key as ValueKey?)?.value as String?) ?? item.title;
-                                final isAdvancedFeeRow = keyValue ==
-                                    "standard_list_item_transaction_details_advanced_fee_key";
-                                final shouldBuildBottomWidget = item.value.length > 25;
-                                return ListItemRegularRow(
-                                  copyableText: item.value,
-                                  showArrow: false,
-                                  keyValue: keyValue,
-                                  label: item.title,
-                                  // Nested Observer: isFetchingFee/feeFetch*/feeFiatAmount
-                                  // change on every fee-fetch progress tick - reading them
-                                  // here instead of in the outer Observer keeps those ticks
-                                  // from re-running this entire advancedItems.map() on every
-                                  // single chunk.
-                                  trailingWidget: shouldBuildBottomWidget
-                                      ? null
-                                      : Observer(
-                                          builder: (_) {
-                                            final isLoadingFee = isAdvancedFeeRow &&
-                                                transactionDetailsViewModel.isFetchingFee;
-                                            final fiatAmount =
-                                                transactionDetailsViewModel.feeFiatAmount;
-                                            if (isLoadingFee) {
-                                              return FeeFetchProgressIndicator(
-                                                resolved: transactionDetailsViewModel
-                                                    .feeFetchResolvedInputs,
-                                                total:
-                                                    transactionDetailsViewModel.feeFetchTotalInputs,
-                                              );
-                                            }
-                                            if (isAdvancedFeeRow && fiatAmount.isNotEmpty) {
-                                              return Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(item.value),
-                                                  const SizedBox(height: 2),
-                                                  Text(
-                                                    fiatAmount,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            }
-                                            return Text(item.value);
-                                          },
-                                        ),
-                                  bottomWidget: shouldBuildBottomWidget
-                                      ? Text(
-                                          item.value,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          ),
-                                        )
-                                      : null,
-                                );
-                              }).toList(),
-                            },
-                          ),
+                        _TransactionAdvancedInfoItemsSection(
+                          transactionDetailsViewModel: transactionDetailsViewModel,
                         ),
-                        if (transactionDetailsViewModel.hasAddressBreakdown) ...[
-                          if (transactionDetailsViewModel.addressBreakdown
-                              .any((entry) => !entry.isChange))
-                            _AddressBreakdownSection(
-                              title: transactionDetailsViewModel.addressBreakdown
-                                          .where((entry) => !entry.isChange)
-                                          .length >
-                                      1
-                                  ? S.of(context).coins_spent
-                                  : S.of(context).coin_spent,
-                              rowLabel: S.of(context).spent,
-                              entries: transactionDetailsViewModel.addressBreakdown
-                                  .where((entry) => !entry.isChange)
-                                  .toList(),
-                              walletType: transactionDetailsViewModel.wallet.type,
-                              total: transactionDetailsViewModel.formatAddressBreakdownTotal(
-                                transactionDetailsViewModel.addressBreakdown
-                                    .where((entry) => !entry.isChange)
-                                    .toList(),
-                              ),
-                            ),
-                          if (transactionDetailsViewModel.addressBreakdown
-                              .any((entry) => entry.isChange))
-                            _AddressBreakdownSection(
-                              // Every owned output is recorded with isChange:
-                              // true regardless of transaction direction - on
-                              // an outgoing transaction that's genuinely
-                              // change coming back to the wallet, but on an
-                              // incoming one there's no "change" at all, just
-                              // the coins actually received.
-                              title: transactionDetailsViewModel.transactionInfo.direction ==
-                                      TransactionDirection.incoming
-                                  ? S.of(context).received_coins
-                                  : S.of(context).change,
-                              rowLabel: transactionDetailsViewModel.transactionInfo.direction ==
-                                      TransactionDirection.incoming
-                                  ? S.of(context).received
-                                  : S.of(context).change,
-                              entries: transactionDetailsViewModel.addressBreakdown
-                                  .where((entry) => entry.isChange)
-                                  .toList(),
-                              walletType: transactionDetailsViewModel.wallet.type,
-                              total: transactionDetailsViewModel.formatAddressBreakdownTotal(
-                                transactionDetailsViewModel.addressBreakdown
-                                    .where((entry) => entry.isChange)
-                                    .toList(),
-                              ),
-                            ),
-                        ],
+                        if (transactionDetailsViewModel.hasAddressBreakdown)
+                          _AddressBreakdownSections(
+                            transactionDetailsViewModel: transactionDetailsViewModel,
+                          ),
                       ],
                     ),
                   ),
@@ -171,6 +57,149 @@ class TransactionAdvancedInfoModal extends StatelessWidget {
           ),
         ),
       );
+}
+
+class _TransactionAdvancedInfoItemsSection extends StatelessWidget {
+  const _TransactionAdvancedInfoItemsSection({required this.transactionDetailsViewModel});
+
+  final TransactionDetailsViewModel transactionDetailsViewModel;
+
+  @override
+  Widget build(BuildContext context) => Observer(
+        builder: (_) => NewListSections(
+          sections: {
+            "": transactionDetailsViewModel.advancedItems
+                .where((item) => item.value.isNotEmpty)
+                .map((item) {
+              final keyValue = ((item.key as ValueKey?)?.value as String?) ?? item.title;
+              final isAdvancedFeeRow =
+                  keyValue == "standard_list_item_transaction_details_advanced_fee_key";
+              // "N/0" when the coin has no required-confirmations threshold: show just N.
+              final value = item is ConfirmationsListItem && item.needed == 0
+                  ? item.current.toString()
+                  : item.value;
+              final shouldBuildBottomWidget = value.length > 25;
+
+              return ListItemRegularRow(
+                copyableText: value,
+                showArrow: false,
+                keyValue: keyValue,
+                label: item.title,
+                trailingWidget: shouldBuildBottomWidget
+                    ? null
+                    : _TransactionAdvancedInfoRowTrailing(
+                        transactionDetailsViewModel: transactionDetailsViewModel,
+                        value: value,
+                        isAdvancedFeeRow: isAdvancedFeeRow,
+                      ),
+                bottomWidget: shouldBuildBottomWidget
+                    ? Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                    : null,
+              );
+            }).toList(),
+          },
+        ),
+      );
+}
+
+class _TransactionAdvancedInfoRowTrailing extends StatelessWidget {
+  const _TransactionAdvancedInfoRowTrailing({
+    required this.transactionDetailsViewModel,
+    required this.value,
+    required this.isAdvancedFeeRow,
+  });
+
+  final TransactionDetailsViewModel transactionDetailsViewModel;
+  final String value;
+  final bool isAdvancedFeeRow;
+
+  // Nested Observer: isFetchingFee/feeFetch*/feeFiatAmount change on every
+  // fee-fetch progress tick - reading them here instead of in the section's
+  // outer Observer keeps those ticks from re-running its entire
+  // advancedItems.map() on every single chunk.
+  @override
+  Widget build(BuildContext context) => Observer(
+        builder: (_) {
+          final isLoadingFee = isAdvancedFeeRow && transactionDetailsViewModel.isFetchingFee;
+          final fiatAmount = transactionDetailsViewModel.feeFiatAmount;
+          if (isLoadingFee) {
+            return FeeFetchProgressIndicator(
+              resolved: transactionDetailsViewModel.feeFetchResolvedInputs,
+              total: transactionDetailsViewModel.feeFetchTotalInputs,
+            );
+          }
+          if (isAdvancedFeeRow && fiatAmount.isNotEmpty) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(value),
+                const SizedBox(height: 2),
+                Text(
+                  fiatAmount,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            );
+          }
+          return Text(value);
+        },
+      );
+}
+
+/// "Coins spent" and "Change"/"Received coins" breakdown sections.
+class _AddressBreakdownSections extends StatelessWidget {
+  const _AddressBreakdownSections({required this.transactionDetailsViewModel});
+
+  final TransactionDetailsViewModel transactionDetailsViewModel;
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = transactionDetailsViewModel;
+    final spent = vm.addressBreakdown.where((entry) => !entry.isOutput).toList();
+    final change =
+        vm.addressBreakdown.where((entry) => entry.isOutput && entry.isChangeAddress).toList();
+    final received =
+        vm.addressBreakdown.where((entry) => entry.isOutput && !entry.isChangeAddress).toList();
+
+    return Column(
+      spacing: 12,
+      children: [
+        if (spent.isNotEmpty)
+          _AddressBreakdownSection(
+            title: spent.length > 1 ? S.of(context).coins_spent : S.of(context).coin_spent,
+            rowLabel: S.of(context).spent,
+            entries: spent,
+            walletType: vm.wallet.type,
+            total: vm.formatAddressBreakdownTotal(spent),
+          ),
+        if (received.isNotEmpty)
+          _AddressBreakdownSection(
+            title: S.of(context).received_coins,
+            rowLabel: S.of(context).received,
+            entries: received,
+            walletType: vm.wallet.type,
+            total: vm.formatAddressBreakdownTotal(received),
+          ),
+        if (change.isNotEmpty)
+          _AddressBreakdownSection(
+            title: S.of(context).change,
+            rowLabel: S.of(context).change,
+            entries: change,
+            walletType: vm.wallet.type,
+            total: vm.formatAddressBreakdownTotal(change),
+          ),
+      ],
+    );
+  }
 }
 
 class _AddressBreakdownSection extends StatelessWidget {
@@ -296,40 +325,41 @@ class _AddressBreakdownRow extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                  if (entry.isChange && entry.isUnspent != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color:
-                            (entry.isUnspent == true ? Colors.green : Colors.red).withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            entry.isUnspent == true ? Icons.check_circle : Icons.cancel,
-                            size: 10,
-                            color: entry.isUnspent == true ? Colors.green : Colors.red,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            entry.isUnspent == true
-                                ? S.of(context).still_spendable
-                                : S.of(context).spent,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: entry.isUnspent == true ? Colors.green : Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  if (entry.isOutput && entry.isUnspent != null)
+                    _AddressSpendableBadge(isUnspent: entry.isUnspent == true),
                 ],
               ),
             ],
           ),
         ),
       );
+}
+
+class _AddressSpendableBadge extends StatelessWidget {
+  const _AddressSpendableBadge({required this.isUnspent});
+
+  final bool isUnspent;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isUnspent ? Colors.green : Colors.red;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(isUnspent ? Icons.check_circle : Icons.cancel, size: 10, color: color),
+          const SizedBox(width: 4),
+          Text(
+            isUnspent ? S.of(context).still_spendable : S.of(context).spent,
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
+          ),
+        ],
+      ),
+    );
+  }
 }

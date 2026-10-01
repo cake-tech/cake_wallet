@@ -34,7 +34,9 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   @override
-  void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  void addOne(ElectrumTransactionInfo transaction) {
+    transactions[transaction.id] = transaction;
+  }
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>

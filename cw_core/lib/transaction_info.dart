@@ -25,19 +25,17 @@ abstract class TransactionInfo extends Object with Keyable {
 
   Map<String, dynamic> additionalInfo = {};
 
-  /// Whether the displayed amount of an outgoing tx may still change.
+  /// Whether the displayed amount (and direction) may still change.
   ///
   /// The amount is computed from the inputs this wallet owns, and ownership is
   /// resolved input by input, so it can grow until every input is resolved.
+  /// This also covers a tx still classified as incoming only because an
+  /// input's ownership can't be told without its parent (e.g. P2TR key-path):
+  /// it may turn out to be a send, with its change shown as a receive.
   ///
   /// Always false for wallets other than Electrum, which never set the
   /// `additionalInfo` flags read here.
   bool get isAmountPending {
-    // Only outgoing txs can have a pending amount.
-    if (direction != TransactionDirection.outgoing) {
-      return false;
-    }
-
     final inputsOwnershipFullyResolved = additionalInfo['inputsOwnershipFullyResolved'] as bool?;
 
     // Checked first: every input being resolved guarantees the amount is

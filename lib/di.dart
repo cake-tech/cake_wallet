@@ -1256,9 +1256,14 @@ Future<void> setup({
       () => CsvExportService(transactionDescriptionBox: _transactionDescriptionBox));
 
   getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>((params, _) {
-    final transactionInfo = params[0] as TransactionInfo;
-    final canReplaceByFee = params[1] as bool? ?? false;
     final wallet = getIt.get<AppStore>().wallet!;
+    final listedTransactionInfo = params[0] as TransactionInfo;
+    // The caller's object can be an older instance than what the wallet holds
+    // now (background resolution/recheck replace history entries with new
+    // instances), so resolve the live one to show - and update - current data.
+    final transactionInfo =
+        wallet.transactionHistory.transactions[listedTransactionInfo.id] ?? listedTransactionInfo;
+    final canReplaceByFee = params[1] as bool? ?? false;
 
     return TransactionDetailsViewModel(
       transactionInfo: transactionInfo,

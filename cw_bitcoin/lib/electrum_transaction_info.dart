@@ -25,6 +25,20 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
+  /// Cheap, parent-free MWEB HogEx shape check: first input spends output 0
+  /// and the first output is a 34-byte witness-v8 program (OP_8 PUSH32).
+  /// A real HogEx has this shape and so does its first parent, so the first
+  /// pass only needs to fetch that one parent when this holds.
+  static bool isHogExCandidate(BtcTransaction tx) {
+    if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) {
+      return false;
+    }
+
+    final b = tx.outputs.first.scriptPubKey.toBytes();
+
+    return b.length == 34 && b[0] == 88 && b[1] == 32;
+  }
+
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
@@ -253,8 +267,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // Uses ownedInputTotal (sums only resolved inputs so far) rather than
       // waiting for full resolution, so it can transiently undercount but
       // never overcount.
-      final ownedOutputsTotal =
-          ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
+      final ownedOutputsTotal = ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
       final rawDisplayAmount = ownedInputTotal - ownedOutputsTotal;
       // Every owned input's value is known (not just its ownership), so
       // ownedInputTotal can no longer be an undercount.
@@ -273,15 +286,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
       }
     }
 
-    // MWEB HogEx
-    final isHogExTx = (BtcTransaction tx) {
-      if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) return false;
-      final b = tx.outputs.first.scriptPubKey.toBytes();
-      return b.length == 34 && b[0] == 88 && b[1] == 32;
-    };
+    // MWEB HogEx. Needs only the first parent, which the first-pass sync
+    // fetches for HogEx candidates (see ElectrumTransactionInfo.isHogExCandidate).
     final firstInput = bundle.ins.isNotEmpty ? bundle.ins.first : null;
-    final isHogEx =
-        firstInput != null && isHogExTx(bundle.originalTransaction) && isHogExTx(firstInput);
+    final isHogEx = firstInput != null &&
+        isHogExCandidate(bundle.originalTransaction) &&
+        isHogExCandidate(firstInput);
 
     // The network fee is a property of the whole transaction (sum of inputs
     // minus sum of outputs) regardless of which inputs are ours, so it's
@@ -342,6 +352,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         'inputsOwnershipFullyResolved': inputsOwnershipFullyResolved,
         'isWalletDisplayAmountExact': isWalletDisplayAmountExact,
         'totalInputCount': totalInputCount,
+        // Size of the wallet address set this was classified against; see
+        // ElectrumTransactionResolver.needsAddressRecheck.
+        'addressSetSizeKey': addresses.length,
       },
       confirmations: bundle.confirmations,
     );

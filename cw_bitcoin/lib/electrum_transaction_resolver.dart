@@ -1,10 +1,11 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/electrum_transaction_isolate.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_bitcoin/electrum_transaction_info.dart";
+import "package:cw_bitcoin/electrum_transaction_isolate.dart";
+import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_core/get_height_by_date.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:flutter/foundation.dart";
 
 /// Resolves fee/ownership/direction details for transactions that the
 /// first pass sync (see [ElectrumWalletBase.getTransactionExpanded]) left
@@ -35,7 +36,7 @@ class ElectrumTransactionResolver {
 
   void cacheVerboseHexes(Map<String, Map<String, dynamic>> verboseByHash) {
     for (final entry in verboseByHash.entries) {
-      final hex = entry.value['hex'] as String?;
+      final hex = entry.value["hex"] as String?;
       if (hex != null) {
         cacheRawTxHex(entry.key, hex);
       }
@@ -66,6 +67,20 @@ class ElectrumTransactionResolver {
   final Map<String, Completer<ElectrumTransactionInfo?>> _resolutionWaiters = {};
   final Map<String, List<void Function(int resolved, int total)>> _feeFetchProgressListeners = {};
 
+  /// Attempts spent so far per watched txid, and the earliest time its next
+  /// attempt may start. A waiter is only completed once its tx is actually
+  /// resolved or [_maxWatchAttempts] is exhausted - never after a single
+  /// failed/partial attempt.
+  final Map<String, int> _watchAttempts = {};
+  final Map<String, DateTime> _watchRetryNotBefore = {};
+  static const int _maxWatchAttempts = 5;
+  static const Duration _watchRetryBaseDelay = Duration(seconds: 1);
+  static const Duration _watchRetryMaxDelay = Duration(seconds: 4);
+
+  // Completed by watchTransactionResolution to cut short the loop's idle wait
+  // between retries when a new watcher arrives.
+  Completer<void>? _wake;
+
   // Set by stop() (see ElectrumWalletBase.close) so a run in progress stops
   // immediately.
   bool _stopped = false;
@@ -82,7 +97,7 @@ class ElectrumTransactionResolver {
   /// updates instead of one long unbroken fetch+parse+persist step.
   static const int _resolutionInputChunkSize = 25;
 
-  /// Timeout for the network calls in [_resolveTransactionDetails] -
+  /// Base timeout for the network calls in [_resolveTransactionDetails] -
   /// deliberately shorter than [ElectrumWalletBase.transactionBatchTimeoutMs]
   /// (15s). This resolves one transaction's inputs at a time, often while a
   /// UI progress indicator is watching it, so a slow/unfetchable chunk
@@ -116,6 +131,10 @@ class ElectrumTransactionResolver {
   /// page, resolved whenever the shared background loop naturally reaches
   /// it. Returns the stored info as-is if it's already resolved.
   ///
+  /// The future completes with the resolved info, or with null once
+  /// [_maxWatchAttempts] attempts (with escalating timeouts) have failed or
+  /// the resolver was stopped. Failed attempts are retried with backoff.
+  ///
   /// [onProgress] fires after every input batch. Concurrent calls for the
   /// same [txId] share one result instead of duplicating work.
   Future<ElectrumTransactionInfo?> watchTransactionResolution(
@@ -132,6 +151,11 @@ class ElectrumTransactionResolver {
     }
 
     final waiter = _resolutionWaiters.putIfAbsent(txId, Completer<ElectrumTransactionInfo?>.new);
+    final wake = _wake;
+    if (wake != null && !wake.isCompleted) {
+      wake.complete();
+    }
+
     // Ensures the background loop is actually running (e.g. it may have
     // drained its last pending queue and gone idle since the last sync).
     _ensureResolutionLoopRunning();
@@ -152,6 +176,13 @@ class ElectrumTransactionResolver {
     unawaited(
       _runResolutionLoop().whenComplete(() {
         _isResolvingTransactions = false;
+
+        if (_stopped) {
+          _failAllWaiters();
+        } else if (_resolutionWaiters.isNotEmpty) {
+          // A watcher registered while the loop was winding down.
+          _ensureResolutionLoopRunning();
+        }
       }),
     );
   }
@@ -175,49 +206,152 @@ class ElectrumTransactionResolver {
       // that never make a network call can't block the UI from staying responsive.
       await Future<void>.delayed(Duration.zero);
 
-      pendingQueue ??= _buildPendingQueue();
-      String? txId;
-      while (pendingQueue.isNotEmpty) {
-        final candidate = pendingQueue.removeLast();
-        final txInfo = _wallet.transactionHistory.transactions[candidate];
-        if (txInfo != null && !txInfo.needsResolution) {
-          continue;
-        }
-        txId = candidate;
-        break;
-      }
+      final txId = _nextWatchedTxId() ?? _nextBackgroundTxId(pendingQueue ??= _buildPendingQueue());
       if (txId == null) {
-        break;
+        if (_resolutionWaiters.isEmpty) {
+          break;
+        }
+
+        // Only watched txs in retry backoff remain.
+        await _waitForRetryOrWake();
+        continue;
       }
 
-      ElectrumTransactionInfo? result;
       try {
-        result = await _resolveTransactionDetails(txId);
+        await _resolveTransactionDetails(txId);
       } catch (e, stacktrace) {
-        printV('resolution loop: failed for $txId, will retry next run: $e');
+        printV("resolution loop: failed for $txId, will retry: $e");
         printV(stacktrace);
       }
 
-      _resolutionWaiters.remove(txId)?.complete(result);
-      _feeFetchProgressListeners.remove(txId);
+      _finishAttempt(txId);
     }
 
     // The last resolution(s) may still be throttled in memory, force a final save.
-    await _maybePersistHistory(force: true);
+    try {
+      await _maybePersistHistory(force: true);
+    } catch (e, stacktrace) {
+      printV("resolution loop: final history save failed: $e");
+      printV(stacktrace);
+    }
+  }
+
+  /// A watched tx whose retry backoff has elapsed, if any - watched txs take
+  /// priority over the background queue.
+  String? _nextWatchedTxId() {
+    final now = DateTime.now();
+
+    for (final txId in _resolutionWaiters.keys) {
+      final notBefore = _watchRetryNotBefore[txId];
+
+      if (notBefore == null || !notBefore.isAfter(now)) {
+        return txId;
+      }
+    }
+
+    return null;
+  }
+
+  String? _nextBackgroundTxId(List<String> pendingQueue) {
+    while (pendingQueue.isNotEmpty) {
+      final candidate = pendingQueue.removeLast();
+
+      // Watched txs are driven by _nextWatchedTxId (including their backoff).
+      if (_resolutionWaiters.containsKey(candidate)) {
+        continue;
+      }
+
+      final txInfo = _wallet.transactionHistory.transactions[candidate];
+
+      if (txInfo != null && !txInfo.needsResolution) {
+        continue;
+      }
+
+      return candidate;
+    }
+
+    return null;
+  }
+
+  /// Sleeps until the earliest watched retry is due, or a new watcher arrives.
+  Future<void> _waitForRetryOrWake() async {
+    final now = DateTime.now();
+    var delay = _watchRetryMaxDelay;
+
+    for (final txId in _resolutionWaiters.keys) {
+      final remaining = (_watchRetryNotBefore[txId] ?? now).difference(now);
+
+      if (remaining < delay) {
+        delay = remaining;
+      }
+    }
+
+    final wake = _wake = Completer<void>();
+    await Future.any([Future<void>.delayed(delay.isNegative ? Duration.zero : delay), wake.future]);
+
+    _wake = null;
+  }
+
+  /// Settles the waiter for [txId] after an attempt: completes it only when
+  /// the tx is resolved or attempts are exhausted, otherwise schedules a retry.
+  void _finishAttempt(String txId) {
+    final waiter = _resolutionWaiters[txId];
+    if (waiter == null) {
+      return;
+    }
+
+    final stored = _wallet.transactionHistory.transactions[txId];
+    if (stored != null && !stored.needsResolution) {
+      _completeWaiter(txId, stored);
+      return;
+    }
+
+    final attempts = (_watchAttempts[txId] ?? 0) + 1;
+    if (attempts >= _maxWatchAttempts) {
+      printV("resolution loop: giving up on $txId after $attempts attempts");
+      _completeWaiter(txId, null);
+      return;
+    }
+
+    _watchAttempts[txId] = attempts;
+    final backoff = _watchRetryBaseDelay * (1 << (attempts - 1));
+    _watchRetryNotBefore[txId] =
+        DateTime.now().add(backoff > _watchRetryMaxDelay ? _watchRetryMaxDelay : backoff);
+  }
+
+  void _completeWaiter(String txId, ElectrumTransactionInfo? info) {
+    _resolutionWaiters.remove(txId)?.complete(info);
+    _feeFetchProgressListeners.remove(txId);
+    _watchAttempts.remove(txId);
+    _watchRetryNotBefore.remove(txId);
+  }
+
+  void _failAllWaiters() {
+    for (final txId in _resolutionWaiters.keys.toList()) {
+      _completeWaiter(txId, null);
+    }
   }
 
   /// Ownership-incomplete transactions before fee-only ones, newest-first
   /// within each. Sorted in *ascending* priority (lowest-priority first) so
   /// the intended pick order comes out via removeLast() - see [_runResolutionLoop].
-  List<String> _buildPendingQueue() {
-    final candidates =
-        _wallet.transactionHistory.transactions.values.where((tx) => tx.needsResolution).toList()
-          ..sort((a, b) {
-            if (a.inputsOwnershipFullyResolved != b.inputsOwnershipFullyResolved) {
-              return a.inputsOwnershipFullyResolved ? -1 : 1;
-            }
-            return a.date.compareTo(b.date);
-          });
+  List<String> _buildPendingQueue() =>
+      buildPendingQueue(_wallet.transactionHistory.transactions.values);
+
+  /// Orders txs needing resolution: fully-resolved-inputs first, then oldest
+  /// first. Ties on both are broken by id so the order is deterministic.
+  @visibleForTesting
+  static List<String> buildPendingQueue(Iterable<ElectrumTransactionInfo> transactions) {
+    final candidates = transactions.where((tx) => tx.needsResolution).toList()
+      ..sort((a, b) {
+        if (a.inputsOwnershipFullyResolved != b.inputsOwnershipFullyResolved) {
+          return a.inputsOwnershipFullyResolved ? -1 : 1;
+        }
+
+        final byDate = a.date.compareTo(b.date);
+        return byDate != 0 ? byDate : a.id.compareTo(b.id);
+      });
+
     return candidates.map((tx) => tx.id).toList();
   }
 
@@ -244,15 +378,14 @@ class ElectrumTransactionResolver {
       _consecutiveFailures[txId] = (_consecutiveFailures[txId] ?? 0) + 1;
       return existingTxInfo;
     }
-    _consecutiveFailures.remove(txId);
 
     // Height/time/confirmations are properties of the target tx itself, not
     // of how many inputs are resolved yet - compute once and reuse for every
     // partial and final build below.
     final height = existingTxInfo?.height;
     final verbose = targetVerbose[txId] ?? const <String, dynamic>{};
-    int? time = verbose['time'] as int?;
-    int? confirmations = verbose['confirmations'] as int?;
+    int? time = verbose["time"] as int?;
+    int? confirmations = verbose["confirmations"] as int?;
     if (height != null) {
       if (time == null && height > 0) {
         time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
@@ -273,7 +406,7 @@ class ElectrumTransactionResolver {
     for (final t in allInputTxids) {
       final cachedHex = cachedRawTxHex(t);
       if (cachedHex != null) {
-        cachedVerbose[t] = {'hex': cachedHex};
+        cachedVerbose[t] = {"hex": cachedHex};
       } else {
         uncachedInputTxids.add(t);
       }
@@ -304,7 +437,7 @@ class ElectrumTransactionResolver {
       );
       final info = infosByHash[txId];
       if (info == null) {
-        throw Exception('fromElectrumBundle failed to build info for txid=$txId');
+        throw Exception("fromElectrumBundle failed to build info for txid=$txId");
       }
       info.id = txId;
 
@@ -332,6 +465,7 @@ class ElectrumTransactionResolver {
 
     if (uncachedInputTxids.isEmpty) {
       final result = await buildTransactionAndAddToHistory();
+      _consecutiveFailures.remove(txId);
       await _maybePersistHistory();
       return result;
     }
@@ -345,12 +479,19 @@ class ElectrumTransactionResolver {
     // (and always on the last chunk) - reportProgress stays cheap and runs
     // every chunk regardless.
     const updateHistoryEveryNChunks = 4;
+    var anyChunkIncomplete = false;
+
     for (final (chunkIndex, chunk) in chunks.indexed) {
-      final chunkVerbose =
-          await _wallet.fetchTransactionVerboseBatch(chunk, timeoutMs: _resolutionBatchTimeoutMs);
+      // Escalates like the target fetch: a timeout here is swallowed
+      // silently, so a too-short budget would otherwise never grow.
+      final chunkVerbose = await _wallet.fetchTransactionVerboseBatch(chunk, timeoutMs: timeoutMs);
       cacheVerboseHexes(chunkVerbose);
       final parsedThisChunk = await parseTransactions(chunkVerbose);
       parsedInputTxById.addAll(parsedThisChunk);
+
+      if (chunk.any((t) => !parsedThisChunk.containsKey(t))) {
+        anyChunkIncomplete = true;
+      }
 
       reportProgress();
 
@@ -365,6 +506,13 @@ class ElectrumTransactionResolver {
       }
     }
 
+    if (anyChunkIncomplete) {
+      // Retried later with the already-cached parents skipped and a larger timeout.
+      _consecutiveFailures[txId] = (_consecutiveFailures[txId] ?? 0) + 1;
+    } else {
+      _consecutiveFailures.remove(txId);
+    }
+
     return latestResolvedInfo;
   }
 
@@ -374,37 +522,111 @@ class ElectrumTransactionResolver {
     _ensureResolutionLoopRunning();
   }
 
-  int _lastRecheckAddressCount = -1;
+  final Set<String> _refreshingTxIds = {};
 
-  /// Re-derives direction/amount/output-ownership for persisted transactions
-  /// whose output may now match a wallet address that didn't exist yet at
-  /// classification time, purely from cached local data, only when the address
-  /// set has grown since [_lastRecheckAddressCount].
-  Future<void> recheckStaleTransactions() async {
-    final currentAddressCount = _wallet.walletAddresses.allAddresses.length;
-    if (currentAddressCount == _lastRecheckAddressCount) {
+  /// Brings [txId] up to date right away, for the transaction the user has
+  /// open, instead of waiting for its turn in the sync-wide recheck or
+  /// resolution queue.
+  ///
+  /// A tx still needing resolution is already served first by
+  /// [watchTransactionResolution]. This covers a resolved tx classified
+  /// against fewer addresses than the wallet knows now: it is re-derived on its
+  /// own, from its own parents, with a single forced refetch.
+  Future<ElectrumTransactionInfo?> refreshIfStale(String txId) async {
+    final tx = _wallet.transactionHistory.transactions[txId];
+    if (tx == null) {
+      return null;
+    }
+
+    if (tx.needsResolution) {
+      return watchTransactionResolution(txId);
+    }
+
+    final recordedSize = tx.additionalInfo["addressSetSizeKey"] as int?;
+    if (recordedSize != null && recordedSize >= _wallet.addressesSet.length) {
+      return tx;
+    }
+
+    // Already being refreshed (e.g. the page was opened twice in a row).
+    if (!_refreshingTxIds.add(txId)) {
+      return tx;
+    }
+
+    try {
+      await _recheckChunked([tx], forceResolveInputs: true);
+    } finally {
+      _refreshingTxIds.remove(txId);
+    }
+
+    return _wallet.transactionHistory.transactions[txId];
+  }
+
+  /// Txs the sync saw in the history of an address they don't account for yet
+  /// (see [flagIfStale]), waiting for [recheckStaleTransactions].
+  final Set<String> _staleTxIds = {};
+
+  /// Recheck chunk size. Small on purpose: the newest txs (the ones a user is
+  /// most likely looking at) land after one short round trip instead of after a
+  /// 150-tx batch of parent fetches.
+  static const int _recheckChunkSize = 10;
+
+  /// (tx, address) pairs already flagged this session, so a tx that can never
+  /// settle for an address isn't rechecked on every sync. Cleared for a tx whose
+  /// recheck couldn't fetch it, so the next sync flags it again.
+  final Map<String, Set<String>> _flaggedPairs = {};
+
+  /// Called by the sync for every stored [tx] it finds in [address]'s history.
+  /// An address can only take part in txs that appear in its own history, so
+  /// this finds exactly the txs a newly discovered address could change.
+  void flagIfStale(ElectrumTransactionInfo tx, String address) {
+    if (_flaggedPairs[tx.id]?.contains(address) ?? false) {
       return;
     }
-    _lastRecheckAddressCount = currentAddressCount;
+
+    if (isStaleForAddress(tx, address)) {
+      (_flaggedPairs[tx.id] ??= <String>{}).add(address);
+      _staleTxIds.add(tx.id);
+    }
+  }
+
+  /// Whether [tx], which appears in [address]'s history, was classified without
+  /// knowing [address] belongs to the wallet.
+  @visibleForTesting
+  static bool isStaleForAddress(ElectrumTransactionInfo tx, String address) {
+    Set<dynamic> addressesOf(String key) =>
+        ((tx.additionalInfo[key] as List?)?.cast<Map<dynamic, dynamic>>() ?? const [])
+            .map((entry) => entry["address"])
+            .toSet();
+
+    if (tx.outputAddresses?.contains(address) ?? false) {
+      return !addressesOf("ownedOutputs").contains(address);
+    }
+
+    // In the address's history but not an output, so it was spent as an input.
+    // Unresolved txs have no recorded inputs yet; the resolution loop classifies
+    // them against the current address set anyway.
+    return tx.inputsOwnershipFullyResolved && !addressesOf("ownedInputs").contains(address);
+  }
+
+  /// Re-derives direction/amount/ownership for the txs flagged by [flagIfStale]
+  /// since the last call, newest first, in small chunks, purely from cached
+  /// local data where possible.
+  ///
+  /// A flagged tx that fails here is flagged again by the next sync, which sees
+  /// it in the same address history again, so nothing is lost on failure.
+  /// Txs persisted before the address set size was recorded are also covered
+  /// by [needsAddressRecheck].
+  Future<void> recheckStaleTransactions() async {
+    final flagged = Set<String>.of(_staleTxIds);
+    _staleTxIds.clear();
 
     final addresses = _wallet.addressesSet;
-    final candidates = _wallet.transactionHistory.transactions.values.where((tx) {
-      final outputs = tx.outputAddresses ?? const <String>[];
-      final recognizedOutputAddresses =
-          ((tx.additionalInfo['ownedOutputs'] as List?)?.cast<Map<dynamic, dynamic>>() ?? const [])
-              .map((o) => o['address'])
-              .toSet();
-      final hasNewlyRecognizedOutput =
-          outputs.any((a) => addresses.contains(a) && !recognizedOutputAddresses.contains(a));
-      if (hasNewlyRecognizedOutput) {
-        return true;
-      }
-
-      // Also re-check pass2-resolved txs judged "not ours" from inputs alone
-      // - that can flip once a revealed pubkey's address joins the wallet.
-      final ownedInputs = tx.additionalInfo['ownedInputs'] as List?;
-      return tx.inputsOwnershipFullyResolved && (ownedInputs?.isEmpty ?? true);
-    });
+    final transactions = _wallet.transactionHistory.transactions;
+    final candidates = transactions.values.where(
+      (tx) =>
+          flagged.contains(tx.id) ||
+          (tx.additionalInfo["addressSetSizeKey"] == null && needsAddressRecheck(tx, addresses)),
+    );
     final newestFirstCandidates = candidates.toList()..sort((a, b) => b.date.compareTo(a.date));
 
     if (newestFirstCandidates.isEmpty) {
@@ -418,7 +640,7 @@ class ElectrumTransactionResolver {
     final needsInputResolution = <ElectrumTransactionInfo>[];
     final cheapCandidates = <ElectrumTransactionInfo>[];
     for (final tx in newestFirstCandidates) {
-      final ownedInputs = tx.additionalInfo['ownedInputs'] as List?;
+      final ownedInputs = tx.additionalInfo["ownedInputs"] as List?;
       if (ownedInputs?.isNotEmpty ?? false) {
         needsInputResolution.add(tx);
       } else {
@@ -437,6 +659,51 @@ class ElectrumTransactionResolver {
     }
   }
 
+  /// Whether [tx] was classified against a smaller address set than
+  /// [addresses], so any input or output of it may now belong to the wallet.
+  ///
+  /// Txs persisted before the address set size was recorded fall back to
+  /// a heuristic over their saved ownership data.
+  @visibleForTesting
+  static bool needsAddressRecheck(ElectrumTransactionInfo tx, Set<String> addresses) {
+    final recordedSize = tx.additionalInfo["addressSetSizeKey"] as int?;
+
+    if (recordedSize != null) {
+      return recordedSize < addresses.length;
+    }
+
+    final outputs = tx.outputAddresses ?? const <String>[];
+    final recognizedOutputAddresses =
+        ((tx.additionalInfo["ownedOutputs"] as List?)?.cast<Map<dynamic, dynamic>>() ?? const [])
+            .map((o) => o["address"])
+            .toSet();
+
+    final hasNewlyRecognizedOutput =
+        outputs.any((a) => addresses.contains(a) && !recognizedOutputAddresses.contains(a));
+
+    if (hasNewlyRecognizedOutput) {
+      return true;
+    }
+
+    // Also re-check txs whose inputs are fully resolved but judged "not ours"
+    // - that can flip once a revealed pubkey's address joins the wallet.
+    final ownedInputs = tx.additionalInfo["ownedInputs"] as List?;
+    return tx.inputsOwnershipFullyResolved && (ownedInputs?.isEmpty ?? true);
+  }
+
+  /// Records that [tx] is up to date for the address set [refetched] was built
+  /// against, without otherwise changing it, so it stops being a recheck
+  /// candidate.
+  bool _stampAddressSetSize(ElectrumTransactionInfo tx, ElectrumTransactionInfo refetched) {
+    final count = refetched.additionalInfo["addressSetSizeKey"];
+    if (count == null) {
+      return false;
+    }
+
+    tx.additionalInfo["addressSetSizeKey"] = count;
+    return true;
+  }
+
   /// Returns the candidates that remain genuinely ambiguous after this pass
   /// (only possible when [forceResolveInputs] is false) - not yet
   /// conclusively re-classified one way or the other, so the caller can
@@ -447,10 +714,9 @@ class ElectrumTransactionResolver {
   }) async {
     final transactionsStillAmbiguous = <ElectrumTransactionInfo>[];
 
-    for (var i = 0; i < candidates.length; i += ElectrumWalletBase.transactionChunkSize) {
-      final end = (i + ElectrumWalletBase.transactionChunkSize < candidates.length)
-          ? i + ElectrumWalletBase.transactionChunkSize
-          : candidates.length;
+    for (var i = 0; i < candidates.length; i += _recheckChunkSize) {
+      final end =
+          (i + _recheckChunkSize < candidates.length) ? i + _recheckChunkSize : candidates.length;
       final chunk = candidates.sublist(i, end);
 
       final hashes = chunk.map((tx) => tx.id).toList();
@@ -466,6 +732,8 @@ class ElectrumTransactionResolver {
       for (final tx in chunk) {
         final refetched = refetchedByHash[tx.id];
         if (refetched == null) {
+          // Couldn't refetch: let the next sync flag it again.
+          _flaggedPairs.remove(tx.id);
           continue;
         }
 
@@ -476,17 +744,24 @@ class ElectrumTransactionResolver {
         if (wasResolved && !isNowResolved) {
           if (!forceResolveInputs) {
             transactionsStillAmbiguous.add(tx);
+          } else if (_stampAddressSetSize(tx, refetched)) {
+            updated = true;
           }
+
           continue;
         }
 
         final changed = refetched.direction != tx.direction ||
             refetched.amount != tx.amount ||
             refetched.fee != tx.fee ||
-            !tx.additionalInfo.containsKey('ownedInputs') ||
-            !tx.additionalInfo.containsKey('ownedOutputs');
+            !tx.additionalInfo.containsKey("ownedInputs") ||
+            !tx.additionalInfo.containsKey("ownedOutputs");
 
         if (!changed) {
+          if (_stampAddressSetSize(tx, refetched)) {
+            updated = true;
+          }
+
           continue;
         }
 

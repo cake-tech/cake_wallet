@@ -2547,41 +2547,49 @@ abstract class ElectrumWalletBase
     final original = BtcTransaction.fromRaw(transactionHex);
     final ins = <BtcTransaction?>[];
 
-    // Pass 1 (normal sync, forceResolveInputs == false) never resolves
+    // The normal sync fetch (forceResolveInputs == false) never resolves
     // parent txs, regardless of whether ownership can be confirmed from
     // this tx's own scriptSig/witness data - fee/ownership resolution is
     // deferred to the background resolution pass (forceResolveInputs ==
     // true), which resolves every input unconditionally.
+    Future<BtcTransaction?> fetchParent(String parentTxId) async {
+      final cachedHex = _transactionResolver.cachedRawTxHex(parentTxId);
+      if (cachedHex != null) {
+        return BtcTransaction.fromRaw(cachedHex);
+      }
+
+      try {
+        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: parentTxId);
+
+        final String inputTransactionHex;
+
+        if (verboseTransaction.isEmpty) {
+          inputTransactionHex = await electrumClient.getTransactionHex(hash: parentTxId);
+        } else {
+          inputTransactionHex = verboseTransaction['hex'] as String;
+        }
+
+        if (inputTransactionHex.isEmpty) {
+          return null;
+        }
+        _transactionResolver.cacheRawTxHex(parentTxId, inputTransactionHex);
+        return BtcTransaction.fromRaw(inputTransactionHex);
+      } catch (_) {
+        return null;
+      }
+    }
+
     if (!forceResolveInputs) {
       ins.addAll(List<BtcTransaction?>.filled(original.inputs.length, null));
+
+      // Exception: MWEB HogEx detection needs the first parent. Only txs with
+      // the HogEx shape pay for this one extra fetch.
+      if (ElectrumTransactionInfo.isHogExCandidate(original)) {
+        ins[0] = await fetchParent(original.inputs.first.txId);
+      }
     } else {
       for (final vin in original.inputs) {
-        final cachedHex = _transactionResolver.cachedRawTxHex(vin.txId);
-        if (cachedHex != null) {
-          ins.add(BtcTransaction.fromRaw(cachedHex));
-          continue;
-        }
-
-        try {
-          final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
-
-          final String inputTransactionHex;
-
-          if (verboseTransaction.isEmpty) {
-            inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
-          } else {
-            inputTransactionHex = verboseTransaction['hex'] as String;
-          }
-
-          if (inputTransactionHex.isEmpty) {
-            ins.add(null);
-          } else {
-            _transactionResolver.cacheRawTxHex(vin.txId, inputTransactionHex);
-            ins.add(BtcTransaction.fromRaw(inputTransactionHex));
-          }
-        } catch (_) {
-          ins.add(null);
-        }
+        ins.add(await fetchParent(vin.txId));
       }
     }
 
@@ -2634,6 +2642,12 @@ abstract class ElectrumWalletBase
     void Function(int resolved, int total)? onProgress,
   }) =>
       _transactionResolver.watchTransactionResolution(txId, onProgress: onProgress);
+
+  /// Brings one transaction up to date right now - ahead of the sync-wide
+  /// recheck and resolution queue - for the transaction details page. Returns
+  /// the live record, or null if the transaction isn't in the history.
+  Future<ElectrumTransactionInfo?> refreshTransactionIfStale(String txId) =>
+      _transactionResolver.refreshIfStale(txId);
 
   bool isMine(Script script) {
     final derivedAddress = addressFromOutputScript(script, network);
@@ -2776,6 +2790,7 @@ abstract class ElectrumWalletBase
           final storedTx = transactionHistory.transactions[txid];
 
           if (storedTx != null) {
+            _transactionResolver.flagIfStale(storedTx, addressRecord.address);
             if (height > 0) {
               storedTx.height = height;
               // the tx's block itself is the first confirmation so add 1
@@ -2891,36 +2906,49 @@ abstract class ElectrumWalletBase
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final highestUsedIndex = _highestUsedIndex(currentBranch);
-    final shouldDiscover =
-        highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
+    // Repeats until a pass finds nothing new; one pass per sync would reach only
+    // a single chunk beyond the first gap, delaying those addresses a full sync.
+    //
+    // Terminates: each pass adds >= `gap` addresses, so the branch always grows,
+    // and we only continue while its end is within gapLimit of the highest used
+    // address. With no new used address that fails after two passes; a used one
+    // needs real server history (finite). A failed fetch leaves it unused.
+    while (true) {
+      final highestUsedIndex = _highestUsedIndex(currentBranch);
+      final shouldDiscover =
+          highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
 
-    if (!shouldDiscover) return;
+      if (!shouldDiscover) {
+        return;
+      }
 
-    final newAddresses = await walletAddresses.discoverAddressesBatch(
-      currentBranch,
-      isHidden,
-      (newAddresses) async {
-        final newHistory = await _fetchBatchAddressHistory(
-          newAddresses,
-          tip,
-          discoveryHistoryChunkSize,
-        );
+      final newAddresses = await walletAddresses.discoverAddressesBatch(
+        currentBranch,
+        isHidden,
+        (newAddresses) async {
+          final newHistory = await _fetchBatchAddressHistory(
+            newAddresses,
+            tip,
+            discoveryHistoryChunkSize,
+          );
 
-        if (newHistory.isNotEmpty) {
-          historiesWithDetails.addAll(newHistory);
-        }
+          if (newHistory.isNotEmpty) {
+            historiesWithDetails.addAll(newHistory);
+          }
 
-        return newAddresses
-            .where((addressRecord) => addressRecord.isUsed)
-            .map((addressRecord) => addressRecord.address)
-            .toSet();
-      },
-      type: type,
-      isLegacyDerivation: isLegacyDerivation,
-    );
+          return newAddresses
+              .where((addressRecord) => addressRecord.isUsed)
+              .map((addressRecord) => addressRecord.address)
+              .toSet();
+        },
+        type: type,
+        isLegacyDerivation: isLegacyDerivation,
+      );
 
-    if (newAddresses.isNotEmpty) {
+      if (newAddresses.isEmpty) {
+        return;
+      }
+
       currentBranch.addAll(newAddresses);
 
       if (isHidden) {
@@ -3009,6 +3037,7 @@ abstract class ElectrumWalletBase
 
           final storedTx = transactionHistory.transactions[txid];
           if (storedTx != null) {
+            _transactionResolver.flagIfStale(storedTx, addressRecord.address);
             if (height > 0) {
               final oldHeight = storedTx.height;
               final oldConfs = storedTx.confirmations;
@@ -3328,10 +3357,13 @@ abstract class ElectrumWalletBase
       final txId = entry.key;
       final original = entry.value;
 
-      // Pass 1 never resolves parent txs - deferred to the background
-      // resolution pass.
+      // The normal sync fetch never resolves parent txs - deferred to the
+      // background resolution pass - except the first parent of a HogEx
+      // candidate, which HogEx detection needs.
       if (!forceResolveInputs) {
-        inputTxIdsByHash[txId] = const <String>[];
+        inputTxIdsByHash[txId] = ElectrumTransactionInfo.isHogExCandidate(original)
+            ? [original.inputs.first.txId]
+            : const <String>[];
         continue;
       }
 
@@ -3394,8 +3426,12 @@ abstract class ElectrumWalletBase
 
       final inputTxids = inputTxidsByHash[txid] ?? const <String>[];
 
+      // Index-aligned with original.inputs; inputs whose parent wasn't
+      // requested stay null.
+      final requestedParents = inputTxids.toSet();
       final ins = <BtcTransaction?>[
-        for (final inputTxid in inputTxids) parsedInputTxById[inputTxid],
+        for (final vin in original.inputs)
+          requestedParents.contains(vin.txId) ? parsedInputTxById[vin.txId] : null,
       ];
 
       bundles[txid] = ElectrumTransactionBundle(
@@ -4011,7 +4047,17 @@ abstract class ElectrumWalletBase
       tx.inputAddresses = inputAddresses;
       tx.outputAddresses = outputAddresses;
 
-      transactionHistory.addOne(tx);
+      // [tx] can be an older instance than the one in the history (background
+      // resolution replaces entries), so never put it back over a different
+      // stored instance - that would roll back its ownership/fee data.
+      final stored = transactionHistory.transactions[tx.id];
+
+      if (stored == null || identical(stored, tx)) {
+        transactionHistory.addOne(tx);
+      } else if (stored.inputAddresses?.isEmpty ?? true) {
+        stored.inputAddresses = inputAddresses;
+        stored.outputAddresses = outputAddresses;
+      }
     }
   }
 

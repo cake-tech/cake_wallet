@@ -54,6 +54,7 @@ class HistorySection extends StatelessWidget {
           builder: (_) {
             final localeName = Localizations.localeOf(context).toString();
             final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
+            final balanceDisplayMode = dashboardViewModel.balanceDisplayMode;
 
             return (items.isEmpty)
                 ? SliverPadding(
@@ -145,14 +146,13 @@ class HistorySection extends StatelessWidget {
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
-                                amount: dashboardViewModel.balanceDisplayMode ==
-                                        BalanceDisplayMode.hiddenBalance
+                                amount: balanceDisplayMode == BalanceDisplayMode.hiddenBalance
                                     ? "---"
                                     : trade.amountFormatted(),
-                                receiveAmount: dashboardViewModel.balanceDisplayMode ==
-                                        BalanceDisplayMode.hiddenBalance
-                                    ? "---"
-                                    : trade.receiveAmountFormatted(),
+                                receiveAmount:
+                                    balanceDisplayMode == BalanceDisplayMode.hiddenBalance
+                                        ? "---"
+                                        : trade.receiveAmountFormatted(),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,

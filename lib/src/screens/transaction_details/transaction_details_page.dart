@@ -60,12 +60,7 @@ class TransactionDetailsPage extends BasePage {
                       // Nested Observer: feeFetchResolvedInputs/feeFetchTotalInputs
                       // change on every fee-fetch progress tick - reading them here
                       // instead of in the outer Observer keeps those ticks from
-                      // re-running itemBuilder for every row on every chunk. The
-                      // isFetchingFee check above (which flips only once, not per
-                      // chunk) stays in the outer scope so this only wraps a
-                      // widget when one is actually wanted, preserving the
-                      // null-means-fall-back-to-default-display behavior of
-                      // ListRow.textWidget for every other state.
+                      // re-running itemBuilder for every row on every chunk.
                       addressTextWidget = Observer(
                         builder: (_) => FeeFetchProgressIndicator(
                           resolved: transactionDetailsViewModel.feeFetchResolvedInputs,

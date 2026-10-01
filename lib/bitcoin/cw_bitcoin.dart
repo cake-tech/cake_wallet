@@ -517,6 +517,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<TransactionInfo?> refreshTransactionIfStale(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.refreshTransactionIfStale(tx.id);
+  }
+
+  @override
   int getTransactionVSize(Object wallet, String transactionHex) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.transactionVSize(transactionHex);
