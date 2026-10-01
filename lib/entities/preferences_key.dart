@@ -148,4 +148,7 @@ class PreferencesKey {
   static const balanceHideCounter = "balance_hide_counter";
   static const zcashMigrationModalViewed = "zcash_migration_modal_viewed";
   static const showCiBuildOverlay = "show_ci_build_overlay";
+  static const giftCardsExplainerViewed = "gift_cards_explainer_viewed";
+  static const lightningDepositExplainerViewed = "lightning_deposit_explainer_viewed";
+  static const lightningWithdrawExplainerViewed = "lightning_withdraw_explainer_viewed";
 }

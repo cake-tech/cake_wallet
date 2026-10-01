@@ -16,6 +16,9 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/explainer_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_deposit_explainer.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_withdraw_explainer.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
@@ -45,6 +48,7 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
@@ -91,6 +95,7 @@ class SendPageModes {
     this.description,
     this.confirmSheetIconPath,
     this.helpContent,
+    this.explainer,
     this.popOnConfirmation = true,
   });
 
@@ -99,6 +104,7 @@ class SendPageModes {
   final String? description;
   final String? confirmSheetIconPath;
   final SendPageHelpContent? helpContent;
+  final ExplainerPage? explainer;
   final bool popOnConfirmation;
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
@@ -113,6 +119,7 @@ class SendPageModes {
       description: S.current.lightning_deposit_desc,
       disclaimer: S.current.lightning_deposit_disclaimer,
     ),
+    explainer: const LightningDepositExplainer(),
     popOnConfirmation: false,
   );
 
@@ -126,6 +133,7 @@ class SendPageModes {
       description: S.current.lightning_withdraw_desc,
       disclaimer: S.current.lightning_withdraw_disclaimer,
     ),
+    explainer: const LightningWithdrawExplainer(),
     popOnConfirmation: false,
   );
 
@@ -182,6 +190,7 @@ class NewSendPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
+    required this.settingsStore,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
@@ -198,6 +207,7 @@ class NewSendPage extends StatefulWidget {
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+  final SettingsStore settingsStore;
   final PaymentRequest? initialPaymentRequest;
   final String? initialRawInput;
   final SendPageModes mode;
@@ -267,6 +277,12 @@ class _NewSendPageState extends State<NewSendPage> {
           paymentRequest: widget.initialPaymentRequest,
         );
       });
+    }
+
+    if (widget.mode.explainer case final explainer?) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => explainer.showIfNeeded(context, widget.settingsStore),
+      );
     }
 
     if (widget.mode == SendPageModes.normal) {
