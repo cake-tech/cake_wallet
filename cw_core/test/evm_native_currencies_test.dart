@@ -200,4 +200,38 @@ void main() {
       expect(getCryptoCurrencyByChainId(addedChainId), same(addedNative));
     });
   });
+
+  group("chain badges", () {
+    AddedNetworkCurrency addedNetwork(String? iconUrl) => AddedNetworkCurrency(
+          EvmNetwork(
+            chainId: addedChainId,
+            name: "XYZ Network",
+            symbol: "XYZ",
+            decimals: 18,
+            tag: "XYZNET",
+            rpcUrl: "https://rpc.example",
+            iconUrl: iconUrl,
+          ),
+        );
+
+    test("an added network's badge is its own icon, bundled or remote", () {
+      const bundled = "assets/new-ui/network_icons/optimism.svg";
+      const remote = "https://icons.llamao.fi/icons/chains/rsz_avalanche.jpg";
+
+      expect(addedNetwork(bundled).chainIconPath, bundled);
+      expect(addedNetwork(remote).chainIconPath, remote);
+      expect(addedNetwork(null).chainIconPath, isNull);
+      expect(addedNetwork("").chainIconPath, isNull);
+    });
+
+    test("only the built-in badges are glyphs that get a theme tint", () {
+      expect(CryptoCurrency.isGlyphChainBadge(CryptoCurrency.eth.chainIconPath!), isTrue);
+      expect(CryptoCurrency.isGlyphChainBadge(CryptoCurrency.maticpoly.chainIconPath!), isTrue);
+      expect(CryptoCurrency.isGlyphChainBadge("assets/new-ui/network_icons/optimism.svg"), isFalse);
+      expect(
+        CryptoCurrency.isGlyphChainBadge("https://icons.llamao.fi/icons/chains/rsz_avalanche.jpg"),
+        isFalse,
+      );
+    });
+  });
 }

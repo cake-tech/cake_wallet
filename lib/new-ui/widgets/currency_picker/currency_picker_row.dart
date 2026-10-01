@@ -111,6 +111,8 @@ class _IconWithBadge extends StatelessWidget {
       ),
     );
     if (badgePath == null) return icon;
+
+    final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(badgePath!);
     return SizedBox(
       width: 36,
       height: 36,
@@ -135,10 +137,11 @@ class _IconWithBadge extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               child: CakeImageWidget(
                 imageUrl: badgePath,
-                color: Theme.of(context).colorScheme.surface,
+                color: isGlyphBadge ? Theme.of(context).colorScheme.surface : null,
                 width: 13,
                 height: 13,
                 fit: BoxFit.cover,
+                isRoundedSquare: !isGlyphBadge,
               ),
             ),
           ),

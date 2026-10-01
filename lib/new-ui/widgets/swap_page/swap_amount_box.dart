@@ -149,6 +149,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final chainIconPath = (widget.currency is CryptoCurrency)
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
+    final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(chainIconPath ?? "");
     final currency = widget.currency;
     final addedNetwork = currency is AddedNetworkCurrency ? currency : null;
 
@@ -314,10 +315,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                           imageUrl: chainIconPath,
                                           width: 12,
                                           height: 12,
-                                          colorFilter: ColorFilter.mode(
-                                            Theme.of(context).colorScheme.onSurfaceVariant,
-                                            BlendMode.srcIn,
-                                          ),
+                                          isRoundedSquare: !isGlyphBadge,
+                                          colorFilter: isGlyphBadge
+                                              ? ColorFilter.mode(
+                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  BlendMode.srcIn,
+                                                )
+                                              : null,
                                         ),
                                         const SizedBox(width: 6),
                                       ] else

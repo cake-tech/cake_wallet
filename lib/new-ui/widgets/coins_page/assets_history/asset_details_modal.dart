@@ -173,9 +173,13 @@ class AssetDetailsModal extends StatelessWidget {
                                   imageUrl: chainIconPath,
                                   width: 16,
                                   height: 16,
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.onSurfaceVariant,
-                                      BlendMode.srcIn),
+                                  isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(chainIconPath),
+                                  colorFilter: CryptoCurrency.isGlyphChainBadge(chainIconPath)
+                                      ? ColorFilter.mode(
+                                          Theme.of(context).colorScheme.onSurfaceVariant,
+                                          BlendMode.srcIn,
+                                        )
+                                      : null,
                                 ),
                               Text(
                                 subtitle,

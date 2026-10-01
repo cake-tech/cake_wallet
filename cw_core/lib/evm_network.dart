@@ -216,8 +216,5 @@ class AddedNetworkCurrency extends CryptoCurrency {
   String? get iconPath => iconUrl;
 
   @override
-  String? get chainIconPath {
-    final iconUrl = this.iconUrl;
-    return iconUrl != null && iconUrl.startsWith("assets/") ? iconUrl : null;
-  }
+  String? get chainIconPath => iconUrl?.isNotEmpty == true ? iconUrl : null;
 }

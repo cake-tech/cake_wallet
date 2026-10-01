@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -95,6 +96,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         )
                       : null);
 
+              final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(badgeIconPath ?? "");
               final imageWidget = badgeIconPath != null
                   ? Stack(
                       clipBehavior: Clip.none,
@@ -120,7 +122,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
                               width: badgeIconSize ?? 12,
                               height: badgeIconSize ?? 12,
                               fit: BoxFit.cover,
-                              color: theme.colorScheme.surface,
+                              isRoundedSquare: !isGlyphBadge,
+                              color: isGlyphBadge ? theme.colorScheme.surface : null,
                               errorWidget: leadingIconErrorWidget,
                             ),
                           ),

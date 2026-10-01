@@ -119,8 +119,13 @@ class HistoryTradeTile extends StatelessWidget {
               imageUrl: fromChainIcon,
               width: 12,
               height: 12,
-              colorFilter:
-                  ColorFilter.mode(Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+              isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(fromChainIcon!),
+              colorFilter: CryptoCurrency.isGlyphChainBadge(fromChainIcon!)
+                  ? ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    )
+                  : null,
             )
         ],
       ),
@@ -143,7 +148,10 @@ class HistoryTradeTile extends StatelessWidget {
               imageUrl: toChainIcon,
               width: 12,
               height: 12,
-              color: Theme.of(context).colorScheme.onSurface,
+              isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(toChainIcon!),
+              color: CryptoCurrency.isGlyphChainBadge(toChainIcon!)
+                  ? Theme.of(context).colorScheme.onSurface
+                  : null,
             )
         ],
       ),

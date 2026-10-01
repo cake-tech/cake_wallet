@@ -15,6 +15,8 @@ class TokenChainDisplay extends StatelessWidget {
 
   AddedNetworkCurrency? get _addedNetwork => AddedNetworkCurrency.of(asset);
 
+  bool get _isGlyphBadge => CryptoCurrency.isGlyphChainBadge(asset.chainIconPath ?? "");
+
   @override
   Widget build(BuildContext context) => SizedBox(
         width: size+(_chainIconSize/2),
@@ -46,7 +48,10 @@ class TokenChainDisplay extends StatelessWidget {
                       imageUrl: asset.chainIconPath,
                       width: _chainIconSize,
                       height: _chainIconSize,
-                      colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      isRoundedSquare: !_isGlyphBadge,
+                      colorFilter: _isGlyphBadge
+                          ? const ColorFilter.mode(Colors.black, BlendMode.srcIn)
+                          : null,
                     ),
                   ),
                 ),

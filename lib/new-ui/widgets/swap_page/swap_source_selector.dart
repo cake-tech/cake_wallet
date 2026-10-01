@@ -1,5 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 
 class SwapSourceSelector extends StatelessWidget {
@@ -59,7 +60,10 @@ class SwapSourceSelector extends StatelessWidget {
                     imageUrl: chainIcon,
                     width: 12,
                     height: 12,
-                    colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
+                    isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(chainIcon),
+                    colorFilter: CryptoCurrency.isGlyphChainBadge(chainIcon)
+                        ? ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn)
+                        : null,
                   ),
                 ],
                 const Spacer(),
