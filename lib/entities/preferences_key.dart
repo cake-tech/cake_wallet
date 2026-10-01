@@ -121,6 +121,8 @@ class PreferencesKey {
 
   static String currentEvmChainNodeIdKey(int chainId) => "current_node_id_evm_$chainId";
 
+  static String popularEvmTokensAddedKey(String walletId) => "popular_evm_tokens_added_$walletId";
+
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
