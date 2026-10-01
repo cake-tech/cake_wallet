@@ -3,15 +3,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:flutter/material.dart';
 
-class BalanceCardAction {
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  final double? iconSize;
-
-  const BalanceCardAction(
-      {required this.label, required this.icon, required this.onTap, this.iconSize = 16});
-}
 
 class BalanceCard extends StatelessWidget {
   const BalanceCard(
@@ -28,7 +19,6 @@ class BalanceCard extends StatelessWidget {
       this.assetName = "",
       this.fiatCurrencyTitle = "",
       this.designSwitchDuration = const Duration(),
-      this.actions = const [],
       this.capitalizeAssetName = true,
       this.onCustomizeTapped,
       this.accountIndex,
@@ -48,7 +38,6 @@ class BalanceCard extends StatelessWidget {
   final String assetName;
   final bool selected;
   final CardDesign design;
-  final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
   final VoidCallback? onCustomizeTapped;
 
@@ -238,26 +227,7 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    AnimatedSwitcher(
-                      duration: designSwitchDuration,
-                      switchInCurve: Curves.easeInOut,
-                      switchOutCurve: Curves.easeInOut,
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.centerLeft,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                      child: Row(
-                        key: ValueKey(actions.toString()),
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: actions.map(getBalanceCardActionButton).toList(),
-                      ),
-                    ),
+                    const SizedBox.shrink(),
                     AnimatedSwitcher(
                       duration: designSwitchDuration,
                       switchInCurve: Curves.easeInOut,
@@ -315,37 +285,6 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  Widget getBalanceCardActionButton(BalanceCardAction action) => Semantics(
-        button: true,
-        label: action.label,
-        onTap: action.onTap,
-        child: ExcludeSemantics(
-          child: GestureDetector(
-            onTap: action.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: design.colors.backgroundImageColor.withAlpha(75),
-                borderRadius: BorderRadius.circular(10000000),
-              ),
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: Text(
-                      action.label,
-                      style: TextStyle(color: design.colors.textColor, fontSize: 16),
-                    ),
-                  ),
-                  Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
 }
 
 class _CornerSvgIcon extends StatelessWidget {

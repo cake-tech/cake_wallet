@@ -1,29 +1,19 @@
 import 'dart:math';
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/send_page.dart';
-import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'balance_card.dart';
 
@@ -186,32 +176,6 @@ class _CardsViewState extends State<CardsView> {
                   ? ""
                   : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
-              final List<BalanceCardAction> actions = widget.lightningMode
-                  ? [
-                      BalanceCardAction(
-                        label: S.current.bitcoin_lightning_deposit,
-                        icon: Icons.arrow_downward,
-                        onTap: depositToL2,
-                      ),
-                      BalanceCardAction(
-                        label: S.current.bitcoin_lightning_withdraw,
-                        icon: Icons.arrow_upward,
-                        onTap: withdrawFromL2,
-                      )
-                    ]
-                  : widget.dashboardViewModel.isEnabledTradeAction
-                      ? [
-                          BalanceCardAction(
-                            label: S.current.buy,
-                            icon: Icons.arrow_forward_ios_rounded,
-                            iconSize: 12,
-                            onTap: () {
-                            showModalBottomSheet(
-                                context: context, builder: (context) => BuySellSelectorModal());
-                          },
-                          )
-                        ]
-                      : [];
 
               return BalanceCard(
                 width: effectiveCardWidth,
@@ -228,7 +192,6 @@ class _CardsViewState extends State<CardsView> {
                 selected: _selectedIndex == visualIndex,
                 onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
                 design: cardDesign,
-                actions: actions,
               );
             }),
           ),
@@ -331,98 +294,5 @@ class _CardsViewState extends State<CardsView> {
         ),
       );
     });
-  }
-
-  Future<void> depositToL2() async {
-    PaymentRequest? paymentRequest = null;
-
-    if (widget.dashboardViewModel.type == WalletType.litecoin) {
-      final depositAddress = bitcoin!.getUnusedMwebAddress(widget.dashboardViewModel.wallet);
-      if ((depositAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
-      }
-    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final depositAddress =
-          await bitcoin!.getUnusedSpakDepositAddress(widget.dashboardViewModel.wallet);
-      if ((depositAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
-      }
-    }
-
-    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(
-          param1: SendPageParams(
-        initialPaymentRequest: paymentRequest,
-        unspentCoinType: UnspentCoinType.nonMweb,
-        mode: SendPageModes.lightningDeposit,
-      ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withAlpha(128),
-          builder: (context) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-            );
-          });
-    } else {
-      Navigator.pushNamed(
-        context,
-        Routes.send,
-        arguments: {
-          'paymentRequest': paymentRequest,
-          'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-        },
-      );
-    }
-  }
-
-  Future<void> withdrawFromL2() async {
-    PaymentRequest? paymentRequest = null;
-    UnspentCoinType unspentCoinType = UnspentCoinType.any;
-    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(widget.dashboardViewModel.wallet);
-
-    if (widget.dashboardViewModel.type == WalletType.litecoin) {
-      if ((withdrawAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
-      }
-      unspentCoinType = UnspentCoinType.mweb;
-    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      if ((withdrawAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
-      }
-      unspentCoinType = UnspentCoinType.lightning;
-    }
-
-    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(
-          param1: SendPageParams(
-        initialPaymentRequest: paymentRequest,
-        unspentCoinType: unspentCoinType,
-        mode: SendPageModes.lightningWithdrawal,
-      ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withAlpha(128),
-          builder: (context) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-            );
-          });
-    } else {
-      Navigator.pushNamed(
-        context,
-        Routes.send,
-        arguments: {
-          'paymentRequest': paymentRequest,
-          'coinTypeToSpendFrom': unspentCoinType,
-        },
-      );
-    }
   }
 }
