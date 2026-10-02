@@ -107,15 +107,16 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
 
     _evmChainsWithHandler.clear();
+    final evmChainService = EvmChainServiceImpl(
+      appStore: appStore,
+      wcKeyService: walletKeyService,
+      bottomSheetService: _bottomSheetHandler,
+      walletKit: _walletKit,
+    );
     for (final chain in evm?.getAllChains() ?? const <ChainInfo>[]) {
-      final service = EvmChainServiceImpl(
-        chainId: chain.chainId,
-        appStore: appStore,
-        wcKeyService: walletKeyService,
-        bottomSheetService: _bottomSheetHandler,
-        walletKit: _walletKit,
-      );
-      _evmChainsWithHandler.add(service.caip2ChainId);
+      final caip2ChainId = evm!.getCaip2ByChainId(chain.chainId);
+      evmChainService.registerChain(caip2ChainId);
+      _evmChainsWithHandler.add(caip2ChainId);
     }
 
     for (final cId in SolanaChainId.values) {

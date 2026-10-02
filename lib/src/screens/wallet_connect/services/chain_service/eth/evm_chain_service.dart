@@ -46,12 +46,21 @@ class EvmChainServiceImpl {
       };
 
   EvmChainServiceImpl({
-    required this.chainId,
     required this.appStore,
     required this.wcKeyService,
     required this.bottomSheetService,
     required this.walletKit,
-  }) : caip2ChainId = evm!.getCaip2ByChainId(chainId) {
+  });
+
+  final AppStore appStore;
+  final ReownWalletKit walletKit;
+  final WalletConnectKeyService wcKeyService;
+  final BottomSheetService bottomSheetService;
+
+  static final _walletNotConnectedError =
+      JsonRpcError.serverError("The wallet is not connected to a node");
+
+  void registerChain(String caip2ChainId) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
         chainId: caip2ChainId,
@@ -73,24 +82,14 @@ class EvmChainServiceImpl {
         handler: handler.value,
       );
     }
-
-    walletKit.onSessionRequest.subscribe(_onSessionRequest);
   }
 
-  final AppStore appStore;
-  final int chainId;
-  final String caip2ChainId;
-  final ReownWalletKit walletKit;
-  final WalletConnectKeyService wcKeyService;
-  final BottomSheetService bottomSheetService;
+  int? _requestChainId(SessionRequest request) => int.tryParse(request.chainId.split(":").last);
 
-  static final _walletNotConnectedError =
-      JsonRpcError.serverError("The wallet is not connected to a node");
-
-  bool get _isCurrentWalletChain => appStore.wallet?.chainId == chainId;
+  bool _isCurrentWalletChain(int chainId) => appStore.wallet?.chainId == chainId;
 
   Future<void> personalSign(String topic, dynamic parameters) async {
-    debugPrint('personalSign request: $parameters');
+    debugPrint("personalSign request: $parameters");
 
     final pRequest = _pendingRequest(topic, EVMSupportedMethods.personalSign.name);
     if (pRequest == null) {
@@ -340,8 +339,9 @@ class EvmChainServiceImpl {
       return;
     }
 
-    if (!_isCurrentWalletChain) {
-      await _rejectOtherNetworkRequest(topic, pRequest.id);
+    final chainId = _requestChainId(pRequest);
+    if (chainId == null || !_isCurrentWalletChain(chainId)) {
+      await _rejectOtherNetworkRequest(topic, pRequest);
       return;
     }
 
@@ -359,8 +359,8 @@ class EvmChainServiceImpl {
     );
 
     if (transaction is Transaction) {
-      if (!_isCurrentWalletChain) {
-        await _rejectOtherNetworkRequest(topic, pRequest.id);
+      if (!_isCurrentWalletChain(chainId)) {
+        await _rejectOtherNetworkRequest(topic, pRequest);
         return;
       }
 
@@ -415,8 +415,9 @@ class EvmChainServiceImpl {
       return;
     }
 
-    if (!_isCurrentWalletChain) {
-      await _rejectOtherNetworkRequest(topic, pRequest.id);
+    final chainId = _requestChainId(pRequest);
+    if (chainId == null || !_isCurrentWalletChain(chainId)) {
+      await _rejectOtherNetworkRequest(topic, pRequest);
       return;
     }
 
@@ -431,8 +432,8 @@ class EvmChainServiceImpl {
       verifyContext: pRequest.verifyContext,
     );
     if (transaction is Transaction) {
-      if (!_isCurrentWalletChain) {
-        await _rejectOtherNetworkRequest(topic, pRequest.id);
+      if (!_isCurrentWalletChain(chainId)) {
+        await _rejectOtherNetworkRequest(topic, pRequest);
         return;
       }
 
@@ -540,8 +541,10 @@ class EvmChainServiceImpl {
     }
   }
 
-  Future<void> _rejectOtherNetworkRequest(String topic, int requestId) async {
-    final networkName = evm!.getChainInfoByChainId(chainId)?.name ?? caip2ChainId;
+  Future<void> _rejectOtherNetworkRequest(String topic, SessionRequest request) async {
+    final chainId = _requestChainId(request);
+    final chainInfo = chainId == null ? null : evm!.getChainInfoByChainId(chainId);
+    final networkName = chainInfo?.name ?? request.chainId;
     unawaited(
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
@@ -555,9 +558,9 @@ class EvmChainServiceImpl {
       await walletKit.respondSessionRequest(
         topic: topic,
         response: JsonRpcResponse(
-          id: requestId,
+          id: request.id,
           jsonrpc: "2.0",
-          error: unsupportedChainError(caip2ChainId),
+          error: unsupportedChainError(request.chainId),
         ),
       );
     } catch (e) {
@@ -826,16 +829,6 @@ class EvmChainServiceImpl {
     final floor = BigInt.from(quote.maxFeePerGasWei);
     final newPriceWei = dPrice > floor ? dPrice : floor;
     return transaction.copyWith(gasPrice: EtherAmount.inWei(newPriceWei));
-  }
-
-  void _onSessionRequest(SessionRequestEvent? args) async {
-    if (args != null && args.chainId == caip2ChainId) {
-      debugPrint('_onSessionRequest ${args.toString()}');
-      final handler = sessionRequestHandlers[args.method];
-      if (handler != null) {
-        await handler(args.topic, args.params);
-      }
-    }
   }
 
   bool isValidSignature(String hexSignature, String message, String hexAddress) {
