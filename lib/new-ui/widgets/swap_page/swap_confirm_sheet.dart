@@ -148,7 +148,7 @@ class SwapTransactionDetails extends StatelessWidget {
                         label: depositAmount.currency.fullName ?? "",
                         iconPath: depositAmount.currency.iconPath ?? "",
                         badgeIconPath: _resolveChainBadgePath(depositAmount.currency as CryptoCurrency),
-                        trailingText: depositAmount.toStringWithSymbol(),
+                        trailingText: depositAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
                       if (state is SwapStateWithTransaction)
                         ListItemRegularRow(
@@ -170,7 +170,7 @@ class SwapTransactionDetails extends StatelessWidget {
                         label: payoutAmount.currency.fullName ?? "",
                         iconPath: payoutAmount.currency.iconPath ?? "",
                         badgeIconPath: _resolveChainBadgePath(payoutAmount.currency as CryptoCurrency),
-                        trailingText: payoutAmount.toStringWithSymbol(),
+                        trailingText: payoutAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
                       ListItemRegularRow(
                           keyValue: "receiver",
