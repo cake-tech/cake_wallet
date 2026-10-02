@@ -45,15 +45,12 @@ void main() {
 
     await evmNetworkFlows.openManageEvmNetworksThroughDisclaimer();
 
-    // Search by chain ID, by name, a network only ChainList's A-Z has, and a miss
+    // Search by chain ID, by name and a miss
     await manageRobot.search("$opChainId");
     await manageRobot.waitForRow(opChainId);
 
     await manageRobot.search("OP Main");
     await manageRobot.waitForRow(opChainId);
-
-    await manageRobot.search("Avalanche");
-    await manageRobot.waitForRow(avalancheChainId, timeout: const Duration(seconds: 90));
 
     await manageRobot.search("zzqq");
 
@@ -61,6 +58,7 @@ void main() {
     expect(manageRobot.hasRow(opChainId), false);
 
     await manageRobot.clearSearch();
+    await manageRobot.waitForRow(opChainId);
 
     expect(manageRobot.isEnabled(opChainId), false, reason: "OP started enabled");
 
@@ -216,5 +214,13 @@ void main() {
       TestWallets.receiveAddressFor(WalletType.ethereum).toLowerCase(),
       reason: "The Ethereum test seed should restore the same address on OP",
     );
+
+    // Last, since only the live ChainList feed has Avalanche in A-Z
+    await evmNetworkFlows.openCreatePickerFromWalletList();
+    await pickerRobot.openManageAddedNetworks();
+    await manageRobot.isDisplayed();
+
+    await manageRobot.search("Avalanche");
+    await manageRobot.waitForRow(avalancheChainId, timeout: const Duration(seconds: 90));
   });
 }

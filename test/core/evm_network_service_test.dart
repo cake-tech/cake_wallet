@@ -91,6 +91,9 @@ Future<void> main() async {
   Future<List<String>> getNodeUrls(int chainId) async =>
       (await Node.getAllForEvmChain(chainId)).map((node) => node.uri.toString()).toList();
 
+  Future<List<Map<String, dynamic>>> getNodeRows(int chainId) async =>
+      (await Node.getAllForEvmChain(chainId)).map((node) => node.toMap()).toList();
+
   setUpAll(() async {
     await setUpTestDb(dataRoot);
 
@@ -256,19 +259,18 @@ Future<void> main() async {
       expect(await getNodeUrls(inkChainId), unorderedEquals([firstAnswering, secondAnswering]));
     });
 
-    test("re-enabling on the same RPCs keeps the node rows the user may have added", () async {
-      final rpcUrl = answering(opChainId, "rpc");
-      final enabled = await service.enable(network(opChainId, rpcUrl: rpcUrl));
+    test("re-enabling on the same RPCs keeps the node rows as the user left them", () async {
+      final enabled = await service.enable(network(opChainId, rpcUrl: answering(opChainId, "rpc")));
       await service.disable(enabled);
-      final userNode = EvmNetwork.rpcNode(answering(opChainId, "user"), opChainId);
-      await userNode.save();
+      final rpcRow = (await Node.getAllForEvmChain(opChainId)).single;
+      rpcRow.isEnabledForAutoSwitching = false;
+      await rpcRow.save();
+      await EvmNetwork.rpcNode(answering(opChainId, "user"), opChainId).save();
+      final rowsBeforeEnable = await getNodeRows(opChainId);
 
       await service.enable(enabled);
 
-      expect(
-        await getNodeUrls(opChainId),
-        unorderedEquals([rpcUrl, answering(opChainId, "user")]),
-      );
+      expect(await getNodeRows(opChainId), unorderedEquals(rowsBeforeEnable));
     });
 
     test("a walk that moved off the stored RPCs replaces the old node rows", () async {
@@ -288,7 +290,7 @@ Future<void> main() async {
       final staleUrl = dead("stale");
       await EvmNetwork.rpcNode(staleUrl, inkChainId, isDefault: true).save();
       final userUrl = answering(inkChainId, "user");
-      await EvmNetwork.rpcNode(userUrl, inkChainId).save();
+      final userRowId = await EvmNetwork.rpcNode(userUrl, inkChainId).save();
       final answeringUrl = answering(inkChainId, "fresh");
 
       await service.enable(
@@ -296,7 +298,9 @@ Future<void> main() async {
         rpcCandidates: [staleUrl, answeringUrl],
       );
 
-      expect(await getNodeUrls(inkChainId), unorderedEquals([answeringUrl, userUrl]));
+      final rows = await Node.getAllForEvmChain(inkChainId);
+      expect(rows.map((node) => node.uri.toString()), unorderedEquals([answeringUrl, userUrl]));
+      expect(rows.singleWhere((node) => node.uri.toString() == userUrl).id, userRowId);
     });
 
     test("a tag that is a built-in currency's gets the chain ID appended", () async {

@@ -111,6 +111,7 @@ void main() {
     expect(
       detailsRobot.fieldError(NetworkField.rpcUrl),
       S.current.rpc_field_chain_id_mismatch("$chainId", "$unlistedChainId"),
+      reason: "Any other error here usually means $rpcUrl did not answer or rate limited us",
     );
 
     // The right chain ID saves, eth_chainId and eth_blockNumber are checked against the RPC
