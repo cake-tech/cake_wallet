@@ -47,7 +47,7 @@ import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/erc20_token_legacy.dart' show performErc20TokenHiveMigration;
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/key.dart';
-import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/mweb_utxo_legacy.dart' show performMwebUtxoHiveMigration;
 import 'package:cw_core/node.dart';
 import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
 import 'package:cw_core/payjoin_session.dart';
@@ -264,10 +264,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(HavenSeedStoreAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
-    CakeHive.registerAdapter(MwebUtxoAdapter());
-  }
-
   if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
@@ -277,6 +273,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await performSplTokenHiveMigration();
   await performTronTokenHiveMigration();
   await performUnspentCoinsInfoHiveMigration();
+  await performMwebUtxoHiveMigration();
 
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
