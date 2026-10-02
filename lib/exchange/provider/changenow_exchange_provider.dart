@@ -15,7 +15,6 @@ import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
-import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
@@ -344,9 +343,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
     }
 
-    // ChangeNow lists native Monad (chain 143) as "monad" and rejects "mon"
-    if (currency.raw == EvmNativeCurrencies.addedNetworkRaw(143)) {
-      return "monad";
+    final addedNetworkTicker = evmNativeCurrencyTicker(currency, description);
+    if (addedNetworkTicker != null) {
+      return addedNetworkTicker;
     }
 
     switch (currency) {
