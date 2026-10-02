@@ -172,6 +172,59 @@ class EVMChainClient {
     }
   }
 
+  bool? _hasL1FeeContract;
+
+  static final _l1FeeContract = DeployedContract(
+    ContractAbi.fromJson(
+      '[{"inputs":[{"name":"_unsignedTxSize","type":"uint256"}],"name":"getL1FeeUpperBound",'
+          '"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]',
+      "L1FeeContract",
+    ),
+    EthereumAddress.fromHex("0x420000000000000000000000000000000000000F"),
+  );
+
+  Future<BigInt> getL1Fee({
+    required EthereumAddress toAddress,
+    required EtherAmount value,
+    required int gasUnits,
+    required int maxFeePerGas,
+    String? contractAddress,
+    Uint8List? data,
+  }) async {
+    try {
+      _hasL1FeeContract ??= (await _client!.getCode(_l1FeeContract.address)).isNotEmpty;
+      if (!_hasL1FeeContract!) {
+        return BigInt.zero;
+      }
+
+      final callData = contractAddress == null
+          ? data
+          : data ??
+              DeployedContract(ethereumContractAbi, EthereumAddress.fromHex(contractAddress))
+                  .function("transfer")
+                  .encodeCall([toAddress, value.getInWei]);
+      final unsignedTransaction = Transaction(
+        to: contractAddress == null ? toAddress : EthereumAddress.fromHex(contractAddress),
+        value: contractAddress == null ? value : EtherAmount.zero(),
+        data: callData ?? Uint8List(0),
+        nonce: 0,
+        maxGas: gasUnits,
+        maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+        maxPriorityFeePerGas: EtherAmount.zero(),
+      ).getUnsignedSerialized(chainId: chainId);
+
+      final result = await _client!.call(
+        contract: _l1FeeContract,
+        function: _l1FeeContract.function("getL1FeeUpperBound"),
+        params: [BigInt.from(unsignedTransaction.length)],
+      );
+      return result.first as BigInt;
+    } catch (e) {
+      printV("L1 fee lookup failed on chain $chainId: $e");
+      return BigInt.zero;
+    }
+  }
+
   Uint8List getEncodedDataForApprovalTransaction({
     required EthereumAddress toAddress,
     required EtherAmount value,

@@ -635,56 +635,41 @@ abstract class EVMChainWalletBase
       await _getEstimatedFees(priority);
 
   Future<void> _getEstimatedFees(TransactionPriority? priority) async {
-    final nativeFee = await _getNativeTxFee(priority);
-    nativeTxEstimatedFee = nativeFee.toString();
+    nativeTxEstimatedFee = (await _estimateTransferFee(priority)).toString();
 
-    final erc20Fee = await _getErc20TxFee(priority);
-    erc20TxEstimatedFee = erc20Fee.toString();
-  }
-
-  Future<BigInt> _getNativeTxFee(TransactionPriority? priority) async {
-    try {
-      final gasPrice = await _client.getGasUnitPrice();
-      final gasBaseFee = await _client.getGasBaseFee();
-      final priorityFee = await _getPriorityFeeWei(priority, gasBaseFee);
-
-      final gasUnits = await _client.getEstimatedGasUnitsForTransaction(
-        senderAddress: evmChainPrivateKey.address,
-        toAddress: evmChainPrivateKey.address,
-        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
-        value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.from(0.0000000001)),
-      );
-
-      final maxFeePerGas = BigInt.from(gasBaseFee ?? gasPrice) + BigInt.from(priorityFee ?? 0);
-      return BigInt.from(gasUnits) * maxFeePerGas;
-    } catch (e) {
-      printV(e.toString());
-      return BigInt.zero;
-    }
-  }
-
-  Future<BigInt> _getErc20TxFee(TransactionPriority? priority) async {
-    final estimationContractAddress = _getUSDCContractAddress() ??
+    final tokenContractAddress = _getUSDCContractAddress() ??
         _erc20Tokens.firstWhereOrNull((token) => token.enabled)?.contractAddress;
-    if (estimationContractAddress == null) {
-      return _getNativeTxFee(priority);
-    }
+    erc20TxEstimatedFee =
+        (await _estimateTransferFee(priority, contractAddress: tokenContractAddress)).toString();
+  }
 
+  Future<BigInt> _estimateTransferFee(
+    TransactionPriority? priority, {
+    String? contractAddress,
+  }) async {
     try {
       final gasPrice = await _client.getGasUnitPrice();
       final gasBaseFee = await _client.getGasBaseFee();
       final priorityFee = await _getPriorityFeeWei(priority, gasBaseFee);
+      final value = EtherAmount.zero();
 
       final gasUnits = await _client.getEstimatedGasUnitsForTransaction(
         senderAddress: evmChainPrivateKey.address,
         toAddress: evmChainPrivateKey.address,
-        contractAddress: estimationContractAddress,
+        contractAddress: contractAddress,
         gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
-        value: EtherAmount.fromBigInt(EtherUnit.wei, BigInt.from(0.0000000001)),
+        value: value,
       );
 
       final maxFeePerGas = BigInt.from(gasBaseFee ?? gasPrice) + BigInt.from(priorityFee ?? 0);
-      return BigInt.from(gasUnits) * maxFeePerGas;
+      final l1Fee = await _client.getL1Fee(
+        toAddress: evmChainPrivateKey.address,
+        value: value,
+        gasUnits: gasUnits,
+        maxFeePerGas: EVMChainUtils.weiAsInt(maxFeePerGas),
+        contractAddress: contractAddress,
+      );
+      return BigInt.from(gasUnits) * maxFeePerGas + l1Fee;
     } catch (e) {
       printV(e.toString());
       return BigInt.zero;
@@ -741,8 +726,18 @@ abstract class EVMChainWalletBase
         data: data,
       );
 
-      final totalGasFee =
-          EVMChainUtils.weiAsInt(BigInt.from(estimatedGas) * BigInt.from(adjustedGasPrice));
+      final l1Fee = await _client.getL1Fee(
+        toAddress: EthereumAddress.fromHex(receivingAddressHex),
+        value: EtherAmount.fromBigInt(EtherUnit.wei, amount.amount),
+        gasUnits: estimatedGas,
+        maxFeePerGas: maxFeePerGas,
+        contractAddress: contractAddress,
+        data: data,
+      );
+
+      final totalGasFee = EVMChainUtils.weiAsInt(
+        BigInt.from(estimatedGas) * BigInt.from(adjustedGasPrice) + l1Fee,
+      );
 
       return GasParamsHandler(
         estimatedGasUnits: estimatedGas,
@@ -936,21 +931,7 @@ abstract class EVMChainWalletBase
       gasParamsForTransaction = gasFeesModel;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
-        if (selectedChainId == 8453) {
-          // Applying a small buffer to account for gas price fluctuations
-          // 10% or minimum 10,000 wei, whichever is higher
-          final refinedGasFee = estimatedFeesForTransaction.amount;
-          final gasBufferPercent = refinedGasFee * BigInt.from(110) ~/ BigInt.from(100);
-          final gasBufferMin = refinedGasFee + BigInt.from(10000);
-          final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
-
-          // Using the buffered fee for the final amount
-          totalAmount = totalAmount.copyWith(amount: currencyBalance.available.amount - gasBuffer);
-          estimatedFeesForTransaction = estimatedFeesForTransaction.copyWith(amount: gasBuffer);
-        } else {
-          // Calculating the final amount with the estimated gas fee
-          totalAmount = currencyBalance.available - estimatedFeesForTransaction;
-        }
+        totalAmount = currencyBalance.available - estimatedFeesForTransaction;
       }
 
       // check the fees on the base currency
