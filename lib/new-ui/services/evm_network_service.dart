@@ -132,13 +132,9 @@ class EvmNetworkService {
   }
 
   Future<EvmNetwork> save(EvmNetwork edited, {EvmNetwork? previous}) async {
-    final chainIdChanged = previous != null && previous.chainId != edited.chainId;
-    if (chainIdChanged) {
-      final wallets = await walletCount(previous.chainId);
-      final contacts = contactCount(previous.chainId);
-      if (wallets > 0 || contacts > 0) {
-        throw NetworkInUseException(walletCount: wallets, contactCount: contacts);
-      }
+    final isChainIdChange = previous != null && previous.chainId != edited.chainId;
+    if (isChainIdChange) {
+      await _throwIfInUse(previous.chainId);
     }
 
     final hasWallets = await walletCount(edited.chainId) > 0;
@@ -147,25 +143,17 @@ class EvmNetworkService {
       beforeEdit: previous,
       hasWallets: hasWallets,
     );
-    final rpcsChanged = previous == null ||
-        chainIdChanged ||
-        previous.rpcUrl != network.rpcUrl ||
-        previous.failoverUrl != network.failoverUrl;
 
-    if (rpcsChanged) {
+    final needsRpcCheck = previous == null || isChainIdChange || _rpcsDiffer(previous, network);
+    if (needsRpcCheck) {
       await _checkRpcs(network);
     }
 
-    final currencyChanged = previous != null &&
-        (previous.symbol != network.symbol ||
-            previous.decimals != network.decimals ||
-            previous.tag != network.tag);
+    await _saveNetwork(network, shouldReplaceNodes: needsRpcCheck && !hasWallets);
 
-    await _saveNetwork(network, shouldReplaceNodes: rpcsChanged && !hasWallets);
-
-    if (chainIdChanged) {
+    if (isChainIdChange) {
       await _remove(previous);
-    } else if (currencyChanged && !hasWallets) {
+    } else if (previous != null && !hasWallets && _currencyDiffers(previous, network)) {
       evm!.unregisterNetwork(network.chainId);
     }
 
@@ -174,11 +162,7 @@ class EvmNetworkService {
   }
 
   Future<void> delete(EvmNetwork network) async {
-    final wallets = await walletCount(network.chainId);
-    final contacts = contactCount(network.chainId);
-    if (wallets > 0 || contacts > 0) {
-      throw NetworkInUseException(walletCount: wallets, contactCount: contacts);
-    }
+    await _throwIfInUse(network.chainId);
 
     await _remove(network);
     await _settingsStore.loadEvmNetworks();
@@ -250,6 +234,22 @@ class EvmNetworkService {
 
     return answering;
   }
+
+  Future<void> _throwIfInUse(int chainId) async {
+    final wallets = await walletCount(chainId);
+    final contacts = contactCount(chainId);
+    if (wallets > 0 || contacts > 0) {
+      throw NetworkInUseException(walletCount: wallets, contactCount: contacts);
+    }
+  }
+
+  static bool _rpcsDiffer(EvmNetwork previous, EvmNetwork network) =>
+      previous.rpcUrl != network.rpcUrl || previous.failoverUrl != network.failoverUrl;
+
+  static bool _currencyDiffers(EvmNetwork previous, EvmNetwork network) =>
+      previous.symbol != network.symbol ||
+      previous.decimals != network.decimals ||
+      previous.tag != network.tag;
 
   Future<void> _checkRpcs(EvmNetwork network) async {
     await checkRpc(network.rpcUrl, network.chainId);
