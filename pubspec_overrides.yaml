@@ -861,7 +861,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -1237,10 +1237,10 @@ dependency_overrides:
       ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
       path: ./packages/riverpod_annotation
   rlz:
-    git:
-      url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
-      path: ./rust_builder
+#    git:
+#      url: https://github.com/cake-tech/zkool2.git
+#      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
+    path: ../zkool2/rust_builder
   rxdart:
     git:
       url: https://github.com/ReactiveX/rxdart
@@ -1679,6 +1679,7 @@ dependency_overrides:
       ref: 119a499068a903222fbbefdea18ea59efdd417b9
       path: ./pkgs/yaml_edit
   zkool:
-    git:
-      url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+#    git:
+#      url: https://github.com/cake-tech/zkool2.git
+#      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
+    path: ../zkool2

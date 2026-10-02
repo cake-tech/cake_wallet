@@ -1746,11 +1746,15 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 
 """;
   const zcashCWHeaders = """
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
+import 'package:cw_zcash/src/zcash_ledger_service.dart';
 
 """;
   const zcashCwPart = "part 'cw_zcash.dart';";
@@ -1774,6 +1778,12 @@ abstract class Zcash {
       int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password, required int height});
+  WalletCredentials createZcashHardwareWalletCredentials({
+    required String name,
+    required HardwareWalletService hardwareWalletService,
+    required int? height,
+    int accountIndex = 0,
+  });
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -1791,9 +1801,8 @@ abstract class Zcash {
     required int feeRate,
   });
 
-  int formatterZcashParseAmount(String amount);
-  double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount});
-  String formatterZcashAmountToString({required int amount});
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
 

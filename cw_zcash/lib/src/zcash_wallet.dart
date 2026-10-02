@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/get_height_by_date_zec.dart';
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -20,6 +21,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
+import "package:cw_zcash/src/zcash_ledger_service.dart";
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
@@ -72,9 +74,11 @@ abstract class ZcashWalletBase
     _pendingOutgoingAmounts[ZcashWalletService.normalizeTxId(txId)] = amount.amount;
   }
 
+  HardwareWalletService? hardwareWalletService;
+
   @override
   @observable
-  SyncStatus syncStatus = NotConnectedSyncStatus();
+  SyncStatus syncStatus = const NotConnectedSyncStatus();
 
   @override
   ObservableMap<CryptoCurrency, ZcashBalance> balance = ObservableMap.of({
@@ -140,9 +144,7 @@ abstract class ZcashWalletBase
   static bool isNodeWorking = true;
 
   @override
-  Future<bool> checkNodeHealth() {
-    return Future.value(isNodeWorking);
-  }
+  Future<bool> checkNodeHealth() => Future.value(isNodeWorking);
 
   @override
   Future<void> close({final bool shouldCleanup = false}) async {
@@ -207,13 +209,9 @@ abstract class ZcashWalletBase
 
   int _syncCheckpointHeight = 0;
 
-  bool get isSyncing {
-    return _isSyncing;
-  }
+  bool get isSyncing => _isSyncing;
 
-  set isSyncing(final bool value) {
-    _isSyncing = value;
-  }
+  set isSyncing(final bool value) => _isSyncing = value;
 
   bool _isSyncing = false;
 
@@ -490,7 +488,6 @@ abstract class ZcashWalletBase
               srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
-              mode: 0,
             ),
             c: coin,
           );
@@ -1175,7 +1172,7 @@ abstract class ZcashWalletBase
   String? passphrase = "";
 
   @override
-  Future<String> signMessage(final String message, {final String? address = null}) {
+  Future<String> signMessage(final String message, {final String? address}) {
     throw UnimplementedError();
   }
 
@@ -1257,9 +1254,10 @@ abstract class ZcashWalletBase
   bool hasOrchardMigratableBalance() => _orchardMigratable;
 
   Future<void> _$autoShield() async {
-    if (syncStatus is! SyncedSyncStatus) {
+    if (syncStatus is! SyncedSyncStatus || isHardwareWallet) {
       return;
     }
+
     final txId = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1278,11 +1276,10 @@ abstract class ZcashWalletBase
               pools: ironwood ? ironwoodPoolMask : null,
             ),
           ],
-          options: zkool_pay.PaymentOptions(
+          options: const zkool_pay.PaymentOptions(
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -1290,7 +1287,7 @@ abstract class ZcashWalletBase
         final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
         final txBytes = await zkool_pay.extractTransaction(package: signTx);
         final currentHeight = await zkool_network.getCurrentHeight(c: coin);
-        return await zkool_pay.broadcastTransaction(
+        return zkool_pay.broadcastTransaction(
           height: currentHeight,
           txBytes: txBytes,
           c: coin,
@@ -1325,7 +1322,7 @@ abstract class ZcashWalletBase
   }
 
   Future<void> _$ironwoodMigrate() async {
-    if (syncStatus is! SyncedSyncStatus) {
+    if (syncStatus is! SyncedSyncStatus || isHardwareWallet) {
       return;
     }
     final event = await runWithCoin(
@@ -1560,6 +1557,51 @@ abstract class ZcashWalletBase
     return wallet;
   }
 
+  static Future<ZcashWallet> restoreFromHardwareWallet(ZcashRestoreWalletFromHardware credentials) async {
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
+
+    final service = credentials.hardwareWalletService;
+    if (service is! ZcashLedgerService) {
+      throw Exception("A Ledger connection is required to restore a Zcash hardware wallet");
+    }
+
+    final accounts = await service.getAvailableAccounts(
+      index: credentials.accountIndex,
+      limit: 1,
+      network: network,
+    );
+    final ufvk = accounts.firstOrNull?.xpub;
+    if (ufvk == null || ufvk.isEmpty) {
+      throw Exception("The Ledger did not return a viewing key");
+    }
+
+    final height = (credentials.height ?? 0) > 0
+        ? credentials.height!
+        : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+
+    final accountId = await newAccount(
+      name: credentials.name,
+      height: height,
+      seed: ufvk,
+      passphrase: "",
+      hw: 2,
+      aIndex: credentials.accountIndex,
+    );
+    await saveAccountId(credentials.name, accountId);
+    final wallet = await open(
+      name: credentials.name,
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+    );
+
+    wallet.hardwareWalletService = service;
+    await wallet.init();
+    printV("ledger account $accountId paired from height $height");
+    return wallet;
+  }
+
   static Future<ZcashWallet> open({
     required final String name,
     required final String password,
@@ -1698,11 +1740,14 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+  static Future<void> ensureRustLib() async {
     if (!_rustInitialized) {
       await zkool_frb.RustLib.init();
       _rustInitialized = true;
     }
+  }
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    await ensureRustLib();
     if (_initialized && _activeNetwork == network) {
       return;
     }
@@ -1741,24 +1786,24 @@ abstract class ZcashWalletBase
     required final int height,
     required final String seed,
     required final String passphrase,
-  }) async {
-    final id = await zkool_account.newAccount(
-      na: zkool_account.NewAccount(
-        name: name,
-        restore: true,
-        passphrase: passphrase,
-        key: seed,
-        aindex: 0,
-        birth: height,
-        folder: '',
-        useInternal: true,
-        internal: false,
-        ledger: false,
-      ),
-      c: c,
-    );
-    return id;
-  }
+    final int hw = 0,
+    final int aIndex = 0,
+  }) =>
+      zkool_account.newAccount(
+        na: zkool_account.NewAccount(
+          name: name,
+          restore: true,
+          passphrase: passphrase,
+          key: seed,
+          aindex: aIndex,
+          birth: height,
+          folder: '',
+          useInternal: true,
+          internal: false,
+          hw: hw,
+        ),
+        c: c,
+      );
 
   static final runWithCoinMutex = Mutex();
   static int runWithCoinCount = 0;
@@ -1781,7 +1826,7 @@ abstract class ZcashWalletBase
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
     newC = await newC.setLwd(serverType: c.serverType, url: c.url);
-    newC = await newC.setUseTor(useTor: c.useTor);
+    newC = await newC.setTransport(transport: c.transport).setProxy(proxy: c.proxy);
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");

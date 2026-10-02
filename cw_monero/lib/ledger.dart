@@ -53,9 +53,9 @@ Future<Uint8List> exchange(LedgerConnection connection, Uint8List data) async =>
     connection.sendOperation<Uint8List>(ExchangeOperation(data));
 
 class ExchangeOperation extends LedgerRawOperation<Uint8List> {
-  final Uint8List inputData;
-
   ExchangeOperation(this.inputData);
+
+  final Uint8List inputData;
 
   @override
   Future<Uint8List> read(ByteDataReader reader) async => reader.read(reader.remainingLength);

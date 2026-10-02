@@ -36,7 +36,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart";
+import "package:cake_wallet/src/screens/connect_device/hardware_wallet_account_options_page.dart";
 import 'package:cake_wallet/src/screens/connect_device/select_device_manufacturer_page.dart';
 import "package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -252,8 +252,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(
           param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
-      if (type == WalletType.monero)
-        return handleRouteWithPlatformAwareness((_) => MoneroHardwareWalletOptionsPage(walletVM));
+      if ([WalletType.monero, WalletType.zcash].contains(type)) {
+        return handleRouteWithPlatformAwareness((_) => HardwareWalletAccountOptionsPage(walletVM));
+      }
 
       return handleRouteWithPlatformAwareness((_) => SelectHardwareWalletAccountPage(walletVM));
 
