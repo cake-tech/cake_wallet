@@ -331,7 +331,7 @@ dependency_overrides:
   easy_stepper:
     git:
       url: https://github.com/ma7moud3osman/easy_stepper
-      ref: cec4390aef9e5ff9fe064a44ed06b4f2c6dae1d2
+      ref: 6584bc7fe259608023f0316dec1e5630b364813d
   ed25519_edwards:
     git:
       url: https://github.com/Tougee/ed25519
@@ -1239,7 +1239,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
       path: ./rust_builder
   rxdart:
     git:
@@ -1681,4 +1681,4 @@ dependency_overrides:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
