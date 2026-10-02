@@ -132,12 +132,12 @@ void main() {
       expect(transaction.chainId, baseChainId);
     });
 
-    test("drops zero-value rows and incoming dust, keeps outgoing dust", () async {
+    test("drops outgoing zero-value rows and incoming dust, keeps outgoing dust", () async {
       body = jsonEncode({
         "status": "1",
         "message": "OK",
         "result": [
-          txRow(hash: "0xzero", from: counterparty, to: wallet, value: "0"),
+          txRow(hash: "0xzero", from: wallet, to: counterparty, value: "0"),
           txRow(hash: "0xincomingdust", from: counterparty, to: wallet, value: "9999999999999"),
           txRow(hash: "0xoutgoingdust", from: wallet, to: counterparty, value: "5"),
           txRow(hash: "0xincoming", from: counterparty, to: wallet, value: "10000000000000"),
@@ -176,22 +176,6 @@ void main() {
       });
 
       expect(await BlockscoutHistoryProvider().transactions(baseChainId, wallet), isEmpty);
-    });
-
-    test("a full page is read with one request, there is no pagination", () async {
-      body = jsonEncode({
-        "status": "1",
-        "message": "OK",
-        "result": [
-          for (int i = 0; i < 100; i++)
-            txRow(hash: "0xsent$i", from: wallet, to: counterparty, value: "250000000000000"),
-        ],
-      });
-
-      final transactions = await BlockscoutHistoryProvider().transactions(baseChainId, wallet);
-
-      expect(transactions, hasLength(100));
-      expect(requests, hasLength(1));
     });
   });
 

@@ -73,11 +73,13 @@ void main() {
       final cubit = ManageBuiltinNetworksCubit(settingsStore);
       final presented = <ManageBuiltinNetworksPresentation>[];
       final subscription = cubit.presentation.listen(presented.add);
+      final before = cubit.state;
 
       cubit.toggleVisibility(lastVisible);
       await Future<void>.delayed(Duration.zero);
 
       expect(presented, [isA<LastVisibleNetworkHideRefused>()]);
+      expect(cubit.state, same(before));
       expect(cubit.state.visibleCount, 1);
       expect(cubit.state.isVisible(lastVisible), isTrue);
       verifyNever(() => settingsStore.setHiddenBuiltinNetworks(any()));

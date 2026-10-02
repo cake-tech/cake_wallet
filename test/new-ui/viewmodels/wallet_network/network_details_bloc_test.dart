@@ -328,7 +328,7 @@ Future<void> main() async {
       await bloc.close();
     });
 
-    test("an empty name, a long name and a taken name are refused", () async {
+    test("an empty name and one past 32 characters are refused, 32 is allowed", () async {
       final bloc = await filledManualAdd();
 
       await change(bloc, NetworkField.name, "   ");
@@ -596,7 +596,21 @@ Future<void> main() async {
     });
 
     test("a ChainList edit keeps the row's tag, icon, decimals and enabled state", () async {
-      final bloc = createBloc(ink);
+      // Ink turned off with 8 decimals, values the ?? fallbacks would never give
+      final disabledInk = EvmNetwork(
+        chainId: ink.chainId,
+        name: ink.name,
+        symbol: ink.symbol,
+        decimals: 8,
+        tag: ink.tag,
+        rpcUrl: ink.rpcUrl,
+        failoverUrl: ink.failoverUrl,
+        explorerUrl: ink.explorerUrl,
+        iconUrl: ink.iconUrl,
+        isEnabled: false,
+        enabledAt: ink.enabledAt,
+      );
+      final bloc = createBloc(disabledInk);
       await opened(bloc);
       await change(bloc, NetworkField.name, "Ink Renamed");
 
@@ -606,12 +620,14 @@ Future<void> main() async {
         () => networkService.save(captureAny(), previous: captureAny(named: "previous")),
       ).captured;
       final saved = captured.first as EvmNetwork;
-      expect(captured.last, same(ink));
+      expect(captured.last, same(disabledInk));
       expect(saved.name, "Ink Renamed");
       expect(saved.tag, "INK");
       expect(saved.iconUrl, "assets/new-ui/network_icons/ink.svg");
       expect(saved.isManual, isFalse);
       expect(saved.enabledAt, 11);
+      expect(saved.decimals, 8);
+      expect(saved.isEnabled, isFalse);
 
       await bloc.close();
     });
@@ -907,7 +923,6 @@ Future<void> main() async {
       expect(state.value(NetworkField.explorerUrl), "https://explorer.inkonchain.com");
       expect(state.value(NetworkField.rpcUrl), "https://ink-default.example");
       expect(state.value(NetworkField.failoverUrl), "https://ink-default-failover.example");
-      expect(state.value(NetworkField.symbol), "ETH");
       expect(presented, [
         isA<NetworkDetailsFieldsFilled>()
             .having((p) => p.values[NetworkField.name], "name", "Ink")

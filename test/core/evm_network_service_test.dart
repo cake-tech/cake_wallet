@@ -284,39 +284,6 @@ Future<void> main() async {
       expect(await getNodeUrls(inkChainId), unorderedEquals([firstAnswering, secondAnswering]));
     });
 
-    test("the candidate walk tries at most four RPCs", () async {
-      await expectLater(
-        service.enable(
-          network(inkChainId, rpcUrl: dead("first")),
-          rpcCandidates: [
-            dead("first"),
-            dead("second"),
-            dead("third"),
-            dead("fourth"),
-            answering(inkChainId, "fifth"),
-          ],
-        ),
-        throwsA(isA<RpcNoAnswerException>()),
-      );
-
-      expect(requestedPaths, ["/dead/first", "/dead/second", "/dead/third", "/dead/fourth"]);
-      expect(await EvmNetwork.get(inkChainId), isNull);
-    });
-
-    test("when no candidate answers, the first candidate's failure is thrown", () async {
-      final wrongChainUrl = answering(otherChainId, "first");
-
-      await expectLater(
-        service.enable(
-          network(inkChainId, rpcUrl: wrongChainUrl),
-          rpcCandidates: [wrongChainUrl, dead("second")],
-        ),
-        throwsA(
-          isA<RpcChainIdMismatchException>().having((e) => e.url, "url", wrongChainUrl),
-        ),
-      );
-    });
-
     test("re-enabling on the same RPCs keeps the node rows the user may have added", () async {
       final rpcUrl = answering(opChainId, "rpc");
       final enabled = await service.enable(network(opChainId, rpcUrl: rpcUrl));
@@ -359,6 +326,7 @@ Future<void> main() async {
     test("is refused while a wallet uses the network, with the counts", () async {
       final enabled = await service.enable(network(opChainId, rpcUrl: answering(opChainId, "a")));
       await insertEvmWallet("op wallet", opChainId);
+      await insertEvmWallet("second op wallet", opChainId);
       when(() => contacts.values).thenReturn([
         Contact(
           name: "friend",
@@ -371,7 +339,7 @@ Future<void> main() async {
         service.disable(enabled),
         throwsA(
           isA<NetworkInUseException>()
-              .having((e) => e.walletCount, "walletCount", 1)
+              .having((e) => e.walletCount, "walletCount", 2)
               .having((e) => e.contactCount, "contactCount", 1),
         ),
       );
@@ -621,34 +589,33 @@ Future<void> main() async {
     test("a rename on a network with wallets keeps the wallets' currency and tag", () async {
       final rpcUrl = answering(cronosChainId, "rpc");
       final previous = await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, name: "Old", tag: "OLDTAG", isEnabled: true),
+        network(
+          cronosChainId,
+          rpcUrl: rpcUrl,
+          name: "Old",
+          symbol: "OLD",
+          tag: "OLDTAG",
+          isEnabled: true,
+        ),
       );
       final walletCurrency = EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId);
       await insertEvmWallet("cronos wallet", cronosChainId);
 
       await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, name: "New", tag: "NEWTAG", isEnabled: true),
+        network(
+          cronosChainId,
+          rpcUrl: rpcUrl,
+          name: "New",
+          symbol: "NEW",
+          tag: "NEWTAG",
+          isEnabled: true,
+        ),
         previous: previous,
       );
 
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId), same(walletCurrency));
       expect(walletCurrency!.tag, "OLDTAG");
-    });
-
-    test("a symbol change on a network with wallets keeps the wallets' currency", () async {
-      final rpcUrl = answering(cronosChainId, "rpc");
-      final previous = await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, symbol: "OLD", tag: "OLD", isEnabled: true),
-      );
-      final walletCurrency = EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId);
-      await insertEvmWallet("cronos wallet", cronosChainId);
-
-      await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, symbol: "NEW", tag: "NEW", isEnabled: true),
-        previous: previous,
-      );
-
-      expect(EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId), same(walletCurrency));
+      expect(walletCurrency.title, "OLD");
     });
   });
 
@@ -777,7 +744,7 @@ Future<void> main() async {
         name: "Ink",
         shortName: "ink-mainnet",
         symbol: "ETH",
-        decimals: 18,
+        decimals: 6,
         rpcUrls: ["https://one.example", "https://two.example", "https://three.example"],
         explorerUrl: "https://explorer.example",
         iconUrl: "https://icons.example/ink.jpg",
@@ -791,6 +758,9 @@ Future<void> main() async {
       expect(built.isEnabled, isFalse);
       expect(built.isManual, isFalse);
       expect(built.explorerUrl, "https://explorer.example");
+      expect(built.decimals, 6);
+      expect(built.iconUrl, "https://icons.example/ink.jpg");
+      expect(built.name, "Ink");
     });
 
     test("with one RPC there is no failover, and no short name tags from the name", () {

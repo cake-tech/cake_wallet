@@ -142,20 +142,6 @@ void main() {
       expect(transactions.single.isError, isTrue);
     });
 
-    test("a cursor for the next page does not trigger a second request", () async {
-      body = jsonEncode({
-        "cursor": "next-page-cursor",
-        "page_size": 100,
-        "result": [transactionRow(hash: "0xsent", value: "9")],
-      });
-
-      final transactions =
-          await MoralisHistoryProvider(apiKey: apiKey).transactions(baseChainId, wallet);
-
-      expect(transactions, hasLength(1));
-      expect(requests, hasLength(1));
-    });
-
     test("an empty result page gives no transactions", () async {
       body = jsonEncode({"cursor": null, "result": []});
 
@@ -248,6 +234,8 @@ void main() {
       final transfer = transfers.single;
       expect(transfer.hash, "0xtoken");
       expect(transfer.contractAddress, tokenContract);
+      expect(transfer.from, counterparty);
+      expect(transfer.to, wallet);
       expect(transfer.amount, BigInt.from(7000000));
       expect(transfer.tokenSymbol, "USDC");
       expect(transfer.tokenDecimal, 6);

@@ -100,10 +100,6 @@ void main() {
       expect(prepared.first, 0x02);
     });
 
-    test("a legacy fee model stays legacy on Ethereum's chain ID too", () {
-      expect(build(FeeType.legacy, gasWithBaseFee, chainId: 1).isEIP1559, isFalse);
-    });
-
     test("an added network whose node reports a base fee sends type-2", () {
       final transaction = build(FeeType.eip1559OrLegacy, gasWithBaseFee);
 

@@ -82,11 +82,11 @@ void main() {
 
     test("an added chain's node change does not reconnect a built-in wallet", () async {
       when(() => wallet.type).thenReturn(WalletType.ethereum);
-      when(() => wallet.chainId).thenReturn(null);
+      when(() => wallet.chainId).thenReturn(1);
       startOnCurrentNodeChangeReaction(appStore);
 
-      evmChainNodes[walletChainId] =
-          Node(uri: "ink-rpc.example", type: WalletType.evm, chainId: walletChainId);
+      // Keyed on the wallet's own chain ID, so only the wallet type check stops the reconnect
+      evmChainNodes[1] = Node(uri: "eth-rpc.example", type: WalletType.evm, chainId: 1);
       await Future<void>.delayed(Duration.zero);
 
       verifyNever(() => wallet.connectToNode(node: any(named: "node")));

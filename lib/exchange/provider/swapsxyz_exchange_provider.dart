@@ -751,7 +751,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   Chain _findChainByCurrency(CryptoCurrency cur, List<Chain> chains) {
     final addedNetworkChainId = EvmNativeCurrencies.getAddedNetworkChainId(cur);
     if (addedNetworkChainId != null) {
-      // Alt-vm chains like Cronos key their native coin by a special address, not the zero address
+      // Only evm entries, alt-vm ones like Cronos key the native coin by a special address
       return chains.firstWhere(
         (c) => c.chainId == addedNetworkChainId && c.vmId == "evm",
         orElse: () => throw Exception("Swaps.xyz does not support ${cur.title} on this network"),

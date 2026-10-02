@@ -10,11 +10,8 @@ void main() {
   setUpAll(() => S.current = S());
 
   group("NetworkDetailsBloc.iconUrlErrorFor", () {
-    test("a Popular network's bundled icon passes in ChainList mode", () {
-      expect(NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.chainList, bundledIcon), isNull);
-    });
-
     test("ChainList mode never checks the icon, its field is not shown", () {
+      expect(NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.chainList, bundledIcon), isNull);
       expect(
         NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.chainList, plainHttpIcon),
         isNull,

@@ -554,7 +554,6 @@ class _EditButton extends StatelessWidget {
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onPressed,
-        // The 48 tap target puts the 28 circle 8 before the toggle, as in the design
         child: Container(
           width: 48,
           height: 48,

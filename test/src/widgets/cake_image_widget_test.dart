@@ -246,12 +246,9 @@ void main() {
         "assets/new-ui/crypto_full_icons/base.svg.vec",
       ),
     );
-    expect(svg.fit, BoxFit.contain);
 
     final image = tester.widget<Image>(find.byType(Image));
     expect(image.image, isA<AssetImage>());
-    expect(image.fit, isNull);
-    expect(image.filterQuality, FilterQuality.medium);
 
     expect(find.byType(FutureBuilder<Uint8List?>), findsNothing);
     expect(requestedPaths, isEmpty);

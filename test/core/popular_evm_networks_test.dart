@@ -95,7 +95,7 @@ void main() {
         final symbol = entry["symbol"] as String;
 
         expect(name.trim(), isNotEmpty);
-        expect(name.length, lessThanOrEqualTo(32), reason: name);
+        expect(name.length, lessThanOrEqualTo(maxNetworkNameLength), reason: name);
         expect(
           builtinNames.map((other) => other.toLowerCase()),
           isNot(contains(name.toLowerCase())),

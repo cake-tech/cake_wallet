@@ -206,10 +206,7 @@ void main() {
         expect(validator.isValid(evmAddress), isTrue);
         expect(validator.isValid("0xabc"), isFalse);
         expect(validator.isValid("ab${"a" * 40}"), isFalse);
-      });
-
-      test("does not accept a name, so the send page resolves it", () {
-        expect(AddressValidator(type: opNative).isValid("vitalik.eth"), isFalse);
+        expect(validator.isValid("vitalik.eth"), isFalse);
       });
 
       test("the built-in natives keep their answers", () {

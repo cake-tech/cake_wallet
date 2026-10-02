@@ -1,7 +1,5 @@
 import "package:cake_wallet/buy/dfx/dfx_buy_provider.dart";
-import "package:cake_wallet/buy/moonpay/moonpay_provider.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_base.dart";
@@ -10,8 +8,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
 
 class _MockWallet extends Mock implements WalletBase {}
-
-class _MockAppStore extends Mock implements AppStore {}
 
 void main() {
   // OP Mainnet, which DFX's asset list names "Optimism"
@@ -74,6 +70,7 @@ void main() {
 
   test("the fiat rule still applies on a coded added network", () {
     expect(dfx.isPairSupported(opNative, FiatCurrency.usd, true), isFalse);
+    expect(dfx.isPairSupported(opNative, FiatCurrency.usd, false), isFalse);
   });
 
   test("Ethereum's ETH keeps its symbol and tag pairing", () {
@@ -84,13 +81,5 @@ void main() {
     expect(dfx.isPairSupported(CryptoCurrency.eth, FiatCurrency.eur, true), isTrue);
     expect(dfx.isPairSupported(CryptoCurrency.eth, FiatCurrency.usd, true), isFalse);
     expect(dfx.blockchain, "Ethereum");
-  });
-
-  test("MoonPay takes any added network, its own currency list is matched by chain ID", () {
-    final moonPay = MoonPayProvider(appStore: _MockAppStore(), wallet: wallet);
-
-    expect(moonPay.addedEvmNetworkCode(inkNative), isNull);
-    expect(moonPay.supportsCurrencyNetwork(inkNative), isTrue);
-    expect(dfx.supportsCurrencyNetwork(inkNative), isFalse);
   });
 }

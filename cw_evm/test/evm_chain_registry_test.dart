@@ -83,7 +83,7 @@ void main() {
       expect(EvmNativeCurrencies.getWalletTypeByChainId(addedChainId), WalletType.evm);
     });
 
-    test("the icon reaches the currency, the chain badge takes only a bundled one", () {
+    test("the icon reaches the currency and its chain badge, bundled or remote", () {
       registry.registerAddedNetworkChain(
         network(iconUrl: "assets/new-ui/network_icons/optimism.svg"),
       );
@@ -99,7 +99,7 @@ void main() {
       expect(bundled.iconPath, "assets/new-ui/network_icons/optimism.svg");
       expect(bundled.chainIconPath, "assets/new-ui/network_icons/optimism.svg");
       expect(remote.iconPath, "https://icons.llamao.fi/icons/chains/rsz_test.jpg");
-      expect(remote.chainIconPath, isNull);
+      expect(remote.chainIconPath, "https://icons.llamao.fi/icons/chains/rsz_test.jpg");
     });
 
     test("an icon edit reaches the cached currency without replacing it", () {

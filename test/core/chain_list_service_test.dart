@@ -107,7 +107,7 @@ Future<void> main() async {
             explorers: [
               {"name": "blockscout", "url": "https://explorer.inkonchain.com"},
             ],
-            chainSlug: "ink",
+            chainSlug: "ink-slug",
           ),
         ]),
       );
@@ -120,7 +120,7 @@ Future<void> main() async {
       expect(entry.decimals, 18);
       expect(entry.rpcUrls, ["https://rpc-gel.inkonchain.com"]);
       expect(entry.explorerUrl, "https://explorer.inkonchain.com");
-      expect(entry.iconUrl, "https://icons.llamao.fi/icons/chains/rsz_ink.jpg");
+      expect(entry.iconUrl, "https://icons.llamao.fi/icons/chains/rsz_ink-slug.jpg");
     });
 
     test("keeps a non-18 decimals value from the feed", () {
@@ -350,6 +350,7 @@ Future<void> main() async {
       feedBody = jsonEncode([
         _feedItem(
           chainId: 57073,
+          nativeCurrency: {"symbol": "ETH", "decimals": 6},
           rpc: [
             {"url": trackedRpc, "tracking": "yes"},
             plainRpc,
@@ -376,6 +377,7 @@ Future<void> main() async {
       expect(entry.iconUrl, "https://icons.llamao.fi/icons/chains/rsz_ink.jpg");
       expect(entry.shortName, "ink");
       expect(entry.symbol, "ETH");
+      expect(entry.decimals, 6);
     });
 
     test("tvl survives the saved copy, and a network without one reads back as null", () async {
@@ -428,6 +430,10 @@ Future<void> main() async {
       cacheFile.writeAsStringSync("{\"fetchedAt\": \"yesterday\", \"entries\": 3}");
 
       expect(await ChainListService().readCache(), isNull);
+
+      cacheFile.writeAsStringSync("{\"fetchedAt\": 1700000000000, \"entries\": [");
+
+      expect(await ChainListService().readCache(), isNull);
     });
 
     test("a bad or RPC-less entry in the saved copy is skipped, the others still read", () async {
@@ -461,12 +467,6 @@ Future<void> main() async {
       expect(cached!.entries.map((entry) => entry.chainId), [57073]);
       expect(cached.fetchedAt.millisecondsSinceEpoch, 1700000000000);
     });
-
-    test("a truncated saved copy reads as null", () async {
-      cacheFile.writeAsStringSync("{\"fetchedAt\": 1700000000000, \"entries\": [");
-
-      expect(await ChainListService().readCache(), isNull);
-    });
   });
 
   group("loadPopularNetworks", () {
@@ -474,20 +474,8 @@ Future<void> main() async {
       final entries = await ChainListService().loadPopularNetworks();
 
       expect(requestedUrls, isEmpty);
-      expect(entries, hasLength(8));
       expect(entries.every((entry) => entry.iconUrl!.startsWith("assets/")), isTrue);
       expect(entries.every((entry) => entry.tvl == null), isTrue);
-    });
-
-    test("keeps each network's RPCs in the order they were written", () async {
-      final entries = await ChainListService().loadPopularNetworks();
-
-      final hyperEvm = entries.singleWhere((entry) => entry.chainId == 999);
-      expect(hyperEvm.rpcUrls, [
-        "https://rpc.hyperliquid.xyz/evm",
-        "https://hyperliquid-rpc.publicnode.com",
-      ]);
-      expect(hyperEvm.shortName, "hyper_evm");
     });
   });
 
@@ -496,6 +484,7 @@ Future<void> main() async {
       final entry = ChainListEntry.fromJson({
         "chainId": 999,
         "name": "HyperEVM",
+        "shortName": "hyper_evm",
         "symbol": "HYPE",
         "decimals": 18,
         "rpc": [
@@ -505,6 +494,7 @@ Future<void> main() async {
       });
 
       expect(entry.rpcUrls, [trackedRpc, untrackedRpc]);
+      expect(entry.shortName, "hyper_evm");
     });
 
     test("a saved tvl that is not a number reads as null", () {

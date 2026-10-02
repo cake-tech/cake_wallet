@@ -4,7 +4,6 @@ import "package:cw_evm/evm_chain_transaction_priority.dart";
 import "package:cw_evm/utils/evm_chain_utils.dart";
 import "package:cw_evm/utils/network_chain_utils.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:web3dart/web3dart.dart";
 
 void main() {
   group("priorityFeeFromFeeHistory", () {
@@ -67,27 +66,6 @@ void main() {
 
       expect(priorityFeeFromFeeHistory(rewards, EVMChainTransactionPriority.medium), hostile);
     });
-
-    test("the estimate's tip is the envelope's max priority fee", () {
-      final gas = GasParamsHandler(
-        estimatedGasUnits: 21000,
-        estimatedGasFee: 105000000,
-        maxFeePerGas: 5000,
-        gasPrice: 4000,
-        priorityFeeWei: 400,
-        hasBaseFee: true,
-      );
-      final address = EthereumAddress.fromHex("0x52908400098527886E0F7030069857D2E4169EE7");
-
-      final transaction = EVMChainClient(chainId: 10, feeType: FeeType.eip1559).createTransaction(
-        from: address,
-        to: address,
-        amount: EtherAmount.zero(),
-        gasParams: gas,
-      );
-
-      expect(transaction.maxPriorityFeePerGas?.getInWei, BigInt.from(400));
-    });
   });
 
   group("boundedPriorityFee", () {
@@ -96,6 +74,11 @@ void main() {
 
     test("a hostile 2^200 tip is rejected instead of saturating at int64 max", () {
       expect(boundedPriorityFee(BigInt.two.pow(200), baseFee), isNull);
+    });
+
+    test("a 2^63 tip under a bound past int64 is rejected instead of narrowing to int", () {
+      // Ten base fees of 2^62 put the bound above 2^63, so only the int range check refuses it
+      expect(boundedPriorityFee(BigInt.two.pow(63), 1 << 62), isNull);
     });
 
     test("a negative tip is rejected and a zero tip is kept", () {

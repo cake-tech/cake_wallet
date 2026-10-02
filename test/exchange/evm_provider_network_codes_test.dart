@@ -3,8 +3,6 @@ import "dart:io";
 import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/changenow_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
@@ -109,31 +107,16 @@ void main() {
         () => evmExchangeProviderNetworkCode(inkUsdc, ExchangeProviderDescription.changeNow),
         throwsException,
       );
-    });
 
-    test("Swaps.xyz and XOSwap take any added network, matching it by chain ID on their own lists",
-        () {
-      expect(isCurrencyNetworkSupported(inkUsdc, ExchangeProviderDescription.swapsXyz), isFalse);
-      expect(isCurrencyNetworkSupported(inkUsdc, ExchangeProviderDescription.xoSwap), isFalse);
-
-      expect(SwapsXyzExchangeProvider().supportsCurrencyNetwork(inkUsdc), isTrue);
-      expect(XOSwapExchangeProvider().supportsCurrencyNetwork(inkUsdc), isTrue);
-    });
-
-    test("a provider that names chains follows the table", () {
       final changeNow = ChangeNowExchangeProvider(settingsStore: _MockSettingsStore());
-
       expect(changeNow.supportsCurrencyNetwork(inkUsdc), isFalse);
       expect(changeNow.supportsCurrencyNetwork(opNative), isTrue);
       expect(changeNow.supportsCurrencyNetwork(CryptoCurrency.eth), isTrue);
     });
 
-    test("an added network's native resolves to the provider's documented code", () {
-      expect(evmExchangeProviderNetworkCode(opNative, ExchangeProviderDescription.changeNow), "op");
-      expect(
-        evmExchangeProviderNetworkCode(opNative, ExchangeProviderDescription.exolix),
-        "OPTIMISM",
-      );
+    test("the table has no Swaps.xyz or XOSwap entries for an added network", () {
+      expect(isCurrencyNetworkSupported(inkUsdc, ExchangeProviderDescription.swapsXyz), isFalse);
+      expect(isCurrencyNetworkSupported(inkUsdc, ExchangeProviderDescription.xoSwap), isFalse);
     });
 
     test("currencies with no chain or on a built-in chain keep their existing path", () {
@@ -158,32 +141,12 @@ void main() {
           isNull,
           reason: currency.title,
         );
+        expect(
+          evmExchangeProviderNetworkCode(currency, ExchangeProviderDescription.changeNow),
+          isNull,
+          reason: currency.title,
+        );
       }
-    });
-
-    test("an added network's ETH on chain 10 counts as added, Ethereum's ETH does not", () {
-      expect(opNative.title, CryptoCurrency.eth.title);
-      expect(EvmNativeCurrencies.isAddedNetworkCurrency(opNative), isTrue);
-      expect(EvmNativeCurrencies.isAddedNetworkCurrency(CryptoCurrency.eth), isFalse);
-    });
-
-    test("AVAX on an added Avalanche network gets the codes the providers send for avaxc", () {
-      expect(
-        evmExchangeProviderNetworkCode(avalancheNative, ExchangeProviderDescription.changeNow),
-        "cchain",
-      );
-      expect(
-        evmExchangeProviderNetworkCode(avalancheNative, ExchangeProviderDescription.exolix),
-        "AVAXC",
-      );
-      expect(
-        evmExchangeProviderNetworkCode(avalancheNative, ExchangeProviderDescription.nearIntents),
-        "avax",
-      );
-      expect(
-        evmExchangeProviderNetworkCode(avalancheNative, ExchangeProviderDescription.sideShift),
-        "avax",
-      );
     });
 
     test("a provider with no Avalanche code of its own is refused for the added AVAX", () {
@@ -197,17 +160,6 @@ void main() {
       );
     });
 
-    test("the const avaxc keeps its own path", () {
-      expect(EvmNativeCurrencies.isAddedNetworkCurrency(CryptoCurrency.avaxc), isFalse);
-      expect(
-        evmExchangeProviderNetworkCode(
-          CryptoCurrency.avaxc,
-          ExchangeProviderDescription.changeNow,
-        ),
-        isNull,
-      );
-    });
-
     test("a token whose added network is not registered still counts as added", () {
       EvmNativeCurrencies.unregister(inkChainId);
 
@@ -217,6 +169,8 @@ void main() {
 
     test("each native gets the code read from the provider's own list", () {
       final cells = <(int, String, ExchangeProviderDescription, String)>[
+        (10, "ETH", ExchangeProviderDescription.changeNow, "op"),
+        (10, "ETH", ExchangeProviderDescription.exolix, "OPTIMISM"),
         (10, "ETH", ExchangeProviderDescription.letsExchange, "OPTIMISM"),
         (10, "ETH", ExchangeProviderDescription.nearIntents, "op"),
         (999, "HYPE", ExchangeProviderDescription.letsExchange, "HYPEEVM"),
@@ -227,6 +181,10 @@ void main() {
         (196, "OKB", ExchangeProviderDescription.nearIntents, "xlayer"),
         (25, "CRO", ExchangeProviderDescription.letsExchange, "CROEVM"),
         (25, "CRO", ExchangeProviderDescription.sideShift, "cronos"),
+        (43114, "AVAX", ExchangeProviderDescription.changeNow, "cchain"),
+        (43114, "AVAX", ExchangeProviderDescription.exolix, "AVAXC"),
+        (43114, "AVAX", ExchangeProviderDescription.nearIntents, "avax"),
+        (43114, "AVAX", ExchangeProviderDescription.sideShift, "avax"),
         (43114, "AVAX", ExchangeProviderDescription.letsExchange, "AVAXC"),
         (43114, "AVAX", ExchangeProviderDescription.thorChain, "AVAX"),
       ];

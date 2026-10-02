@@ -176,21 +176,13 @@ Future<void> main() async {
 
       expect(state.popularNetworks.map((network) => network.chainId), [10, 57073]);
       expect(state.alphabeticalNetworks!.map((network) => network.chainId), [43114, 42220, 100]);
-      expect(state.manualNetworks, isEmpty);
-      expect(state.savedCopyDate, isNull);
-      expect(state.hasFetchFailed, isFalse);
-
-      await bloc.close();
-    });
-
-    test("A-Z is sorted by name ignoring case", () async {
-      final bloc = createBloc();
-      final state = await loaded(bloc);
-
       expect(
         state.alphabeticalNetworks!.map((network) => network.name),
         ["avalanche C-Chain", "Celo", "Gnosis"],
       );
+      expect(state.manualNetworks, isEmpty);
+      expect(state.savedCopyDate, isNull);
+      expect(state.hasFetchFailed, isFalse);
 
       await bloc.close();
     });
@@ -514,20 +506,31 @@ Future<void> main() async {
     });
 
     test("a refusal that lands after the page closed the bloc is dropped", () async {
-      final enable = Completer<EvmNetwork>();
-      when(() => networkService.enable(any(), rpcCandidates: any(named: "rpcCandidates")))
-          .thenAnswer((_) => enable.future);
-      final bloc = createBloc();
-      final state = await loaded(bloc);
+      final uncaughtErrors = <Object>[];
 
-      final toggling = bloc.stream.first;
-      bloc.add(NetworkToggleRequested(state.popularNetworks.first, shouldEnable: true));
-      await toggling;
-      final closing = bloc.close();
-      enable.completeError(const RpcNoAnswerException("https://op-1.example"));
-      await closing;
+      // The bloc and the RPC answer live in this zone, so an error after close lands here
+      await runZonedGuarded(
+        () async {
+          final enable = Completer<EvmNetwork>();
+          when(() => networkService.enable(any(), rpcCandidates: any(named: "rpcCandidates")))
+              .thenAnswer((_) => enable.future);
+          final bloc = createBloc();
+          final state = await loaded(bloc);
 
-      expect(bloc.isClosed, isTrue);
+          final toggling = bloc.stream.first;
+          bloc.add(NetworkToggleRequested(state.popularNetworks.first, shouldEnable: true));
+          await toggling;
+          final closing = bloc.close();
+          enable.completeError(const RpcNoAnswerException("https://op-1.example"));
+          await closing;
+          await Future<void>.delayed(Duration.zero);
+        },
+        (error, _) => uncaughtErrors.add(error),
+      );
+
+      verify(() => networkService.enable(any(), rpcCandidates: any(named: "rpcCandidates")))
+          .called(1);
+      expect(uncaughtErrors, isEmpty);
     });
   });
 
@@ -733,7 +736,13 @@ Future<void> main() async {
     });
 
     test("a manual network keeps the strict check", () async {
-      await _savedRow(42220, "Celo Devnet", isManual: true, isEnabled: false).save();
+      await _savedRow(
+        42220,
+        "Celo Devnet",
+        rpcUrl: "https://celo.example",
+        isManual: true,
+        isEnabled: false,
+      ).save();
 
       final candidates = await candidatesFor((state) => state.manualNetworks.single);
 

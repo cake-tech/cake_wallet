@@ -185,7 +185,6 @@ class EvmNetworkFlows {
     await _pickerRobot.isDisplayed();
   }
 
-  /// The asset row carries the network name and the balance carries the native symbol
   Future<void> confirmDashboardShowsNetwork(String networkName, String symbol) async {
     Finder onHome(String text) => find.descendant(
           of: find.byType(NewHomePage),

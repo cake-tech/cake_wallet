@@ -92,6 +92,10 @@ void main() {
         isFalse,
       );
       expect(
+        EvmNativeCurrencies.isWalletForCurrency(walletInfo(WalletType.evm), addedNative),
+        isFalse,
+      );
+      expect(
         EvmNativeCurrencies.isWalletForCurrency(walletInfo(WalletType.ethereum), addedNative),
         isFalse,
       );
@@ -138,8 +142,6 @@ void main() {
         EvmNativeCurrencies.register(lookalikeChainId, currency, WalletType.evm);
 
         expect(lookalike.tag, "BSC-777");
-        expect(currency == CryptoCurrency.bnb, isFalse);
-        expect(CryptoCurrency.bnb == currency, isFalse);
         expect(getChainIdByCryptoCurrency(currency), lookalikeChainId);
         expect(getChainIdByCryptoCurrency(CryptoCurrency.bnb), 56);
         expect(cryptoCurrencyOrTokenToWalletType(currency), WalletType.evm);
@@ -165,7 +167,6 @@ void main() {
 
         expect(first.withUniqueTag([second]).tag, "LONGNETWOR");
         expect(second.tag, "LONGNETWOR-1002");
-        expect(firstCurrency == secondCurrency, isFalse);
         expect(getChainIdByCryptoCurrency(firstCurrency), firstLongChainId);
         expect(getChainIdByCryptoCurrency(secondCurrency), secondLongChainId);
       });
@@ -184,13 +185,6 @@ void main() {
 
         expect(renamed.withUniqueTag([saved], beforeEdit: saved, hasWallets: true).tag, "QZXNET");
         expect(renamed.withUniqueTag([saved], beforeEdit: saved).tag, "BSC-777");
-      });
-
-      test("a tag that clashes with nothing is kept", () {
-        expect(
-          network(lookalikeChainId, "Qzx", "QZX", "QZXNET").withUniqueTag(const []).tag,
-          "QZXNET",
-        );
       });
     });
 

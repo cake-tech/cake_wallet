@@ -28,7 +28,7 @@ class WalletNetworkPageRobot extends BaseRobot {
     await tester.scrollUntilVisible(
       targetWidget,
       300,
-      scrollable: scrollableWidget,
+      scrollable: scrollableWidget.first,
       maxScrolls: 20,
     );
 

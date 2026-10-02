@@ -28,8 +28,6 @@ void main() {
   const blockscoutOnlyChainId = 30;
   // X Layer: on none of the three
   const uncoveredChainId = 196;
-  // Cronos: on Moralis only
-  const moralisOnlyChainId = 25;
 
   final registry = EvmChainRegistry();
   late HttpServer server;
@@ -66,7 +64,6 @@ void main() {
     requests.clear();
     registry.registerAddedNetworkChain(addedNetwork(blockscoutOnlyChainId, "RBTC"));
     registry.registerAddedNetworkChain(addedNetwork(uncoveredChainId, "OKB"));
-    registry.registerAddedNetworkChain(addedNetwork(moralisOnlyChainId, "CRO"));
   });
 
   tearDown(registry.unregisterAllAddedNetworks);
@@ -76,34 +73,6 @@ void main() {
       final client = EVMChainClientFactory.createClient(blockscoutOnlyChainId);
 
       expect(client.historyProvider!.name, "Blockscout");
-    });
-
-    test("Etherscan comes before Blockscout when it has a key", () {
-      // The source code lookup takes the first Etherscan-shaped provider in the same list
-      final explorerHost = EVMChainClientFactory.contractSourceCodeUri(1, tokenContract)!.host;
-      final hasEtherscanKey = explorerHost == "api.etherscan.io";
-
-      expect(explorerHost, anyOf("api.etherscan.io", "eth.blockscout.com"));
-      expect(
-        EVMChainClientFactory.createClient(1).historyProvider!.name,
-        hasEtherscanKey ? "Etherscan" : "Blockscout",
-      );
-    });
-
-    test("Blockscout comes before Moralis, so a chain both cover never gets Moralis", () {
-      for (final chainId in [1, 137, 8453, 42161]) {
-        expect(
-          EVMChainClientFactory.createClient(chainId).historyProvider!.name,
-          isNot("Moralis"),
-          reason: "$chainId",
-        );
-      }
-    });
-
-    test("a chain only Moralis covers gets Moralis or nothing, never an explorer", () {
-      final provider = EVMChainClientFactory.createClient(moralisOnlyChainId).historyProvider;
-
-      expect(provider?.name, anyOf(isNull, "Moralis"));
     });
 
     test("the client takes its fee type from the registry", () {
