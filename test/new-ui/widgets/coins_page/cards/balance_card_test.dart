@@ -38,7 +38,7 @@ void main() {
     );
   }
 
-  testWidgets("an added network without an icon draws its first letter in a rounded square",
+  testWidgets("an added network without an icon draws its first letter in an outlined square",
       (tester) async {
     final network = addedNetwork(isManual: false);
 
@@ -47,12 +47,12 @@ void main() {
     expect(corner.imageUrl, "");
     expect(corner.fallbackName, "Zebra Chain");
     expect(corner.isRoundedSquare, isTrue);
-    expect(corner.isOutlined, isFalse);
+    expect(corner.isOutlined, isTrue);
     expect(corner.colorFilter, isNull);
     expect(find.text("Z"), findsOneWidget);
   });
 
-  testWidgets("a manual network corner icon gets the outline", (tester) async {
+  testWidgets("a manual network corner icon gets the outline too", (tester) async {
     final network = addedNetwork(isManual: true);
 
     final corner = await pumpCornerIcon(tester, CardDesign.forCurrencyIcon(network));
