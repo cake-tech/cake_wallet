@@ -144,7 +144,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     final depositNetwork = AddedNetworkCurrency.of(widget.exchangeViewModel.depositCurrency);
     final detectedNetwork = AddedNetworkCurrency.of(detectedCurrency);
     final badgeNetwork = AddedNetworkCurrency.tryFromChainId(widget.paymentFlowResult.chainId);
-    final outlineColor = Theme.of(context).colorScheme.onSurface;
 
     return Form(
       key: _formKey,
@@ -162,7 +161,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                   width: 32,
                   height: 32,
                   isRoundedSquare: depositNetwork != null,
-                  outlineColor: depositNetwork?.isManual == true ? outlineColor : null,
+                  isOutlined: depositNetwork?.isManual == true,
                   fallbackName: depositNetwork?.fullName,
                 ),
                 const SizedBox(width: 12),
@@ -176,7 +175,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                       width: 32,
                       height: 32,
                       isRoundedSquare: detectedNetwork != null,
-                      outlineColor: detectedNetwork?.isManual == true ? outlineColor : null,
+                      isOutlined: detectedNetwork?.isManual == true,
                       fallbackName: detectedNetwork?.fullName,
                     ),
                     if (isEVMCompatibleChain(widget.paymentFlowResult.walletType!)) ...[
@@ -191,7 +190,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                           width: 16,
                           height: 16,
                           isRoundedSquare: badgeNetwork != null,
-                          outlineColor: badgeNetwork?.isManual == true ? outlineColor : null,
+                          isOutlined: badgeNetwork?.isManual == true,
                           fallbackName: badgeNetwork?.fullName,
                         ),
                       ),

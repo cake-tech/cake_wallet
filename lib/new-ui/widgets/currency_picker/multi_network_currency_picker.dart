@@ -669,7 +669,7 @@ class _RecentPill extends StatelessWidget {
                 width: 24,
                 height: 24,
                 isRoundedSquare: true,
-                outlineColor: currency.isManual ? colors.onSurface : null,
+                isOutlined: currency.isManual,
                 fallbackName: currency.fullName,
               )
             else

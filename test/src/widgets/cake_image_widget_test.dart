@@ -193,7 +193,7 @@ void main() {
     expect(maxSlowInFlight, RemoteImageCache.maxConcurrentDownloads);
   });
 
-  testWidgets("outlineColor draws a border over the image, and none is drawn by default",
+  testWidgets("isOutlined draws a border over the image, and none is drawn by default",
       (tester) async {
     BoxDecoration? findOutline(WidgetTester tester) => tester
         .widgetList<Container>(find.byType(Container))
@@ -215,12 +215,13 @@ void main() {
           imageUrl: "assets/new-ui/crypto_full_icons/base.svg",
           width: 48,
           isRoundedSquare: true,
-          outlineColor: Colors.red,
+          isOutlined: true,
         ),
       ),
     );
     final outline = findOutline(tester)!;
-    expect(outline.border, Border.all(color: Colors.red, width: 2));
+    final onSurface = Theme.of(tester.element(find.byType(CakeImageWidget))).colorScheme.onSurface;
+    expect(outline.border, Border.all(color: onSurface, width: 2));
     expect(outline.borderRadius, BorderRadius.circular(14));
     expect(find.byType(ClipRRect), findsOneWidget);
   });

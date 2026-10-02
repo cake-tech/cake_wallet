@@ -165,7 +165,7 @@ class _DecisionHeader extends StatelessWidget {
         fit: BoxFit.contain,
         color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
         isRoundedSquare: destinationNetwork != null,
-        outlineColor: destinationNetwork?.isManual == true ? colors.onSurface : null,
+        isOutlined: destinationNetwork?.isManual == true,
         fallbackName: destinationNetwork?.fullName,
       );
     }
@@ -183,7 +183,7 @@ class _DecisionHeader extends StatelessWidget {
           fit: BoxFit.contain,
           color: isMonochromeSymbolIcon(current) ? colors.primary : null,
           isRoundedSquare: currentNetwork != null,
-          outlineColor: currentNetwork?.isManual == true ? colors.onSurface : null,
+          isOutlined: currentNetwork?.isManual == true,
           fallbackName: currentNetwork?.fullName,
         ),
         Icon(Icons.arrow_forward, color: colors.primary, size: 28),
@@ -194,7 +194,7 @@ class _DecisionHeader extends StatelessWidget {
           fit: BoxFit.contain,
           color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
           isRoundedSquare: destinationNetwork != null,
-          outlineColor: destinationNetwork?.isManual == true ? colors.onSurface : null,
+          isOutlined: destinationNetwork?.isManual == true,
           fallbackName: destinationNetwork?.fullName,
         ),
       ],

@@ -51,9 +51,7 @@ class AssetTile extends StatelessWidget {
             width: 36,
             height: 36,
             isRoundedSquare: true,
-            outlineColor: addedNetwork.source == ChainSource.manual
-                ? Theme.of(context).colorScheme.onSurface
-                : null,
+            isOutlined: addedNetwork.isManual,
             fallbackName: addedNetwork.name,
           )
         : null;

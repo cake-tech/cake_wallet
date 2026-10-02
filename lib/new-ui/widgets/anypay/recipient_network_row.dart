@@ -47,7 +47,7 @@ class RecipientNetworkSelector extends StatelessWidget {
                 fit: BoxFit.cover,
                 color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,
                 isRoundedSquare: addedNetwork != null,
-                outlineColor: addedNetwork?.isManual == true ? colors.onSurface : null,
+                isOutlined: addedNetwork?.isManual == true,
                 fallbackName: addedNetwork?.fullName,
               ),
               const SizedBox(width: 8),

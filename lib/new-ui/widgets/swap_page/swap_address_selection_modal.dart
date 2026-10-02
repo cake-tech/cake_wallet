@@ -282,9 +282,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                           width: 24,
                           height: 24,
                           isRoundedSquare: addedNetwork != null,
-                          outlineColor: addedNetwork?.isManual == true
-                              ? Theme.of(context).colorScheme.onSurface
-                              : null,
+                          isOutlined: addedNetwork?.isManual == true,
                           fallbackName: addedNetwork?.fullName,
                         ),
                         Text(widget.wallet.name)

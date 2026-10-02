@@ -47,7 +47,7 @@ void main() {
     expect(corner.imageUrl, "");
     expect(corner.fallbackName, "Zebra Chain");
     expect(corner.isRoundedSquare, isTrue);
-    expect(corner.outlineColor, isNull);
+    expect(corner.isOutlined, isFalse);
     expect(corner.colorFilter, isNull);
     expect(find.text("Z"), findsOneWidget);
   });
@@ -57,7 +57,7 @@ void main() {
 
     final corner = await pumpCornerIcon(tester, CardDesign.forCurrencyIcon(network));
 
-    expect(corner.outlineColor, isNotNull);
+    expect(corner.isOutlined, isTrue);
   });
 
   testWidgets("a built-in chain corner icon stays a plain tinted svg", (tester) async {
@@ -69,7 +69,7 @@ void main() {
     expect(corner.imageUrl, "assets/new-ui/balance_card_icons/ethereum.svg");
     expect(corner.fallbackName, isNull);
     expect(corner.isRoundedSquare, isFalse);
-    expect(corner.outlineColor, isNull);
+    expect(corner.isOutlined, isFalse);
     expect(corner.colorFilter, isNotNull);
   });
 }

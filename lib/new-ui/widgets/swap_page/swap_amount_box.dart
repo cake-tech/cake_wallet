@@ -153,8 +153,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final currency = widget.currency;
     final addedNetwork = currency is AddedNetworkCurrency ? currency : null;
 
-    final colors = Theme.of(context).colorScheme;
-
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
         currencyIconPath: widget.currency.iconPath ?? "",
@@ -165,7 +163,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                 width: 24,
                 height: 24,
                 isRoundedSquare: true,
-                outlineColor: addedNetwork.isManual ? colors.onSurface : null,
+                isOutlined: addedNetwork.isManual,
                 fallbackName: addedNetwork.fullName,
               ),
         currencyLabel: currencyToShow,
@@ -299,9 +297,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         width: 28,
                                         height: 28,
                                         isRoundedSquare: addedNetwork != null,
-                                        outlineColor: addedNetwork?.isManual == true
-                                            ? colors.onSurface
-                                            : null,
+                                        isOutlined: addedNetwork?.isManual == true,
                                         fallbackName: addedNetwork?.fullName,
                                       ),
                                       const SizedBox(width: 10),

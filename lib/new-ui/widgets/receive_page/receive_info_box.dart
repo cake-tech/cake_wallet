@@ -176,9 +176,7 @@ class InfoboxCurrencyRow extends StatelessWidget {
                 width: 20,
                 height: 20,
                 isRoundedSquare: true,
-                outlineColor: addedNetwork.source == ChainSource.manual
-                    ? Theme.of(context).colorScheme.onSurface
-                    : null,
+                isOutlined: addedNetwork.isManual,
                 fallbackName: addedNetwork.name,
               )
             else
@@ -233,9 +231,7 @@ class InfoboxCurrencyRow extends StatelessWidget {
                                   width: iconSize,
                                   height: iconSize,
                                   isRoundedSquare: true,
-                                  outlineColor: currency.isManual
-                                      ? Theme.of(context).colorScheme.onSurface
-                                      : null,
+                                  isOutlined: currency.isManual,
                                   fallbackName: currency.fullName,
                                 ),
                               final currency => TokenImageWidget(

@@ -27,8 +27,7 @@ class TokenChainDisplay extends StatelessWidget {
               imageUrl: asset.iconPath ?? "",
               width: size,
               isRoundedSquare: _addedNetwork != null,
-              outlineColor:
-                  _addedNetwork?.isManual == true ? Theme.of(context).colorScheme.onSurface : null,
+              isOutlined: _addedNetwork?.isManual == true,
               fallbackName: _addedNetwork?.fullName,
             ),
             if (_addedNetwork == null && (asset.chainIconPath ?? "").isNotEmpty)

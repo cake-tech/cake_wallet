@@ -105,9 +105,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                   width: 32,
                                   height: 32,
                                   isRoundedSquare: addedNetwork != null,
-                                  outlineColor: addedNetwork?.isManual == true
-                                      ? Theme.of(context).colorScheme.onSurface
-                                      : null,
+                                  isOutlined: addedNetwork?.isManual == true,
                                   fallbackName: addedNetwork?.fullName,
                                 ),
                                 onTitleTapped: () =>

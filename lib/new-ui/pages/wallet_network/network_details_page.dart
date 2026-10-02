@@ -384,7 +384,7 @@ class _IconUrlPreviewState extends State<_IconUrlPreview> {
         width: 40,
         height: 40,
         isRoundedSquare: true,
-        outlineColor: Theme.of(context).colorScheme.onSurface,
+        isOutlined: true,
         fallbackName: widget.name,
       );
 }

@@ -23,10 +23,10 @@ class CakeImageWidget extends StatelessWidget {
     this.filterQuality,
     this.semanticsLabel,
     this.isRoundedSquare = false,
-    this.outlineColor,
+    this.isOutlined = false,
     this.fallbackName,
   }) : assert(
-          (!isRoundedSquare && outlineColor == null && fallbackName == null) || width != null,
+          (!isRoundedSquare && !isOutlined && fallbackName == null) || width != null,
           "A rounded square, an outline or a fallback letter is sized from width",
         );
 
@@ -54,12 +54,12 @@ class CakeImageWidget extends StatelessWidget {
   final String? semanticsLabel;
 
   final bool isRoundedSquare;
-  final Color? outlineColor;
+  final bool isOutlined;
   final String? fallbackName;
 
   bool get _isDecorative => semanticsLabel == null;
 
-  bool get _isFramed => isRoundedSquare || outlineColor != null;
+  bool get _isFramed => isRoundedSquare || isOutlined;
 
   @override
   Widget build(BuildContext context) {
@@ -229,17 +229,19 @@ class _ImageFrame extends StatelessWidget {
     final radius = BorderRadius.circular(
       image.isRoundedSquare ? image.width! * CakeImageWidget.networkIconCornerRatio : 0,
     );
-    final outlineColor = image.outlineColor;
 
     return Container(
       width: image.width,
       height: image.height,
-      foregroundDecoration: outlineColor == null
-          ? null
-          : BoxDecoration(
+      foregroundDecoration: image.isOutlined
+          ? BoxDecoration(
               borderRadius: radius,
-              border: Border.all(color: outlineColor, width: image.width! / 24),
-            ),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface,
+                width: image.width! / 24,
+              ),
+            )
+          : null,
       child: ClipRRect(borderRadius: radius, child: child),
     );
   }

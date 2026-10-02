@@ -152,7 +152,6 @@ class SwapTransactionDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final depositNetwork = AddedNetworkCurrency.of(exchangeViewModel.depositCurrency);
     final receiveNetwork = AddedNetworkCurrency.of(exchangeViewModel.receiveCurrency);
-    final outlineColor = Theme.of(context).colorScheme.onSurface;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -187,7 +186,7 @@ class SwapTransactionDetails extends StatelessWidget {
                                 width: 24,
                                 height: 24,
                                 isRoundedSquare: true,
-                                outlineColor: depositNetwork.isManual ? outlineColor : null,
+                                isOutlined: depositNetwork.isManual,
                                 fallbackName: depositNetwork.fullName,
                               ),
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.depositCurrency),
@@ -228,7 +227,7 @@ class SwapTransactionDetails extends StatelessWidget {
                                 width: 24,
                                 height: 24,
                                 isRoundedSquare: true,
-                                outlineColor: receiveNetwork.isManual ? outlineColor : null,
+                                isOutlined: receiveNetwork.isManual,
                                 fallbackName: receiveNetwork.fullName,
                               ),
                         badgeIconPath: _resolveChainBadgePath(exchangeViewModel.receiveCurrency),

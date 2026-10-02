@@ -95,9 +95,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                               width: 64,
                               height: 64,
                               isRoundedSquare: true,
-                              outlineColor: _addedNetwork?.isManual == true
-                                  ? Theme.of(context).colorScheme.onSurface
-                                  : null,
+                              isOutlined: _addedNetwork?.isManual == true,
                               fallbackName: _addedNetwork?.fullName,
                             ),
                           const SizedBox(height: 10),

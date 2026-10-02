@@ -1703,6 +1703,8 @@ class ChainInfo {
   final String? iconPath;
   final String? explorerUrl;
 
+  bool get isManual => source == ChainSource.manual;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

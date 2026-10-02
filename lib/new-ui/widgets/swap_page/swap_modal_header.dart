@@ -14,7 +14,6 @@ class SwapModalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final fromNetwork = AddedNetworkCurrency.of(from);
     final toNetwork = AddedNetworkCurrency.of(to);
-    final outlineColor = Theme.of(context).colorScheme.onSurface;
 
     return Row(
       spacing: 8,
@@ -29,7 +28,7 @@ class SwapModalHeader extends StatelessWidget {
                 width: 24,
                 height: 24,
                 isRoundedSquare: fromNetwork != null,
-                outlineColor: fromNetwork?.isManual == true ? outlineColor : null,
+                isOutlined: fromNetwork?.isManual == true,
                 fallbackName: fromNetwork?.fullName,
               ),
               Positioned(
@@ -40,7 +39,7 @@ class SwapModalHeader extends StatelessWidget {
                   width: 24,
                   height: 24,
                   isRoundedSquare: toNetwork != null,
-                  outlineColor: toNetwork?.isManual == true ? outlineColor : null,
+                  isOutlined: toNetwork?.isManual == true,
                   fallbackName: toNetwork?.fullName,
                 ),
               ),

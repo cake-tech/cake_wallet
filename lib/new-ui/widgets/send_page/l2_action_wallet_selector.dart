@@ -395,8 +395,7 @@ class WalletRow extends StatelessWidget {
                         width: 24,
                         height: 24,
                         isRoundedSquare: true,
-                        outlineColor:
-                            addedNetwork.isManual ? Theme.of(context).colorScheme.onSurface : null,
+                        isOutlined: addedNetwork.isManual,
                         fallbackName: addedNetwork.fullName,
                       ),
                     Column(

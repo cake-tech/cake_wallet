@@ -304,8 +304,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
             height: 24,
             width: 24,
             isRoundedSquare: addedNetwork != null,
-            outlineColor:
-                addedNetwork?.isManual == true ? Theme.of(context).colorScheme.onSurface : null,
+            isOutlined: addedNetwork?.isManual == true,
             fallbackName: addedNetwork?.fullName,
           )
         : const SizedBox(height: 24, width: 24);
@@ -408,8 +407,7 @@ class _ContactListBodyState extends State<ContactListBody> {
             height: 24,
             width: 24,
             isRoundedSquare: addedNetwork != null,
-            outlineColor:
-                addedNetwork?.isManual == true ? Theme.of(context).colorScheme.onSurface : null,
+            isOutlined: addedNetwork?.isManual == true,
             fallbackName: addedNetwork?.fullName,
           )
         : const SizedBox(height: 24, width: 24);

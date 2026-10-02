@@ -41,10 +41,9 @@ class HistoryTradeTile extends StatelessWidget {
     double currencyIconSize = 22.0;
     final fromNetwork = AddedNetworkCurrency.of(from);
     final toNetwork = AddedNetworkCurrency.of(to);
-    
+
     final isFromAddedNetwork = from!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
     final isToAddedNetwork = to!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
-    final outlineColor = Theme.of(context).colorScheme.onSurface;
 
     return SizedBox(
       height: 50,
@@ -56,7 +55,7 @@ class HistoryTradeTile extends StatelessWidget {
             width: currencyIconSize,
             height: currencyIconSize,
             isRoundedSquare: isFromAddedNetwork,
-            outlineColor: fromNetwork?.isManual == true ? outlineColor : null,
+            isOutlined: fromNetwork?.isManual == true,
             fallbackName: fromNetwork?.fullName ?? (isFromAddedNetwork ? from!.title : null),
           ),
           Positioned(
@@ -77,7 +76,7 @@ class HistoryTradeTile extends StatelessWidget {
                 width: currencyIconSize,
                 height: currencyIconSize,
                 isRoundedSquare: isToAddedNetwork,
-                outlineColor: toNetwork?.isManual == true ? outlineColor : null,
+                isOutlined: toNetwork?.isManual == true,
                 fallbackName: toNetwork?.fullName ?? (isToAddedNetwork ? to!.title : null),
               ),
             ),

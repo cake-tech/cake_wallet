@@ -337,7 +337,7 @@ class _NetworkSections extends StatelessWidget {
               width: 24,
               height: 24,
               isRoundedSquare: true,
-              outlineColor: row.isManual ? Theme.of(context).colorScheme.onSurface : null,
+              isOutlined: row.isManual,
               fallbackName: row.name,
             ),
       onTap: () => onSelected(network),

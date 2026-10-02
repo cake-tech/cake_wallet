@@ -369,7 +369,7 @@ class _NetworkList extends StatelessWidget {
         width: 24,
         height: 24,
         isRoundedSquare: true,
-        outlineColor: network.isManual ? Theme.of(context).colorScheme.onSurface : null,
+        isOutlined: network.isManual,
         fallbackName: network.name,
       ),
       showArrow: false,

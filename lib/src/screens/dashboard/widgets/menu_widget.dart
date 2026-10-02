@@ -255,9 +255,7 @@ class MenuWidgetState extends State<MenuWidget> {
           width: 40,
           height: 40,
           isRoundedSquare: true,
-          outlineColor: network?.source == ChainSource.manual
-              ? Theme.of(context).colorScheme.onSurface
-              : null,
+          isOutlined: network?.isManual == true,
           fallbackName: network?.name ?? "",
         );
       case WalletType.bitcoinCash:
