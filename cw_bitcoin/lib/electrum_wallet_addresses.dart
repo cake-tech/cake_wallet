@@ -1,3 +1,4 @@
+import 'dart:async' show Zone;
 import 'dart:io' show Platform;
 import 'dart:math';
 import "package:collection/collection.dart";
@@ -425,7 +426,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
-    _validateAddresses();
+    await _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -506,7 +507,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (shouldSkipHardwareWalletType) continue;
 
       await _generateInitialAddresses(accountIndex: accountIndex, type: type);
-      
+
       // Legacy derivation for these types is identical to the standard one.
       if (includeLegacy && !LEGACY_DUPLICATE_ADDRESS_TYPES.contains(type)) {
         await _generateInitialAddresses(
@@ -1001,12 +1002,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateAddresses() {
-    _addresses.forEach((element) async {
-      if (element.type == SegwitAddresType.mweb) {
-        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
-        return;
+  static const _validationTimeSlice = Duration(milliseconds: 16);
+
+  Future<void> _validateAddresses() async {
+    final addresses = _addresses.toList();
+    final slice = Stopwatch()..start();
+
+    for (final element in addresses) {
+      try {
+        await _validateAddress(element);
+      } catch (e, s) {
+        Zone.current.handleUncaughtError(e, s);
       }
+
+      if (slice.elapsed >= _validationTimeSlice) {
+        await Future<void>.delayed(Duration.zero);
+        slice.reset();
+      }
+    }
+  }
+
+  Future<void> _validateAddress(BitcoinAddressRecord element) async {
+    if (element.type == SegwitAddresType.mweb) {
+      // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+      return;
+    }
 
       try {
         final mainHd = _hdForAddressGeneration(
