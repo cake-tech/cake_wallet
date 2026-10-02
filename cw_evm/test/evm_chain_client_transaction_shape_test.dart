@@ -13,7 +13,6 @@ void main() {
     estimatedGasUnits: 21000,
     estimatedGasFee: 651000000000000,
     maxFeePerGas: 31000000000,
-    gasPrice: 29000000000,
     priorityFeeWei: 1500000000,
     hasBaseFee: true,
   );
@@ -23,7 +22,6 @@ void main() {
     estimatedGasUnits: 21000,
     estimatedGasFee: 609000000000000,
     maxFeePerGas: 29000000000,
-    gasPrice: 29000000000,
     priorityFeeWei: 0,
     hasBaseFee: false,
   );
@@ -38,10 +36,10 @@ void main() {
       );
 
   group("EVMChainClient transaction shape", () {
-    test("legacy carries the gas price only", () {
+    test("legacy carries the max fee as its gas price only", () {
       final transaction = build(FeeType.legacy, gasWithBaseFee);
 
-      expect(transaction.gasPrice?.getInWei, BigInt.from(29000000000));
+      expect(transaction.gasPrice?.getInWei, BigInt.from(31000000000));
       expect(transaction.maxFeePerGas, isNull);
       expect(transaction.maxPriorityFeePerGas, isNull);
       expect(transaction.isEIP1559, isFalse);
@@ -114,7 +112,6 @@ void main() {
         estimatedGasUnits: 21000,
         estimatedGasFee: 169050000000,
         maxFeePerGas: 8050000,
-        gasPrice: 8050000,
         priorityFeeWei: null,
         hasBaseFee: true,
       );

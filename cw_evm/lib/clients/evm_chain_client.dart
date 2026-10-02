@@ -367,7 +367,7 @@ class EVMChainClient {
     final isLegacy = switch (feeType) {
       FeeType.legacy => true,
       FeeType.eip1559 => false,
-      FeeType.eip1559OrLegacy => !gasParams.hasBaseFee || gasParams.priorityFeeWei == null,
+      FeeType.eip1559OrLegacy => !gasParams.hasEip1559Fees,
     };
 
     if (isLegacy) {
@@ -377,7 +377,7 @@ class EVMChainClient {
         value: amount,
         data: data,
         maxGas: maxGas,
-        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasParams.gasPrice),
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasParams.maxFeePerGas),
         nonce: nonce,
       );
     }
@@ -812,7 +812,6 @@ class GasParamsHandler {
   final int estimatedGasUnits;
   final int estimatedGasFee;
   final int maxFeePerGas;
-  final int gasPrice;
   final int? priorityFeeWei;
   final bool hasBaseFee;
 
@@ -820,16 +819,16 @@ class GasParamsHandler {
     required this.estimatedGasUnits,
     required this.estimatedGasFee,
     required this.maxFeePerGas,
-    required this.gasPrice,
     required this.priorityFeeWei,
     required this.hasBaseFee,
   });
+
+  bool get hasEip1559Fees => hasBaseFee && priorityFeeWei != null;
 
   static GasParamsHandler zero() => GasParamsHandler(
         estimatedGasUnits: 0,
         estimatedGasFee: 0,
         maxFeePerGas: 0,
-        gasPrice: 0,
         priorityFeeWei: 0,
         hasBaseFee: false,
       );

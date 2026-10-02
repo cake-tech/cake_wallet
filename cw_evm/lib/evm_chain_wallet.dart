@@ -714,13 +714,12 @@ abstract class EVMChainWalletBase
         priorityFeeWei: priorityFee ?? 0,
         chainHasPriorityFee: hasPriorityFee,
       );
-      final adjustedGasPrice = maxFeePerGas;
 
       final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
         contractAddress: contractAddress,
         senderAddress: _evmChainPrivateKey.address,
         value: EtherAmount.fromBigInt(EtherUnit.wei, amount.amount),
-        gasPrice: EtherAmount.fromInt(EtherUnit.wei, adjustedGasPrice),
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
         toAddress: EthereumAddress.fromHex(receivingAddressHex),
         maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
         data: data,
@@ -736,14 +735,13 @@ abstract class EVMChainWalletBase
       );
 
       final totalGasFee = EVMChainUtils.weiAsInt(
-        BigInt.from(estimatedGas) * BigInt.from(adjustedGasPrice) + l1Fee,
+        BigInt.from(estimatedGas) * BigInt.from(maxFeePerGas) + l1Fee,
       );
 
       return GasParamsHandler(
         estimatedGasUnits: estimatedGas,
         estimatedGasFee: totalGasFee,
         maxFeePerGas: maxFeePerGas,
-        gasPrice: adjustedGasPrice,
         priorityFeeWei: priorityFee,
         hasBaseFee: gasBaseFee != null && gasBaseFee > 0,
       );
