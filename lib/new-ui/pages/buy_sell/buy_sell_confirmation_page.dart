@@ -17,115 +17,119 @@ class BuySellConfirmationPage extends StatelessWidget {
   final BuySellViewModel buySellViewModel;
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surfaceDim,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => SafeArea(
+    bottom: false,
+    child: Container(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.surface,
+                Theme.of(context).colorScheme.surfaceDim,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              ModalTopBar(
-                title: _pageTitle,
-                leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                onLeadingPressed: Navigator.of(context).pop,
-                leadingSemanticLabel: S.of(context).seed_alert_back,
-              ),
-              Expanded(
-                child: Observer(
-                  builder: (_) => Column(
-                    spacing: 24,
-                    children: [
-                      Column(
-                        spacing: 4,
-                        children: [
-                          Text(
-                            "${buySellViewModel.fiatAmount} ${buySellViewModel.fiatCurrency}",
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                          if (buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!) !=
-                              null)
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                ModalTopBar(
+                  title: _pageTitle,
+                  leadingIcon: const Icon(Icons.arrow_back_ios_new),
+                  onLeadingPressed: Navigator.of(context).pop,
+                  leadingSemanticLabel: S.of(context).seed_alert_back,
+                ),
+                Expanded(
+                  child: Observer(
+                    builder: (_) => Column(
+                      spacing: 24,
+                      children: [
+                        Column(
+                          spacing: 4,
+                          children: [
                             Text(
-                              "≈ ${buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              "${buySellViewModel.fiatAmount} ${buySellViewModel.fiatCurrency}",
+                              style: const TextStyle(fontSize: 32),
                             ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
-                        child: NewListSections(
-                          sections: {
-                            "": [
-                              ListItemRegularRow(
-                                keyValue: "provider",
-                                label: S.of(context).provider,
-                                trailingWidget: Row(
-                                  spacing: 8,
-                                  children: [
-                                    CakeImageWidget(
-                                      imageUrl: Theme.of(context).brightness == Brightness.light
-                                          ? buySellViewModel.selectedQuote!.lightIconPath
-                                          : buySellViewModel.selectedQuote!.darkIconPath,
-                                      width: 24,
-                                      height: 24,
-                                    ),
-                                    Text(
-                                      buySellViewModel.selectedQuote!.rampName ??
-                                          buySellViewModel.selectedQuote!.provider.title,
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox.shrink(),
-                                  ],
+                            if (buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!) !=
+                                null)
+                              Text(
+                                "≈ ${buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              if (buySellViewModel.selectedQuote!.paymentType.title?.isNotEmpty ??
-                                  false)
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: NewListSections(
+                            sections: {
+                              "": [
+                                ListItemRegularRow(
+                                  keyValue: "provider",
+                                  label: S.of(context).provider,
+                                  trailingWidget: Row(
+                                    spacing: 8,
+                                    children: [
+                                      CakeImageWidget(
+                                        imageUrl: Theme.of(context).brightness == Brightness.light
+                                            ? buySellViewModel.selectedQuote!.lightIconPath
+                                            : buySellViewModel.selectedQuote!.darkIconPath,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                      Text(
+                                        buySellViewModel.selectedQuote!.rampName ??
+                                            buySellViewModel.selectedQuote!.provider.title,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox.shrink(),
+                                    ],
+                                  ),
+                                ),
+                                if (buySellViewModel.selectedQuote!.paymentType.title?.isNotEmpty ??
+                                    false)
+                                  ListItemRegularRow(
+                                    showArrow: false,
+                                    keyValue: "payment method",
+                                    label: S.of(context).payment_method,
+                                    trailingText: buySellViewModel.selectedQuote!.paymentType.title,
+                                  ),
                                 ListItemRegularRow(
                                   showArrow: false,
-                                  keyValue: "payment method",
-                                  label: S.of(context).payment_method,
-                                  trailingText: buySellViewModel.selectedQuote!.paymentType.title,
+                                  keyValue: "rate",
+                                  label: S.of(context).rate,
+                                  trailingText: buySellViewModel.selectedQuote!.topLeftSubTitle,
                                 ),
-                              ListItemRegularRow(
-                                showArrow: false,
-                                keyValue: "rate",
-                                label: S.of(context).rate,
-                                trailingText: buySellViewModel.selectedQuote!.topLeftSubTitle,
-                              ),
-                            ],
-                          },
+                              ],
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(18),
-                child: NewPrimaryButton(
-                  onPressed: () => confirm(context),
-                  text: S.of(context).proceed,
-                  color: Theme.of(context).colorScheme.primary,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
+                Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: NewPrimaryButton(
+                    onPressed: () => confirm(context),
+                    text: S.of(context).proceed,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      );
+  );
 
   String get _pageTitle =>
       "${buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell} ${buySellViewModel.cryptoCurrency.fullName ?? ""}";

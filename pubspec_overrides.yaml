@@ -912,7 +912,7 @@ dependency_overrides:
   lottie:
     git:
       url: https://github.com/xvrh/lottie-flutter
-      ref: 1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1
+      ref: 7e6f335edca062124f392d3c779fdf8b52807246
   matcher:
     git:
       url: https://github.com/dart-lang/test

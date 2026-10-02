@@ -16,6 +16,9 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/explainer_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_deposit_explainer.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_withdraw_explainer.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
@@ -45,6 +48,7 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
@@ -91,6 +95,7 @@ class SendPageModes {
     this.description,
     this.confirmSheetIconPath,
     this.helpContent,
+    this.explainer,
     this.popOnConfirmation = true,
   });
 
@@ -99,6 +104,7 @@ class SendPageModes {
   final String? description;
   final String? confirmSheetIconPath;
   final SendPageHelpContent? helpContent;
+  final ExplainerPage? explainer;
   final bool popOnConfirmation;
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
@@ -107,12 +113,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_deposit,
     description: S.current.to_lightning,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_deposit,
-      imagePath: "assets/new-ui/lightning_deposit_help.svg",
-      description: S.current.lightning_deposit_desc,
-      disclaimer: S.current.lightning_deposit_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_deposit_help.svg",
+    explainer: const LightningDepositExplainer(),
     popOnConfirmation: false,
   );
 
@@ -120,12 +122,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_withdraw,
     description: S.current.to_on_chain,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_withdraw,
-      imagePath: "assets/new-ui/lightning_withdraw_help.svg",
-      description: S.current.lightning_withdraw_desc,
-      disclaimer: S.current.lightning_withdraw_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_withdraw_help.svg",
+    explainer: const LightningWithdrawExplainer(),
     popOnConfirmation: false,
   );
 
@@ -182,6 +180,7 @@ class NewSendPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
+    required this.settingsStore,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
@@ -198,6 +197,7 @@ class NewSendPage extends StatefulWidget {
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+  final SettingsStore settingsStore;
   final PaymentRequest? initialPaymentRequest;
   final String? initialRawInput;
   final SendPageModes mode;
@@ -267,6 +267,12 @@ class _NewSendPageState extends State<NewSendPage> {
           paymentRequest: widget.initialPaymentRequest,
         );
       });
+    }
+
+    if (widget.mode.explainer != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.mode.explainer!.showIfNeeded(context, widget.settingsStore),
+      );
     }
 
     if (widget.mode == SendPageModes.normal) {
@@ -411,7 +417,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                     _setOutput(widget.sendViewModel.outputs.length - 1);
                                   },
                                 ),
-                              if (widget.mode.helpContent != null)
+                              if (widget.mode.explainer != null || widget.mode.helpContent != null)
                                 ModernButton(
                                   size: 36,
                                   icon: CakeImageWidget(
@@ -422,15 +428,15 @@ class _NewSendPageState extends State<NewSendPage> {
                                     ),
                                   ),
                                   semanticLabel: S.of(context).help,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      CupertinoPageRoute(
-                                        builder: (context) => Material(
-                                          child: SendHelpPage(content: widget.mode.helpContent!),
+                                  onPressed: () => widget.mode.explainer != null
+                                      ? widget.mode.explainer!.show(context)
+                                      : Navigator.of(context).push(
+                                          CupertinoPageRoute(
+                                            builder: (context) => Material(
+                                              child: SendHelpPage(content: widget.mode.helpContent!),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
                                 ),
                             ],
                           ),
@@ -941,7 +947,7 @@ class _NewSendPageState extends State<NewSendPage> {
             backgroundColor: Colors.transparent,
             builder: (context) => SendConfirmSheet(
               title: widget.mode.title,
-              iconPath: widget.mode.helpContent?.imagePath,
+              iconPath: widget.mode.helpContent?.imagePath ?? widget.mode.confirmSheetIconPath,
               sendViewModel: widget.sendViewModel,
             ),
           ).then((value) {

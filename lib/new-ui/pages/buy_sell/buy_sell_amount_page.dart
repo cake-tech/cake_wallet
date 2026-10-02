@@ -73,95 +73,99 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surfaceDim,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => SafeArea(
+    bottom: false,
+    child: Container(
+      decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.surface,
+                Theme.of(context).colorScheme.surfaceDim,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Observer(
-                builder: (_) => ModalTopBar(
-                  title: _pageTitle,
-                  bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
-                      ? null
-                      : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
-                  leadingIcon: const Icon(Icons.close),
-                  leadingSemanticLabel: S.of(context).close,
-                  onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-                ),
-              ),
-              Expanded(
-                child: Observer(
-                  builder: (_) => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _customAmountMode
-                        ? BuySellCustomAmountInput(
-                            fiatCurrency: widget.buySellViewModel.fiatCurrency,
-                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
-                            cryptoAmount: widget.buySellViewModel.cryptoAmount,
-                            isLoading: _isLoadingPaymentMethods,
-                            hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
-                            onCurrencySelectorPressed: () => selectCryptoCurrency(context),
-                            controller: customInputController,
-                            focusNode: customInputFocusNode,
-                            onContinuePressed: () {
-                              navigateToProviders(context);
-                            },
-                            onChanged: (amount) {
-                              if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
-                                widget.buySellViewModel.setCryptoAmountFromFiat(amount);
-                              } else {
-                                widget.buySellViewModel.changeFiatAmount(amount: amount);
-                              }
-                            },
-                          )
-                        : BuySellDefaultAmountSelector(
-                            key: const ValueKey(0),
-                            defaultAmounts: widget.buySellViewModel.defaultAmounts,
-                            fiatCurrency: widget.buySellViewModel.fiatCurrency,
-                            currentAmount: widget.buySellViewModel.fiatAmount,
-                            hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
-                            onCurrencySelectorPressed: () => selectCryptoCurrency(context),
-                            onFiatSelectorPressed: () => selectFiatCurrency(context),
-                            cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
-                            isLoading: _isLoadingPaymentMethods,
-                            mode: widget.buySellViewModel.mode,
-                            onSelected: (amount) async {
-                              if (amount == null) {
-                                // this resets the rate and prevents showing 0 usd = 0.something btc
-                                await widget.buySellViewModel.changeFiatAmount(amount: "");
-                                setState(() {
-                                  _customAmountMode = true;
-                                });
-                                customInputFocusNode.requestFocus();
-                              } else {
-                                if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
-                                  await widget.buySellViewModel.setCryptoAmountFromFiat(amount);
-                                } else {
-                                  await widget.buySellViewModel.changeFiatAmount(amount: amount);
-                                }
-                                if (context.mounted) {
-                                  await navigateToProviders(context);
-                                }
-                              }
-                            },
-                          ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+              children: [
+                Observer(
+                  builder: (_) => ModalTopBar(
+                    title: _pageTitle,
+                    bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
+                        ? null
+                        : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
+                    leadingIcon: const Icon(Icons.close),
+                    leadingSemanticLabel: S.of(context).close,
+                    onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      );
+                Expanded(
+                  child: Observer(
+                    builder: (_) => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _customAmountMode
+                          ? BuySellCustomAmountInput(
+                              fiatCurrency: widget.buySellViewModel.fiatCurrency,
+                              cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                              cryptoAmount: widget.buySellViewModel.cryptoAmount,
+                              isLoading: _isLoadingPaymentMethods,
+                              hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
+                              onCurrencySelectorPressed: () => selectCryptoCurrency(context),
+                              controller: customInputController,
+                              focusNode: customInputFocusNode,
+                              onContinuePressed: () {
+                                navigateToProviders(context);
+                              },
+                              onChanged: (amount) {
+                                if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
+                                  widget.buySellViewModel.setCryptoAmountFromFiat(amount);
+                                } else {
+                                  widget.buySellViewModel.changeFiatAmount(amount: amount);
+                                }
+                              },
+                            )
+                          : BuySellDefaultAmountSelector(
+                              key: const ValueKey(0),
+                              defaultAmounts: widget.buySellViewModel.defaultAmounts,
+                              fiatCurrency: widget.buySellViewModel.fiatCurrency,
+                              currentAmount: widget.buySellViewModel.fiatAmount,
+                              hasCurrencySelector: widget.buySellViewModel.hasMultipleCurrencies,
+                              onCurrencySelectorPressed: () => selectCryptoCurrency(context),
+                              onFiatSelectorPressed: () => selectFiatCurrency(context),
+                              cryptoCurrency: widget.buySellViewModel.cryptoCurrency,
+                              isLoading: _isLoadingPaymentMethods,
+                              mode: widget.buySellViewModel.mode,
+                              onSelected: (amount) async {
+                                if (amount == null) {
+                                  // this resets the rate and prevents showing 0 usd = 0.something btc
+                                  await widget.buySellViewModel.changeFiatAmount(amount: "");
+                                  setState(() {
+                                    _customAmountMode = true;
+                                  });
+                                  customInputFocusNode.requestFocus();
+                                } else {
+                                  if (widget.buySellViewModel.mode == BuySellPageMode.sell) {
+                                    await widget.buySellViewModel.setCryptoAmountFromFiat(amount);
+                                  } else {
+                                    await widget.buySellViewModel.changeFiatAmount(amount: amount);
+                                  }
+                                  if (context.mounted) {
+                                    await navigateToProviders(context);
+                                  }
+                                }
+                              },
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+      ),
+    ),
+  );
 
   void selectCryptoCurrency(BuildContext context) => CurrencyPickerSheet.show(
         context: context,
