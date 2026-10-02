@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/hardware_wallet/trezor_wallet_settings_storage.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -66,6 +67,9 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditDeletePending();
     final walletService = getIt.get<WalletService>(param1: wallet.type);
     await walletService.remove(wallet.name);
+    // A stored Trezor passphrase must not outlive its wallet (or be applied to
+    // a later wallet that reuses the name). No-op for other wallets.
+    await getIt.get<TrezorWalletSettingsStorage>().delete(wallet.type, wallet.name);
     resetState();
     _walletListViewModel.updateList();
   }

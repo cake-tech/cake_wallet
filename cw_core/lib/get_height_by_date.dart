@@ -5,6 +5,9 @@ import 'dart:convert';
 
 // FIXME: Hardcoded values; Works only for monero
 
+// One day of margin so a wallet restored from a date never starts scanning
+// after its first output. (Note: `date..subtract(...)` would be a no-op since
+// DateTime is immutable.)
 int getMoneroHeigthByDate({required DateTime date}) =>
     MoneroHeight.getBlockHeightByTime(date.subtract(const Duration(days: 1)));
 

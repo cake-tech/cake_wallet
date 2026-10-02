@@ -5,6 +5,10 @@ import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 abstract class HardwareWalletDevice {
   String get name;
 
+  /// Stable identifier used to tell two devices apart (two devices may share a
+  /// name). Transport-specific where the SDK provides one.
+  String get id => "${connectionType.name}/$name";
+
   HardwareWalletDeviceType get type;
 
   HardwareWalletConnectionType get connectionType;
@@ -17,6 +21,9 @@ class LedgerHardwareWalletDevice extends HardwareWalletDevice {
 
   @override
   String get name => device.name;
+
+  @override
+  String get id => device.id;
 
   @override
   HardwareWalletDeviceType get type => device.deviceInfo.toGeneric();
@@ -49,6 +56,9 @@ class TrezorHardwareWalletDevice extends HardwareWalletDevice {
 
   @override
   String get name => device.name;
+
+  @override
+  String get id => device.id;
 
   @override
   HardwareWalletDeviceType get type => device.deviceInfo.toGeneric();

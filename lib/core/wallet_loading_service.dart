@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/generate_wallet_password.dart';
+import 'package:cake_wallet/core/hardware_wallet/trezor_wallet_settings_storage.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -24,12 +25,14 @@ class WalletLoadingService {
   WalletLoadingService(
     this.sharedPreferences,
     this.keyService,
-    this.walletServiceFactory,
-  );
+    this.walletServiceFactory, {
+    this.trezorWalletSettings,
+  });
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
+  final TrezorWalletSettingsStorage? trezorWalletSettings;
 
   Future<void> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
@@ -44,6 +47,9 @@ class WalletLoadingService {
       // Delete previous wallet name from keyService to keep only new wallet's name
       // otherwise keeps duplicate (old and new names)
       await keyService.deleteWalletPassword(walletName: name);
+
+      // Per-wallet Trezor session settings are keyed by name as well.
+      await trezorWalletSettings?.rename(type, name, newName);
 
       // set shared preferences flag based on previous wallet name
       if (type == WalletType.monero) {

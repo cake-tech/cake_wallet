@@ -7,8 +7,7 @@ import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/utils/ensure_hardware_wallet_ready.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -335,27 +334,7 @@ class DFXBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
-      if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: wallet.walletInfo.type,
-            hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, hwwVM) {
-              hwwVM.initWallet(wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-          ),
-        );
-
-        // Recheck to handle tap-backs
-        if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-          return;
-        }
-      } else {
-        hardwareWalletVM!.initWallet(wallet);
-      }
+      if (!await ensureHardwareWalletReady(context, hardwareWalletVM!, wallet)) return;
     }
 
     try {

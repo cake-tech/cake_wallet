@@ -77,6 +77,7 @@ class PreferencesKey {
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowDEuroDisclaimer = 'should_show_deuro_disclaimer';
   static const shouldShowRepWarning = 'should_show_rep_warning';
+  static const shouldShowTrezorResyncInfo = 'should_show_trezor_resync_info';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';

@@ -22,6 +22,14 @@ part 'wallet_hardware_restore_view_model.g.dart';
 class WalletHardwareRestoreViewModel = WalletHardwareRestoreViewModelBase
     with _$WalletHardwareRestoreViewModel;
 
+/// Whether [error] (as set on [WalletHardwareRestoreViewModel.error]) means the
+/// device link is gone and the user has to go back to the connect page.
+bool isHardwareWalletConnectionError(String error) => [
+      S.current.ledger_connection_error,
+      S.current.trezor_error_disconnected,
+      S.current.trezor_error_channel_lost,
+    ].contains(error);
+
 abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with Store {
   final HardwareWalletViewModel hardwareWalletVM;
 
@@ -105,11 +113,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
     final wallet = await walletCreationService.restoreFromHardwareWallet(credentials);
-
-    final hardwareWalletVM = this.hardwareWalletVM;
-    if (hardwareWalletVM is TrezorConnectViewModel && type == WalletType.bitcoin) {
-      hardwareWalletVM.bindSessionToWallet(wallet);
-    }
+    await hardwareWalletVM.rememberWalletSettings(wallet);
     return wallet;
   }
 }

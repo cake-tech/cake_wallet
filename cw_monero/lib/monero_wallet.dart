@@ -400,6 +400,13 @@ abstract class MoneroWalletBase
 
   Future<String> signTrezorTransaction(String json) => _getTrezor().signTransaction(json);
 
+  /// Primary address (account 0, index 0) of this wallet, what a Trezor
+  /// session bound with the right passphrase must reproduce. Derived from this
+  /// wallet rather than from a global so the check cannot drift from the
+  /// wallet it was asked about.
+  String get trezorVerificationAddress =>
+      currentWallet!.address(accountIndex: 0, addressIndex: 0);
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     if (hardwareWalletType == HardwareWalletType.trezor) {

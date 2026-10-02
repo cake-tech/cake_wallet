@@ -278,6 +278,7 @@ abstract class Bitcoin {
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin);
+  Future<bool> trezorSessionMatchesWallet(Object wallet, trezor.TrezorClient client);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
@@ -486,7 +487,10 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setHardwareWalletService(Object wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorClient client);
+  Future<bool> trezorSessionMatchesWallet(Object wallet, trezor.TrezorClient client);
   Future<void> syncTrezor(Object wallet);
+  bool isTrezorBusy();
+  Future<void> waitForTrezorIdle();
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
   Future<int> getNodeHeight(Object wallet);

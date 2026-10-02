@@ -158,7 +158,8 @@ class TransactionErrorActions extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    errorText,
+                    // Never leave the banner without a reason.
+                    errorText.trim().isEmpty ? S.of(context).error : errorText,
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,

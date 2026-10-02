@@ -21,6 +21,15 @@ class DoubleSpendException implements Exception {
       'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
 }
 
+class MoneroTransactionSubmitException implements Exception {
+  MoneroTransactionSubmitException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 class PendingMoneroTransaction with PendingTransaction {
   PendingMoneroTransaction(this.pendingTransactionDescription, this.wallet);
 
@@ -56,9 +65,13 @@ class PendingMoneroTransaction with PendingTransaction {
       final suc = await monero.Wallet_submitTransactionHex(wptr, json);
 
       if (!suc) {
-        final err = monero.UnsignedTransaction_errorString(ptr);
-        printV(err);
-        throw err;
+        // submitTransactionHex reports its failure on the wallet, not on the
+        // pending transaction (whose error is cleared once the device signed).
+        final err = monero.Wallet_errorString(wptr);
+        printV("Trezor transaction submit failed: $err");
+        throw MoneroTransactionSubmitException(
+          err.trim().isNotEmpty ? err : "The signed transaction was rejected by the node.",
+        );
       }
     } else {
       try {

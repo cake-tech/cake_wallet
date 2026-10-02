@@ -9,7 +9,16 @@ class MoneroTrezorService extends HardwareWalletService {
 
   final TrezorClient client;
 
+  /// One device conversation at a time. Signing, the key-image sync and the
+  /// watch-only export are all multi-message THP exchanges; starting a second
+  /// one while the first is still on the device (a key-image sync offered
+  /// while a transaction is being signed, say) leaves the Trezor unresponsive
+  /// until it is power-cycled and re-paired. Static on purpose: services are
+  /// created per call, but there is only ever one device.
   static final Mutex _mutex = Mutex();
+
+  /// Whether a device conversation is in progress (see [runBlocking]).
+  static bool get isBusy => _mutex.isLocked;
 
   static Future<T> runBlocking<T>(Future<T> Function() operation) => _mutex.protect(operation);
 }
