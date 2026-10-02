@@ -66,32 +66,12 @@ class EVMChainUtils {
       _ => "use_evm_scan_$chainId",
     };
 
-  static String getDefaultTokenTag(int chainId) => switch (chainId) {
-      1 => "ETH",
-      137 => "POL",
-      8453 => "BASE",
-      42161 => "ARB",
-      56 => "BSC",
-      _ => _getNativeCurrency(chainId).tag ?? _getNativeCurrency(chainId).title,
-    };
+  static String getDefaultTokenTag(int chainId) {
+    final nativeCurrency = _getNativeCurrency(chainId);
+    return nativeCurrency.tag ?? nativeCurrency.title;
+  }
 
-  static String getFeeCurrency(int chainId) => switch (chainId) {
-      1 => "ETH",
-      137 => "POL",
-      8453 => "ETH",
-      42161 => "ETH",
-      56 => "BNB",
-      _ => _getNativeCurrency(chainId).title,
-    };
-
-  static String getDefaultTokenSymbol(int chainId) => switch (chainId) {
-      1 => "ETH",
-      137 => "POL",
-      8453 => "BASE",
-      42161 => "ARBITRUM",
-      56 => "BSC",
-      _ => _getNativeCurrency(chainId).title,
-    };
+  static String getFeeCurrency(int chainId) => _getNativeCurrency(chainId).title;
 
   static CryptoCurrency _getNativeCurrency(int chainId) {
     final config = EvmChainRegistry().getChainConfig(chainId);

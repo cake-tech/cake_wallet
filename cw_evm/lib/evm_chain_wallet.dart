@@ -292,8 +292,7 @@ abstract class EVMChainWalletBase
     String address,
   ) {
     final decimals = transactionModel.tokenDecimal ?? 18;
-    final tokenSymbol = transactionModel.tokenSymbol ??
-        EVMChainUtils.getDefaultTokenSymbol(transactionModel.chainId);
+    final tokenSymbol = transactionModel.tokenSymbol ?? _symbolWhenMissing(transactionModel);
 
     final amountCurrency = Erc20Token(
       name: '',
@@ -320,6 +319,19 @@ abstract class EVMChainWalletBase
       contractAddress: transactionModel.contractAddress,
       chainId: transactionModel.chainId,
     );
+  }
+
+  // Moralis can leave out a token transfer's symbol, so the token is found by its contract
+  String _symbolWhenMissing(EVMChainTransactionModel transactionModel) {
+    final contractAddress = transactionModel.contractAddress.toLowerCase();
+    if (contractAddress.isEmpty) {
+      return EVMChainUtils.getFeeCurrency(transactionModel.chainId);
+    }
+
+    final token = _erc20Tokens.firstWhereOrNull(
+      (token) => token.contractAddress.toLowerCase() == contractAddress,
+    );
+    return token?.symbol ?? "";
   }
 
   Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath) {

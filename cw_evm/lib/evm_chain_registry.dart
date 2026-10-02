@@ -174,7 +174,6 @@ class EvmChainRegistry {
     _chainIdToWalletType[config.chainId] = walletType;
     _tagToChainId[tag.toUpperCase()] = config.chainId;
     _caip2ToChainId[config.caip2] = config.chainId;
-    EvmNativeCurrencies.register(config.chainId, config.nativeCurrency, walletType);
   }
 
   bool isBuiltinChain(int chainId) => _walletTypeToChainId.containsValue(chainId);

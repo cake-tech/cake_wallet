@@ -103,46 +103,15 @@ The unified EVM and PayAnything flows rely on a **two-way mapping** between
 
 **File**: `cw_core/lib/currency_for_wallet_type.dart`
 
-1. **Map `chainId` → `CryptoCurrency`** in `getCryptoCurrencyByChainId`:
+Add the chain to the `_natives` map in `EvmNativeCurrencies`. Both
+`getCryptoCurrencyByChainId` and `getChainIdByCryptoCurrency` read it:
 
 ```dart
-CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
-  switch (chainId) {
-    case 1:
-      return CryptoCurrency.eth;
-    case 137:
-      return CryptoCurrency.maticpoly;
-    case 8453:
-      return CryptoCurrency.baseEth;
-    case 42161:
-      return CryptoCurrency.arbEth;
-    case 10:
-      return CryptoCurrency.op; // NEW: Optimism
-    default:
-      return CryptoCurrency.eth;
-  }
-}
-```
-
-2. **Map `CryptoCurrency` → `chainId`** in `getChainIdByCryptoCurrency`:
-
-```dart
-int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.eth:
-      return 1;
-    case CryptoCurrency.maticpoly:
-      return 137;
-    case CryptoCurrency.baseEth:
-      return 8453;
-    case CryptoCurrency.arbEth:
-      return 42161;
-    case CryptoCurrency.op: // NEW: Optimism
-      return 10;
-    default:
-      return null;
-  }
-}
+static final Map<int, _EvmNative> _natives = {
+  1: const _EvmNative(currency: CryptoCurrency.eth, walletType: WalletType.ethereum),
+  // ...
+  10: const _EvmNative(currency: CryptoCurrency.op, walletType: WalletType.optimism), // NEW
+};
 ```
 
 **Why this matters**:
@@ -284,52 +253,9 @@ static String getScanProviderPreferenceKey(int chainId) {
 }
 ```
 
-#### 4.5 Default Token Tag
+#### 4.5 Token Tag and Fee Currency
 
-```dart
-static String getDefaultTokenTag(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'POL',
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'OP', // NEW
-    _ => 'ETH', // Default
-  };
-}
-```
-
-#### 4.6 Fee Currency Symbol
-
-```dart
-static String getFeeCurrency(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'MATIC', // Polygon uses MATIC, not POL
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'ETH', // Optimism uses ETH
-    _ => 'ETH', // Default
-  };
-}
-```
-
-**Note**: This is used in transaction fetching APIs. Polygon uses 'MATIC' even though the currency tag is 'POL'.
-
-#### 4.7 Default Token Symbol
-
-```dart
-static String getDefaultTokenSymbol(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'MATIC',
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'ETH', // Optimism uses ETH
-    _ => 'ETH', // Default
-  };
-}
-```
+Nothing to add. `getDefaultTokenTag` and `getFeeCurrency` read the `nativeCurrency` of the chain's `ChainConfig` from Step 1.
 
 ### Step 5: Create Custom Client (Only If Needed)
 
