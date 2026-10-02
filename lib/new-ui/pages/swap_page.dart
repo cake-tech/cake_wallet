@@ -434,6 +434,10 @@ class SwapProviderPreview extends StatelessWidget {
                             imageUrl: forcedProvider?.image ?? "assets/new-ui/warning.svg",
                             width: 28,
                             height: 28,
+                            colorFilter: forcedProvider != null ? null : ColorFilter.mode(Theme
+                                .of(context)
+                                .colorScheme
+                                .error, BlendMode.srcIn),
                           ),
                           Flexible(
                             child: Column(
