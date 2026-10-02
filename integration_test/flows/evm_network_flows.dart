@@ -14,6 +14,7 @@ import "../robots/network_details_page_robot.dart";
 import "../robots/new_dashboard_robot.dart";
 import "../robots/new_wallet_page_robot.dart";
 import "../robots/pre_seed_page_robot.dart";
+import "../robots/restore_from_seed_or_key_robot.dart";
 import "../robots/restore_options_page_robot.dart";
 import "../robots/seed_verification_page_robot.dart";
 import "../robots/wallet_group_description_page_robot.dart";
@@ -31,6 +32,7 @@ class EvmNetworkFlows {
         _dashboardRobot = NewDashboardRobot(tester),
         _homePageRobot = HomePageRobot(tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(tester),
+        _restoreFromSeedRobot = RestoreFromSeedOrKeysPageRobot(tester),
         _walletListPageRobot = WalletListPageRobot(tester),
         _pickerRobot = WalletNetworkPageRobot(tester),
         _disclaimerRobot = AddEvmNetworksDisclaimerPageRobot(tester),
@@ -50,6 +52,7 @@ class EvmNetworkFlows {
   final NewDashboardRobot _dashboardRobot;
   final HomePageRobot _homePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
+  final RestoreFromSeedOrKeysPageRobot _restoreFromSeedRobot;
   final WalletListPageRobot _walletListPageRobot;
   final WalletNetworkPageRobot _pickerRobot;
   final AddEvmNetworksDisclaimerPageRobot _disclaimerRobot;
@@ -183,6 +186,24 @@ class EvmNetworkFlows {
     }
 
     await _pickerRobot.isDisplayed();
+  }
+
+  Future<void> restoreWalletOnAddedNetwork(int chainId, {required String seed}) async {
+    await _pickerRobot.selectAddedNetwork(chainId);
+
+    await _restoreFromSeedRobot.isDisplayed();
+    await _restoreFromSeedRobot.selectWalletNameFromAvailableOptions();
+    await _restoreFromSeedRobot.enterSeedPhraseForWalletRestore(seed);
+
+    if (Platform.isLinux) {
+      final password = TestConfig.pin.join("");
+      await _restoreFromSeedRobot.enterPasswordForWalletRestore(password);
+      await _restoreFromSeedRobot.enterPasswordRepeatForWalletRestore(password);
+    }
+
+    await _restoreFromSeedRobot.onRestoreWalletButtonPressed();
+
+    await _dashboardRobot.isDisplayed(timeout: const Duration(minutes: 1));
   }
 
   Future<void> confirmDashboardShowsNetwork(String networkName, String symbol) async {

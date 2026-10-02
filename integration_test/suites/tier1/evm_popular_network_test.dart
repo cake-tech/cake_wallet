@@ -7,6 +7,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
 import "../../core/app_launcher.dart";
+import "../../core/test_wallets.dart";
 import "../../flows/evm_network_flows.dart";
 import "../../flows/wallet_flows.dart";
 import "../../robots/add_evm_networks_disclaimer_page_robot.dart";
@@ -201,5 +202,19 @@ void main() {
       reason: "The restore picker does not offer the added OP network",
     );
     expect(pickerRobot.hasManageAddedNetworksRow, true);
+
+    await evmNetworkFlows.restoreWalletOnAddedNetwork(
+      opChainId,
+      seed: TestWallets.seedFor(WalletType.ethereum),
+    );
+
+    final restored = getIt.get<AppStore>().wallet!;
+    expect(restored.type, WalletType.evm);
+    expect(restored.walletInfo.chainId, opChainId);
+    expect(
+      restored.walletAddresses.address.toLowerCase(),
+      TestWallets.receiveAddressFor(WalletType.ethereum).toLowerCase(),
+      reason: "The Ethereum test seed should restore the same address on OP",
+    );
   });
 }

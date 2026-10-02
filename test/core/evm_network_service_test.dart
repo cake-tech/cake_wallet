@@ -674,6 +674,31 @@ Future<void> main() async {
     });
   });
 
+  group("loadNetworks after a restart", () {
+    test("an enabled network comes back as a chain, a disabled one as its currency only", () async {
+      await network(opChainId, rpcUrl: answering(opChainId, "rpc"), symbol: "OPN", isEnabled: true)
+          .save();
+      await network(cronosChainId, rpcUrl: answering(cronosChainId, "rpc"), symbol: "CRN").save();
+
+      await evm!.loadNetworks();
+
+      expect(evm!.getChainInfoByChainId(opChainId)!.currency.title, "OPN");
+      expect(evm!.getChainInfoByChainId(cronosChainId), isNull);
+      expect(EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId)!.title, "CRN");
+    });
+
+    test("a deleted network is gone after the next load", () async {
+      await network(opChainId, rpcUrl: answering(opChainId, "rpc"), isEnabled: true).save();
+      await evm!.loadNetworks();
+
+      await db!.delete(EvmNetwork.tableName);
+      await evm!.loadNetworks();
+
+      expect(evm!.getChainInfoByChainId(opChainId), isNull);
+      expect(EvmNativeCurrencies.getNativeCurrencyByChainId(opChainId), isNull);
+    });
+  });
+
   group("restoreNodesIfNone", () {
     test("a saved network with no node rows gets its RPC and failover back", () async {
       final rpcUrl = answering(opChainId, "rpc");
