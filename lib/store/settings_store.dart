@@ -2388,6 +2388,18 @@ abstract class SettingsStoreBase with Store {
 
     evmChainNodes.removeWhere((chainId, _) => !evmNetworks.containsKey(chainId));
 
+    final nodesByChainId = <int, List<Node>>{};
+    for (final node in await Node.getAllForWalletType(WalletType.evm)) {
+      final chainId = node.chainId;
+      if (chainId != null) {
+        nodesByChainId.putIfAbsent(chainId, () => []).add(node);
+      }
+    }
+
+    if (generation != _evmNetworksLoadGeneration) {
+      return;
+    }
+
     for (final chain in chains) {
       if (chain.source == ChainSource.builtin) {
         continue;
@@ -2396,7 +2408,7 @@ abstract class SettingsStoreBase with Store {
       evmScanUsage[chain.chainId] =
           _sharedPreferences.getBool(evm!.getScanProviderPreferenceKey(chain.chainId)) ?? true;
 
-      List<Node> nodes = await Node.getAllForEvmChain(chain.chainId);
+      List<Node> nodes = nodesByChainId[chain.chainId] ?? [];
       if (nodes.isEmpty) {
         // Manage Nodes can delete every node, which would leave the wallet nothing to connect to
         await EvmNetwork.restoreNodesIfNone(chain.chainId);
