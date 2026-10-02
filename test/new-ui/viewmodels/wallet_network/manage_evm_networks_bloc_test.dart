@@ -563,7 +563,7 @@ Future<void> main() async {
           ...state.alphabeticalNetworks,
         ].singleWhere((network) => network.chainId == chainId);
 
-    test("an A-Z network on a major ticker with no tvl asks once, then Continue enables it",
+    test("an A-Z network on a known ticker with no tvl asks once, then Continue enables it",
         () async {
       final bloc = createBloc();
       final clone = rowFor(await loaded(bloc), 777100);

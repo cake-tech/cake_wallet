@@ -110,7 +110,7 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
 
     emit(state.copyWith(togglingChainIds: {...state.togglingChainIds, network.chainId}));
 
-    if (event.shouldEnable && _borrowsMajorTicker(network)) {
+    if (event.shouldEnable && _borrowsKnownTicker(network)) {
       emitPresentation(BorrowedTickerConfirmationRequested(network));
       return;
     }
@@ -246,10 +246,11 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     ];
   }
 
-  bool _borrowsMajorTicker(EvmNetwork network) =>
+  bool _borrowsKnownTicker(EvmNetwork network) =>
       !network.isManual &&
-      EvmNetworkService.borrowsMajorTicker(
+      EvmNetworkService.borrowsKnownTicker(
         network.symbol,
+        popularEntries: _popularEntries,
         isPopular: _popularEntries.any((entry) => entry.chainId == network.chainId),
         tvl: _chainListEntries.firstWhereOrNull((entry) => entry.chainId == network.chainId)?.tvl,
       );

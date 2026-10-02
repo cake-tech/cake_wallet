@@ -42,15 +42,16 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
   final SettingsStore _settingsStore;
 
   ChainListEntry? _defaultEntry;
+  List<ChainListEntry> _popularEntries = const [];
   List<ChainListEntry> _chainListEntries = const [];
   List<EvmNetwork> _otherNetworks = const [];
 
   bool get canResetToDefault => _defaultEntry != null;
 
   Future<void> _init(_Init event, Emitter<NetworkDetailsState> emit) async {
-    final popular = await _chainListService.loadPopularNetworks();
+    _popularEntries = await _chainListService.loadPopularNetworks();
     final cached = (await _chainListService.readCache())?.entries ?? const <ChainListEntry>[];
-    _chainListEntries = [...popular, ...cached];
+    _chainListEntries = [..._popularEntries, ...cached];
     _otherNetworks = (await EvmNetwork.getAll())
         .where((saved) => saved.chainId != this.network?.chainId)
         .toList();
@@ -145,7 +146,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     emit(state.copyWith(isSaving: true, errors: const {}));
 
     final symbol = state.value(NetworkField.symbol).trim();
-    if (_borrowsMajorTicker(symbol)) {
+    if (_borrowsKnownTicker(symbol)) {
       emitPresentation(
         BorrowedTickerConfirmationRequested(
           networkName: state.value(NetworkField.name).trim(),
@@ -229,13 +230,18 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     }
   }
 
-  bool _borrowsMajorTicker(String symbol) {
+  bool _borrowsKnownTicker(String symbol) {
     if (state.mode == NetworkDetailsMode.chainList ||
         network?.symbol.toUpperCase() == symbol.toUpperCase()) {
       return false;
     }
 
-    return EvmNetworkService.borrowsMajorTicker(symbol, isPopular: false, tvl: null);
+    return EvmNetworkService.borrowsKnownTicker(
+      symbol,
+      popularEntries: _popularEntries,
+      isPopular: false,
+      tvl: null,
+    );
   }
 
   void _present(NetworkDetailsPresentation event) {

@@ -3,6 +3,7 @@ import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/new-ui/services/chain_list_service.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/evm_network.dart";
@@ -173,36 +174,24 @@ class EvmNetworkService {
     return alphanumerics.length > 10 ? alphanumerics.substring(0, 10) : alphanumerics;
   }
 
-  static const _majorTickers = {
-    "ETH",
-    "BTC",
-    "WBTC",
-    "BNB",
-    "SOL",
-    "USDC",
-    "USDT",
-    "DAI",
-    "AVAX",
-    "POL",
-    "MATIC",
-    "OKB",
-    "CRO",
-    "TRX",
-    "DOGE",
-    "LTC",
-    "XMR",
-    "ARB",
-    "OP",
-    "HYPE",
-    "MON",
-    "XPL",
-  };
+  static final _knownTickers =
+      CryptoCurrency.all.map((currency) => currency.title.toUpperCase()).toSet();
 
-  // Fiat prices are looked up by symbol, so a clone network on a major ticker shows that price
-  static bool borrowsMajorTicker(String symbol, {required bool isPopular, required double? tvl}) =>
-      !isPopular &&
-      (tvl == null || tvl <= 0) &&
-      _majorTickers.contains(symbol.trim().toUpperCase());
+  // Fiat prices are looked up by symbol, so a clone on a ticker the app knows shows its price
+  static bool borrowsKnownTicker(
+    String symbol, {
+    required List<ChainListEntry> popularEntries,
+    required bool isPopular,
+    required double? tvl,
+  }) {
+    if (isPopular || (tvl != null && tvl > 0)) {
+      return false;
+    }
+
+    final ticker = symbol.trim().toUpperCase();
+    return _knownTickers.contains(ticker) ||
+        popularEntries.any((entry) => entry.symbol.toUpperCase() == ticker);
+  }
 
   static const _maxRpcCandidates = 4;
 

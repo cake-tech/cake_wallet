@@ -818,7 +818,7 @@ Future<void> main() async {
       await bloc.close();
     });
 
-    test("a manual add on a ticker that is not a major one saves without asking", () async {
+    test("a manual add on a ticker the app does not know saves without asking", () async {
       final bloc = await filledManualAdd();
       await change(bloc, NetworkField.symbol, "SEP");
 
@@ -830,7 +830,7 @@ Future<void> main() async {
       await bloc.close();
     });
 
-    test("a manual edit that keeps its major ticker saves without asking again", () async {
+    test("a manual edit that keeps its known ticker saves without asking again", () async {
       final bloc = createBloc(ethDevnet);
       await opened(bloc);
       await change(bloc, NetworkField.name, "Eth Devnet Renamed");
@@ -843,7 +843,7 @@ Future<void> main() async {
       await bloc.close();
     });
 
-    test("a manual edit onto a major ticker asks first", () async {
+    test("a manual edit onto a known ticker asks first", () async {
       final bloc = createBloc(devnet);
       await opened(bloc);
       await change(bloc, NetworkField.symbol, "BNB");
