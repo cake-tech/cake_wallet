@@ -121,7 +121,9 @@ class ChartModal extends StatelessWidget {
                         ),
                       ),
                       gradientColors:
-                          isFavorite ? [const Color(0xFFDF2626), const Color(0xFF980F0F)] : null,
+                          isFavorite ? Theme.of(context).brightness == Brightness.dark
+                            ? [const Color(0xFFDF2626), const Color(0xFF980F0F)]
+                            : [const Color(0xFFEB5050), const Color(0xFFB22B2B)] : null,
                       label: S.of(context).favorite,
                       action: () {
                         Navigator.of(context).pop(true);

@@ -292,7 +292,7 @@ class ReceiveAddressTypeRow extends StatelessWidget {
               height: rowHeight,
               decoration: BoxDecoration(
                   color: selected
-                      ? Theme.of(context).colorScheme.surfaceContainerHigh
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
                       : Colors.transparent,
                   borderRadius: BorderRadius.vertical(
                     top: roundedTop ? Radius.circular(20) : Radius.zero,
