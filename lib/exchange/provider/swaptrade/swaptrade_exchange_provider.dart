@@ -18,7 +18,7 @@ import "package:cw_core/crypto_currency.dart";
 class SwapTradeExchangeProvider extends ExchangeProvider {
   SwapTradeExchangeProvider({super.proxyWrapper});
 
-  static const markup = secrets.swapTradeExchangeMarkup;
+  static final markup = double.tryParse(secrets.swapTradeExchangeMarkup) ?? 0;
 
   static const apiAuthority = "api.swaptrade.io";
   static const getPrice = "api/swap/get-price";
@@ -101,7 +101,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       coinReceiveNetwork: _networkFor(to),
       coinReceive: _normalizeCurrency(to),
       amountSend: from.toString(),
-      markup: int.parse(markup)
+      markup: markup,
     );
 
     final uri = Uri.https(apiAuthority, getPrice);
@@ -151,7 +151,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       coinReceiveNetwork: _networkFor(request.payoutCurrency),
       amountSend: request.depositAmount.toString(),
       recipient: request.payoutAddress,
-      markup: double.parse(markup),
+      markup: markup,
       refundAddress: request.refundAddress,
     );
 

@@ -185,7 +185,7 @@ class SwapTradeGetPriceRequest {
   @JsonKey(name: "amount_send")
   final String amountSend;
   @JsonKey(name: "markup")
-  final int markup;
+  final double markup;
 
   Map<String, dynamic> toJson() => _$SwapTradeGetPriceRequestToJson(this);
 }

@@ -194,6 +194,26 @@ void main() {
       expect(json["ref"], isNull);
     });
 
+    test("SwapTradeGetPriceRequest serializes every key with a fractional markup", () {
+      final json = SwapTradeGetPriceRequest(
+        coinSend: "BTC",
+        coinSendNetwork: "BTC",
+        coinReceive: "XMR",
+        coinReceiveNetwork: "XMR",
+        amountSend: "0.01",
+        markup: 1.5,
+      ).toJson();
+
+      expect(json, {
+        "coin_send": "BTC",
+        "coin_send_network": "BTC",
+        "coin_receive": "XMR",
+        "coin_receive_network": "XMR",
+        "amount_send": "0.01",
+        "markup": 1.5,
+      });
+    });
+
     test("SwapTradeCreateOrderRequest serializes every key", () {
       final json = const SwapTradeCreateOrderRequest(
         coinSend: "ETH",
