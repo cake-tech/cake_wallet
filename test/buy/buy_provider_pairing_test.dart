@@ -68,7 +68,19 @@ void main() {
     expect(() => dfx.blockchain, throwsException);
   });
 
+  test("a wallet on a network DFX has no code for offers no other asset either", () {
+    when(() => wallet.type).thenReturn(WalletType.evm);
+    when(() => wallet.currency).thenReturn(inkNative);
+
+    expect(dfx.supportsCurrencyNetwork(CryptoCurrency.eth), isFalse);
+    expect(dfx.isPairSupported(CryptoCurrency.eth, FiatCurrency.eur, true), isFalse);
+    expect(dfx.isPairSupported(CryptoCurrency.eth, FiatCurrency.eur, false), isFalse);
+  });
+
   test("the fiat rule still applies on a coded added network", () {
+    when(() => wallet.type).thenReturn(WalletType.evm);
+    when(() => wallet.currency).thenReturn(opNative);
+
     expect(dfx.isPairSupported(opNative, FiatCurrency.usd, true), isFalse);
     expect(dfx.isPairSupported(opNative, FiatCurrency.usd, false), isFalse);
   });

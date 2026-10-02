@@ -81,6 +81,18 @@ class DFXBuyProvider extends BuyProvider {
   String? addedEvmNetworkCode(CryptoCurrency currency) =>
       evmBuyProviderNetworkCode(currency, ProviderType.dfx);
 
+  bool get _isWalletNetworkSupported =>
+      wallet.type != WalletType.evm || addedEvmNetworkCode(wallet.currency) != null;
+
+  @override
+  bool supportsCurrencyNetwork(CryptoCurrency currency) =>
+      _isWalletNetworkSupported && super.supportsCurrencyNetwork(currency);
+
+  @override
+  bool isPairSupported(
+          CryptoCurrency cryptoCurrency, FiatCurrency fiatCurrency, bool isBuyAction) =>
+      _isWalletNetworkSupported && super.isPairSupported(cryptoCurrency, fiatCurrency, isBuyAction);
+
   String get blockchain {
     switch (wallet.type) {
       case WalletType.bitcoin:

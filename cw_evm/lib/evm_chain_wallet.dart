@@ -882,6 +882,10 @@ abstract class EVMChainWalletBase
       contractAddress = transactionCurrency.contractAddress;
     }
 
+    final memoData = hexOpReturnMemo != null && contractAddress == null
+        ? _client.hexToBytes(hexOpReturnMemo)
+        : null;
+
     // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || item.cryptoAmount.amount <= BigInt.zero)) {
@@ -896,6 +900,7 @@ abstract class EVMChainWalletBase
         receivingAddressHex: toAddress,
         priority: _credentials.priority,
         contractAddress: contractAddress,
+        data: memoData,
       );
 
       estimatedFeesForTransaction =
@@ -921,6 +926,7 @@ abstract class EVMChainWalletBase
         receivingAddressHex: toAddress,
         priority: _credentials.priority,
         contractAddress: contractAddress,
+        data: memoData,
       );
 
       estimatedFeesForTransaction =

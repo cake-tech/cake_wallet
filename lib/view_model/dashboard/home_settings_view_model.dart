@@ -199,9 +199,11 @@ abstract class HomeSettingsViewModelBase with Store {
         await Erc20TokenChecks.contractVerificationCheck(contractAddress, chainId),
       ];
 
-      return checks.any(
-        (check) => check == TokenCheckResult.risky || check == TokenCheckResult.failed,
-      );
+      final isCheckedSafe = checks.contains(TokenCheckResult.safe) &&
+          !checks.contains(TokenCheckResult.risky) &&
+          !checks.contains(TokenCheckResult.failed);
+
+      return !isCheckedSafe;
     } finally {
       isValidatingContractAddress = false;
     }
