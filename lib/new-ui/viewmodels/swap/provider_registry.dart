@@ -30,7 +30,7 @@ class ExchangeProviderRegistry {
   late final Map<ExchangeProviderDescription, ExchangeProvider> _providers = {
     ExchangeProviderDescription.changeNow: ChangeNowExchangeProvider(settingsStore: _settingsStore),
     ExchangeProviderDescription.chainflip: ChainflipExchangeProvider(),
-    ExchangeProviderDescription.exolix: ExolixExchangeProvider(),
+    // ExchangeProviderDescription.exolix: ExolixExchangeProvider(),
     ExchangeProviderDescription.swapTrade: SwapTradeExchangeProvider(),
     ExchangeProviderDescription.letsExchange: LetsExchangeExchangeProvider(),
     ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
