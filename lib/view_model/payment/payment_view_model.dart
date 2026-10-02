@@ -250,7 +250,7 @@ class PaymentFlowResult {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
 
-    chainId ??= getEvmChainId(wallet.type, wallet.chainId);
+    chainId ??= WalletNetwork.of(wallet.type, wallet.chainId).evmChainId;
 
     return PaymentFlowResult._(
       type: PaymentFlowType.singleWallet,
@@ -270,7 +270,7 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    chainId ??= getEvmChainId(wallets.first.type, wallets.first.chainId);
+    chainId ??= WalletNetwork.fromWallet(wallets.first).evmChainId;
 
     return PaymentFlowResult._(
       type: PaymentFlowType.multipleWallets,

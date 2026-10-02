@@ -39,6 +39,15 @@ class WalletNetwork {
 
   CryptoCurrency get nativeCurrency => walletTypeToCryptoCurrency(type, chainId: chainId);
 
+  // chainId is null for a built-in network, this is its real chain ID, null for a non-EVM one
+  int? get evmChainId {
+    if (type == WalletType.evm) {
+      return chainId;
+    }
+
+    return isEVMCompatibleChain(type) ? evm?.getChainIdByWalletType(type) : null;
+  }
+
   bool isHomeNetworkOf(CryptoCurrency currency) => tryFromCurrency(currency) == this;
 
   @override
@@ -73,14 +82,6 @@ String builtinNetworkIconPath(WalletType type) => switch (type) {
       WalletType.none =>
         getCryptoCurrencyIconForWalletListItem(type),
     };
-
-int? getEvmChainId(WalletType type, int? chainId) {
-  if (type == WalletType.evm) {
-    return chainId;
-  }
-
-  return isEVMCompatibleChain(type) ? evm?.getChainIdByWalletType(type) : null;
-}
 
 List<WalletType> get builtinNetworkTypes =>
     availableWalletTypes.where((type) => type != WalletType.evm).toList();

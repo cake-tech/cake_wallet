@@ -30,7 +30,7 @@ class TokenUtilities {
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      final chainId = getEvmChainId(wallet.type, wallet.chainId);
+      final chainId = WalletNetwork.of(wallet.type, wallet.chainId).evmChainId;
       if (chainId == null) {
         printV("Skipping tokens of ${wallet.name}, its EVM network has no chain ID");
         continue;
