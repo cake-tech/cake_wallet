@@ -209,10 +209,19 @@ void main() {
         expect(validator.isValid("vitalik.eth"), isFalse);
       });
 
-      test("the built-in natives keep their answers", () {
-        expect(AddressValidator.getPattern(CryptoCurrency.bnb), isEmpty);
-        expect(AddressValidator.getAddressFromStringPattern(CryptoCurrency.bnb), isNull);
-        expect(AddressValidator.getLength(CryptoCurrency.bnb), [42]);
+      test("BNB is checked like the other EVM natives", () {
+        expect(
+          AddressValidator.getPattern(CryptoCurrency.bnb),
+          AddressValidator.getPattern(CryptoCurrency.eth),
+        );
+        expect(
+          AddressValidator.getAddressFromStringPattern(CryptoCurrency.bnb),
+          AddressValidator.getAddressFromStringPattern(CryptoCurrency.eth),
+        );
+
+        final validator = AddressValidator(type: CryptoCurrency.bnb);
+        expect(validator.isValid("0x${"a" * 40}"), isTrue);
+        expect(validator.isValid("T${"a" * 41}"), isFalse);
       });
     });
   });
