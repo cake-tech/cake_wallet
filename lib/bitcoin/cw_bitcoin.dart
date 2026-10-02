@@ -190,6 +190,24 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  @computed
+  List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.walletAddresses.allAddresses
+        .where((addr) => addresses.contains(addr.address))
+        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden,
+            isLegacyDerivation: addr.isLegacyDerivation,
+            derivationPath: addr.derivationPath))
+        .toList();
+  }
+
+  @override
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
@@ -489,6 +507,19 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     final tx = transactionInfo as ElectrumTransactionInfo;
     return bitcoinWallet.canReplaceByFee(tx);
+  }
+
+  @override
+  Future<TransactionInfo?> watchTransactionResolution(Object wallet, TransactionInfo tx,
+      {void Function(int resolved, int total)? onProgress}) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.watchTransactionResolution(tx.id, onProgress: onProgress);
+  }
+
+  @override
+  Future<TransactionInfo?> refreshTransactionIfStale(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.refreshTransactionIfStale(tx.id);
   }
 
   @override
