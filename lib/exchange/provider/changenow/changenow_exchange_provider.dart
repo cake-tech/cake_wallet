@@ -218,7 +218,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       toAddressExtraId: request.toAddressExtraId,
       depositAmount: request.depositAmount,
       payoutAmount: request.payoutAmount,
-      payoutAddress: "",
+      payoutAddress: request.payoutAddress,
     );
   }
 
