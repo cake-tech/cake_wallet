@@ -5,7 +5,6 @@ import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/new-ui/services/chain_list_service.dart";
 import "package:cake_wallet/new-ui/services/evm_network_service.dart";
 import "package:cake_wallet/store/settings_store.dart";
-import "package:collection/collection.dart";
 import "package:cw_core/evm_network.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
@@ -41,18 +40,21 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
   final ChainListService _chainListService;
   final SettingsStore _settingsStore;
 
-  List<ChainListEntry> _popularEntries = const [];
-  List<ChainListEntry> _chainListEntries = const [];
+  Map<int, ChainListEntry> _popularEntries = const {};
+  Map<int, ChainListEntry> _chainListEntries = const {};
+  List<EvmNetwork> _chainListNetworks = const [];
   List<EvmNetwork> _savedNetworks = const [];
 
   Future<void> _init(
     _Init event,
     Emitter<ManageEvmNetworksState> emit,
   ) async {
-    _popularEntries = await _chainListService.loadPopularNetworks();
+    _popularEntries = {
+      for (final entry in await _chainListService.loadPopularNetworks()) entry.chainId: entry,
+    };
     _savedNetworks = await EvmNetwork.getAll();
     final cache = await _chainListService.readCache();
-    _chainListEntries = cache?.entries ?? const [];
+    _setChainListEntries(cache?.entries ?? const []);
 
     emit(_rebuiltState());
 
@@ -70,7 +72,7 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     required DateTime? savedCopyDate,
   }) async {
     try {
-      _chainListEntries = (await _chainListService.fetch()).entries;
+      _setChainListEntries((await _chainListService.fetch()).entries);
       emit(_rebuiltState(chainListStatus: const ChainListLoaded()));
     } catch (e) {
       printV("ChainList fetch failed: $e");
@@ -167,6 +169,11 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     }
   }
 
+  void _setChainListEntries(List<ChainListEntry> entries) {
+    _chainListEntries = {for (final entry in entries) entry.chainId: entry};
+    _chainListNetworks = _chainListEntries.values.map(_networkService.networkFromEntry).toList();
+  }
+
   ManageEvmNetworksState _rebuiltState({
     ChainListStatus? chainListStatus,
     Set<int>? togglingChainIds,
@@ -185,7 +192,7 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
   List<EvmNetwork> _popularNetworks() {
     final savedByChainId = {for (final network in _savedNetworks) network.chainId: network};
 
-    return _popularEntries
+    return _popularEntries.values
         .where(
           (entry) =>
               !_isBuiltinChain(entry.chainId) && savedByChainId[entry.chainId]?.isManual != true,
@@ -199,26 +206,18 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
       return const [];
     }
 
-    final popularIds = _popularEntries.map((entry) => entry.chainId).toSet();
     final savedIds = _savedNetworks.map((network) => network.chainId).toSet();
-    final byId = <int, EvmNetwork>{};
+    final networks = [
+      for (final network in _chainListNetworks)
+        if (!_popularEntries.containsKey(network.chainId) &&
+            !savedIds.contains(network.chainId) &&
+            !_isBuiltinChain(network.chainId))
+          network,
+      for (final network in _savedNetworks)
+        if (!network.isManual && !_popularEntries.containsKey(network.chainId)) network,
+    ];
 
-    for (final entry in _chainListEntries) {
-      if (!popularIds.contains(entry.chainId) &&
-          !savedIds.contains(entry.chainId) &&
-          !_isBuiltinChain(entry.chainId)) {
-        byId[entry.chainId] = _networkService.networkFromEntry(entry);
-      }
-    }
-
-    for (final network in _savedNetworks) {
-      if (!network.isManual && !popularIds.contains(network.chainId)) {
-        byId[network.chainId] = network;
-      }
-    }
-
-    return byId.values.toList()
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return networks..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
   }
 
   List<String> _rpcCandidates(EvmNetwork network) {
@@ -226,8 +225,7 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
       return const [];
     }
 
-    final entry = [..._popularEntries, ..._chainListEntries]
-        .firstWhereOrNull((entry) => entry.chainId == network.chainId);
+    final entry = _popularEntries[network.chainId] ?? _chainListEntries[network.chainId];
     if (entry == null) {
       return const [];
     }
@@ -247,14 +245,16 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
   }
 
   bool _borrowsKnownTicker(EvmNetwork network) {
-    final isPopular = _popularEntries.any((entry) => entry.chainId == network.chainId);
-    final tvl =
-        _chainListEntries.firstWhereOrNull((entry) => entry.chainId == network.chainId)?.tvl;
+    final isPopular = _popularEntries.containsKey(network.chainId);
+    final tvl = _chainListEntries[network.chainId]?.tvl;
     if (network.isManual || isPopular || (tvl != null && tvl > 0)) {
       return false;
     }
 
-    return EvmNetworkService.borrowsKnownTicker(network.symbol, popularEntries: _popularEntries);
+    return EvmNetworkService.borrowsKnownTicker(
+      network.symbol,
+      popularEntries: _popularEntries.values,
+    );
   }
 
   bool _isBuiltinChain(int chainId) =>

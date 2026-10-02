@@ -191,7 +191,10 @@ class EvmNetworkService {
       CryptoCurrency.all.map((currency) => currency.title.toUpperCase()).toSet();
 
   // Fiat prices are looked up by symbol, so a clone on a ticker the app knows shows its price
-  static bool borrowsKnownTicker(String symbol, {required List<ChainListEntry> popularEntries}) {
+  static bool borrowsKnownTicker(
+    String symbol, {
+    required Iterable<ChainListEntry> popularEntries,
+  }) {
     final ticker = symbol.trim().toUpperCase();
     return _knownTickers.contains(ticker) ||
         popularEntries.any((entry) => entry.symbol.toUpperCase() == ticker);
