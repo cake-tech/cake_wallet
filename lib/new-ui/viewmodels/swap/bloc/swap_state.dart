@@ -87,11 +87,14 @@ final class SwapInputState extends SwapStateWithInputs {
   final bool forceDecentralizedProviders;
 
   @override
-  List<ExchangeProviderDescription> get usableProviders => forcedProvider != null
-      ? [forcedProvider!]
-      : enabledProviders
-            .where((item) => !forceDecentralizedProviders || !item.isCentralized)
-            .toList();
+  List<ExchangeProviderDescription> get usableProviders =>
+      (forcedProvider != null ? [forcedProvider!] : enabledProviders)
+          .where(_supportedForSwap)
+          .toList();
+
+  bool _supportedForSwap(ExchangeProviderDescription provider) =>
+      (!forceDecentralizedProviders || !provider.isCentralized) &&
+      (!isSwapAll || provider.supportsSwapAll);
 
   SwapInputState copyWith({
     SwapAmount? depositAmount,

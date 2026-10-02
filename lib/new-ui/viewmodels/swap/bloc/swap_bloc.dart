@@ -286,6 +286,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           payoutAmount: newPayoutAmount,
           isFixedRate: false,
       ));
+      add(RatesLoadStarted());
     }
   }
 
@@ -517,7 +518,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     if (state case final SwapInputState s) {
       final newState = !s.forceDecentralizedProviders;
       _appStore.settingsStore.forceDecentralizedExchanges = newState;
-      emit(s.copyWith(forceDecentralizedProviders: newState));
+      emit(
+        s.copyWith(
+          forceDecentralizedProviders: newState,
+          forcedProvider: () =>
+              newState && s.forcedProvider?.isCentralized == true ? null : s.forcedProvider,
+        ),
+      );
+      add(RatesLoadStarted());
     }
   }
 

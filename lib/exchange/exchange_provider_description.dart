@@ -6,12 +6,14 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       required int raw,
       required this.image,
       this.horizontalLogo = false,
+      this.supportsSwapAll = true,
       required this.isCentralized})
       : super(title: title, raw: raw);
 
   final bool horizontalLogo;
   final String image;
   final bool isCentralized;
+  final bool supportsSwapAll;
 
   static const xmrto = ExchangeProviderDescription(
       title: 'XMR.TO',
@@ -84,11 +86,13 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       title: 'Swaps.XYZ',
       raw: 14,
       image: 'assets/new-ui/trade_providers/swaps_xyz.svg',
+      supportsSwapAll: false,
       isCentralized: true);
   static const nearIntents = ExchangeProviderDescription(
       title: 'Near Intents',
       raw: 15,
       image: 'assets/new-ui/trade_providers/near-intents.svg',
+      supportsSwapAll: false,
       isCentralized: false);
   static const jupiter = ExchangeProviderDescription(
       title: 'Jupiter',

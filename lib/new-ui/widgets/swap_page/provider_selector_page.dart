@@ -91,19 +91,20 @@ class ProviderSelectorPage extends StatelessWidget {
                                       ),
                                     )
                                     .toList(),
-                                S.of(context).centralized: centralizedProviders
-                                    .map(
-                                      (item) => ListItemRegularRow(
-                                        iconPath: item.image,
-                                        keyValue: item.title,
-                                        label: item.title,
-                                        onTap: () {
-                                          bloc.add(ForcedProviderSelected(item));
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    )
-                                    .toList(),
+                                if (!s.forceDecentralizedProviders)
+                                  S.of(context).centralized: centralizedProviders
+                                      .map(
+                                        (item) => ListItemRegularRow(
+                                          iconPath: item.image,
+                                          keyValue: item.title,
+                                          label: item.title,
+                                          onTap: () {
+                                            bloc.add(ForcedProviderSelected(item));
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      )
+                                      .toList(),
                               },
                             ),
                           ),
