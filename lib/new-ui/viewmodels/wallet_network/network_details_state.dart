@@ -13,7 +13,6 @@ class NetworkDetailsState {
     this.contactCount,
     this.isFailoverRevealed = false,
     this.isSaving = false,
-    this.canResetToDefault = false,
   });
 
   factory NetworkDetailsState.initial(EvmNetwork? network) {
@@ -50,8 +49,6 @@ class NetworkDetailsState {
   final bool isFailoverRevealed;
   final bool isSaving;
 
-  final bool canResetToDefault;
-
   String value(NetworkField field) => values[field] ?? "";
 
   bool get hasUsageCounts => walletCount != null && contactCount != null;
@@ -76,7 +73,6 @@ class NetworkDetailsState {
     int? contactCount,
     bool? isFailoverRevealed,
     bool? isSaving,
-    bool? canResetToDefault,
   }) =>
       NetworkDetailsState(
         mode: mode,
@@ -86,6 +82,5 @@ class NetworkDetailsState {
         contactCount: contactCount ?? this.contactCount,
         isFailoverRevealed: isFailoverRevealed ?? this.isFailoverRevealed,
         isSaving: isSaving ?? this.isSaving,
-        canResetToDefault: canResetToDefault ?? this.canResetToDefault,
       );
 }

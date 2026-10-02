@@ -20,10 +20,10 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
           const ManageEvmNetworksState(
             manualNetworks: [],
             popularNetworks: [],
+            alphabeticalNetworks: [],
+            chainListStatus: ChainListFetching(),
             query: "",
             togglingChainIds: {},
-            alphabeticalNetworks: null,
-            isFetching: true,
           ),
         ) {
     on<_Init>(_init, transformer: restartable());
@@ -54,51 +54,32 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     final cache = await _chainListService.readCache();
     _chainListEntries = cache?.entries ?? const [];
 
-    emit(
-      state.copyWith(
-        manualNetworks: _manualNetworks(),
-        popularNetworks: _popularNetworks(),
-        alphabeticalNetworks: cache == null ? null : _alphabeticalNetworks,
-      ),
-    );
+    emit(_rebuiltState());
 
     await _fetchChainList(emit, savedCopyDate: cache?.fetchedAt);
   }
 
   Future<void> _onRetry(ChainListRetryRequested event, Emitter<ManageEvmNetworksState> emit) async {
-    emit(
-      state.copyWith(
-        alphabeticalNetworks: () => null,
-        isFetching: true,
-        savedCopyDate: () => null,
-        hasFetchFailed: false,
-      ),
-    );
+    emit(state.copyWith(chainListStatus: const ChainListFetching()));
 
     await _fetchChainList(emit, savedCopyDate: null);
   }
 
   Future<void> _fetchChainList(
     Emitter<ManageEvmNetworksState> emit, {
-    DateTime? savedCopyDate,
+    required DateTime? savedCopyDate,
   }) async {
     try {
       _chainListEntries = (await _chainListService.fetch()).entries;
-      emit(_loadedState(savedCopyDate: null));
+      emit(_rebuiltState(chainListStatus: const ChainListLoaded()));
     } catch (e) {
       printV("ChainList fetch failed: $e");
 
-      if (savedCopyDate != null) {
-        emit(_loadedState(savedCopyDate: savedCopyDate));
-        return;
-      }
-
       emit(
-        state.copyWith(
-          alphabeticalNetworks: () => null,
-          isFetching: false,
-          savedCopyDate: () => null,
-          hasFetchFailed: true,
+        _rebuiltState(
+          chainListStatus: savedCopyDate != null
+              ? ChainListSavedCopy(savedCopyDate)
+              : const ChainListFetchFailed(),
         ),
       );
     }
@@ -186,20 +167,16 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     }
   }
 
-  ManageEvmNetworksState _rebuiltState({Set<int>? togglingChainIds}) => state.copyWith(
+  ManageEvmNetworksState _rebuiltState({
+    ChainListStatus? chainListStatus,
+    Set<int>? togglingChainIds,
+  }) =>
+      state.copyWith(
         manualNetworks: _manualNetworks(),
         popularNetworks: _popularNetworks(),
+        alphabeticalNetworks: _alphabeticalNetworks(),
+        chainListStatus: chainListStatus,
         togglingChainIds: togglingChainIds,
-        alphabeticalNetworks: state.alphabeticalNetworks == null ? null : _alphabeticalNetworks,
-      );
-
-  ManageEvmNetworksState _loadedState({required DateTime? savedCopyDate}) => state.copyWith(
-        manualNetworks: _manualNetworks(),
-        popularNetworks: _popularNetworks(),
-        alphabeticalNetworks: _alphabeticalNetworks,
-        isFetching: false,
-        savedCopyDate: () => savedCopyDate,
-        hasFetchFailed: false,
       );
 
   List<EvmNetwork> _manualNetworks() =>
@@ -218,6 +195,10 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
   }
 
   List<EvmNetwork> _alphabeticalNetworks() {
+    if (_chainListEntries.isEmpty) {
+      return const [];
+    }
+
     final popularIds = _popularEntries.map((entry) => entry.chainId).toSet();
     final savedIds = _savedNetworks.map((network) => network.chainId).toSet();
     final byId = <int, EvmNetwork>{};

@@ -239,7 +239,7 @@ class _SourceNote extends StatelessWidget {
     final linkStyle = noteStyle?.copyWith(color: colors.primary);
     const source = "ChainList";
     final parts = S.of(context).network_data_fetched_from_chainlist.split(source);
-    final savedCopyDate = state.savedCopyDate;
+    final chainListStatus = state.chainListStatus;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -275,12 +275,12 @@ class _SourceNote extends StatelessWidget {
               ),
             ),
           ),
-          if (savedCopyDate != null)
+          if (chainListStatus is ChainListSavedCopy)
             Text(
               S.of(context).chainlist_update_failed_saved_copy(
                     DateFormat.yMMMd(
                       Localizations.localeOf(context).toString(),
-                    ).format(savedCopyDate),
+                    ).format(chainListStatus.date),
                   ),
               textAlign: TextAlign.center,
               style:
@@ -311,10 +311,7 @@ class _NetworkList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alphabeticalNetworks = state.alphabeticalNetworks;
-    final visibleAlphabeticalNetworks = alphabeticalNetworks == null
-        ? const <EvmNetwork>[]
-        : state.matchingSearch(alphabeticalNetworks);
+    final visibleAlphabeticalNetworks = state.matchingSearch(state.alphabeticalNetworks);
 
     return CustomScrollView(
       key: const ValueKey("manage_evm_networks_scrollable_key"),
@@ -505,12 +502,12 @@ class _ListFooter extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (state.isFetching && state.alphabeticalNetworks == null)
+          if (state.chainListStatus is ChainListFetching && state.alphabeticalNetworks.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(child: CircularProgressIndicator()),
             ),
-          if (state.hasFetchFailed) ...[
+          if (state.chainListStatus is ChainListFetchFailed) ...[
             const SizedBox(height: 24),
             Text(
               S.of(context).chainlist_fetch_failed,

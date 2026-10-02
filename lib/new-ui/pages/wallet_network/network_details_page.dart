@@ -548,7 +548,7 @@ class _Buttons extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 10,
       children: [
-        if (state.mode == NetworkDetailsMode.chainList && state.canResetToDefault)
+        if (state.mode == NetworkDetailsMode.chainList && bloc.canResetToDefault)
           NewPrimaryButton(
             key: const ValueKey("network_details_reset_button_key"),
             onPressed: () => bloc.add(const ResetToDefaultRequested()),

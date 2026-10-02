@@ -45,6 +45,8 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
   List<ChainListEntry> _chainListEntries = const [];
   List<EvmNetwork> _otherNetworks = const [];
 
+  bool get canResetToDefault => _defaultEntry != null;
+
   Future<void> _init(_Init event, Emitter<NetworkDetailsState> emit) async {
     final popular = await _chainListService.loadPopularNetworks();
     final cached = (await _chainListService.readCache())?.entries ?? const <ChainListEntry>[];
@@ -77,7 +79,6 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
         values: values,
         walletCount: walletCount,
         contactCount: _networkService.contactCount(network.chainId),
-        canResetToDefault: _defaultEntry != null,
       ),
     );
 

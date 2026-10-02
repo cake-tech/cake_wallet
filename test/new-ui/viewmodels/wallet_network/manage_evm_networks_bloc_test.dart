@@ -166,7 +166,7 @@ Future<void> main() async {
       ManageEvmNetworksBloc(networkService, chainListService, settingsStore);
 
   Future<ManageEvmNetworksState> loaded(ManageEvmNetworksBloc bloc) =>
-      bloc.stream.firstWhere((state) => !state.isFetching);
+      bloc.stream.firstWhere((state) => state.chainListStatus is! ChainListFetching);
 
   group("init", () {
     test("Popular leaves out built-in chains, A-Z leaves out Popular and built-in chains",
@@ -175,14 +175,13 @@ Future<void> main() async {
       final state = await loaded(bloc);
 
       expect(state.popularNetworks.map((network) => network.chainId), [10, 57073]);
-      expect(state.alphabeticalNetworks!.map((network) => network.chainId), [43114, 42220, 100]);
+      expect(state.alphabeticalNetworks.map((network) => network.chainId), [43114, 42220, 100]);
       expect(
-        state.alphabeticalNetworks!.map((network) => network.name),
+        state.alphabeticalNetworks.map((network) => network.name),
         ["avalanche C-Chain", "Celo", "Gnosis"],
       );
       expect(state.manualNetworks, isEmpty);
-      expect(state.savedCopyDate, isNull);
-      expect(state.hasFetchFailed, isFalse);
+      expect(state.chainListStatus, isA<ChainListLoaded>());
 
       await bloc.close();
     });
@@ -212,7 +211,7 @@ Future<void> main() async {
 
       expect(state.manualNetworks.map((network) => network.name), ["My Ink Devnet", "Gnosis Fork"]);
       expect(state.popularNetworks.map((network) => network.chainId), [10]);
-      expect(state.alphabeticalNetworks!.map((network) => network.chainId), [43114, 42220]);
+      expect(state.alphabeticalNetworks.map((network) => network.chainId), [43114, 42220]);
 
       await bloc.close();
     });
@@ -223,7 +222,7 @@ Future<void> main() async {
       final bloc = createBloc();
       final state = await loaded(bloc);
 
-      expect(state.alphabeticalNetworks!.map((network) => network.chainId), contains(7777777));
+      expect(state.alphabeticalNetworks.map((network) => network.chainId), contains(7777777));
 
       await bloc.close();
     });
@@ -238,12 +237,12 @@ Future<void> main() async {
       final bloc = createBloc();
       final first = await bloc.stream.first;
 
-      expect(first.isFetching, isTrue);
-      expect(first.alphabeticalNetworks!.map((network) => network.chainId), [42220]);
+      expect(first.chainListStatus, isA<ChainListFetching>());
+      expect(first.alphabeticalNetworks.map((network) => network.chainId), [42220]);
 
       final done = loaded(bloc);
       fetch.complete(ChainListSnapshot(entries: [gnosisEntry], fetchedAt: fetchedAt));
-      expect((await done).alphabeticalNetworks!.map((network) => network.chainId), [100]);
+      expect((await done).alphabeticalNetworks.map((network) => network.chainId), [100]);
 
       await bloc.close();
     });
@@ -255,8 +254,8 @@ Future<void> main() async {
       final bloc = createBloc();
       final first = await bloc.stream.first;
 
-      expect(first.isFetching, isTrue);
-      expect(first.alphabeticalNetworks, isNull);
+      expect(first.chainListStatus, isA<ChainListFetching>());
+      expect(first.alphabeticalNetworks, isEmpty);
       expect(first.popularNetworks, hasLength(2));
 
       fetch.complete(ChainListSnapshot(entries: [gnosisEntry], fetchedAt: fetchedAt));
@@ -274,9 +273,11 @@ Future<void> main() async {
       final bloc = createBloc();
       final state = await loaded(bloc);
 
-      expect(state.alphabeticalNetworks!.map((network) => network.chainId), [42220, 100]);
-      expect(state.savedCopyDate, cachedAt);
-      expect(state.hasFetchFailed, isFalse);
+      expect(state.alphabeticalNetworks.map((network) => network.chainId), [42220, 100]);
+      expect(
+        state.chainListStatus,
+        isA<ChainListSavedCopy>().having((status) => status.date, "date", cachedAt),
+      );
 
       await bloc.close();
     });
@@ -288,9 +289,8 @@ Future<void> main() async {
       final bloc = createBloc();
       final state = await loaded(bloc);
 
-      expect(state.hasFetchFailed, isTrue);
-      expect(state.alphabeticalNetworks, isNull);
-      expect(state.savedCopyDate, isNull);
+      expect(state.chainListStatus, isA<ChainListFetchFailed>());
+      expect(state.alphabeticalNetworks, isEmpty);
       expect(state.popularNetworks.map((network) => network.chainId), [10, 57073]);
       expect(state.manualNetworks.map((network) => network.chainId), [777001]);
 
@@ -309,12 +309,10 @@ Future<void> main() async {
       bloc.add(const ChainListRetryRequested());
       final [retrying, retried] = await states;
 
-      expect(retrying.isFetching, isTrue);
-      expect(retrying.alphabeticalNetworks, isNull);
-      expect(retrying.hasFetchFailed, isFalse);
-      expect(retried.alphabeticalNetworks!.map((network) => network.chainId), [100]);
-      expect(retried.savedCopyDate, isNull);
-      expect(retried.hasFetchFailed, isFalse);
+      expect(retrying.chainListStatus, isA<ChainListFetching>());
+      expect(retrying.alphabeticalNetworks, isEmpty);
+      expect(retried.alphabeticalNetworks.map((network) => network.chainId), [100]);
+      expect(retried.chainListStatus, isA<ChainListLoaded>());
 
       await bloc.close();
     });
@@ -329,7 +327,7 @@ Future<void> main() async {
       bloc.add(const ManageEvmNetworksSearchChanged("  CHAIN "));
       final nameState = await byName;
       expect(
-        nameState.matchingSearch(nameState.alphabeticalNetworks!).map((network) => network.chainId),
+        nameState.matchingSearch(nameState.alphabeticalNetworks).map((network) => network.chainId),
         [43114],
       );
 
@@ -338,7 +336,7 @@ Future<void> main() async {
       final symbolState = await bySymbol;
       expect(
         symbolState
-            .matchingSearch(symbolState.alphabeticalNetworks!)
+            .matchingSearch(symbolState.alphabeticalNetworks)
             .map((network) => network.chainId),
         [100],
       );
@@ -350,7 +348,7 @@ Future<void> main() async {
         chainIdState.matchingSearch(chainIdState.popularNetworks).map((network) => network.chainId),
         [10],
       );
-      expect(chainIdState.matchingSearch(chainIdState.alphabeticalNetworks!), isEmpty);
+      expect(chainIdState.matchingSearch(chainIdState.alphabeticalNetworks), isEmpty);
 
       await bloc.close();
     });
@@ -562,7 +560,7 @@ Future<void> main() async {
 
     EvmNetwork rowFor(ManageEvmNetworksState state, int chainId) => [
           ...state.popularNetworks,
-          ...state.alphabeticalNetworks!,
+          ...state.alphabeticalNetworks,
         ].singleWhere((network) => network.chainId == chainId);
 
     test("an A-Z network on a major ticker with no tvl asks once, then Continue enables it",
@@ -660,7 +658,7 @@ Future<void> main() async {
 
     test("an A-Z network on its prefilled RPCs walks the feed's RPC list", () async {
       final candidates = await candidatesFor(
-        (state) => state.alphabeticalNetworks!.singleWhere((network) => network.chainId == 100),
+        (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
       expect(candidates, gnosisEntry.rpcUrls);
@@ -670,7 +668,7 @@ Future<void> main() async {
       await _savedRow(100, "Gnosis", rpcUrl: "https://my-own.example", isEnabled: false).save();
 
       final candidates = await candidatesFor(
-        (state) => state.alphabeticalNetworks!.singleWhere((network) => network.chainId == 100),
+        (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
       expect(candidates, isEmpty);
@@ -687,7 +685,7 @@ Future<void> main() async {
       ).save();
 
       final candidates = await candidatesFor(
-        (state) => state.alphabeticalNetworks!.singleWhere((network) => network.chainId == 100),
+        (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
       expect(candidates, [
@@ -707,7 +705,7 @@ Future<void> main() async {
       ).save();
 
       final candidates = await candidatesFor(
-        (state) => state.alphabeticalNetworks!.singleWhere((network) => network.chainId == 100),
+        (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
       expect(candidates, isEmpty);
@@ -760,7 +758,7 @@ Future<void> main() async {
     final state = await changed;
 
     expect(state.manualNetworks.map((network) => network.chainId), [777001]);
-    expect(state.alphabeticalNetworks, isNotNull);
+    expect(state.alphabeticalNetworks, isNotEmpty);
 
     await bloc.close();
   });

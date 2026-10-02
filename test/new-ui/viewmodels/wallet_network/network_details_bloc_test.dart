@@ -205,7 +205,7 @@ Future<void> main() async {
       expect(state.mode, NetworkDetailsMode.manualAdd);
       expect(state.walletCount, 0);
       expect(state.contactCount, 0);
-      expect(state.canResetToDefault, isFalse);
+      expect(bloc.canResetToDefault, isFalse);
       expect(state.values.values.every((value) => value.isEmpty), isTrue);
       verifyNever(() => networkService.walletCount(any()));
 
@@ -223,7 +223,7 @@ Future<void> main() async {
       expect(state.value(NetworkField.chainId), "777001");
       expect(state.value(NetworkField.rpcUrl), "https://devnet-rpc.example");
       expect(state.contactCount, 2);
-      expect(state.canResetToDefault, isFalse);
+      expect(bloc.canResetToDefault, isFalse);
 
       await bloc.close();
     });
@@ -233,7 +233,7 @@ Future<void> main() async {
       final state = await opened(bloc);
 
       expect(state.mode, NetworkDetailsMode.chainList);
-      expect(state.canResetToDefault, isTrue);
+      expect(bloc.canResetToDefault, isTrue);
       expect(state.isFailoverRevealed, isTrue);
       expect(state.isReadOnly(NetworkField.chainId), isTrue);
 
@@ -251,9 +251,9 @@ Future<void> main() async {
       );
 
       final bloc = createBloc(unlisted);
-      final state = await opened(bloc);
+      await opened(bloc);
 
-      expect(state.canResetToDefault, isFalse);
+      expect(bloc.canResetToDefault, isFalse);
 
       await bloc.close();
     });
