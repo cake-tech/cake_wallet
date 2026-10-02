@@ -165,7 +165,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       payoutAmount: Money.safeParse(responseData.withdrawalAmount, request.payoutAmount.currency),
       depositAmount: Money.safeParse(responseData.depositAmount, request.depositAmount.currency),
       state: responseData.status!,
-      createdAt: responseData.createdAt,
+      createdAt: DateTime.now(),
       expiredAt: responseData.expiredAt,
       extraId: responseData.depositExtraId,
       toAddressExtraId: request.toAddressExtraId,
