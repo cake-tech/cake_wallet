@@ -112,7 +112,7 @@ class EvmNetworkService {
     final rpcsReplaced =
         checked.rpcUrl != network.rpcUrl || checked.failoverUrl != network.failoverUrl;
 
-    await _saveNetwork(enabled, shouldReplaceNodes: !hasNodes || rpcsReplaced);
+    await _saveNetwork(enabled, shouldReplaceNodes: !hasNodes || rpcsReplaced, previous: network);
     await _registerAndReloadNetworks(enabled);
     return enabled;
   }
@@ -139,7 +139,12 @@ class EvmNetworkService {
     }
 
     final hasWallets = await walletCount(edited.chainId) > 0;
-    final network = edited.withUniqueTag(
+    final allowedEdit = hasWallets && previous != null
+        ? edited
+            .withRpcUrls(previous.rpcUrl, previous.failoverUrl)
+            .copyWith(symbol: previous.symbol, decimals: previous.decimals)
+        : edited;
+    final network = allowedEdit.withUniqueTag(
       await EvmNetwork.getAll(),
       beforeEdit: previous,
       hasWallets: hasWallets,
@@ -150,7 +155,11 @@ class EvmNetworkService {
       await _checkRpcs(network);
     }
 
-    await _saveNetwork(network, shouldReplaceNodes: needsRpcCheck && !hasWallets);
+    await _saveNetwork(
+      network,
+      shouldReplaceNodes: needsRpcCheck && !hasWallets,
+      previous: isChainIdChange ? null : previous,
+    );
 
     if (isChainIdChange) {
       await _remove(previous);
@@ -249,7 +258,11 @@ class EvmNetworkService {
     }
   }
 
-  Future<void> _saveNetwork(EvmNetwork network, {required bool shouldReplaceNodes}) async {
+  Future<void> _saveNetwork(
+    EvmNetwork network, {
+    required bool shouldReplaceNodes,
+    required EvmNetwork? previous,
+  }) async {
     await db!.transaction((txn) async {
       await txn.insert(
         EvmNetwork.tableName,
@@ -258,7 +271,7 @@ class EvmNetworkService {
       );
 
       if (shouldReplaceNodes) {
-        await network.replaceNodes(txn);
+        await network.replaceRpcNodes(txn, previous);
       }
     });
   }

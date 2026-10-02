@@ -358,35 +358,39 @@ class _NetworkList extends StatelessWidget {
     );
   }
 
-  ListItemRegularRow _networkRow(BuildContext context, EvmNetwork network) => ListItemRegularRow(
-        keyValue: "manage_evm_networks_${network.chainId}_row_key",
-        label: network.name,
-        leadingWidget: CakeImageWidget(
-          imageUrl: network.iconUrl,
-          width: 24,
-          height: 24,
-          isRoundedSquare: true,
-          outlineColor: network.isManual ? Theme.of(context).colorScheme.onSurface : null,
-          fallbackName: network.name,
-        ),
-        showArrow: false,
-        trailingWidget: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _EditButton(
-              key: ValueKey("manage_evm_networks_${network.chainId}_edit_button_key"),
-              networkName: network.name,
-              onPressed: () => onEdit(network),
-            ),
-            _EnableToggle(
-              key: ValueKey("manage_evm_networks_${network.chainId}_toggle_key"),
-              network: network,
-              isToggling: state.togglingChainIds.contains(network.chainId),
-              onToggle: onToggle,
-            ),
-          ],
-        ),
-      );
+  ListItemRegularRow _networkRow(BuildContext context, EvmNetwork network) {
+    final isToggling = state.togglingChainIds.contains(network.chainId);
+
+    return ListItemRegularRow(
+      keyValue: "manage_evm_networks_${network.chainId}_row_key",
+      label: network.name,
+      leadingWidget: CakeImageWidget(
+        imageUrl: network.iconUrl,
+        width: 24,
+        height: 24,
+        isRoundedSquare: true,
+        outlineColor: network.isManual ? Theme.of(context).colorScheme.onSurface : null,
+        fallbackName: network.name,
+      ),
+      showArrow: false,
+      trailingWidget: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _EditButton(
+            key: ValueKey("manage_evm_networks_${network.chainId}_edit_button_key"),
+            networkName: network.name,
+            onPressed: isToggling ? null : () => onEdit(network),
+          ),
+          _EnableToggle(
+            key: ValueKey("manage_evm_networks_${network.chainId}_toggle_key"),
+            network: network,
+            isToggling: isToggling,
+            onToggle: onToggle,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ListHeader extends StatelessWidget {
@@ -539,7 +543,7 @@ class _EditButton extends StatelessWidget {
   const _EditButton({required this.networkName, required this.onPressed, super.key});
 
   final String networkName;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

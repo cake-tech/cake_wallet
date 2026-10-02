@@ -262,7 +262,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     return EvmNetwork(
       chainId: tryParseChainId(state.value(NetworkField.chainId))!,
       name: name,
-      symbol: state.value(NetworkField.symbol).trim(),
+      symbol: state.hasWallets ? original!.symbol : state.value(NetworkField.symbol).trim(),
       decimals: original?.decimals ?? 18,
       tag: isChainList ? original!.tag : EvmNetworkService.tagFor(name),
       rpcUrl: state.hasWallets ? original!.rpcUrl : state.value(NetworkField.rpcUrl).trim(),
@@ -325,8 +325,8 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
       }
     }
 
-    if (!state.isReadOnly(NetworkField.symbol)) {
-      final symbol = state.value(NetworkField.symbol).trim();
+    final symbol = state.value(NetworkField.symbol).trim();
+    if (!state.isReadOnly(NetworkField.symbol) && symbol != network?.symbol) {
       if (symbol.isEmpty) {
         errors[NetworkField.symbol] = S.current.field_required;
       } else if (!RegExp(r"^[A-Z0-9]{1,10}$").hasMatch(symbol)) {

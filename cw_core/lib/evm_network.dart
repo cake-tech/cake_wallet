@@ -50,11 +50,18 @@ class EvmNetwork {
   final bool isEnabled;
   final int enabledAt;
 
-  EvmNetwork copyWith({String? tag, bool? isEnabled, int? enabledAt}) => EvmNetwork(
+  EvmNetwork copyWith({
+    String? symbol,
+    int? decimals,
+    String? tag,
+    bool? isEnabled,
+    int? enabledAt,
+  }) =>
+      EvmNetwork(
         chainId: chainId,
         name: name,
-        symbol: symbol,
-        decimals: decimals,
+        symbol: symbol ?? this.symbol,
+        decimals: decimals ?? this.decimals,
         tag: tag ?? this.tag,
         rpcUrl: rpcUrl,
         failoverUrl: failoverUrl,
@@ -124,6 +131,24 @@ class EvmNetwork {
 
   Future<void> replaceNodes(DatabaseExecutor executor) async {
     await deleteNodes(executor);
+    await _insertRpcNodes(executor);
+  }
+
+  Future<void> replaceRpcNodes(DatabaseExecutor executor, EvmNetwork? previous) async {
+    final urls = {rpcUrl, failoverUrl, previous?.rpcUrl, previous?.failoverUrl}.nonNulls;
+    for (final url in urls) {
+      final node = nodeFor(url, chainId);
+      await executor.delete(
+        Node.tableName,
+        where: "typeRaw = ? AND chainId = ? AND uri = ? AND path = ?",
+        whereArgs: [serializeToInt(WalletType.evm), chainId, node.uriRaw, node.path],
+      );
+    }
+
+    await _insertRpcNodes(executor);
+  }
+
+  Future<void> _insertRpcNodes(DatabaseExecutor executor) async {
     await _insertNode(executor, rpcUrl, isDefault: true);
 
     final failoverUrl = this.failoverUrl;

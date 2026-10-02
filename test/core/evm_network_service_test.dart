@@ -312,6 +312,21 @@ Future<void> main() async {
       expect(await getNodeUrls(inkChainId), [answeringUrl]);
     });
 
+    test("a walk that moved off the stored RPCs keeps the node rows the user added", () async {
+      final staleUrl = dead("stale");
+      await EvmNetwork.nodeFor(staleUrl, inkChainId, isDefault: true).save();
+      final userUrl = answering(inkChainId, "user");
+      await EvmNetwork.nodeFor(userUrl, inkChainId).save();
+      final answeringUrl = answering(inkChainId, "fresh");
+
+      await service.enable(
+        network(inkChainId, rpcUrl: staleUrl),
+        rpcCandidates: [staleUrl, answeringUrl],
+      );
+
+      expect(await getNodeUrls(inkChainId), unorderedEquals([answeringUrl, userUrl]));
+    });
+
     test("a tag that is a built-in currency's gets the chain ID appended", () async {
       final enabled = await service.enable(
         network(opChainId, rpcUrl: answering(opChainId, "rpc"), symbol: "ETH", tag: "ETH"),
@@ -442,6 +457,7 @@ Future<void> main() async {
       );
 
       expect(await getNodeUrls(cronosChainId), [rpcUrl]);
+      expect((await EvmNetwork.get(cronosChainId))!.rpcUrl, rpcUrl);
     });
 
     test("a network with wallets keeps its tag even when renamed onto a clash", () async {
@@ -616,6 +632,11 @@ Future<void> main() async {
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId), same(walletCurrency));
       expect(walletCurrency!.tag, "OLDTAG");
       expect(walletCurrency.title, "OLD");
+
+      final saved = (await EvmNetwork.get(cronosChainId))!;
+      expect(saved.name, "New");
+      expect(saved.symbol, "OLD");
+      expect(saved.tag, "OLDTAG");
     });
   });
 

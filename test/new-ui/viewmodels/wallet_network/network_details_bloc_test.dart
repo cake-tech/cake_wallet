@@ -317,6 +317,32 @@ Future<void> main() async {
   });
 
   group("validation", () {
+    test("a ChainList symbol the form would refuse is kept when only the name changes", () async {
+      final milkomeda = EvmNetwork(
+        chainId: 2001,
+        name: "Milkomeda C1",
+        symbol: "mADA",
+        decimals: 18,
+        tag: "MILKADA",
+        rpcUrl: "https://milkomeda.example",
+        isEnabled: true,
+        enabledAt: 12,
+      );
+      final bloc = createBloc(milkomeda);
+      await opened(bloc);
+      await change(bloc, NetworkField.name, "Milkomeda");
+
+      final state = await save(bloc);
+
+      expect(state.errors, isEmpty);
+      final saved = verify(
+        () => networkService.save(captureAny(), previous: any(named: "previous")),
+      ).captured.single as EvmNetwork;
+      expect(saved.symbol, "mADA");
+
+      await bloc.close();
+    });
+
     test("a valid manual add passes and saves", () async {
       final bloc = await filledManualAdd();
 
@@ -548,7 +574,7 @@ Future<void> main() async {
       await bloc.close();
     });
 
-    test("with wallets the locked RPC and symbol are not validated", () async {
+    test("with wallets the locked RPC and symbol are saved as they were", () async {
       when(() => networkService.walletCount(ink.chainId)).thenAnswer((_) async => 2);
       final bloc = createBloc(ink);
       await opened(bloc);
@@ -558,6 +584,11 @@ Future<void> main() async {
       final state = await save(bloc);
 
       expect(state.errors, isEmpty);
+      final saved = verify(
+        () => networkService.save(captureAny(), previous: any(named: "previous")),
+      ).captured.single as EvmNetwork;
+      expect(saved.symbol, ink.symbol);
+      expect(saved.rpcUrl, ink.rpcUrl);
 
       await bloc.close();
     });
