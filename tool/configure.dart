@@ -1778,6 +1778,7 @@ abstract class Zcash {
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
   Map<String, String> getKeys(Object wallet);
+  Future<int?> getBirthHeight(Object wallet);
 
   Object createZcashTransactionCredentials(
     List<Output> outputs, {
