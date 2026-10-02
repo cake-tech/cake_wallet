@@ -170,6 +170,7 @@ class MoreActionsGrid extends StatelessWidget {
   static const crossAxisCount = 2;
   static const itemExtent = 105.0;
   static const spacing = 12.0;
+  static const rowAnimDelay = Duration(milliseconds: 150);
 
   @override
   Widget build(BuildContext context) => GridView.builder(
@@ -187,6 +188,7 @@ class MoreActionsGrid extends StatelessWidget {
           actions[index],
           dashboardViewModel: dashboardViewModel,
           onOpened: onActionOpened,
+          animDelay: rowAnimDelay * (index ~/ crossAxisCount),
         ),
       );
 }
@@ -196,12 +198,14 @@ class ExtraActionButton extends StatelessWidget {
     this.action, {
     required this.dashboardViewModel,
     required this.onOpened,
+    this.animDelay = Duration.zero,
     super.key,
   });
 
   final ExtraAction action;
   final DashboardViewModel dashboardViewModel;
   final VoidCallback onOpened;
+  final Duration animDelay;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -220,6 +224,7 @@ class ExtraActionButton extends StatelessWidget {
                 CakeImageWidget(
                   imageUrl: action.iconPath,
                   height: 36,
+                  animDelay: animDelay,
                   colorFilter:
                       ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                 ),

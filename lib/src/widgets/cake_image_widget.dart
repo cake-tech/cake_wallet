@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,6 +22,7 @@ class CakeImageWidget extends StatelessWidget {
     this.allowDrawingOutsideViewBox,
     this.filterQuality,
     this.semanticsLabel,
+    this.animDelay = Duration.zero,
   });
 
   final String? imageUrl;
@@ -34,6 +37,7 @@ class CakeImageWidget extends StatelessWidget {
   final bool? allowDrawingOutsideViewBox;
   final double borderRadius;
   final FilterQuality? filterQuality;
+  final Duration animDelay;
 
   /// Accessible name for this image.
   ///
@@ -44,14 +48,6 @@ class CakeImageWidget extends StatelessWidget {
   final String? semanticsLabel;
 
   bool get _isDecorative => semanticsLabel == null;
-
-  static Future<LottieComposition?> _decodeDotLottie(List<int> bytes) =>
-      LottieComposition.decodeZip(
-        bytes,
-        filePicker: (files) => files
-            .where((f) => f.name.startsWith("animations/") && f.name.endsWith(".json"))
-            .firstOrNull,
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +87,11 @@ class CakeImageWidget extends StatelessWidget {
           );
         });
       } else if (isLottie) {
-        imageWidget = Lottie.asset(
-          imageUrl!,
+        imageWidget = _CakeLottieWidget(
+          asset: imageUrl!,
           width: width,
           height: height,
-          decoder: _decodeDotLottie,
-          repeat: false,
+          delay: animDelay,
         );
         if (effectiveColorFilter != null) {
           imageWidget = ColorFiltered(colorFilter: effectiveColorFilter, child: imageWidget);
@@ -190,4 +185,59 @@ class CakeImageWidget extends StatelessWidget {
             child: ExcludeSemantics(child: placeholder),
           );
   }
+}
+
+class _CakeLottieWidget extends StatefulWidget {
+  const _CakeLottieWidget({
+    required this.asset,
+    required this.delay,
+    this.width,
+    this.height,
+  });
+
+  final String asset;
+  final Duration delay;
+  final double? width;
+  final double? height;
+
+  @override
+  State<_CakeLottieWidget> createState() => _CakeLottieWidgetState();
+}
+
+class _CakeLottieWidgetState extends State<_CakeLottieWidget> {
+  Timer? _timer;
+  late bool _playing = widget.delay <= Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_playing) {
+      _timer = Timer(widget.delay, () => setState(() => _playing = true));
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Lottie.asset(
+        widget.asset,
+        width: widget.width,
+        height: widget.height,
+        decoder: _decodeDotLottie,
+        repeat: false,
+        animate: _playing,
+        renderCache: RenderCache.drawingCommands,
+      );
+
+  static Future<LottieComposition?> _decodeDotLottie(List<int> bytes) =>
+      LottieComposition.decodeZip(
+        bytes,
+        filePicker: (files) => files
+            .where((f) => f.name.startsWith("animations/") && f.name.endsWith(".json"))
+            .firstOrNull,
+      );
 }
