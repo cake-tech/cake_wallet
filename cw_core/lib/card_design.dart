@@ -392,7 +392,7 @@ class CardDesign {
           ? const []
           : [
               CardIconPath(
-                addedNetwork.iconPath ?? "",
+                addedNetwork.chainIconPath ?? "",
                 preColored: true,
                 addedNetwork: addedNetwork,
               ),

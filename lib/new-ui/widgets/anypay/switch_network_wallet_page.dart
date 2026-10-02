@@ -67,7 +67,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
                 CakeImageWidget(
                   imageUrl: destinationNetwork == null
                       ? destinationIconPath
-                      : destinationNetwork.iconPath,
+                      : destinationNetwork.chainIconPath,
                   width: 50,
                   height: 50,
                   fit: BoxFit.contain,

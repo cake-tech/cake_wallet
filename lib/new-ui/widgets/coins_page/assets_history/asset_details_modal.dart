@@ -13,6 +13,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +56,8 @@ class AssetDetailsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(asset);
+
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -81,7 +84,16 @@ class AssetDetailsModal extends StatelessWidget {
                       height: 75,
                       child: Stack(
                         children: [
-                          if (iconPath.isNotEmpty)
+                          if (networkIconNative != null)
+                            CakeImageWidget(
+                              imageUrl: networkIconNative.iconPath,
+                              width: 75,
+                              height: 75,
+                              isRoundedSquare: true,
+                              isOutlined: true,
+                              fallbackName: networkIconNative.fullName,
+                            )
+                          else if (iconPath.isNotEmpty)
                             TokenImageWidget(
                               imageUrl: iconPath,
                               size: 75,

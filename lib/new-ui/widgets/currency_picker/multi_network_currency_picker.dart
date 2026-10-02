@@ -492,7 +492,10 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
   }
 
   String? _chainBadgePathFor(CryptoCurrency c) {
-    if (_isL2NativeEth(c)) return c.chainIconPath;
+    if (_isL2NativeEth(c) || AddedNetworkCurrency.of(c)?.usesNetworkIcon == false) {
+      return c.chainIconPath;
+    }
+
     if (widget.natives.contains(c)) return null;
     final network = WalletNetwork.tryFromCurrency(c);
     if (network == null) return null;
@@ -662,7 +665,7 @@ class _RecentPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (currency is AddedNetworkCurrency)
+            if (AddedNetworkCurrency.tryWithNetworkIcon(currency) != null)
               CakeImageWidget(
                 imageUrl: currency.iconPath,
                 width: 24,

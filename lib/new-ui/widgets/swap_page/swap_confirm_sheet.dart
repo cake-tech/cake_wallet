@@ -150,8 +150,10 @@ class SwapTransactionDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final depositNetwork = AddedNetworkCurrency.of(exchangeViewModel.depositCurrency);
-    final receiveNetwork = AddedNetworkCurrency.of(exchangeViewModel.receiveCurrency);
+    final depositNetwork =
+        AddedNetworkCurrency.tryWithNetworkIcon(exchangeViewModel.depositCurrency);
+    final receiveNetwork =
+        AddedNetworkCurrency.tryWithNetworkIcon(exchangeViewModel.receiveCurrency);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -324,7 +326,7 @@ class SwapTransactionDetails extends StatelessWidget {
 
 String? _resolveChainBadgePath(CryptoCurrency currency) {
   if (currency is AddedNetworkCurrency) {
-    return null;
+    return currency.usesNetworkIcon ? null : currency.chainIconPath;
   }
 
   try {

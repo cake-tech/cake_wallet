@@ -141,8 +141,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   @override
   Widget build(BuildContext context) {
     final detectedCurrency = widget.paymentFlowResult.detectedCurrency!;
-    final depositNetwork = AddedNetworkCurrency.of(widget.exchangeViewModel.depositCurrency);
-    final detectedNetwork = AddedNetworkCurrency.of(detectedCurrency);
+    final depositNetwork =
+        AddedNetworkCurrency.tryWithNetworkIcon(widget.exchangeViewModel.depositCurrency);
+    final detectedNetwork = AddedNetworkCurrency.tryWithNetworkIcon(detectedCurrency);
     final badgeNetwork = AddedNetworkCurrency.tryFromChainId(widget.paymentFlowResult.chainId);
 
     return Form(

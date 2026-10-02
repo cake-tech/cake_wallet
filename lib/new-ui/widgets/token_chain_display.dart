@@ -1,5 +1,6 @@
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
@@ -13,7 +14,7 @@ class TokenChainDisplay extends StatelessWidget {
 
   double get _chainIconSize => size * _chainIconSizeFactor;
 
-  AddedNetworkCurrency? get _addedNetwork => AddedNetworkCurrency.of(asset);
+  AddedNetworkCurrency? get _networkIconNative => AddedNetworkCurrency.tryWithNetworkIcon(asset);
 
   bool get _isGlyphBadge => CryptoCurrency.isGlyphChainBadge(asset.chainIconPath ?? "");
 
@@ -26,11 +27,11 @@ class TokenChainDisplay extends StatelessWidget {
             CakeImageWidget(
               imageUrl: asset.iconPath ?? "",
               width: size,
-              isRoundedSquare: _addedNetwork != null,
-              isOutlined: _addedNetwork != null,
-              fallbackName: _addedNetwork?.fullName,
+              isRoundedSquare: _networkIconNative != null,
+              isOutlined: _networkIconNative != null,
+              fallbackName: _networkIconNative?.fullName,
             ),
-            if (_addedNetwork == null && (asset.chainIconPath ?? "").isNotEmpty)
+            if (_networkIconNative == null && (asset.chainIconPath ?? "").isNotEmpty)
               Align(
                 alignment: Alignment.bottomRight,
                 child: Container(
@@ -48,6 +49,7 @@ class TokenChainDisplay extends StatelessWidget {
                       width: _chainIconSize,
                       height: _chainIconSize,
                       isRoundedSquare: !_isGlyphBadge,
+                      isOutlined: EvmNativeCurrencies.isAddedNetworkCurrency(asset),
                       colorFilter: _isGlyphBadge
                           ? const ColorFilter.mode(Colors.black, BlendMode.srcIn)
                           : null,

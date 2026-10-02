@@ -202,7 +202,7 @@ class RecipientNetworkListRow extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final addedNetwork = AddedNetworkCurrency.tryFromChainId(item.chainId);
     final iconPath =
-        addedNetwork != null ? addedNetwork.iconPath ?? "" : imageOverride ?? item.iconPath;
+        addedNetwork != null ? addedNetwork.chainIconPath ?? "" : imageOverride ?? item.iconPath;
     return InkWell(
       onTap: onTap,
       child: Padding(

@@ -42,8 +42,10 @@ class HistoryTradeTile extends StatelessWidget {
     final fromNetwork = AddedNetworkCurrency.of(from);
     final toNetwork = AddedNetworkCurrency.of(to);
 
-    final isFromAddedNetwork = EvmNativeCurrencies.isAddedNetworkRaw(from!.raw);
-    final isToAddedNetwork = EvmNativeCurrencies.isAddedNetworkRaw(to!.raw);
+    final isFromNetworkLogo =
+        EvmNativeCurrencies.isAddedNetworkRaw(from!.raw) && fromNetwork?.usesNetworkIcon != false;
+    final isToNetworkLogo =
+        EvmNativeCurrencies.isAddedNetworkRaw(to!.raw) && toNetwork?.usesNetworkIcon != false;
 
     return SizedBox(
       height: 50,
@@ -54,9 +56,9 @@ class HistoryTradeTile extends StatelessWidget {
             imageUrl: fromNetwork == null ? _getIconPath(from!) : fromNetwork.iconPath,
             width: currencyIconSize,
             height: currencyIconSize,
-            isRoundedSquare: isFromAddedNetwork,
-            isOutlined: isFromAddedNetwork,
-            fallbackName: fromNetwork?.fullName ?? (isFromAddedNetwork ? from!.title : null),
+            isRoundedSquare: isFromNetworkLogo,
+            isOutlined: isFromNetworkLogo,
+            fallbackName: isFromNetworkLogo ? fromNetwork?.fullName ?? from!.title : null,
           ),
           Positioned(
             top: currencyIconSize / 2,
@@ -64,8 +66,8 @@ class HistoryTradeTile extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(width: 2, color: Theme.of(context).colorScheme.surfaceContainer),
-                shape: isToAddedNetwork ? BoxShape.rectangle : BoxShape.circle,
-                borderRadius: isToAddedNetwork
+                shape: isToNetworkLogo ? BoxShape.rectangle : BoxShape.circle,
+                borderRadius: isToNetworkLogo
                     ? BorderRadius.circular(
                         currencyIconSize * CakeImageWidget.networkIconCornerRatio + 2,
                       )
@@ -75,9 +77,9 @@ class HistoryTradeTile extends StatelessWidget {
                 imageUrl: toNetwork == null ? _getIconPath(to!) : toNetwork.iconPath,
                 width: currencyIconSize,
                 height: currencyIconSize,
-                isRoundedSquare: isToAddedNetwork,
-                isOutlined: isToAddedNetwork,
-                fallbackName: toNetwork?.fullName ?? (isToAddedNetwork ? to!.title : null),
+                isRoundedSquare: isToNetworkLogo,
+                isOutlined: isToNetworkLogo,
+                fallbackName: isToNetworkLogo ? toNetwork?.fullName ?? to!.title : null,
               ),
             ),
           ),
@@ -119,6 +121,7 @@ class HistoryTradeTile extends StatelessWidget {
               width: 12,
               height: 12,
               isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(fromChainIcon!),
+              isOutlined: EvmNativeCurrencies.isAddedNetworkCurrency(from!),
               colorFilter: CryptoCurrency.isGlyphChainBadge(fromChainIcon!)
                   ? ColorFilter.mode(
                       Theme.of(context).colorScheme.onSurfaceVariant,
@@ -148,6 +151,7 @@ class HistoryTradeTile extends StatelessWidget {
               width: 12,
               height: 12,
               isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(toChainIcon!),
+              isOutlined: EvmNativeCurrencies.isAddedNetworkCurrency(to!),
               color: CryptoCurrency.isGlyphChainBadge(toChainIcon!)
                   ? Theme.of(context).colorScheme.onSurface
                   : null,
@@ -183,7 +187,7 @@ class HistoryTradeTile extends StatelessWidget {
     if (currency == null) return null;
 
     if (currency is AddedNetworkCurrency) {
-      return null;
+      return currency.usesNetworkIcon ? null : currency.chainIconPath;
     }
 
     try {

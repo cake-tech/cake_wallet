@@ -2,6 +2,7 @@ import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -101,23 +102,26 @@ class HistoryTile extends StatelessWidget {
 
     if (hasTokens) {
       final addedNetwork = this.addedNetwork;
-      final isAddedNetworkNative = addedNetwork != null && asset?.raw == addedNetwork.currency.raw;
+      final iconAsset = addedNetwork != null && asset?.raw == addedNetwork.currency.raw
+          ? addedNetwork.currency
+          : asset;
+      final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(iconAsset);
 
       return Stack(
         children: [
           Opacity(
             opacity: pending ? 0.5 : 1,
-            child: isAddedNetworkNative
+            child: networkIconNative != null
                 ? CakeImageWidget(
-                    imageUrl: addedNetwork.iconPath,
+                    imageUrl: networkIconNative.iconPath,
                     width: 34,
                     height: 34,
                     isRoundedSquare: true,
                     isOutlined: true,
-                    fallbackName: addedNetwork.name,
+                    fallbackName: networkIconNative.fullName,
                   )
                 : TokenImageWidget(
-                    imageUrl: asset?.iconPath ?? "",
+                    imageUrl: iconAsset?.iconPath ?? "",
                     size: 34,
                   ),
           ),

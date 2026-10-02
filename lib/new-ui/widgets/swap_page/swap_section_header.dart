@@ -33,7 +33,7 @@ class SwapSectionHeader extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           CakeImageWidget(
-            imageUrl: addedNetwork == null ? networkIconPath : addedNetwork.iconPath,
+            imageUrl: addedNetwork == null ? networkIconPath : addedNetwork.chainIconPath,
             width: 16,
             height: 16,
             color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,

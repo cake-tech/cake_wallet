@@ -53,8 +53,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
     }
   }
 
-  AddedNetworkCurrency? get _addedNetwork =>
-      AddedNetworkCurrency.of(widget.transactionDetailsViewModel.transactionAsset);
+  AddedNetworkCurrency? get _networkIconNative =>
+      AddedNetworkCurrency.tryWithNetworkIcon(widget.transactionDetailsViewModel.transactionAsset);
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -81,7 +81,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                       controller: ModalScrollController.of(context),
                       child: Column(
                         children: [
-                          if (_addedNetwork == null)
+                          if (_networkIconNative == null)
                             TokenImageWidget(
                               imageUrl:
                                   widget.transactionDetailsViewModel.transactionAsset.iconPath ??
@@ -95,8 +95,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                               width: 64,
                               height: 64,
                               isRoundedSquare: true,
-                              isOutlined: _addedNetwork != null,
-                              fallbackName: _addedNetwork?.fullName,
+                              isOutlined: _networkIconNative != null,
+                              fallbackName: _networkIconNative?.fullName,
                             ),
                           const SizedBox(height: 10),
                           Text(

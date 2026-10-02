@@ -226,7 +226,8 @@ class InfoboxCurrencyRow extends StatelessWidget {
                                     width: iconBorder),
                                 borderRadius: BorderRadius.circular(9999999)),
                             child: switch (entry.value) {
-                              final AddedNetworkCurrency currency => CakeImageWidget(
+                              final AddedNetworkCurrency currency when currency.usesNetworkIcon =>
+                                CakeImageWidget(
                                   imageUrl: currency.iconPath,
                                   width: iconSize,
                                   height: iconSize,

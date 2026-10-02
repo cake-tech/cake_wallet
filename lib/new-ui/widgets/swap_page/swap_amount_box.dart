@@ -151,20 +151,21 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         : null;
     final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(chainIconPath ?? "");
     final currency = widget.currency;
-    final addedNetwork = currency is AddedNetworkCurrency ? currency : null;
+    final networkIconNative =
+        currency is AddedNetworkCurrency && currency.usesNetworkIcon ? currency : null;
 
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
         currencyIconPath: widget.currency.iconPath ?? "",
-        currencyIcon: addedNetwork == null
+        currencyIcon: networkIconNative == null
             ? null
             : CakeImageWidget(
-                imageUrl: addedNetwork.iconPath,
+                imageUrl: networkIconNative.iconPath,
                 width: 24,
                 height: 24,
                 isRoundedSquare: true,
                 isOutlined: true,
-                fallbackName: addedNetwork.fullName,
+                fallbackName: networkIconNative.fullName,
               ),
         currencyLabel: currencyToShow,
         chainIconPath: chainIconPath,
@@ -296,9 +297,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         imageUrl: widget.currency.iconPath ?? "",
                                         width: 28,
                                         height: 28,
-                                        isRoundedSquare: addedNetwork != null,
-                                        isOutlined: addedNetwork != null,
-                                        fallbackName: addedNetwork?.fullName,
+                                        isRoundedSquare: networkIconNative != null,
+                                        isOutlined: networkIconNative != null,
+                                        fallbackName: networkIconNative?.fullName,
                                       ),
                                       const SizedBox(width: 10),
                                       Text(
@@ -750,7 +751,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   String? _getCurrencyChainIconPath(CryptoCurrency curr) {
     if (curr is AddedNetworkCurrency) {
-      return null;
+      return curr.usesNetworkIcon ? null : curr.chainIconPath;
     }
 
     try {

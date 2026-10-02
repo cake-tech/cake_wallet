@@ -136,7 +136,7 @@ class SendTransactionDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconPath = this.iconPath;
-    final addedNetwork = AddedNetworkCurrency.of(sendViewModel.currency);
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(sendViewModel.currency);
 
     return LayoutBuilder(
       builder: (context, constraints) => Column(
@@ -153,9 +153,9 @@ class SendTransactionDetails extends StatelessWidget {
                         imageUrl: sendViewModel.currency.iconPath,
                         width: 28,
                         height: 28,
-                        isRoundedSquare: addedNetwork != null,
-                        isOutlined: addedNetwork != null,
-                        fallbackName: addedNetwork?.fullName,
+                        isRoundedSquare: networkIconNative != null,
+                        isOutlined: networkIconNative != null,
+                        fallbackName: networkIconNative?.fullName,
                       )
                     else if (iconPath.toLowerCase().endsWith(".svg"))
                       CakeImageWidget(

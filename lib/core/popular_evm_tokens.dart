@@ -33,7 +33,7 @@ class PopularEvmToken {
       symbol: symbol,
       contractAddress: address,
       decimals: decimals,
-      logoUrl: json["logoURI"] as String?,
+      logoUrl: (json["logoURI"] as String?)?.replaceFirst("/thumb/", "/large/"),
     );
   }
 

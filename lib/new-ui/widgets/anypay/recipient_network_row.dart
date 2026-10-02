@@ -41,7 +41,7 @@ class RecipientNetworkSelector extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               CakeImageWidget(
-                imageUrl: addedNetwork == null ? networkIconPath : addedNetwork.iconPath,
+                imageUrl: addedNetwork == null ? networkIconPath : addedNetwork.chainIconPath,
                 width: 16,
                 height: 16,
                 fit: BoxFit.cover,

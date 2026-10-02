@@ -155,7 +155,7 @@ class _DecisionHeader extends StatelessWidget {
     final current = currentIconPath;
     final destinationNetwork = AddedNetworkCurrency.tryFromChainId(destinationAddedChainId);
     final destinationUrl =
-        destinationNetwork == null ? destinationIconPath : destinationNetwork.iconPath;
+        destinationNetwork == null ? destinationIconPath : destinationNetwork.chainIconPath;
 
     if (current == null) {
       return CakeImageWidget(
@@ -177,7 +177,7 @@ class _DecisionHeader extends StatelessWidget {
       spacing: 12,
       children: [
         CakeImageWidget(
-          imageUrl: currentNetwork == null ? current : currentNetwork.iconPath,
+          imageUrl: currentNetwork == null ? current : currentNetwork.chainIconPath,
           width: 50,
           height: 50,
           fit: BoxFit.contain,

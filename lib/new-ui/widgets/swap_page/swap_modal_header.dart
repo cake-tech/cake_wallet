@@ -12,8 +12,8 @@ class SwapModalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fromNetwork = AddedNetworkCurrency.of(from);
-    final toNetwork = AddedNetworkCurrency.of(to);
+    final fromNetwork = AddedNetworkCurrency.tryWithNetworkIcon(from);
+    final toNetwork = AddedNetworkCurrency.tryWithNetworkIcon(to);
 
     return Row(
       spacing: 8,

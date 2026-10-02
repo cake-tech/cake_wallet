@@ -7,6 +7,7 @@ import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -44,15 +45,15 @@ class AssetTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconPath = balance.asset.iconPath ?? "";
-    final addedNetwork = this.addedNetwork;
-    final addedNetworkImage = addedNetwork != null && balance.asset == wallet.currency
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(balance.asset);
+    final addedNetworkImage = networkIconNative != null
         ? CakeImageWidget(
-            imageUrl: addedNetwork.iconPath,
+            imageUrl: networkIconNative.iconPath,
             width: 36,
             height: 36,
             isRoundedSquare: true,
             isOutlined: true,
-            fallbackName: addedNetwork.name,
+            fallbackName: networkIconNative.fullName,
           )
         : null;
 

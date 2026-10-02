@@ -170,7 +170,12 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
     return "assets/new-ui/crypto_full_icons/base.svg";
   }
 
-  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
+  final currency = walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
+  if (type == WalletType.evm) {
+    return currency.chainIconPath ?? "";
+  }
+
+  return currency.iconPath ?? "";
 }
 
 String? symbolIconPathForWalletType(WalletType type) {

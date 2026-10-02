@@ -227,6 +227,11 @@ class AddedNetworkCurrency extends CryptoCurrency {
   static AddedNetworkCurrency? tryFromChainId(int? chainId) =>
       chainId == null ? null : of(EvmNativeCurrencies.getNativeCurrencyByChainId(chainId));
 
+  static AddedNetworkCurrency? tryWithNetworkIcon(CryptoCurrency? currency) {
+    final native = of(currency);
+    return native != null && native.usesNetworkIcon ? native : null;
+  }
+
   EvmNetwork network;
 
   int get chainId => network.chainId;
@@ -234,8 +239,16 @@ class AddedNetworkCurrency extends CryptoCurrency {
   @override
   String get fullName => network.name;
 
+  static final _bundledIconPaths = <String, String>{
+    for (final currency in CryptoCurrency.all.reversed)
+      if (currency.iconPath?.startsWith("assets/") == true)
+        currency.title.toUpperCase(): currency.iconPath!,
+  };
+
+  bool get usesNetworkIcon => !_bundledIconPaths.containsKey(network.symbol.toUpperCase());
+
   @override
-  String? get iconPath => network.iconUrl;
+  String? get iconPath => _bundledIconPaths[network.symbol.toUpperCase()] ?? network.iconUrl;
 
   @override
   String? get chainIconPath => network.iconUrl?.isNotEmpty == true ? network.iconUrl : null;

@@ -28,7 +28,7 @@ class ReceiveAmountModal extends StatefulWidget {
 class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
   final TextEditingController _amountController = TextEditingController();
 
-  AddedNetworkCurrency? get _addedNetwork => AddedNetworkCurrency.of(
+  AddedNetworkCurrency? get _networkIconNative => AddedNetworkCurrency.tryWithNetworkIcon(
         widget.walletAddressListViewModel.tokenCurrency ??
             widget.walletAddressListViewModel.wallet.currency,
       );
@@ -100,7 +100,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                         spacing: 8,
                                         children: [
                                           ExcludeSemantics(
-                                            child: _addedNetwork == null
+                                            child: _networkIconNative == null
                                                 ? TokenImageWidget(
                                                     imageUrl: widget.walletAddressListViewModel
                                                             .tokenCurrency?.iconPath ??
@@ -110,12 +110,12 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                                     size: 32,
                                                   )
                                                 : CakeImageWidget(
-                                                    imageUrl: _addedNetwork?.iconPath,
+                                                    imageUrl: _networkIconNative?.iconPath,
                                                     width: 32,
                                                     height: 32,
                                                     isRoundedSquare: true,
-                                                    isOutlined: _addedNetwork != null,
-                                                    fallbackName: _addedNetwork?.fullName,
+                                                    isOutlined: _networkIconNative != null,
+                                                    fallbackName: _networkIconNative?.fullName,
                                                   ),
                                           ),
                                           Text((widget.walletAddressListViewModel.tokenCurrency ??
