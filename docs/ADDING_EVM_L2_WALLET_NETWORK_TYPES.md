@@ -41,7 +41,7 @@ Add your chain configuration in the `initialize()` method:
 
 ```dart
 // Example: Adding Optimism
-_registerChain(
+_registerBuiltinChain(
   const ChainConfig(
     chainId: 10, // Optimism mainnet
     name: 'Optimism',

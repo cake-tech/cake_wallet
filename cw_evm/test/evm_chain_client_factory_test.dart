@@ -62,8 +62,8 @@ void main() {
 
   setUp(() {
     requests.clear();
-    registry.registerAddedNetworkChain(addedNetwork(blockscoutOnlyChainId, "RBTC"));
-    registry.registerAddedNetworkChain(addedNetwork(uncoveredChainId, "OKB"));
+    registry.registerAddedNetwork(addedNetwork(blockscoutOnlyChainId, "RBTC"));
+    registry.registerAddedNetwork(addedNetwork(uncoveredChainId, "OKB"));
   });
 
   tearDown(registry.unregisterAllAddedNetworks);
@@ -85,7 +85,7 @@ void main() {
     });
 
     test("an unregistered chain throws instead of getting a client", () {
-      registry.unregisterAddedNetworkChain(uncoveredChainId);
+      registry.unregisterAddedNetwork(uncoveredChainId);
 
       expect(() => EVMChainClientFactory.createClient(uncoveredChainId), throwsException);
     });

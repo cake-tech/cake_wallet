@@ -15,10 +15,8 @@ class EvmChainRegistry {
 
   final Map<int, ChainConfig> _chains = {};
   final Map<WalletType, int> _walletTypeToChainId = {};
-  final Map<int, WalletType> _chainIdToWalletType = {};
   final Map<String, int> _tagToChainId = {};
   final Map<int, EvmNetwork> _addedNetworks = {};
-  final Map<int, AddedNetworkCurrency> _addedNetworkCurrencies = {};
 
   bool _initialized = false;
 
@@ -28,7 +26,7 @@ class EvmChainRegistry {
     _initialized = true;
 
     // Ethereum Mainnet
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 1,
         name: 'Ethereum',
@@ -45,7 +43,7 @@ class EvmChainRegistry {
     );
 
     // Polygon
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 137,
         name: 'Polygon',
@@ -62,7 +60,7 @@ class EvmChainRegistry {
     );
 
     // Base
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 8453,
         name: 'Base',
@@ -79,7 +77,7 @@ class EvmChainRegistry {
     );
 
     // Arbitrum
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 42161,
         name: 'Arbitrum',
@@ -96,7 +94,7 @@ class EvmChainRegistry {
     );
 
     // BNB Smart Chain
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 56,
         name: 'BNB Smart Chain',
@@ -113,14 +111,13 @@ class EvmChainRegistry {
     );
   }
 
-  void _registerChain(
+  void _registerBuiltinChain(
     ChainConfig config,
     WalletType walletType,
     String tag,
   ) {
     _chains[config.chainId] = config;
     _walletTypeToChainId[walletType] = config.chainId;
-    _chainIdToWalletType[config.chainId] = walletType;
     _tagToChainId[tag.toUpperCase()] = config.chainId;
   }
 
@@ -132,24 +129,17 @@ class EvmChainRegistry {
     }
   }
 
-  CryptoCurrency registerAddedNetworkCurrency(EvmNetwork network) {
+  void registerAddedNetwork(EvmNetwork network) {
     _throwIfBuiltinChain(network.chainId);
 
-    final currency = _addedNetworkCurrencies[network.chainId] ??= AddedNetworkCurrency(network);
-    currency
-      ..networkName = network.name
-      ..iconUrl = network.iconUrl
-      ..isManual = network.isManual;
+    final currency = _registerCurrency(network);
+    if (!network.isEnabled) {
+      _removeChain(network.chainId);
+      return;
+    }
 
-    EvmNativeCurrencies.register(network.chainId, currency, WalletType.evm);
-    return currency;
-  }
-
-  void registerAddedNetworkChain(EvmNetwork network) {
-    final currency = registerAddedNetworkCurrency(network);
     final explorerUrl = network.explorerUrl;
-
-    final config = ChainConfig(
+    _chains[network.chainId] = ChainConfig(
       chainId: network.chainId,
       name: network.name,
       shortCode: "evm${network.chainId}",
@@ -160,32 +150,38 @@ class EvmChainRegistry {
       ],
       feeModel: const FeeModel(type: FeeType.eip1559OrLegacy),
     );
-
-    _chains[config.chainId] = config;
-    _chainIdToWalletType[config.chainId] = WalletType.evm;
-    _addedNetworks[config.chainId] = network;
+    _addedNetworks[network.chainId] = network;
   }
 
-  void unregisterAddedNetworkChain(int chainId) {
+  void unregisterAddedNetwork(int chainId) {
     _throwIfBuiltinChain(chainId);
 
-    _chains.remove(chainId);
-    _chainIdToWalletType.remove(chainId);
-    _addedNetworks.remove(chainId);
-  }
-
-  void unregisterAddedNetworkCurrency(int chainId) {
-    _throwIfBuiltinChain(chainId);
-
-    _addedNetworkCurrencies.remove(chainId);
+    _removeChain(chainId);
     EvmNativeCurrencies.unregister(chainId);
   }
 
   void unregisterAllAddedNetworks() {
-    for (final chainId in _addedNetworkCurrencies.keys.toList()) {
-      unregisterAddedNetworkChain(chainId);
-      unregisterAddedNetworkCurrency(chainId);
+    for (final chainId in EvmNativeCurrencies.addedNetworkChainIds.toList()) {
+      unregisterAddedNetwork(chainId);
     }
+  }
+
+  AddedNetworkCurrency _registerCurrency(EvmNetwork network) {
+    final registered = EvmNativeCurrencies.getNativeCurrencyByChainId(network.chainId);
+    final currency =
+        registered is AddedNetworkCurrency ? registered : AddedNetworkCurrency(network);
+    currency
+      ..networkName = network.name
+      ..iconUrl = network.iconUrl
+      ..isManual = network.isManual;
+
+    EvmNativeCurrencies.register(network.chainId, currency, WalletType.evm);
+    return currency;
+  }
+
+  void _removeChain(int chainId) {
+    _chains.remove(chainId);
+    _addedNetworks.remove(chainId);
   }
 
   EvmNetwork? getAddedNetwork(int chainId) => _addedNetworks[chainId];
@@ -198,7 +194,8 @@ class EvmChainRegistry {
     return chainId != null ? _chains[chainId] : null;
   }
 
-  WalletType? getWalletTypeByChainId(int chainId) => _chainIdToWalletType[chainId];
+  WalletType? getWalletTypeByChainId(int chainId) =>
+      isChainRegistered(chainId) ? EvmNativeCurrencies.getWalletTypeByChainId(chainId) : null;
 
   int? getChainIdByWalletType(WalletType walletType) => _walletTypeToChainId[walletType];
 

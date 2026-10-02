@@ -31,6 +31,10 @@ class EvmNativeCurrencies {
 
   static void unregister(int chainId) => _natives.remove(chainId);
 
+  static Iterable<int> get addedNetworkChainIds => _natives.entries
+      .where((entry) => entry.value.walletType == WalletType.evm)
+      .map((entry) => entry.key);
+
   static CryptoCurrency? getNativeCurrencyByChainId(int chainId) => _natives[chainId]?.currency;
 
   static WalletType? getWalletTypeByChainId(int chainId) => _natives[chainId]?.walletType;

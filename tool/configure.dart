@@ -1618,8 +1618,8 @@ abstract class EVM {
 
   /// Registers every stored network's currency, and the enabled ones as chains
   Future<void> loadNetworks();
-  void registerNetwork(EvmNetwork network);
-  void unregisterNetwork(int chainId);
+  void registerAddedNetwork(EvmNetwork network);
+  void unregisterAddedNetwork(int chainId);
 
 
   int? getSelectedChainId(WalletBase wallet);

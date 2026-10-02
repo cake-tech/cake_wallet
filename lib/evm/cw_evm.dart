@@ -581,26 +581,15 @@ class CWEVM extends EVM {
 
     _registry.unregisterAllAddedNetworks();
     for (final network in networks) {
-      registerNetwork(network);
+      registerAddedNetwork(network);
     }
   }
 
   @override
-  void registerNetwork(EvmNetwork network) {
-    if (network.isEnabled) {
-      _registry.registerAddedNetworkChain(network);
-      return;
-    }
-
-    _registry.registerAddedNetworkCurrency(network);
-    _registry.unregisterAddedNetworkChain(network.chainId);
-  }
+  void registerAddedNetwork(EvmNetwork network) => _registry.registerAddedNetwork(network);
 
   @override
-  void unregisterNetwork(int chainId) {
-    _registry.unregisterAddedNetworkChain(chainId);
-    _registry.unregisterAddedNetworkCurrency(chainId);
-  }
+  void unregisterAddedNetwork(int chainId) => _registry.unregisterAddedNetwork(chainId);
 
   @override
   int? getSelectedChainId(WalletBase wallet) {

@@ -35,13 +35,18 @@ void main() {
         isEnabled: isEnabled,
       );
 
+  CryptoCurrency registerAndGetCurrency(EvmNetwork added) {
+    registry.registerAddedNetwork(added);
+    return EvmNativeCurrencies.getNativeCurrencyByChainId(added.chainId)!;
+  }
+
   tearDown(registry.unregisterAllAddedNetworks);
 
-  group("EvmChainRegistry.registerAddedNetworkChain", () {
+  group("EvmChainRegistry.registerAddedNetwork", () {
     test("registers the chain as an evm chain with its own ChainConfig", () {
       final added = network(explorerUrl: "https://explorer.test-chain.example");
 
-      registry.registerAddedNetworkChain(added);
+      registry.registerAddedNetwork(added);
 
       final config = registry.getChainConfig(addedChainId)!;
       expect(config.name, "Test Chain");
@@ -54,15 +59,15 @@ void main() {
     });
 
     test("an added chain with no explorer, or an empty one, has no explorer URL", () {
-      registry.registerAddedNetworkChain(network());
-      registry.registerAddedNetworkChain(network(chainId: secondAddedChainId, explorerUrl: ""));
+      registry.registerAddedNetwork(network());
+      registry.registerAddedNetwork(network(chainId: secondAddedChainId, explorerUrl: ""));
 
       expect(registry.getChainConfig(addedChainId)!.explorerUrls, isEmpty);
       expect(registry.getChainConfig(secondAddedChainId)!.explorerUrls, isEmpty);
     });
 
     test("the native currency's raw is the offset plus the chain ID", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       final currency = registry.getChainConfig(addedChainId)!.nativeCurrency;
       expect(currency, isA<AddedNetworkCurrency>());
@@ -74,7 +79,7 @@ void main() {
     });
 
     test("publishes the native currency to EvmNativeCurrencies as an evm chain", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       final currency = registry.getChainConfig(addedChainId)!.nativeCurrency;
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(addedChainId), same(currency));
@@ -82,10 +87,10 @@ void main() {
     });
 
     test("the icon reaches the currency and its chain badge, bundled or remote", () {
-      registry.registerAddedNetworkChain(
+      registry.registerAddedNetwork(
         network(iconUrl: "assets/new-ui/network_icons/optimism.svg"),
       );
-      registry.registerAddedNetworkChain(
+      registry.registerAddedNetwork(
         network(
           chainId: secondAddedChainId,
           iconUrl: "https://icons.llamao.fi/icons/chains/rsz_test.jpg",
@@ -101,9 +106,9 @@ void main() {
     });
 
     test("an icon edit reaches the cached currency without replacing it", () {
-      final currency = registry.registerAddedNetworkCurrency(network());
+      final currency = registerAndGetCurrency(network());
 
-      final edited = registry.registerAddedNetworkCurrency(
+      final edited = registerAndGetCurrency(
         network(iconUrl: "https://icons.llamao.fi/icons/chains/rsz_test.jpg"),
       );
 
@@ -112,20 +117,20 @@ void main() {
     });
 
     test("an added chain never enters the tag map", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       expect(registry.getChainConfigByTag("TSTTAG"), isNull);
     });
 
     test("an added chain tagged like a built-in leaves the built-in's tag lookup alone", () {
-      registry.registerAddedNetworkChain(network(tag: "BSC", symbol: "BNB"));
+      registry.registerAddedNetwork(network(tag: "BSC", symbol: "BNB"));
 
       expect(registry.getChainConfigByTag("BSC")!.chainId, 56);
       expect(registry.getChainConfigByTag("BSC")!.nativeCurrency, same(CryptoCurrency.bnb));
     });
 
     test("the evm wallet type has no single chain ID and stays a registered type", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       expect(registry.getChainIdByWalletType(WalletType.evm), isNull);
       expect(registry.getRegisteredWalletTypes(), contains(WalletType.evm));
@@ -134,36 +139,36 @@ void main() {
 
   group("EvmChainRegistry added network currency", () {
     test("re-registering reuses the same currency instance", () {
-      final first = registry.registerAddedNetworkCurrency(network());
-      registry.registerAddedNetworkChain(network());
+      final first = registerAndGetCurrency(network());
+      registry.registerAddedNetwork(network());
 
-      expect(registry.registerAddedNetworkCurrency(network()), same(first));
+      expect(registerAndGetCurrency(network()), same(first));
       expect(registry.getChainConfig(addedChainId)!.nativeCurrency, same(first));
     });
 
     test("a rename reaches the cached currency without replacing it", () {
-      final currency = registry.registerAddedNetworkCurrency(network(name: "Old Name"));
+      final currency = registerAndGetCurrency(network(name: "Old Name"));
 
-      final renamed = registry.registerAddedNetworkCurrency(network(name: "New Name"));
+      final renamed = registerAndGetCurrency(network(name: "New Name"));
 
       expect(renamed, same(currency));
       expect(renamed.fullName, "New Name");
     });
 
     test("a symbol change keeps the cached currency until it is unregistered", () {
-      final currency = registry.registerAddedNetworkCurrency(network(symbol: "OLD"));
+      final currency = registerAndGetCurrency(network(symbol: "OLD"));
 
-      expect(registry.registerAddedNetworkCurrency(network(symbol: "NEW")).title, "OLD");
+      expect(registerAndGetCurrency(network(symbol: "NEW")).title, "OLD");
 
-      registry.unregisterAddedNetworkCurrency(addedChainId);
-      final rebuilt = registry.registerAddedNetworkCurrency(network(symbol: "NEW"));
+      registry.unregisterAddedNetwork(addedChainId);
+      final rebuilt = registerAndGetCurrency(network(symbol: "NEW"));
 
       expect(rebuilt, isNot(same(currency)));
       expect(rebuilt.title, "NEW");
     });
 
     test("registering only the currency does not register the chain", () {
-      registry.registerAddedNetworkCurrency(network(isEnabled: false));
+      registerAndGetCurrency(network(isEnabled: false));
 
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(addedChainId), isNotNull);
       expect(registry.getChainConfig(addedChainId), isNull);
@@ -172,11 +177,11 @@ void main() {
   });
 
   group("EvmChainRegistry unregister", () {
-    test("unregistering the chain keeps its currency, so stored raws still decode", () {
-      registry.registerAddedNetworkChain(network());
+    test("disabling the network keeps its currency, so stored raws still decode", () {
+      registry.registerAddedNetwork(network());
       final currency = registry.getChainConfig(addedChainId)!.nativeCurrency;
 
-      registry.unregisterAddedNetworkChain(addedChainId);
+      registry.registerAddedNetwork(network(isEnabled: false));
 
       expect(registry.getChainConfig(addedChainId), isNull);
       expect(registry.getWalletTypeByChainId(addedChainId), isNull);
@@ -185,19 +190,18 @@ void main() {
       expect(EvmNativeCurrencies.getWalletTypeByChainId(addedChainId), WalletType.evm);
     });
 
-    test("unregistering the currency unpublishes it", () {
-      registry.registerAddedNetworkChain(network());
-      registry.unregisterAddedNetworkChain(addedChainId);
+    test("unregistering the network unpublishes its currency", () {
+      registry.registerAddedNetwork(network());
 
-      registry.unregisterAddedNetworkCurrency(addedChainId);
+      registry.unregisterAddedNetwork(addedChainId);
 
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(addedChainId), isNull);
       expect(EvmNativeCurrencies.getWalletTypeByChainId(addedChainId), isNull);
     });
 
     test("unregisterAllAddedNetworks removes enabled and currency-only networks alike", () {
-      registry.registerAddedNetworkChain(network());
-      registry.registerAddedNetworkCurrency(network(chainId: secondAddedChainId, isEnabled: false));
+      registry.registerAddedNetwork(network());
+      registerAndGetCurrency(network(chainId: secondAddedChainId, isEnabled: false));
 
       registry.unregisterAllAddedNetworks();
 
@@ -207,7 +211,7 @@ void main() {
     });
 
     test("unregisterAllAddedNetworks keeps every built-in chain", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       registry.unregisterAllAddedNetworks();
 
@@ -227,12 +231,12 @@ void main() {
     test("an added network cannot take a built-in chain ID", () {
       for (final chainId in [1, 137, 8453, 42161, 56]) {
         expect(
-          () => registry.registerAddedNetworkChain(network(chainId: chainId)),
+          () => registry.registerAddedNetwork(network(chainId: chainId)),
           throwsArgumentError,
           reason: "$chainId",
         );
         expect(
-          () => registry.registerAddedNetworkCurrency(network(chainId: chainId)),
+          () => registerAndGetCurrency(network(chainId: chainId)),
           throwsArgumentError,
           reason: "$chainId",
         );
@@ -244,8 +248,8 @@ void main() {
     });
 
     test("a built-in chain cannot be unregistered as an added one", () {
-      expect(() => registry.unregisterAddedNetworkChain(137), throwsArgumentError);
-      expect(() => registry.unregisterAddedNetworkCurrency(8453), throwsArgumentError);
+      expect(() => registry.unregisterAddedNetwork(137), throwsArgumentError);
+      expect(() => registry.unregisterAddedNetwork(8453), throwsArgumentError);
 
       expect(registry.getChainConfig(137), isNotNull);
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(8453), same(CryptoCurrency.baseEth));
@@ -261,7 +265,7 @@ void main() {
     });
 
     test("an added network is EIP-1559, its client falls back to legacy per node", () {
-      registry.registerAddedNetworkChain(network());
+      registry.registerAddedNetwork(network());
 
       expect(registry.getChainConfig(addedChainId)!.feeModel.type, FeeType.eip1559OrLegacy);
     });

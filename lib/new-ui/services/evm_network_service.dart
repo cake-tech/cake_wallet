@@ -164,7 +164,7 @@ class EvmNetworkService {
     if (isChainIdChange) {
       await _remove(previous);
     } else if (previous != null && !hasWallets && _currencyDiffers(previous, network)) {
-      evm!.unregisterNetwork(network.chainId);
+      evm!.unregisterAddedNetwork(network.chainId);
     }
 
     await _registerAndReloadNetworks(network);
@@ -278,11 +278,11 @@ class EvmNetworkService {
     });
 
     await _sharedPreferences.remove(PreferencesKey.currentEvmChainNodeIdKey(network.chainId));
-    evm!.unregisterNetwork(network.chainId);
+    evm!.unregisterAddedNetwork(network.chainId);
   }
 
   Future<void> _registerAndReloadNetworks(EvmNetwork network) async {
-    evm!.registerNetwork(network);
+    evm!.registerAddedNetwork(network);
     await _settingsStore.loadEvmNetworks();
   }
 }
