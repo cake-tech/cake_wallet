@@ -31,6 +31,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -276,6 +277,8 @@ class WalletListBodyState extends State<WalletListBody> {
                               final currentColor = wallet.isCurrent
                                   ? Theme.of(context).colorScheme.primary
                                   : Theme.of(context).colorScheme.surface;
+                              final addedNetwork =
+                                  AddedNetworkCurrency.tryFromChainId(wallet.chainId);
                               return GroupedWalletExpansionTile(
                                 tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
                                 isCurrentlySelectedWallet: wallet.isCurrent,
@@ -300,9 +303,13 @@ class WalletListBodyState extends State<WalletListBody> {
                                       CakeImageWidget(
                                         imageUrl: getCryptoCurrencyIconForWalletListItem(
                                           wallet.type,
+                                          chainId: wallet.chainId,
                                         ),
                                         width: 32,
                                         height: 32,
+                                        isRoundedSquare: addedNetwork != null,
+                                        isOutlined: addedNetwork != null,
+                                        fallbackName: addedNetwork?.fullName,
                                       ),
                                     ],
                                   ),

@@ -1,4 +1,7 @@
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/utils/network_chain_utils.dart';
 
@@ -12,9 +15,7 @@ class EvmChainRegistry {
 
   final Map<int, ChainConfig> _chains = {};
   final Map<WalletType, int> _walletTypeToChainId = {};
-  final Map<int, WalletType> _chainIdToWalletType = {};
   final Map<String, int> _tagToChainId = {};
-  final Map<String, int> _caip2ToChainId = {};
 
   bool _initialized = false;
 
@@ -24,192 +25,161 @@ class EvmChainRegistry {
     _initialized = true;
 
     // Ethereum Mainnet
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 1,
         name: 'Ethereum',
         shortCode: 'eth',
         caip2: 'eip155:1',
         nativeCurrency: CryptoCurrency.eth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: true,
-        ),
-        defaultRpcEndpoints: [
-          'ethereum-rpc.publicnode.com',
-          'eth.llamarpc.com',
-          'rpc.flashbots.net',
-          'eth-mainnet.public.blastapi.io',
-          'eth.nownodes.io',
-          'ethereum.publicnode.com',
-        ],
         explorerUrls: [
           'https://etherscan.io',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.eip1559),
       ),
       WalletType.ethereum,
       'ETH',
     );
 
     // Polygon
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 137,
         name: 'Polygon',
         shortCode: 'polygon',
         caip2: 'eip155:137',
         nativeCurrency: CryptoCurrency.maticpoly,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
-        defaultRpcEndpoints: [
-          'polygon-rpc.com',
-          'polygon-bor-rpc.publicnode.com',
-          'polygon.llamarpc.com',
-          'matic.nownodes.io',
-        ],
         explorerUrls: [
           'https://polygonscan.com',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.polygon,
       'POL',
     );
 
     // Base
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 8453,
         name: 'Base',
         shortCode: 'base',
         caip2: 'eip155:8453',
         nativeCurrency: CryptoCurrency.baseEth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
-        defaultRpcEndpoints: [
-          'base.nownodes.io',
-          'base.llamarpc.com',
-          'base-rpc.publicnode.com',
-          '1rpc.io/base',
-        ],
         explorerUrls: [
           'https://basescan.org',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.base,
       'BASE',
     );
 
     // Arbitrum
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 42161,
         name: 'Arbitrum',
         shortCode: 'arbitrum',
         caip2: 'eip155:42161',
         nativeCurrency: CryptoCurrency.arbEth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
-        defaultRpcEndpoints: [
-          'arbitrum.nownodes.io',
-          'arbitrum.drpc.org',
-          'arbitrum-one-rpc.publicnode.com',
-        ],
         explorerUrls: [
           'https://arbiscan.io',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.arbitrum,
       'ARB',
     );
 
     // BNB Smart Chain
-    _registerChain(
+    _registerBuiltinChain(
       const ChainConfig(
         chainId: 56,
         name: 'BNB Smart Chain',
         shortCode: 'bsc',
         caip2: 'eip155:56',
         nativeCurrency: CryptoCurrency.bnb,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
-        defaultRpcEndpoints: [
-          'bsc-dataseed1.binance.org',
-          'bsc-dataseed2.binance.org',
-          'bsc-dataseed1.defibit.io',
-          'bsc-dataseed1.nodereal.io',
-          'bsc.llamarpc.com',
-          'bsc-rpc.publicnode.com',
-        ],
         explorerUrls: [
           'https://bscscan.com',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.bsc,
       'BSC',
     );
   }
 
-  void _registerChain(
+  void _registerBuiltinChain(
     ChainConfig config,
     WalletType walletType,
     String tag,
   ) {
     _chains[config.chainId] = config;
     _walletTypeToChainId[walletType] = config.chainId;
-    _chainIdToWalletType[config.chainId] = walletType;
     _tagToChainId[tag.toUpperCase()] = config.chainId;
-    _caip2ToChainId[config.caip2] = config.chainId;
+  }
+
+  bool isBuiltinChain(int chainId) => _walletTypeToChainId.containsValue(chainId);
+
+  void _throwIfBuiltinChain(int chainId) {
+    if (isBuiltinChain(chainId)) {
+      throw ArgumentError.value(chainId, "chainId", "Chain ID is a built-in network");
+    }
+  }
+
+  void registerAddedNetwork(EvmNetwork network) {
+    _throwIfBuiltinChain(network.chainId);
+
+    final currency = _registerCurrency(network);
+    if (!network.isEnabled) {
+      _chains.remove(network.chainId);
+      return;
+    }
+
+    final explorerUrl = network.explorerUrl;
+    _chains[network.chainId] = ChainConfig(
+      chainId: network.chainId,
+      name: network.name,
+      shortCode: "evm${network.chainId}",
+      caip2: "eip155:${network.chainId}",
+      nativeCurrency: currency,
+      explorerUrls: [
+        if (explorerUrl != null && explorerUrl.isNotEmpty) explorerUrl,
+      ],
+      feeModel: const FeeModel(type: FeeType.eip1559OrLegacy),
+    );
+  }
+
+  void unregisterAddedNetwork(int chainId) {
+    _throwIfBuiltinChain(chainId);
+
+    _chains.remove(chainId);
+    EvmNativeCurrencies.unregister(chainId);
+  }
+
+  void unregisterAllAddedNetworks() {
+    for (final chainId in EvmNativeCurrencies.addedNetworkChainIds.toList()) {
+      unregisterAddedNetwork(chainId);
+    }
+  }
+
+  AddedNetworkCurrency _registerCurrency(EvmNetwork network) {
+    final registered = EvmNativeCurrencies.getNativeCurrencyByChainId(network.chainId);
+    final currency =
+        registered is AddedNetworkCurrency ? registered : AddedNetworkCurrency(network);
+    currency.network = network;
+
+    EvmNativeCurrencies.register(network.chainId, currency, WalletType.evm);
+    return currency;
+  }
+
+  EvmNetwork? getAddedNetwork(int chainId) {
+    final currency = _chains[chainId]?.nativeCurrency;
+    return currency is AddedNetworkCurrency ? currency.network : null;
   }
 
   ChainConfig? getChainConfig(int chainId) => _chains[chainId];
-
-  ChainConfig? getChainConfigByWalletType(WalletType walletType) {
-    final chainId = _walletTypeToChainId[walletType];
-    return chainId != null ? _chains[chainId] : null;
-  }
 
   /// Get chain configuration by tag (e.g., 'ETH', 'POL', 'BASE', 'ARB')
   ChainConfig? getChainConfigByTag(String tag) {
@@ -217,21 +187,18 @@ class EvmChainRegistry {
     return chainId != null ? _chains[chainId] : null;
   }
 
-  /// Get chain configuration by CAIP-2 identifier (e.g. 'eip155:1')
-  ChainConfig? getChainConfigByCaip2(String caip2) {
-    final chainId = _caip2ToChainId[caip2];
-    return chainId != null ? _chains[chainId] : null;
-  }
-
-  WalletType? getWalletTypeByChainId(int chainId) => _chainIdToWalletType[chainId];
+  WalletType? getWalletTypeByChainId(int chainId) =>
+      isChainRegistered(chainId) ? EvmNativeCurrencies.getWalletTypeByChainId(chainId) : null;
 
   int? getChainIdByWalletType(WalletType walletType) => _walletTypeToChainId[walletType];
 
-  bool isChainRegistered(int chainId) => _chains.containsKey(chainId);
+  int? getWalletChainId(WalletInfo walletInfo) => walletInfo.type == WalletType.evm
+      ? walletInfo.chainId
+      : getChainIdByWalletType(walletInfo.type);
 
-  List<int> getRegisteredChainIds() => _chains.keys.toList();
+  bool isChainRegistered(int chainId) => _chains.containsKey(chainId);
 
   List<ChainConfig> getAllChains() => _chains.values.toList();
 
-  List<WalletType> getRegisteredWalletTypes() => _walletTypeToChainId.keys.toList();
+  List<WalletType> getRegisteredWalletTypes() => [..._walletTypeToChainId.keys, WalletType.evm];
 }

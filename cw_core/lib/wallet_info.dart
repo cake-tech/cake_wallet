@@ -350,7 +350,8 @@ class WalletInfo {
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
       this.favoriteTokenAddress,
-      this.showSeedBackupReminder)
+      this.showSeedBackupReminder,
+      {this.chainId})
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -374,7 +375,8 @@ class WalletInfo {
       int? sortOrder,
       bool? receiveInfoboxDismissed,
       bool? showCombinedBalance,
-      String? favoriteTokenAddress}) {
+      String? favoriteTokenAddress,
+      int? chainId}) {
     return WalletInfo(
         0,
         id,
@@ -399,7 +401,8 @@ class WalletInfo {
         receiveInfoboxDismissed ?? false,
         showCombinedBalance ?? true,
         favoriteTokenAddress,
-        false);
+        false,
+        chainId: chainId);
   }
 
   static String get tableName => 'walletInfo';
@@ -421,6 +424,7 @@ class WalletInfo {
   bool showCombinedBalance;
   String? favoriteTokenAddress;
   bool showSeedBackupReminder;
+  int? chainId;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -592,6 +596,7 @@ class WalletInfo {
         "favoriteTokenAddress": favoriteTokenAddress,
         "showSeedBackupReminder": showSeedBackupReminder ? 1 : 0,
         "network": network,
+        "chainId": chainId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -621,7 +626,8 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
-        json["showSeedBackupReminder"] == 1);
+        json["showSeedBackupReminder"] == 1,
+        chainId: json["chainId"] as int?);
     info.network = json['network'] as String?;
     return info;
   }

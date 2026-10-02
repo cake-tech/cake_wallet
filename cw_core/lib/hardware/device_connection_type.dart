@@ -25,6 +25,7 @@ enum DeviceConnectionType {
           WalletType.litecoin,
           WalletType.ethereum,
           WalletType.polygon,
+          WalletType.evm,
         ].contains(walletType);
         break;
       case HardwareWalletType.trezor:

@@ -2,6 +2,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class EvmAddressDetectedSheet extends StatelessWidget {
@@ -40,7 +41,7 @@ class EvmAddressDetectedSheet extends StatelessWidget {
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 32),
-            StackedNetworkIcons(iconPaths: networks.map((n) => n.iconPath).toList()),
+            StackedNetworkIcons(networks: networks),
             const SizedBox(height: 24),
             Text(
               S.of(context).evm_address_detected,
@@ -88,28 +89,30 @@ class EvmAddressDetectedSheet extends StatelessWidget {
 
 class StackedNetworkIcons extends StatelessWidget {
   const StackedNetworkIcons({
-    required this.iconPaths,
+    required this.networks,
     this.size = 50,
     this.step = 34,
   });
 
-  final List<String> iconPaths;
+  final List<RecipientNetworkItem> networks;
   final double size;
   final double step;
 
   @override
   Widget build(BuildContext context) {
-    if (iconPaths.isEmpty) return const SizedBox.shrink();
+    if (networks.isEmpty) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
-    final width = size + (iconPaths.length - 1) * step;
+    final width = size + (networks.length - 1) * step;
+    final addedNetworks =
+        networks.map((network) => AddedNetworkCurrency.tryFromChainId(network.chainId)).toList();
 
     return SizedBox(
       height: size,
       width: width,
       child: Stack(
         children: [
-          for (int i = 0; i < iconPaths.length; i++)
+          for (int i = 0; i < networks.length; i++)
             Positioned(
               left: i * step,
               child: Container(
@@ -121,7 +124,15 @@ class StackedNetworkIcons extends StatelessWidget {
                   color: colors.surfaceContainer,
                   border: Border.all(color: colors.surface, width: 2),
                 ),
-                child: CakeImageWidget(imageUrl: iconPaths[i], fit: BoxFit.contain),
+                child: CakeImageWidget(
+                  imageUrl: networks[i].iconPath,
+                  width: size - 8,
+                  height: size - 8,
+                  fit: BoxFit.contain,
+                  isRoundedSquare: addedNetworks[i] != null,
+                  isOutlined: addedNetworks[i] != null,
+                  fallbackName: addedNetworks[i]?.fullName,
+                ),
               ),
             ),
         ],

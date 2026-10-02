@@ -8,6 +8,7 @@ import "package:cake_wallet/core/anypay/anypay_service.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart";
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/entities/contact_record.dart";
 import "package:cake_wallet/entities/priority_for_wallet_type.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -38,7 +39,6 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
-import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
@@ -517,6 +517,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                       widget.sendViewModel.wallet.type,
                                                     ) ??
                                                     "",
+                                                addedNetworkChainId:
+                                                    recipientChain.source == ChainSource.builtin
+                                                        ? null
+                                                        : recipientChain.chainId,
                                                 onTap: () => _presentRecipientNetworkPicker(
                                                   recipientChain,
                                                 ),
@@ -570,6 +574,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 widget.sendViewModel.selectedCryptoCurrencySymbol,
                                             fiatCurrencySymbol:
                                                 widget.sendViewModel.fiatCurrency.symbol,
+                                            hasFiatValue:
+                                                !widget.sendViewModel.isSelectedCurrencyUnpriced,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,
@@ -609,8 +615,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
                                                   label: S.of(context).fees,
-                                                  subtitle:
-                                                      "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+                                                  subtitle: widget
+                                                          .sendViewModel.isFeeCurrencyUnpriced
+                                                      ? "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol}"
+                                                      : "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                                   // Without fee priorities the row does nothing,
                                                   // so it must not be announced as interactive.
                                                   onTap: widget.sendViewModel.feesViewModel
@@ -991,7 +999,9 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: "${r.availableBalance} ${r.asset.title}",
-          fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
+          fiat: isFiatDisabled || r.fiatCurrency == null
+              ? null
+              : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };
@@ -1001,7 +1011,7 @@ class _NewSendPageState extends State<NewSendPage> {
       args: CurrencyPickerArgs(
         items: widget.sendViewModel.currencies,
         selected: widget.sendViewModel.selectedCryptoCurrency,
-        filterByNetwork: widget.sendViewModel.walletType,
+        filterByNetwork: WalletNetwork.fromWallet(widget.sendViewModel.wallet.walletInfo),
         balanceByAsset: balanceByAsset,
         useSingleNetworkLayout: true,
         symbolResolver: widget.sendViewModel.amountParsingProxy.getCryptoSymbol,
@@ -1086,13 +1096,7 @@ class _NewSendPageState extends State<NewSendPage> {
     await _handleEvaluation(evaluation, fallbackCurrency: target.currency);
   }
 
-  int _currentEvmChainIdOrMainnet() {
-    final wallet = widget.sendViewModel.wallet;
-    if (isEVMCompatibleChain(wallet.type)) {
-      return evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
-    }
-    return 1;
-  }
+  int _currentEvmChainIdOrMainnet() => evm?.getSelectedChainId(widget.sendViewModel.wallet) ?? 1;
 
   Future<bool> _handleIfOpenCryptoPay(String input) async {
     if (!OpenCryptoPayService.isOpenCryptoPayQR(input) ||

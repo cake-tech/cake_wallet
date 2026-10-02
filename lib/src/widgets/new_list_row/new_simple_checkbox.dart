@@ -5,10 +5,12 @@ class NewSimpleCheckbox extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
+    this.checkIconSize = 20,
   });
 
   final bool value;
   final ValueChanged<bool> onChanged;
+  final double checkIconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class NewSimpleCheckbox extends StatelessWidget {
             ? Icon(
                 Icons.check,
                 color: Theme.of(context).colorScheme.onPrimary,
-                size: 20,
+                size: checkIconSize,
               )
             : const SizedBox.shrink(),
       ),

@@ -7,6 +7,8 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cake_wallet/entities/provider_types.dart";
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -58,6 +60,10 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   bool get isAggregator => true;
+
+  @override
+  String? addedEvmNetworkCode(CryptoCurrency currency) =>
+      evmBuyProviderNetworkCode(currency, ProviderType.onramper);
 
   Future<String> getOnramperSignature(String query) async {
     final uri = Uri.https(_cIdBaseUrl, "/api/onramper");
@@ -277,8 +283,9 @@ class OnRamperBuyProvider extends BuyProvider {
         ? quote.customPaymentMethodType
         : normalizePaymentMethod(quote.paymentType);
 
-    final networkWallets =
-        '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress';
+    final networkId = addedEvmNetworkCode(quote.cryptoCurrency) ??
+        _tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title);
+    final networkWallets = "${networkId.toLowerCase()}:$cryptoCurrencyAddress";
 
     final signature = await getOnramperSignature("networkWallets=$networkWallets");
 
@@ -335,6 +342,11 @@ class OnRamperBuyProvider extends BuyProvider {
   }
 
   String _getNormalizeNetwork(CryptoCurrency currency) {
+    final addedNetworkCode = addedEvmNetworkCode(currency);
+    if (addedNetworkCode != null) {
+      return "_$addedNetworkCode";
+    }
+
     if (mainCurrency.contains(currency)) return '';
 
     if (currency == CryptoCurrency.eos) return '_EOSIO';

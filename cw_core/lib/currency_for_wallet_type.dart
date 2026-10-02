@@ -1,5 +1,75 @@
+import "package:collection/collection.dart";
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/erc20_token.dart";
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
+
+class _EvmNative {
+  const _EvmNative({
+    required this.currency,
+    required this.walletType,
+  });
+
+  final CryptoCurrency currency;
+  final WalletType walletType;
+}
+
+class EvmNativeCurrencies {
+  // Any currency raw above this number is automatically an addedNetwork, and it contains the offset and chainId
+  static const int addedNetworkRawOffset = 1000000000000;
+
+  static final Map<int, _EvmNative> _natives = {
+    1: const _EvmNative(currency: CryptoCurrency.eth, walletType: WalletType.ethereum),
+    137: const _EvmNative(currency: CryptoCurrency.maticpoly, walletType: WalletType.polygon),
+    8453: const _EvmNative(currency: CryptoCurrency.baseEth, walletType: WalletType.base),
+    42161: const _EvmNative(currency: CryptoCurrency.arbEth, walletType: WalletType.arbitrum),
+    56: const _EvmNative(currency: CryptoCurrency.bnb, walletType: WalletType.bsc),
+  };
+
+  static void register(int chainId, CryptoCurrency currency, WalletType walletType) =>
+      _natives[chainId] = _EvmNative(currency: currency, walletType: walletType);
+
+  static void unregister(int chainId) => _natives.remove(chainId);
+
+  static Iterable<int> get addedNetworkChainIds => _natives.entries
+      .where((entry) => entry.value.walletType == WalletType.evm)
+      .map((entry) => entry.key);
+
+  static CryptoCurrency? getNativeCurrencyByChainId(int chainId) => _natives[chainId]?.currency;
+
+  static WalletType? getWalletTypeByChainId(int chainId) => _natives[chainId]?.walletType;
+
+  static int addedNetworkRaw(int chainId) => addedNetworkRawOffset + chainId;
+
+  static bool isAddedNetworkRaw(int raw) => raw >= addedNetworkRawOffset;
+
+  static int addedNetworkChainIdFromRaw(int raw) => raw - addedNetworkRawOffset;
+
+  static int? getAddedNetworkChainId(CryptoCurrency currency) {
+    final chainId = getChainIdByCryptoCurrency(currency);
+    if (chainId == null) {
+      return null;
+    }
+
+    final walletType = getWalletTypeByChainId(chainId);
+    return walletType == null || walletType == WalletType.evm ? chainId : null;
+  }
+
+  static bool isAddedNetworkCurrency(CryptoCurrency currency) =>
+      getAddedNetworkChainId(currency) != null;
+
+  static bool isWalletForCurrency(WalletInfo info, CryptoCurrency currency) {
+    if (cryptoCurrencyOrTokenToWalletType(currency) != info.type) {
+      return false;
+    }
+
+    if (info.type != WalletType.evm) {
+      return true;
+    }
+
+    return info.chainId != null && info.chainId == getChainIdByCryptoCurrency(currency);
+  }
+}
 
 CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
   if (chainId != null) {
@@ -48,6 +118,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.doge;
     case WalletType.zcash:
       return CryptoCurrency.zec;
+    case WalletType.evm:
+      throw Exception("An EVM wallet's currency needs its chain ID");
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
@@ -55,39 +127,28 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
 }
 
 CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
-  switch (chainId) {
-    case 1:
-      return CryptoCurrency.eth;
-    case 137:
-      return CryptoCurrency.maticpoly;
-    case 8453:
-      return CryptoCurrency.baseEth;
-    case 42161:
-      return CryptoCurrency.arbEth;
-    case 56:
-      return CryptoCurrency.bnb;
-    default:
-      return CryptoCurrency.eth;
+  final currency = EvmNativeCurrencies.getNativeCurrencyByChainId(chainId);
+  if (currency == null) {
+    throw Exception("No EVM network registered for chain ID $chainId");
   }
+
+  return currency;
 }
 
 /// Get chainId from CryptoCurrency for EVM chains
 /// Returns null if currency is not an EVM chain
 int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.eth:
-      return 1;
-    case CryptoCurrency.maticpoly:
-      return 137;
-    case CryptoCurrency.baseEth:
-      return 8453;
-    case CryptoCurrency.arbEth:
-      return 42161;
-    case CryptoCurrency.bnb:
-      return 56;
-    default:
-      return null;
+  if (currency is Erc20Token) {
+    return currency.chainId;
   }
+
+  if (EvmNativeCurrencies.isAddedNetworkRaw(currency.raw)) {
+    return EvmNativeCurrencies.addedNetworkChainIdFromRaw(currency.raw);
+  }
+
+  return EvmNativeCurrencies._natives.entries
+      .firstWhereOrNull((entry) => entry.value.currency == currency)
+      ?.key;
 }
 
 CryptoCurrency getCryptoCurrencyForWalletListItem(WalletType type,
@@ -109,7 +170,12 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
     return "assets/new-ui/crypto_full_icons/base.svg";
   }
 
-  return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
+  final currency = walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
+  if (type == WalletType.evm) {
+    return currency.chainIconPath ?? "";
+  }
+
+  return currency.iconPath ?? "";
 }
 
 String? symbolIconPathForWalletType(WalletType type) {
@@ -150,6 +216,7 @@ String? symbolIconPathForWalletType(WalletType type) {
     case WalletType.wownero:
     case WalletType.haven:
     case WalletType.banano:
+    case WalletType.evm:
     case WalletType.none:
       return null;
   }

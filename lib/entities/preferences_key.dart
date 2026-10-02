@@ -65,6 +65,7 @@ class PreferencesKey {
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const zcashTransactionPriority = 'current_fee_priority_zcash';
   static const dogecoinTransactionPriority = 'current_fee_priority_dogecoin';
+  static const evmTransactionPriority = "current_fee_priority_evm";
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
@@ -92,7 +93,7 @@ class PreferencesKey {
   static const useBscScan = 'use_bscscan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
-  static const evmHiddenChainIds = 'evm_hidden_chain_ids';
+  static const hiddenBuiltinNetworks = "hidden_builtin_networks";
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
@@ -117,6 +118,10 @@ class PreferencesKey {
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
   static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
+
+  static String currentEvmChainNodeIdKey(int chainId) => "current_node_id_evm_$chainId";
+
+  static String popularEvmTokensAddedKey(String walletId) => "popular_evm_tokens_added_$walletId";
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

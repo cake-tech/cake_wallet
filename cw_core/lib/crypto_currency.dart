@@ -1,5 +1,6 @@
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
@@ -48,6 +49,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   String get apiString => "crypto.$title";
 
   set enabled(bool value) => this.enabled = value;
+
+  static bool isGlyphChainBadge(String path) => path.startsWith("assets/new-ui/chain_badges/");
 
   static const all = [
     CryptoCurrency.xmr,
@@ -1028,15 +1031,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   };
 
   static CryptoCurrency deserialize({required int raw}) {
-    if (CryptoCurrency._rawCurrencyMap[raw] == null) {
+    final currency = safeDeserialize(raw: raw);
+    if (currency == null) {
       final s = 'Unexpected token: $raw for CryptoCurrency deserialize';
       throw ArgumentError.value(raw, 'raw', s);
     }
-    return CryptoCurrency._rawCurrencyMap[raw]!;
+    return currency;
   }
 
   static CryptoCurrency? safeDeserialize({int? raw}) {
     if (raw == null || raw < 0) return null;
+
+    if (EvmNativeCurrencies.isAddedNetworkRaw(raw)) {
+      final chainId = EvmNativeCurrencies.addedNetworkChainIdFromRaw(raw);
+      final currency = EvmNativeCurrencies.getNativeCurrencyByChainId(chainId);
+
+      return currency?.raw == raw ? currency : null;
+    }
+
     return _rawCurrencyMap[raw];
   }
 

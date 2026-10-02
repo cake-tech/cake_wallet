@@ -4,11 +4,13 @@ import "package:cw_core/cake_hive.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/erc20_token.dart" as erc20_sql;
 import "package:cw_core/erc20_token_legacy.dart" as erc20_legacy;
+import "package:cw_core/node.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/spl_token.dart" as spl_sql;
 import "package:cw_core/spl_token_legacy.dart" as spl_legacy;
 import "package:cw_core/tron_token.dart" as tron_sql;
 import "package:cw_core/tron_token_legacy.dart" as tron_legacy;
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:path_provider_platform_interface/path_provider_platform_interface.dart";
@@ -359,6 +361,182 @@ Future<void> main() async {
         // Rename into a name that has orphaned rows must not trip the unique index
         await erc20_sql.Erc20Token.renameWallet("Renamed Wallet", "My_Wallet");
         expect((await erc20_sql.Erc20Token.getAllForWallet("My_Wallet", 1)).length, 3);
+      });
+    },
+  );
+
+  group(
+    "sqlite v14 migration",
+    () {
+      final v13Root = Directory("./test/data/sqlite_v14_migration");
+
+      setUpAll(() async {
+        if (v13Root.existsSync()) {
+          v13Root.deleteSync(recursive: true);
+        }
+        v13Root.createSync(recursive: true);
+        Directory("${v13Root.path}/cake_wallet").createSync(recursive: true);
+
+        PathProviderPlatform.instance = _FakePathProviderPlatform(v13Root.absolute.path);
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+
+        // The two tables the v14 step alters, in their v13 shape
+        final v13 = await databaseFactoryFfi.openDatabase(
+          "${(await getAppDir()).path}/cake.db",
+          options: OpenDatabaseOptions(
+            version: 13,
+            onCreate: (db, version) async {
+              await db.execute("""
+CREATE TABLE WalletInfo (
+  walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  "type" INTEGER NOT NULL,
+  isRecovery INTEGER DEFAULT (0) NOT NULL,
+  walletInfoDerivationInfoId INTEGER NOT NULL,
+  restoreHeight INTEGER DEFAULT (0) NOT NULL,
+  "timestamp" INTEGER DEFAULT (0) NOT NULL,
+  dirPath TEXT NOT NULL,
+  "path" TEXT NOT NULL,
+  address TEXT NOT NULL,
+  yatEid TEXT,
+  yatLastUsedAddressRaw TEXT,
+  showIntroCakePayCard INTEGER DEFAULT (1),
+  addressPageType TEXT,
+  network TEXT,
+  hardwareWalletType INTEGER,
+  parentAddress TEXT,
+  hashedWalletIdentifier TEXT,
+  isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
+  sortOrder INTEGER DEFAULT (0) NOT NULL,
+  receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
+  showCombinedBalance BOOLEAN DEFAULT TRUE,
+  favoriteTokenAddress TEXT DEFAULT NULL,
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE
+);
+""");
+              await db.execute("""
+CREATE TABLE Node (
+NodeId INTEGER PRIMARY KEY,
+uri TEXT NOT NULL,
+path TEXT,
+login TEXT,
+label TEXT,
+password TEXT,
+isPow INTEGER NOT NULL,
+useSSL INTEGER,
+typeRaw INTEGER NOT NULL,
+trusted INTEGER NOT NULL,
+socksProxyAddress TEXT,
+isEnabledForAutoSwitching BOOLEAN DEFAULT FALSE,
+isOfficial BOOLEAN DEFAULT FALSE,
+isBuiltin BOOLEAN DEFAULT FALSE,
+isDefault BOOLEAN DEFAULT FALSE
+);
+""");
+            },
+          ),
+        );
+
+        await v13.insert("WalletInfo", {
+          "id": "ethereum_Upgrade Wallet",
+          "name": "Upgrade Wallet",
+          "type": WalletType.ethereum.index,
+          "isRecovery": 1,
+          "restoreHeight": 17,
+          "timestamp": 1700000000000,
+          "dirPath": "/wallets/ethereum/Upgrade Wallet",
+          "path": "/wallets/ethereum/Upgrade Wallet/Upgrade Wallet",
+          "address": "0x52908400098527886E0F7030069857D2E4169EE7",
+          "showIntroCakePayCard": 0,
+          "walletInfoDerivationInfoId": 3,
+          "isNonSeedWallet": 0,
+          "sortOrder": 2,
+          "receiveInfoboxDismissed": 1,
+          "showCombinedBalance": 0,
+          "favoriteTokenAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        });
+
+        await v13.insert("Node", {
+          "NodeId": 41,
+          "uri": "ethereum-rpc.publicnode.com",
+          "path": "",
+          "label": "Public Node",
+          "isPow": 0,
+          "useSSL": 1,
+          "typeRaw": serializeToInt(WalletType.ethereum),
+          "trusted": 0,
+          "isBuiltin": 1,
+          "isDefault": 1,
+        });
+
+        await v13.close();
+
+        await initDb();
+      });
+
+      tearDownAll(() async {
+        await db?.close();
+        db = null;
+        if (v13Root.existsSync()) {
+          v13Root.deleteSync(recursive: true);
+        }
+      });
+
+      test("upgrades to version 14 with the EvmNetwork table", () async {
+        final version = await db!.rawQuery("PRAGMA user_version");
+        expect(version.single.values.single, 14);
+
+        final tables = await db!.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'EvmNetwork'");
+        expect(tables, hasLength(1));
+
+        for (final table in ["WalletInfo", "Node"]) {
+          final columns = await db!.rawQuery("PRAGMA table_info($table)");
+          expect(columns.map((column) => column["name"]), contains("chainId"), reason: table);
+        }
+      });
+
+      test("existing wallet rows read back unchanged with no chain ID", () async {
+        final info = (await WalletInfo.getAll()).single;
+
+        expect(info.chainId, isNull);
+        expect(info.name, "Upgrade Wallet");
+        expect(info.type, WalletType.ethereum);
+        expect(info.isRecovery, isTrue);
+        expect(info.restoreHeight, 17);
+        expect(info.address, "0x52908400098527886E0F7030069857D2E4169EE7");
+        expect(info.derivationInfoId, 3);
+        expect(info.sortOrder, 2);
+        expect(info.receiveInfoboxDismissed, isTrue);
+        expect(info.showCombinedBalance, isFalse);
+        expect(info.favoriteTokenAddress, "0xdac17f958d2ee523a2206206994597c13d831ec7");
+      });
+
+      test("existing node rows read back unchanged and equal a node built from the list", () async {
+        final stored = (await Node.getAll()).single;
+
+        expect(stored.chainId, isNull);
+        expect(stored.id, 41);
+        expect(stored.uriRaw, "ethereum-rpc.publicnode.com");
+        expect(stored.type, WalletType.ethereum);
+        expect(stored.isBuiltin, isTrue);
+        expect(stored.isDefault, isTrue);
+
+        final fromList = Node(
+          uri: "ethereum-rpc.publicnode.com",
+          type: WalletType.ethereum,
+          label: "Public Node",
+          useSSL: true,
+          path: "",
+        );
+        expect(fromList, stored);
+        expect(fromList.hashCode, stored.hashCode);
+
+        // Node equality ignores the chain ID, so validateBuiltinNodes neither deletes nor re-adds
+        fromList.chainId = 10;
+        expect(fromList, stored);
       });
     },
   );

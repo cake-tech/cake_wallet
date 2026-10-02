@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,8 @@ class AssetDetailsModal extends StatelessWidget {
       required this.wallet,
       required this.showSwap,
       required this.showBridgeButton,
-      this.asset});
+      this.asset,
+      this.addedNetwork});
 
   final String title;
   final CryptoCurrency? asset;
@@ -49,9 +52,12 @@ class AssetDetailsModal extends StatelessWidget {
   final bool showSwap;
   final bool showBridgeButton;
   final AssetDetailsModalModes mode;
+  final ChainInfo? addedNetwork;
 
   @override
   Widget build(BuildContext context) {
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(asset);
+
     return Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -78,7 +84,16 @@ class AssetDetailsModal extends StatelessWidget {
                       height: 75,
                       child: Stack(
                         children: [
-                          if (iconPath.isNotEmpty)
+                          if (networkIconNative != null)
+                            CakeImageWidget(
+                              imageUrl: networkIconNative.iconPath,
+                              width: 75,
+                              height: 75,
+                              isRoundedSquare: true,
+                              isOutlined: true,
+                              fallbackName: networkIconNative.fullName,
+                            )
+                          else if (iconPath.isNotEmpty)
                             TokenImageWidget(
                               imageUrl: iconPath,
                               size: 75,
@@ -154,14 +169,27 @@ class AssetDetailsModal extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 4,
                             children: [
-                              if (chainIconPath.isNotEmpty)
+                              if (addedNetwork != null)
+                                CakeImageWidget(
+                                  imageUrl: addedNetwork!.iconPath,
+                                  width: 16,
+                                  height: 16,
+                                  isRoundedSquare: true,
+                                  isOutlined: true,
+                                  fallbackName: addedNetwork!.name,
+                                )
+                              else if (chainIconPath.isNotEmpty)
                                 CakeImageWidget(
                                   imageUrl: chainIconPath,
                                   width: 16,
                                   height: 16,
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.onSurfaceVariant,
-                                      BlendMode.srcIn),
+                                  isRoundedSquare: !CryptoCurrency.isGlyphChainBadge(chainIconPath),
+                                  colorFilter: CryptoCurrency.isGlyphChainBadge(chainIconPath)
+                                      ? ColorFilter.mode(
+                                          Theme.of(context).colorScheme.onSurfaceVariant,
+                                          BlendMode.srcIn,
+                                        )
+                                      : null,
                                 ),
                               Text(
                                 subtitle,

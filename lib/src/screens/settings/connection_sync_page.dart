@@ -109,6 +109,16 @@ class ConnectionSyncPage extends BasePage {
                             onChanged: (val) {
                               _connectionSyncViewModel.setUseBscScan(val);
                             }),
+                      for (final network in _connectionSyncViewModel.addedNetworks)
+                        if (_connectionSyncViewModel.canUseEvmScan(network.chainId))
+                          ListItemToggle(
+                              keyValue: "use_evm_scan_${network.chainId}",
+                              label: network.name,
+                              subtitle: S.of(context).explorer_history,
+                              value: _connectionSyncViewModel.useEvmScan(network.chainId),
+                              onChanged: (val) {
+                                _connectionSyncViewModel.setUseEvmScan(network.chainId, val);
+                              }),
                       if (_connectionSyncViewModel.canUseTronGrid)
                         ListItemToggle(
                             keyValue: "can_use_trongrid",

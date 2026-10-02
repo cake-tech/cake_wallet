@@ -67,7 +67,7 @@ abstract class StartTorViewModelBase with Store {
     final appStore = getIt.get<AppStore>();
     bootstrapOnline(navigatorKey, loadWallet: true);
     appStore.wallet
-        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNodeForWallet(appStore.wallet!));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
@@ -78,7 +78,7 @@ abstract class StartTorViewModelBase with Store {
     bootstrapOnline(navigatorKey, loadWallet: true);
     final appStore = getIt.get<AppStore>();
     appStore.wallet
-        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNodeForWallet(appStore.wallet!));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
@@ -87,7 +87,7 @@ abstract class StartTorViewModelBase with Store {
     bootstrapOnline(navigatorKey, loadWallet: true);
     final appStore = getIt.get<AppStore>();
     appStore.wallet
-        ?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
+        ?.connectToNode(node: appStore.settingsStore.getCurrentNodeForWallet(appStore.wallet!));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 

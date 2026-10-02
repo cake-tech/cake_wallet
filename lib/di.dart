@@ -24,7 +24,6 @@ import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -33,6 +32,7 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
@@ -72,8 +72,18 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/manage_builtin_networks_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/manage_evm_networks_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/network_details_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/wallet_network_page.dart";
+import "package:cake_wallet/new-ui/services/chain_list_service.dart";
+import "package:cake_wallet/new-ui/services/evm_network_service.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/wallet_network/manage_builtin_networks_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/wallet_network/manage_evm_networks_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/wallet_network/network_details_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/wallet_network/wallet_network_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -104,7 +114,6 @@ import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
-import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -267,6 +276,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -436,13 +446,14 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
-    (type, _) => WalletGroupsDisplayViewModel(
+  getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, int?>(
+    (type, chainId) => WalletGroupsDisplayViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),
       getIt.get<WalletListViewModel>(),
       type: type,
+      chainId: chainId,
     ),
   );
 
@@ -495,13 +506,15 @@ Future<void> setup({
         walletType: args.walletType ?? currentWalletType);
   });
 
-  getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, HardwareWalletViewModel>(
-      (type, hardwareWalletVM) => WalletHardwareRestoreViewModel(
-          hardwareWalletVM,
-          getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type),
-          getIt.get<SeedSettingsViewModel>(),
-          type: type));
+  getIt
+      .registerFactoryParam<WalletHardwareRestoreViewModel, WalletNetwork, HardwareWalletViewModel>(
+          (network, hardwareWalletVM) => WalletHardwareRestoreViewModel(
+              hardwareWalletVM,
+              getIt.get<AppStore>(),
+              getIt.get<WalletCreationService>(param1: network.type),
+              getIt.get<SeedSettingsViewModel>(),
+              type: network.type,
+              chainId: network.chainId));
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
       appStore: getIt.get<AppStore>(),
@@ -868,7 +881,10 @@ Future<void> setup({
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
         walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
+          param1: NewWalletArguments(
+            type: arguments.editingWallet.type,
+            chainId: arguments.editingWallet.chainId,
+          ),
         ),
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
@@ -1031,10 +1047,11 @@ Future<void> setup({
 
   getIt.registerFactoryParam<NodeCreateOrEditViewModel, Map<String, dynamic>, void>(
       (Map<String, dynamic> args, _) {
-    final WalletType type = args['type'] as WalletType? ?? getIt.get<AppStore>().wallet!.type;
+    final network = args["network"] as WalletNetwork? ??
+        WalletNetwork.fromWallet(getIt.get<AppStore>().wallet!.walletInfo);
     final bool isPow = args['isPow'] as bool? ?? false;
     final Node? editingNode = args['editingNode'] as Node?;
-    return NodeCreateOrEditViewModel(isPow, type, getIt.get<SettingsStore>(),
+    return NodeCreateOrEditViewModel(isPow, network, getIt.get<SettingsStore>(),
         editingNode: editingNode);
   });
 
@@ -1045,8 +1062,7 @@ Future<void> setup({
     return NodeCreateOrEditPage(
         nodeCreateOrEditViewModel: vm,
         editingNode: editingNode,
-        isSelected: isSelected,
-        type: getIt.get<AppStore>().wallet!.type);
+        isSelected: isSelected);
   });
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
@@ -1171,6 +1187,7 @@ Future<void> setup({
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -1232,10 +1249,14 @@ Future<void> setup({
       (type, additionalParams) {
     final restoredWallet = additionalParams?['restoredWallet'] as RestoredWallet?;
     final hardwareWalletType = additionalParams?['hardwareWalletType'] as HardwareWalletType?;
+    final chainId = additionalParams?["chainId"] as int? ?? restoredWallet?.chainId;
 
     return WalletRestoreViewModel(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type), getIt.get<SeedSettingsViewModel>(),
-        type: type, restoredWallet: restoredWallet, hardwareWalletType: hardwareWalletType);
+        type: type,
+        restoredWallet: restoredWallet,
+        hardwareWalletType: hardwareWalletType,
+        chainId: chainId);
   });
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, Map<String, dynamic>?>(
@@ -1293,12 +1314,48 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
-      (newWalletTypeArguments, _) {
-    return NewWalletTypePage(
-      newWalletTypeArguments: newWalletTypeArguments,
-    );
-  });
+  getIt.registerFactory<ChainListService>(() => ChainListService());
+
+  getIt.registerFactory<EvmNetworkService>(() => EvmNetworkService(
+        getIt.get<SettingsStore>(),
+        getIt.get<SharedPreferences>(),
+        _contactSource,
+      ));
+
+  getIt.registerFactoryParam<WalletNetworkBloc, WalletNetworkMode, void>(
+      (mode, _) => WalletNetworkBloc(mode, getIt.get<SettingsStore>()));
+
+  getIt.registerFactoryParam<WalletNetworkPage, WalletNetworkMode, OnWalletNetworkSelected>(
+      (mode, onSelected) => WalletNetworkPage(
+            bloc: getIt.get<WalletNetworkBloc>(param1: mode),
+            onSelected: onSelected,
+          ));
+
+  getIt.registerFactory<ManageBuiltinNetworksCubit>(
+      () => ManageBuiltinNetworksCubit(getIt.get<SettingsStore>()));
+
+  getIt.registerFactory<ManageBuiltinNetworksPage>(
+      () => ManageBuiltinNetworksPage(cubit: getIt.get<ManageBuiltinNetworksCubit>()));
+
+  getIt.registerFactory<ManageEvmNetworksBloc>(() => ManageEvmNetworksBloc(
+        getIt.get<EvmNetworkService>(),
+        getIt.get<ChainListService>(),
+        getIt.get<SettingsStore>(),
+      ));
+
+  getIt.registerFactory<ManageEvmNetworksPage>(
+      () => ManageEvmNetworksPage(bloc: getIt.get<ManageEvmNetworksBloc>()));
+
+  getIt.registerFactoryParam<NetworkDetailsBloc, EvmNetwork?, void>(
+      (network, _) => NetworkDetailsBloc(
+            network,
+            getIt.get<EvmNetworkService>(),
+            getIt.get<ChainListService>(),
+            getIt.get<SettingsStore>(),
+          ));
+
+  getIt.registerFactoryParam<NetworkDetailsPage, EvmNetwork?, void>(
+      (network, _) => NetworkDetailsPage(bloc: getIt.get<NetworkDetailsBloc>(param1: network)));
 
   getIt.registerFactory<PreSeedPage>(() => PreSeedPage(getIt.get<AppStore>().wallet!));
 

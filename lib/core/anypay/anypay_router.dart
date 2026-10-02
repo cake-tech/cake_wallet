@@ -1,5 +1,6 @@
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
@@ -21,6 +22,13 @@ class AnyPayRouter {
   ) {
     if (request.rawInput.trim().isEmpty) {
       return const AnyPayEmptyInput();
+    }
+
+    final binding = request.chainBinding;
+    if (binding is ExplicitEvmChain &&
+        snapshot.hasEvmProxy &&
+        !snapshot.supportedEvmChains.containsKey(binding.chainId)) {
+      return AnyPayUnsupportedNetwork(binding.chainId);
     }
 
     final detection = request.detection;
@@ -111,7 +119,7 @@ class AnyPayRouter {
     return AnyPayCrossChainPayment(
       targetWalletType: targetWalletType,
       targetChainId: targetChainId,
-      wallets: snapshot.walletsOfType(targetWalletType),
+      wallets: snapshot.walletsOnNetwork(WalletNetwork(targetWalletType, targetChainId)),
       token: token,
       amountOverride: amountOverride,
     );

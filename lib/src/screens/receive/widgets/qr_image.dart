@@ -40,6 +40,11 @@ class QrImage extends StatelessWidget {
     final centerImage = TokenImageWidget(
       imageUrl: imagePath,
       size: logoSize * 0.8,
+      errorWidget: CakeImageWidget(
+        imageUrl: "assets/images/qr-cake.png",
+        width: logoSize * 0.8,
+        height: logoSize * 0.8,
+      ),
     );
 
     Widget centerImageToUse;

@@ -9,6 +9,8 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/erc20_token.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
@@ -32,6 +34,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _ratePath = '/rates';
   static const _orders = '/orders';
   static const _assets = '/assets';
+  static const _networksPath = "/networks";
+
+  static final Map<int, String> _networkIdsByChainId = {};
 
   static final _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
 
@@ -107,27 +112,25 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.xoSwap;
 
+  // Added networks are found by chain ID on XOSwap's own network list
+  @override
+  bool supportsCurrencyNetwork(CryptoCurrency currency) => true;
+
   @override
   Future<bool> checkIsAvailable() async => true;
 
   Future<String?> _getAssets(CryptoCurrency currency) async {
+    final addedNetworkChainId = EvmNativeCurrencies.getAddedNetworkChainId(currency);
+    if (addedNetworkChainId != null) {
+      return _getAddedNetworkAsset(currency, addedNetworkChainId);
+    }
+
     if (currency.tag == null) return currency.title;
     try {
       final normalizedNetwork = _networks[currency.tag];
       if (normalizedNetwork == null) return null;
 
-      final uri = Uri.https(_apiAuthority, _apiPath + _assets,
-          {'networks': normalizedNetwork, 'query': currency.title});
-
-      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
-      }
-
-      final decoded = jsonDecode(response.body);
-      if (decoded is! List) throw const FormatException('Unexpected response format');
-      final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      final assets = await _fetchAssets(normalizedNetwork, currency.title);
 
       final asset = assets.firstWhere(
         (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
@@ -139,6 +142,68 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       printV(e.toString());
       return null;
     }
+  }
+
+  Future<String?> _getAddedNetworkAsset(CryptoCurrency currency, int chainId) async {
+    try {
+      final network = await _networkIdForChain(chainId);
+      if (network == null) {
+        return null;
+      }
+
+      // The native coin is the only asset without a contract, a token must match its contract
+      final contractAddress =
+          currency is Erc20Token ? currency.contractAddress.toLowerCase() : null;
+      final assets = await _fetchAssets(network, currency.title);
+      final matches = assets.where((asset) {
+        final meta = asset["meta"];
+        final assetContract =
+            meta is Map ? meta["contractAddress"]?.toString().toLowerCase() : null;
+        return assetContract == contractAddress;
+      }).toList();
+
+      return matches.length == 1 ? matches.single["id"] as String? : null;
+    } catch (e) {
+      printV("XOSwap: Error finding ${currency.title} on chain $chainId: $e");
+      return null;
+    }
+  }
+
+  Future<String?> _networkIdForChain(int chainId) async {
+    if (_networkIdsByChainId.isEmpty) {
+      final uri = Uri.https(_apiAuthority, _apiPath + _networksPath);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      if (response.statusCode != 200) {
+        throw Exception("Failed to fetch networks: ${response.statusCode}");
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) throw const FormatException("Unexpected response format");
+
+      for (final network in decoded.whereType<Map<String, dynamic>>()) {
+        final networkChainId = network["chainId"];
+        final id = network["id"];
+        if (networkChainId is int && id is String) {
+          _networkIdsByChainId[networkChainId] = id;
+        }
+      }
+    }
+
+    return _networkIdsByChainId[chainId];
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchAssets(String network, String query) async {
+    final uri = Uri.https(_apiAuthority, _apiPath + _assets, {"networks": network, "query": query});
+
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to fetch assets for $query on $network");
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! List) throw const FormatException("Unexpected response format");
+    return decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
   }
 
   String removeNonAlphanumeric(String str) =>

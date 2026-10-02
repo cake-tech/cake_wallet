@@ -3,173 +3,62 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
+import "package:cw_evm/history/evm_history_provider.dart";
+import "package:cw_evm/utils/evm_chain_utils.dart";
+import "package:cw_evm/utils/network_chain_utils.dart";
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
-import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
+import "package:web3dart/crypto.dart";
 import 'package:web3dart/web3dart.dart';
 
 import '../contract/erc20.dart';
 
 class EVMChainClient {
+  EVMChainClient({
+    required int chainId,
+    required this.feeType,
+    this.historyProvider,
+  }) : _chainId = chainId;
+
   late final client = ProxyWrapper().getHttpIOClient();
   Web3Client? _client;
   final int _chainId;
-
-  EVMChainClient({required int chainId}) : _chainId = chainId;
-
-  //! Can be overridden by child classes
+  final FeeType feeType;
+  final EvmHistoryProvider? historyProvider;
 
   int get chainId => _chainId;
 
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
-    try {
-      if (secrets.etherScanApiKey.isEmpty) {
-        printV('Etherscan API key is empty, cannot fetch transactions');
-        return [];
-      }
-
-      /// when adding new chains, make sure they are supported by the same api through https://docs.etherscan.io/supported-chains
-      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
-        "chainid": "$chainId",
-        "module": "account",
-        "action": contractAddress != null ? "tokentx" : "txlist",
-        if (contractAddress != null) "contractaddress": contractAddress,
-        "address": address,
-        "apikey": secrets.etherScanApiKey,
-      }));
-
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-
-      if (jsonResponse['result'] is String) {
-        log(jsonResponse['result']);
-        return [];
-      }
-
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
-        final res = (jsonResponse['result'] as List);
-        res.removeWhere((e) => e['value'] == '0');
-
-        // Filter out spam native transactions below 0.00001 ETH (10000000000000 wei)
-        if (contractAddress == null) {
-          final spamThresholdWei = BigInt.from(10000000000000);
-          res.removeWhere((e) {
-            try {
-              final value = BigInt.parse(e['value'] ?? '0');
-              final isIncoming = e['to']?.toLowerCase() == address.toLowerCase() &&
-                  e['from']?.toLowerCase() != address.toLowerCase();
-              return isIncoming && value < spamThresholdWei;
-            } catch (_) {
-              return false;
-            }
-          });
-        }
-
-        // Merge split transfers (same hash + same token)
-        final Map<String, Map<String, dynamic>> mergedMap = {};
-        for (var tx in res) {
-          final hash = tx['hash'];
-          final key = '${hash}_${tx['contractAddress'] ?? ''}';
-
-          if (mergedMap.containsKey(key)) {
-            try {
-              final currentNet = getNetFlow(mergedMap[key]!, address);
-              final newNet = getNetFlow(tx, address);
-              final totalNet = currentNet + newNet;
-
-              mergedMap[key]!['value'] = totalNet.abs().toString();
-              if (totalNet < BigInt.zero) {
-                mergedMap[key]!['from'] = address;
-              } else {
-                mergedMap[key]!['to'] = address;
-                mergedMap[key]!['from'] = '';
-              }
-            } catch (e) {
-              printV('Error merging transaction values: $e');
-            }
-          } else {
-            mergedMap[key] = Map<String, dynamic>.from(tx);
-          }
-        }
-
-        final mergedList = mergedMap.values.toList();
-
-        final symbol = EVMChainUtils.getFeeCurrency(chainId);
-
-        return mergedList
-            .map((e) => EVMChainTransactionModel.fromJson(e, symbol, chainId))
-            .toList();
-      }
-
-      return [];
-    } catch (e) {
-      log(e.toString());
+    final provider = historyProvider;
+    if (provider == null) {
       return [];
     }
-  }
 
-  BigInt getNetFlow(Map<String, dynamic> txData, String address) {
-    final val = BigInt.parse(txData['value'] ?? '0');
-    final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
-    final isOutgoing = txData['from']?.toLowerCase() == address.toLowerCase();
-
-    if (isIncoming && !isOutgoing) return val;
-    if (isOutgoing && !isIncoming) return -val;
-    return BigInt.zero;
-  }
-
-  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
-    try {
-      if (secrets.etherScanApiKey.isEmpty) {
-        printV('Etherscan API key is empty, cannot fetch internal transactions');
-        return [];
-      }
-
-      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
-        "chainid": "$chainId",
-        "module": "account",
-        "action": "txlistinternal",
-        "address": address,
-        "apikey": secrets.etherScanApiKey,
-      }));
-
-      final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300 &&
-          jsonResponse['status'] != 0 &&
-          jsonResponse['result'] is List) {
-        final symbol = EVMChainUtils.getFeeCurrency(chainId);
-
-        return (jsonResponse['result'] as List)
-            .map((e) =>
-                EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, symbol, chainId))
-            .toList();
-      }
-
-      printV(
-          'Etherscan API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}');
-      return [];
-    } catch (e, stackTrace) {
-      printV('Error fetching internal transactions: ${e.toString()}');
-      printV('Stack trace: ${stackTrace.toString()}');
-      return [];
+    if (contractAddress != null) {
+      return provider.tokenTransfers(chainId, address, contractAddress);
     }
+
+    return provider.transactions(chainId, address);
   }
 
-  Uint8List prepareSignedTransactionForSending(Uint8List signedTransaction) => signedTransaction;
+  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async =>
+      await historyProvider?.internalTransactions(chainId, address) ?? [];
 
-  //! Common methods across all child classes
+  Uint8List prepareSignedTransactionForSending(
+    Uint8List signedTransaction, {
+    required bool isType2,
+  }) =>
+      isType2 ? prependTransactionType(0x02, signedTransaction) : signedTransaction;
 
   bool connect(Node node) {
     try {
@@ -283,6 +172,59 @@ class EVMChainClient {
     }
   }
 
+  bool? _hasL1FeeContract;
+
+  static final _l1FeeContract = DeployedContract(
+    ContractAbi.fromJson(
+      '[{"inputs":[{"name":"_unsignedTxSize","type":"uint256"}],"name":"getL1FeeUpperBound",'
+          '"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]',
+      "L1FeeContract",
+    ),
+    EthereumAddress.fromHex("0x420000000000000000000000000000000000000F"),
+  );
+
+  Future<BigInt> getL1Fee({
+    required EthereumAddress toAddress,
+    required EtherAmount value,
+    required int gasUnits,
+    required int maxFeePerGas,
+    String? contractAddress,
+    Uint8List? data,
+  }) async {
+    try {
+      _hasL1FeeContract ??= (await _client!.getCode(_l1FeeContract.address)).isNotEmpty;
+      if (!_hasL1FeeContract!) {
+        return BigInt.zero;
+      }
+
+      final callData = contractAddress == null
+          ? data
+          : data ??
+              DeployedContract(ethereumContractAbi, EthereumAddress.fromHex(contractAddress))
+                  .function("transfer")
+                  .encodeCall([toAddress, value.getInWei]);
+      final unsignedTransaction = Transaction(
+        to: contractAddress == null ? toAddress : EthereumAddress.fromHex(contractAddress),
+        value: contractAddress == null ? value : EtherAmount.zero(),
+        data: callData ?? Uint8List(0),
+        nonce: 0,
+        maxGas: gasUnits,
+        maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+        maxPriorityFeePerGas: EtherAmount.zero(),
+      ).getUnsignedSerialized(chainId: chainId);
+
+      final result = await _client!.call(
+        contract: _l1FeeContract,
+        function: _l1FeeContract.function("getL1FeeUpperBound"),
+        params: [BigInt.from(unsignedTransaction.length)],
+      );
+      return result.first as BigInt;
+    } catch (e) {
+      printV("L1 fee lookup failed on chain $chainId: $e");
+      return BigInt.zero;
+    }
+  }
+
   Uint8List getEncodedDataForApprovalTransaction({
     required EthereumAddress toAddress,
     required EtherAmount value,
@@ -304,29 +246,13 @@ class EVMChainClient {
     required Money amount,
     required Money gasFee,
     required int estimatedGasUnits,
-    required int maxFeePerGas,
-    required EVMChainTransactionPriority? priority,
-    required CryptoCurrency currency,
+    required GasParamsHandler gasParams,
     required String feeCurrency,
     String? contractAddress,
     String? data,
-    int? gasPrice,
     bool useBlinkProtection = true,
   }) async {
-    assert(currency == CryptoCurrency.eth ||
-        currency == CryptoCurrency.maticpoly ||
-        currency == CryptoCurrency.baseEth ||
-        currency == CryptoCurrency.arbEth ||
-        currency == CryptoCurrency.bnb ||
-        contractAddress != null);
-
-    final isNativeToken = [
-      CryptoCurrency.eth,
-      CryptoCurrency.maticpoly,
-      CryptoCurrency.baseEth,
-      CryptoCurrency.arbEth,
-      CryptoCurrency.bnb
-    ].contains(currency);
+    final isNativeToken = contractAddress == null;
 
     // Get nonce with "pending" block tag to include pending transactions
     // This prevents "Nonce too low" errors when sending multiple transactions quickly
@@ -338,26 +264,21 @@ class EVMChainClient {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
-      maxPriorityFeePerGas:
-          priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: isNativeToken ? EtherAmount.inWei(amount.amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
-      maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
-      gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
+      gasParams: gasParams,
       nonce: nonce,
     );
 
     Uint8List signedTransaction;
-
-    final Function _sendTransaction;
 
     if (isNativeToken) {
       signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
     } else {
       final erc20 = ERC20(
         client: _client!,
-        address: EthereumAddress.fromHex(contractAddress!),
+        address: EthereumAddress.fromHex(contractAddress),
         chainId: chainId,
       );
 
@@ -369,14 +290,16 @@ class EVMChainClient {
       );
     }
 
-    _sendTransaction = () async =>
-        await sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection);
+    final preparedTx =
+        prepareSignedTransactionForSending(signedTransaction, isType2: transaction.isEIP1559);
 
     return PendingEVMChainTransaction(
-      signedTransaction: prepareSignedTransactionForSending(signedTransaction),
+      signedTransaction: preparedTx,
       amount: amount,
       fee: gasFee,
-      sendTransaction: _sendTransaction,
+      nonce: nonce,
+      sendTransaction: () async =>
+          await sendTransaction(preparedTx, useBlinkProtection: useBlinkProtection),
     );
   }
 
@@ -386,10 +309,8 @@ class EVMChainClient {
     required Money amount,
     required Money gasFee,
     required int estimatedGasUnits,
-    required int maxFeePerGas,
-    required EVMChainTransactionPriority? priority,
+    required GasParamsHandler gasParams,
     required String contractAddress,
-    int? gasPrice,
     bool useBlinkProtection = true,
   }) async {
     final nonce = await _client!.getTransactionCount(
@@ -400,12 +321,9 @@ class EVMChainClient {
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(contractAddress),
-      maxPriorityFeePerGas:
-          priority != null ? EtherAmount.fromInt(EtherUnit.gwei, priority.tip) : null,
       amount: EtherAmount.zero(),
       maxGas: estimatedGasUnits,
-      maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
-      gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
+      gasParams: gasParams,
       nonce: nonce,
     );
 
@@ -422,49 +340,125 @@ class EVMChainClient {
       transaction: transaction,
     );
 
+    final preparedTx =
+        prepareSignedTransactionForSending(signedTransaction, isType2: transaction.isEIP1559);
+
     return PendingEVMChainTransaction(
-      signedTransaction: prepareSignedTransactionForSending(signedTransaction),
+      signedTransaction: preparedTx,
       amount: amount,
       fee: gasFee,
-      sendTransaction: () =>
-          sendTransaction(signedTransaction, useBlinkProtection: useBlinkProtection),
+      nonce: nonce,
+      sendTransaction: () => sendTransaction(preparedTx, useBlinkProtection: useBlinkProtection),
       isInfiniteApproval: amount.amount.toRadixString(16) ==
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
   }
 
+  // web3dart signs type-2 whenever a max fee field is set, so the legacy body sets only gasPrice
   Transaction createTransaction({
     required EthereumAddress from,
     required EthereumAddress to,
     required EtherAmount amount,
-    EtherAmount? maxPriorityFeePerGas,
-    EtherAmount? gasPrice,
-    EtherAmount? maxFeePerGas,
+    required GasParamsHandler gasParams,
     Uint8List? data,
     int? maxGas,
     int? nonce,
   }) {
+    final isLegacy = switch (feeType) {
+      FeeType.legacy => true,
+      FeeType.eip1559 => false,
+      FeeType.eip1559OrLegacy => !gasParams.hasEip1559Fees,
+    };
+
+    if (isLegacy) {
+      return Transaction(
+        from: from,
+        to: to,
+        value: amount,
+        data: data,
+        maxGas: maxGas,
+        gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasParams.maxFeePerGas),
+        nonce: nonce,
+      );
+    }
+
     return Transaction(
       from: from,
       to: to,
-      maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
       data: data,
       maxGas: maxGas,
-      gasPrice: gasPrice,
-      maxFeePerGas: maxFeePerGas,
+      maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, gasParams.maxFeePerGas),
+      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.wei, gasParams.priorityFeeWei ?? 0),
       nonce: nonce,
     );
   }
 
+  Future<int?> fetchPriorityFeeFromNode(EVMChainTransactionPriority priority, int? baseFee) async {
+    if (baseFee == null) {
+      return 0;
+    }
+
+    try {
+      final history = await _client!.getFeeHistory(
+        _feeHistoryBlockCount,
+        atBlock: const BlockNum.current(),
+        rewardPercentiles: _feeHistoryPercentiles,
+      );
+
+      final rewards = history["reward"];
+      if (rewards is List) {
+        final medianReward = priorityFeeFromFeeHistory(
+          rewards
+              .whereType<List<dynamic>>()
+              .map((row) => row.whereType<BigInt>().toList())
+              .toList(),
+          priority,
+        );
+        final tip = medianReward == null ? null : boundedPriorityFee(medianReward, baseFee);
+
+        if (tip != null) {
+          return tip;
+        }
+
+        printV("eth_feeHistory on chain $chainId gave no usable tip: $medianReward");
+      }
+    } catch (e) {
+      printV("eth_feeHistory failed on chain $chainId: $e");
+    }
+
+    try {
+      final maxPriorityFee = await _client!.makeRPCCall<String>("eth_maxPriorityFeePerGas");
+      final tip = boundedPriorityFee(hexToInt(maxPriorityFee), baseFee);
+      if (tip != null) {
+        return tip;
+      }
+
+      printV("eth_maxPriorityFeePerGas on chain $chainId is out of bounds: $maxPriorityFee");
+    } catch (e) {
+      printV("eth_maxPriorityFeePerGas failed on chain $chainId: $e");
+    }
+
+    return null;
+  }
+
+  Future<TransactionReceipt?> getTransactionReceipt(String hash) =>
+      _client!.getTransactionReceipt(hash);
+
+  Future<TransactionInformation?> getTransactionByHash(String hash) =>
+      _client!.getTransactionByHash(hash);
+
+  Future<int> getBlockNumber() => _client!.getBlockNumber();
+
+  Future<int> getConfirmedTransactionCount(EthereumAddress address) =>
+      _client!.getTransactionCount(address, atBlock: const BlockNum.current());
+
   String _blinkUrl(String apiKey) => 'https://eth.blinklabs.xyz/v1/$apiKey';
 
   Future<String> sendTransaction(
-    Uint8List signedTransaction, {
+    Uint8List prepared, {
     bool useBlinkProtection = false,
   }) async {
-    final prepared = prepareSignedTransactionForSending(signedTransaction);
-
     if (useBlinkProtection && secrets.blinkApiKey.isNotEmpty) {
       final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
       try {
@@ -540,25 +534,25 @@ class EVMChainClient {
     }
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
+      final token = await getErc20TokenFromMoralis(contractAddress);
 
       if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       }
 
       return token;
     } catch (e) {
       try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       } catch (e) {
         return null;
       }
     }
   }
 
-  Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress) async {
     if (secrets.moralisApiKey.isEmpty) {
       printV('Moralis API key is empty, cannot fetch token info');
       return null;
@@ -567,7 +561,7 @@ class EVMChainClient {
       'deep-index.moralis.io',
       '/api/v2.2/erc20/metadata',
       {
-        "chain": chainName,
+        "chain": EVMChainUtils.hexChainId(chainId),
         "addresses": contractAddress,
       },
     );
@@ -598,7 +592,7 @@ class EVMChainClient {
     );
   }
 
-  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final name = await erc20.name();
     final symbol = await erc20.symbol();
@@ -612,10 +606,7 @@ class EVMChainClient {
     );
   }
 
-  Future<List<MoralisWalletTokenBalance>> fetchWalletTokensFromMoralis(
-    String address,
-    String chainName,
-  ) async {
+  Future<List<MoralisWalletTokenBalance>> fetchWalletTokensFromMoralis(String address) async {
     try {
       if (secrets.moralisApiKey.isEmpty) {
         printV('Moralis API key is empty, cannot fetch wallet tokens');
@@ -629,7 +620,7 @@ class EVMChainClient {
 
       do {
         final params = <String, String>{
-          "chain": chainName,
+          "chain": EVMChainUtils.hexChainId(chainId),
           if (cursor != null && cursor.isNotEmpty) "cursor": cursor,
         };
 
@@ -772,6 +763,75 @@ class EVMChainClient {
 //     int exponent = int.parse(decimals.first.toString());
 //     return exponent;
 //   }
+}
+
+const _feeHistoryBlockCount = 10;
+const _feeHistoryPercentiles = [25.0, 50.0, 75.0];
+
+BigInt? priorityFeeFromFeeHistory(
+  List<List<BigInt>> rewards,
+  EVMChainTransactionPriority priority,
+) {
+  final column = switch (priority) {
+    EVMChainTransactionPriority.slow => 0,
+    EVMChainTransactionPriority.fast => 2,
+    _ => 1,
+  };
+
+  final values = rewards.where((row) => row.length > column).map((row) => row[column]).toList()
+    ..sort();
+  if (values.isEmpty) {
+    return null;
+  }
+
+  final middle = values.length ~/ 2;
+  if (values.length.isOdd) {
+    return values[middle];
+  }
+
+  return (values[middle - 1] + values[middle]) ~/ BigInt.two;
+}
+
+final _maxPriorityFeeBaseFeeMultiple = BigInt.from(10);
+final _maxPriorityFeeFloorWei = BigInt.from(100000000000);
+
+/// Returns the node's tip in wei, null when it is negative or above the bound
+int? boundedPriorityFee(BigInt tip, int baseFee) {
+  final baseFeeMultiple = BigInt.from(baseFee) * _maxPriorityFeeBaseFeeMultiple;
+  final bound =
+      baseFeeMultiple > _maxPriorityFeeFloorWei ? baseFeeMultiple : _maxPriorityFeeFloorWei;
+
+  if (tip.isNegative || tip > bound || !tip.isValidInt) {
+    return null;
+  }
+
+  return tip.toInt();
+}
+
+class GasParamsHandler {
+  final int estimatedGasUnits;
+  final int estimatedGasFee;
+  final int maxFeePerGas;
+  final int? priorityFeeWei;
+  final bool hasBaseFee;
+
+  GasParamsHandler({
+    required this.estimatedGasUnits,
+    required this.estimatedGasFee,
+    required this.maxFeePerGas,
+    required this.priorityFeeWei,
+    required this.hasBaseFee,
+  });
+
+  bool get hasEip1559Fees => hasBaseFee && priorityFeeWei != null;
+
+  static GasParamsHandler zero() => GasParamsHandler(
+        estimatedGasUnits: 0,
+        estimatedGasFee: 0,
+        maxFeePerGas: 0,
+        priorityFeeWei: 0,
+        hasBaseFee: false,
+      );
 }
 
 class MoralisWalletTokenBalance {

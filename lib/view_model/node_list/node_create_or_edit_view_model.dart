@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cw_core/node.dart';
@@ -15,8 +17,7 @@ part 'node_create_or_edit_view_model.g.dart';
 class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase with _$NodeCreateOrEditViewModel;
 
 abstract class NodeCreateOrEditViewModelBase with Store {
-  NodeCreateOrEditViewModelBase(this.isPow, this.walletType, this._settingsStore,
-      {this.editingNode})
+  NodeCreateOrEditViewModelBase(this.isPow, this.network, this._settingsStore, {this.editingNode})
       : state = InitialExecutionState(),
         connectionState = InitialExecutionState(),
         label = editingNode?.label ?? '',
@@ -122,6 +123,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get hasPathSupport {
     switch (walletType) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -156,8 +158,10 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     return uri;
   }
 
-  final WalletType walletType;
+  final WalletNetwork network;
   final SettingsStore _settingsStore;
+
+  WalletType get walletType => network.type;
 
   void updateViewModelFromText(String key, String value) {
     if (key == nodeLabelUIKey) setLabel(value);
@@ -250,8 +254,21 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({bool saveAsCurrent = false}) async {
+    if (state is IsExecutingState) {
+      return;
+    }
+
+    state = IsExecutingState();
+
+    if (walletType == WalletType.evm && await _nodeFromForm().isOnAnotherChain()) {
+      connectionState = FailureState(S.current.node_on_another_network);
+      state = FailureState(S.current.node_on_another_network);
+      return;
+    }
+
     editingNode ??= Node();
     editingNode!.type = walletType;
+    editingNode!.chainId = network.chainId;
     editingNode!.label = label;
     editingNode!.uriRaw = uri;
     editingNode!.path = path;
@@ -263,7 +280,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     editingNode!.socksProxyAddress = socksProxyAddress;
 
     try {
-      state = IsExecutingState();
       await editingNode!.save();
       if (saveAsCurrent) {
         setAsCurrent(editingNode!);
@@ -277,16 +293,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> connect() async {
-    final node = Node(
-        uri: uri,
-        path: path,
-        type: walletType,
-        login: login,
-        password: password,
-        useSSL: useSSL,
-        trusted: trusted,
-        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
-        socksProxyAddress: socksProxyAddress);
+    final node = _nodeFromForm();
     try {
       connectionState = IsExecutingState();
       final isAlive = await node.requestNode();
@@ -297,7 +304,19 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   }
 
   @action
-  void setAsCurrent(Node node) => _settingsStore.nodes[walletType] = node;
+  void setAsCurrent(Node node) => _settingsStore.setCurrentNode(node);
+
+  Node _nodeFromForm() => Node(
+      uri: uri,
+      path: path,
+      type: walletType,
+      login: login,
+      password: password,
+      useSSL: useSSL,
+      trusted: trusted,
+      isEnabledForAutoSwitching: isEnabledForAutoSwitching,
+      socksProxyAddress: socksProxyAddress,
+      chainId: network.chainId);
 
   @action
   Future<void> scanQRCodeForNewNode(BuildContext context) async {

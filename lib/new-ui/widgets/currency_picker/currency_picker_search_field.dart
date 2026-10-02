@@ -8,28 +8,40 @@ class CurrencyPickerSearchField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.hintText,
+    this.isCompact = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   });
 
   final TextEditingController controller;
   final String hintText;
 
+  final bool isCompact;
+  final EdgeInsets padding;
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: padding,
       child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        height: isCompact ? 44 : 48,
+        padding: isCompact
+            ? const EdgeInsets.only(left: 14, right: 16)
+            : const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
           color: colors.surfaceContainer,
-          border: Border.all(color: colors.surfaceContainer, width: 1),
+          border: Border.all(
+            color: isCompact ? colors.primary : colors.surfaceContainer,
+            width: 1,
+          ),
           borderRadius: BorderRadius.circular(28),
         ),
         child: Row(
           children: [
-            ExcludeSemantics(child: Icon(Icons.search, size: 20, color: colors.primary)),
-            const SizedBox(width: 10),
+            ExcludeSemantics(
+              child: Icon(Icons.search, size: isCompact ? 22 : 20, color: colors.primary),
+            ),
+            SizedBox(width: isCompact ? 8 : 10),
             Expanded(
               // The hint names the field only while it is empty, so the label is
               // supplied once there is text to keep exactly one announcement.
@@ -44,9 +56,15 @@ class CurrencyPickerSearchField extends StatelessWidget {
                       border: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       hintText: hintText,
-                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
+                      hintStyle: isCompact
+                          ? Theme.of(context).textTheme.labelMedium?.copyWith(
+                                fontSize: 12.8,
+                                fontWeight: FontWeight.w700,
+                                color: colors.onSurfaceVariant,
+                              )
+                          : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
                     ),
                   ),
                 ),

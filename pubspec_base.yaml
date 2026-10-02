@@ -94,6 +94,7 @@ dependencies:
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
   bloc_concurrency: ^0.3.0
+  bloc_presentation: 1.1.2+3
   equatable: ^2.0.0
   sensitive_clipboard:
     git:
@@ -314,6 +315,8 @@ flutter:
     - assets/new-ui/address_sources/
     - assets/new-ui/buy_payment_methods/
     - assets/new-ui/charts_sort_criteria/
+    - assets/new-ui/network_icons/
+    - assets/evm_networks/
 
   fonts:
     - family: Wix Madefor Text

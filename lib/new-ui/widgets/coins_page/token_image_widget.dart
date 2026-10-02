@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/src/widgets/remote_image_cache.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
@@ -64,7 +65,7 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
 
     final shape = await _analyzeShape(url);
     _shapeCache[url] = shape;
-    if (mounted) {
+    if (mounted && widget.imageUrl == url) {
       setState(() => _shape = shape);
     }
   }
@@ -75,8 +76,17 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
     final ImageProvider provider;
     if (url.startsWith('assets/')) {
       provider = AssetImage(url);
-    } else if (url.startsWith('http')) {
-      provider = NetworkImage(url);
+    } else if (RemoteImageCache.isRemote(url)) {
+      final bytes = await RemoteImageCache.load(url).bytesFuture;
+      if (bytes == null) {
+        return _IconShape.clipOnly;
+      }
+
+      if (RemoteImageCache.isSvg(bytes)) {
+        return _IconShape.alreadyCircular;
+      }
+
+      provider = MemoryImage(bytes);
     } else {
       return _IconShape.clipOnly;
     }

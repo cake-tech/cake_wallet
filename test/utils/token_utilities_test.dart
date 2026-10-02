@@ -80,5 +80,58 @@ void main() {
         expect(TokenUtilities.findErc20TokenForSwap(CryptoCurrency.eth), null);
       });
     });
+
+    group("uniqueEvmTokensForSwap", () {
+      // The same contract address deployed on two chains
+      const sharedContract = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+
+      test("keeps a contract on two chains as two tokens", () {
+        final ethereumToken = Erc20Token(
+          name: "Ethereum Token",
+          symbol: "ETK",
+          contractAddress: sharedContract,
+          decimal: 6,
+          chainId: 1,
+        );
+        final opToken = Erc20Token(
+          name: "OP Token",
+          symbol: "OTK",
+          contractAddress: sharedContract.toLowerCase(),
+          decimal: 6,
+          chainId: 10,
+        );
+
+        final tokens = TokenUtilities.uniqueEvmTokensForSwap({}, [ethereumToken, opToken]);
+
+        expect(tokens, hasLength(2));
+        expect(tokens[0], same(ethereumToken));
+        expect(tokens[1], same(opToken));
+      });
+
+      test("drops a user token that repeats a default on the same chain", () {
+        final defaultToken = Erc20Token(
+          name: "Default Token",
+          symbol: "DTK",
+          contractAddress: sharedContract,
+          decimal: 6,
+        );
+        final userCopy = Erc20Token(
+          name: "User Copy",
+          symbol: "UCP",
+          contractAddress: sharedContract.toLowerCase(),
+          decimal: 6,
+          chainId: 137,
+        );
+
+        final tokens = TokenUtilities.uniqueEvmTokensForSwap({
+          137: [defaultToken],
+        }, [
+          userCopy,
+        ]);
+
+        expect(tokens, hasLength(1));
+        expect(tokens.single, same(defaultToken));
+      });
+    });
   });
 }

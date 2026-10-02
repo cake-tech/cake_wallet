@@ -39,9 +39,11 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
@@ -123,7 +125,7 @@ abstract class SettingsStoreBase with Store {
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
-      required List<int> initialEvmHiddenChainIds,
+      required List<WalletType> initialHiddenBuiltinNetworks,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -224,7 +226,10 @@ abstract class SettingsStoreBase with Store {
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
-        evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
+        hiddenBuiltinNetworks = ObservableSet.of(initialHiddenBuiltinNetworks),
+        evmChainNodes = ObservableMap<int, Node>(),
+        evmNetworks = ObservableMap<int, ChainInfo>(),
+        evmScanUsage = ObservableMap<int, bool>(),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -262,6 +267,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialBscTransactionPriority != null) {
       priority[WalletType.bsc] = initialBscTransactionPriority;
+    }
+
+    if (initialEVMTransactionPriority != null) {
+      priority[WalletType.evm] = initialEVMTransactionPriority;
     }
 
     if (initialBitcoinCashTransactionPriority != null) {
@@ -342,6 +351,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.bsc:
           key = PreferencesKey.bscTransactionPriority;
+          break;
+        case WalletType.evm:
+          key = PreferencesKey.evmTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -728,9 +740,10 @@ abstract class SettingsStoreBase with Store {
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
 
     reaction(
-        (_) => evmHiddenChainIds.toList(growable: false),
-        (List<int> hiddenIds) => _sharedPreferences.setStringList(
-            PreferencesKey.evmHiddenChainIds, hiddenIds.map((id) => id.toString()).toList()));
+        (_) => hiddenBuiltinNetworks.toList(growable: false),
+        (List<WalletType> hiddenTypes) => _sharedPreferences.setStringList(
+            PreferencesKey.hiddenBuiltinNetworks,
+            hiddenTypes.map((type) => serializeToInt(type).toString()).toList()));
 
     reaction(
         (_) => mwebCardDisplay,
@@ -793,6 +806,15 @@ abstract class SettingsStoreBase with Store {
     this.powNodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentPowNode(change.newValue!, change.key!);
+      }
+    });
+
+    this.evmChainNodes.observe((change) {
+      final node = change.newValue;
+      final chainId = change.key;
+      if (node != null && chainId != null) {
+        unawaited(
+            _sharedPreferences.setInt(PreferencesKey.currentEvmChainNodeIdKey(chainId), node.id));
       }
     });
   }
@@ -985,7 +1007,16 @@ abstract class SettingsStoreBase with Store {
   bool useMempoolFeeAPI;
 
   @observable
-  ObservableSet<int> evmHiddenChainIds;
+  ObservableSet<WalletType> hiddenBuiltinNetworks;
+
+  @observable
+  ObservableMap<int, Node> evmChainNodes;
+
+  @observable
+  ObservableMap<int, ChainInfo> evmNetworks;
+
+  @observable
+  ObservableMap<int, bool> evmScanUsage;
 
   @observable
   String defaultNanoRep;
@@ -1106,6 +1137,14 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, Node> powNodes;
 
   Node getCurrentNode(WalletType walletType, {int? chainId}) {
+    if (walletType == WalletType.evm) {
+      final node = chainId == null ? null : evmChainNodes[chainId];
+      if (node == null) {
+        throw Exception("No node found for EVM network with chainId: $chainId");
+      }
+      return node;
+    }
+
     if (chainId != null && isEVMCompatibleChain(walletType)) {
       final preferenceKey = _getEVMNodePreferenceKey(chainId);
       final nodeId = _sharedPreferences.getInt(preferenceKey);
@@ -1132,6 +1171,24 @@ abstract class SettingsStoreBase with Store {
     return node;
   }
 
+  Node getCurrentNodeForWallet(WalletBase wallet) =>
+      getCurrentNode(wallet.type, chainId: wallet.chainId);
+
+  @action
+  void setCurrentNode(Node node) {
+    if (node.type != WalletType.evm) {
+      nodes[node.type] = node;
+      return;
+    }
+
+    final chainId = node.chainId;
+    if (chainId == null) {
+      throw Exception("An EVM network node needs its chain ID");
+    }
+
+    evmChainNodes[chainId] = node;
+  }
+
   String _getEVMNodePreferenceKey(int chainId) {
     switch (chainId) {
       case 1:
@@ -1145,8 +1202,7 @@ abstract class SettingsStoreBase with Store {
       case 56:
         return PreferencesKey.currentBscNodeIdKey;
       default:
-        // Default to Ethereum for unknown chainIds
-        return PreferencesKey.currentEthereumNodeIdKey;
+        return PreferencesKey.currentEvmChainNodeIdKey(chainId);
     }
   }
 
@@ -1169,7 +1225,7 @@ abstract class SettingsStoreBase with Store {
     return priority[walletType];
   }
 
-  void setPriority(WalletType walletType, TransactionPriority priority, {int? chainId}) =>
+  void setPriority(WalletType walletType, TransactionPriority priority) =>
       this.priority[walletType] = priority;
 
   bool isBitcoinBuyEnabled;
@@ -1224,8 +1280,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority) != null) {
       ethereumTransactionPriority = evm?.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.evmTransactionPriority) != null) {
       evmTransactionPriority = evm?.deserializeEVMTransactionPriority(
-          sharedPreferences.getInt(PreferencesKey.ethereumTransactionPriority)!);
+          sharedPreferences.getInt(PreferencesKey.evmTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       polygonTransactionPriority = evm?.deserializeEVMTransactionPriority(
@@ -1341,10 +1399,7 @@ abstract class SettingsStoreBase with Store {
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
-    final evmHiddenChainIdsRaw =
-        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
-    final evmHiddenChainIds =
-        evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
+    final hiddenBuiltinNetworks = _readHiddenBuiltinNetworks(sharedPreferences);
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1676,7 +1731,7 @@ abstract class SettingsStoreBase with Store {
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
 
-    return SettingsStore(
+    final settingsStore = SettingsStore(
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
@@ -1728,7 +1783,7 @@ abstract class SettingsStoreBase with Store {
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
-      initialEvmHiddenChainIds: evmHiddenChainIds,
+      initialHiddenBuiltinNetworks: hiddenBuiltinNetworks,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1796,8 +1851,11 @@ abstract class SettingsStoreBase with Store {
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
       balanceHideCounter: balanceHideCounter,
-      zcashMigrationModalViewed: zcashMigrationModalViewed
+      zcashMigrationModalViewed: zcashMigrationModalViewed,
     );
+
+    await settingsStore.loadEvmNetworks();
+    return settingsStore;
   }
 
   Future<void> reload() async {
@@ -1849,6 +1907,10 @@ abstract class SettingsStoreBase with Store {
     if (evm != null && sharedPreferences.getInt(PreferencesKey.baseTransactionPriority) != null) {
       priority[WalletType.base] = evm!.deserializeEVMTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.baseTransactionPriority)!);
+    }
+    if (evm != null && sharedPreferences.getInt(PreferencesKey.evmTransactionPriority) != null) {
+      priority[WalletType.evm] = evm!.deserializeEVMTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.evmTransactionPriority)!);
     }
     if (evm != null && sharedPreferences.getInt(PreferencesKey.bscTransactionPriority) != null) {
       priority[WalletType.bsc] = evm!.deserializeEVMTransactionPriority(
@@ -1975,11 +2037,9 @@ abstract class SettingsStoreBase with Store {
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
-    final hiddenChainIdsRaw =
-        sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
-    evmHiddenChainIds
+    hiddenBuiltinNetworks
       ..clear()
-      ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
+      ..addAll(_readHiddenBuiltinNetworks(sharedPreferences));
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -2209,6 +2269,8 @@ abstract class SettingsStoreBase with Store {
           key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         ) ??
         false;
+
+    await loadEvmNetworks();
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
@@ -2230,11 +2292,13 @@ abstract class SettingsStoreBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
-        final chainId = evm!.getChainIdByWalletType(node.type);
+        final chainId = evm!.getChainIdByWalletType(node.type)!;
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.id);
         nodes[node.type] = node;
         break;
+      case WalletType.evm:
+        throw Exception("An added network's node is set through setCurrentNode");
       case WalletType.bitcoinCash:
         await _sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.id);
         break;
@@ -2284,10 +2348,92 @@ abstract class SettingsStoreBase with Store {
   }
 
   @action
-  void setEvmHiddenChainIds(Set<int> chainIds) {
-    evmHiddenChainIds
+  void setHiddenBuiltinNetworks(Set<WalletType> types) {
+    hiddenBuiltinNetworks
       ..clear()
-      ..addAll(chainIds);
+      ..addAll(types);
+  }
+
+  @action
+  void setEvmScanUsage(int chainId, bool isEnabled) {
+    evmScanUsage[chainId] = isEnabled;
+    unawaited(_sharedPreferences.setBool(evm!.getScanProviderPreferenceKey(chainId), isEnabled));
+  }
+
+  static List<WalletType> _readHiddenBuiltinNetworks(SharedPreferences sharedPreferences) {
+    final storedValues =
+        sharedPreferences.getStringList(PreferencesKey.hiddenBuiltinNetworks) ?? const [];
+    final types = <WalletType>[];
+
+    for (final value in storedValues) {
+      try {
+        types.add(deserializeFromInt(int.parse(value)));
+      } catch (e) {
+        printV("Skipping hidden network value $value: $e");
+      }
+    }
+
+    return types;
+  }
+
+  int _evmNetworksLoadGeneration = 0;
+
+  @action
+  Future<void> loadEvmNetworks() async {
+    final generation = ++_evmNetworksLoadGeneration;
+    final chains = evm?.getAllChains() ?? const <ChainInfo>[];
+
+    evmNetworks
+      ..clear()
+      ..addEntries(chains.map((chain) => MapEntry(chain.chainId, chain)));
+
+    evmChainNodes.removeWhere((chainId, _) => !evmNetworks.containsKey(chainId));
+
+    final nodesByChainId = <int, List<Node>>{};
+    for (final node in await Node.getAllForWalletType(WalletType.evm)) {
+      final chainId = node.chainId;
+      if (chainId != null) {
+        nodesByChainId.putIfAbsent(chainId, () => []).add(node);
+      }
+    }
+
+    if (generation != _evmNetworksLoadGeneration) {
+      return;
+    }
+
+    for (final chain in chains) {
+      if (chain.source == ChainSource.builtin) {
+        continue;
+      }
+
+      evmScanUsage[chain.chainId] =
+          _sharedPreferences.getBool(evm!.getScanProviderPreferenceKey(chain.chainId)) ?? true;
+
+      List<Node> nodes = nodesByChainId[chain.chainId] ?? [];
+      if (nodes.isEmpty) {
+        // Manage Nodes can delete every node, which would leave the wallet nothing to connect to
+        await EvmNetwork.restoreNodesIfNone(chain.chainId);
+        nodes = await Node.getAllForEvmChain(chain.chainId);
+      }
+
+      if (generation != _evmNetworksLoadGeneration) {
+        return;
+      }
+
+      final currentNodeId =
+          _sharedPreferences.getInt(PreferencesKey.currentEvmChainNodeIdKey(chain.chainId));
+      final node = nodes.firstWhereOrNull((item) => item.id == currentNodeId) ??
+          nodes.firstWhereOrNull((item) => item.isDefault) ??
+          nodes.firstOrNull;
+
+      if (node == null) {
+        printV("No node stored for EVM network ${chain.chainId}");
+        evmChainNodes.remove(chain.chainId);
+        continue;
+      }
+
+      evmChainNodes[chain.chainId] = node;
+    }
   }
 
   @action

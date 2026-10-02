@@ -12,6 +12,8 @@ import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/erc20_token.dart";
 
 class SwapsXyzExchangeProvider extends ExchangeProvider {
   SwapsXyzExchangeProvider();
@@ -59,6 +61,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapsXyz;
+
+  // Added networks are matched by chain ID on Swaps.xyz's own chain list
+  @override
+  bool supportsCurrencyNetwork(CryptoCurrency currency) => true;
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -707,6 +713,12 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     required CryptoCurrency currency,
     required Chain chain,
   }) {
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(currency)) {
+      return currency is Erc20Token
+          ? currency.contractAddress
+          : "0x0000000000000000000000000000000000000000";
+    }
+
     final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
@@ -737,6 +749,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   Chain _findChainByCurrency(CryptoCurrency cur, List<Chain> chains) {
+    final addedNetworkChainId = EvmNativeCurrencies.getAddedNetworkChainId(cur);
+    if (addedNetworkChainId != null) {
+      // Only evm entries, alt-vm ones like Cronos key the native coin by a special address
+      return chains.firstWhere(
+        (c) => c.chainId == addedNetworkChainId && c.vmId == "evm",
+        orElse: () => throw Exception("Swaps.xyz does not support ${cur.title} on this network"),
+      );
+    }
+
     final network = _normalizeCakeNetwork(cur.tag ?? cur.title);
     return chains.firstWhere(
       (c) {

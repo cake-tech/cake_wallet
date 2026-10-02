@@ -1,3 +1,5 @@
+import "package:cake_wallet/core/wallet_network.dart";
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/chain_chip_strip.dart';
@@ -9,10 +11,12 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/select_network_page.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/currency_groups.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -28,26 +32,30 @@ class MultiNetworkCurrencyPicker extends StatefulWidget {
 
 class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker> {
   bool _recentsLoaded = false;
-  WalletType? _selectedNetwork;
+  WalletNetwork? _selectedNetwork;
   List<CryptoCurrency> _recents = const [];
   final TextEditingController _searchController = TextEditingController();
 
   bool get _isSearching => _searchController.text.trim().isNotEmpty;
 
-  late final List<WalletType> _networks = _computeNetworks();
+  late final List<WalletNetwork> _networks = _computeNetworks();
 
-  List<WalletType> _computeNetworks() {
-    final counts = <WalletType, int>{};
+  List<WalletNetwork> _computeNetworks() {
+    final counts = <WalletNetwork, int>{};
     for (final currency in widget.args.items) {
-      final walletType = cryptoCurrencyOrTokenToWalletType(currency);
-      if (walletType == null) continue;
-      counts[walletType] = (counts[walletType] ?? 0) + 1;
+      final network = WalletNetwork.tryFromCurrency(currency);
+      if (network == null) continue;
+      counts[network] = (counts[network] ?? 0) + 1;
     }
     return counts.entries.where((e) => e.value >= 2).map((e) => e.key).toList(growable: false);
   }
 
-  Set<CryptoCurrency> get _natives =>
-      {for (final walletType in availableWalletTypes) walletTypeToCryptoCurrency(walletType)};
+  // Added networks have no wallet type of their own, their natives come from the registry
+  Set<CryptoCurrency> get _natives => {
+        for (final walletType in availableWalletTypes)
+          if (walletType != WalletType.evm) walletTypeToCryptoCurrency(walletType),
+        for (final chain in evm?.getAddedChains() ?? const <ChainInfo>[]) chain.currency,
+      };
 
   @override
   void initState() {
@@ -82,7 +90,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   bool _matchesNetwork(CryptoCurrency c) {
     if (_selectedNetwork == null) return true;
-    return cryptoCurrencyOrTokenToWalletType(c) == _selectedNetwork;
+    return _selectedNetwork!.isCurrencyNetwork(c);
   }
 
   List<CryptoCurrency> get _visibleItems {
@@ -112,9 +120,8 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
         .toList();
 
     if (_selectedNetwork != null) {
-      final filtered = variants
-          .where((c) => cryptoCurrencyOrTokenToWalletType(c) == _selectedNetwork)
-          .toList(growable: false);
+      final filtered =
+          variants.where((c) => _selectedNetwork!.isCurrencyNetwork(c)).toList(growable: false);
       if (filtered.isNotEmpty) variants = filtered;
     }
 
@@ -153,7 +160,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
       children: [
         if (_networks.length > 1)
           ChainChipStrip(
-            walletTypes: _networks,
+            networks: _networks,
             selected: _selectedNetwork,
             onSelected: (network) => setState(() => _selectedNetwork = network),
           ),
@@ -485,11 +492,14 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
   }
 
   String? _chainBadgePathFor(CryptoCurrency c) {
-    if (_isL2NativeEth(c)) return c.chainIconPath;
+    if (_isL2NativeEth(c) || AddedNetworkCurrency.of(c)?.usesNetworkIcon == false) {
+      return c.chainIconPath;
+    }
+
     if (widget.natives.contains(c)) return null;
-    final wt = cryptoCurrencyOrTokenToWalletType(c);
-    if (wt == null) return null;
-    return c.chainIconPath ?? walletTypeToCryptoCurrency(wt).chainIconPath;
+    final network = WalletNetwork.tryFromCurrency(c);
+    if (network == null) return null;
+    return c.chainIconPath ?? network.nativeCurrency.chainIconPath;
   }
 
   bool _isL2NativeEth(CryptoCurrency c) =>
@@ -641,6 +651,7 @@ class _RecentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final currency = this.currency;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(80),
@@ -654,10 +665,20 @@ class _RecentPill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TokenImageWidget(
-              imageUrl: currency.iconPath ?? '',
-              size: 24,
-            ),
+            if (AddedNetworkCurrency.tryWithNetworkIcon(currency) != null)
+              CakeImageWidget(
+                imageUrl: currency.iconPath,
+                width: 24,
+                height: 24,
+                isRoundedSquare: true,
+                isOutlined: true,
+                fallbackName: currency.fullName,
+              )
+            else
+              TokenImageWidget(
+                imageUrl: currency.iconPath ?? "",
+                size: 24,
+              ),
             const SizedBox(width: 8),
             Text(
               label,

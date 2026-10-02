@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -408,6 +409,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   String? _getNetworkType(CryptoCurrency currency) {
+    final addedNetworkCode = evmExchangeProviderNetworkCode(currency, description);
+    if (addedNetworkCode != null) {
+      return addedNetworkCode;
+    }
+
     if (currency.tag != null && currency.tag!.isNotEmpty) {
       switch (currency.tag!) {
         case 'TRX':

@@ -20,6 +20,7 @@ mixin PendingTransaction {
   String? feeRate;
   String get hex;
   String? get evmTxHashFromRawHex => null;
+  int? get evmNonce => null;
   int? get outputCount => null;
   PendingChange? change;
 

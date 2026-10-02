@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
@@ -24,6 +25,7 @@ const walletTypes = [
   WalletType.arbitrum,
   WalletType.zcash,
   WalletType.bsc,
+  WalletType.evm,
 ];
 
 const electrumWalletTypes = [
@@ -38,7 +40,8 @@ const evmWalletTypes = [
   WalletType.polygon,
   WalletType.base,
   WalletType.arbitrum,
-  WalletType.bsc
+  WalletType.bsc,
+  WalletType.evm,
 ];
 
 // @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -102,6 +105,9 @@ enum WalletType {
 
   // @HiveField(19)
   bsc,
+
+  // @HiveField(20)
+  evm,
 }
 
 int serializeToInt(WalletType type) {
@@ -144,6 +150,8 @@ int serializeToInt(WalletType type) {
       return 17;
     case WalletType.bsc:
       return 18;
+    case WalletType.evm:
+      return 19;
     case WalletType.none:
       return -1;
   }
@@ -189,6 +197,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.zcash;
     case 18:
       return WalletType.bsc;
+    case 19:
+      return WalletType.evm;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -234,6 +244,8 @@ String walletTypeToString(WalletType type) {
       return 'Zcash';
     case WalletType.bsc:
       return 'BNB Smart Chain';
+    case WalletType.evm:
+      return "EVM";
     case WalletType.none:
       return '';
   }
@@ -259,6 +271,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.arbitrum => 'Arbitrum',
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
+      WalletType.evm => "EVM",
       WalletType.none => ''
     };
 
@@ -282,6 +295,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.arbitrum => 'ARB',
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
+      WalletType.evm => "",
       WalletType.none => ''
     };
 
@@ -333,6 +347,11 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  final chainId = getChainIdByCryptoCurrency(type);
+  if (chainId != null) {
+    return EvmNativeCurrencies.getWalletTypeByChainId(chainId);
+  }
+
   try {
     if (type.tag == CryptoCurrency.bnb.tag) {
       return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);

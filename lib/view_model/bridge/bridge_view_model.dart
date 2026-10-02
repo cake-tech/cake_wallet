@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
@@ -336,8 +337,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         return;
       }
 
-      final filtered =
-          all.where((w) => w.type == destWalletType && w.hardwareWalletType == null).toList();
+      final destination = WalletNetwork(destWalletType, destinationChainId);
+      final filtered = all
+          .where((w) => WalletNetwork.fromWallet(w) == destination && w.hardwareWalletType == null)
+          .toList();
 
       final options = <BridgeReceivingWalletOption>[];
 

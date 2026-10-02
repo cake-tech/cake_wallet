@@ -2,6 +2,7 @@ import "package:cake_wallet/core/address_resolver/address_resolver_service.dart"
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/amount_validator.dart";
 import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/exchange/exchange_trade_state.dart";
 import "package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart";
@@ -20,6 +21,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_limit_popup.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_section_header.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
@@ -107,7 +109,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       for (final r in balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: "${r.availableBalance} ${r.asset.title}",
-          fiat: balanceViewModel.isFiatDisabled
+          fiat: balanceViewModel.isFiatDisabled || r.fiatCurrency == null
               ? null
               : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
           fiatValue:
@@ -575,11 +577,14 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
     final fromSend = widget.fromSend;
     final fromType = widget.exchangeViewModel.wallet.type;
-    final fromName = walletTypeToString(fromType);
+    final fromName =
+        networkDisplayName(fromType, widget.exchangeViewModel.wallet.walletInfo.chainId);
     final fromIcon = symbolIconPathForWalletType(fromType) ?? "";
 
     final targetType = fromSend?.targetWalletType;
-    final toName = targetType != null ? walletTypeToString(targetType) : "";
+    final toName = fromSend != null
+        ? networkDisplayName(fromSend.targetWalletType, fromSend.targetNetwork.chainId)
+        : "";
     final toIcon = (targetType != null ? symbolIconPathForWalletType(targetType) : null) ?? "";
 
     return KeyboardHideOverlay(
@@ -639,6 +644,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).from,
                                         networkName: fromName,
                                         networkIconPath: fromIcon,
+                                        addedNetworkChainId: fromType == WalletType.evm
+                                            ? widget.exchangeViewModel.wallet.walletInfo.chainId
+                                            : null,
                                       ),
                                     ),
                                   Observer(
@@ -660,7 +668,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                           fromSend != null ? _depositBalanceByAsset() : null,
                                       useSingleNetworkLayout: fromSend != null,
                                       filteredNetwork: fromSend != null
-                                          ? widget.exchangeViewModel.wallet.type
+                                          ? WalletNetwork.fromWallet(
+                                              widget.exchangeViewModel.wallet.walletInfo)
                                           : null,
                                       currency: widget.exchangeViewModel.depositCurrency,
                                       useBaseUnit: widget.exchangeViewModel.useDepositBaseUnit,
@@ -769,6 +778,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         label: S.of(context).to,
                                         networkName: toName,
                                         networkIconPath: toIcon,
+                                        addedNetworkChainId: targetType == WalletType.evm
+                                            ? fromSend.targetNetwork.chainId
+                                            : null,
                                       ),
                                     ),
                                   Observer(
@@ -778,8 +790,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       exchangeViewModel: widget.exchangeViewModel,
                                       key: receiveKey,
                                       title: fromSend != null ? "" : S.of(context).receive,
-                                      filteredNetwork:
-                                          fromSend != null ? fromSend.targetWalletType : null,
+                                      filteredNetwork: fromSend?.targetNetwork,
                                       currencies: widget.exchangeViewModel.receiveCurrencies,
                                       currency: widget.exchangeViewModel.receiveCurrency,
                                       useBaseUnit: widget.exchangeViewModel.useReceiveBaseUnit,

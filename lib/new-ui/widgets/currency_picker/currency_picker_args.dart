@@ -1,4 +1,6 @@
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/currency_groups.dart";
@@ -11,8 +13,14 @@ String chainNameForCurrency(CryptoCurrency c) {
   if (c == CryptoCurrency.btcln) {
     return "Lightning";
   }
-  final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
+  final network = WalletNetwork.tryFromCurrency(c);
+  if (network == null) {
+    return c.tag ?? "";
+  }
+
+  return network.type == WalletType.evm
+      ? networkDisplayName(network.type, network.chainId)
+      : walletTypeToString(network.type);
 }
 
 final Set<String> _stablecoinSymbols = {
@@ -129,7 +137,7 @@ class CurrencyPickerArgs {
 
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
-  final WalletType? filterByNetwork;
+  final WalletNetwork? filterByNetwork;
   final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
