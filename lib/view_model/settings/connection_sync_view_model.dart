@@ -233,7 +233,7 @@ abstract class ConnectionSyncViewModelBase with Store {
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   List<ChainInfo> get addedNetworks => _settingsStore.evmNetworks.values
-      .where((chain) => chain.source != ChainSource.builtin)
+      .where((chain) => chain.isAdded)
       .toList();
 
   bool canUseEvmScan(int chainId) => _wallet.type == WalletType.evm && _wallet.chainId == chainId;

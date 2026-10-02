@@ -28,8 +28,7 @@ class ScanPageNetworkList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addedNetworkCount =
-        evm?.getAllChains().where((chain) => chain.source != ChainSource.builtin).length ?? 0;
+    final addedNetworkCount = evm?.getAddedChains().length ?? 0;
 
     return Container(
       decoration: BoxDecoration(

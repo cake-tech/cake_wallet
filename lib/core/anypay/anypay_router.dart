@@ -119,7 +119,7 @@ class AnyPayRouter {
     return AnyPayCrossChainPayment(
       targetWalletType: targetWalletType,
       targetChainId: targetChainId,
-      wallets: snapshot.walletsOnNetwork(WalletNetwork.of(targetWalletType, targetChainId)),
+      wallets: snapshot.walletsOnNetwork(WalletNetwork(targetWalletType, targetChainId)),
       token: token,
       amountOverride: amountOverride,
     );

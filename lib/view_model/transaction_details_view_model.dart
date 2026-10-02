@@ -445,13 +445,6 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get _explorerUrl {
     final txId = transactionInfo.txHash;
-    if (wallet.type == WalletType.evm) {
-      final explorerUrl = _appStore.settingsStore.evmNetworks[wallet.chainId]?.explorerUrl ?? "";
-      // listed or typed explorer URL can end in a slash like HyperEVM's own
-      final base = explorerUrl.replaceFirst(RegExp(r"/+$"), "");
-      return base.isEmpty ? "" : "$base/tx/${txId}";
-    }
-
     if (wallet.chainId != null) {
       final explorerUrl = evm!.getExplorerUrlForChainId(wallet.chainId!);
       if (explorerUrl != null) {

@@ -2,7 +2,6 @@ import "dart:io";
 
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/core/wallet_network.dart";
-import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/hardware/device_connection_type.dart";
@@ -75,9 +74,7 @@ class WalletNetworkBloc extends Bloc<WalletNetworkEvent, WalletNetworkState> {
         )
         .toList();
 
-    final addedNetworks = settingsStore.evmNetworks.values
-        .where((chain) => chain.source != ChainSource.builtin)
-        .toList();
+    final addedNetworks = settingsStore.evmNetworks.values.where((chain) => chain.isAdded).toList();
 
     final addedRows = isSupportedByHardwareWallet(WalletType.evm)
         ? addedNetworks

@@ -489,17 +489,18 @@ class CWEVM extends EVM {
   }
 
   @override
-  int getChainIdByWalletType(WalletType walletType) {
-    final chainId = _registry.getChainIdByWalletType(walletType);
+  int? getChainIdByWalletType(WalletType walletType) =>
+      _registry.getChainIdByWalletType(walletType);
+
+  @override
+  String getChainNameByWalletType(WalletType walletType) {
+    final chainId = getChainIdByWalletType(walletType);
     if (chainId == null) {
       throw Exception("$walletType has no single chain ID");
     }
-    return chainId;
-  }
 
-  @override
-  String getChainNameByWalletType(WalletType walletType) =>
-      _getChainConfigOrThrow(getChainIdByWalletType(walletType)).shortCode;
+    return _getChainConfigOrThrow(chainId).shortCode;
+  }
 
   @override
   String getCaip2ByChainId(int chainId) => _getChainConfigOrThrow(chainId).caip2;
@@ -552,6 +553,9 @@ class CWEVM extends EVM {
 
   @override
   List<ChainInfo> getAllChains() => _registry.getAllChains().map(_toChainInfo).toList();
+
+  @override
+  List<ChainInfo> getAddedChains() => getAllChains().where((chain) => chain.isAdded).toList();
 
   @override
   ChainInfo? getChainInfoByChainId(int chainId) {
@@ -618,7 +622,7 @@ class CWEVM extends EVM {
     final config = _registry.getChainConfig(chainId);
 
     if (config != null && config.explorerUrls.isNotEmpty) {
-      final url = config.explorerUrls.first;
+      final url = config.explorerUrls.first.replaceFirst(RegExp(r"/+$"), "");
       return showProtocol
           ? url
           : url.replaceAll('https://', '').replaceAll('http://', '').split('/')[0];

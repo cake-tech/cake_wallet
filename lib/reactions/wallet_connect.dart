@@ -27,7 +27,7 @@ String walletConnectCompatibleChainsLabel() {
 String networkDisplayName(WalletType type, int? chainId) {
   if (evm != null && isEVMCompatibleChain(type)) {
     final id = chainId ?? evm!.getChainIdByWalletType(type);
-    final info = evm!.getChainInfoByChainId(id);
+    final info = id == null ? null : evm!.getChainInfoByChainId(id);
     if (info != null) {
       return info.name;
     }
@@ -81,7 +81,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
     return "";
   }
 
-  return evm!.getCaip2ByChainId(chainId ?? evm!.getChainIdByWalletType(walletType));
+  final id = chainId ?? evm!.getChainIdByWalletType(walletType);
+  return id == null ? "" : evm!.getCaip2ByChainId(id);
 }
 
 List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {

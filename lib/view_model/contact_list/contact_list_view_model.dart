@@ -200,7 +200,7 @@ abstract class ContactListViewModelBase with Store {
 
       if (isEVMCompatibleChain(walletType)) {
         final currencyChainId = TokenUtilities.getChainId(_currency);
-        final walletChainId = WalletNetwork.of(walletType, element.chainId).evmChainId;
+        final walletChainId = WalletNetwork(walletType, element.chainId).evmChainId;
 
         if (currencyChainId != walletChainId) matches = false;
       }

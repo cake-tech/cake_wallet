@@ -606,6 +606,21 @@ abstract class DashboardViewModelBase with Store {
   @computed
   String get address => wallet.walletAddresses.address;
 
+  ChainInfo? get addedNetwork =>
+      wallet.type == WalletType.evm ? settingsStore.evmNetworks[wallet.walletInfo.chainId] : null;
+
+  String get chainIconPath {
+    if (wallet.type == WalletType.evm) {
+      return "";
+    }
+
+    try {
+      return CryptoCurrency.fromString(wallet.currency.tag ?? wallet.currency.title).chainIconPath!;
+    } catch (e) {
+      return wallet.currency.chainIconPath ?? "";
+    }
+  }
+
   String get walletCurrencyName => wallet.type == WalletType.evm
       ? appStore.amountParsingProxy.getCryptoSymbol(wallet.currency)
       : wallet.currency.name;

@@ -2,7 +2,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
-import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_section.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
@@ -20,7 +19,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
-import "package:cw_core/wallet_type.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -126,11 +124,8 @@ class HistorySection extends StatelessWidget {
                                 amount: item.formattedCryptoAmount,
                                 amountFiat: item.formattedFiatAmount,
                                 hasTokens: item.hasTokens,
-                                chainIconPath: walletChainIconPath(dashboardViewModel),
-                                addedNetwork: dashboardViewModel.wallet.type == WalletType.evm
-                                    ? dashboardViewModel.settingsStore
-                                        .evmNetworks[dashboardViewModel.wallet.walletInfo.chainId]
-                                    : null,
+                                chainIconPath: dashboardViewModel.chainIconPath,
+                                addedNetwork: dashboardViewModel.addedNetwork,
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,

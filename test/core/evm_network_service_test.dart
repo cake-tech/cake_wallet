@@ -288,7 +288,7 @@ Future<void> main() async {
       final rpcUrl = answering(opChainId, "rpc");
       final enabled = await service.enable(network(opChainId, rpcUrl: rpcUrl));
       await service.disable(enabled);
-      final userNode = EvmNetwork.nodeFor(answering(opChainId, "user"), opChainId);
+      final userNode = EvmNetwork.rpcNode(answering(opChainId, "user"), opChainId);
       await userNode.save();
 
       await service.enable(enabled);
@@ -301,7 +301,7 @@ Future<void> main() async {
 
     test("a walk that moved off the stored RPCs replaces the old node rows", () async {
       final staleUrl = dead("stale");
-      await EvmNetwork.nodeFor(staleUrl, inkChainId, isDefault: true).save();
+      await EvmNetwork.rpcNode(staleUrl, inkChainId, isDefault: true).save();
       final answeringUrl = answering(inkChainId, "fresh");
 
       await service.enable(
@@ -314,9 +314,9 @@ Future<void> main() async {
 
     test("a walk that moved off the stored RPCs keeps the node rows the user added", () async {
       final staleUrl = dead("stale");
-      await EvmNetwork.nodeFor(staleUrl, inkChainId, isDefault: true).save();
+      await EvmNetwork.rpcNode(staleUrl, inkChainId, isDefault: true).save();
       final userUrl = answering(inkChainId, "user");
-      await EvmNetwork.nodeFor(userUrl, inkChainId).save();
+      await EvmNetwork.rpcNode(userUrl, inkChainId).save();
       final answeringUrl = answering(inkChainId, "fresh");
 
       await service.enable(
@@ -718,7 +718,7 @@ Future<void> main() async {
     test("a network with any node row left is not touched", () async {
       final userUrl = answering(opChainId, "user");
       await network(opChainId, rpcUrl: answering(opChainId, "rpc")).save();
-      await EvmNetwork.nodeFor(userUrl, opChainId).save();
+      await EvmNetwork.rpcNode(userUrl, opChainId).save();
 
       await EvmNetwork.restoreNodesIfNone(opChainId);
 

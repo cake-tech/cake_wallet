@@ -73,7 +73,7 @@ class EvmNetworkService {
   }
 
   Future<void> checkRpc(String url, int chainId) async {
-    final node = EvmNetwork.nodeFor(url, chainId);
+    final node = EvmNetwork.rpcNode(url, chainId);
     final answered = await node.requestEvmChainId();
 
     if (answered == null) {

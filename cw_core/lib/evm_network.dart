@@ -137,7 +137,7 @@ class EvmNetwork {
   Future<void> replaceRpcNodes(DatabaseExecutor executor, EvmNetwork? previous) async {
     final urls = {rpcUrl, failoverUrl, previous?.rpcUrl, previous?.failoverUrl}.nonNulls;
     for (final url in urls) {
-      final node = nodeFor(url, chainId);
+      final node = rpcNode(url, chainId);
       await executor.delete(
         Node.tableName,
         where: "typeRaw = ? AND chainId = ? AND uri = ? AND path = ?",
@@ -158,7 +158,7 @@ class EvmNetwork {
   }
 
   Future<int> _insertNode(DatabaseExecutor executor, String url, {required bool isDefault}) {
-    final map = nodeFor(url, chainId, isDefault: isDefault).toMap()..[Node.selfIdColumn] = null;
+    final map = rpcNode(url, chainId, isDefault: isDefault).toMap()..[Node.selfIdColumn] = null;
     return executor.insert(Node.tableName, map);
   }
 
@@ -188,7 +188,7 @@ class EvmNetwork {
         await EvmNetwork.fromMap(networkRows.first).replaceNodes(txn);
       });
 
-  static Node nodeFor(String url, int chainId, {bool isDefault = false}) {
+  static Node rpcNode(String url, int chainId, {bool isDefault = false}) {
     final uri = Uri.parse(url);
 
     return Node(

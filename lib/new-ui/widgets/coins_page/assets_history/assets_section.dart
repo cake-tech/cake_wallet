@@ -1,7 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
-import "package:cw_core/wallet_type.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -67,11 +65,8 @@ class AssetsSection extends StatelessWidget {
                   wallet: dashboardViewModel.wallet,
                   isFirst: index == 0,
                   isLast: index == dashboardViewModel.balanceViewModel.formattedBalances.length - 1,
-                  chainIconPath: walletChainIconPath(dashboardViewModel),
-                  addedNetwork: dashboardViewModel.wallet.type == WalletType.evm
-                      ? dashboardViewModel
-                          .settingsStore.evmNetworks[dashboardViewModel.wallet.walletInfo.chainId]
-                      : null,
+                  chainIconPath: dashboardViewModel.chainIconPath,
+                  addedNetwork: dashboardViewModel.addedNetwork,
                 );
               });
             },
@@ -81,18 +76,4 @@ class AssetsSection extends StatelessWidget {
     );
   }
 
-}
-
-String walletChainIconPath(DashboardViewModel dashboardViewModel) {
-  if (dashboardViewModel.wallet.type == WalletType.evm) {
-    return "";
-  }
-
-  try {
-    return CryptoCurrency.fromString(
-            dashboardViewModel.wallet.currency.tag ?? dashboardViewModel.wallet.currency.title)
-        .chainIconPath!;
-  } catch (e) {
-    return dashboardViewModel.wallet.currency.chainIconPath ?? "";
-  }
 }

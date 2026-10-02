@@ -128,7 +128,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
         // Check that selected wallet type is not present already in group
         bool isSameTypeAsSelectedWallet =
-            WalletNetwork.fromWallet(wallet) == WalletNetwork.of(type, chainId);
+            WalletNetwork.fromWallet(wallet) == WalletNetwork(type, chainId);
 
         bool isNonSeedWallet = wallet.isNonSeedWallet;
 

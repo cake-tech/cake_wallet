@@ -1603,7 +1603,7 @@ abstract class EVM {
   Future<PendingTransaction>? enableDEuroSaving(WalletBase wallet, TransactionPriority priority) => null;
   
   // Registry helper methods (for backward compatibility helpers)
-  int getChainIdByWalletType(WalletType walletType);
+  int? getChainIdByWalletType(WalletType walletType);
   String getChainNameByWalletType(WalletType walletType);
   String getCaip2ByChainId(int chainId);
   int? getChainIdByTag(String tag);
@@ -1612,6 +1612,7 @@ abstract class EVM {
   String getChainNameByChainId(int chainId);
   // Chain selection methods
   List<ChainInfo> getAllChains();
+  List<ChainInfo> getAddedChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
   ChainInfo? getChainInfoByChainId(int chainId);
 
@@ -1704,6 +1705,8 @@ class ChainInfo {
   final String? explorerUrl;
 
   bool get isManual => source == ChainSource.manual;
+
+  bool get isAdded => source != ChainSource.builtin;
 
   @override
   bool operator ==(Object other) =>

@@ -340,7 +340,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
       errors[NetworkField.explorerUrl] = S.current.url_must_be_https;
     }
 
-    final iconUrlError = iconUrlErrorFor(state.mode, state.value(NetworkField.iconUrl));
+    final iconUrlError = validateIconUrl(state.mode, state.value(NetworkField.iconUrl));
     if (iconUrlError != null) {
       errors[NetworkField.iconUrl] = iconUrlError;
     }
@@ -348,7 +348,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     return errors;
   }
 
-  static String? iconUrlErrorFor(NetworkDetailsMode mode, String iconUrl) {
+  static String? validateIconUrl(NetworkDetailsMode mode, String iconUrl) {
     final value = iconUrl.trim();
     if (mode == NetworkDetailsMode.chainList || value.isEmpty) {
       return null;

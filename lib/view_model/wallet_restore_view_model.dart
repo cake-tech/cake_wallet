@@ -348,7 +348,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
 
-    final nodeChainId = WalletNetwork.of(walletType, chainId).evmChainId;
+    final nodeChainId = WalletNetwork(walletType, chainId).evmChainId;
 
     var node = appStore.settingsStore.getCurrentNode(walletType, chainId: nodeChainId);
 

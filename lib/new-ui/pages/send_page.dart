@@ -39,7 +39,6 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
-import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
@@ -1097,13 +1096,7 @@ class _NewSendPageState extends State<NewSendPage> {
     await _handleEvaluation(evaluation, fallbackCurrency: target.currency);
   }
 
-  int _currentEvmChainIdOrMainnet() {
-    final wallet = widget.sendViewModel.wallet;
-    if (isEVMCompatibleChain(wallet.type)) {
-      return evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
-    }
-    return 1;
-  }
+  int _currentEvmChainIdOrMainnet() => evm?.getSelectedChainId(widget.sendViewModel.wallet) ?? 1;
 
   Future<bool> _handleIfOpenCryptoPay(String input) async {
     if (!OpenCryptoPayService.isOpenCryptoPayQR(input) ||

@@ -24,8 +24,7 @@ abstract class ContactViewModelBase with Store {
       : state = InitialExecutionState(),
         currencies = [
           ...CryptoCurrency.all,
-          for (final chain in evm?.getAllChains() ?? const <ChainInfo>[])
-            if (chain.source != ChainSource.builtin) chain.currency,
+          for (final chain in evm?.getAddedChains() ?? const <ChainInfo>[]) chain.currency,
         ],
         _contact = contact,
         name = contact?.name ?? '',

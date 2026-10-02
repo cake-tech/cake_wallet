@@ -166,7 +166,7 @@ class AnyPayFlow {
     }
 
     final currentType = sendViewModel.wallet.type;
-    final currentChainId = isEVMCompatibleChain(currentType) ? _currentEvmChainId() : null;
+    final currentChainId = evm?.getSelectedChainId(sendViewModel.wallet);
     final currentNetworkName = networkDisplayName(currentType, currentChainId);
     final currentNetworkIcon = symbolIconPathForWalletType(currentType) ?? "";
     final currentAddedChainId = currentType == WalletType.evm ? currentChainId : null;
@@ -391,10 +391,5 @@ class AnyPayFlow {
   void _enterLightningMode() {
     sendViewModel.selectedCryptoCurrency = CryptoCurrency.btcln;
     sendViewModel.coinTypeToSpendFrom = UnspentCoinType.lightning;
-  }
-
-  int _currentEvmChainId() {
-    final wallet = sendViewModel.wallet;
-    return evm!.getSelectedChainId(wallet) ?? evm!.getChainIdByWalletType(wallet.type);
   }
 }

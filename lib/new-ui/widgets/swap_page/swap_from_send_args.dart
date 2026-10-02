@@ -26,5 +26,5 @@ class SwapFromSendArgs {
   final Money? receiveAmount;
 
   WalletNetwork get targetNetwork =>
-      WalletNetwork.of(targetWalletType, getChainIdByCryptoCurrency(receiveCurrency));
+      WalletNetwork(targetWalletType, getChainIdByCryptoCurrency(receiveCurrency));
 }

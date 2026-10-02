@@ -1,4 +1,3 @@
-import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
@@ -248,8 +247,7 @@ class MenuWidgetState extends State<MenuWidget> {
       case WalletType.ethereum:
         return ethereumIcon;
       case WalletType.evm:
-        final network = widget.dashboardViewModel.settingsStore
-            .evmNetworks[widget.dashboardViewModel.wallet.walletInfo.chainId];
+        final network = widget.dashboardViewModel.addedNetwork;
         return CakeImageWidget(
           imageUrl: network?.iconPath,
           width: 40,

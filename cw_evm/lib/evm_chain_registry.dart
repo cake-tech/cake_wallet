@@ -192,11 +192,6 @@ class EvmChainRegistry {
 
   ChainConfig? getChainConfig(int chainId) => _chains[chainId];
 
-  ChainConfig? getChainConfigByWalletType(WalletType walletType) {
-    final chainId = _walletTypeToChainId[walletType];
-    return chainId != null ? _chains[chainId] : null;
-  }
-
   /// Get chain configuration by tag (e.g., 'ETH', 'POL', 'BASE', 'ARB')
   ChainConfig? getChainConfigByTag(String tag) {
     final chainId = _tagToChainId[tag.toUpperCase()];

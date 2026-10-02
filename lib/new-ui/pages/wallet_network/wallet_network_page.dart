@@ -247,7 +247,7 @@ class _NetworkSections extends StatelessWidget {
             isDense: true,
             sections: {
               "": [
-                ...builtinRows.map((row) => _listItemFor(context, row)),
+                ...builtinRows.map((row) => _listItem(context, row)),
                 ListItemRegularRow(
                   keyValue: "wallet_network_manage_builtin_row_key",
                   label: S.of(context).manage_builtin_networks,
@@ -296,7 +296,7 @@ class _NetworkSections extends StatelessWidget {
             isDense: true,
             sections: {
               "": [
-                ...addedRows.map((row) => _listItemFor(context, row)),
+                ...addedRows.map((row) => _listItem(context, row)),
                 if (state.hasAddedNetworks)
                   ListItemRegularRow(
                     keyValue: "wallet_network_manage_added_row_key",
@@ -319,7 +319,7 @@ class _NetworkSections extends StatelessWidget {
     );
   }
 
-  ListItem _listItemFor(BuildContext context, WalletNetworkRow row) {
+  ListItem _listItem(BuildContext context, WalletNetworkRow row) {
     final network = row.network;
     final chainId = network.chainId;
 

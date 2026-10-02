@@ -54,8 +54,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   Set<CryptoCurrency> get _natives => {
         for (final walletType in availableWalletTypes)
           if (walletType != WalletType.evm) walletTypeToCryptoCurrency(walletType),
-        for (final chain in evm?.getAllChains() ?? const <ChainInfo>[])
-          if (chain.source != ChainSource.builtin) chain.currency,
+        for (final chain in evm?.getAddedChains() ?? const <ChainInfo>[]) chain.currency,
       };
 
   @override

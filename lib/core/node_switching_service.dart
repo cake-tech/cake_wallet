@@ -156,10 +156,10 @@ class NodeSwitchingService {
       final currentNode = settingsStore.getCurrentNode(nodeWalletType, chainId: chainId);
 
       // Get all trusted nodes for this wallet type
-      final network = WalletNetwork.of(nodeWalletType, chainId);
+      final network = WalletNetwork(nodeWalletType, chainId);
       final trustedNodes = (await Node.getAll())
           .where((node) =>
-              WalletNetwork.of(node.type, node.chainId) == network &&
+              WalletNetwork(node.type, node.chainId) == network &&
               node.isEnabledForAutoSwitching)
           .toList();
 

@@ -337,7 +337,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         return;
       }
 
-      final destination = WalletNetwork.of(destWalletType, destinationChainId);
+      final destination = WalletNetwork(destWalletType, destinationChainId);
       final filtered = all
           .where((w) => WalletNetwork.fromWallet(w) == destination && w.hardwareWalletType == null)
           .toList();

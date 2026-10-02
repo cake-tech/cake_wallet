@@ -9,11 +9,11 @@ void main() {
 
   setUpAll(() => S.current = S());
 
-  group("NetworkDetailsBloc.iconUrlErrorFor", () {
+  group("NetworkDetailsBloc.validateIconUrl", () {
     test("ChainList mode never checks the icon, its field is not shown", () {
-      expect(NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.chainList, bundledIcon), isNull);
+      expect(NetworkDetailsBloc.validateIconUrl(NetworkDetailsMode.chainList, bundledIcon), isNull);
       expect(
-        NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.chainList, plainHttpIcon),
+        NetworkDetailsBloc.validateIconUrl(NetworkDetailsMode.chainList, plainHttpIcon),
         isNull,
       );
     });
@@ -21,7 +21,7 @@ void main() {
     test("the manual modes refuse a URL that is not https", () {
       for (final mode in [NetworkDetailsMode.manualAdd, NetworkDetailsMode.manualEdit]) {
         expect(
-          NetworkDetailsBloc.iconUrlErrorFor(mode, plainHttpIcon),
+          NetworkDetailsBloc.validateIconUrl(mode, plainHttpIcon),
           S.current.url_must_be_https,
           reason: mode.name,
         );
@@ -30,19 +30,19 @@ void main() {
 
     test("a typed bundled asset path is refused in the manual modes", () {
       expect(
-        NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.manualAdd, "assets/x.png"),
+        NetworkDetailsBloc.validateIconUrl(NetworkDetailsMode.manualAdd, "assets/x.png"),
         S.current.url_must_be_https,
       );
       expect(
-        NetworkDetailsBloc.iconUrlErrorFor(NetworkDetailsMode.manualEdit, bundledIcon),
+        NetworkDetailsBloc.validateIconUrl(NetworkDetailsMode.manualEdit, bundledIcon),
         S.current.url_must_be_https,
       );
     });
 
     test("the manual modes accept an https URL or no icon", () {
       for (final mode in [NetworkDetailsMode.manualAdd, NetworkDetailsMode.manualEdit]) {
-        expect(NetworkDetailsBloc.iconUrlErrorFor(mode, remoteIcon), isNull, reason: mode.name);
-        expect(NetworkDetailsBloc.iconUrlErrorFor(mode, "  "), isNull, reason: mode.name);
+        expect(NetworkDetailsBloc.validateIconUrl(mode, remoteIcon), isNull, reason: mode.name);
+        expect(NetworkDetailsBloc.validateIconUrl(mode, "  "), isNull, reason: mode.name);
       }
     });
   });

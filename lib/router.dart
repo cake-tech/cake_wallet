@@ -175,17 +175,17 @@ Route<T> handleRouteWithPlatformAwareness<T>(
 
 Route<dynamic> _walletNetworkRoute(
   WalletNetworkMode mode,
-  Route<dynamic> Function(WalletNetwork network) routeFor,
+  Route<dynamic> Function(WalletNetwork network) nextRoute,
 ) {
   if (isSingleCoin) {
-    return routeFor(WalletNetwork.builtin(availableWalletTypes.first));
+    return nextRoute(WalletNetwork.builtin(availableWalletTypes.first));
   }
 
   return handleRouteWithPlatformAwareness(
     (_) => getIt.get<WalletNetworkPage>(
       param1: mode,
       param2: (BuildContext context, WalletNetwork network) =>
-          Navigator.of(context).push(routeFor(network)),
+          Navigator.of(context).push(nextRoute(network)),
     ),
   );
 }
@@ -270,7 +270,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final chainId = arguments.length > 2 ? arguments[2] as int? : null;
 
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(
-          param1: WalletNetwork.of(type, chainId),
+          param1: WalletNetwork(type, chainId),
           param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
       if (type == WalletType.monero)
@@ -762,7 +762,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final zcashNetwork = args['zcashNetwork'] as int? ?? ZcashNetworkType.mainnet;
       final setZcashNetwork = args['setZcashNetwork'] as void Function(int network)? ?? (_) {};
 
-      final network = WalletNetwork.of(type, args["chainId"] as int?);
+      final network = WalletNetwork(type, args["chainId"] as int?);
       final viewModelParam = {"network": network, "isPow": false};
 
       return handleRouteWithPlatformAwareness(

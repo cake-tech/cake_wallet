@@ -7,13 +7,8 @@ import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 
 class WalletNetwork {
-  const WalletNetwork.builtin(this.type) : chainId = null;
 
-  const WalletNetwork.added(int this.chainId) : type = WalletType.evm;
-
-  const WalletNetwork._(this.type, this.chainId);
-
-  factory WalletNetwork.of(WalletType type, int? chainId) {
+  factory WalletNetwork(WalletType type, int? chainId) {
     if (type != WalletType.evm) {
       return WalletNetwork.builtin(type);
     }
@@ -22,8 +17,13 @@ class WalletNetwork {
         ? const WalletNetwork._(WalletType.evm, null)
         : WalletNetwork.added(chainId);
   }
+  const WalletNetwork.builtin(this.type) : chainId = null;
 
-  factory WalletNetwork.fromWallet(WalletInfo info) => WalletNetwork.of(info.type, info.chainId);
+  const WalletNetwork.added(int this.chainId) : type = WalletType.evm;
+
+  const WalletNetwork._(this.type, this.chainId);
+
+  factory WalletNetwork.fromWallet(WalletInfo info) => WalletNetwork(info.type, info.chainId);
 
   static WalletNetwork? tryFromCurrency(CryptoCurrency currency) {
     final type = cryptoCurrencyOrTokenToWalletType(currency);
@@ -31,7 +31,7 @@ class WalletNetwork {
       return null;
     }
 
-    return WalletNetwork.of(type, getChainIdByCryptoCurrency(currency));
+    return WalletNetwork(type, getChainIdByCryptoCurrency(currency));
   }
 
   final WalletType type;

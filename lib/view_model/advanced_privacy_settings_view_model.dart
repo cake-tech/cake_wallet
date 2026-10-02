@@ -31,14 +31,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get canUseBlinkProtection {
     if (!isEVMCompatibleChain(type)) return false;
 
-    if (type == WalletType.evm) {
-      return false;
-    }
-
-    // Get the chainId from the wallet type
     final chainId = evm!.getChainIdByWalletType(type);
 
-    return canSupportBlinkProtection(chainId);
+    return chainId != null && canSupportBlinkProtection(chainId);
   }
 
   @observable

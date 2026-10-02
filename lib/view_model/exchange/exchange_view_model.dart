@@ -462,10 +462,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .toList();
   }
 
-  static List<CryptoCurrency> get _addedNetworkNatives => [
-        for (final chain in evm?.getAllChains() ?? const <ChainInfo>[])
-          if (chain.source != ChainSource.builtin) chain.currency,
-      ];
+  static List<CryptoCurrency> get _addedNetworkNatives =>
+      [for (final chain in evm?.getAddedChains() ?? const <ChainInfo>[]) chain.currency];
 
   Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];
