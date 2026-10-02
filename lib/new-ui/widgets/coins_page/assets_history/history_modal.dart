@@ -45,7 +45,6 @@ class HistoryModal extends StatelessWidget {
                       controller: ModalScrollController.of(context),
                       slivers: [
                 HistorySection(
-                    detailsAsPage: true,
                     dashboardViewModel: dashboardViewModel,
                     short: false,
                     roundedTopSection: true)

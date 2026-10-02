@@ -1,5 +1,6 @@
 import "dart:typed_data";
 
+import "package:cw_core/utils/print_verbose.dart";
 import "package:ledger_bitcoin/src/psbt/constants.dart";
 import "package:ledger_bitcoin/src/psbt/psbtv2.dart";
 import "package:ledger_bitcoin/src/utils/buffer_writer.dart";
@@ -18,13 +19,21 @@ import "package:ledger_bitcoin/src/utils/buffer_writer.dart";
 /// through PSBT_IN_PARTIAL_SIG or PSBT_IN_TAP_KEY_SIG
 extension InputFinalizer on PsbtV2 {
   void finalizeV0() {
+    printV('[finalizeV0] enter; inputs=${getGlobalInputCount()}');
+
     // First check that each input has a signature
     for (var i = 0; i < getGlobalInputCount(); i++) {
-      if (_isFinalized(i)) continue;
+      if (_isFinalized(i)) {
+        printV('[finalizeV0] in[$i] already finalized, skip');
+        continue;
+      }
 
       final legacyPubkeys = getInputKeyDatas(i, PSBTIn.partialSig);
       final taprootSig = getInputTapKeySig(i);
+      printV(
+          '[finalizeV0] in[$i] partialSigs=${legacyPubkeys.length} tapKeySig=${taprootSig != null}');
       if (legacyPubkeys.isEmpty && taprootSig == null) {
+        printV('[finalizeV0] in[$i] no sig -> skip (continue)');
         continue;
         // throw Exception('No signature for input $i present');
       }
@@ -82,7 +91,9 @@ extension InputFinalizer on PsbtV2 {
         setInputFinalScriptwitness(i, witnessBuf.buffer());
       }
       clearFinalizedInput(i);
+      printV('[finalizeV0] in[$i] finalized OK');
     }
+    printV('[finalizeV0] done');
   }
 
   /// Deletes fields that are no longer necessary from the psbt.

@@ -10,6 +10,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/reactions/on_current_fiat_change.dart';
 import 'package:cake_wallet/reactions/on_current_wallet_change.dart';
+import 'package:cake_wallet/reactions/on_payjoin_change.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
@@ -42,6 +43,7 @@ void bootstrapOnline(GlobalKey<NavigatorState> navigatorKey, {required bool load
   startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);
   startOnCurrentNodeChangeReaction(appStore);
   startFiatRateUpdate(appStore, settingsStore, fiatConversionStore);
+  startPayjoinConfigReaction(appStore, settingsStore, getIt.get<SharedPreferences>());
 
   if (FeatureFlag.isAutomaticNodeSwitchingEnabled) {
     getIt.get<NodeSwitchingService>().startHealthCheckTimer();

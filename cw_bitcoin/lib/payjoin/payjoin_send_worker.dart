@@ -1,121 +1,283 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
+import 'dart:typed_data';
 
-import 'package:cw_bitcoin/payjoin/manager.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
+import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
+import 'package:cw_bitcoin/payjoin/relay_response.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/tor/abstract.dart';
-import 'package:payjoin_flutter/common.dart';
-import 'package:payjoin_flutter/send.dart';
-import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
-import 'package:payjoin_flutter/src/generated/api/send/error.dart' as pj_error;
-import 'package:payjoin_flutter/uri.dart' as pj_uri;
+import 'package:http/http.dart' as http;
+import 'package:payjoin/payjoin.dart' as pj;
 
-enum PayjoinSenderRequestTypes {
-  requestPosted,
-  psbtToSign;
+/// Maximum wall-clock duration a sender worker will keep polling for a
+/// proposal before giving up. Mirrors the v2 protocol's typical session
+/// expiry window; the FFI also surfaces explicit terminal states which we
+/// handle separately.
+const _maxSenderSessionDuration = Duration(hours: 24);
+const _initialBackoff = Duration(seconds: 2);
+const _maxBackoff = Duration(seconds: 30);
+
+/// Drives the v2 Payjoin sender state machine.
+///
+/// Mirrors `payjoin-cli`'s `process_sender_session` driver:
+///   WithReplyKey -> PollingForProposal -> Closed(Success)
+///
+/// On [run], if [persister] already holds events the worker resumes via
+/// `replaySenderEventLog` (matching [PayjoinReceiverWorker]'s replay path).
+/// Otherwise it builds a fresh [pj.SenderBuilder] from the original PSBT and
+/// uri, then proceeds through the state machine.
+class PayjoinSenderWorker {
+  PayjoinSenderWorker({
+    required MailroomManager mailroomManager,
+    pj.JsonSenderSessionPersister? persister,
+  })  : _mailroomManager = mailroomManager,
+        _persister = persister;
+
+  final MailroomManager _mailroomManager;
+  final http.Client client = ProxyWrapper().getHttpIOClient();
+  final pj.JsonSenderSessionPersister? _persister;
+  bool _cancelled = false;
+  bool _disposed = false;
+
+  /// Signals the polling loops to stop at the next iteration. Does not release
+  /// resources — call [dispose] for that.
+  void cancel() => _cancelled = true;
+
+  /// Releases the underlying HTTP client (sockets, TLS state). Idempotent.
+  /// Safe to call from any terminal path; the polling loops will throw on the
+  /// next iteration if [cancel] has also been called.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    client.close();
+  }
+
+  Future<String> run(
+    String psbtBase64,
+    String pjUriString,
+    int minFeeRateSatPerKwu,
+  ) async {
+    if (_cancelled) throw PayjoinSenderCancelledException();
+    final persister = _persister ?? _InMemorySenderPersister();
+    final events = persister.load();
+
+    if (events.isNotEmpty) {
+      printV('[pjSender] resuming from ${events.length} event(s)');
+      return _runFromReplay(persister);
+    }
+
+    return _runFresh(psbtBase64, pjUriString, minFeeRateSatPerKwu, persister);
+  }
+
+  /// Resumes a sender session from its persisted event log. Used when the
+  /// worker is re-spawned after a wallet switch / app restart and the
+  /// original PSBT / BIP21 URI are no longer at hand (the replayed FFI
+  /// state contains everything needed to continue polling). Requires a
+  /// persister to have been supplied at construction time.
+  Future<String> resume() async {
+    if (_cancelled) throw PayjoinSenderCancelledException();
+    final persister = _persister;
+    if (persister == null) {
+      throw StateError('Cannot resume sender without a persister');
+    }
+    final events = persister.load();
+    if (events.isEmpty) {
+      throw StateError('Cannot resume sender: event log is empty');
+    }
+    printV('[pjSender] resuming from ${events.length} event(s)');
+    return _runFromReplay(persister);
+  }
+
+  Future<String> _runFromReplay(
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final replayResult = pj.replaySenderEventLog(persister: persister);
+    final state = replayResult.state();
+    replayResult.dispose();
+
+    if (state is pj.WithReplyKeySendSession) {
+      printV('[pjSender] replay -> WithReplyKey; posting original proposal');
+      final polling = await _postOriginalProposal(state.inner, persister);
+      return _pollForProposal(polling, persister);
+    }
+    if (state is pj.PollingForProposalSendSession) {
+      printV('[pjSender] replay -> PollingForProposal; continuing');
+      return _pollForProposal(state.inner, persister);
+    }
+    if (state is pj.SenderPendingFallbackSendSession) {
+      throw PayjoinSenderFallbackAvailableException(
+        state.inner.fallbackTx(),
+      );
+    }
+    if (state is pj.ClosedSendSession) {
+      final outcome = state.inner;
+      if (outcome.isSuccess()) {
+        final psbt = outcome.successPsbtBase64();
+        if (psbt != null) return psbt;
+      }
+      throw Exception('Sender session already closed without a proposal');
+    }
+    throw Exception('Sender session not resumable: ${state.runtimeType}');
+  }
+
+  Future<String> _runFresh(
+    String psbtBase64,
+    String pjUriString,
+    int minFeeRateSatPerKwu,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
+    final builder = pj.SenderBuilder(psbt: psbtBase64, uri: pjUri);
+    final initialTransition = builder.buildRecommended(
+      minFeeRateSatPerKwu: minFeeRateSatPerKwu,
+    );
+    final withReplyKey = initialTransition.save(persister: persister);
+
+    final polling = await _postOriginalProposal(withReplyKey, persister);
+    return _pollForProposal(polling, persister);
+  }
+
+  Future<pj.PollingForProposal> _postOriginalProposal(
+    pj.WithReplyKey withReplyKey,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final relayResponse = await _postViaRelay(
+      (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
+    );
+    printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
+    final transition = withReplyKey.processResponse(
+      response: relayResponse.bodyBytes,
+      postCtx: relayResponse.ohttpCtx,
+    );
+    return transition.save(persister: persister);
+  }
+
+  Future<String> _pollForProposal(
+    pj.PollingForProposal polling,
+    pj.JsonSenderSessionPersister persister,
+  ) async {
+    final startedAt = DateTime.now();
+    var consecutiveFailures = 0;
+    while (true) {
+      if (_cancelled) throw PayjoinSenderCancelledException();
+      if (DateTime.now().difference(startedAt) > _maxSenderSessionDuration) {
+        throw Exception('Payjoin sender session expired before a proposal arrived');
+      }
+      printV('Polling Payjoin Sender Proposal');
+      try {
+        final relayResponse = await _postViaRelay(
+          (relay) => polling.createPollRequest(ohttpRelay: relay),
+        );
+        final pollTransition = polling.processResponse(
+          response: relayResponse.bodyBytes,
+          ohttpCtx: relayResponse.ohttpCtx,
+        );
+        final outcome = pollTransition.save(persister: persister);
+        consecutiveFailures = 0;
+        printV('[pjSender] poll outcome=${outcome.runtimeType}');
+
+        if (outcome is pj.ProgressPollingForProposalTransitionOutcome) {
+          printV('[pjSender] Progress; psbtLen=${outcome.psbtBase64.length}');
+          return outcome.psbtBase64;
+        }
+        polling = (outcome as pj.StasisPollingForProposalTransitionOutcome).inner;
+        printV('[pjSender] Stasis; will retry');
+      } on PayjoinSenderCancelledException {
+        rethrow;
+      } on PayjoinSenderFallbackAvailableException {
+        rethrow;
+      } catch (e, s) {
+        if (e is pj.ResponseException) {
+          printV('Payjoin poll recoverable error: $e');
+        } else {
+          printV('[pjSender] poll FATAL: $e\n$s');
+          rethrow;
+        }
+      }
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
+    }
+  }
+
+  Future<PayjoinRelayResponse> _postViaRelay(
+    pj.RequestOhttpContext Function(String relay) buildRequest,
+  ) async {
+    var consecutiveFailures = 0;
+    while (true) {
+      final relay = _mailroomManager.chooseRelay();
+      // FFI/protocol errors raised while building the request are NOT relay
+      // problems — propagate them so the caller sees the real cause instead
+      // of cycling through every relay and throwing a misleading
+      // "No valid relays available" downstream.
+      final reqCtx = buildRequest(relay);
+      try {
+        final response = await client.post(
+          Uri.parse(reqCtx.request.url),
+          headers: {'Content-Type': reqCtx.request.contentType},
+          body: reqCtx.request.body,
+        );
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          // Successful round-trip: any previously-marked transient relay
+          // failures are obsolete, so reset the pool to give every relay a
+          // fresh chance on subsequent iterations.
+          _mailroomManager.clearFailedRelays();
+          return PayjoinRelayResponse(
+            bodyBytes: response.bodyBytes,
+            ohttpCtx: reqCtx.ohttpCtx,
+            requestUrl: reqCtx.request.url,
+          );
+        }
+        // Non-2xx from the relay itself (OHTTP wraps the directory response,
+        // so the relay's status is its own). Mark this relay failed and try
+        // the next one.
+        printV('[pjSender] relay $relay returned HTTP ${response.statusCode}');
+        _mailroomManager.addFailedRelay(relay);
+      } on SocketException catch (e) {
+        printV('[pjSender] relay $relay socket error: $e');
+        _mailroomManager.addFailedRelay(relay);
+      } on http.ClientException catch (e) {
+        // Transport-layer failure (DNS, connection reset, TLS handshake,
+        // etc.). Transient — try the next relay.
+        printV('[pjSender] relay $relay transport error: $e');
+        _mailroomManager.addFailedRelay(relay);
+      }
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
+    }
+  }
 }
 
-class PayjoinSenderWorker {
-  final SendPort sendPort;
-  final pendingRequests = <String, Completer<dynamic>>{};
-  final String pjUrl;
+Duration _nextBackoff(int consecutiveFailures) {
+  if (consecutiveFailures == 0) return _initialBackoff;
+  final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
+      .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
+  return Duration(seconds: seconds);
+}
 
-  PayjoinSenderWorker._(this.sendPort, this.pjUrl);
+class PayjoinSenderCancelledException implements Exception {
+  @override
+  String toString() => 'PayjoinSenderCancelledException';
+}
 
-  static Future<void> run(List<Object> args) async {
-    await pj.core.init();
-    CakeTor.instance = await CakeTorInstance.getInstance();
+/// Thrown when a replayed sender session is already in the
+/// `SenderPendingFallback` state, meaning the user must broadcast the
+/// enclosed fallback transaction to settle the original payment.
+class PayjoinSenderFallbackAvailableException implements Exception {
+  PayjoinSenderFallbackAvailableException(this.fallbackTx);
+  final Uint8List fallbackTx;
 
-    final sendPort = args[0] as SendPort;
-    final senderJson = args[1] as String;
-    final pjUrl = args[2] as String;
+  @override
+  String toString() =>
+      'PayjoinSenderFallbackAvailableException(fallbackTxLen=${fallbackTx.length})';
+}
 
-    final sender = Sender.fromJson(json: senderJson);
-    final worker = PayjoinSenderWorker._(sendPort, pjUrl);
+class _InMemorySenderPersister extends pj.JsonSenderSessionPersister {
+  final List<String> _events = [];
 
-    try {
-      final proposalPsbt = await worker.runSender(sender);
-      sendPort.send({
-        'type': PayjoinSenderRequestTypes.psbtToSign,
-        'psbt': proposalPsbt,
-      });
-    } catch (e) {
-      sendPort.send(e);
-    }
-  }
+  @override
+  void save(String event) => _events.add(event);
 
-  final client = ProxyWrapper().getHttpIOClient();
+  @override
+  List<String> load() => List.from(_events);
 
-  /// Run a payjoin sender (V2 protocol first, fallback to V1).
-  Future<String> runSender(Sender sender) async {
-    try {
-      return await _runSenderV2(sender);
-    } catch (e) {
-      printV(e);
-      if (e is pj_error.FfiCreateRequestError) {
-        return await _runSenderV1(sender);
-      } else if (e is HttpException) {
-        printV(e);
-        throw Exception(PayjoinSessionError.recoverable(e.toString()));
-      } else {
-        throw Exception(PayjoinSessionError.unrecoverable(e.toString()));
-      }
-    }
-  }
-
-  /// Attempt to send payjoin using the V2 of the protocol.
-  Future<String> _runSenderV2(Sender sender) async {
-    try {
-      final postRequest = await sender.extractV2(
-        ohttpProxyUrl: await pj_uri.Url.fromStr(PayjoinManager.randomOhttpRelayUrl()),
-      );
-
-      final postResult = await _postRequest(postRequest.$1);
-      final getContext = await postRequest.$2.processResponse(response: postResult);
-
-      sendPort.send({'type': PayjoinSenderRequestTypes.requestPosted, "pj": pjUrl});
-
-      while (true) {
-        printV('Polling V2 Proposal Request (${pjUrl})');
-
-        final getRequest = await getContext.extractReq(
-          ohttpRelay: await PayjoinManager.randomOhttpRelayUrl(),
-        );
-        final getRes = await _postRequest(getRequest.$1);
-        final proposalPsbt = await getContext.processResponse(
-          response: getRes,
-          ohttpCtx: getRequest.$2,
-        );
-        printV("$proposalPsbt");
-        if (proposalPsbt != null) return proposalPsbt;
-        sleep(Duration(seconds: 2));
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Attempt to send payjoin using the V1 of the protocol.
-  Future<String> _runSenderV1(Sender sender) async {
-    try {
-      final postRequest = await sender.extractV1();
-      final response = await _postRequest(postRequest.$1);
-
-      sendPort.send({'type': PayjoinSenderRequestTypes.requestPosted});
-
-      return await postRequest.$2.processResponse(response: response);
-    } catch (e, stack) {
-      throw PayjoinSessionError.unrecoverable('Send V1 payjoin error: $e, $stack');
-    }
-  }
-
-  Future<List<int>> _postRequest(Request req) async {
-    final httpRequest = await client.post(Uri.parse(req.url.asString()),
-        headers: {'Content-Type': req.contentType}, body: req.body);
-
-    return httpRequest.bodyBytes;
-  }
+  @override
+  void close() => _events.clear();
 }

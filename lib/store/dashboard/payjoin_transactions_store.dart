@@ -27,12 +27,24 @@ abstract class PayjoinTransactionsStoreBase with Store {
   Future<void> updateTransactionList() async {
     final updatedTransactions = <PayjoinTransactionListItem>[];
     payjoinSessionSource.toMap().forEach((dynamic key, PayjoinSession session) {
-      if ([
+      // Hide sessions that used fallback (the underlying regular tx displays
+      // instead). Unrecoverable without a stored PSBT is also hidden (no way
+      // to recover or broadcast). Success sessions are always shown even
+      // without a txId — the receiver never broadcasts, so txId is optional
+      // metadata from PSBT parsing; absence doesn't mean failure.
+      final hasFallbackPsbt = session.originalPsbt?.isNotEmpty == true;
+      final isHidden =
+          (session.status == PayjoinSessionStatus.unrecoverable.name &&
+              !hasFallbackPsbt) ||
+          session.usedFallback;
+
+      if (!isHidden &&
+          session.inProgressSince != null &&
+          [
             PayjoinSessionStatus.inProgress.name,
             PayjoinSessionStatus.success.name,
-            PayjoinSessionStatus.unrecoverable.name
-          ].contains(session.status) &&
-          session.inProgressSince != null) {
+            PayjoinSessionStatus.unrecoverable.name,
+          ].contains(session.status)) {
         updatedTransactions.add(PayjoinTransactionListItem(
           sessionId: key as String,
           session: session,

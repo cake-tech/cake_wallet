@@ -155,7 +155,7 @@ dependency_overrides:
   build_daemon:
     git:
       url: https://github.com/dart-lang/build
-      ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
+      ref: 565856b394c26a0d4c8cda88b69b6dcfaa2acd1f
       path: ./build_daemon
   build_runner:
     git:
@@ -1492,6 +1492,7 @@ dependency_overrides:
     git:
       url: https://github.com/google/tuple.dart
       ref: 91bcce6e0672c4b071d270aafde5cd86103668dd
+  toml: 0.16.0
   typed_data:
     git:
       url: https://github.com/dart-lang/core

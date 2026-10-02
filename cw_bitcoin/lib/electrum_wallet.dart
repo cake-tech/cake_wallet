@@ -2564,13 +2564,32 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
-      return ElectrumTransactionInfo.fromElectrumBundle(
+      final info = ElectrumTransactionInfo.fromElectrumBundle(
         await getTransactionExpanded(hash: hash, height: height),
         walletInfo.type,
         network,
         addresses: addressesSet,
         height: height,
       );
+      info.id = hash;
+
+      if (this is BitcoinWallet) {
+        final session = (this as BitcoinWallet)
+            .payjoinManager
+            .sessionForTxIdWithBackfill(hash, info.outputAddresses ?? const []);
+        if (session != null) {
+          if (session.isSenderSession) {
+            info.amount = Money(session.amount, info.amount.currency);
+            info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+          } else {
+            info.direction = TransactionDirection.incoming;
+            info.amount = Money(session.amount, info.amount.currency);
+            info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+          }
+        }
+      }
+
+      return info;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
@@ -2970,6 +2989,25 @@ abstract class ElectrumWalletBase
               }
             }
 
+            if (this is BitcoinWallet) {
+              final session = (this as BitcoinWallet)
+                  .payjoinManager
+                  .sessionForTxIdWithBackfill(
+                      txid, storedTx.outputAddresses ?? const []);
+              if (session != null) {
+                if (session.isSenderSession) {
+                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
+                  storedTx.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+                } else {
+                  storedTx.direction = TransactionDirection.incoming;
+                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
+                  storedTx.additionalInfo['pjNetFlow'] = session.amount.toInt();
+                }
+                transactionHistory.addOne(storedTx);
+                didUpdateHistory = true;
+              }
+            }
+
             historiesWithDetails[txid] = storedTx;
           } else {
             missingHistoryItems.add({
@@ -3139,6 +3177,23 @@ abstract class ElectrumWalletBase
             height: heightsByHash?[txId],
           );
           info.id = txId;
+
+          if (this is BitcoinWallet) {
+            final session = (this as BitcoinWallet)
+                .payjoinManager
+                .sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
+            if (session != null) {
+              if (session.isSenderSession) {
+                info.amount = Money(session.amount, info.amount.currency);
+                info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+              } else {
+                info.direction = TransactionDirection.incoming;
+                info.amount = Money(session.amount, info.amount.currency);
+                info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+              }
+            }
+          }
+
           result[txId] = info;
         } catch (_) {
           result[txId] = null;

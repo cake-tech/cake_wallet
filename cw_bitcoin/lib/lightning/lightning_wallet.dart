@@ -45,6 +45,8 @@ class LightningWallet {
 
   BreezSdk get sdk => _sdk!;
 
+  bool get isSdkReady => _sdk != null;
+
   StreamSubscription<SdkEvent>? _eventSubscription;
   Stream<SdkEvent>? _eventStream;
 
