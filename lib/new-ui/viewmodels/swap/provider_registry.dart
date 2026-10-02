@@ -33,7 +33,7 @@ class ExchangeProviderRegistry {
     // ExchangeProviderDescription.exolix: ExolixExchangeProvider(),
     ExchangeProviderDescription.swapTrade: SwapTradeExchangeProvider(),
     ExchangeProviderDescription.letsExchange: LetsExchangeExchangeProvider(),
-    ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
+    // ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
     ExchangeProviderDescription.xoSwap: XOSwapExchangeProvider(),
     ExchangeProviderDescription.swapsXyz: SwapsXyzExchangeProvider(settingsStore: _settingsStore),
     ExchangeProviderDescription.jupiter: JupiterExchangeProvider(),
