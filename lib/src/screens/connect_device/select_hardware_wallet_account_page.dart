@@ -159,7 +159,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                             height: 24,
                             width: 24,
                             isRoundedSquare: addedNetwork != null,
-                            isOutlined: addedNetwork?.isManual == true,
+                            isOutlined: addedNetwork != null,
                             fallbackName: addedNetwork?.fullName,
                           ),
                           text:

@@ -38,7 +38,7 @@ class SwapSectionHeader extends StatelessWidget {
             height: 16,
             color: isMonochromeSymbolIcon(networkIconPath) ? colors.primary : null,
             isRoundedSquare: addedNetwork != null,
-            isOutlined: addedNetwork?.isManual == true,
+            isOutlined: addedNetwork != null,
             fallbackName: addedNetwork?.fullName,
           ),
           const SizedBox(width: 4),

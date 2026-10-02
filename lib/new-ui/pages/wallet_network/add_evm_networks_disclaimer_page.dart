@@ -122,8 +122,11 @@ class _PopularNetworksStrip extends StatelessWidget {
 
     return ExcludeSemantics(
       child: Container(
-        color: colors.surfaceContainer,
         padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: 8,

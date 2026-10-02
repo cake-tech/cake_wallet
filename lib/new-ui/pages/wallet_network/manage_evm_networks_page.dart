@@ -259,7 +259,6 @@ class _SourceNote extends StatelessWidget {
       unawaited(launchUrl(Uri.https("chainlist.org"), mode: LaunchMode.externalApplication));
 }
 
-/// A-Z holds every other ChainList mainnet, well over a thousand rows, so it is built lazily
 class _NetworkList extends StatelessWidget {
   const _NetworkList({
     required this.state,
@@ -333,7 +332,7 @@ class _NetworkList extends StatelessWidget {
         width: 24,
         height: 24,
         isRoundedSquare: true,
-        isOutlined: network.isManual,
+        isOutlined: true,
         fallbackName: network.name,
       ),
       showArrow: false,
@@ -385,7 +384,6 @@ class _ListHeader extends StatelessWidget {
           key: const ValueKey("manage_evm_networks_search_field_key"),
           controller: searchController,
           hintText: S.of(context).search,
-          isCompact: true,
         ),
         const SizedBox(height: 16),
         Padding(

@@ -668,7 +668,7 @@ class _RecentPill extends StatelessWidget {
                 width: 24,
                 height: 24,
                 isRoundedSquare: true,
-                isOutlined: currency.isManual,
+                isOutlined: true,
                 fallbackName: currency.fullName,
               )
             else

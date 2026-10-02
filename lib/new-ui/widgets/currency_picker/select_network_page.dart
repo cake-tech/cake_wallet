@@ -129,7 +129,7 @@ class _NetworkRow extends StatelessWidget {
                     height: 28,
                     fit: BoxFit.cover,
                     isRoundedSquare: addedNetwork != null,
-                    isOutlined: addedNetwork?.isManual == true,
+                    isOutlined: addedNetwork != null,
                     fallbackName: addedNetwork?.fullName,
                   ),
                 ),

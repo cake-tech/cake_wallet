@@ -365,7 +365,7 @@ class _CornerSvgIcon extends StatelessWidget {
       width: iconWidth,
       isRoundedSquare: addedNetwork != null,
       fallbackName: addedNetwork?.fullName,
-      isOutlined: addedNetwork?.isManual == true,
+      isOutlined: addedNetwork != null,
       colorFilter: design.preColoredIcon
           ? null
           : ColorFilter.mode(

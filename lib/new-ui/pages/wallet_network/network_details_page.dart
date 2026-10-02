@@ -219,6 +219,7 @@ class _NetworkDetailsForm extends StatelessWidget {
               width: 50,
               height: 50,
               isRoundedSquare: true,
+              isOutlined: true,
               fallbackName: network.name,
             ),
           ),

@@ -6,14 +6,12 @@ class WalletNetworkRow {
     required this.name,
     required this.symbol,
     this.iconPath,
-    this.isManual = false,
   });
 
   final WalletNetwork network;
   final String name;
   final String symbol;
   final String? iconPath;
-  final bool isManual;
 
   bool matches(String query) {
     final lowered = query.trim().toLowerCase();

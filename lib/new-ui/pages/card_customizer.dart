@@ -267,8 +267,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                                   addedNetwork == null ? null : 24,
                                                               isRoundedSquare: addedNetwork != null,
                                                               fallbackName: addedNetwork?.fullName,
-                                                              isOutlined:
-                                                                  addedNetwork?.isManual == true,
+                                                              isOutlined: addedNetwork != null,
                                                             ),
                                                           ),
                                                         ),

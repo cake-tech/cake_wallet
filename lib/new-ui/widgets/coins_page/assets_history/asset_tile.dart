@@ -51,7 +51,7 @@ class AssetTile extends StatelessWidget {
             width: 36,
             height: 36,
             isRoundedSquare: true,
-            isOutlined: addedNetwork.isManual,
+            isOutlined: true,
             fallbackName: addedNetwork.name,
           )
         : null;

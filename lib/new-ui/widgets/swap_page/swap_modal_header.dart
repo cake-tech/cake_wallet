@@ -28,7 +28,7 @@ class SwapModalHeader extends StatelessWidget {
                 width: 24,
                 height: 24,
                 isRoundedSquare: fromNetwork != null,
-                isOutlined: fromNetwork?.isManual == true,
+                isOutlined: fromNetwork != null,
                 fallbackName: fromNetwork?.fullName,
               ),
               Positioned(
@@ -39,7 +39,7 @@ class SwapModalHeader extends StatelessWidget {
                   width: 24,
                   height: 24,
                   isRoundedSquare: toNetwork != null,
-                  isOutlined: toNetwork?.isManual == true,
+                  isOutlined: toNetwork != null,
                   fallbackName: toNetwork?.fullName,
                 ),
               ),

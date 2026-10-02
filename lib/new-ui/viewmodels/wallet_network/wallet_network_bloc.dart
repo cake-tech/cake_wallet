@@ -84,7 +84,6 @@ class WalletNetworkBloc extends Bloc<WalletNetworkEvent, WalletNetworkState> {
                 name: chain.name,
                 symbol: chain.currency.title,
                 iconPath: chain.iconPath,
-                isManual: chain.isManual,
               ),
             )
             .toList()

@@ -216,7 +216,7 @@ class RecipientNetworkListRow extends StatelessWidget {
               fit: BoxFit.cover,
               color: isMonochromeSymbolIcon(iconPath) ? colors.primary : null,
               isRoundedSquare: addedNetwork != null,
-              isOutlined: addedNetwork?.isManual == true,
+              isOutlined: addedNetwork != null,
               fallbackName: addedNetwork?.fullName,
             ),
             const SizedBox(width: 12),

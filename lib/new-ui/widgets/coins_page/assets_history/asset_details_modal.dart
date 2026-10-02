@@ -163,7 +163,7 @@ class AssetDetailsModal extends StatelessWidget {
                                   width: 16,
                                   height: 16,
                                   isRoundedSquare: true,
-                                  isOutlined: addedNetwork!.isManual,
+                                  isOutlined: true,
                                   fallbackName: addedNetwork!.name,
                                 )
                               else if (chainIconPath.isNotEmpty)

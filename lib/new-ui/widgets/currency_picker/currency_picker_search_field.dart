@@ -9,18 +9,20 @@ class CurrencyPickerSearchField extends StatelessWidget {
     required this.controller,
     required this.hintText,
     this.isCompact = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   });
 
   final TextEditingController controller;
   final String hintText;
 
   final bool isCompact;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: padding,
       child: Container(
         height: isCompact ? 44 : 48,
         padding: isCompact

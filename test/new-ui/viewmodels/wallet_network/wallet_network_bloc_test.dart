@@ -143,8 +143,6 @@ void main() {
       expect(inkRow.network, const WalletNetwork.added(57073));
       expect(inkRow.symbol, "INKETH");
       expect(inkRow.iconPath, inkIcon);
-      expect(inkRow.isManual, isFalse);
-      expect(state.addedRows.last.isManual, isTrue);
     });
 
     test("with no added network there are no added rows", () {

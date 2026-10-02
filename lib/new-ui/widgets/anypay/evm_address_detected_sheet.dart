@@ -130,7 +130,7 @@ class StackedNetworkIcons extends StatelessWidget {
                   height: size - 8,
                   fit: BoxFit.contain,
                   isRoundedSquare: addedNetworks[i] != null,
-                  isOutlined: addedNetworks[i]?.isManual == true,
+                  isOutlined: addedNetworks[i] != null,
                   fallbackName: addedNetworks[i]?.fullName,
                 ),
               ),

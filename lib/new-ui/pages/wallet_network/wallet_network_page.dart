@@ -92,17 +92,14 @@ class _WalletNetworkBodyState extends State<_WalletNetworkBody> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: CurrencyPickerSearchField(
-                  key: const ValueKey("wallet_network_search_field_key"),
-                  controller: _searchController,
-                  hintText: S.of(context).search,
-                  isCompact: true,
-                ),
+              const SizedBox(height: 24),
+              CurrencyPickerSearchField(
+                key: const ValueKey("wallet_network_search_field_key"),
+                controller: _searchController,
+                hintText: S.of(context).search,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: _NetworkSections(
@@ -272,7 +269,7 @@ class _NetworkSections extends StatelessWidget {
         width: 24,
         height: 24,
         isRoundedSquare: chainId != null,
-        isOutlined: row.isManual,
+        isOutlined: chainId != null,
         fallbackName: row.name,
       ),
       onTap: () => onSelected(network),

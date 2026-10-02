@@ -73,7 +73,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
                   fit: BoxFit.contain,
                   color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
                   isRoundedSquare: destinationNetwork != null,
-                  isOutlined: destinationNetwork?.isManual == true,
+                  isOutlined: destinationNetwork != null,
                   fallbackName: destinationNetwork?.fullName,
                 ),
               ],

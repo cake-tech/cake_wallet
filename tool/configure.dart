@@ -1704,8 +1704,6 @@ class ChainInfo {
   final String? iconPath;
   final String? explorerUrl;
 
-  bool get isManual => source == ChainSource.manual;
-
   bool get isAdded => source != ChainSource.builtin;
 
   @override

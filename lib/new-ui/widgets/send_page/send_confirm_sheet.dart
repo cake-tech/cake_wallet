@@ -154,7 +154,7 @@ class SendTransactionDetails extends StatelessWidget {
                         width: 28,
                         height: 28,
                         isRoundedSquare: addedNetwork != null,
-                        isOutlined: addedNetwork?.isManual == true,
+                        isOutlined: addedNetwork != null,
                         fallbackName: addedNetwork?.fullName,
                       )
                     else if (iconPath.toLowerCase().endsWith(".svg"))

@@ -114,7 +114,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                                     width: 32,
                                                     height: 32,
                                                     isRoundedSquare: true,
-                                                    isOutlined: _addedNetwork?.isManual == true,
+                                                    isOutlined: _addedNetwork != null,
                                                     fallbackName: _addedNetwork?.fullName,
                                                   ),
                                           ),

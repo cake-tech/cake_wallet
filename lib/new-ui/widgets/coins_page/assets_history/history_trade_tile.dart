@@ -55,7 +55,7 @@ class HistoryTradeTile extends StatelessWidget {
             width: currencyIconSize,
             height: currencyIconSize,
             isRoundedSquare: isFromAddedNetwork,
-            isOutlined: fromNetwork?.isManual == true,
+            isOutlined: isFromAddedNetwork,
             fallbackName: fromNetwork?.fullName ?? (isFromAddedNetwork ? from!.title : null),
           ),
           Positioned(
@@ -76,7 +76,7 @@ class HistoryTradeTile extends StatelessWidget {
                 width: currencyIconSize,
                 height: currencyIconSize,
                 isRoundedSquare: isToAddedNetwork,
-                isOutlined: toNetwork?.isManual == true,
+                isOutlined: isToAddedNetwork,
                 fallbackName: toNetwork?.fullName ?? (isToAddedNetwork ? to!.title : null),
               ),
             ),

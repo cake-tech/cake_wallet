@@ -102,7 +102,6 @@ class HistoryTile extends StatelessWidget {
     if (hasTokens) {
       final addedNetwork = this.addedNetwork;
       final isAddedNetworkNative = addedNetwork != null && asset?.raw == addedNetwork.currency.raw;
-      final isOutlined = addedNetwork?.isManual == true;
 
       return Stack(
         children: [
@@ -114,7 +113,7 @@ class HistoryTile extends StatelessWidget {
                     width: 34,
                     height: 34,
                     isRoundedSquare: true,
-                    isOutlined: isOutlined,
+                    isOutlined: true,
                     fallbackName: addedNetwork.name,
                   )
                 : TokenImageWidget(
@@ -138,7 +137,7 @@ class HistoryTile extends StatelessWidget {
                             width: 12,
                             height: 12,
                             isRoundedSquare: true,
-                            isOutlined: isOutlined,
+                            isOutlined: true,
                             fallbackName: addedNetwork.name,
                           )
                         : CakeImageWidget(

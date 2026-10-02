@@ -308,7 +308,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         width: 32,
                                         height: 32,
                                         isRoundedSquare: addedNetwork != null,
-                                        isOutlined: addedNetwork?.isManual == true,
+                                        isOutlined: addedNetwork != null,
                                         fallbackName: addedNetwork?.fullName,
                                       ),
                                     ],

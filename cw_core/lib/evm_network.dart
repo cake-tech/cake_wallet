@@ -231,8 +231,6 @@ class AddedNetworkCurrency extends CryptoCurrency {
 
   int get chainId => network.chainId;
 
-  bool get isManual => network.isManual;
-
   @override
   String get fullName => network.name;
 
