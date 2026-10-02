@@ -3,10 +3,10 @@ import "dart:async";
 import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/network_page_scaffold.dart";
 import "package:cake_wallet/new-ui/viewmodels/wallet_network/manage_evm_networks_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
@@ -15,7 +15,6 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/src/widgets/standard_switch.dart";
-import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
@@ -64,67 +63,32 @@ class _ManageEvmNetworksBodyState extends State<_ManageEvmNetworksBody> {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [colors.surface, colors.surfaceDim],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return NetworkPageScaffold(
+      title: S.of(context).manage_evm_networks,
+      body: BlocPresentationListener<ManageEvmNetworksBloc, ManageEvmNetworksPresentation>(
+        listener: _onPresentation,
+        child: BlocBuilder<ManageEvmNetworksBloc, ManageEvmNetworksState>(
+          builder: (context, state) => _NetworkList(
+            state: state,
+            searchController: _searchController,
+            onEdit: _openDetails,
+            onToggle: (network, {required shouldEnable}) => context
+                .read<ManageEvmNetworksBloc>()
+                .add(NetworkToggleRequested(network, shouldEnable: shouldEnable)),
           ),
         ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-              ),
-              child: Column(
-                children: [
-                  ModalTopBar(
-                    title: S.of(context).manage_evm_networks,
-                    leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                    leadingSemanticLabel: S.of(context).seed_alert_back,
-                    onLeadingPressed: () => Navigator.of(context).maybePop(),
-                    padding: const EdgeInsets.all(20),
-                    titleStyle: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.08,
-                    ),
-                  ),
-                  Expanded(
-                    child: BlocPresentationListener<ManageEvmNetworksBloc,
-                        ManageEvmNetworksPresentation>(
-                      listener: _onPresentation,
-                      child: BlocBuilder<ManageEvmNetworksBloc, ManageEvmNetworksState>(
-                        builder: (context, state) => _NetworkList(
-                          state: state,
-                          searchController: _searchController,
-                          onEdit: _openDetails,
-                          onToggle: (network, {required shouldEnable}) => context
-                              .read<ManageEvmNetworksBloc>()
-                              .add(NetworkToggleRequested(network, shouldEnable: shouldEnable)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 24, 18, 24),
-                    child: NewPrimaryButton(
-                      key: const ValueKey("manage_evm_networks_add_manually_button_key"),
-                      onPressed: () => _openDetails(null),
-                      text: S.of(context).add_manually,
-                      color: colors.surfaceContainer,
-                      textColor: colors.primary,
-                      labelStyle: textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.07,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      ),
+      bottom: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 24, 18, 24),
+        child: NewPrimaryButton(
+          key: const ValueKey("manage_evm_networks_add_manually_button_key"),
+          onPressed: () => _openDetails(null),
+          text: S.of(context).add_manually,
+          color: colors.surfaceContainer,
+          textColor: colors.primary,
+          labelStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.07,
           ),
         ),
       ),

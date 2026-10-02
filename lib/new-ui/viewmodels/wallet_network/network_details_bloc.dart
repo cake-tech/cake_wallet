@@ -108,18 +108,16 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     }
 
     final rpcUrls = defaults.rpcUrls;
-    final values = {...state.values, NetworkField.name: defaults.name};
-    final errors = {...state.errors}..remove(NetworkField.name);
-    values[NetworkField.explorerUrl] = defaults.explorerUrl ?? "";
-    errors.remove(NetworkField.explorerUrl);
-
-    if (!state.hasWallets) {
-      values[NetworkField.rpcUrl] = rpcUrls.first;
-      values[NetworkField.failoverUrl] = rpcUrls.length > 1 ? rpcUrls[1] : "";
-      errors
-        ..remove(NetworkField.rpcUrl)
-        ..remove(NetworkField.failoverUrl);
-    }
+    final resetFields = {
+      NetworkField.name: defaults.name,
+      NetworkField.explorerUrl: defaults.explorerUrl ?? "",
+      if (!state.hasWallets) ...{
+        NetworkField.rpcUrl: rpcUrls.first,
+        NetworkField.failoverUrl: rpcUrls.length > 1 ? rpcUrls[1] : "",
+      },
+    };
+    final values = {...state.values, ...resetFields};
+    final errors = {...state.errors}..removeWhere((field, _) => resetFields.containsKey(field));
 
     emit(
       state.copyWith(
@@ -236,12 +234,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
       return false;
     }
 
-    return EvmNetworkService.borrowsKnownTicker(
-      symbol,
-      popularEntries: _popularEntries,
-      isPopular: false,
-      tvl: null,
-    );
+    return EvmNetworkService.borrowsKnownTicker(symbol, popularEntries: _popularEntries);
   }
 
   void _present(NetworkDetailsPresentation event) {

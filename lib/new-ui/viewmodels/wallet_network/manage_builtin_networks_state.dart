@@ -1,10 +1,11 @@
 part of "manage_builtin_networks_cubit.dart";
 
 class ManageBuiltinNetworksState {
-  const ManageBuiltinNetworksState({required this.networks, required this.hiddenNetworks});
+  const ManageBuiltinNetworksState({required this.hiddenNetworks});
 
-  final List<WalletType> networks;
   final Set<WalletType> hiddenNetworks;
+
+  List<WalletType> get networks => builtinNetworkTypes;
 
   int get visibleCount => networks.where((type) => !hiddenNetworks.contains(type)).length;
 

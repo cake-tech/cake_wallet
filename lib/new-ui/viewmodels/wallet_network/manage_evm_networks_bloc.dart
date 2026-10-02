@@ -246,14 +246,16 @@ class ManageEvmNetworksBloc extends Bloc<ManageEvmNetworksEvent, ManageEvmNetwor
     ];
   }
 
-  bool _borrowsKnownTicker(EvmNetwork network) =>
-      !network.isManual &&
-      EvmNetworkService.borrowsKnownTicker(
-        network.symbol,
-        popularEntries: _popularEntries,
-        isPopular: _popularEntries.any((entry) => entry.chainId == network.chainId),
-        tvl: _chainListEntries.firstWhereOrNull((entry) => entry.chainId == network.chainId)?.tvl,
-      );
+  bool _borrowsKnownTicker(EvmNetwork network) {
+    final isPopular = _popularEntries.any((entry) => entry.chainId == network.chainId);
+    final tvl =
+        _chainListEntries.firstWhereOrNull((entry) => entry.chainId == network.chainId)?.tvl;
+    if (network.isManual || isPopular || (tvl != null && tvl > 0)) {
+      return false;
+    }
+
+    return EvmNetworkService.borrowsKnownTicker(network.symbol, popularEntries: _popularEntries);
+  }
 
   bool _isBuiltinChain(int chainId) =>
       _settingsStore.evmNetworks[chainId]?.source == ChainSource.builtin;

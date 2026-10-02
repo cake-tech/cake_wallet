@@ -2,14 +2,13 @@ import "dart:async";
 
 import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/network_page_scaffold.dart";
 import "package:cake_wallet/new-ui/viewmodels/wallet_network/network_details_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -55,57 +54,21 @@ class _NetworkDetailsBodyState extends State<_NetworkDetailsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return BlocPresentationListener<NetworkDetailsBloc, NetworkDetailsPresentation>(
       listener: _onPresentation,
       child: BlocBuilder<NetworkDetailsBloc, NetworkDetailsState>(
-        builder: (context, state) => Material(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [colors.surface, colors.surfaceDim],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-                  ),
-                  child: Column(
-                    children: [
-                      ModalTopBar(
-                        title: state.mode == NetworkDetailsMode.manualAdd
-                            ? S.of(context).add_network
-                            : S.of(context).network_details,
-                        leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                        leadingSemanticLabel: S.of(context).seed_alert_back,
-                        onLeadingPressed: () => Navigator.of(context).maybePop(),
-                        padding: const EdgeInsets.all(20),
-                        titleStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.08,
-                            ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          key: const ValueKey("network_details_scrollable_key"),
-                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
-                          child: _NetworkDetailsForm(state: state, controllers: _controllers),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 24, 18, 24),
-                        child: _Buttons(state: state, onDelete: _confirmDelete),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+        builder: (context, state) => NetworkPageScaffold(
+          title: state.mode == NetworkDetailsMode.manualAdd
+              ? S.of(context).add_network
+              : S.of(context).network_details,
+          body: SingleChildScrollView(
+            key: const ValueKey("network_details_scrollable_key"),
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+            child: _NetworkDetailsForm(state: state, controllers: _controllers),
+          ),
+          bottom: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 24, 18, 24),
+            child: _Buttons(state: state, onDelete: _confirmDelete),
           ),
         ),
       ),

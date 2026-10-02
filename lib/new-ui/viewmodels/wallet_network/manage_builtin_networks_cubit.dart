@@ -10,10 +10,7 @@ class ManageBuiltinNetworksCubit extends Cubit<ManageBuiltinNetworksState>
     with BlocPresentationMixin<ManageBuiltinNetworksState, ManageBuiltinNetworksPresentation> {
   ManageBuiltinNetworksCubit(this._settingsStore)
       : super(
-          ManageBuiltinNetworksState(
-            networks: builtinNetworkTypes,
-            hiddenNetworks: {..._settingsStore.hiddenBuiltinNetworks},
-          ),
+          ManageBuiltinNetworksState(hiddenNetworks: {..._settingsStore.hiddenBuiltinNetworks}),
         );
 
   final SettingsStore _settingsStore;
@@ -31,6 +28,6 @@ class ManageBuiltinNetworksCubit extends Cubit<ManageBuiltinNetworksState>
     }
 
     _settingsStore.setHiddenBuiltinNetworks(hidden);
-    emit(ManageBuiltinNetworksState(networks: state.networks, hiddenNetworks: hidden));
+    emit(ManageBuiltinNetworksState(hiddenNetworks: hidden));
   }
 }

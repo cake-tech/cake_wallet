@@ -1,9 +1,8 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/network_page_scaffold.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
-import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:flutter/material.dart";
 
 class AddEvmNetworksDisclaimerPage extends StatelessWidget {
@@ -27,120 +26,86 @@ class AddEvmNetworksDisclaimerPage extends StatelessWidget {
     final buttonLabelStyle =
         textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.07);
 
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [colors.surface, colors.surfaceDim],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-              ),
+    return NetworkPageScaffold(
+      title: S.of(context).add_evm_networks,
+      onBack: () => Navigator.of(context).pop(false),
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 48),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ModalTopBar(
-                    title: S.of(context).add_evm_networks,
-                    leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                    leadingSemanticLabel: S.of(context).seed_alert_back,
-                    onLeadingPressed: () => Navigator.of(context).pop(false),
-                    padding: const EdgeInsets.all(20),
-                    titleStyle: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.08,
-                    ),
+                  const CakeImageWidget(
+                    imageUrl: "assets/new-ui/evm_network_add.svg",
+                    width: 100,
+                    height: 100,
                   ),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 48),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const CakeImageWidget(
-                                  imageUrl: "assets/new-ui/evm_network_add.svg",
-                                  width: 100,
-                                  height: 100,
-                                ),
-                                const SizedBox(height: 32),
-                                Text(
-                                  S.of(context).evm_networks_disclaimer_opt_in,
-                                  textAlign: TextAlign.center,
-                                  style: bodyStyle?.copyWith(color: colors.onSurface),
-                                ),
-                                const SizedBox(height: 32),
-                                const _PopularNetworksStrip(),
-                                const SizedBox(height: 32),
-                                Text(
-                                  S.of(context).evm_networks_disclaimer_scope,
-                                  textAlign: TextAlign.center,
-                                  style: bodyStyle?.copyWith(color: colors.onSurfaceVariant),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: 32),
+                  Text(
+                    S.of(context).evm_networks_disclaimer_opt_in,
+                    textAlign: TextAlign.center,
+                    style: bodyStyle?.copyWith(color: colors.onSurface),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
-                    child: Column(
-                      spacing: 24,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            S.of(context).evm_networks_disclaimer_notice,
-                            textAlign: TextAlign.center,
-                            style: bodyStyle?.copyWith(
-                              color: context.customColors.warningOutlineColor,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          spacing: 8,
-                          children: [
-                            Expanded(
-                              child: NewPrimaryButton(
-                                key:
-                                    const ValueKey("add_evm_networks_disclaimer_cancel_button_key"),
-                                onPressed: () => Navigator.of(context).pop(false),
-                                text: S.of(context).cancel,
-                                color: colors.surfaceContainer,
-                                textColor: colors.primary,
-                                labelStyle: buttonLabelStyle,
-                              ),
-                            ),
-                            Expanded(
-                              child: NewPrimaryButton(
-                                key: const ValueKey(
-                                  "add_evm_networks_disclaimer_continue_button_key",
-                                ),
-                                onPressed: () => Navigator.of(context).pop(true),
-                                text: S.of(context).continue_text,
-                                color: colors.primary,
-                                textColor: colors.onPrimary,
-                                labelStyle: buttonLabelStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 32),
+                  const _PopularNetworksStrip(),
+                  const SizedBox(height: 32),
+                  Text(
+                    S.of(context).evm_networks_disclaimer_scope,
+                    textAlign: TextAlign.center,
+                    style: bodyStyle?.copyWith(color: colors.onSurfaceVariant),
                   ),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+      bottom: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+        child: Column(
+          spacing: 24,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                S.of(context).evm_networks_disclaimer_notice,
+                textAlign: TextAlign.center,
+                style: bodyStyle?.copyWith(
+                  color: context.customColors.warningOutlineColor,
+                ),
+              ),
+            ),
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: NewPrimaryButton(
+                    key: const ValueKey("add_evm_networks_disclaimer_cancel_button_key"),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    text: S.of(context).cancel,
+                    color: colors.surfaceContainer,
+                    textColor: colors.primary,
+                    labelStyle: buttonLabelStyle,
+                  ),
+                ),
+                Expanded(
+                  child: NewPrimaryButton(
+                    key: const ValueKey(
+                      "add_evm_networks_disclaimer_continue_button_key",
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    text: S.of(context).continue_text,
+                    color: colors.primary,
+                    textColor: colors.onPrimary,
+                    labelStyle: buttonLabelStyle,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

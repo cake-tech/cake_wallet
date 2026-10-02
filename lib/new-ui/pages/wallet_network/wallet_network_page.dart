@@ -3,14 +3,13 @@ import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/wallet_network/network_page_scaffold.dart";
 import "package:cake_wallet/new-ui/viewmodels/wallet_network/wallet_network_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
-import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -63,92 +62,55 @@ class _WalletNetworkBodyState extends State<_WalletNetworkBody> {
     final textTheme = Theme.of(context).textTheme;
     final mode = context.read<WalletNetworkBloc>().mode;
 
-    return Material(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [colors.surface, colors.surfaceDim],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-              ),
-              child: Column(
-                children: [
-                  ModalTopBar(
-                    title: S.of(context).wallet_network,
-                    leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                    leadingSemanticLabel: S.of(context).seed_alert_back,
-                    onLeadingPressed: () => Navigator.of(context).maybePop(),
-                    padding: const EdgeInsets.all(20),
-                    titleStyle: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.08,
-                    ),
-                  ),
-                  Expanded(
-                    child: BlocBuilder<WalletNetworkBloc, WalletNetworkState>(
-                      builder: (context, state) => SingleChildScrollView(
-                        key: const ValueKey("wallet_network_scrollable_key"),
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Center(
-                              child: mode is WalletNetworkHardware
-                                  ? const _HardwareWalletHeader()
-                                  : const CakeImageWidget(
-                                      imageUrl: "assets/new-ui/wallet.svg",
-                                      width: 100,
-                                      height: 100,
-                                    ),
-                            ),
-                            const SizedBox(height: 24),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                              child: Text(
-                                S.of(context).wallet_network_description,
-                                textAlign: TextAlign.center,
-                                style: textTheme.bodySmall?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                  letterSpacing: -0.06,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2),
-                              child: CurrencyPickerSearchField(
-                                key: const ValueKey("wallet_network_search_field_key"),
-                                controller: _searchController,
-                                hintText: S.of(context).search,
-                                isCompact: true,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18),
-                              child: _NetworkSections(
-                                state: state,
-                                onSelected: (network) => _onSelected(mode, network),
-                                onManageBuiltinNetworks: _openManageBuiltinNetworks,
-                                onAddNetworks: _openAddNetworks,
-                                onManageAddedNetworks: _openManageEvmNetworks,
-                              ),
-                            ),
-                          ],
-                        ),
+    return NetworkPageScaffold(
+      title: S.of(context).wallet_network,
+      body: BlocBuilder<WalletNetworkBloc, WalletNetworkState>(
+        builder: (context, state) => SingleChildScrollView(
+          key: const ValueKey("wallet_network_scrollable_key"),
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: mode is WalletNetworkHardware
+                    ? const _HardwareWalletHeader()
+                    : const CakeImageWidget(
+                        imageUrl: "assets/new-ui/wallet.svg",
+                        width: 100,
+                        height: 100,
                       ),
-                    ),
-                  ),
-                ],
               ),
-            ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  S.of(context).wallet_network_description,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    letterSpacing: -0.06,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: CurrencyPickerSearchField(
+                  key: const ValueKey("wallet_network_search_field_key"),
+                  controller: _searchController,
+                  hintText: S.of(context).search,
+                  isCompact: true,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: _NetworkSections(
+                  state: state,
+                  onSelected: (network) => _onSelected(mode, network),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -177,52 +139,13 @@ class _WalletNetworkBodyState extends State<_WalletNetworkBody> {
 
     widget.onSelected(context, network);
   }
-
-  Future<void> _openManageBuiltinNetworks() async {
-    await Navigator.of(context).pushNamed(Routes.manageBuiltinNetworks);
-    _refresh();
-  }
-
-  Future<void> _openAddNetworks() async {
-    final shouldContinue =
-        await Navigator.of(context).pushNamed<bool>(Routes.addEvmNetworksDisclaimer);
-    if (shouldContinue != true) {
-      return;
-    }
-
-    await _openManageEvmNetworks();
-  }
-
-  Future<void> _openManageEvmNetworks() async {
-    if (!mounted) {
-      return;
-    }
-
-    await Navigator.of(context).pushNamed(Routes.manageEvmNetworks);
-    _refresh();
-  }
-
-  void _refresh() {
-    if (mounted) {
-      context.read<WalletNetworkBloc>().add(const WalletNetworkRefreshed());
-    }
-  }
 }
 
 class _NetworkSections extends StatelessWidget {
-  const _NetworkSections({
-    required this.state,
-    required this.onSelected,
-    required this.onManageBuiltinNetworks,
-    required this.onAddNetworks,
-    required this.onManageAddedNetworks,
-  });
+  const _NetworkSections({required this.state, required this.onSelected});
 
   final WalletNetworkState state;
   final ValueChanged<WalletNetwork> onSelected;
-  final VoidCallback onManageBuiltinNetworks;
-  final VoidCallback onAddNetworks;
-  final VoidCallback onManageAddedNetworks;
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +175,7 @@ class _NetworkSections extends StatelessWidget {
                   keyValue: "wallet_network_manage_builtin_row_key",
                   label: S.of(context).manage_builtin_networks,
                   foregroundColor: colors.primary,
-                  onTap: onManageBuiltinNetworks,
+                  onTap: () => _openThenRefresh(context, Routes.manageBuiltinNetworks),
                 ),
               ],
             },
@@ -302,14 +225,14 @@ class _NetworkSections extends StatelessWidget {
                     keyValue: "wallet_network_manage_added_row_key",
                     label: S.of(context).manage_added_networks,
                     foregroundColor: colors.primary,
-                    onTap: onManageAddedNetworks,
+                    onTap: () => _openThenRefresh(context, Routes.manageEvmNetworks),
                   )
                 else
                   ListItemRegularRow(
                     keyValue: "wallet_network_add_evm_networks_row_key",
                     label: S.of(context).add_evm_networks,
                     foregroundColor: colors.primary,
-                    onTap: onAddNetworks,
+                    onTap: () => _openAddNetworks(context),
                   ),
               ],
             },
@@ -317,6 +240,21 @@ class _NetworkSections extends StatelessWidget {
         ],
       ],
     );
+  }
+
+  Future<void> _openAddNetworks(BuildContext context) async {
+    final shouldContinue =
+        await Navigator.of(context).pushNamed<bool>(Routes.addEvmNetworksDisclaimer);
+    if (shouldContinue == true && context.mounted) {
+      await _openThenRefresh(context, Routes.manageEvmNetworks);
+    }
+  }
+
+  Future<void> _openThenRefresh(BuildContext context, String route) async {
+    await Navigator.of(context).pushNamed(route);
+    if (context.mounted) {
+      context.read<WalletNetworkBloc>().add(const WalletNetworkRefreshed());
+    }
   }
 
   ListItem _listItem(BuildContext context, WalletNetworkRow row) {
@@ -329,17 +267,14 @@ class _NetworkSections extends StatelessWidget {
           : "wallet_network_evm_${chainId}_row_key",
       label: row.name,
       subtitle: network.type == WalletType.bitcoin ? S.of(context).mainnet_and_lightning : null,
-      iconPath: chainId == null ? row.iconPath : null,
-      leadingWidget: chainId == null
-          ? null
-          : CakeImageWidget(
-              imageUrl: row.iconPath,
-              width: 24,
-              height: 24,
-              isRoundedSquare: true,
-              isOutlined: row.isManual,
-              fallbackName: row.name,
-            ),
+      leadingWidget: CakeImageWidget(
+        imageUrl: row.iconPath,
+        width: 24,
+        height: 24,
+        isRoundedSquare: chainId != null,
+        isOutlined: row.isManual,
+        fallbackName: row.name,
+      ),
       onTap: () => onSelected(network),
     );
   }
