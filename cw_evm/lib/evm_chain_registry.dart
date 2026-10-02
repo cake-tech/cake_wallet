@@ -16,7 +16,6 @@ class EvmChainRegistry {
   final Map<int, ChainConfig> _chains = {};
   final Map<WalletType, int> _walletTypeToChainId = {};
   final Map<String, int> _tagToChainId = {};
-  final Map<int, EvmNetwork> _addedNetworks = {};
 
   bool _initialized = false;
 
@@ -134,7 +133,7 @@ class EvmChainRegistry {
 
     final currency = _registerCurrency(network);
     if (!network.isEnabled) {
-      _removeChain(network.chainId);
+      _chains.remove(network.chainId);
       return;
     }
 
@@ -150,13 +149,12 @@ class EvmChainRegistry {
       ],
       feeModel: const FeeModel(type: FeeType.eip1559OrLegacy),
     );
-    _addedNetworks[network.chainId] = network;
   }
 
   void unregisterAddedNetwork(int chainId) {
     _throwIfBuiltinChain(chainId);
 
-    _removeChain(chainId);
+    _chains.remove(chainId);
     EvmNativeCurrencies.unregister(chainId);
   }
 
@@ -176,12 +174,10 @@ class EvmChainRegistry {
     return currency;
   }
 
-  void _removeChain(int chainId) {
-    _chains.remove(chainId);
-    _addedNetworks.remove(chainId);
+  EvmNetwork? getAddedNetwork(int chainId) {
+    final currency = _chains[chainId]?.nativeCurrency;
+    return currency is AddedNetworkCurrency ? currency.network : null;
   }
-
-  EvmNetwork? getAddedNetwork(int chainId) => _addedNetworks[chainId];
 
   ChainConfig? getChainConfig(int chainId) => _chains[chainId];
 

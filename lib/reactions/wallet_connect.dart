@@ -99,7 +99,7 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
 
 String getChainNameBasedOnWalletType(WalletType walletType, {int? chainId}) {
   if (walletType == WalletType.solana) {
-    return 'mainnet';
+    return "mainnet";
   }
 
   if (chainId != null) {

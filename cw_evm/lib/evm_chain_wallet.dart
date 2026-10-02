@@ -1481,7 +1481,7 @@ abstract class EVMChainWalletBase
     // An added network's wallet never switches chains, so we make it null here
     int? savedChainId =
         walletInfo.type == WalletType.evm ? null : data?["selected_chain_id"] as int?;
-    String? savedBalance = data?['balance'] as String?;
+    String? savedBalance = data?["balance"] as String?;
 
     if (savedChainId != null && registry.getChainConfig(savedChainId) == null) {
       printV("Chain $savedChainId of ${walletInfo.name} is gone, opening it on its own chain");

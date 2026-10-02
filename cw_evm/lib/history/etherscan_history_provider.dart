@@ -152,7 +152,7 @@ class EtherscanHistoryProvider implements EvmHistoryProvider {
         final Map<String, Map<String, dynamic>> mergedMap = {};
         for (final tx in res) {
           final hash = tx["hash"];
-          final key = '${hash}_${tx['contractAddress'] ?? ''}';
+          final key = "${hash}_${tx["contractAddress"] ?? ""}";
 
           if (mergedMap.containsKey(key)) {
             try {
@@ -235,7 +235,7 @@ class EtherscanHistoryProvider implements EvmHistoryProvider {
       }
 
       printV(
-        '$name API returned invalid response for internal transactions: status=${jsonResponse['status']}, statusCode=${response.statusCode}',
+        "$name API returned invalid response for internal transactions: status=${jsonResponse["status"]}, statusCode=${response.statusCode}",
       );
       return [];
     } catch (e, stackTrace) {

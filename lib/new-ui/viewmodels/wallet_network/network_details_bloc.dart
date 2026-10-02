@@ -279,12 +279,7 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     final errors = <NetworkField, String>{};
     final name = state.value(NetworkField.name).trim();
     final lowered = name.toLowerCase();
-    final builtinNames = [
-      ...builtinNetworkTypes.map(walletTypeToDisplayName),
-      ..._settingsStore.evmNetworks.values
-          .where((chain) => chain.source == ChainSource.builtin)
-          .map((chain) => chain.name),
-    ];
+    final builtinNames = builtinNetworkTypes.map(walletTypeToDisplayName);
     final addedNames = _otherNetworks.map((other) => other.name);
 
     if (name.isEmpty) {
