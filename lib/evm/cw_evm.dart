@@ -207,11 +207,8 @@ class CWEVM extends EVM {
       (wallet as EVMChainWallet).removeTokenTransactionsInHistory(token as Erc20Token);
 
   @override
-  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) {
-    final evmWallet = wallet as EVMChainWallet;
-    return evmWallet.getErc20Token(
-        contractAddress, EVMChainUtils.hexChainId(evmWallet.selectedChainId));
-  }
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) =>
+      (wallet as EVMChainWallet).getErc20Token(contractAddress);
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {

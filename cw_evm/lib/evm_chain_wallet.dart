@@ -574,8 +574,7 @@ abstract class EVMChainWalletBase
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
-      final walletTokens = await _client.fetchWalletTokensFromMoralis(
-          address, EVMChainUtils.hexChainId(selectedChainId));
+      final walletTokens = await _client.fetchWalletTokensFromMoralis(address);
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
 
       final existingTokenAddresses = {
@@ -1439,9 +1438,9 @@ abstract class EVMChainWalletBase
     await transactionHistory.save();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      return await _client.getErc20Token(contractAddress, chainName);
+      return await _client.getErc20Token(contractAddress);
     } catch (e) {
       printV('Error getting ERC20 token: $e');
       rethrow;

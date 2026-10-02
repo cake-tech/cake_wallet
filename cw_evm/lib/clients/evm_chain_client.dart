@@ -9,6 +9,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import "package:cw_evm/history/evm_history_provider.dart";
+import "package:cw_evm/utils/evm_chain_utils.dart";
 import "package:cw_evm/utils/network_chain_utils.dart";
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
@@ -478,25 +479,25 @@ class EVMChainClient {
     }
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress, chainName);
+      final token = await getErc20TokenFromMoralis(contractAddress);
 
       if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       }
 
       return token;
     } catch (e) {
       try {
-        return await getErcTokenInfoFromNode(contractAddress, chainName);
+        return await getErcTokenInfoFromNode(contractAddress);
       } catch (e) {
         return null;
       }
     }
   }
 
-  Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20TokenFromMoralis(String contractAddress) async {
     if (secrets.moralisApiKey.isEmpty) {
       printV('Moralis API key is empty, cannot fetch token info');
       return null;
@@ -505,7 +506,7 @@ class EVMChainClient {
       'deep-index.moralis.io',
       '/api/v2.2/erc20/metadata',
       {
-        "chain": chainName,
+        "chain": EVMChainUtils.hexChainId(chainId),
         "addresses": contractAddress,
       },
     );
@@ -536,7 +537,7 @@ class EVMChainClient {
     );
   }
 
-  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErcTokenInfoFromNode(String contractAddress) async {
     final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
     final name = await erc20.name();
     final symbol = await erc20.symbol();
@@ -550,10 +551,7 @@ class EVMChainClient {
     );
   }
 
-  Future<List<MoralisWalletTokenBalance>> fetchWalletTokensFromMoralis(
-    String address,
-    String chainName,
-  ) async {
+  Future<List<MoralisWalletTokenBalance>> fetchWalletTokensFromMoralis(String address) async {
     try {
       if (secrets.moralisApiKey.isEmpty) {
         printV('Moralis API key is empty, cannot fetch wallet tokens');
@@ -567,7 +565,7 @@ class EVMChainClient {
 
       do {
         final params = <String, String>{
-          "chain": chainName,
+          "chain": EVMChainUtils.hexChainId(chainId),
           if (cursor != null && cursor.isNotEmpty) "cursor": cursor,
         };
 
