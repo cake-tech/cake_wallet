@@ -461,6 +461,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     transactionInfo.direction = resolved.direction;
     transactionInfo.fee = resolved.fee;
     transactionInfo.additionalInfo = resolved.additionalInfo;
+
+    // An in-place refresh can add owned inputs/outputs without changing the
+    // history length the breakdown cache is keyed on.
+    _addressBreakdownCache = null;
     _rebuildStandardItems();
   }
 

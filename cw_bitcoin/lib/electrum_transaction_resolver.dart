@@ -575,6 +575,10 @@ class ElectrumTransactionResolver {
   /// recheck couldn't fetch it, so the next sync flags it again.
   final Map<String, Set<String>> _flaggedPairs = {};
 
+  /// Txs a forced recheck couldn't fully resolve this session. They stay stale
+  /// (so [refreshIfStale] retries them) but the sync doesn't recheck them again.
+  final Set<String> _unsettledTxIds = {};
+
   /// Called by the sync for every stored [tx] it finds in [address]'s history.
   /// An address can only take part in txs that appear in its own history, so
   /// this finds exactly the txs a newly discovered address could change.
@@ -624,8 +628,10 @@ class ElectrumTransactionResolver {
     final transactions = _wallet.transactionHistory.transactions;
     final candidates = transactions.values.where(
       (tx) =>
-          flagged.contains(tx.id) ||
-          (tx.additionalInfo["addressSetSizeKey"] == null && needsAddressRecheck(tx, addresses)),
+          !_unsettledTxIds.contains(tx.id) &&
+          (flagged.contains(tx.id) ||
+              (tx.additionalInfo["addressSetSizeKey"] == null &&
+                  needsAddressRecheck(tx, addresses))),
     );
     final newestFirstCandidates = candidates.toList()..sort((a, b) => b.date.compareTo(a.date));
 
@@ -694,7 +700,7 @@ class ElectrumTransactionResolver {
   /// Records that [tx] is up to date for the address set [refetched] was built
   /// against, without otherwise changing it, so it stops being a recheck
   /// candidate.
-  bool _stampAddressSetSize(ElectrumTransactionInfo tx, ElectrumTransactionInfo refetched) {
+  bool _markUpToDate(ElectrumTransactionInfo tx, ElectrumTransactionInfo refetched) {
     final count = refetched.additionalInfo["addressSetSizeKey"];
     if (count == null) {
       return false;
@@ -744,8 +750,11 @@ class ElectrumTransactionResolver {
         if (wasResolved && !isNowResolved) {
           if (!forceResolveInputs) {
             transactionsStillAmbiguous.add(tx);
-          } else if (_stampAddressSetSize(tx, refetched)) {
-            updated = true;
+          } else {
+            // Must not mark the stale tx as up to date: refreshIfStale has to
+            // retry it. Skip it for the rest of the session so the sync
+            // doesn't loop on it.
+            _unsettledTxIds.add(tx.id);
           }
 
           continue;
@@ -758,7 +767,7 @@ class ElectrumTransactionResolver {
             !tx.additionalInfo.containsKey("ownedOutputs");
 
         if (!changed) {
-          if (_stampAddressSetSize(tx, refetched)) {
+          if (_markUpToDate(tx, refetched)) {
             updated = true;
           }
 
