@@ -321,9 +321,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       final SwapAmount newDepositAmount;
       final SwapAmount newPayoutAmount;
       if (s.isSwapAll) {
-        final newCurrencyWalletType = cryptoCurrencyOrTokenToWalletType(event.newCurrency);
         final canSendNewCurrency =
-            newCurrencyWalletType == _appStore.wallet!.type &&
+            _isSameChain(event.newCurrency, _appStore.wallet!.currency) &&
                 _appStore.wallet!.balance.keys.any((item) => item.symbol == event.newCurrency.symbol);
 
         newDepositAmount = canSendNewCurrency
@@ -350,13 +349,6 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         );
       }
 
-      SwapSource newSource = s.source;
-      if (s.source case final InternalSwapSource iss) {
-        if (cryptoCurrencyOrTokenToWalletType(event.newCurrency) != iss.sourceWallet.type) {
-          newSource = const ExternalSwapSource("");
-        }
-      }
-
       emit(
         s.copyWith(
           depositAmount: newDepositAmount,
@@ -364,7 +356,9 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           // the swap all amount is pinned to the deposit side, so it has to be the one driving
           // the rate - otherwise the next rate load would overwrite it.
           isFixedRate: s.isSwapAll ? false : s.isFixedRate,
-          source: newSource,
+          source: _isSameChain(s.depositAmount.currency, event.newCurrency)
+              ? s.source
+              : const ExternalSwapSource(""),
         ),
       );
       add(RatesLoadStarted());
@@ -395,23 +389,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         );
       }
 
-      String newMemo = s.memo;
-      if (event.newCurrency.memoLabelType == null) {
-        newMemo = "";
-      }
-
-      SwapAddress? newPayoutddress = s.payoutAddress;
-      if (cryptoCurrencyOrTokenToWalletType(s.payoutAmount.currency) !=
-          cryptoCurrencyOrTokenToWalletType(event.newCurrency)) {
-        newPayoutddress = null;
-      }
+      final isSameChain = _isSameChain(s.payoutAmount.currency, event.newCurrency);
 
       emit(
         s.copyWith(
           depositAmount: newDepositAmount,
           payoutAmount: newPayoutAmount,
-          memo: newMemo,
-          payoutAddress: () => newPayoutddress,
+          memo: isSameChain && event.newCurrency.memoLabelType != null ? s.memo : "",
+          payoutAddress: () => isSameChain ? s.payoutAddress : null,
         ),
       );
       add(RatesLoadStarted());
@@ -438,10 +423,25 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           s.depositAmount.currency,
         );
       }
-      emit(s.copyWith(depositAmount: newDepositAmount, payoutAmount: newPayoutAmount));
+
+      final isSameChain = _isSameChain(s.depositAmount.currency, s.payoutAmount.currency);
+
+      emit(
+        s.copyWith(
+          depositAmount: newDepositAmount,
+          payoutAmount: newPayoutAmount,
+          source: isSameChain ? s.source : const ExternalSwapSource(""),
+          payoutAddress: () => isSameChain ? s.payoutAddress : null,
+          memo: isSameChain && newPayoutAmount.currency.memoLabelType != null ? s.memo : "",
+        ),
+      );
       add(RatesLoadStarted());
     }
   }
+
+  bool _isSameChain(CryptoCurrency a, CryptoCurrency b) =>
+      cryptoCurrencyOrTokenToWalletType(a) != null &&
+      cryptoCurrencyOrTokenToWalletType(a) == cryptoCurrencyOrTokenToWalletType(b);
 
   Future<void> _onForcedProviderSelected(
     ForcedProviderSelected event,
