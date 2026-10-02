@@ -25,8 +25,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final String? flatIconPath;
   final String? chainIconPath;
   final bool enabled;
-
-  static bool isGlyphChainBadge(String path) => path.startsWith("assets/new-ui/chain_badges/");
   final bool isPotentialScam;
   final Set<String> groups;
 
@@ -51,6 +49,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   String get apiString => "crypto.$title";
 
   set enabled(bool value) => this.enabled = value;
+
+  static bool isGlyphChainBadge(String path) => path.startsWith("assets/new-ui/chain_badges/");
 
   static const all = [
     CryptoCurrency.xmr,

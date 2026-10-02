@@ -18,7 +18,7 @@ class EVMChainClientFactory {
     }
 
     final historyProvider =
-        _historyProviders().firstWhereOrNull((provider) => provider.covers(chainId));
+        _historyProviders.firstWhereOrNull((provider) => provider.covers(chainId));
 
     return EVMChainClient(
       chainId: chainId,
@@ -28,7 +28,7 @@ class EVMChainClientFactory {
   }
 
   static Uri? contractSourceCodeUri(int chainId, String contractAddress) {
-    final explorer = _historyProviders()
+    final explorer = _historyProviders
         .whereType<EtherscanHistoryProvider>()
         .firstWhereOrNull((provider) => provider.covers(chainId));
 
@@ -39,9 +39,9 @@ class EVMChainClientFactory {
     });
   }
 
-  static List<EvmHistoryProvider> _historyProviders() => [
-        EtherscanHistoryProvider(apiKey: secrets.etherScanApiKey),
-        BlockscoutHistoryProvider(),
-        MoralisHistoryProvider(apiKey: secrets.moralisApiKey),
-      ];
+  static final List<EvmHistoryProvider> _historyProviders = [
+    EtherscanHistoryProvider(apiKey: secrets.etherScanApiKey),
+    BlockscoutHistoryProvider(),
+    MoralisHistoryProvider(apiKey: secrets.moralisApiKey),
+  ];
 }

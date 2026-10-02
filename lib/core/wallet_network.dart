@@ -66,10 +66,10 @@ String builtinNetworkIconPath(WalletType type) => switch (type) {
       WalletType.nano => "assets/new-ui/network_icons/nano.svg",
       WalletType.decred => "assets/new-ui/network_icons/decred.svg",
       WalletType.zano => "assets/new-ui/network_icons/zano.svg",
-      WalletType.evm => getCryptoCurrencyIconForWalletListItem(type),
       WalletType.haven ||
       WalletType.banano ||
       WalletType.wownero ||
+      WalletType.evm ||
       WalletType.none =>
         getCryptoCurrencyIconForWalletListItem(type),
     };
