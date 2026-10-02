@@ -11,12 +11,20 @@ import 'package:cw_core/wallet_base.dart';
 
 part 'wallet_seed_view_model.g.dart';
 
+class WalletSeedPageParams {
+  WalletSeedPageParams({required this.isNewWalletCreated, this.seedOverride});
+
+  final bool isNewWalletCreated;
+  final String? seedOverride;
+}
+
 class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 
 abstract class WalletSeedViewModelBase with Store {
-  WalletSeedViewModelBase(WalletBase wallet)
+  WalletSeedViewModelBase(WalletBase wallet, {WalletSeedPageParams? params})
       : name = wallet.name,
-        seed = wallet.seed!,
+        seed = params?.seedOverride ?? wallet.seed!,
+        isSeedOverridden = params?.seedOverride != null,
         walletType = wallet.type,
         _walletInfo = wallet.walletInfo,
         currentOptions = ObservableList<String>(),
@@ -25,6 +33,8 @@ abstract class WalletSeedViewModelBase with Store {
   }
 
   final WalletInfo _walletInfo;
+
+  final bool isSeedOverridden;
 
   @observable
   String name;

@@ -56,6 +56,7 @@ import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
+import "package:cake_wallet/new-ui/pages/backup_type_selection.dart";
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
@@ -66,6 +67,8 @@ import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/keychain_management.dart";
+import "package:cake_wallet/new-ui/pages/keychain_restore.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
@@ -73,6 +76,10 @@ import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_creation/keychain_creation_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_management/keychain_management_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/keychain_restore/keychain_restore_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
@@ -277,6 +284,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:cw_keychain/cw_keychain.dart";
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
@@ -389,6 +397,33 @@ Future<void> setup({
     }
   });
 
+  getIt.registerLazySingleton<CwKeychain>(CwKeychain.new);
+
+  getIt.registerFactory<KeychainCreationBloc>(() =>
+      KeychainCreationBloc(keychain: getIt.get<CwKeychain>(), appStore: getIt.get<AppStore>()));
+
+  getIt.registerFactory<BackupTypeSelectionPage>(
+      () => BackupTypeSelectionPage(bloc: getIt.get<KeychainCreationBloc>()));
+
+  getIt.registerFactoryParam<KeychainRestoreBloc, KeychainRestorePageParams, void>((params, _) =>
+      KeychainRestoreBloc(
+        walletSwitchService: getIt.get<WalletSwitchService>(),
+        creationService: getIt.get<WalletCreationService>(param1: WalletType.monero),
+        keychain: getIt.get<CwKeychain>(),
+        preselectedWalletName: params.preselectedWalletName,
+      ),);
+
+  getIt.registerFactoryParam<KeychainRestorePage, KeychainRestorePageParams, void>((params, _) =>
+      KeychainRestorePage(
+          bloc: getIt.get<KeychainRestoreBloc>(param1: params), isInitial: params.isInitial));
+
+  getIt.registerFactory<KeychainManagementBloc>(() => KeychainManagementBloc(
+      keychain: getIt.get<CwKeychain>(),
+      walletLoadingService: getIt.get<WalletLoadingService>(),));
+
+  getIt.registerFactory<KeychainManagementPage>(
+      () => KeychainManagementPage(bloc: getIt.get<KeychainManagementBloc>()));
+
   getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
 
   getIt.registerLazySingleton(BitboxViewModel.new);
@@ -409,6 +444,7 @@ Future<void> setup({
             keyService: getIt.get<KeyService>(),
             sharedPreferences: getIt.get<SharedPreferences>(),
             settingsStore: getIt.get<SettingsStore>(),
+            keychain: getIt.get<CwKeychain>(),
           ));
 
   getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
@@ -511,6 +547,8 @@ Future<void> setup({
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>()));
+
+  getIt.registerSingleton<WalletSwitchService>(WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(
     () => ExchangeViewModel(
@@ -935,7 +973,8 @@ Future<void> setup({
   getIt.registerFactory(
       () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
-  getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<WalletSeedViewModel, WalletSeedPageParams?, void>((params, _) =>
+      WalletSeedViewModel(getIt.get<AppStore>().wallet!, params: params));
 
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
@@ -946,8 +985,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevSecurePreferences());
 
-  getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
-      WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
+  getIt.registerFactoryParam<WalletSeedPage, WalletSeedPageParams, void>((params, _) =>
+      WalletSeedPage(getIt.get<WalletSeedViewModel>(param1: params),
+          isNewWalletCreated: params.isNewWalletCreated));
 
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
@@ -1140,11 +1180,6 @@ Future<void> setup({
         appStore: getIt.get<AppStore>(),
       ));
 
-  getIt.registerFactory(() => WalletSwitchService(
-        walletLoadingService: getIt.get<WalletLoadingService>(),
-        appStore: getIt.get<AppStore>(),
-      ));
-
   getIt.registerFactory(() => AnyPayService(
         appStore: getIt.get<AppStore>(),
         walletSwitchService: getIt.get<WalletSwitchService>(),
@@ -1324,7 +1359,10 @@ Future<void> setup({
   getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
   getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
-      (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
+      (bool isNewInstall, _) => RestoreOptionsPage(
+            isNewInstall: isNewInstall,
+            keychain: getIt.get<CwKeychain>(),
+          ));
 
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupServiceV3>()));
 

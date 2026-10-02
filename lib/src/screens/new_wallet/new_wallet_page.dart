@@ -111,7 +111,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
           Navigator.of(navigatorKey.currentContext ?? context)
               .pushNamed(Routes.walletGroupExistingSeedDescriptionPage);
         } else {
-          Navigator.of(navigatorKey.currentContext ?? context).pushNamed(Routes.preSeedPage);
+          Navigator.of(navigatorKey.currentContext ?? context).pushNamed(Routes.backupModeSelectionPage);
         }
       }
 

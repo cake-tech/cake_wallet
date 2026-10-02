@@ -7,6 +7,7 @@ import "package:cake_wallet/new-ui/widgets/seed/seed_page_scaffold.dart";
 import "package:cake_wallet/new-ui/widgets/stacked_buttons.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/wallet_seed_view_model.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
@@ -40,7 +41,7 @@ class SeedBackupReminderPage extends StatelessWidget {
           onPrimary: () => authService.authenticateAction(
             context,
             route: Routes.seed,
-            arguments: false,
+            arguments: WalletSeedPageParams(isNewWalletCreated: false),
             conditionToDetermineIfToUse2FA: dashboardViewModel
                 .settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
           ),
