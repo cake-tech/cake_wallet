@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/generate_name.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Trade {
@@ -113,12 +111,6 @@ class Trade {
 
   int? chainId;
   double? fee;
-
-  String get chainName {
-    if (chainId == null) return '';
-
-    return evm!.getChainNameByChainId(chainId!).capitalized();
-  }
 
   // ── SQLite CRUD ──────────────────────────────────────
 
