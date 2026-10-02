@@ -11,16 +11,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vector_graphics/vector_graphics.dart";
 
-class _LocalServerOverrides extends HttpOverrides {
-  _LocalServerOverrides(this.port);
-
-  final int port;
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) => super.createHttpClient(context)
-    ..connectionFactory =
-        (uri, proxyHost, proxyPort) => Socket.startConnect(InternetAddress.loopbackIPv4, port);
-}
+import "../../helpers/local_server_overrides.dart";
 
 // A 1x1 transparent PNG
 final _png = Uint8List.fromList(const [
@@ -64,7 +55,7 @@ void main() {
       }
       await request.response.close();
     });
-    HttpOverrides.global = _LocalServerOverrides(server.port);
+    HttpOverrides.global = LocalServerOverrides(server.port);
   });
 
   tearDownAll(() async {

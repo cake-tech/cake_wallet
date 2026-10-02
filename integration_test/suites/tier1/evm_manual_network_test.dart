@@ -33,7 +33,7 @@ void main() {
     const symbol = "SEP";
     const rpcUrl = "https://ethereum-sepolia-rpc.publicnode.com";
     const unlistedChainId = 987654;
-    const walletName = "Sepolia Test Wallet";
+    const walletName = "Manual Net Wallet";
 
     await appLauncher.launchApp(testKey: "evm_manual_network_test_app_key");
 
@@ -122,7 +122,7 @@ void main() {
     await manageRobot.search("Sepolia");
     await manageRobot.waitForRow(chainId);
 
-    expect(manageRobot.isEnabled(chainId), true, reason: "A saved manual network starts off");
+    expect(manageRobot.isEnabled(chainId), true, reason: "A saved manual network starts on");
 
     await manageRobot.clearSearch();
 

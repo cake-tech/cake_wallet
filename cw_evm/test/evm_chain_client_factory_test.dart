@@ -8,18 +8,9 @@ import "package:cw_evm/evm_chain_registry.dart";
 import "package:cw_evm/utils/network_chain_utils.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "helpers/local_server_overrides.dart";
+
 // Every HttpClient connects to the local server, whatever host the URI names
-class _LocalServerOverrides extends HttpOverrides {
-  _LocalServerOverrides(this.port);
-
-  final int port;
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) => super.createHttpClient(context)
-    ..connectionFactory =
-        (uri, proxyHost, proxyPort) => Socket.startConnect(InternetAddress.loopbackIPv4, port);
-}
-
 void main() {
   const wallet = "0x52908400098527886e0f7030069857d2e4169ee7";
   const tokenContract = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
@@ -52,7 +43,7 @@ void main() {
     });
 
     CakeTor.instance = CakeTorDisabled();
-    HttpOverrides.global = _LocalServerOverrides(server.port);
+    HttpOverrides.global = LocalServerOverrides(server.port);
   });
 
   tearDownAll(() async {

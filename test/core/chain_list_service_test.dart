@@ -7,25 +7,8 @@ import "package:cw_core/utils/tor/disabled.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:path_provider_platform_interface/path_provider_platform_interface.dart";
 
-class _FakePathProviderPlatform extends PathProviderPlatform {
-  _FakePathProviderPlatform(this.root);
-
-  final String root;
-
-  @override
-  Future<String?> getApplicationCachePath() async => root;
-}
-
-class _LocalServerOverrides extends HttpOverrides {
-  _LocalServerOverrides(this.port);
-
-  final int port;
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) => super.createHttpClient(context)
-    ..connectionFactory =
-        (uri, proxyHost, proxyPort) => Socket.startConnect(InternetAddress.loopbackIPv4, port);
-}
+import "../helpers/local_server_overrides.dart";
+import "../helpers/test_db.dart";
 
 Map<String, dynamic> _feedItem({
   Object? chainId = 57073,
@@ -69,7 +52,7 @@ Future<void> main() async {
   setUpAll(() async {
     cacheRoot = Directory.systemTemp.createTempSync("chain_list_service");
     cacheFile = File("${cacheRoot.path}/chainlist_mainnets.json");
-    PathProviderPlatform.instance = _FakePathProviderPlatform(cacheRoot.path);
+    PathProviderPlatform.instance = FakePathProviderPlatform(cacheRoot.path);
 
     CakeTor.instance = CakeTorDisabled();
 
@@ -81,7 +64,7 @@ Future<void> main() async {
         ..write(feedBody);
       await request.response.close();
     });
-    HttpOverrides.global = _LocalServerOverrides(server.port);
+    HttpOverrides.global = LocalServerOverrides(server.port);
   });
 
   tearDownAll(() async {
@@ -474,6 +457,7 @@ Future<void> main() async {
       final entries = await ChainListService().loadPopularNetworks();
 
       expect(requestedUrls, isEmpty);
+      expect(entries.map((entry) => entry.chainId), [10, 999, 5042, 143, 9745, 57073, 196, 25]);
       expect(entries.every((entry) => entry.iconUrl!.startsWith("assets/")), isTrue);
       expect(entries.every((entry) => entry.tvl == null), isTrue);
     });

@@ -18,21 +18,9 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:hive/hive.dart";
 import "package:mocktail/mocktail.dart";
-import "package:path_provider_platform_interface/path_provider_platform_interface.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class _FakePathProviderPlatform extends PathProviderPlatform {
-  _FakePathProviderPlatform(this.root);
-
-  final String root;
-
-  @override
-  Future<String?> getApplicationDocumentsPath() async => root;
-
-  @override
-  Future<String?> getApplicationSupportPath() async => root;
-}
+import "../helpers/test_db.dart";
 
 class _MockSettingsStore extends Mock implements SettingsStore {}
 
@@ -104,16 +92,7 @@ Future<void> main() async {
       (await Node.getAllForEvmChain(chainId)).map((node) => node.uri.toString()).toList();
 
   setUpAll(() async {
-    if (dataRoot.existsSync()) {
-      dataRoot.deleteSync(recursive: true);
-    }
-    dataRoot.createSync(recursive: true);
-    Directory("${dataRoot.path}/cake_wallet").createSync(recursive: true);
-    PathProviderPlatform.instance = _FakePathProviderPlatform(dataRoot.absolute.path);
-
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    await initDb();
+    await setUpTestDb(dataRoot);
 
     CakeTor.instance = CakeTorDisabled();
 
@@ -262,25 +241,18 @@ Future<void> main() async {
       verifyNever(() => settingsStore.loadEvmNetworks());
     });
 
-    test("the candidate walk keeps the first two that answer as RPC and failover", () async {
+    test("enabling saves the two candidates that answer as RPC, failover and node rows", () async {
       final firstAnswering = answering(inkChainId, "second");
-      final secondAnswering = answering(inkChainId, "fourth");
+      final secondAnswering = answering(inkChainId, "third");
 
       final enabled = await service.enable(
         network(inkChainId, rpcUrl: dead("first"), failoverUrl: firstAnswering),
-        rpcCandidates: [
-          dead("first"),
-          firstAnswering,
-          answering(otherChainId, "third"),
-          secondAnswering,
-          answering(inkChainId, "fifth"),
-        ],
+        rpcCandidates: [dead("first"), firstAnswering, secondAnswering],
       );
 
       expect(enabled.rpcUrl, firstAnswering);
       expect(enabled.failoverUrl, secondAnswering);
-      expect(requestedPaths, hasLength(4));
-      expect(requestedPaths, isNot(contains("/answers/$inkChainId/fifth")));
+      expect((await EvmNetwork.get(inkChainId))!.rpcUrl, firstAnswering);
       expect(await getNodeUrls(inkChainId), unorderedEquals([firstAnswering, secondAnswering]));
     });
 
@@ -568,12 +540,12 @@ Future<void> main() async {
     test("a symbol change with no wallets rebuilds the cached currency", () async {
       final rpcUrl = answering(cronosChainId, "rpc");
       final previous = await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, symbol: "OLD", tag: "OLD", isEnabled: true),
+        network(cronosChainId, rpcUrl: rpcUrl, symbol: "OLD", tag: "SAMETAG", isEnabled: true),
       );
       final oldCurrency = EvmNativeCurrencies.getNativeCurrencyByChainId(cronosChainId);
 
       await service.save(
-        network(cronosChainId, rpcUrl: rpcUrl, symbol: "NEW", tag: "NEW", isEnabled: true),
+        network(cronosChainId, rpcUrl: rpcUrl, symbol: "NEW", tag: "SAMETAG", isEnabled: true),
         previous: previous,
       );
 

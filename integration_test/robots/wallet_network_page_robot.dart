@@ -13,45 +13,8 @@ class WalletNetworkPageRobot extends BaseRobot {
     await isSpecificPage<WalletNetworkPage>();
   }
 
-  Future<void> findParticularWalletTypeInScrollableList(WalletType type) async {
-    final scrollableWidget = find.descendant(
-      of: find.byKey(const Key("wallet_network_scrollable_key")),
-      matching: find.byType(Scrollable),
-    );
-
-    final targetWidget = find.byKey(ValueKey("wallet_network_${type.name}_row_key"));
-
-    tester.printToConsole("Attempting to scroll to wallet type ${type.name}");
-
-    await pumpUntilFound(scrollableWidget.first);
-
-    await tester.scrollUntilVisible(
-      targetWidget,
-      300,
-      scrollable: scrollableWidget.first,
-      maxScrolls: 20,
-    );
-
-    await settle();
-
-    expect(
-      tester.any(targetWidget),
-      true,
-      reason: "Wallet type ${type.name} should be visible after scrolling",
-    );
-
-    final widgetRect = tester.getRect(targetWidget);
-    final screenSize = tester.view.physicalSize;
-    final screenRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);
-
-    expect(
-      screenRect.overlaps(widgetRect),
-      true,
-      reason: "Wallet type ${type.name} should be within screen bounds",
-    );
-
-    tester.printToConsole("Wallet type ${type.name} is now visible and tappable");
-  }
+  Future<void> findParticularWalletTypeInScrollableList(WalletType type) =>
+      _scrollToKey("wallet_network_${type.name}_row_key");
 
   Future<void> selectWalletType(WalletType type) async {
     await tapByKey("wallet_network_${type.name}_row_key");

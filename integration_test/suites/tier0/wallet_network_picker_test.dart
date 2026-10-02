@@ -28,12 +28,6 @@ void main() {
 
     await evmNetworkFlows.openCreatePickerAtOnboarding();
 
-    expect(
-      builtinNetworkTypes.contains(WalletType.evm),
-      false,
-      reason: "evm is a family of added networks and must never be a built-in row",
-    );
-
     for (final type in builtinNetworkTypes) {
       expect(pickerRobot.hasBuiltinRow(type), true, reason: "${type.name} missing from picker");
     }

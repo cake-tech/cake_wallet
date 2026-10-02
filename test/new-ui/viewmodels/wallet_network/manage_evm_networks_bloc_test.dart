@@ -14,21 +14,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:hive/hive.dart";
 import "package:mobx/mobx.dart" show ObservableMap;
 import "package:mocktail/mocktail.dart";
-import "package:path_provider_platform_interface/path_provider_platform_interface.dart";
 import "package:shared_preferences/shared_preferences.dart";
-import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class _FakePathProviderPlatform extends PathProviderPlatform {
-  _FakePathProviderPlatform(this.root);
-
-  final String root;
-
-  @override
-  Future<String?> getApplicationDocumentsPath() async => root;
-
-  @override
-  Future<String?> getApplicationSupportPath() async => root;
-}
+import "../../../helpers/test_db.dart";
 
 class _MockNetworkService extends Mock implements EvmNetworkService {}
 
@@ -101,16 +89,7 @@ Future<void> main() async {
   late EvmNetworkService realNetworkService;
 
   setUpAll(() async {
-    if (dataRoot.existsSync()) {
-      dataRoot.deleteSync(recursive: true);
-    }
-    dataRoot.createSync(recursive: true);
-    Directory("${dataRoot.path}/cake_wallet").createSync(recursive: true);
-    PathProviderPlatform.instance = _FakePathProviderPlatform(dataRoot.absolute.path);
-
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    await initDb();
+    await setUpTestDb(dataRoot);
 
     SharedPreferences.setMockInitialValues({});
     realNetworkService = EvmNetworkService(

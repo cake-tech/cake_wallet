@@ -6,18 +6,9 @@ import "package:cw_core/utils/tor/disabled.dart";
 import "package:cw_evm/history/blockscout_history_provider.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "helpers/local_server_overrides.dart";
+
 // Every HttpClient connects to the local server, whatever host the URI names
-class _LocalServerOverrides extends HttpOverrides {
-  _LocalServerOverrides(this.port);
-
-  final int port;
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) => super.createHttpClient(context)
-    ..connectionFactory =
-        (uri, proxyHost, proxyPort) => Socket.startConnect(InternetAddress.loopbackIPv4, port);
-}
-
 void main() {
   const baseChainId = 8453;
   const wallet = "0x52908400098527886e0f7030069857d2e4169ee7";
@@ -62,7 +53,7 @@ void main() {
     });
 
     CakeTor.instance = CakeTorDisabled();
-    HttpOverrides.global = _LocalServerOverrides(server.port);
+    HttpOverrides.global = LocalServerOverrides(server.port);
   });
 
   tearDownAll(() async {

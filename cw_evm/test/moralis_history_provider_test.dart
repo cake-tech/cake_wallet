@@ -6,16 +6,7 @@ import "package:cw_core/utils/tor/disabled.dart";
 import "package:cw_evm/history/moralis_history_provider.dart";
 import "package:flutter_test/flutter_test.dart";
 
-class _LocalServerOverrides extends HttpOverrides {
-  _LocalServerOverrides(this.port);
-
-  final int port;
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) => super.createHttpClient(context)
-    ..connectionFactory =
-        (uri, proxyHost, proxyPort) => Socket.startConnect(InternetAddress.loopbackIPv4, port);
-}
+import "helpers/local_server_overrides.dart";
 
 void main() {
   const baseChainId = 8453;
@@ -63,7 +54,7 @@ void main() {
     });
 
     CakeTor.instance = CakeTorDisabled();
-    HttpOverrides.global = _LocalServerOverrides(server.port);
+    HttpOverrides.global = LocalServerOverrides(server.port);
   });
 
   tearDownAll(() async {

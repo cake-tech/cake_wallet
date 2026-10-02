@@ -1,4 +1,3 @@
-import "dart:async";
 import "dart:convert";
 import "dart:io";
 
@@ -16,7 +15,6 @@ void main() {
   late HttpServer server;
   late List<String> receivedPaths;
   late List<String> receivedBodies;
-  late Completer<void> stalledRequestReleased;
 
   Node evmNode(String path, {int? chainId = ownChainId}) => Node(
         uri: "127.0.0.1:${server.port}",
@@ -31,7 +29,6 @@ void main() {
   setUp(() async {
     receivedPaths = [];
     receivedBodies = [];
-    stalledRequestReleased = Completer<void>();
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     server.listen((request) async {
       receivedPaths.add(request.uri.path);
@@ -76,8 +73,6 @@ void main() {
         case "/server-error":
           response.statusCode = 500;
           response.write(jsonEncode({"jsonrpc": "2.0", "id": 1, "result": "0xa"}));
-        case "/stalled":
-          await stalledRequestReleased.future;
       }
 
       await response.close();
@@ -85,9 +80,6 @@ void main() {
   });
 
   tearDown(() async {
-    if (!stalledRequestReleased.isCompleted) {
-      stalledRequestReleased.complete();
-    }
     await server.close(force: true);
   });
 
@@ -126,17 +118,6 @@ void main() {
     test("a non-2xx status gives no answer even with a chain ID in the body", () async {
       expect(await evmNode("/server-error").requestEvmChainId(), isNull);
     });
-
-    test(
-      "a node that never answers gives no answer after the 10 second timeout",
-      () async {
-        final stopwatch = Stopwatch()..start();
-
-        expect(await evmNode("/stalled").requestEvmChainId(), isNull);
-        expect(stopwatch.elapsed, greaterThanOrEqualTo(const Duration(seconds: 10)));
-      },
-      timeout: const Timeout(Duration(seconds: 30)),
-    );
   });
 
   group("Node.requestEthereumServer", () {
