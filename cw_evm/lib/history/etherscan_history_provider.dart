@@ -129,7 +129,7 @@ class EtherscanHistoryProvider implements EvmHistoryProvider {
         return [];
       }
 
-      if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse["status"] != 0) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         final res = jsonResponse["result"] as List;
         res.removeWhere((e) => e["value"] == "0");
 
@@ -224,7 +224,6 @@ class EtherscanHistoryProvider implements EvmHistoryProvider {
 
       if (response.statusCode >= 200 &&
           response.statusCode < 300 &&
-          jsonResponse["status"] != 0 &&
           jsonResponse["result"] is List) {
         final symbol = EVMChainUtils.getFeeCurrency(chainId);
 
