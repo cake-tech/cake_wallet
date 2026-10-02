@@ -17,7 +17,6 @@ class EvmChainRegistry {
   final Map<WalletType, int> _walletTypeToChainId = {};
   final Map<int, WalletType> _chainIdToWalletType = {};
   final Map<String, int> _tagToChainId = {};
-  final Map<String, int> _caip2ToChainId = {};
   final Map<int, EvmNetwork> _addedNetworks = {};
   final Map<int, AddedNetworkCurrency> _addedNetworkCurrencies = {};
 
@@ -36,20 +35,10 @@ class EvmChainRegistry {
         shortCode: 'eth',
         caip2: 'eip155:1',
         nativeCurrency: CryptoCurrency.eth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: true,
-        ),
         explorerUrls: [
           'https://etherscan.io',
         ],
-        feeModel: FeeModel(
-          type: FeeType.eip1559,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.eip1559),
       ),
       WalletType.ethereum,
       'ETH',
@@ -63,20 +52,10 @@ class EvmChainRegistry {
         shortCode: 'polygon',
         caip2: 'eip155:137',
         nativeCurrency: CryptoCurrency.maticpoly,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
         explorerUrls: [
           'https://polygonscan.com',
         ],
-        feeModel: FeeModel(
-          type: FeeType.legacy,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.polygon,
       'POL',
@@ -90,20 +69,10 @@ class EvmChainRegistry {
         shortCode: 'base',
         caip2: 'eip155:8453',
         nativeCurrency: CryptoCurrency.baseEth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
         explorerUrls: [
           'https://basescan.org',
         ],
-        feeModel: FeeModel(
-          type: FeeType.legacy,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.base,
       'BASE',
@@ -117,20 +86,10 @@ class EvmChainRegistry {
         shortCode: 'arbitrum',
         caip2: 'eip155:42161',
         nativeCurrency: CryptoCurrency.arbEth,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
         explorerUrls: [
           'https://arbiscan.io',
         ],
-        feeModel: FeeModel(
-          type: FeeType.legacy,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.arbitrum,
       'ARB',
@@ -144,20 +103,10 @@ class EvmChainRegistry {
         shortCode: 'bsc',
         caip2: 'eip155:56',
         nativeCurrency: CryptoCurrency.bnb,
-        capabilities: ChainCapabilities(
-          supportsERC20: true,
-          supportsEIP1559: true,
-          supportsInternalTx: true,
-          supportsSubscriptions: false,
-          supportsENS: false,
-        ),
         explorerUrls: [
           'https://bscscan.com',
         ],
-        feeModel: FeeModel(
-          type: FeeType.legacy,
-          defaultGasLimit: 21000,
-        ),
+        feeModel: FeeModel(type: FeeType.legacy),
       ),
       WalletType.bsc,
       'BSC',
@@ -173,7 +122,6 @@ class EvmChainRegistry {
     _walletTypeToChainId[walletType] = config.chainId;
     _chainIdToWalletType[config.chainId] = walletType;
     _tagToChainId[tag.toUpperCase()] = config.chainId;
-    _caip2ToChainId[config.caip2] = config.chainId;
   }
 
   bool isBuiltinChain(int chainId) => _walletTypeToChainId.containsValue(chainId);
@@ -207,37 +155,23 @@ class EvmChainRegistry {
       shortCode: "evm${network.chainId}",
       caip2: "eip155:${network.chainId}",
       nativeCurrency: currency,
-      capabilities: const ChainCapabilities(
-        supportsERC20: true,
-        supportsEIP1559: true,
-        supportsInternalTx: true,
-        supportsSubscriptions: false,
-        supportsENS: false,
-      ),
       explorerUrls: [
         if (explorerUrl != null && explorerUrl.isNotEmpty) explorerUrl,
       ],
-      feeModel: const FeeModel(
-        type: FeeType.eip1559OrLegacy,
-        defaultGasLimit: 21000,
-      ),
+      feeModel: const FeeModel(type: FeeType.eip1559OrLegacy),
     );
 
     _chains[config.chainId] = config;
     _chainIdToWalletType[config.chainId] = WalletType.evm;
-    _caip2ToChainId[config.caip2] = config.chainId;
     _addedNetworks[config.chainId] = network;
   }
 
   void unregisterAddedNetworkChain(int chainId) {
     _throwIfBuiltinChain(chainId);
 
-    final config = _chains.remove(chainId);
+    _chains.remove(chainId);
     _chainIdToWalletType.remove(chainId);
     _addedNetworks.remove(chainId);
-    if (config != null) {
-      _caip2ToChainId.remove(config.caip2);
-    }
   }
 
   void unregisterAddedNetworkCurrency(int chainId) {
@@ -269,12 +203,6 @@ class EvmChainRegistry {
     return chainId != null ? _chains[chainId] : null;
   }
 
-  /// Get chain configuration by CAIP-2 identifier (e.g. 'eip155:1')
-  ChainConfig? getChainConfigByCaip2(String caip2) {
-    final chainId = _caip2ToChainId[caip2];
-    return chainId != null ? _chains[chainId] : null;
-  }
-
   WalletType? getWalletTypeByChainId(int chainId) => _chainIdToWalletType[chainId];
 
   int? getChainIdByWalletType(WalletType walletType) => _walletTypeToChainId[walletType];
@@ -284,8 +212,6 @@ class EvmChainRegistry {
       : getChainIdByWalletType(walletInfo.type);
 
   bool isChainRegistered(int chainId) => _chains.containsKey(chainId);
-
-  List<int> getRegisteredChainIds() => _chains.keys.toList();
 
   List<ChainConfig> getAllChains() => _chains.values.toList();
 

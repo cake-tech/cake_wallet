@@ -502,17 +502,10 @@ class CWEVM extends EVM {
       _getChainConfigOrThrow(getChainIdByWalletType(walletType)).shortCode;
 
   @override
-  String getTokenNameByWalletType(WalletType walletType) =>
-      _getChainConfigOrThrow(getChainIdByWalletType(walletType)).nativeCurrency.title;
-
-  @override
   String getCaip2ByChainId(int chainId) => _getChainConfigOrThrow(chainId).caip2;
 
   @override
   String getChainNameByChainId(int chainId) => _getChainConfigOrThrow(chainId).shortCode;
-
-  @override
-  String getTokenNameByChainId(int chainId) => _getChainConfigOrThrow(chainId).nativeCurrency.title;
 
   @override
   int? getChainIdByTag(String tag) {

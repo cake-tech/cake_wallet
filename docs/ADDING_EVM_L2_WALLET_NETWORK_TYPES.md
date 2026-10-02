@@ -48,20 +48,10 @@ _registerChain(
     shortCode: 'op',
     caip2: 'eip155:10',
     nativeCurrency: CryptoCurrency.op, // Must exist in cw_core/lib/crypto_currency.dart
-    capabilities: ChainCapabilities(
-      supportsERC20: true,
-      supportsEIP1559: true,
-      supportsInternalTx: true,
-      supportsSubscriptions: false,
-      supportsENS: false,
-    ),
     explorerUrls: [
       'https://optimistic.etherscan.io',
     ],
-    feeModel: FeeModel(
-      type: FeeType.eip1559,
-      defaultGasLimit: 21000,
-    ),
+    feeModel: FeeModel(type: FeeType.eip1559),
   ),
   WalletType.optimism, // The chain's own WalletType, see Step 7
   'OP', // Native currency symbol
@@ -70,7 +60,7 @@ _registerChain(
 
 **Notes**:
 - A built-in chain always maps to its own `WalletType`. Never pass `WalletType.evm` here, that type belongs to the networks users add at runtime
-- The registry automatically creates mappings: `chainId` → `WalletType`, `tag` → `chainId`, `caip2` → `chainId`
+- The registry automatically creates mappings: `chainId` → `WalletType` and `tag` → `chainId`
 - If the chain uses a standard EVM client, you can use the default `EVMChainClient` (no custom client needed)
 
 ### Step 2: Add Native Currency (If New)

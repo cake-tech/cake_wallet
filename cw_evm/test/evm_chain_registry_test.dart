@@ -47,10 +47,8 @@ void main() {
       expect(config.name, "Test Chain");
       expect(config.shortCode, "evm$addedChainId");
       expect(config.caip2, "eip155:$addedChainId");
-      expect(config.capabilities.supportsENS, isFalse);
       expect(config.explorerUrls, ["https://explorer.test-chain.example"]);
       expect(registry.getWalletTypeByChainId(addedChainId), WalletType.evm);
-      expect(registry.getChainConfigByCaip2("eip155:$addedChainId"), same(config));
       expect(registry.getAddedNetwork(addedChainId), same(added));
       expect(registry.isBuiltinChain(addedChainId), isFalse);
     });
@@ -182,7 +180,6 @@ void main() {
 
       expect(registry.getChainConfig(addedChainId), isNull);
       expect(registry.getWalletTypeByChainId(addedChainId), isNull);
-      expect(registry.getChainConfigByCaip2("eip155:$addedChainId"), isNull);
       expect(registry.getAddedNetwork(addedChainId), isNull);
       expect(EvmNativeCurrencies.getNativeCurrencyByChainId(addedChainId), same(currency));
       expect(EvmNativeCurrencies.getWalletTypeByChainId(addedChainId), WalletType.evm);

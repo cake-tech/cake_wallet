@@ -1605,13 +1605,11 @@ abstract class EVM {
   // Registry helper methods (for backward compatibility helpers)
   int getChainIdByWalletType(WalletType walletType);
   String getChainNameByWalletType(WalletType walletType);
-  String getTokenNameByWalletType(WalletType walletType);
   String getCaip2ByChainId(int chainId);
   int? getChainIdByTag(String tag);
   int? getChainIdByTitle(String title);
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
-  String getTokenNameByChainId(int chainId);
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
