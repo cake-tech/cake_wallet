@@ -1,6 +1,9 @@
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
+import 'package:cw_core/coin_control/coin_selection.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -101,19 +104,24 @@ class SwapOptionsPage extends StatelessWidget {
                         ListItemRegularRow(
                             keyValue: "coin control",
                             label: "Coin Control",
-                            onTap: () {
-                              showCupertinoModalBottomSheet(
-                                  enableDrag: false,
-                                  useRootNavigator: true,
-                                  isDismissible: false,
-                                  context: context,
-                                  builder: (context) {
-                                    return NewCoinControlPage(
-                                      unspentCoinsListViewModel:
-                                          exchangeViewModel.unspentCoinsListViewModel,
-                                      canEdit: true,
-                                    );
-                                  });
+                            onTap: () async {
+                              final selection =
+                                  await showCupertinoModalBottomSheet<CoinSelection?>(
+                                      enableDrag: false,
+                                      useRootNavigator: true,
+                                      isDismissible: false,
+                                      context: context,
+                                      builder: (_) => getIt.get<NewCoinControlPage>(
+                                            param1: CoinControlPageArgs(
+                                              canEdit: true,
+                                              coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+                                              initialSelection: exchangeViewModel.coinSelection,
+                                            ),
+                                          ));
+
+                              if (selection != null) {
+                                exchangeViewModel.applyCoinSelection(selection);
+                              }
                             }),
                         ListItemSelector(
                             keyValue: "curr",

@@ -276,6 +276,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   await performErc20TokenHiveMigration();
   await performSplTokenHiveMigration();
   await performTronTokenHiveMigration();
+  await performUnspentCoinsInfoHiveMigration();
 
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
@@ -306,7 +307,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     sharedPreferences: await SharedPreferences.getInstance(),
     contactSource: contacts,
     ordersSource: orders,
-    unspentCoinsInfoSource: unspentCoinsInfoSource,
     // fiatConvertationService: fiatConvertationService,
     templates: templates,
     exchangeTemplates: exchangeTemplates,
@@ -330,7 +330,6 @@ Future<void> initialSetup({
   required Box<TransactionDescription> transactionDescriptions,
   required SecureStorage secureStorage,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<HavenSeedStore> havenSeedStore,
   required int initialMigrationVersion,
@@ -351,7 +350,6 @@ Future<void> initialSetup({
     exchangeTemplates: exchangeTemplates,
     transactionDescriptionBox: transactionDescriptions,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-    unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
