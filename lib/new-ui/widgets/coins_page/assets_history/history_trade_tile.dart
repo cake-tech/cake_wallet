@@ -42,8 +42,8 @@ class HistoryTradeTile extends StatelessWidget {
     final fromNetwork = AddedNetworkCurrency.of(from);
     final toNetwork = AddedNetworkCurrency.of(to);
 
-    final isFromAddedNetwork = from!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
-    final isToAddedNetwork = to!.raw >= EvmNativeCurrencies.addedNetworkRawOffset;
+    final isFromAddedNetwork = EvmNativeCurrencies.isAddedNetworkRaw(from!.raw);
+    final isToAddedNetwork = EvmNativeCurrencies.isAddedNetworkRaw(to!.raw);
 
     return SizedBox(
       height: 50,

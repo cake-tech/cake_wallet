@@ -170,10 +170,7 @@ class EvmChainRegistry {
     final registered = EvmNativeCurrencies.getNativeCurrencyByChainId(network.chainId);
     final currency =
         registered is AddedNetworkCurrency ? registered : AddedNetworkCurrency(network);
-    currency
-      ..networkName = network.name
-      ..iconUrl = network.iconUrl
-      ..isManual = network.isManual;
+    currency.network = network;
 
     EvmNativeCurrencies.register(network.chainId, currency, WalletType.evm);
     return currency;

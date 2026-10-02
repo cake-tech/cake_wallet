@@ -298,7 +298,7 @@ class Trade {
     final tag = row['${prefix}Tag'] as String?;
     final raw = row["${prefix}Raw"] as int? ?? -1;
 
-    final isAddedNetworkNative = raw >= EvmNativeCurrencies.addedNetworkRawOffset;
+    final isAddedNetworkNative = EvmNativeCurrencies.isAddedNetworkRaw(raw);
     final live = isAddedNetworkNative
         ? CryptoCurrency.safeDeserialize(raw: raw)
         : CryptoCurrency.safeParseCurrencyFromString(title, tag: tag);

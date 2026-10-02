@@ -212,11 +212,8 @@ class EvmNetwork {
 }
 
 class AddedNetworkCurrency extends CryptoCurrency {
-  AddedNetworkCurrency(EvmNetwork network)
-      : networkName = network.name,
-        iconUrl = network.iconUrl,
-        isManual = network.isManual,
-        super(
+  AddedNetworkCurrency(this.network)
+      : super(
           title: network.symbol,
           tag: network.tag,
           name: "evm${network.chainId}",
@@ -230,16 +227,18 @@ class AddedNetworkCurrency extends CryptoCurrency {
   static AddedNetworkCurrency? tryFromChainId(int? chainId) =>
       chainId == null ? null : of(EvmNativeCurrencies.getNativeCurrencyByChainId(chainId));
 
-  String networkName;
-  String? iconUrl;
-  bool isManual;
+  EvmNetwork network;
+
+  int get chainId => network.chainId;
+
+  bool get isManual => network.isManual;
 
   @override
-  String get fullName => networkName;
+  String get fullName => network.name;
 
   @override
-  String? get iconPath => iconUrl;
+  String? get iconPath => network.iconUrl;
 
   @override
-  String? get chainIconPath => iconUrl?.isNotEmpty == true ? iconUrl : null;
+  String? get chainIconPath => network.iconUrl?.isNotEmpty == true ? network.iconUrl : null;
 }

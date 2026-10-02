@@ -41,6 +41,10 @@ class EvmNativeCurrencies {
 
   static int addedNetworkRaw(int chainId) => addedNetworkRawOffset + chainId;
 
+  static bool isAddedNetworkRaw(int raw) => raw >= addedNetworkRawOffset;
+
+  static int addedNetworkChainIdFromRaw(int raw) => raw - addedNetworkRawOffset;
+
   static int? getAddedNetworkChainId(CryptoCurrency currency) {
     final chainId = getChainIdByCryptoCurrency(currency);
     if (chainId == null) {
@@ -138,9 +142,8 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
     return currency.chainId;
   }
 
-  if (currency.raw >= EvmNativeCurrencies.addedNetworkRawOffset) {
-    final addedNetworkChainId = currency.raw - EvmNativeCurrencies.addedNetworkRawOffset;
-    return addedNetworkChainId;
+  if (EvmNativeCurrencies.isAddedNetworkRaw(currency.raw)) {
+    return EvmNativeCurrencies.addedNetworkChainIdFromRaw(currency.raw);
   }
 
   return EvmNativeCurrencies._natives.entries

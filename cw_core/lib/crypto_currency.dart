@@ -1042,9 +1042,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static CryptoCurrency? safeDeserialize({int? raw}) {
     if (raw == null || raw < 0) return null;
 
-    if (raw >= EvmNativeCurrencies.addedNetworkRawOffset) {
-      final addedNetworkCurrencyChainId = raw - EvmNativeCurrencies.addedNetworkRawOffset;
-      final currency = EvmNativeCurrencies.getNativeCurrencyByChainId(addedNetworkCurrencyChainId);
+    if (EvmNativeCurrencies.isAddedNetworkRaw(raw)) {
+      final chainId = EvmNativeCurrencies.addedNetworkChainIdFromRaw(raw);
+      final currency = EvmNativeCurrencies.getNativeCurrencyByChainId(chainId);
 
       return currency?.raw == raw ? currency : null;
     }
