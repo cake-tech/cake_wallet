@@ -620,7 +620,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     if (widget.isReceiverCard && widget.filteredNetwork != null) {
       final network = widget.filteredNetwork!;
-      items = items.where(network.isHomeNetworkOf).toList();
+      items = items.where(network.isCurrencyNetwork).toList();
     }
 
     if (items.length <= 1) {

@@ -91,7 +91,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   bool _matchesNetwork(CryptoCurrency c) {
     if (_selectedNetwork == null) return true;
-    return _selectedNetwork!.isHomeNetworkOf(c);
+    return _selectedNetwork!.isCurrencyNetwork(c);
   }
 
   List<CryptoCurrency> get _visibleItems {
@@ -122,7 +122,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
     if (_selectedNetwork != null) {
       final filtered =
-          variants.where((c) => _selectedNetwork!.isHomeNetworkOf(c)).toList(growable: false);
+          variants.where((c) => _selectedNetwork!.isCurrencyNetwork(c)).toList(growable: false);
       if (filtered.isNotEmpty) variants = filtered;
     }
 

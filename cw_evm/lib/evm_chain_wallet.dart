@@ -155,7 +155,7 @@ abstract class EVMChainWalletBase
   bool get hasPriorityFee => EVMChainUtils.hasPriorityFee(selectedChainId);
 
   static int _getInitialChainId(WalletInfo walletInfo) {
-    final chainId = EvmChainRegistry().getChainIdOfWallet(walletInfo);
+    final chainId = EvmChainRegistry().getWalletChainId(walletInfo);
     if (chainId == null) {
       throw Exception("No chain ID for ${walletInfo.type} wallet ${walletInfo.name}");
     }

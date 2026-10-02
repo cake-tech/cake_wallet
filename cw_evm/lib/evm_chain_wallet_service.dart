@@ -49,7 +49,7 @@ class EVMChainWalletService extends WalletService<
       walletInfo.chainId = credentialsChainId;
     }
 
-    final chainId = _registry.getChainIdOfWallet(walletInfo);
+    final chainId = _registry.getWalletChainId(walletInfo);
     if (chainId == null) {
       throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
     }

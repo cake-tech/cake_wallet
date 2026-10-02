@@ -54,7 +54,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
     final query = _searchController.text.trim();
     final tokens = _args.items
         .where(
-          (c) => c != native && _network.isHomeNetworkOf(c) && currencyMatchesQuery(c, query),
+          (c) => c != native && _network.isCurrencyNetwork(c) && currencyMatchesQuery(c, query),
         )
         .toList();
 

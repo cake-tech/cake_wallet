@@ -207,7 +207,7 @@ class EvmChainRegistry {
 
   int? getChainIdByWalletType(WalletType walletType) => _walletTypeToChainId[walletType];
 
-  int? getChainIdOfWallet(WalletInfo walletInfo) => walletInfo.type == WalletType.evm
+  int? getWalletChainId(WalletInfo walletInfo) => walletInfo.type == WalletType.evm
       ? walletInfo.chainId
       : getChainIdByWalletType(walletInfo.type);
 

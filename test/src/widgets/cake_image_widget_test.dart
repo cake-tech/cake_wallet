@@ -195,7 +195,7 @@ void main() {
 
   testWidgets("outlineColor draws a border over the image, and none is drawn by default",
       (tester) async {
-    BoxDecoration? outlineOf(WidgetTester tester) => tester
+    BoxDecoration? findOutline(WidgetTester tester) => tester
         .widgetList<Container>(find.byType(Container))
         .map((container) => container.foregroundDecoration)
         .whereType<BoxDecoration>()
@@ -206,7 +206,7 @@ void main() {
         home: CakeImageWidget(imageUrl: "assets/new-ui/crypto_full_icons/base.svg", width: 48),
       ),
     );
-    expect(outlineOf(tester), isNull);
+    expect(findOutline(tester), isNull);
     expect(find.byType(ClipRRect), findsNothing);
 
     await tester.pumpWidget(
@@ -219,7 +219,7 @@ void main() {
         ),
       ),
     );
-    final outline = outlineOf(tester)!;
+    final outline = findOutline(tester)!;
     expect(outline.border, Border.all(color: Colors.red, width: 2));
     expect(outline.borderRadius, BorderRadius.circular(14));
     expect(find.byType(ClipRRect), findsOneWidget);
