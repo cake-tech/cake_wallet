@@ -13,7 +13,7 @@ part 'evm_chain_transaction_history.g.dart';
 
 class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
 
-enum PendingTransactionOutcome { keep, confirm, remove }
+enum PendingTransactionOutcome { keep, confirm, remove, missing }
 
 PendingTransactionOutcome pendingTransactionOutcome({
   required bool hasReceipt,
@@ -31,7 +31,7 @@ PendingTransactionOutcome pendingTransactionOutcome({
   }
 
   if (nonce != null && transactionCount > nonce) {
-    return PendingTransactionOutcome.remove;
+    return PendingTransactionOutcome.missing;
   }
 
   return PendingTransactionOutcome.keep;

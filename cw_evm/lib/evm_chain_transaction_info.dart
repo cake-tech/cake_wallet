@@ -85,7 +85,8 @@ class EVMChainTransactionInfo extends TransactionInfo {
     );
   }
 
-  EVMChainTransactionInfo confirmed({required int height}) => EVMChainTransactionInfo(
+  EVMChainTransactionInfo confirmed({required int height, required int confirmations}) =>
+      EVMChainTransactionInfo(
         id: id,
         height: height,
         amount: amount,
@@ -95,7 +96,7 @@ class EVMChainTransactionInfo extends TransactionInfo {
         direction: direction,
         isPending: false,
         date: date,
-        confirmations: 1,
+        confirmations: confirmations,
         to: to,
         from: from,
         evmSignatureName: evmSignatureName,

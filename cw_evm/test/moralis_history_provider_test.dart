@@ -31,6 +31,7 @@ void main() {
   final apiKeyHeaders = <String?>[];
   int statusCode = 200;
   String body = "";
+  Map<String, String> bodyByPath = {};
 
   Map<String, Object?> transactionRow({
     required String hash,
@@ -57,7 +58,7 @@ void main() {
       hosts.add(request.headers.host);
       apiKeyHeaders.add(request.headers.value("X-API-Key"));
       request.response.statusCode = statusCode;
-      request.response.write(body);
+      request.response.write(bodyByPath[request.uri.path] ?? body);
       await request.response.close();
     });
 
@@ -76,6 +77,7 @@ void main() {
     apiKeyHeaders.clear();
     statusCode = 200;
     body = "";
+    bodyByPath = {};
   });
 
   group("MoralisHistoryProvider.covers", () {
@@ -240,6 +242,38 @@ void main() {
       expect(transfer.tokenSymbol, "USDC");
       expect(transfer.tokenDecimal, 6);
       expect(transfer.blockNumber, 20000001);
+    });
+
+    test("an outgoing transfer takes its fee from the wallet's transaction", () async {
+      bodyByPath = {
+        "/api/v2.2/$wallet/erc20/transfers": jsonEncode({
+          "result": [
+            {
+              "transaction_hash": "0xtokensend",
+              "address": tokenContract,
+              "block_timestamp": "2026-09-20T10:00:00.000Z",
+              "from_address": wallet,
+              "to_address": counterparty,
+              "value": "4000000",
+            },
+          ],
+        }),
+        "/api/v2.2/$wallet": jsonEncode({
+          "result": [
+            {
+              ...transactionRow(hash: "0xtokensend", value: "0"),
+              "receipt_gas_used": "52000",
+              "gas_price": "3000000000",
+            },
+          ],
+        }),
+      };
+
+      final transfers = await MoralisHistoryProvider(apiKey: apiKey)
+          .tokenTransfers(baseChainId, wallet, tokenContract);
+
+      expect(transfers.single.gasUsed, 52000);
+      expect(transfers.single.gasPrice, BigInt.from(3000000000));
     });
 
     test("a row that fails to parse is skipped and the other rows are kept", () async {

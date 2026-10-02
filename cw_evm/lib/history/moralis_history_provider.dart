@@ -124,31 +124,46 @@ class MoralisHistoryProvider implements EvmHistoryProvider {
     String contractAddress,
   ) async {
     try {
+      final chain = EVMChainUtils.hexChainId(chainId);
       final rows = await _fetchResultRows("/$address/erc20/transfers", {
-        "chain": EVMChainUtils.hexChainId(chainId),
+        "chain": chain,
         "contract_addresses[0]": contractAddress,
       });
+
+      final hasOutgoing = rows.any(
+        (row) => (row["from_address"] as String?)?.toLowerCase() == address.toLowerCase(),
+      );
+      final transactionsByHash = hasOutgoing
+          ? {
+              for (final row in await _fetchResultRows("/$address", {"chain": chain}))
+                row["hash"]: row
+            }
+          : const <Object?, Map<String, dynamic>>{};
 
       return _parseRows(
         rows.where((row) => row["value"] != "0"),
         "transaction_hash",
-        (row) => EVMChainTransactionModel(
-          date: DateTime.parse(row["block_timestamp"] as String).toLocal(),
-          hash: row["transaction_hash"] as String? ?? "",
-          from: row["from_address"] as String? ?? "",
-          to: row["to_address"] as String? ?? "",
-          amount: BigInt.parse(row["value"] as String? ?? "0"),
-          gasUsed: 0,
-          gasPrice: BigInt.zero,
-          contractAddress: row["address"] as String? ?? contractAddress,
-          confirmations: 1,
-          blockNumber: int.tryParse(row["block_number"] as String? ?? "") ?? 0,
-          tokenSymbol: row["token_symbol"] as String?,
-          tokenDecimal: int.tryParse(row["token_decimals"] as String? ?? ""),
-          isError: false,
-          input: "",
-          chainId: chainId,
-        ),
+        (row) {
+          final transaction = transactionsByHash[row["transaction_hash"]];
+
+          return EVMChainTransactionModel(
+            date: DateTime.parse(row["block_timestamp"] as String).toLocal(),
+            hash: row["transaction_hash"] as String? ?? "",
+            from: row["from_address"] as String? ?? "",
+            to: row["to_address"] as String? ?? "",
+            amount: BigInt.parse(row["value"] as String? ?? "0"),
+            gasUsed: int.tryParse(transaction?["receipt_gas_used"] as String? ?? "") ?? 0,
+            gasPrice: BigInt.tryParse(transaction?["gas_price"] as String? ?? "") ?? BigInt.zero,
+            contractAddress: row["address"] as String? ?? contractAddress,
+            confirmations: 1,
+            blockNumber: int.tryParse(row["block_number"] as String? ?? "") ?? 0,
+            tokenSymbol: row["token_symbol"] as String?,
+            tokenDecimal: int.tryParse(row["token_decimals"] as String? ?? ""),
+            isError: false,
+            input: "",
+            chainId: chainId,
+          );
+        },
       );
     } catch (e) {
       printV("$name token transfers failed: $e");

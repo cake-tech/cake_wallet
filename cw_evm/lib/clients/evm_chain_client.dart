@@ -395,6 +395,8 @@ class EVMChainClient {
   Future<TransactionInformation?> getTransactionByHash(String hash) =>
       _client!.getTransactionByHash(hash);
 
+  Future<int> getBlockNumber() => _client!.getBlockNumber();
+
   Future<int> getConfirmedTransactionCount(EthereumAddress address) =>
       _client!.getTransactionCount(address, atBlock: const BlockNum.current());
 

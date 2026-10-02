@@ -7,7 +7,7 @@ import "package:flutter_test/flutter_test.dart";
 
 void main() {
   group("pendingTransactionOutcome", () {
-    test("no receipt with the mined count above the nonce removes the row", () {
+    test("no receipt with the mined count above the nonce marks the row missing", () {
       expect(
         pendingTransactionOutcome(
           hasReceipt: false,
@@ -16,7 +16,7 @@ void main() {
           nonce: 5,
           transactionCount: 6,
         ),
-        PendingTransactionOutcome.remove,
+        PendingTransactionOutcome.missing,
       );
     });
 
@@ -106,7 +106,7 @@ void main() {
         nonce: 5,
       );
 
-      final confirmed = pendingRow.confirmed(height: 123456);
+      final confirmed = pendingRow.confirmed(height: 123456, confirmations: 3);
 
       expect(confirmed.id, pendingRow.id);
       expect(confirmed.isPending, isFalse);
@@ -118,7 +118,7 @@ void main() {
       expect(confirmed.amount, pendingRow.amount);
       expect(confirmed.direction, TransactionDirection.outgoing);
       expect(confirmed.date, DateTime(2026, 9, 25));
-      expect(confirmed.confirmations, 1);
+      expect(confirmed.confirmations, 3);
       expect(confirmed.contractAddress, "0x0b2c639c533813f4aa9d7837caf62653d097ff85");
     });
   });

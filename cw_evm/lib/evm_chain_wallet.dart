@@ -1545,22 +1545,42 @@ abstract class EVMChainWalletBase
 
   bool _isPollingReceipts = false;
 
+  final Set<String> _missingTransactionIds = {};
+
+  static const _confirmationsToCount = 12;
+
   Future<void> _pollPendingReceipts() async {
     if (_client.historyProvider != null || _isPollingReceipts) {
       return;
     }
 
-    final pendingTransactions =
-        transactionHistory.transactions.values.where((tx) => tx.isPending).toList();
-    if (pendingTransactions.isEmpty) {
+    final transactions = transactionHistory.transactions.values;
+    final pendingTransactions = transactions.where((tx) => tx.isPending).toList();
+    final recentTransactions = transactions
+        .where(
+          (tx) => !tx.isPending && tx.height > 0 && tx.confirmations < _confirmationsToCount,
+        )
+        .toList();
+    if (pendingTransactions.isEmpty && recentTransactions.isEmpty) {
       return;
     }
 
     _isPollingReceipts = true;
     try {
+      final blockNumber = await _client.getBlockNumber();
       final transactionCount =
           await _client.getConfirmedTransactionCount(_evmChainPrivateKey.address);
       bool hasChanges = false;
+
+      for (final transaction in recentTransactions) {
+        final confirmations = blockNumber - transaction.height + 1;
+        if (confirmations > transaction.confirmations) {
+          transactionHistory.addOne(
+            transaction.confirmed(height: transaction.height, confirmations: confirmations),
+          );
+          hasChanges = true;
+        }
+      }
 
       for (final transaction in pendingTransactions) {
         final receipt = await _client.getTransactionReceipt(transaction.id);
@@ -1578,14 +1598,28 @@ abstract class EVMChainWalletBase
 
         switch (pendingTxOutcome) {
           case PendingTransactionOutcome.confirm:
-            transactionHistory.addOne(transaction.confirmed(height: receipt!.blockNumber.blockNum));
+            final height = receipt!.blockNumber.blockNum;
+            transactionHistory.addOne(
+              transaction.confirmed(height: height, confirmations: blockNumber - height + 1),
+            );
+            _missingTransactionIds.remove(transaction.id);
             hasChanges = true;
             break;
           case PendingTransactionOutcome.remove:
             transactionHistory.remove(transaction.id);
+            _missingTransactionIds.remove(transaction.id);
             hasChanges = true;
             break;
+          case PendingTransactionOutcome.missing:
+            if (_missingTransactionIds.remove(transaction.id)) {
+              transactionHistory.remove(transaction.id);
+              hasChanges = true;
+            } else {
+              _missingTransactionIds.add(transaction.id);
+            }
+            break;
           case PendingTransactionOutcome.keep:
+            _missingTransactionIds.remove(transaction.id);
             break;
         }
       }
