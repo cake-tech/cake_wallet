@@ -788,6 +788,7 @@
   "node_connection_failed": "اتصال برقرار نشد",
   "node_connection_successful": "اتصال با موفقیت برقرار شد",
   "node_new": "گره جدید",
+  "node_on_another_network": "این گره برای شبکه دیگری است",
   "node_port": "پورت نود",
   "node_reset_settings_title": "بازنشانی تنظیمات",
   "node_share_desc": "برای وارد کردن این نود، این کد QR را از صفحهٔ اسکن اسکن کنید.",

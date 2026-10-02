@@ -788,6 +788,7 @@
   "node_connection_failed": "Nabigo ang koneksyon",
   "node_connection_successful": "Matagumpay ang koneksyon",
   "node_new": "Bagong Node",
+  "node_on_another_network": "Ang node na ito ay para sa isa pang network",
   "node_port": "Port ng node",
   "node_reset_settings_title": "I-reset ang mga setting",
   "node_share_desc": "I-scan ang QR code na ito mula sa Scan screen upang i-import ang node na ito.",

@@ -754,6 +754,7 @@
   "nft_send_not_an_nft": "Este ativo não é um NFT, portanto não pode ser enviado daqui.",
   "nft_some_not_loaded": "Alguns NFTs não puderam ser carregados",
   "no_networks_found": "Nenhuma rede encontrada",
+  "node_on_another_network": "Este nó é para outra rede",
   "nodes_managed_from_wallet_settings": "Os nós desta rede são gerenciados nas configurações do nó da carteira",
   "recovery_and_keys": "Recuperação e chaves",
   "recovery_phrase_check_all_to_proceed": "Leia e verifique todos os itens acima para prosseguir",

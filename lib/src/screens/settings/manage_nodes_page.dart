@@ -35,7 +35,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
         .then((_) => widget.nodeListViewModel.speedTestNodes());
   }
 
-  Future<void> _showNodeTestFailed() async {
+  Future<void> _showNodeOnAnotherNetwork() async {
     if (!mounted) {
       return;
     }
@@ -44,7 +44,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
       context: context,
       builder: (context) => AlertWithOneAction(
         alertTitle: S.of(context).new_node_testing,
-        alertContent: S.of(context).node_connection_failed,
+        alertContent: S.of(context).node_on_another_network,
         buttonText: S.of(context).ok,
         buttonAction: () => Navigator.of(context).pop(),
       ),
@@ -161,7 +161,7 @@ class _ManageNodesPageState extends State<ManageNodesPage> {
                                         Navigator.of(context).pop();
                                       } on NodeOnAnotherChainException {
                                         Navigator.of(context).pop();
-                                        await _showNodeTestFailed();
+                                        await _showNodeOnAnotherNetwork();
                                       }
                                     },
                                   );

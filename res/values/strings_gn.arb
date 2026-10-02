@@ -790,6 +790,7 @@
   "node_connection_failed": "Ndoikói pe jeike",
   "node_connection_successful": "Joaju oiko porã",
   "node_new": "Nodo Pyahu",
+  "node_on_another_network": "Ko nodo haꞌehína ambue red-pe g̃uarã",
   "node_port": "Nodo hag̃ua",
   "node_reset_settings_title": "Emoñepyrũjey ñemohenda",
   "node_share_desc": "Emoñe'ẽ ko QR código pe Scan kuatiarogue-gui egueru hag̃ua ko nodo.",

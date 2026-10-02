@@ -788,6 +788,7 @@
   "node_connection_failed": "Не удалось подключиться",
   "node_connection_successful": "Подключение прошло успешно",
   "node_new": "Новый узел",
+  "node_on_another_network": "Этот узел для другой сети",
   "node_port": "Порт узла",
   "node_reset_settings_title": "Сброс настроек",
   "node_share_desc": "Отсканируйте этот QR-код на экране сканирования, чтобы импортировать этот узел.",

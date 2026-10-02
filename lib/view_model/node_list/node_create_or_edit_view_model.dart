@@ -261,8 +261,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     state = IsExecutingState();
 
     if (walletType == WalletType.evm && await _nodeFromForm().isOnAnotherChain()) {
-      connectionState = ExecutedSuccessfullyState(payload: false);
-      state = FailureState(S.current.node_connection_failed);
+      connectionState = FailureState(S.current.node_on_another_network);
+      state = FailureState(S.current.node_on_another_network);
       return;
     }
 

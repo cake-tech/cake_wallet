@@ -790,6 +790,7 @@
   "node_connection_failed": "Verbindung fehlgeschlagen",
   "node_connection_successful": "Die Verbindung war erfolgreich",
   "node_new": "Neuer Node",
+  "node_on_another_network": "Dieser Knoten ist für ein anderes Netzwerk",
   "node_port": "Node-Port",
   "node_reset_settings_title": "Einstellungen zurücksetzen",
   "node_share_desc": "Scannen Sie diesen QR-Code im Scan-Bildschirm, um diesen Node zu importieren.",

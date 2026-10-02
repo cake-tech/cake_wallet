@@ -789,6 +789,7 @@
   "node_connection_failed": "Kết nối thất bại",
   "node_connection_successful": "Kết nối thành công",
   "node_new": "Nút mới",
+  "node_on_another_network": "Nút này dành cho mạng khác",
   "node_port": "Cổng node",
   "node_reset_settings_title": "Đặt lại cài đặt",
   "node_share_desc": "Quét mã QR này từ màn hình Quét để nhập node này.",

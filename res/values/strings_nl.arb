@@ -788,6 +788,7 @@
   "node_connection_failed": "De verbinding is mislukt",
   "node_connection_successful": "Verbinding is gelukt",
   "node_new": "Nieuwe node",
+  "node_on_another_network": "Dit knooppunt is voor een ander netwerk",
   "node_port": "Node-poort",
   "node_reset_settings_title": "Reset instellingen",
   "node_share_desc": "Scan deze QR-code vanaf het Scan-scherm om deze node te importeren.",

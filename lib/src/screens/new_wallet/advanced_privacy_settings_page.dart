@@ -351,13 +351,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   }
 
                   await widget.nodeViewModel.save();
-                  if (widget.nodeViewModel.walletType == WalletType.evm &&
-                      widget.nodeViewModel.state is FailureState) {
+                  final saveState = widget.nodeViewModel.state;
+                  if (saveState is FailureState) {
                     await showPopUp<void>(
                       context: context,
                       builder: (context) => AlertWithOneAction(
                         alertTitle: S.of(context).new_node_testing,
-                        alertContent: S.of(context).node_connection_failed,
+                        alertContent: saveState.error,
                         buttonText: S.of(context).ok,
                         buttonAction: () => Navigator.of(context).pop(),
                       ),

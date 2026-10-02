@@ -789,6 +789,7 @@
   "node_connection_failed": "A conexão falhou",
   "node_connection_successful": "A conexão foi bem-sucedida",
   "node_new": "Novo nó",
+  "node_on_another_network": "Este nó é para outra rede",
   "node_port": "Porta do nó",
   "node_reset_settings_title": "Redefinir configurações",
   "node_share_desc": "Digitalize este código QR a partir do ecrã de digitalização para importar este nó.",

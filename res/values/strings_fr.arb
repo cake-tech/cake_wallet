@@ -788,6 +788,7 @@
   "node_connection_failed": "La connexion a échoué",
   "node_connection_successful": "Connexion réussie",
   "node_new": "Nouveau nœud",
+  "node_on_another_network": "Ce nœud est destiné à un autre réseau",
   "node_port": "Port du nœud",
   "node_reset_settings_title": "Réinitialiser les paramètres",
   "node_share_desc": "Scannez ce code QR depuis l'écran Scan pour importer ce nœud.",

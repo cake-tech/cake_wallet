@@ -758,7 +758,7 @@ Future<void> main() async {
     });
   });
 
-  group("networkFromEntry and tagFor", () {
+  group("networkFromEntry and tagFromName", () {
     test("takes the first two RPCs and a tag from the short name", () {
       const entry = ChainListEntry(
         chainId: inkChainId,
@@ -800,10 +800,13 @@ Future<void> main() async {
       expect(built.tag, "CRONOSMAIN");
     });
 
-    test("tagFor keeps upper-case letters and digits, at most ten", () {
-      expect(EvmNetworkService.tagFor("x-layer 196"), "XLAYER196");
-      expect(EvmNetworkService.tagFor("a very long network name"), "AVERYLONGN");
-      expect(EvmNetworkService.tagFor("!!"), "");
+    test("tagFromName keeps upper-case letters and digits, at most ten", () {
+      expect(EvmNetworkService.tagFromName("x-layer 196", 196), "XLAYER196");
+      expect(EvmNetworkService.tagFromName("a very long network name", 7), "AVERYLONGN");
+    });
+
+    test("a name with no letters or digits gets a tag from its chain ID", () {
+      expect(EvmNetworkService.tagFromName("!!", 4242), "EVM4242");
     });
   });
 }

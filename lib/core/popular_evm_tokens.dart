@@ -8,6 +8,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 class PopularEvmToken {
@@ -50,6 +51,8 @@ class PopularEvmTokens {
 
   static const _tetherSymbols = {"USDT", "USDT0"};
 
+  static final _attemptedWalletIds = <String>{};
+
   static Future<void> addToWallet(WalletBase wallet, SharedPreferences prefs) async {
     final chainId = evm!.getSelectedChainId(wallet);
     if (wallet.type != WalletType.evm || chainId == null) {
@@ -57,7 +60,7 @@ class PopularEvmTokens {
     }
 
     final addedKey = PreferencesKey.popularEvmTokensAddedKey(wallet.walletInfo.id);
-    if (prefs.getBool(addedKey) == true) {
+    if (prefs.getBool(addedKey) == true || !_attemptedWalletIds.add(wallet.walletInfo.id)) {
       return;
     }
 
@@ -83,7 +86,7 @@ class PopularEvmTokens {
       }
     }
 
-    // Without the flag, the tokens that failed are tried again the next time the wallet opens
+    // Without the flag, the tokens that failed are tried again the next time the app starts
     if (!hasFailures) {
       await prefs.setBool(addedKey, true);
     }
@@ -192,6 +195,6 @@ class PopularEvmTokens {
       throw Exception("${uri.host} answered ${response.statusCode}");
     }
 
-    return jsonDecode(response.body) as Object;
+    return await compute(jsonDecode, response.body) as Object;
   }
 }

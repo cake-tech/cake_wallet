@@ -64,7 +64,7 @@ class EvmNetworkService {
       name: entry.name,
       symbol: entry.symbol,
       decimals: entry.decimals,
-      tag: tagFor(entry.shortName.isNotEmpty ? entry.shortName : entry.name),
+      tag: tagFromName(entry.shortName.isNotEmpty ? entry.shortName : entry.name, entry.chainId),
       rpcUrl: rpcUrls.first,
       failoverUrl: rpcUrls.length > 1 ? rpcUrls[1] : null,
       explorerUrl: entry.explorerUrl,
@@ -178,8 +178,12 @@ class EvmNetworkService {
     await _settingsStore.loadEvmNetworks();
   }
 
-  static String tagFor(String source) {
-    final alphanumerics = source.toUpperCase().replaceAll(RegExp(r"[^A-Z0-9]"), "");
+  static String tagFromName(String name, int chainId) {
+    final alphanumerics = name.toUpperCase().replaceAll(RegExp(r"[^A-Z0-9]"), "");
+    if (alphanumerics.isEmpty) {
+      return "EVM$chainId";
+    }
+
     return alphanumerics.length > 10 ? alphanumerics.substring(0, 10) : alphanumerics;
   }
 

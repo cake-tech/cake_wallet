@@ -258,13 +258,14 @@ class NetworkDetailsBloc extends Bloc<NetworkDetailsEvent, NetworkDetailsState>
     final original = network;
     final name = state.value(NetworkField.name).trim();
     final isChainList = state.mode == NetworkDetailsMode.chainList;
+    final chainId = tryParseChainId(state.value(NetworkField.chainId))!;
 
     return EvmNetwork(
-      chainId: tryParseChainId(state.value(NetworkField.chainId))!,
+      chainId: chainId,
       name: name,
       symbol: state.hasWallets ? original!.symbol : state.value(NetworkField.symbol).trim(),
       decimals: original?.decimals ?? 18,
-      tag: isChainList ? original!.tag : EvmNetworkService.tagFor(name),
+      tag: isChainList ? original!.tag : EvmNetworkService.tagFromName(name, chainId),
       rpcUrl: state.hasWallets ? original!.rpcUrl : state.value(NetworkField.rpcUrl).trim(),
       failoverUrl:
           state.hasWallets ? original!.failoverUrl : _valueOrNull(NetworkField.failoverUrl),

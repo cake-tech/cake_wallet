@@ -788,6 +788,7 @@
   "node_connection_failed": "Не вдалося підключитися",
   "node_connection_successful": "З’єднання було успішним",
   "node_new": "Новий вузол",
+  "node_on_another_network": "Цей вузол призначений для іншої мережі",
   "node_port": "Порт ноди",
   "node_reset_settings_title": "Скинути налаштування",
   "node_share_desc": "Відскануйте цей QR-код на екрані сканування, щоб імпортувати цей вузол.",

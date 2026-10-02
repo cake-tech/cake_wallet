@@ -788,6 +788,7 @@
   "node_connection_failed": "कनेक्शन विफल हो गया",
   "node_connection_successful": "कनेक्शन सफल रहा",
   "node_new": "नया नोड",
+  "node_on_another_network": "यह नोड दूसरे नेटवर्क के लिए है",
   "node_port": "नोड पोर्ट",
   "node_reset_settings_title": "सेटिंग्स रीसेट करें",
   "node_share_desc": "इस नोड को आयात करने के लिए स्कैन स्क्रीन से इस QR कोड को स्कैन करें।",

@@ -788,6 +788,7 @@
   "node_connection_failed": "Nie udało się nawiązać połączenia",
   "node_connection_successful": "Połączenie zostało nawiązane pomyślnie",
   "node_new": "Nowy węzeł",
+  "node_on_another_network": "Ten węzeł jest przeznaczony dla innej sieci",
   "node_port": "Port węzła",
   "node_reset_settings_title": "Resetuj ustawienia",
   "node_share_desc": "Zeskanuj ten kod QR z ekranu Skanuj, aby zaimportować ten węzeł.",

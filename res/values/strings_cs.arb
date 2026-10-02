@@ -788,6 +788,7 @@
   "node_connection_failed": "Připojení se nezdařilo",
   "node_connection_successful": "Připojení bylo úspěšné",
   "node_new": "Nový uzel",
+  "node_on_another_network": "Tento uzel je pro jinou síť",
   "node_port": "Port uzlu",
   "node_reset_settings_title": "Obnovit nastavení",
   "node_share_desc": "Naskenováním tohoto QR kódu na obrazovce skenování tento uzel importujete.",

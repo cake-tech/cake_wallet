@@ -788,6 +788,7 @@
   "node_connection_failed": "کنکشن ناکام ہو گیا۔",
   "node_connection_successful": "کنکشن کامیاب رہا۔",
   "node_new": "نیا نوڈ",
+  "node_on_another_network": "یہ نوڈ دوسرے نیٹ ورک کے لیے ہے۔",
   "node_port": "نوڈ پورٹ",
   "node_reset_settings_title": "ترتیبات ری سیٹ کریں",
   "node_share_desc": "اس نوڈ کو امپورٹ کرنے کے لیے Scan اسکرین سے یہ QR کوڈ اسکین کریں۔",

@@ -788,6 +788,7 @@
   "node_connection_failed": "Връзката е неуспешна",
   "node_connection_successful": "Връзката беше успешна",
   "node_new": "Нов възел",
+  "node_on_another_network": "Този възел е за друга мрежа",
   "node_port": "Порт на възела",
   "node_reset_settings_title": "Нулиране на настройките",
   "node_share_desc": "Сканирайте този QR код от екрана за сканиране, за да импортирате този възел.",

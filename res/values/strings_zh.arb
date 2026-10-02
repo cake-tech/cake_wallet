@@ -788,6 +788,7 @@
   "node_connection_failed": "连接失败",
   "node_connection_successful": "连接成功",
   "node_new": "新节点",
+  "node_on_another_network": "该节点用于另一个网络",
   "node_port": "节点端口",
   "node_reset_settings_title": "重置设置",
   "node_share_desc": "在扫描页面扫描此二维码即可导入此节点。",

@@ -788,6 +788,7 @@
   "node_connection_failed": "فشل الاتصال",
   "node_connection_successful": "تم الاتصال بنجاح",
   "node_new": "عقدة جديدة",
+  "node_on_another_network": "هذه العقدة مخصصة لشبكة أخرى",
   "node_port": "منفذ العقدة",
   "node_reset_settings_title": "إعادة تعيين الإعدادات",
   "node_share_desc": "امسح رمز QR هذا من شاشة المسح لاستيراد هذه العقدة.",

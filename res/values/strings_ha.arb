@@ -788,6 +788,7 @@
   "node_connection_failed": "Haɗin ya gaza",
   "node_connection_successful": "An yi nasarar haɗawa",
   "node_new": "Sabon Node",
+  "node_on_another_network": "Wannan kumburin na wata hanyar sadarwa ce",
   "node_port": "Tashar node",
   "node_reset_settings_title": "Sake saiti",
   "node_share_desc": "Duba wannan QR code daga allon Scan don shigo da wannan node.",

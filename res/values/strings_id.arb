@@ -788,6 +788,7 @@
   "node_connection_failed": "Koneksi gagal",
   "node_connection_successful": "Koneksi berhasil",
   "node_new": "Node Baru",
+  "node_on_another_network": "Node ini untuk jaringan lain",
   "node_port": "Port node",
   "node_reset_settings_title": "Atur ulang pengaturan",
   "node_share_desc": "Pindai kode QR ini dari layar Pindai untuk mengimpor node ini.",

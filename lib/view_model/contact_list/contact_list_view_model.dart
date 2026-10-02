@@ -40,6 +40,7 @@ abstract class ContactListViewModelBase with Store {
       contacts,
       (contact) => ContactRecord(contactSource, contact),
       initialFire: true,
+      filter: (contact) => CryptoCurrency.safeDeserialize(raw: contact.raw) != null,
     );
 
     setOrderType(settingsStore.contactListOrder);

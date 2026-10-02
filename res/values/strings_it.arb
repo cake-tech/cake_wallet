@@ -788,6 +788,7 @@
   "node_connection_failed": "Connessione non riuscita",
   "node_connection_successful": "Connessione riuscita",
   "node_new": "Nuovo nodo",
+  "node_on_another_network": "Questo nodo è per un'altra rete",
   "node_port": "Porta del nodo",
   "node_reset_settings_title": "Ripristina le impostazioni",
   "node_share_desc": "Scansiona questo codice QR dalla schermata Scansione per importare questo nodo.",

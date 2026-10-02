@@ -788,6 +788,7 @@
   "node_connection_failed": "Միացումը ձախողվեց",
   "node_connection_successful": "Միացումը հաջողվեց",
   "node_new": "Նոր հանգույց",
+  "node_on_another_network": "Այս հանգույցը մեկ այլ ցանցի համար է",
   "node_port": "Հանգույցի պորտ",
   "node_reset_settings_title": "Կարգավորումների վերակայում",
   "node_share_desc": "Սկանավորեք այս QR կոդը Սկանավորման էկրանից՝ այս հանգույցը ներմուծելու համար։",

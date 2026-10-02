@@ -789,6 +789,7 @@
   "node_connection_failed": "接続に失敗しました",
   "node_connection_successful": "接続に成功しました",
   "node_new": "新規ノード",
+  "node_on_another_network": "このノードは別のネットワーク用です",
   "node_port": "ノードポート",
   "node_reset_settings_title": "設定をリセット",
   "node_share_desc": "このノードをインポートするには、スキャン画面でこのQRコードをスキャンしてください。",

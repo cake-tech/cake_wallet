@@ -788,6 +788,7 @@
   "node_connection_failed": "การเชื่อมต่อล้มเหลว",
   "node_connection_successful": "เชื่อมต่อสำเร็จ",
   "node_new": "โหนดใหม่",
+  "node_on_another_network": "โหนดนี้ใช้สำหรับเครือข่ายอื่น",
   "node_port": "พอร์ตโหนด",
   "node_reset_settings_title": "รีเซ็ตการตั้งค่า",
   "node_share_desc": "สแกน QR Code นี้จากหน้าจอสแกนเพื่อนำเข้าโหนดนี้",

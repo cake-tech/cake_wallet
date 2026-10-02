@@ -788,6 +788,7 @@
   "node_connection_failed": "Bağlantı başarısız oldu",
   "node_connection_successful": "Bağlantı başarılı oldu",
   "node_new": "Yeni düğüm",
+  "node_on_another_network": "Bu düğüm başka bir ağ için",
   "node_port": "Düğüm bağlantı noktası",
   "node_reset_settings_title": "Ayarları sıfırla",
   "node_share_desc": "Bu düğümü içe aktarmak için bu QR kodunu Tarama ekranından tarayın.",

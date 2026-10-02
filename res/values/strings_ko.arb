@@ -788,6 +788,7 @@
   "node_connection_failed": "연결에 실패했습니다",
   "node_connection_successful": "연결에 성공했습니다",
   "node_new": "새 노드",
+  "node_on_another_network": "이 노드는 다른 네트워크용입니다.",
   "node_port": "노드 포트",
   "node_reset_settings_title": "설정 재설정",
   "node_share_desc": "이 노드를 가져오려면 스캔 화면에서 이 QR 코드를 스캔하세요.",

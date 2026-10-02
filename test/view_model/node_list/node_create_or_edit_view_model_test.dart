@@ -111,11 +111,11 @@ Future<void> main() async {
 
       expect(
         viewModel.state,
-        isA<FailureState>().having((s) => s.error, "error", S.current.node_connection_failed),
+        isA<FailureState>().having((s) => s.error, "error", S.current.node_on_another_network),
       );
       expect(
         viewModel.connectionState,
-        isA<ExecutedSuccessfullyState>().having((s) => s.payload, "payload", false),
+        isA<FailureState>().having((s) => s.error, "error", S.current.node_on_another_network),
       );
       expect(await Node.getAllForEvmChain(formChainId), isEmpty);
     });

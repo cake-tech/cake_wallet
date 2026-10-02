@@ -788,6 +788,7 @@
   "node_connection_failed": "ချိတ်ဆက်မှု မအောင်မြင်ခဲ့ပါ။",
   "node_connection_successful": "ချိတ်ဆက်မှု အောင်မြင်ပါသည်",
   "node_new": "နိုဒ်အသစ်",
+  "node_on_another_network": "ဤ node သည် အခြားကွန်ရက်အတွက်ဖြစ်သည်။",
   "node_port": "Node ပေါက်",
   "node_reset_settings_title": "ဆက်တင်များကို ပြန်လည်သတ်မှတ်ပါ",
   "node_share_desc": "ဤ node ကို တင်သွင်းရန် Scan စခရင်မှ ဤ QR ကုဒ်ကို စကင်ဖတ်ပါ။",

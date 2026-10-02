@@ -788,6 +788,7 @@
   "node_connection_failed": "Povezivanje nije uspjelo",
   "node_connection_successful": "Povezivanje je bilo uspješno",
   "node_new": "Novi čvor",
+  "node_on_another_network": "Ovaj čvor je za drugu mrežu",
   "node_port": "Port čvora",
   "node_reset_settings_title": "Ponovno postavi postavke",
   "node_share_desc": "Skenirajte ovaj QR kod sa zaslona Skeniraj da biste uvezli ovaj čvor.",
