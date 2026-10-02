@@ -215,7 +215,7 @@ class DFXBuyProvider extends BuyProvider {
 
         if (responseData is List && responseData.isNotEmpty) {
           for (final i in responseData) {
-            if (_isAssetFor(i as Map<String, dynamic>, currency)) {
+            if (_assetMatches(i as Map<String, dynamic>, currency)) {
               return i;
             }
           }
@@ -457,7 +457,7 @@ class DFXBuyProvider extends BuyProvider {
     return null;
   }
 
-  bool _isAssetFor(Map<String, dynamic> asset, CryptoCurrency currency) {
+  bool _assetMatches(Map<String, dynamic> asset, CryptoCurrency currency) {
     if (!EvmNativeCurrencies.isAddedNetworkCurrency(currency)) {
       return currency.title.toLowerCase() == asset["dexName"].toString().toLowerCase();
     }

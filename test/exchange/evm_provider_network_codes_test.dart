@@ -244,7 +244,7 @@ void main() {
 
     tearDown(() => CakeTor.instance = previousTor);
 
-    Future<Map<String, String>> rangeQueryFor(CryptoCurrency from, CryptoCurrency to) async {
+    Future<Map<String, String>> rangeQuery(CryptoCurrency from, CryptoCurrency to) async {
       await HttpOverrides.runZoned(
         () => expectLater(
           changeNow.fetchLimits(from: from, to: to, isFixedRateMode: false),
@@ -257,7 +257,7 @@ void main() {
     }
 
     test("native MON is asked for as monad on the mon network", () async {
-      final query = await rangeQueryFor(monadNative, CryptoCurrency.btc);
+      final query = await rangeQuery(monadNative, CryptoCurrency.btc);
 
       expect(query["fromCurrency"], "monad");
       expect(query["fromNetwork"], "mon");
@@ -265,7 +265,7 @@ void main() {
     });
 
     test("a token on Monad keeps its own ticker", () async {
-      final query = await rangeQueryFor(monadUsdc, CryptoCurrency.eth);
+      final query = await rangeQuery(monadUsdc, CryptoCurrency.eth);
 
       expect(query["fromCurrency"], "usdc");
       expect(query["fromNetwork"], "mon");

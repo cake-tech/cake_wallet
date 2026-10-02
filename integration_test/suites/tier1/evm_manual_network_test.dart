@@ -52,7 +52,7 @@ void main() {
       NetworkField.chainId,
       NetworkField.symbol,
     ]) {
-      expect(detailsRobot.errorFor(field), S.current.field_required, reason: field.name);
+      expect(detailsRobot.fieldError(field), S.current.field_required, reason: field.name);
     }
 
     // Values that break the format rules for name length, failover, chain ID and symbol
@@ -73,10 +73,10 @@ void main() {
 
     await detailsRobot.saveExpectingError(NetworkField.name);
 
-    expect(detailsRobot.errorFor(NetworkField.name), S.current.network_name_too_long);
-    expect(detailsRobot.errorFor(NetworkField.failoverUrl), S.current.failover_must_differ);
-    expect(detailsRobot.errorFor(NetworkField.chainId), S.current.chain_id_whole_number);
-    expect(detailsRobot.errorFor(NetworkField.symbol), S.current.symbol_format);
+    expect(detailsRobot.fieldError(NetworkField.name), S.current.network_name_too_long);
+    expect(detailsRobot.fieldError(NetworkField.failoverUrl), S.current.failover_must_differ);
+    expect(detailsRobot.fieldError(NetworkField.chainId), S.current.chain_id_whole_number);
+    expect(detailsRobot.fieldError(NetworkField.symbol), S.current.symbol_format);
 
     await detailsRobot.enterField(NetworkField.failoverUrl, "");
 
@@ -90,7 +90,7 @@ void main() {
 
     await detailsRobot.saveExpectingError(NetworkField.rpcUrl);
 
-    expect(detailsRobot.errorFor(NetworkField.rpcUrl), S.current.url_must_be_https);
+    expect(detailsRobot.fieldError(NetworkField.rpcUrl), S.current.url_must_be_https);
 
     // A built-in chain ID is refused
     await detailsRobot.enterField(NetworkField.rpcUrl, rpcUrl);
@@ -99,7 +99,7 @@ void main() {
     await detailsRobot.saveExpectingError(NetworkField.chainId);
 
     expect(
-      detailsRobot.errorFor(NetworkField.chainId),
+      detailsRobot.fieldError(NetworkField.chainId),
       S.current.chain_id_used_by_builtin("1", "Ethereum"),
     );
 
@@ -109,7 +109,7 @@ void main() {
     await detailsRobot.saveExpectingError(NetworkField.rpcUrl);
 
     expect(
-      detailsRobot.errorFor(NetworkField.rpcUrl),
+      detailsRobot.fieldError(NetworkField.rpcUrl),
       S.current.rpc_field_chain_id_mismatch("$chainId", "$unlistedChainId"),
     );
 
@@ -135,10 +135,10 @@ void main() {
     await detailsRobot.saveExpectingError(NetworkField.chainId);
 
     expect(
-      detailsRobot.errorFor(NetworkField.chainId),
+      detailsRobot.fieldError(NetworkField.chainId),
       S.current.chain_id_used_by_network("$chainId", name),
     );
-    expect(detailsRobot.errorFor(NetworkField.name), S.current.network_name_exists(name));
+    expect(detailsRobot.fieldError(NetworkField.name), S.current.network_name_exists(name));
 
     await detailsRobot.closeForm();
     await manageRobot.isDisplayed();

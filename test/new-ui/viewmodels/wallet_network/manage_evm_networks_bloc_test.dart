@@ -537,7 +537,7 @@ Future<void> main() async {
       });
     });
 
-    EvmNetwork rowFor(ManageEvmNetworksState state, int chainId) => [
+    EvmNetwork listedNetwork(ManageEvmNetworksState state, int chainId) => [
           ...state.popularNetworks,
           ...state.alphabeticalNetworks,
         ].singleWhere((network) => network.chainId == chainId);
@@ -545,7 +545,7 @@ Future<void> main() async {
     test("an A-Z network on a known ticker with no tvl asks once, then Continue enables it",
         () async {
       final bloc = createBloc();
-      final clone = rowFor(await loaded(bloc), 777100);
+      final clone = listedNetwork(await loaded(bloc), 777100);
       final presented = <ManageEvmNetworksPresentation>[];
       final subscription = bloc.presentation.listen(presented.add);
 
@@ -567,7 +567,7 @@ Future<void> main() async {
       final state = await released;
 
       expect(enabled.map((network) => network.chainId), [777100]);
-      expect(rowFor(state, 777100).isEnabled, isTrue);
+      expect(listedNetwork(state, 777100).isEnabled, isTrue);
       expect(presented, hasLength(1));
 
       await subscription.cancel();
@@ -576,7 +576,7 @@ Future<void> main() async {
 
     test("Cancel leaves the network off and clears the spinner", () async {
       final bloc = createBloc();
-      final clone = rowFor(await loaded(bloc), 777100);
+      final clone = listedNetwork(await loaded(bloc), 777100);
 
       final toggling = bloc.stream.first;
       bloc.add(NetworkToggleRequested(clone, shouldEnable: true));
@@ -587,7 +587,7 @@ Future<void> main() async {
       final state = await cancelled;
 
       expect(state.togglingChainIds, isEmpty);
-      expect(rowFor(state, 777100).isEnabled, isFalse);
+      expect(listedNetwork(state, 777100).isEnabled, isFalse);
       expect(enabled, isEmpty);
 
       await bloc.close();
@@ -602,7 +602,7 @@ Future<void> main() async {
 
       for (final chainId in [10, 777200]) {
         final released = bloc.stream.firstWhere((state) => state.togglingChainIds.isEmpty);
-        bloc.add(NetworkToggleRequested(rowFor(state, chainId), shouldEnable: true));
+        bloc.add(NetworkToggleRequested(listedNetwork(state, chainId), shouldEnable: true));
         await released;
       }
 
@@ -615,13 +615,13 @@ Future<void> main() async {
   });
 
   group("RPC candidates on enable", () {
-    Future<List<String>> candidatesFor(
+    Future<List<String>> enabledRpcCandidates(
       EvmNetwork Function(ManageEvmNetworksState state) pick,
     ) async {
-      final enabledWith = <List<String>>[];
+      final passedCandidates = <List<String>>[];
       when(() => networkService.enable(any(), rpcCandidates: any(named: "rpcCandidates")))
           .thenAnswer((invocation) async {
-        enabledWith.add(invocation.namedArguments[#rpcCandidates] as List<String>);
+        passedCandidates.add(invocation.namedArguments[#rpcCandidates] as List<String>);
         return invocation.positionalArguments.first as EvmNetwork;
       });
       final bloc = createBloc();
@@ -632,11 +632,11 @@ Future<void> main() async {
       await released;
       await bloc.close();
 
-      return enabledWith.single;
+      return passedCandidates.single;
     }
 
     test("an A-Z network on its prefilled RPCs walks the feed's RPC list", () async {
-      final candidates = await candidatesFor(
+      final candidates = await enabledRpcCandidates(
         (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
@@ -646,7 +646,7 @@ Future<void> main() async {
     test("an A-Z network the user moved to another RPC keeps the strict check", () async {
       await _savedRow(100, "Gnosis", rpcUrl: "https://my-own.example", isEnabled: false).save();
 
-      final candidates = await candidatesFor(
+      final candidates = await enabledRpcCandidates(
         (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
@@ -663,7 +663,7 @@ Future<void> main() async {
         isEnabled: false,
       ).save();
 
-      final candidates = await candidatesFor(
+      final candidates = await enabledRpcCandidates(
         (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
@@ -683,7 +683,7 @@ Future<void> main() async {
         isEnabled: false,
       ).save();
 
-      final candidates = await candidatesFor(
+      final candidates = await enabledRpcCandidates(
         (state) => state.alphabeticalNetworks.singleWhere((network) => network.chainId == 100),
       );
 
@@ -691,7 +691,7 @@ Future<void> main() async {
     });
 
     test("a Popular network on its bundled RPCs walks the bundled RPC list", () async {
-      final candidates = await candidatesFor((state) => state.popularNetworks.first);
+      final candidates = await enabledRpcCandidates((state) => state.popularNetworks.first);
 
       expect(candidates, opEntry.rpcUrls);
     });
@@ -699,7 +699,7 @@ Future<void> main() async {
     test("a Popular network re-enabled on its second RPC alone walks the list from it", () async {
       await _savedRow(10, "OP Mainnet", rpcUrl: "https://op-2.example", isEnabled: false).save();
 
-      final candidates = await candidatesFor((state) => state.popularNetworks.first);
+      final candidates = await enabledRpcCandidates((state) => state.popularNetworks.first);
 
       expect(candidates, ["https://op-2.example", "https://op-1.example"]);
     });
@@ -707,7 +707,7 @@ Future<void> main() async {
     test("a Popular network the user moved to another RPC keeps the strict check", () async {
       await _savedRow(10, "OP Mainnet", rpcUrl: "https://my-op.example", isEnabled: false).save();
 
-      final candidates = await candidatesFor((state) => state.popularNetworks.first);
+      final candidates = await enabledRpcCandidates((state) => state.popularNetworks.first);
 
       expect(candidates, isEmpty);
     });
@@ -721,7 +721,7 @@ Future<void> main() async {
         isEnabled: false,
       ).save();
 
-      final candidates = await candidatesFor((state) => state.manualNetworks.single);
+      final candidates = await enabledRpcCandidates((state) => state.manualNetworks.single);
 
       expect(candidates, isEmpty);
     });

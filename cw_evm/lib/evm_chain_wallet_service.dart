@@ -40,7 +40,7 @@ class EVMChainWalletService extends WalletService<
   List<String> get _importedNFTChains =>
       _registry.getAllChains().map((chain) => chain.shortCode).toList();
 
-  int _chainIdFor(WalletInfo walletInfo, int? credentialsChainId) {
+  int _resolveChainId(WalletInfo walletInfo, int? credentialsChainId) {
     if (walletInfo.type == WalletType.evm) {
       if (credentialsChainId == null || !_registry.isChainRegistered(credentialsChainId)) {
         throw Exception("No registered EVM network for chain ID $credentialsChainId");
@@ -116,7 +116,7 @@ class EVMChainWalletService extends WalletService<
   }) async {
     final walletInfo = credentials.walletInfo!;
 
-    final initialChainId = _chainIdFor(walletInfo, credentials.chainId);
+    final initialChainId = _resolveChainId(walletInfo, credentials.chainId);
 
     final client = EVMChainClientFactory.createClient(initialChainId);
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
@@ -239,7 +239,7 @@ class EVMChainWalletService extends WalletService<
 
     final walletInfo = credentials.walletInfo!;
 
-    final initialChainId = _chainIdFor(walletInfo, credentials.chainId);
+    final initialChainId = _resolveChainId(walletInfo, credentials.chainId);
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
@@ -274,7 +274,7 @@ class EVMChainWalletService extends WalletService<
   }) async {
     final walletInfo = credentials.walletInfo!;
 
-    final initialChainId = _chainIdFor(walletInfo, credentials.chainId);
+    final initialChainId = _resolveChainId(walletInfo, credentials.chainId);
 
     final client = EVMChainClientFactory.createClient(initialChainId);
 
@@ -307,7 +307,7 @@ class EVMChainWalletService extends WalletService<
   ) async {
     final walletInfo = credentials.walletInfo!;
 
-    final initialChainId = _chainIdFor(walletInfo, credentials.chainId);
+    final initialChainId = _resolveChainId(walletInfo, credentials.chainId);
 
     final client = EVMChainClientFactory.createClient(initialChainId);
     final derivationInfo = await walletInfo.getDerivationInfo();

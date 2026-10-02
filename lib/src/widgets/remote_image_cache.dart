@@ -124,17 +124,17 @@ class RemoteImageCache {
     _waitingDownloads.removeLast().complete();
   }
 
-  static bool _startsWith(Uint8List bytes, List<int> signature) =>
+  static bool _hasSignature(Uint8List bytes, List<int> signature) =>
       bytes.length >= signature.length &&
       Iterable<int>.generate(signature.length).every((i) => bytes[i] == signature[i]);
 
   // PNG, JPEG, GIF, WebP (RIFF) and ICO signatures
   static bool _isRaster(Uint8List bytes) =>
-      _startsWith(bytes, const [0x89, 0x50, 0x4E, 0x47]) ||
-      _startsWith(bytes, const [0xFF, 0xD8, 0xFF]) ||
-      _startsWith(bytes, const [0x47, 0x49, 0x46, 0x38]) ||
-      _startsWith(bytes, const [0x52, 0x49, 0x46, 0x46]) ||
-      _startsWith(bytes, const [0x00, 0x00, 0x01, 0x00]);
+      _hasSignature(bytes, const [0x89, 0x50, 0x4E, 0x47]) ||
+      _hasSignature(bytes, const [0xFF, 0xD8, 0xFF]) ||
+      _hasSignature(bytes, const [0x47, 0x49, 0x46, 0x38]) ||
+      _hasSignature(bytes, const [0x52, 0x49, 0x46, 0x46]) ||
+      _hasSignature(bytes, const [0x00, 0x00, 0x01, 0x00]);
 
   static bool isSvg(Uint8List bytes) {
     final head = String.fromCharCodes(bytes.take(1024)).toLowerCase();

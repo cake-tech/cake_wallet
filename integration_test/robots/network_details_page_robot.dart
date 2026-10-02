@@ -25,7 +25,7 @@ class NetworkDetailsPageRobot extends BaseRobot {
   Finder _fieldBox(NetworkField field) =>
       find.byKey(ValueKey("network_details_${field.name}_field_key"));
 
-  Finder _editableIn(NetworkField field) =>
+  Finder _editableField(NetworkField field) =>
       find.descendant(of: _fieldBox(field), matching: find.byType(EditableText));
 
   NewPrimaryButton _button(String key) =>
@@ -38,9 +38,9 @@ class NetworkDetailsPageRobot extends BaseRobot {
   }
 
   Future<void> enterField(NetworkField field, String value) async {
-    await pumpUntilFound(_editableIn(field));
+    await pumpUntilFound(_editableField(field));
 
-    await tester.enterText(_editableIn(field).first, value);
+    await tester.enterText(_editableField(field).first, value);
     await tester.pump(const Duration(milliseconds: 200));
   }
 
@@ -59,11 +59,11 @@ class NetworkDetailsPageRobot extends BaseRobot {
   }
 
   bool isReadOnly(NetworkField field) =>
-      tester.any(_fieldBox(field)) && !tester.any(_editableIn(field));
+      tester.any(_fieldBox(field)) && !tester.any(_editableField(field));
 
   String getFieldValue(NetworkField field) {
-    if (tester.any(_editableIn(field))) {
-      return tester.widget<EditableText>(_editableIn(field).first).controller.text;
+    if (tester.any(_editableField(field))) {
+      return tester.widget<EditableText>(_editableField(field).first).controller.text;
     }
 
     final text = find.descendant(of: _fieldBox(field), matching: find.byType(Text));
@@ -75,7 +75,7 @@ class NetworkDetailsPageRobot extends BaseRobot {
     await tapByKey("network_details_reset_button_key");
   }
 
-  String? errorFor(NetworkField field) => textByKey("network_details_${field.name}_error_key");
+  String? fieldError(NetworkField field) => textByKey("network_details_${field.name}_error_key");
 
   Future<void> tapSave() async {
     await tapByKey("network_details_save_button_key");
@@ -87,7 +87,7 @@ class NetworkDetailsPageRobot extends BaseRobot {
 
     // A save that reaches the RPC check waits up to 10 s per URL
     final shown = await pumpUntil(
-      () => errorFor(field) != null || !isShowing,
+      () => fieldError(field) != null || !isShowing,
       timeout: timeout ?? const Duration(seconds: 45),
     );
 
@@ -102,7 +102,7 @@ class NetworkDetailsPageRobot extends BaseRobot {
 
     if (!closed) {
       final errors = NetworkField.values
-          .map((field) => "${field.name}: ${errorFor(field)}")
+          .map((field) => "${field.name}: ${fieldError(field)}")
           .where((line) => !line.endsWith("null"))
           .join(", ");
 

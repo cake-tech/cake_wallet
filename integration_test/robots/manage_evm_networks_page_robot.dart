@@ -16,9 +16,9 @@ class ManageEvmNetworksPageRobot extends BaseRobot {
 
   bool get isShowing => tester.any(find.byType(ManageEvmNetworksPage));
 
-  Finder _rowFor(int chainId) => find.byKey(ValueKey("manage_evm_networks_${chainId}_row_key"));
+  Finder _networkRow(int chainId) => find.byKey(ValueKey("manage_evm_networks_${chainId}_row_key"));
 
-  Finder _toggleFor(int chainId) =>
+  Finder _networkToggle(int chainId) =>
       find.byKey(ValueKey("manage_evm_networks_${chainId}_toggle_key"));
 
   Future<void> search(String query) async {
@@ -37,10 +37,10 @@ class ManageEvmNetworksPageRobot extends BaseRobot {
     await search("");
   }
 
-  bool hasRow(int chainId) => tester.any(_rowFor(chainId));
+  bool hasRow(int chainId) => tester.any(_networkRow(chainId));
 
   Future<void> waitForRow(int chainId, {Duration timeout = const Duration(seconds: 30)}) async {
-    await pumpUntilFound(_rowFor(chainId), timeout: timeout);
+    await pumpUntilFound(_networkRow(chainId), timeout: timeout);
   }
 
   Future<bool> waitForNoMatch() =>
@@ -50,7 +50,8 @@ class ManageEvmNetworksPageRobot extends BaseRobot {
 
   /// Null while the toggle shows its spinner
   bool? isEnabled(int chainId) {
-    final toggle = find.descendant(of: _toggleFor(chainId), matching: find.byType(StandardSwitch));
+    final toggle =
+        find.descendant(of: _networkToggle(chainId), matching: find.byType(StandardSwitch));
 
     if (!tester.any(toggle)) {
       return null;
@@ -60,18 +61,18 @@ class ManageEvmNetworksPageRobot extends BaseRobot {
   }
 
   Future<void> tapToggle(int chainId) async {
-    await pumpUntilFound(_toggleFor(chainId));
+    await pumpUntilFound(_networkToggle(chainId));
 
-    await tester.ensureVisible(_toggleFor(chainId));
+    await tester.ensureVisible(_networkToggle(chainId));
     await settle(max: const Duration(seconds: 1));
 
-    await tester.tap(_toggleFor(chainId), warnIfMissed: false);
+    await tester.tap(_networkToggle(chainId), warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
   }
 
   /// Taps the toggle and waits for the RPC check, a refusal alert ends the wait early
   Future<void> setEnabled(int chainId, {required bool enabled}) async {
-    await pumpUntilFound(_toggleFor(chainId));
+    await pumpUntilFound(_networkToggle(chainId));
 
     if (isEnabled(chainId) == enabled) {
       return;

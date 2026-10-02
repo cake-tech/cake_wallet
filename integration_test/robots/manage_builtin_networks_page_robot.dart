@@ -15,10 +15,10 @@ class ManageBuiltinNetworksPageRobot extends BaseRobot {
     await isSpecificPage<ManageBuiltinNetworksPage>();
   }
 
-  Finder _rowFor(WalletType type) =>
+  Finder _networkRow(WalletType type) =>
       find.byKey(ValueKey("manage_builtin_networks_${type.name}_row_key"));
 
-  Future<void> _scrollTo(WalletType type) async {
+  Future<void> _scrollIntoView(WalletType type) async {
     final scrollable = find.descendant(
       of: find.byKey(const ValueKey("manage_builtin_networks_scrollable_key")),
       matching: find.byType(Scrollable),
@@ -27,7 +27,7 @@ class ManageBuiltinNetworksPageRobot extends BaseRobot {
     await pumpUntilFound(scrollable.first);
 
     await tester.scrollUntilVisible(
-      _rowFor(type),
+      _networkRow(type),
       200,
       scrollable: scrollable.first,
       maxScrolls: 30,
@@ -36,17 +36,17 @@ class ManageBuiltinNetworksPageRobot extends BaseRobot {
     await settle(max: const Duration(seconds: 1));
   }
 
-  bool isVisible(WalletType type) => tester.widget<ListItemCheckboxWidget>(_rowFor(type)).value;
+  bool isVisible(WalletType type) => tester.widget<ListItemCheckboxWidget>(_networkRow(type)).value;
 
   Future<void> toggle(WalletType type) async {
-    await _scrollTo(type);
+    await _scrollIntoView(type);
 
-    await tester.tap(_rowFor(type), warnIfMissed: false);
+    await tester.tap(_networkRow(type), warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
   }
 
   Future<void> setVisible(WalletType type, {required bool visible}) async {
-    await _scrollTo(type);
+    await _scrollIntoView(type);
 
     if (isVisible(type) == visible) {
       return;
