@@ -56,7 +56,7 @@ class CakeImageWidget extends StatelessWidget {
     }
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
-    final isLottie = imageUrl!.toLowerCase().endsWith(".lottie");
+    final isLottie = imageUrl!.toLowerCase().endsWith(".json");
     final isAsset = imageUrl!.startsWith('assets/');
     final effectiveColorFilter =
         colorFilter ?? (color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null);
@@ -227,17 +227,8 @@ class _CakeLottieWidgetState extends State<_CakeLottieWidget> {
         widget.asset,
         width: widget.width,
         height: widget.height,
-        decoder: _decodeDotLottie,
         repeat: false,
         animate: _playing,
         renderCache: RenderCache.drawingCommands,
-      );
-
-  static Future<LottieComposition?> _decodeDotLottie(List<int> bytes) =>
-      LottieComposition.decodeZip(
-        bytes,
-        filePicker: (files) => files
-            .where((f) => f.name.startsWith("animations/") && f.name.endsWith(".json"))
-            .firstOrNull,
       );
 }
