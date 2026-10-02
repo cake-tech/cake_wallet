@@ -10,6 +10,7 @@ class ListItemToggle extends ListItem {
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
+    this.isLoading = false,
   });
 
   final String? subtitle;
@@ -17,4 +18,5 @@ class ListItemToggle extends ListItem {
   final ValueChanged<bool> onChanged;
   final Widget? leadingEndWidget;
   final bool value;
+  final bool isLoading;
 }

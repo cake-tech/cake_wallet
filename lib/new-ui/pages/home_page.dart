@@ -237,6 +237,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                   builder: (_) => AssetsHistorySection(
                     nftViewModel: widget.nftViewModel,
                     dashboardViewModel: widget.dashboardViewModel,
+                    lightningMode: _lightningMode,
                   ),
                 ),
                 SliverToBoxAdapter(

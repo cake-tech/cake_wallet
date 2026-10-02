@@ -18,11 +18,13 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import "package:cake_wallet/utils/token_utilities.dart";
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_info.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -111,9 +113,11 @@ abstract class BalanceViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      refreshStableBalanceActive();
     });
 
     _checkMweb();
+    refreshStableBalanceActive();
 
     reaction((_) => settingsStore.mwebAlwaysScan, (_) => _checkMweb());
   }
@@ -121,6 +125,23 @@ abstract class BalanceViewModelBase with Store {
   void _checkMweb() {
     if (wallet.type == WalletType.litecoin) {
       mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+    }
+  }
+
+  /// Whether Stable Balance is on for [wallet]. Read from the wallet itself, so every instance of
+  /// this view model (balance card, Spark Settings) agrees and updates once the SDK connects.
+  @computed
+  bool get stableBalanceActive =>
+      TokenUtilities.walletHasEnabledSparkTokens(wallet) &&
+      (bitcoin?.isStableBalanceActive(wallet) ?? false);
+
+  /// Re-reads the SDK; [stableBalanceActive] follows on its own.
+  Future<void> refreshStableBalanceActive() async {
+    if (!TokenUtilities.walletHasEnabledSparkTokens(wallet)) return;
+    try {
+      await bitcoin?.getActiveStableBalanceLabel(wallet);
+    } catch (e) {
+      printV("StableBalance: failed to refresh active state: $e");
     }
   }
 
@@ -402,16 +423,30 @@ abstract class BalanceViewModelBase with Store {
         return 0;
       }
 
-      if (pinNativeToken) {
+      // Bitcoin and its Lightning balance always come first, in that order, regardless of size -
+      // a real (even tiny) Lightning balance must never sort below a zero-balance Spark token by
+      // coincidence of price/fiat lookups. Unconditional (not gated behind [pinNativeToken]),
+      // since this is a standing structural rule for this wallet type, not a togglable preference.
+      if (wallet.type == WalletType.bitcoin && wallet.hasLightningSupport) {
+        final aPriority = _bitcoinLightningPriority(a.asset);
+        final bPriority = _bitcoinLightningPriority(b.asset);
+        if (aPriority != bPriority) return aPriority.compareTo(bPriority);
+      } else if (pinNativeToken) {
         if (b.asset == wallet.currency) return 1;
         if (a.asset == wallet.currency) return -1;
       }
 
-      final isTokenWallet = isEVMCompatibleChain(wallet.type) || wallet.type == WalletType.solana;
+      final isTokenWallet = isEVMCompatibleChain(wallet.type) ||
+          wallet.type == WalletType.solana ||
+          (wallet.type == WalletType.bitcoin && wallet.hasLightningSupport);
 
       if (isTokenWallet) {
-        final aIsToken = a.asset is Erc20Token || a.asset is SPLToken;
-        final bIsToken = b.asset is Erc20Token || b.asset is SPLToken;
+        final aIsToken = a.asset is Erc20Token ||
+            a.asset is SPLToken ||
+            (bitcoin?.isSparkToken(a.asset) ?? false);
+        final bIsToken = b.asset is Erc20Token ||
+            b.asset is SPLToken ||
+            (bitcoin?.isSparkToken(b.asset) ?? false);
 
         final aHasBalance = (double.tryParse(a.availableBalance) ?? 0) > 0;
         final bHasBalance = (double.tryParse(b.availableBalance) ?? 0) > 0;
@@ -443,9 +478,20 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
+  /// Bitcoin and Lightning always sort first (see [formattedBalances]), but looking up the
+  /// Lightning card's balance by a fixed position was fragile - it silently returned whatever
+  /// else happened to land in that slot (e.g. a zero-balance Spark token) if sorting ever put
+  /// something ahead of it. Match by asset explicitly instead.
+  int _bitcoinLightningPriority(CryptoCurrency asset) {
+    if (asset == CryptoCurrency.btc) return 0;
+    if (asset == CryptoCurrency.btcln) return 1;
+    return 2;
+  }
+
   BalanceRecord? getMainBalanceRecord(bool lightningMode) {
     if (lightningMode) {
-      return formattedBalances.elementAtOrNull(1);
+      return formattedBalances.firstWhereOrNull((item) => item.asset == CryptoCurrency.btcln) ??
+          formattedBalances.elementAtOrNull(1);
     }
 
     if (wallet.walletInfo.favoriteTokenAddress != null) {
@@ -478,9 +524,14 @@ abstract class BalanceViewModelBase with Store {
     return null;
   }
 
-  @computed
-  bool get showCombinedBalance {
-    if (wallet.type == WalletType.bitcoin) return false;
+  /// [lightningMode] scopes this to the Lightning card only - the on-chain Bitcoin card always
+  /// shows its own plain balance, never a combined "Wallet balance" summary.
+  bool showCombinedBalance({required bool lightningMode}) {
+    if (wallet.type == WalletType.bitcoin) {
+      // "Other assets" here means enabled Spark tokens (e.g. USDB) - a plain Bitcoin+Lightning
+      // wallet with nothing else held keeps its current plain sats display.
+      return lightningMode && TokenUtilities.walletHasEnabledSparkTokens(wallet);
+    }
     if (balances.values.length == 1) return false;
 
     return wallet.walletInfo.showCombinedBalance;

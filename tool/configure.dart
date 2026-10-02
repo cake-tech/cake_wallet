@@ -104,6 +104,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
@@ -111,6 +112,8 @@ import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cake_wallet/entities/conversion_status.dart';
+import 'package:cake_wallet/entities/spark_conversion.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -152,6 +155,9 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
+import 'package:cw_bitcoin/lightning/spark_conversion.dart' as cw_spark;
+import 'package:cw_bitcoin/lightning/spark_token.dart';
+import 'package:cw_bitcoin/lightning/default_spark_tokens.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -211,7 +217,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri, CryptoCurrency? currency});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -301,11 +307,69 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
+
+  List<CryptoCurrency> getSparkTokenCurrencies(WalletBase wallet);
+  Future<void> addSparkToken(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteSparkToken(WalletBase wallet, CryptoCurrency token);
+  bool isSparkTokenAlreadyAdded(WalletBase wallet, String tokenIdentifier);
+  Future<CryptoCurrency?> getSparkToken(WalletBase wallet, String tokenIdentifier);
+  Future<String?> getSparkInvoice(Object wallet, CryptoCurrency token, BigInt? amount);
+  bool isSparkToken(CryptoCurrency? currency);
+  String? getSparkTokenIdentifier(CryptoCurrency? currency);
+  bool isDefaultSparkStablecoin(CryptoCurrency? currency);
+  CryptoCurrency createSparkToken({
+    required String name,
+    required String symbol,
+    required int decimals,
+    required String tokenIdentifier,
+    String? iconPath,
+    bool isPotentialScam = false,
+  });
+
+  Future<String?> getActiveStableBalanceLabel(Object wallet);
+  bool isStableBalanceActive(Object wallet);
+  Future<LightningSendQuote> quoteLightningSend(Object wallet, String address, Money amount,
+      {bool sendAll});
+  StableBalanceSendConversion? getLightningSendConversion(PendingTransaction transaction);
+  bool isOnChainLightningSend(PendingTransaction transaction);
+  Future<void> setStableBalanceActive(Object wallet, String? label);
+  BigInt? getStableBalanceThresholdSats(Object wallet);
+  int? getStableBalanceMaxSlippageBps(Object wallet);
+  Future<void> saveStableBalanceSettings(
+    Object wallet, {
+    BigInt? thresholdSats,
+    int? maxSlippageBps,
+  });
+  Future<bool> reconnectStableBalanceSettings(
+    Object wallet, {
+    BigInt? thresholdSats,
+    int? maxSlippageBps,
+  });
+  Future<bool> refundPendingConversions(Object wallet);
+
+  Future<SparkConversionLimits?> fetchStableConversionLimits(Object wallet, CryptoCurrency token);
+  Future<SparkConversionQuote?> prepareBitcoinToStableConversion(
+    Object wallet, {
+    required BigInt tokenAmount,
+    required CryptoCurrency token,
+    int? maxSlippageBps,
+  });
+  Future<SparkConversionLimits?> fetchReverseStableConversionLimits(
+      Object wallet, CryptoCurrency token);
+  Future<SparkConversionQuote?> prepareTokenToBitcoinConversion(
+    Object wallet, {
+    required BigInt satsAmount,
+    required CryptoCurrency token,
+    int? maxSlippageBps,
+  });
 }
   """;
 
-  const bitcoinEmptyDefinition = 'Bitcoin? bitcoin;\n';
-  const bitcoinCWDefinition = 'Bitcoin? bitcoin = CWBitcoin();\n';
+  // `isBitcoinEnabled` is a compile-time constant so code gated on it is tree-shaken out of
+  // builds without Bitcoin (a null check on `bitcoin` can't be).
+  const bitcoinEmptyDefinition = 'const bool isBitcoinEnabled = false;\nBitcoin? bitcoin;\n';
+  const bitcoinCWDefinition =
+      'const bool isBitcoinEnabled = true;\nBitcoin? bitcoin = CWBitcoin();\n';
 
   final output = '$bitcoinCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCWHeaders\n' : '\n') +

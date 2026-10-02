@@ -1,10 +1,14 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/tron_token.dart';
@@ -15,6 +19,23 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 
 class TokenUtilities {
+  static bool walletHasEnabledSparkTokens(WalletBase wallet) =>
+      FeatureFlag.isSparkTokensEnabled &&
+      wallet.type == WalletType.bitcoin &&
+      wallet.hasLightningSupport &&
+      (bitcoin?.getSparkTokenCurrencies(wallet).isNotEmpty ?? false);
+
+  /// The stablecoin Spark token Stable Balance converts to/from for [wallet] (e.g. USDB), or null
+  /// if it has none registered - shared by every screen that needs to name or spend that token
+  /// rather than re-deriving the same lookup.
+  static CryptoCurrency? stableBalanceTokenFor(
+          WalletBase wallet) =>
+      walletHasEnabledSparkTokens(wallet)
+          ? bitcoin
+              ?.getSparkTokenCurrencies(wallet)
+              .firstWhereOrNull((token) => token.groups.contains(CurrencyGroups.stablecoin))
+          : null;
+
   static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
     final allWi = await WalletInfo.getAll();
     final evmWallets = allWi.where(
@@ -187,13 +208,13 @@ class TokenUtilities {
   }
 
   static int _getDefaultChainId(WalletType walletType) => switch (walletType) {
-      WalletType.ethereum => 1,
-      WalletType.polygon => 137,
-      WalletType.base => 8453,
-      WalletType.arbitrum => 42161,
-      WalletType.bsc => 56,
-      _ => 1,
-    };
+        WalletType.ethereum => 1,
+        WalletType.polygon => 137,
+        WalletType.base => 8453,
+        WalletType.arbitrum => 42161,
+        WalletType.bsc => 56,
+        _ => 1,
+      };
 
   static Future<int?> findEvmChainIdForContract(
     String contractAddress, {

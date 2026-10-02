@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/utils/stable_balance_card_design.dart";
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import "package:cw_core/balance_card_style_settings.dart";
@@ -16,6 +18,12 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   final WalletBase _wallet;
   final bool lightningMode;
   final bool displaySats;
+
+  /// Cached at `_init` time - whether Stable Balance is actually on for this wallet right now.
+  /// Determines which persisted card style slot loads/saves (a separate style per on/off state,
+  /// see [_accountIndexFor]) and which of Lightning's two full-graphic looks (bolt vs $) is
+  /// suggested by default the first time each slot is ever customized.
+  bool _stableBalanceActive = false;
 
   CardCustomizerBloc(this._wallet, {this.lightningMode = false, this.displaySats = false})
       : super(CardCustomizerNotLoaded(
@@ -42,7 +50,14 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return (await BalanceCardStyleSettings.get(_wallet.walletInfo.internalId, accountIndex));
   }
 
-  List<CardDesign> _initAvailableDesigns({bool lightningMode = false}) {
+  /// Same source the home balance card reads, so the two never disagree.
+  Future<bool> _isStableBalanceActive() async =>
+      lightningMode && (bitcoin?.isStableBalanceActive(_wallet) ?? false);
+
+  List<CardDesign> _initAvailableDesigns({
+    bool lightningMode = false,
+    bool stableBalanceActive = false,
+  }) {
     final List<CardDesign> ret = List<CardDesign>.empty(growable: true);
     final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
 
@@ -50,7 +65,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     ret.add(CardDesign.forCurrencyIcon(curr));
 
     if (CardDesign.specialDesignsForCurrencies[curr] != null)
-      ret.add(CardDesign.forCurrencySpecial(curr));
+      ret.add(CardDesign.forCurrencySpecial(
+        curr,
+        specialDesignOverride: StableBalanceCardDesign.specialDesignOverride(
+          curr,
+          stableBalanceActive: stableBalanceActive,
+        ),
+      ));
 
     return ret;
   }
@@ -70,12 +91,56 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
 
   int _initSelectedIconIndex(
     BalanceCardStyleSettings? settings,
-    List<CardIconPath> availableIconPaths,
-  ) {
-    if (settings == null || availableIconPaths.isEmpty) return 0;
-    if (settings.iconStyleIndex >= availableIconPaths.length) return 0;
+    List<CardIconPath> availableIconPaths, {
+    int defaultIndex = 0,
+  }) {
+    if (availableIconPaths.isEmpty) return 0;
+    final fallback = defaultIndex.clamp(0, availableIconPaths.length - 1);
+    if (settings == null) return fallback;
+    if (settings.iconStyleIndex >= availableIconPaths.length) return fallback;
     return settings.iconStyleIndex;
   }
+
+  /// The icon-style choices for a given "Card style" index - a different set depending on which
+  /// style is selected, not a single fixed list:
+  /// - The flat solid-color style (0) has nowhere to put an icon at all.
+  /// - The small-icon style (1) offers the usual per-currency icon family.
+  /// - The full-graphic style (2) only ever offers a second look for Lightning, and only while
+  ///   Stable Balance is actually on - the $ coin design has no reason to exist as a choice on a
+  ///   regular (non-stable) Lightning wallet. Off Stable Balance (or for any other currency),
+  ///   there's exactly one full-graphic look, so this returns a single-entry list; the caller
+  ///   hides the picker row entirely rather than show a "choice" of one (see
+  ///   `card_customizer.dart#_showIconStylePanel`).
+  ///
+  /// Each entry's [CardIconPath.thumbnailPath] points at the small per-purpose icon glyph
+  /// (bolt / $) rather than [CardIconPath.path] itself (the full card background), since the
+  /// latter is illegible at the picker's ~48px thumbnail size - see [CardIconPath]'s doc comment.
+  List<CardIconPath> _iconChoicesForDesignIndex(int designIndex, CryptoCurrency curr) {
+    if (designIndex == 1) {
+      return CardDesign.iconPathsForWalletType(
+        curr,
+        extraIconPaths: StableBalanceCardDesign.extraIconPaths(
+          curr,
+          stableBalanceActive: _stableBalanceActive,
+        ),
+      );
+    }
+    if (designIndex == 2 && curr == CryptoCurrency.btcln) {
+      final bolt =
+          CardIconPath(CardDesign.lnSpecial.imagePath, thumbnailPath: CardDesign.btcln.imagePath);
+      if (!_stableBalanceActive) return [bolt];
+      final dollar = CardIconPath(StableBalanceCardDesign.design.imagePath,
+          thumbnailPath: StableBalanceCardDesign.iconPath);
+      return [bolt, dollar];
+    }
+    return const [];
+  }
+
+  /// A separate persisted card style per Stable-Balance on/off state for the Lightning card, so
+  /// switching the toggle swaps to (and remembers) its own look instead of sharing one style -
+  /// `1` is otherwise never used as a Bitcoin-wallet card-style account index (Bitcoin only ever
+  /// has the main card at `-1` and the Lightning card at `0`), so this can't collide.
+  int _accountIndexFor({required bool stableBalanceActive}) => stableBalanceActive ? 1 : 0;
 
   int _initSelectedColor(CardDesign currentDesign) {
     final ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
@@ -92,23 +157,38 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       account = null;
     }
     final accountName = (account?.label ?? "") as String;
+    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+    final stableBalanceActive = await _isStableBalanceActive();
+    _stableBalanceActive = stableBalanceActive;
     late final int accountIndex;
     if (account != null) {
       accountIndex = account.id as int;
     } else if (lightningMode) {
-      accountIndex = 0;
+      accountIndex = _accountIndexFor(stableBalanceActive: stableBalanceActive);
     } else {
       accountIndex = -1;
     }
-    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
     final currentDesignSettings = await _loadCurrentDesignSettings(accountIndex);
-    final currentDesign = CardDesign.fromStyleSettings(currentDesignSettings, curr);
-    final availableDesigns = _initAvailableDesigns(lightningMode: lightningMode);
+    final currentDesign = StableBalanceCardDesign.fromStyleSettings(
+      currentDesignSettings,
+      curr,
+      stableBalanceActive: stableBalanceActive,
+    );
+    final availableDesigns = _initAvailableDesigns(
+      lightningMode: lightningMode,
+      stableBalanceActive: stableBalanceActive,
+    );
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
     final selectedColor = _initSelectedColor(currentDesign);
-    final availableIconPaths = CardDesign.iconPathsForWalletType(curr);
-    final selectedIconIndex = _initSelectedIconIndex(currentDesignSettings, availableIconPaths);
+    final availableIconPaths = _iconChoicesForDesignIndex(selectedDesignIndex, curr);
+    final defaultIconIndex =
+        selectedDesignIndex == 2 &&
+                StableBalanceCardDesign.appliesTo(curr, stableBalanceActive: stableBalanceActive)
+            ? 1
+            : 0;
+    final selectedIconIndex = _initSelectedIconIndex(currentDesignSettings, availableIconPaths,
+        defaultIndex: defaultIconIndex);
 
     emit(CardCustomizerInitial(
         selectedDesignIndex,
@@ -134,10 +214,22 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       newColorIndex = state.selectedColorIndex.clamp(0, newColors.length - 1);
     }
 
+    final curr = lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+    final newIconPaths = _iconChoicesForDesignIndex(event.newDesignIndex, curr);
+    final defaultIconIndex =
+        event.newDesignIndex == 2 &&
+                StableBalanceCardDesign.appliesTo(curr, stableBalanceActive: _stableBalanceActive)
+            ? 1
+            : 0;
+    final newIconIndex =
+        newIconPaths.isEmpty ? 0 : defaultIconIndex.clamp(0, newIconPaths.length - 1);
+
     emit(state.copyWith(
         selectedDesignIndex: event.newDesignIndex,
         availableColors: newColors,
-        selectedColorIndex: newColorIndex));
+        selectedColorIndex: newColorIndex,
+        availableIconPaths: newIconPaths,
+        selectedIconIndex: newIconIndex));
   }
 
   void _onColorSelected(ColorSelected event, Emitter<CardCustomizerState> emit) {

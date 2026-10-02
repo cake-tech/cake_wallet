@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import "package:cake_wallet/evm/evm.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
@@ -72,6 +73,10 @@ String? _assetAddressKey(CryptoCurrency c) {
   }
   if (c is SPLToken) {
     return c.mintAddress.toLowerCase();
+  }
+  final sparkTokenIdentifier = bitcoin?.getSparkTokenIdentifier(c);
+  if (sparkTokenIdentifier != null) {
+    return sparkTokenIdentifier.toLowerCase();
   }
   return null;
 }

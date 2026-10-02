@@ -12,6 +12,13 @@ class ReceiveTokenDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isSparkToken = addressListViewModel.wallet.type == WalletType.bitcoin;
+    final badgeIconPath = isSparkToken
+        ? "assets/new-ui/chain_badges/lightning.svg"
+        : "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg";
+    final badgeLabel =
+        isSparkToken ? "Lightning" : walletTypeToString(addressListViewModel.wallet.type);
+
     return Observer(
       builder: (_) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -34,14 +41,13 @@ class ReceiveTokenDisplay extends StatelessWidget {
                 spacing: 4,
                 children: [
                   CakeImageWidget(
-                    imageUrl:
-                        "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? 'bnb' : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
+                    imageUrl: badgeIconPath,
                     width: 16,
                     height: 16,
                     colorFilter:
                         ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
                   ),
-                  Text(walletTypeToString(addressListViewModel.wallet.type),
+                  Text(badgeLabel,
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

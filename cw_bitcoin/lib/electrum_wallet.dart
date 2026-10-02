@@ -985,10 +985,10 @@ abstract class ElectrumWalletBase
         values: [for (final u in availableInputs) u.value],
         // estimatedTransactionSize(0, 0) is the fixed tx overhead (version,
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
-        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
+        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes) * feeRate,
         inputCosts: [
           for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate,
         ],
         window: networkDustAmount.toInt(),
       );
@@ -1757,7 +1757,11 @@ abstract class ElectrumWalletBase
   }) async =>
       throw UnimplementedError();
 
-  String toJSON() => json.encode({
+  String toJSON() => json.encode(toJSONMap());
+
+  /// The wallet file's contents; subclasses add their own keys on top.
+  @protected
+  Map<String, dynamic> toJSONMap() => {
         'mnemonic': _mnemonic,
         'xpub': xpub,
         'passphrase': passphrase ?? '',
@@ -1776,8 +1780,8 @@ abstract class ElectrumWalletBase
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
         'useLightning': useLightning,
-        'cachedLightningAddress': walletAddresses.lightningAddress
-      });
+        'cachedLightningAddress': walletAddresses.lightningAddress,
+      };
 
   int feeRate(TransactionPriority priority) {
     try {

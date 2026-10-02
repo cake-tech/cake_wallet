@@ -34,10 +34,13 @@ class CardColorCombination {
 }
 
 class CardIconPath {
+  const CardIconPath(this.path, {this.preColored = false, this.thumbnailPath});
+
   final String path;
   final bool preColored;
+  final String? thumbnailPath;
 
-  const CardIconPath(this.path, {this.preColored = false});
+  String get displayPath => thumbnailPath ?? path;
 }
 
 class CardDesign {
@@ -377,7 +380,13 @@ class CardDesign {
     CryptoCurrency.zec: _CurrencyIconNames(ticker: 'zec', longName: 'zcash'),
   };
 
-  static List<CardIconPath> iconPathsForWalletType(CryptoCurrency currency) {
+  /// [extraIconPaths] are caller-supplied choices (e.g. a feature-specific icon). Appended, never
+  /// inserted: `iconStyleIndex` is a persisted positional index into this list, so adding them
+  /// anywhere but the end would silently repoint every existing saved icon choice.
+  static List<CardIconPath> iconPathsForWalletType(
+    CryptoCurrency currency, {
+    List<CardIconPath> extraIconPaths = const [],
+  }) {
     final n = _iconNames[currency];
     if (n == null) return const [];
 
@@ -388,6 +397,7 @@ class CardDesign {
       CardIconPath('$_chainIconPrefix/${n.chainFile ?? n.longName}.svg', preColored: true),
       CardIconPath(n.ogPath ?? '$_ogIconPrefix/${n.ticker}-og.svg', preColored: true),
       const CardIconPath(_genericCakeIcon),
+      ...extraIconPaths,
     ];
   }
 
@@ -426,9 +436,13 @@ class CardDesign {
     bnbSpecial
   ];
 
-  static CardDesign forCurrencySpecial(CryptoCurrency currency) {
-    return specialDesignsForCurrencies[currency] ?? genericDefault;
-  }
+  /// [specialDesignOverride] lets the caller swap in a different special design (e.g. one tied to
+  /// wallet state `cw_core` can't see); without it, the currency's usual special design is used.
+  static CardDesign forCurrencySpecial(
+    CryptoCurrency currency, {
+    CardDesign? specialDesignOverride,
+  }) =>
+      specialDesignOverride ?? specialDesignsForCurrencies[currency] ?? genericDefault;
 
   static CardDesign forCurrencyIcon(CryptoCurrency currency) {
     return iconDesignsForCurrencies[currency] ?? genericDefault;
@@ -489,8 +503,12 @@ class CardDesign {
     CardDesign.gradientBlack: CardColorCombination.black,
   };
 
-  CardDesign withIconStyleIndex(int iconStyleIndex, CryptoCurrency currency) {
-    final paths = iconPathsForWalletType(currency);
+  CardDesign withIconStyleIndex(
+    int iconStyleIndex,
+    CryptoCurrency currency, {
+    List<CardIconPath> extraIconPaths = const [],
+  }) {
+    final paths = iconPathsForWalletType(currency, extraIconPaths: extraIconPaths);
     if (paths.isEmpty) return this;
     if (iconStyleIndex < 0 || iconStyleIndex >= paths.length) return this;
     return withIcon(paths[iconStyleIndex]);
@@ -511,10 +529,22 @@ class CardDesign {
     return gradientBlue;
   }
 
+  /// [specialDesignOverride]: see [forCurrencySpecial]. [extraIconPaths]: see
+  /// [iconPathsForWalletType]. Every branch below that resolves "the special design for this
+  /// currency", and every icon-style resolution, passes them through. The exception is the plain
+  /// `specialDesignsForCurrencies` map lookups used below purely as a text-color fallback - those
+  /// stay keyed to the currency's usual design regardless.
   static CardDesign fromStyleSettings(
-      BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
+    BalanceCardStyleSettings? setting,
+    CryptoCurrency walletCurrency, {
+    CardDesign? specialDesignOverride,
+    List<CardIconPath> extraIconPaths = const [],
+  }) {
     if (setting == null) {
-      return CardDesign.forCurrencySpecial(walletCurrency);
+      return CardDesign.forCurrencySpecial(
+        walletCurrency,
+        specialDesignOverride: specialDesignOverride,
+      );
     }
 
     if (setting.isGradientOnly) {
@@ -530,7 +560,10 @@ class CardDesign {
     }
 
     if (setting.useSpecialDesign && setting.gradientIndex != -1) {
-      return CardDesign.forCurrencySpecial(walletCurrency).withGradient(
+      return CardDesign.forCurrencySpecial(
+        walletCurrency,
+        specialDesignOverride: specialDesignOverride,
+      ).withGradient(
         gradientForStoredIndex(setting.gradientIndex, walletCurrency),
       );
     }
@@ -539,10 +572,17 @@ class CardDesign {
       final specialColors = specialDesignsForCurrencies[walletCurrency] ?? genericDefault;
       final design = CardDesign.forCurrencyIcon(walletCurrency)
           .withGradientAndColorCombination(specialColors.gradient, specialColors.colors);
-      return design.withIconStyleIndex(setting.iconStyleIndex, walletCurrency);
+      return design.withIconStyleIndex(
+        setting.iconStyleIndex,
+        walletCurrency,
+        extraIconPaths: extraIconPaths,
+      );
     }
     if (setting.useSpecialDesign) {
-      return CardDesign.forCurrencySpecial(walletCurrency);
+      return CardDesign.forCurrencySpecial(
+        walletCurrency,
+        specialDesignOverride: specialDesignOverride,
+      );
     }
     if (setting.gradientIndex != -1) {
       final baseIcon = CardDesign.forCurrencyIcon(walletCurrency);
@@ -550,9 +590,11 @@ class CardDesign {
       final textColors = preferredColorCombinations[gradient] ??
           specialDesignsForCurrencies[walletCurrency]?.colors ??
           baseIcon.colors;
-      return baseIcon
-          .withGradientAndColorCombination(gradient, textColors)
-          .withIconStyleIndex(setting.iconStyleIndex, walletCurrency);
+      return baseIcon.withGradientAndColorCombination(gradient, textColors).withIconStyleIndex(
+            setting.iconStyleIndex,
+            walletCurrency,
+            extraIconPaths: extraIconPaths,
+          );
     }
     printV("somehow, the user saved the design settings with literally no "
         "customization?");

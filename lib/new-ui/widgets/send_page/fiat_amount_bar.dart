@@ -18,11 +18,18 @@ class FiatAmountBar extends StatelessWidget {
     this.textColor,
     this.allAmountColor,
     this.allAmountTextColor,
+    this.switchEnabled = true,
   });
 
   final bool fiatInputMode;
   final VoidCallback onSwitchButtonPressed;
   final VoidCallback? onAllButtonPressed;
+
+  /// False hides the switch button's interactivity (but keeps it visible, dimmed) for a flow
+  /// where the two denominations shown aren't actually interchangeable input modes - e.g.
+  /// Spark's Deposit to Stable, which shows a sats equivalent purely for reference and can't accept
+  /// sats-denominated input for the underlying SDK call.
+  final bool switchEnabled;
 
   final String cryptoAmount;
   final String fiatAmount;
@@ -43,31 +50,37 @@ class FiatAmountBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          spacing: 8,
-          children: [
-            ModernButton.svg(
-              backgroundColor: foregroundElementColor,
-              size: 28,
-              svgPath: "assets/new-ui/switch.svg",
-              iconSize: 18,
-              onPressed: onSwitchButtonPressed,
-              semanticLabel: S.of(context).switch_input_currency,
-            ),
-            // Announced as the converted value only: the switch button next to it already
-            // exposes the same action, so this must not become a second control.
-            Semantics(
-              label: convertedAmount,
-              excludeSemantics: true,
-              child: GestureDetector(
-                onTap: onSwitchButtonPressed,
-                child: Text(
-                  convertedAmount,
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+        IgnorePointer(
+          ignoring: !switchEnabled,
+          child: Opacity(
+            opacity: switchEnabled ? 1 : 0.5,
+            child: Row(
+              spacing: 8,
+              children: [
+                ModernButton.svg(
+                  backgroundColor: foregroundElementColor,
+                  size: 28,
+                  svgPath: "assets/new-ui/switch.svg",
+                  iconSize: 18,
+                  onPressed: onSwitchButtonPressed,
+                  semanticLabel: S.of(context).switch_input_currency,
                 ),
-              ),
+                // Announced as the converted value only: the switch button next to it already
+                // exposes the same action, so this must not become a second control.
+                Semantics(
+                  label: convertedAmount,
+                  excludeSemantics: true,
+                  child: GestureDetector(
+                    onTap: onSwitchButtonPressed,
+                    child: Text(
+                      convertedAmount,
+                      style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         if (allAmount != null && allAmount!.isNotEmpty)
           Row(

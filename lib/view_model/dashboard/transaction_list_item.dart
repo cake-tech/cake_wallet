@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -7,10 +8,13 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -46,8 +50,11 @@ class TransactionListItem extends ActionListItem with Keyable {
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
+      final sparkToken = sparkTokenOfTransaction;
+      final amount =
+          sparkToken != null ? Money(transaction.amount.amount, sparkToken) : transaction.amount;
       return _appStore.amountParsingProxy
-          .asDisplayStringWithSymbol(transaction.amount)
+          .asDisplayStringWithSymbol(amount)
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
@@ -189,13 +196,47 @@ class TransactionListItem extends ActionListItem with Keyable {
     return null;
   }
 
+  /// The Spark token this transaction actually moved, resolved via its tagged tokenIdentifier -
+  /// not via `transaction.amount.currency`'s own type, which a transaction stored before
+  /// `LightningWallet.tokenCurrencyResolver` existed can still carry the wrong value for until
+  /// it's re-fetched (same reasoning as `TransactionDetailsViewModelBase.transactionAsset`'s
+  /// icon-resolution fix). Null for anything that isn't a Spark token payment.
+  CryptoCurrency? get sparkTokenOfTransaction {
+    if (balanceViewModel.wallet.type != WalletType.bitcoin) return null;
+    final tokenIdentifier = transaction.additionalInfo["tokenIdentifier"] as String?;
+    if (tokenIdentifier == null) return null;
+    return (bitcoin?.getSparkTokenCurrencies(balanceViewModel.wallet) ?? const <CryptoCurrency>[])
+        .firstWhereOrNull((token) => bitcoin?.getSparkTokenIdentifier(token) == tokenIdentifier);
+  }
+
   String get formattedFiatAmount {
     var amount = '';
 
     switch (balanceViewModel.wallet.type) {
+      case WalletType.bitcoin:
+        // A Spark token payment (e.g. USDB) is denominated in its own currency, not the wallet's
+        // native BTC - pricing it with the wallet's BTC price reads as if 1 USDB were worth 1
+        // BTC. Resolved via tokenIdentifier rather than trusting transaction.amount.currency's
+        // own type: a transaction stored before that currency was tagged correctly (see
+        // LightningWallet.tokenCurrencyResolver) can still carry the wrong one until it's
+        // re-fetched, same as assetOfTransaction's icon-resolution fix.
+        final sparkToken = sparkTokenOfTransaction;
+        final txPrice =
+            sparkToken != null ? balanceViewModel.fiatConversionStore.prices[sparkToken] : price;
+        final txAmount =
+            sparkToken != null ? Money(transaction.amount.amount, sparkToken) : transaction.amount;
+        // Temporary diagnostic for the $425k-instead-of-$5.05 investigation - remove once the
+        // fiat mispricing is confirmed fixed on a real device.
+        printV("TransactionListItem: fiat for tx=${transaction.id} "
+            "amountCurrency=${transaction.amount.currency} tokenIdentifier="
+            "${transaction.additionalInfo["tokenIdentifier"]} sparkToken=$sparkToken "
+            "resolvedPrice=$txPrice fallbackPrice=$price");
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: double.parse(txAmount.toString()),
+          price: txPrice,
+        ).withLocalSeperator(_appStore.settingsStore.languageCode);
       case WalletType.monero:
       case WalletType.wownero:
-      case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:

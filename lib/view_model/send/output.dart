@@ -216,6 +216,14 @@ abstract class OutputBase with Store {
       }
     } catch (e) {
       printV(e.toString());
+      // A failed calculation must not leave estimatedFee denominated in a stale currency (e.g.
+      // a previously selected currency) - that mismatches the fee currency send_confirm_sheet's
+      // fold seeds from and throws Money._assertSameCurrency when the sheet next builds.
+      final feeCurrency = cryptoCurrencyHandler();
+
+      if (estimatedFee.currency != feeCurrency) {
+        estimatedFee = Money.zero(feeCurrency);
+      }
     }
   }
 
