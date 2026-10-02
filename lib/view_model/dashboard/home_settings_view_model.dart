@@ -194,12 +194,14 @@ abstract class HomeSettingsViewModelBase with Store {
         return false;
       }
 
-      final isPotentialScamViaMoralis =
-          await Erc20TokenChecks.isPotentialScamViaMoralis(contractAddress, chainId);
-      final isUnverifiedContract =
-          await Erc20TokenChecks.isContractUnverified(contractAddress, chainId);
+      final checks = [
+        await Erc20TokenChecks.moralisScamCheck(contractAddress, chainId),
+        await Erc20TokenChecks.contractVerificationCheck(contractAddress, chainId),
+      ];
 
-      return isPotentialScamViaMoralis == true || isUnverifiedContract == true;
+      return checks.any(
+        (check) => check == TokenCheckResult.risky || check == TokenCheckResult.failed,
+      );
     } finally {
       isValidatingContractAddress = false;
     }

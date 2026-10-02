@@ -6,10 +6,12 @@ import "package:cake_wallet/evm/evm.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
+enum TokenCheckResult { safe, risky, failed, notCovered }
+
 class Erc20TokenChecks {
-  static Future<bool?> isPotentialScamViaMoralis(String contractAddress, int chainId) async {
+  static Future<TokenCheckResult> moralisScamCheck(String contractAddress, int chainId) async {
     if (!evm!.isMoralisSupportedChain(chainId)) {
-      return null;
+      return TokenCheckResult.notCovered;
     }
 
     final uri = Uri.https(
@@ -36,26 +38,29 @@ class Erc20TokenChecks {
 
       // Based on analysis using Moralis internal metrics
       if (tokenInfo.possibleSpam == true) {
-        return true;
+        return TokenCheckResult.risky;
       }
 
       // Tokens with a security score less than 40 are potentially risky
       if (tokenInfo.securityScore != null && tokenInfo.securityScore! < 40) {
-        return true;
+        return TokenCheckResult.risky;
       }
 
-      return false;
+      return TokenCheckResult.safe;
     } catch (e) {
       printV("Error while checking scam via moralis: ${e.toString()}");
-      return null;
+      return TokenCheckResult.failed;
     }
   }
 
-  static Future<bool?> isContractUnverified(String contractAddress, int chainId) async {
+  static Future<TokenCheckResult> contractVerificationCheck(
+    String contractAddress,
+    int chainId,
+  ) async {
     final uri = evm!.getContractSourceCodeUri(chainId, contractAddress);
 
     if (uri == null) {
-      return null;
+      return TokenCheckResult.notCovered;
     }
 
     try {
@@ -67,15 +72,17 @@ class Erc20TokenChecks {
       // Status 0 is an error such as a rate limit or a bad key, an unverified contract is status 1
       if (decodedResponse["status"] == "0") {
         printV("Contract verification check failed: ${decodedResponse["result"]}");
-        return null;
+        return TokenCheckResult.failed;
       }
 
+      final abi = decodedResponse["result"][0]["ABI"];
       final isBlockscout = uri.host != "api.etherscan.io";
-      return [if (isBlockscout) null, "Contract source code not verified"]
-          .contains(decodedResponse["result"][0]["ABI"]);
+      final isUnverified =
+          abi == "Contract source code not verified" || (isBlockscout && abi == null);
+      return isUnverified ? TokenCheckResult.risky : TokenCheckResult.safe;
     } catch (e) {
       printV("Error while checking contract verification: ${e.toString()}");
-      return null;
+      return TokenCheckResult.failed;
     }
   }
 }

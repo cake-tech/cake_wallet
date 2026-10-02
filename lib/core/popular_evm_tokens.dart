@@ -43,8 +43,6 @@ class PopularEvmToken {
   final String? logoUrl;
 }
 
-enum _SafetyCheck { passed, failed, unavailable }
-
 class PopularEvmTokens {
   static const _maxTokens = 4;
 
@@ -131,8 +129,11 @@ class PopularEvmTokens {
       return;
     }
 
-    final safety = await _checkSafety(token.contractAddress, chainId);
-    if (safety == _SafetyCheck.failed) {
+    final checks = [
+      await Erc20TokenChecks.moralisScamCheck(token.contractAddress, chainId),
+      await Erc20TokenChecks.contractVerificationCheck(token.contractAddress, chainId),
+    ];
+    if (checks.contains(TokenCheckResult.risky)) {
       return;
     }
 
@@ -144,25 +145,10 @@ class PopularEvmTokens {
         contractAddress: token.contractAddress.toLowerCase(),
         decimal: token.decimals,
         iconPath: token.logoUrl,
-        enabled: safety == _SafetyCheck.passed,
+        enabled:
+            checks.contains(TokenCheckResult.safe) && !checks.contains(TokenCheckResult.failed),
       ),
     );
-  }
-
-  static Future<_SafetyCheck> _checkSafety(String contractAddress, int chainId) async {
-    final isPotentialScam =
-        await Erc20TokenChecks.isPotentialScamViaMoralis(contractAddress, chainId);
-    final isUnverified = await Erc20TokenChecks.isContractUnverified(contractAddress, chainId);
-
-    if (isPotentialScam == true || isUnverified == true) {
-      return _SafetyCheck.failed;
-    }
-
-    if (isPotentialScam == null && isUnverified == null) {
-      return _SafetyCheck.unavailable;
-    }
-
-    return _SafetyCheck.passed;
   }
 
   static Future<List<PopularEvmToken>?> _fetchCoinGeckoTokens(int chainId) async {
