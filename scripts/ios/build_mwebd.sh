@@ -248,16 +248,19 @@ echo "   iOS XCFramework: ${IOS_XCFRAMEWORK}"
 echo ""
 
 FFIGEN_CONFIG="${BASE_DIR}/../../cw_mweb/ffigen_config.yaml"
+IOS_HEADER="ios/${FRAMEWORK_NAME}.xcframework/ios-arm64/${FRAMEWORK_NAME}.framework/Headers/${FRAMEWORK_NAME}.h"
 if [[ -f "$FFIGEN_CONFIG" ]]; then
     echo "Updating ffigen configuration..."
-    sed -i.bak "s|android/src/main/jniLibs/arm64-v8a/mweb.h|ios/${FRAMEWORK_NAME}.xcframework/ios-arm64/${FRAMEWORK_NAME}.framework/Headers/${FRAMEWORK_NAME}.h|g" "$FFIGEN_CONFIG"
-    mv "$FFIGEN_CONFIG.bak" "$FFIGEN_CONFIG"
+    sed -i.bak "s|android/src/main/jniLibs/arm64-v8a/libmweb.h|${IOS_HEADER}|g" "$FFIGEN_CONFIG"
+    rm -f "$FFIGEN_CONFIG.bak"
     echo "Updated ffigen config to use XCFramework header"
 fi
 
 cd "${BASE_DIR}/../../cw_mweb"
+
 echo "Generating Dart FFI bindings..."
 dart run ffigen --config ffigen_config.yaml
+
 
 echo "Build completed successfully!"
 

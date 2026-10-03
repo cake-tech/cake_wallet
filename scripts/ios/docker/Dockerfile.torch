@@ -1,0 +1,23 @@
+ARG BASE_IMAGE
+
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+COPY scripts/prepare_torch.sh /w/scripts/prepare_torch.sh
+COPY scripts/ios/build_torch.sh /w/scripts/ios/build_torch.sh
+ARG UID=10001
+ARG GID=10001
+ARG USER=builder
+RUN groupadd -g "$GID" "$USER" && \
+    useradd  -m -u "$UID" -g "$GID" -s /bin/bash "$USER"
+
+RUN sudo chown $UID:$GID -R /w /root
+USER builder
+
+# simulator builds omitted for build time, idk why you'd need them on ci but you can add a target here
+RUN /w/scripts/ios/build_torch.sh aarch64-apple-ios \
+    && test -f /w/scripts/torch_dart/ios/LibTorch.xcframework/ios-arm64/LibTorch.framework/LibTorch \
+    && grep -q ios-arm64 /w/scripts/torch_dart/ios/LibTorch.xcframework/Info.plist \
+    && rm -rf /w/scripts/torch_dart/simplybs
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w /w

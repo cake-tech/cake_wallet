@@ -2,7 +2,7 @@
 set -e
 
 IOS_DIR="$(pwd)/../../ios"
-monero_c_tag=$(cd $(pwd)/../../scripts/monero_c/; git describe --tags)
+monero_c_tag="${MONEROC_TAG:-$(cd "$(pwd)/../../scripts/monero_c/" && git describe --tags)}"
 DYLIB_PATH="$(pwd)/../../scripts/monero_c/release/${monero_c_tag}/"
 TMP_DIR="${IOS_DIR}/tmp"
 
