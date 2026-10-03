@@ -15,9 +15,9 @@ class ProviderSelectorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final decentralizedProviders =
-        exchangeViewModel.providersForCurrentPair.where((item) => !item.description.isCentralized);
+        exchangeViewModel.selectedProviders.where((item) => !item.description.isCentralized);
     final centralizedProviders =
-        exchangeViewModel.providersForCurrentPair.where((item) => item.description.isCentralized);
+        exchangeViewModel.selectedProviders.where((item) => item.description.isCentralized);
 
     return Column(
       children: [

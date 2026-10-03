@@ -882,9 +882,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<void> calculateForcedProviderRate() async {
-    if (forcedProvider == null ||
-        depositCurrency == receiveCurrency ||
-        _excludeProviderForUnsupportedChain(forcedProvider!)) {
+    if (forcedProvider == null || depositCurrency == receiveCurrency) {
       forcedProviderRate = 0.0;
       return;
     }
@@ -909,23 +907,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool _excludeProviderForReceiveExtraId(ExchangeProvider provider) =>
       memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
 
-  static const _robinhoodChainProviders = {
-    ExchangeProviderDescription.changeNow,
-    ExchangeProviderDescription.sideShift,
-    ExchangeProviderDescription.nearIntents,
-  };
-
-  bool get _pairInvolvesRobinhoodChain =>
-      cryptoCurrencyOrTokenToWalletType(depositCurrency) == WalletType.robinhood ||
-      cryptoCurrencyOrTokenToWalletType(receiveCurrency) == WalletType.robinhood;
-
-  bool _excludeProviderForUnsupportedChain(ExchangeProvider provider) =>
-      _pairInvolvesRobinhoodChain && !_robinhoodChainProviders.contains(provider.description);
-
-  List<ExchangeProvider> get providersForCurrentPair => selectedProviders
-      .where((provider) => !_excludeProviderForUnsupportedChain(provider))
-      .toList();
-
   Future<void> calculateBestRate() async {
     if (depositCurrency == receiveCurrency) {
       bestRate = 0.0;
@@ -939,7 +920,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       if (_excludeProviderForSwapAll(provider)) return false;
       if (_excludeProviderForReceiveExtraId(provider)) return false;
-      if (_excludeProviderForUnsupportedChain(provider)) return false;
 
       final limits = _providerLimits[provider];
 
@@ -1019,7 +999,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       final futures = selectedProviders
           .where((provider) => providerList.contains(provider))
           .where((provider) => !_excludeProviderForReceiveExtraId(provider))
-          .where((provider) => !_excludeProviderForUnsupportedChain(provider))
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
@@ -1130,9 +1109,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
-    if (forcedProvider != null &&
-        (_excludeProviderForReceiveExtraId(forcedProvider!) ||
-            _excludeProviderForUnsupportedChain(forcedProvider!))) {
+    if (forcedProvider != null && _excludeProviderForReceiveExtraId(forcedProvider!)) {
       tradeState = TradeIsCreatedFailure(
         title: S.current.trade_not_created,
         error: S.current.none_of_selected_providers_can_exchange,
@@ -1146,8 +1123,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     } else {
       providers = Map.fromEntries(
         _sortedAvailableProviders.entries.where(
-          (e) =>
-              selectedProviders.contains(e.value) && !_excludeProviderForUnsupportedChain(e.value),
+          (e) => selectedProviders.contains(e.value),
         ),
       );
     }
@@ -1160,9 +1136,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       } else {
         providers = Map.fromEntries(
           _sortedAvailableProviders.entries.where(
-            (e) =>
-                selectedProviders.contains(e.value) &&
-                !_excludeProviderForUnsupportedChain(e.value),
+            (e) => selectedProviders.contains(e.value),
           ),
         );
       }
