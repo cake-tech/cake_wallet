@@ -119,7 +119,7 @@ class WalletRemovalPopup extends StatelessWidget {
           builder: (context) => AlertWithTwoActions(
                 alertTitle: "${wi.name} Seed",
                 alertContent:
-                    "${seed?.seed ?? "backup failed, please open wallet to back up"}${seed?.passphrase == null ? null : "\n\n${seed!.passphrase}"}",
+                    "${seed?.seed ?? "backup failed, please open wallet to back up"}${seed?.passphrase == null ? null : "\n\npassphrase: ${seed!.passphrase}"}",
                 rightButtonText: S.of(context).close,
             leftButtonText: S.of(context).copy,
             actionLeftButton: ()=>Navigator.of(context).pop(true),

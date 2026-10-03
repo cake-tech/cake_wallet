@@ -1391,8 +1391,10 @@ Future<void> _addTbbTokenToExistingSolanaWallets() async {
 }
 
 Future<void> saveDeprecatedWalletSeeds(WalletType type) async {
-  final walletService = await _getWalletService(type);
   final walletInfos = (await WalletInfo.getAll()).where((item)=>item.type == type).toList();
+  if (walletInfos.isEmpty) return;
+  
+  final walletService = await _getWalletService(type);
   final flutterSecureStorage = secureStorageShared;
   final keyService = KeyService(flutterSecureStorage);
   for(final walletInfo in walletInfos) {
