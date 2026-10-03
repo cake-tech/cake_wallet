@@ -1,3 +1,5 @@
+import "package:cw_core/wallet_type.dart";
+
 class PreferencesKey {
   static const currentWalletType = 'current_wallet_type';
   static const currentWalletName = 'current_wallet_name';
@@ -117,7 +119,6 @@ class PreferencesKey {
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
   static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
-
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
@@ -148,4 +149,6 @@ class PreferencesKey {
   static const balanceHideCounter = "balance_hide_counter";
   static const zcashMigrationModalViewed = "zcash_migration_modal_viewed";
   static const showCiBuildOverlay = "show_ci_build_overlay";
+  static String deprecationPopupViewed(WalletType type) =>
+      "deprecation_popup_viewed_${walletTypeToString(type)}";
 }
