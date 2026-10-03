@@ -119,7 +119,6 @@ class PreferencesKey {
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
   static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
-
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
@@ -149,4 +148,5 @@ class PreferencesKey {
   static const mwebAdDismissed = "mweb_ad_dismissed";
   static const balanceHideCounter = "balance_hide_counter";
   static const zcashMigrationModalViewed = "zcash_migration_modal_viewed";
+  static const showCiBuildOverlay = "show_ci_build_overlay";
 }

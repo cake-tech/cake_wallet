@@ -217,6 +217,11 @@ void restoreWalletFromKeys(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
+
   openedWalletsByPath[path] = currentWallet!;
 }
 
@@ -300,6 +305,10 @@ void restoreWalletFromSpendKeySync(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
   currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
 
   storeSync();
@@ -332,6 +341,9 @@ Future<void> restoreWalletFromHardwareWallet(
   }
 
   currentWallet = newW;
+
+  setRefreshFromBlockHeight(height: restoreHeight);
+
   currentWallet!.store(path: path);
   openedWalletsByPath[path] = currentWallet!;
 }
