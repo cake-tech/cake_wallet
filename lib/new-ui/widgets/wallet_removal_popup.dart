@@ -1,3 +1,5 @@
+import "package:cake_wallet/core/key_service.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
@@ -10,6 +12,7 @@ import "package:cake_wallet/utils/clipboard_util.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/deprecated_wallet_seeds.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -97,8 +100,6 @@ class WalletRemovalPopup extends StatelessWidget {
       switch (type) { WalletType.zano => S.current.zano_removal_reason, _ => null };
 
   Future<void> _showBackedUpSeed(BuildContext context, WalletInfo wi) async {
-    final seed = await DeprecatedWalletSeeds.get(wi.internalId);
-
     if(context.mounted) {
       final confirmed = await showPopUp<bool>(context: context, builder: (context)=>AlertWithTwoActions(
         alertTitle: "${wi.name} Seed",
@@ -115,13 +116,15 @@ class WalletRemovalPopup extends StatelessWidget {
       }
     }
 
+    final seed = await _decryptSeed(wi);
+
     if (context.mounted) {
       final copied = await showPopUp<bool>(
           context: context,
           builder: (context) => AlertWithTwoActions(
                 alertTitle: "${wi.name} Seed",
                 alertContent:
-                    "${seed?.seed ?? "backup failed, please open wallet to back up"}${seed?.passphrase == null ? null : "\n\npassphrase: ${seed!.passphrase}"}",
+                    "${seed?.seed ?? "backup failed, please open wallet to back up"}${seed?.passphrase == null ? "" : "\n\npassphrase: ${seed!.passphrase}"}",
                 rightButtonText: S.of(context).close,
             leftButtonText: S.of(context).copy,
             actionLeftButton: ()=>Navigator.of(context).pop(true),
@@ -131,6 +134,18 @@ class WalletRemovalPopup extends StatelessWidget {
       if((copied ?? false) && seed != null) {
         await ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: seed.seed));
       }
+    }
+  }
+
+  Future<DeprecatedWalletSeeds?> _decryptSeed(WalletInfo wi) async {
+    try {
+      return await DeprecatedWalletSeeds.get(
+        wi.internalId,
+        await getIt.get<KeyService>().getWalletPassword(walletName: wi.name),
+      );
+    } catch (e) {
+      printV("${wi.name} seed decryption failed: $e");
+      return null;
     }
   }
 }

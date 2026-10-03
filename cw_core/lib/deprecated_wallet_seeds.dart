@@ -1,22 +1,23 @@
+import "dart:convert";
+import "dart:io";
+import "dart:typed_data";
+
+import "package:cake_backup/backup.dart" as cwb;
 import "package:cw_core/db/sqlite.dart";
 import "package:sqflite/sqflite.dart";
 
 class DeprecatedWalletSeeds {
   DeprecatedWalletSeeds({required this.walletInfoId, required this.seed, this.passphrase});
 
-  DeprecatedWalletSeeds.fromJson(Map<String, dynamic> json)
-      : walletInfoId = json["walletInfoId"] as int,
-        seed = json["seed"] as String,
-        passphrase = json["passphrase"] as String?;
-
-  Map<String, dynamic> toJson() => {
-    "walletInfoId": walletInfoId,
-    "seed": seed,
-    "passphrase": passphrase,
-  };
-
-  Future<void> save() =>
-      db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+  Future<void> save(String password) async => db!.insert(
+        tableName,
+        {
+          "walletInfoId": walletInfoId,
+          "seed": await _encrypt(seed, password),
+          "passphrase": await _encrypt(passphrase ?? "", password),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
 
   static const tableName = "DeprecatedWalletSeeds";
 
@@ -24,18 +25,36 @@ class DeprecatedWalletSeeds {
   final String seed;
   final String? passphrase;
 
-  static Future<List<DeprecatedWalletSeeds>> selectList(String where, List<dynamic> whereArgs,) async {
-    final list = await db!.query(
+  static Future<DeprecatedWalletSeeds?> get(int walletInfoId, String password) async {
+    final row = (await db!.query(
       tableName,
-      where: where.isNotEmpty ? where : "1 = 1",
-      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
-    );
-    return List.generate(list.length, (index) => DeprecatedWalletSeeds.fromJson(list[index]));
-  }
+      where: "walletInfoId = ?",
+      whereArgs: [walletInfoId],
+    ))
+        .firstOrNull;
+    if (row == null) {
+      return null;
+    }
 
-  static Future<DeprecatedWalletSeeds?> get(int walletInfoId) async =>
-      (await selectList("walletInfoId = ?", [walletInfoId])).firstOrNull;
+    final passphrase = await _decrypt(row["passphrase"] as String, password);
+    return DeprecatedWalletSeeds(
+      walletInfoId: walletInfoId,
+      seed: await _decrypt(row["seed"] as String, password),
+      passphrase: passphrase.isEmpty ? null : passphrase,
+    );
+  }
 
   static Future<void> delete(int walletInfoId) =>
       db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
+
+  static Future<String> _encrypt(String data, String password) async => base64.encode(
+        await cwb.encrypt(
+          password,
+          Uint8List.fromList(utf8.encode(data)),
+          highEntropyPassphrase: !Platform.isLinux,
+        ),
+      );
+
+  static Future<String> _decrypt(String data, String password) async =>
+      utf8.decode(await cwb.decrypt(password, base64.decode(data)));
 }

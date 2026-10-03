@@ -1404,7 +1404,7 @@ try {
   final seed = wallet.seed ?? "unknown";
   final passphrase = wallet.passphrase;
   await wallet.close();
-  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed, passphrase: passphrase).save();
+  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed, passphrase: passphrase).save(password);
 } catch(e, st) {
   printV("${walletInfo.name} seed backup FAIL: $e\n$st");
 }
