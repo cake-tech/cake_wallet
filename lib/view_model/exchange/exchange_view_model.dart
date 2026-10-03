@@ -909,7 +909,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool _excludeProviderForReceiveExtraId(ExchangeProvider provider) =>
       memoLabelTypeFor(receiveCurrency) != null && !provider.supportsMemoOrDestinationTag;
 
-  // Only these map Robinhood Chain to its own network, the rest would route it as mainnet ETH.
   static const _robinhoodChainProviders = {
     ExchangeProviderDescription.changeNow,
     ExchangeProviderDescription.sideShift,

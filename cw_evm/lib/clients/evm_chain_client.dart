@@ -176,7 +176,6 @@ class EVMChainClient {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
       final nodeHost = Uri.parse("https://${node.uriRaw}").host;
-      // A user's own node already carries their key in the path, we only add ours when it doesn't.
       final pathSegments =
           (node.path ?? "").split("/").where((segment) => segment.isNotEmpty).toList();
 
@@ -185,7 +184,7 @@ class EVMChainClient {
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
         if (nowNodeApiKey.isEmpty) {
-          printV('NowNodes API key is empty, cannot connect to ${node.uriRaw}');
+          printV("NowNodes API key is empty, cannot connect to ${node.uriRaw}");
           return false;
         }
 
