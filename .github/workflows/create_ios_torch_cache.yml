@@ -23,12 +23,6 @@ defaults:
 jobs:
   build:
     runs-on: puzl-ubuntu-latest
-    container:
-      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
-      volumes:
-        - /opt/cw_cache_linux/root/.cache:/root/.cache
-        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
-        - /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Fix github actions messing up $HOME...
