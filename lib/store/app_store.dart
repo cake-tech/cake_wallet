@@ -82,6 +82,23 @@ abstract class AppStoreBase with Store {
     _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
   }
 
+  /// Recreates the WalletConnect client so its relay connection follows the
+  /// current Tor setting.
+  void reconnectWalletConnect() {
+    if (wallet != null && isWalletConnectCompatibleChain(wallet!.type)) {
+      _queueWalletConnectAction(_setupWalletConnect);
+    }
+  }
+
+  /// Drops the WalletConnect relay connection right away, so it doesn't keep
+  /// using clearnet while Tor is starting. [reconnectWalletConnect] brings it
+  /// back once Tor is ready.
+  void disconnectWalletConnect() {
+    if (wallet != null && isWalletConnectCompatibleChain(wallet!.type)) {
+      _queueWalletConnectAction(_disposeWalletConnect);
+    }
+  }
+
   Future<void> _setupWalletConnect() async {
     try {
       final wcService = getIt.get<WalletKitService>();

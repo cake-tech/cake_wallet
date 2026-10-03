@@ -9,6 +9,9 @@ import 'package:http/http.dart';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:http/io_client.dart' as ioc;
 
+// Response type returned by ProxyWrapper, so callers can name it without importing package:http.
+export 'package:http/http.dart' show Response;
+
 class ProxyWrapper {
   static final ProxyWrapper _proxyWrapper = ProxyWrapper._internal();
   static ProxyLogger? logger;
