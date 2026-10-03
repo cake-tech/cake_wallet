@@ -35,54 +35,56 @@ class WalletRemovalPopup extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(18)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 18,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 8,
-                    children: iconPaths
-                        .map((item) => CakeImageWidget(
-                              imageUrl: item,
-                              width: 64,
-                              height: 64,
-                            ))
-                        .toList(),
-                  ),
-                  Text(
-                    textAlign: TextAlign.center,
-                    S.of(context).support_will_soon_be_removed(typeNames.join(", ")),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                  Text(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 18,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 8,
+                      children: iconPaths
+                          .map((item) => CakeImageWidget(
+                                imageUrl: item,
+                                width: 64,
+                                height: 64,
+                              ))
+                          .toList(),
+                    ),
+                    Text(
                       textAlign: TextAlign.center,
-                      types.map(deprecationReasonForType).whereType<String>().join("\n\n")),
-                  Text(
-                    textAlign: TextAlign.center,
-                    S.of(context).make_sure_you_migrated(typeNames.join("/")),
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: context.currentTheme.customColors.warningOutlineColor),
-                  ),
-                  NewListSections(sections: {
-                    "": affectedWallets
-                        .map((item) => ListItemRegularRow(
-                            iconPath: walletTypeToCryptoCurrency(item.type).iconPath ?? "",
-                            keyValue: item.name,
-                            label: item.name,
-                            showArrow: true,
-                            onTap: () => _showBackedUpSeed(context, item)))
-                        .toList()
-                  }),
-                  NewPrimaryButton(
-                      onPressed: Navigator.of(context).pop,
-                      text: S.of(context).close,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary)
-                ],
+                      S.of(context).support_will_soon_be_removed(typeNames.join(", ")),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                        textAlign: TextAlign.center,
+                        types.map(deprecationReasonForType).whereType<String>().join("\n\n")),
+                    Text(
+                      textAlign: TextAlign.center,
+                      S.of(context).make_sure_you_migrated(typeNames.join("/")),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: context.currentTheme.customColors.warningOutlineColor),
+                    ),
+                    NewListSections(sections: {
+                      "": affectedWallets
+                          .map((item) => ListItemRegularRow(
+                              iconPath: walletTypeToCryptoCurrency(item.type).iconPath ?? "",
+                              keyValue: item.name,
+                              label: item.name,
+                              showArrow: true,
+                              onTap: () => _showBackedUpSeed(context, item)))
+                          .toList()
+                    }),
+                    NewPrimaryButton(
+                        onPressed: Navigator.of(context).pop,
+                        text: S.of(context).close,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary)
+                  ],
+                ),
               ),
             ),
           ),
