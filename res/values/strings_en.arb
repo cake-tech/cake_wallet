@@ -997,6 +997,7 @@
   "return_address_desc": "In the rare case of a failed swap, our partners can automatically refund your payment to the provided refund address.",
   "return_address_desc_external": "Since you chose Send From External, please set a refund address manually below.",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
+  "robinhoodscan_history": "Robinhood History",
   "rotate_address": "Get new address",
   "router_no_route": "No route defined for ${name}",
   "salary": "Salary",
