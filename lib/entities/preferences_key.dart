@@ -15,6 +15,7 @@ class PreferencesKey {
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
   static const currentDogecoinNodeIdKey = 'current_node_id_doge';
+  static const currentPivxNodeIdKey = 'current_node_id_pivx';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
@@ -55,6 +56,7 @@ class PreferencesKey {
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
+  static const pivxTransactionPriority = 'current_fee_priority_pivx';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const baseTransactionPriority = 'current_fee_priority_base';

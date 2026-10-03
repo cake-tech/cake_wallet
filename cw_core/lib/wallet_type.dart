@@ -24,13 +24,15 @@ const walletTypes = [
   WalletType.arbitrum,
   WalletType.zcash,
   WalletType.bsc,
+  WalletType.pivx,
 ];
 
 const electrumWalletTypes = [
   WalletType.bitcoin,
   WalletType.litecoin,
   WalletType.bitcoinCash,
-  WalletType.dogecoin
+  WalletType.dogecoin,
+  WalletType.pivx
 ];
 
 const evmWalletTypes = [
@@ -102,6 +104,9 @@ enum WalletType {
 
   // @HiveField(19)
   bsc,
+
+  // @HiveField(20)
+  pivx,
 }
 
 int serializeToInt(WalletType type) {
@@ -144,6 +149,8 @@ int serializeToInt(WalletType type) {
       return 17;
     case WalletType.bsc:
       return 18;
+    case WalletType.pivx:
+      return 19;
     case WalletType.none:
       return -1;
   }
@@ -189,6 +196,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.zcash;
     case 18:
       return WalletType.bsc;
+    case 19:
+      return WalletType.pivx;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -234,6 +243,8 @@ String walletTypeToString(WalletType type) {
       return 'Zcash';
     case WalletType.bsc:
       return 'BNB Smart Chain';
+    case WalletType.pivx:
+      return 'PIVX';
     case WalletType.none:
       return '';
   }
@@ -259,6 +270,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.arbitrum => 'Arbitrum',
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
+      WalletType.pivx => 'PIVX',
       WalletType.none => ''
     };
 
@@ -282,6 +294,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.arbitrum => 'ARB',
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
+      WalletType.pivx => 'PIVX',
       WalletType.none => ''
     };
 
@@ -327,6 +340,8 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.dogecoin;
     case CryptoCurrency.zec:
       return WalletType.zcash;
+    case CryptoCurrency.pivx:
+      return WalletType.pivx;
     default:
       return null;
   }

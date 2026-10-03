@@ -205,7 +205,8 @@ class TxDetailRowDefinition {
       title: S.current.memo,
       valueGetter: (vm) => vm.transactionInfo.additionalInfo["memo"] as String,
       applicable: (vm) =>
-          vm.wallet.type == WalletType.zcash && vm.transactionInfo.additionalInfo["memo"] != null,
+          (vm.wallet.type == WalletType.zcash || vm.wallet.type == WalletType.pivx) &&
+          vm.transactionInfo.additionalInfo["memo"] != null,
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_asset_id_key",
@@ -386,6 +387,12 @@ abstract class TransactionDetailsViewModelBase with Store {
           str += " (Peg Out)";
         }
         return str;
+      case WalletType.pivx:
+        final needed = neededConfirmations;
+        if (transactionInfo.confirmations >= 0 && transactionInfo.confirmations < needed) {
+          return " (${transactionInfo.confirmations}/$needed)";
+        }
+        return transactionInfo.isPending ? S.current.pending : "";
       default:
         return "";
     }
@@ -400,6 +407,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       WalletType.wownero,
       WalletType.litecoin,
       WalletType.zano,
+      WalletType.pivx,
     ].contains(wallet.type)) {
       return formattedPendingStatus;
     }
@@ -421,6 +429,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (isPegOut || fromPegOut) {
           return 6;
         }
+      case WalletType.pivx:
+        return transactionInfo.additionalInfo['pivxRequiredConfirmations'] as int? ?? 0;
       default:
         return 0;
     }
@@ -494,6 +504,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.dogecoin:
         return "https://blockchair.com/dogecoin/transaction/${txId}";
+      case WalletType.pivx:
+        return "https://explorer.pivx.org/#/tx/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
       case WalletType.none:

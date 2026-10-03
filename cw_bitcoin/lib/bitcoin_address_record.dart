@@ -150,7 +150,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       case DogecoinNetwork.mainnet:
         return 3;
       default:
-        return 0;
+        // PivxNetwork lives in cw_pivx, which depends on this package.
+        return network?.value == 'pivxMainnet' ? 119 : 0;
     }
   }
 

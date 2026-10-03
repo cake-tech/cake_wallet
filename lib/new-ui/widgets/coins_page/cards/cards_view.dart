@@ -161,7 +161,10 @@ class _CardsViewState extends State<CardsView> {
 
               late final String walletBalance;
               late final String walletFiatBalance;
-              if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+              if ((widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) ||
+                  widget.dashboardViewModel.wallet.type == WalletType.pivx) {
+                // pivx (like MWEB) holds a shielded balance; show the combined
+                // transparent + shielded total.
                 if (widget.dashboardViewModel.balanceViewModel.displayMode ==
                     BalanceDisplayMode.hiddenBalance) {
                   walletBalance = '●●●●●●';

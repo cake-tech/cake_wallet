@@ -3,7 +3,7 @@ set -x -e
 
 pids=()
 
-for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,zcash}
+for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred,dogecoin,zcash,pivx}
 do
     if [[ "x$1" == "xasync" ]];
     then
