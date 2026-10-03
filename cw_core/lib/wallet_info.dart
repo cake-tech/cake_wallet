@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/db/sqlite.dart';
-import 'package:cw_core/deprecated_wallet_seeds.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
@@ -793,11 +792,8 @@ class WalletInfo {
     return internalId;
   }
 
-  static Future<int> delete(WalletInfo walletInfo) async {
-    final deleted = await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
-    await DeprecatedWalletSeeds.delete(walletInfo.internalId);
-    return deleted;
-  }
+  static Future<int> delete(WalletInfo walletInfo) async =>
+      db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
 
   static Future<List<WalletInfo>> selectList(String where, List<dynamic> whereArgs,
       {String orderBy = 'sortOrder'}) async {
