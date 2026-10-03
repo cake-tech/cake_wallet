@@ -1775,6 +1775,7 @@ abstract class Zcash {
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
   Map<String, String> getKeys(Object wallet);
+  Future<int?> getBirthHeight(Object wallet);
 
   Object createZcashTransactionCredentials(
     List<Output> outputs, {
@@ -2076,13 +2077,13 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.nano,\n';
   }
 
-  if (hasDecred) {
-    outputContent += '\tWalletType.decred,\n';
-  }
+  // if (hasDecred) {
+  //   outputContent += '\tWalletType.decred,\n';
+  // }
 
-  if (hasZano) {
-    outputContent += '\tWalletType.zano,\n';
-  }
+  // if (hasZano) {
+  //   outputContent += '\tWalletType.zano,\n';
+  // }
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';

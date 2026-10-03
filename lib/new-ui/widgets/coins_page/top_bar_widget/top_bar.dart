@@ -1,7 +1,6 @@
 import "dart:async";
 import "dart:io";
 
-import "package:cake_wallet/core/wallet_name_validator.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
@@ -154,6 +153,7 @@ class _TopBarState extends State<TopBar> {
         );
 
         final settingsButton = ModernButton.svg(
+          key: const ValueKey("home_page_settings_button_key"),
           iconColor: Theme.of(context).colorScheme.primary,
           size: 36,
           onPressed: () {

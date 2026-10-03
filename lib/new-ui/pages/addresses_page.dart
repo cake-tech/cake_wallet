@@ -86,7 +86,12 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
       });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
+      reaction((_) {
+        final index = widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id ?? 0;
+        final designs = widget.dashboardViewModel.cardDesigns;
+        return (index >= 0 && index < designs.length) ? designs[index] : null;
+      }, (value) {
+        if (!mounted) return;
         setState(() {
           design = value;
         });

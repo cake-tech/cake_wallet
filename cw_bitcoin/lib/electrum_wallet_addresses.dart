@@ -1,3 +1,4 @@
+import 'dart:async' show Zone;
 import 'dart:io' show Platform;
 import 'dart:math';
 import "package:collection/collection.dart";
@@ -425,7 +426,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
-    _validateAddresses();
+    await _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -506,7 +507,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (shouldSkipHardwareWalletType) continue;
 
       await _generateInitialAddresses(accountIndex: accountIndex, type: type);
-      
+
       // Legacy derivation for these types is identical to the standard one.
       if (includeLegacy && !LEGACY_DUPLICATE_ADDRESS_TYPES.contains(type)) {
         await _generateInitialAddresses(
@@ -516,11 +517,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         );
       }
     }
-
-    updateAddressesByMatch();
-    updateReceiveAddresses();
-    updateChangeAddresses();
-    await updateAddressesInBox();
   }
 
   @action
@@ -575,6 +571,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       index: newAddressIndex,
       accountIndex: accountIndex,
       isHidden: false,
+      isHiddenChecked: true,
       isLegacyDerivation: false,
       name: label,
       type: addressPageType,
@@ -961,6 +958,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           await getAddressAsync(index: i, hd: hd, addressType: addrType),
           index: i,
           isHidden: isHidden,
+          isHiddenChecked: true,
           isLegacyDerivation: isLegacyDerivation,
           type: addrType,
           network: network,
@@ -1006,39 +1004,52 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateAddresses() {
-    _addresses.forEach((element) async {
-      if (element.type == SegwitAddresType.mweb) {
-        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
-        return;
+  static const _validationTimeSlice = Duration(milliseconds: 16);
+
+  Future<void> _validateAddresses() async {
+    final addresses = _addresses.toList();
+    final slice = Stopwatch()..start();
+
+    for (final element in addresses) {
+      try {
+        await _validateAddress(element);
+      } catch (e, s) {
+        Zone.current.handleUncaughtError(e, s);
       }
 
-      try {
-        final mainHd = _hdForAddressGeneration(
-            isHidden: false,
-            type: element.type,
-            isLegacyDerivation: element.isLegacyDerivation,
-            accountIndex: element.accountIndex);
-        final sideHd = _hdForAddressGeneration(
-            isHidden: true,
-            type: element.type,
-            isLegacyDerivation: element.isLegacyDerivation,
-            accountIndex: element.accountIndex);
-        if (!element.isHidden &&
-            element.address !=
-                await getAddressAsync(
-                    index: element.index, hd: mainHd, addressType: element.type)) {
-          element.isHidden = true;
-        } else if (element.isHidden &&
-            element.address !=
-                await getAddressAsync(
-                    index: element.index, hd: sideHd, addressType: element.type)) {
-          element.isHidden = false;
-        }
-      } on UnsupportedAddressTypeForAccountException catch (e) {
-        printV("_validateAddresses: skipping ${element.address}: $e");
+      if (slice.elapsed >= _validationTimeSlice) {
+        await Future<void>.delayed(Duration.zero);
+        slice.reset();
       }
-    });
+    }
+  }
+
+  Future<void> _validateAddress(BitcoinAddressRecord element) async {
+    if (element.isHiddenChecked) return;
+
+    if (element.type == SegwitAddresType.mweb) {
+      // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+      return;
+    }
+
+    try {
+      // Relabel only when the address re-derives from the other chain. A record from a path these
+      // keys don't produce matches neither chain, so it keeps its label instead of flipping.
+      final otherChainHd = _hdForAddressGeneration(
+        isHidden: !element.isHidden,
+        type: element.type,
+        isLegacyDerivation: element.isLegacyDerivation,
+        accountIndex: element.accountIndex,
+      );
+      final otherChainAddress =
+          await getAddressAsync(index: element.index, hd: otherChainHd, addressType: element.type);
+      if (element.address == otherChainAddress) {
+        element.isHidden = !element.isHidden;
+      }
+      element.isHiddenChecked = true;
+    } on UnsupportedAddressTypeForAccountException catch (e) {
+      printV("_validateAddresses: skipping ${element.address}: $e");
+    }
   }
 
   @override
@@ -1054,7 +1065,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (needsAccountScopedHd) {
       final accountIndex = walletInfo.type == WalletType.bitcoin ? currentAccountIndex : 0;
       if (!_isAddressTypeSupportedForAccount(type, accountIndex)) {
-        resolvedType = SegwitAddresType.p2wpkh;
+        resolvedType = EXTRA_ACCOUNT_ADDRESS_TYPES.first;
       }
     }
 
@@ -1091,11 +1102,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   // Remove all addresses associated with a specific account index.
   @action
-  void removeAddressesForAccount(int accountIndex) {
+  Future<void> removeAddressesForAccount(int accountIndex) async {
     _addresses.removeWhere((addr) => addr.accountIndex == accountIndex);
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
+    await updateAddressesInBox();
   }
 
 
@@ -1174,7 +1186,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (lightningWallet == null) return;
 
     try {
-      final path = walletInfo.dirPath;
+      final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
       final initialized = await lightningWallet!.init(path);
 
       if (!initialized) {

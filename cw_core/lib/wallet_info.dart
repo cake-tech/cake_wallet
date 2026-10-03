@@ -450,8 +450,8 @@ class WalletInfo {
     required String path,
     required String address,
     bool? showIntroCakePayCard,
-    String yatEid = '',
-    String yatLastUsedAddressRaw = '',
+    String yatEid = "",
+    String yatLastUsedAddressRaw = "",
     int? derivationInfoId,
     HardwareWalletType? hardwareWalletType,
     String? parentAddress,
@@ -476,9 +476,9 @@ class WalletInfo {
       dirPath,
       path,
       address,
-      yatEid,
-      yatLastUsedAddressRaw,
-      showIntroCakePayCard,
+      yatEid.isNotEmpty ? yatEid : null,
+      yatLastUsedAddressRaw.isNotEmpty ? yatLastUsedAddressRaw : null,
+      showIntroCakePayCard ?? false,
       derivationInfoId ?? -1,
       hardwareWalletType,
       parentAddress,
@@ -487,15 +487,20 @@ class WalletInfo {
       sortOrder ?? 0,
       currentAccountIndex,
       null,
-      // addressPageType
       receiveInfoboxDismissed ?? false,
       showCombinedBalance ?? true,
-      favoriteTokenAddress,
+      favoriteTokenAddress?.isNotEmpty == true ? favoriteTokenAddress : null,
       false,
-      // showSeedBackupReminder
       groupId,
     );
     wi.isReady = isReady ?? true;
+
+    if (type == WalletType.bitcoin) {
+      wi.isMultiAccountsEnabled = false;
+    } else if (type == WalletType.monero || type == WalletType.wownero) {
+      wi.isMultiAccountsEnabled = true;
+    }
+
     return wi;
   }
 
@@ -676,14 +681,6 @@ class WalletInfo {
   String? network;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
-
-  bool get hasNativeAccounts => type == WalletType.monero || type == WalletType.wownero;
-
-  bool get canToggleMultiAccounts => type == WalletType.bitcoin && hardwareWalletType == null;
-
-  bool get multiAccountsActive =>
-      hasNativeAccounts || (canToggleMultiAccounts && isMultiAccountsEnabled == true);
-
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -828,7 +825,8 @@ class WalletInfo {
   }
 
   static Future<int> delete(WalletInfo walletInfo) async {
-    return await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
+    final deleted = await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
+    return deleted;
   }
 
   static Future<List<WalletInfo>> selectList(String where, List<dynamic> whereArgs,

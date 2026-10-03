@@ -11,11 +11,11 @@ import "package:sqflite_common_ffi/sqflite_ffi.dart";
 Database? db;
 
 Future<void> _addColumnIfNotExists(
-  Database db, {
-  required String table,
-  required String column,
-  required String definition,
-}) async {
+    Database db, {
+      required String table,
+      required String column,
+      required String definition,
+    }) async {
   final result = await db.rawQuery("PRAGMA table_info($table)");
   final columnExists = result.any((row) => row["name"] == column);
 
@@ -67,7 +67,7 @@ Future<void> _initDb({String? pathOverride}) async {
 
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -193,7 +193,10 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
-      if (oldVersion <= 14) {
+      if(oldVersion <= 14) {
+        await _createDeprecatedWalletSeedTable(db);
+      }
+      if (oldVersion <= 15) {
         await _addColumnIfNotExists(
           db,
           table: "WalletInfo",
@@ -316,6 +319,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createDeprecatedWalletSeedTable(db);
       await _createWalletGroupTable(db);
     },
   );
@@ -426,14 +430,14 @@ Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   // Lightning: 0 -> -2 (first, so accountIndex 0 is free for the Bitcoin card)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = -2 "
-    "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
+        "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 
   // Bitcoin: -1 -> 0 (primary account, first in order)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = 0, cardOrder = 0 "
-    "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
+        "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 }
@@ -618,4 +622,16 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
+}
+
+
+Future<void> _createDeprecatedWalletSeedTable(Database db) async {
+  await db.execute("""
+CREATE TABLE DeprecatedWalletSeeds (
+walletInfoId INTEGER PRIMARY KEY,
+seed TEXT NOT NULL,
+passphrase TEXT NOT NULL,
+FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+""");
 }

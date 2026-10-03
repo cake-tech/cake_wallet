@@ -142,6 +142,10 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get hasSilentPaymentsScanning => false;
   bool get hasAccountsSupport => false;
 
+  bool get hasAccountsSupport => false;
+  bool get hasNativeAccounts => false;
+  bool get canToggleMultiAccounts => hasAccountsSupport && !hasNativeAccounts;
+
   // hardware wallet - bitbox, ledger, trezor.
   // we also have airgap wallets but those can't sign messages
   bool get canSignMessages => walletInfo.hardwareWalletType == null || walletInfo.isHardwareWallet;

@@ -120,6 +120,7 @@ abstract class ZanoWalletBase
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
+  bool _isClosed = false;
 
   /// number of transactions in each request
   static final int _txChunkSize = (pow(2, 32) - 1).toInt();
@@ -420,6 +421,7 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = true}) async {
+    _isClosed = true;
     closeWallet(null);
     _updateSyncInfoTimer?.cancel();
     _autoSaveTimer?.cancel();
@@ -532,6 +534,9 @@ abstract class ZanoWalletBase
     await walletAddresses.init();
     await walletAddresses.updateAddress(address);
     await updateTransactions();
+    if (_isClosed) {
+      return;
+    }
     _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async {
       await save();
     });

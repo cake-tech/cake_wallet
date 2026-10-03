@@ -32,7 +32,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   bool get _accountNameEnabled =>
-      !lightningMode && _wallet.hasAccountsSupport && _wallet.walletInfo.multiAccountsActive;
+      !lightningMode && _wallet.walletInfo.isMultiAccountsEnabled == true;
 
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
