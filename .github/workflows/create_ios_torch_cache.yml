@@ -22,7 +22,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: [Linux, amd64, forlinux]
+    runs-on: puzl-ubuntu-latest
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       volumes:
