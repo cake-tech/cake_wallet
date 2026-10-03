@@ -1,6 +1,11 @@
 -
-  uri: robinhood.nownodes.io
+  uri: robinhood-rpc.publicnode.com
   isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "PublicNode"
+-
+  uri: robinhood.nownodes.io
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "NOWNodes"

@@ -43,4 +43,14 @@ class EVMChainDefaultTokens {
 
     return iconPaths[contractAddress.toLowerCase()];
   }
+
+  static Set<String> getDefaultGroupsByAddress(int chainId, String contractAddress) {
+    for (final token in getDefaultTokensByChainId(chainId)) {
+      if (token.contractAddress.toLowerCase() == contractAddress.toLowerCase()) {
+        return token.groups;
+      }
+    }
+
+    return const {};
+  }
 }

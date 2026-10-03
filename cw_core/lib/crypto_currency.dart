@@ -1010,7 +1010,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     ...zcashCurrencies
   ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
     if (item.fullName != null) {
-      acc.addAll({item.fullName!.toLowerCase(): item});
+      final fullName = item.fullName!.toLowerCase();
+      final existing = acc[fullName];
+
+      // Mainnet ETH and the L2 ETHs share the "Ethereum" full name, 
+      // so we make the untagged coin keeps the name
+      if (existing == null || existing.tag != null) {
+        acc[fullName] = item;
+      }
     }
     return acc;
   });

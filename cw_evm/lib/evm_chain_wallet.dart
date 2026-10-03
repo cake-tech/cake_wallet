@@ -323,6 +323,10 @@ abstract class EVMChainWalletBase
       isPotentialScam: token.isPotentialScam,
       walletName: walletInfo.name,
       chainId: selectedChainId,
+      groups: EVMChainDefaultTokens.getDefaultGroupsByAddress(
+        selectedChainId,
+        token.contractAddress,
+      ),
     );
   }
 
