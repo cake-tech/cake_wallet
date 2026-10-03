@@ -75,7 +75,7 @@ class WalletRemovalPopup extends StatelessWidget {
                                 iconPath: walletTypeToCryptoCurrency(item.type).iconPath ?? "",
                                 keyValue: item.name,
                                 label: item.name,
-                                showArrow: true,
+                                showArrow: false,
                               ),
                             )
                             .toList(),
