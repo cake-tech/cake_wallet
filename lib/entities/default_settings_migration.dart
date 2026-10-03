@@ -664,6 +664,7 @@ Future<void> defaultSettingsMigration(
           break;
         case 73:
           await saveDeprecatedWalletSeeds(WalletType.zano);
+          await saveDeprecatedWalletSeeds(WalletType.decred);
         default:
           break;
       }
