@@ -20,7 +20,6 @@ import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cw_core/cake_hive.dart";
-import "package:cw_core/deprecated_wallet_seeds.dart";
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -662,9 +661,6 @@ Future<void> defaultSettingsMigration(
         case 72:
           await createDefaultChartsData();
           break;
-        case 73:
-          await saveDeprecatedWalletSeeds(WalletType.zano);
-          await saveDeprecatedWalletSeeds(WalletType.decred);
         default:
           break;
       }
@@ -1390,38 +1386,3 @@ Future<void> _addTbbTokenToExistingSolanaWallets() async {
     printV("Error in TBB migration: $e");
   }
 }
-
-Future<void> saveDeprecatedWalletSeeds(WalletType type) async {
-  final walletInfos = (await WalletInfo.getAll()).where((item)=>item.type == type).toList();
-  if (walletInfos.isEmpty) return;
-  
-  final walletService = await _getWalletService(type);
-  final flutterSecureStorage = secureStorageShared;
-  final keyService = KeyService(flutterSecureStorage);
-  for(final walletInfo in walletInfos) {
-try {
-  final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-  final wallet = await walletService.openWallet(walletInfo.name, password);
-  final seed = wallet.seed ?? "unknown";
-  final passphrase = wallet.passphrase;
-  await wallet.close();
-  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed, passphrase: passphrase).save(password);
-} catch(e, st) {
-  printV("${walletInfo.name} seed backup FAIL: $e\n$st");
-}
-
-  }
-}
-
-
-Future<WalletService> _getWalletService(WalletType type)async{
-final _unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-switch(type){
-  case WalletType.zano:
-    return zano!.createZanoWalletService(SettingsStoreBase.walletPasswordDirectInput);
-  case WalletType.decred:
-    return decred!.createDecredWalletService(
-        _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
-  default:
-    throw Exception("Unexpected token: ${type.toString()} for generating of WalletService");
-}}
