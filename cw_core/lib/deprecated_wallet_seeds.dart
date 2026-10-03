@@ -35,4 +35,7 @@ class DeprecatedWalletSeeds {
 
   static Future<DeprecatedWalletSeeds?> get(int walletInfoId) async =>
       (await selectList("walletInfoId = ?", [walletInfoId])).firstOrNull;
+
+  static Future<void> delete(int walletInfoId) =>
+      db!.delete(tableName, where: "walletInfoId = ?", whereArgs: [walletInfoId]);
 }
