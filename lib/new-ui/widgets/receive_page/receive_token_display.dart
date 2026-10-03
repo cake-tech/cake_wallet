@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,7 +35,7 @@ class ReceiveTokenDisplay extends StatelessWidget {
                 children: [
                   CakeImageWidget(
                     imageUrl:
-                        "assets/new-ui/chain_badges/${addressListViewModel.wallet.type == WalletType.bsc ? "bnb" : addressListViewModel.wallet.type == WalletType.robinhood ? "robinhood" : walletTypeToString(addressListViewModel.wallet.type).toLowerCase()}.svg",
+                        walletTypeToCryptoCurrency(addressListViewModel.wallet.type).chainIconPath,
                     width: 16,
                     height: 16,
                     colorFilter:

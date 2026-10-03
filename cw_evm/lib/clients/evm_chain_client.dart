@@ -176,8 +176,11 @@ class EVMChainClient {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
       final nodeHost = Uri.parse("https://${node.uriRaw}").host;
+      // A user's own node already carries their key in the path, we only add ours when it doesn't.
+      final pathSegments =
+          (node.path ?? "").split("/").where((segment) => segment.isNotEmpty).toList();
 
-      if (nodeHost.endsWith(".nownodes.io")) {
+      if (nodeHost.endsWith(".nownodes.io") && pathSegments.isEmpty) {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
@@ -187,7 +190,8 @@ class EVMChainClient {
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
-      } else if (nodeHost.endsWith(".g.alchemy.com")) {
+      } else if (nodeHost.endsWith(".g.alchemy.com") &&
+          (pathSegments.isEmpty || (pathSegments.length == 1 && pathSegments.first == "v2"))) {
         isModifiedNodeUri = true;
         String alchemyApiKey = secrets.alchemyApiKey;
 
@@ -196,8 +200,7 @@ class EVMChainClient {
           return false;
         }
 
-        final alchemyPath = node.path ?? "";
-        rpcUri = Uri.https(node.uriRaw, "$alchemyPath/$alchemyApiKey");
+        rpcUri = Uri.https(node.uriRaw, "/v2/$alchemyApiKey");
       }
 
       _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);

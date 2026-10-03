@@ -290,11 +290,11 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.zano => 'ZANO',
       WalletType.decred => 'DCR',
       WalletType.dogecoin => 'DOGE',
-      WalletType.base => "BASE",
+      WalletType.base => '',
       WalletType.arbitrum => 'ARB',
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
-      WalletType.robinhood => "ROB",
+      WalletType.robinhood => "",
       WalletType.none => ''
     };
 

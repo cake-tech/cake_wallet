@@ -1602,6 +1602,7 @@ abstract class EVM {
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
   String getTokenNameByChainId(int chainId);
+  String? getMoralisChainName(WalletBase wallet);
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);

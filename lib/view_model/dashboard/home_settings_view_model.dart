@@ -194,10 +194,11 @@ abstract class HomeSettingsViewModelBase with Store {
         return false;
       }
 
-      bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
-        contractAddress,
-        getChainNameBasedOnWalletType(_balanceViewModel.wallet.type),
-      );
+      final moralisChainName = evm!.getMoralisChainName(_balanceViewModel.wallet);
+
+      // Moralis doesn't index every chain (Robinhood), the Etherscan source check below still runs.
+      final isPotentialScamViaMoralis = moralisChainName != null &&
+          await _isPotentialScamTokenViaMoralis(contractAddress, moralisChainName);
 
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
