@@ -1400,8 +1400,9 @@ try {
   final password = await keyService.getWalletPassword(walletName: walletInfo.name);
   final wallet = await walletService.openWallet(walletInfo.name, password);
   final seed = wallet.seed ?? "unknown";
+  final passphrase = wallet.passphrase;
   await wallet.close();
-  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed).save();
+  await DeprecatedWalletSeeds(walletInfoId: walletInfo.internalId, seed: seed, passphrase: passphrase).save();
 } catch(e, st) {
   printV("${walletInfo.name} seed backup FAIL: $e\n$st");
 }

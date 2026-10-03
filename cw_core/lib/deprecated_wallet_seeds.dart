@@ -2,15 +2,17 @@ import "package:cw_core/db/sqlite.dart";
 import "package:sqflite/sqflite.dart";
 
 class DeprecatedWalletSeeds {
-  DeprecatedWalletSeeds({required this.walletInfoId, required this.seed});
+  DeprecatedWalletSeeds({required this.walletInfoId, required this.seed, this.passphrase});
 
   DeprecatedWalletSeeds.fromJson(Map<String, dynamic> json)
       : walletInfoId = json["walletInfoId"] as int,
-        seed = json["seed"] as String;
+        seed = json["seed"] as String,
+        passphrase = json["passphrase"] as String?;
 
   Map<String, dynamic> toJson() => {
     "walletInfoId": walletInfoId,
     "seed": seed,
+    "passphrase": passphrase,
   };
 
   Future<void> save() =>
@@ -20,6 +22,7 @@ class DeprecatedWalletSeeds {
 
   final int walletInfoId;
   final String seed;
+  final String? passphrase;
 
   static Future<List<DeprecatedWalletSeeds>> selectList(String where, List<dynamic> whereArgs,) async {
     final list = await db!.query(

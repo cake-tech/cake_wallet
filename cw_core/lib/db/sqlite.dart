@@ -535,6 +535,7 @@ Future<void> _createDeprecatedWalletSeedTable(Database db) async {
 CREATE TABLE DeprecatedWalletSeeds (
 walletInfoId INTEGER PRIMARY KEY,
 seed TEXT NOT NULL,
+passphrase TEXT NOT NULL,
 FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
 """);
