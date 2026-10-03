@@ -67,6 +67,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.index,
     super.accountIndex = 0,
     super.isHidden = false,
+    this.isHiddenChecked = false,
     super.isLegacyDerivation = false,
     super.txCount = 0,
     super.balance = 0,
@@ -110,6 +111,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       index: decoded['index'] as int,
       accountIndex: decoded['accountIndex'] as int? ?? 0,
       isHidden: decoded['isHidden'] as bool? ?? false,
+      isHiddenChecked: decoded['isHiddenChecked'] as bool? ?? false,
       isLegacyDerivation: parsedIsLegacy,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
@@ -120,6 +122,10 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       network: network,
     );
   }
+
+  /// Whether [isHidden] has been checked against the wallet's keys. Records created from the
+  /// wallet's own keys are correct by construction; older ones are checked once on wallet open.
+  bool isHiddenChecked;
 
   String? scriptHash;
 
@@ -179,6 +185,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'index': index,
         'accountIndex': accountIndex,
         'isHidden': isHidden,
+        'isHiddenChecked': isHiddenChecked,
         'isLegacyDerivation': isLegacyDerivation,
         'isUsed': isUsed,
         'txCount': txCount,

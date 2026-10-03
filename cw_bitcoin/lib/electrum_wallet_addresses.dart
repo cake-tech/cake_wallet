@@ -571,6 +571,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       index: newAddressIndex,
       accountIndex: accountIndex,
       isHidden: false,
+      isHiddenChecked: true,
       isLegacyDerivation: false,
       name: label,
       type: addressPageType,
@@ -957,6 +958,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           await getAddressAsync(index: i, hd: hd, addressType: addrType),
           index: i,
           isHidden: isHidden,
+          isHiddenChecked: true,
           isLegacyDerivation: isLegacyDerivation,
           type: addrType,
           network: network,
@@ -1023,37 +1025,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> _validateAddress(BitcoinAddressRecord element) async {
+    if (element.isHiddenChecked) return;
+
     if (element.type == SegwitAddresType.mweb) {
       // this would add a ton of startup lag for mweb addresses since we have 1000 of them
       return;
     }
 
-      try {
-        final mainHd = _hdForAddressGeneration(
-            isHidden: false,
-            type: element.type,
-            isLegacyDerivation: element.isLegacyDerivation,
-            accountIndex: element.accountIndex);
-        final sideHd = _hdForAddressGeneration(
-            isHidden: true,
-            type: element.type,
-            isLegacyDerivation: element.isLegacyDerivation,
-            accountIndex: element.accountIndex);
-        if (!element.isHidden &&
-            element.address !=
-                await getAddressAsync(
-                    index: element.index, hd: mainHd, addressType: element.type)) {
-          element.isHidden = true;
-        } else if (element.isHidden &&
-            element.address !=
-                await getAddressAsync(
-                    index: element.index, hd: sideHd, addressType: element.type)) {
-          element.isHidden = false;
-        }
-      } on UnsupportedAddressTypeForAccountException catch (e) {
-        printV("_validateAddresses: skipping ${element.address}: $e");
+    try {
+      // Relabel only when the address re-derives from the other chain. A record from a path these
+      // keys don't produce matches neither chain, so it keeps its label instead of flipping.
+      final otherChainHd = _hdForAddressGeneration(
+        isHidden: !element.isHidden,
+        type: element.type,
+        isLegacyDerivation: element.isLegacyDerivation,
+        accountIndex: element.accountIndex,
+      );
+      final otherChainAddress =
+          await getAddressAsync(index: element.index, hd: otherChainHd, addressType: element.type);
+      if (element.address == otherChainAddress) {
+        element.isHidden = !element.isHidden;
       }
-    });
+      element.isHiddenChecked = true;
+    } on UnsupportedAddressTypeForAccountException catch (e) {
+      printV("_validateAddresses: skipping ${element.address}: $e");
+    }
   }
 
   @override
