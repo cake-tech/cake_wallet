@@ -960,7 +960,7 @@ dependency_overrides:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c.git
-      ref: c53178a14b56c3a48fccf578717f78a4259ba094
+      ref: 33671871de3d51696b66ffb3bd94f744e26974f6
       path: ./impls/monero.dart
   msgpack_dart:
     git:
