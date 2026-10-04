@@ -122,6 +122,30 @@ class PriceStore {
       return start;
     }
     prices.sort();
+
+    // Only points aligned to the requested precision end up on the chart (see _alignedData), so
+    // finer points cached by shorter ranges (e.g. 5min points from 1H) don't count as coverage
+    // for longer ranges. Walk the aligned points from the range start and report the first slot
+    // where data is missing: before the oldest point, in a gap, or after the newest point.
+    // A single missing slot is tolerated so small holes in the upstream data don't force a
+    // refetch on every load.
+    final precisionMs = precision.inMilliseconds;
+    var expected = start;
+    for (final price in prices) {
+      if (price.time.millisecondsSinceEpoch % precisionMs != 0 || price.time.isBefore(start)) {
+        continue;
+      }
+      if (price.time.difference(expected) > precision) {
+        printV("missing prices from ${expected.toIso8601String()}");
+        return expected;
+      }
+      expected = price.time.add(precision);
+    }
+    if (end.difference(expected) > precision) {
+      printV("missing prices from ${expected.toIso8601String()}");
+      return expected;
+    }
+
     final last = prices.last;
     printV("last.time: ${last.time.toIso8601String()} end: ${end.toIso8601String()}");
     if (last.time.isAfter(end.subtract(precision)) ||
