@@ -15,6 +15,7 @@ class Erc20Token extends CryptoCurrency {
     this.id = 0,
     this.walletName,
     this.chainId,
+    Set<String> groups = const {},
   })  : _enabled = enabled,
         super(
           name: symbol.toLowerCase(),
@@ -24,6 +25,7 @@ class Erc20Token extends CryptoCurrency {
           iconPath: iconPath,
           decimals: decimal,
           isPotentialScam: isPotentialScam,
+          groups: groups,
         );
 
   Erc20Token.copyWith(
@@ -51,6 +53,7 @@ class Erc20Token extends CryptoCurrency {
           iconPath: icon,
           decimals: other.decimal,
           isPotentialScam: other.isPotentialScam,
+          groups: other.groups,
         );
 
   Erc20Token.fromMap(Map<String, Object?> map)
