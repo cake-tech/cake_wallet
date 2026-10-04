@@ -415,11 +415,12 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   bool _isPairSupported(CryptoCurrency from, CryptoCurrency to) =>
       _networkFor(from) != null && _networkFor(to) != null;
 
-  String _networkFor(CryptoCurrency currency) {
+  String? _networkFor(CryptoCurrency currency) {
     final network = switch (currency) {
       CryptoCurrency.eth => 'ETH',
       CryptoCurrency.bnb => 'BNB_BSC',
       CryptoCurrency.baseEth => 'BASE',
+      CryptoCurrency.robEth => 'ROB',
       CryptoCurrency.arb => 'ARB',
       CryptoCurrency.arbEth => 'ARB',
       CryptoCurrency.usdterc20 => 'USDT_ERC20',
@@ -432,7 +433,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       CryptoCurrency.ada => 'ADA',
       CryptoCurrency.bch => 'BCH',
       CryptoCurrency.zec => 'ZEC',
-      _ => currency.title.toUpperCase(),
+      _ => currency.tag?.toUpperCase(),
     };
     return network;
   }
