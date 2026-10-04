@@ -400,6 +400,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final network = switch (currency) {
       CryptoCurrency.eth => 'ETH',
       CryptoCurrency.bnb => 'BNB_BSC',
+      CryptoCurrency.baseEth => 'BASE',
+      CryptoCurrency.arb => 'ARB',
+      CryptoCurrency.arbEth => 'ARB',
       CryptoCurrency.usdterc20 => 'USDT_ERC20',
       CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
       CryptoCurrency.usdtbsc => 'USDT_BSC',
