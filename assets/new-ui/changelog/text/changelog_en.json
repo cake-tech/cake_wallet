@@ -1,13 +1,5 @@
 [
   {
-    "title": "Trezor Enhancements",
-    "description": "now you can enter your passphrase on the Trezor device itself"
-  },
-  {
-    "title": "Buy/Sell improvements",
-    "description": "Buy and Sell your crypto easier and smoother"
-  },
-  {
     "title": "Monero improvements",
     "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
   },
