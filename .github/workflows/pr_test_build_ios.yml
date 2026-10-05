@@ -16,7 +16,62 @@ defaults:
     shell: bash
 
 jobs:
+  # these are separate linux runners that put torch and monero in cache
+  # otherwise the macos build wouldn't finish withing the 6 hour gh time limit
+  torch:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: read
+      packages: write
+    env:
+      CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+      CW_DOCKER_USE_CLOUD: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build torch
+        run: ./scripts/ios/docker/build.sh --only torch
+
+  monero:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      contents: read
+      packages: write
+    env:
+      CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+      CW_DOCKER_USE_CLOUD: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build monero_c
+        run: |
+          ./scripts/ios/docker/build.sh --only monero
+          ./scripts/ios/docker/build.sh --only monero --merge
+
   testflight:
+    needs: [torch, monero]
     if: github.event.pull_request.head.repo.fork == false
     runs-on: macos-26
 
@@ -110,23 +165,21 @@ jobs:
 
           echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
 
+      - name: Set up crane
+        run: |
+          set -euo pipefail
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          command -v crane >/dev/null || go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
+
       - name: Fetch prebuilt torch xcframework
         env:
           CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
         run: |
           set -euo pipefail
           IMAGE="$(./scripts/ios/docker/build.sh --image torch)"
-
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          command -v crane >/dev/null || go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
-          echo "${{ secrets.GITHUB_TOKEN }}" \
-            | crane auth login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-          crane manifest "$IMAGE" >/dev/null 2>&1 || {
-            echo "no prebuilt torch at $IMAGE" >&2
-            echo "run the 'Create iOS torch cache' workflow, then re-run this build" >&2
-            exit 1
-          }
 
           TMP="$(mktemp -d)"
           crane export "$IMAGE" - | tar -x -C "$TMP"
@@ -135,6 +188,32 @@ jobs:
 
           test -d scripts/torch_dart/ios/LibTorch.xcframework/ios-arm64 \
             || { echo "restored xcframework has no ios-arm64 slice" >&2; exit 1; }
+
+      - name: Fetch prebuilt monero_c and generate xcframeworks
+        env:
+          CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+        run: |
+          set -euo pipefail
+          IMAGE="$(./scripts/ios/docker/build.sh --image monero)"
+
+          TMP="$(mktemp -d)"
+          crane export "$IMAGE" - | tar -x -C "$TMP"
+          rsync -a "$TMP/w/" .
+          rm -rf "$TMP"
+
+          MONEROC_TAG="$(ls scripts/monero_c/release)"
+          pushd scripts/ios
+            MONEROC_TAG="$MONEROC_TAG" ./gen_framework.sh
+          popd
+
+          test -f ios/MoneroWallet.xcframework/ios-arm64/MoneroWallet.framework/MoneroWallet \
+            || { echo "MoneroWallet.xcframework has no ios-arm64 slice" >&2; exit 1; }
+
+          # wownero and zano aren't built, their wallets fail to open instead of the build failing
+          sed -i '' \
+            -e '/WowneroWallet\.xcframework/d' \
+            -e '/ZanoWallet\.xcframework/d' \
+            ios/Runner.xcodeproj/project.pbxproj
 
       - name: Prepare bitbox_flutter
         run: |
@@ -171,9 +250,6 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
-
-      - name: Download prebuilt monero_c and generate xcframeworks
-        run: dart run tool/download_moneroc_prebuilds.dart
 
       - name: Build mwebd
         run: |

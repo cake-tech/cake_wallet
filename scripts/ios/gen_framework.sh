@@ -115,18 +115,18 @@ create_framework() {
 }
 
 create_xcframework() {
-    framework_name="$1"
-    device_framework="$2"
-    simulator_framework="$3"
-    xcframework_output="$4"
+    xcframework_output="$1"
+    shift
 
     echo "Creating ${xcframework_output} by bundling:"
-    echo "  Device framework: ${device_framework}"
-    echo "  Simulator framework: ${simulator_framework}"
+    args=()
+    for framework in "$@"; do
+        echo "  ${framework}"
+        args+=(-framework "$framework")
+    done
 
     xcodebuild -create-xcframework \
-      -framework "$device_framework" \
-      -framework "$simulator_framework" \
+      "${args[@]}" \
       -output "$xcframework_output"
 
     echo "Created XCFramework: ${xcframework_output}"
@@ -139,20 +139,29 @@ for i in "${!wallets[@]}"; do
     wallet="${wallets[$i]}"
     framework_name="${framework_names[$i]}"
 
+    if [[ ! -f "${DYLIB_PATH}/aarch64-apple-ios/lib${wallet}_wallet2_api_c.dylib" ]]; then
+        echo "Skipping ${framework_name}.xcframework, no ${wallet} dylib"
+        continue
+    fi
+
     device_out="${TMP_DIR}/${framework_name}_device"
     simulator_out="${TMP_DIR}/${framework_name}_simulator"
     rm -rf "$device_out" "$simulator_out"
     mkdir -p "$device_out" "$simulator_out"
 
     create_framework "$wallet" "$framework_name" "ios" "$device_out"
-    create_framework "$wallet" "$framework_name" "ios-simulator" "$simulator_out"
+    frameworks=("${device_out}/${framework_name}.framework")
 
-    device_framework="${device_out}/${framework_name}.framework"
-    simulator_framework="${simulator_out}/${framework_name}.framework"
+    # ci only builds the device slice
+    if [[ -f "${DYLIB_PATH}/aarch64-apple-ios-simulator/lib${wallet}_wallet2_api_c.dylib" ]]; then
+        create_framework "$wallet" "$framework_name" "ios-simulator" "$simulator_out"
+        frameworks+=("${simulator_out}/${framework_name}.framework")
+    fi
+
     xcframework_output="${IOS_DIR}/${framework_name}.xcframework"
     rm -rf "$xcframework_output"
 
-    create_xcframework "$framework_name" "$device_framework" "$simulator_framework" "$xcframework_output"
+    create_xcframework "$xcframework_output" "${frameworks[@]}"
 done
 
 echo "All XCFrameworks created successfully."
