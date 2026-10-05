@@ -1,3 +1,7 @@
 FROM --platform=linux/amd64 ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /w
