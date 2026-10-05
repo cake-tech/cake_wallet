@@ -930,10 +930,14 @@ abstract class ZcashWalletBase
     try {
       c = await c.setAccount(account: accountId);
       final ufvk = await zkool_account.getAccountUfvk(account: accountId, c: c, pools: 7);
+      final birthHeight = (await zkool_account.listAccounts(c: c))
+          .where((final a) => a.id == accountId)
+          .firstOrNull
+          ?.birth;
 
       keys = {
         "privateViewKey": ufvk,
-        if (lastKnownRestoreHeight != null) "restoreHeight": lastKnownRestoreHeight.toString(),
+        if (birthHeight != null) "restoreHeight": birthHeight.toString(),
       };
     } catch (e) {
       keys = {"privateViewKey": e.toString()};
@@ -995,8 +999,6 @@ abstract class ZcashWalletBase
   @override
   bool get hasRescan => true;
 
-  static int? lastKnownRestoreHeight = null;
-
   static int zashiAnnouncedBlockHeight = 2419420;
 
   Future<int?> getBirthHeight() async => runWithCoin(
@@ -1027,7 +1029,6 @@ abstract class ZcashWalletBase
     walletsByAccountId[newAccountId] = this;
     walletAddresses.accountId = newAccountId;
     c = await c.setAccount(account: newAccountId);
-    lastKnownRestoreHeight = height;
     await walletAddresses.init();
     await _initKeys();
   }
@@ -1070,7 +1071,7 @@ abstract class ZcashWalletBase
         },
       );
 
-      lastKnownRestoreHeight = height;
+      await _initKeys();
       await save();
 
       syncStatus = ConnectedSyncStatus();
