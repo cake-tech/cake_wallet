@@ -332,4 +332,3 @@ class _CardsViewState extends State<CardsView> {
       );
     });
   }
-}
