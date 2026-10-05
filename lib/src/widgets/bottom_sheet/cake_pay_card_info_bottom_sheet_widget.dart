@@ -3,8 +3,10 @@ import 'package:cake_wallet/cake_pay/src/widgets/flip_card_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'base_bottom_sheet_widget.dart';
 
@@ -22,9 +24,10 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     VoidCallback? onRightActionButtonPressed,
     Key? rightActionButtonKey,
     Key? leftActionButtonKey,
-    required this.onUpdateBalancePressed,
-    required this.isReloadable,
     required this.balance,
+    this.cardNumber,
+    required this.cardNumberLabel,
+    this.pin,
     this.contentImage,
     this.howToUse,
     this.applyBoxShadow = false,
@@ -45,11 +48,12 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
             rightActionButtonKey: rightActionButtonKey,
             key: key);
 
-  final VoidCallback onUpdateBalancePressed;
   final String? contentImage;
   final String? howToUse;
-  final bool isReloadable;
   final String balance;
+  final String? cardNumber;
+  final String cardNumberLabel;
+  final String? pin;
   final bool applyBoxShadow;
 
   final _cardKey = GlobalKey<FlipCardState>();
@@ -85,8 +89,12 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                       key: _cardKey,
                       flipOnTouch: true,
                       front: _buildCardImage(context, contentImage!, applyBoxShadow),
-                      back: _buildBarcodeSide(context,
-                          cardNumber: '6006491979836784204', pin: '4782'),
+                      back: _buildBarcodeSide(
+                        context,
+                        cardNumber: cardNumber,
+                        cardNumberLabel: cardNumberLabel,
+                        pin: pin,
+                      ),
                     ),
                   ),
                 ),
@@ -126,7 +134,6 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
             children: [
               const SizedBox(height: 34),
               CakePayInfoTile(
-                  isReloadable: isReloadable,
                   itemValue: balance,
                   itemTitleTextStyle: itemTitleTextStyle,
                   itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -173,7 +180,6 @@ class _HowToUseTile extends StatelessWidget {
 class CakePayInfoTile extends StatelessWidget {
   const CakePayInfoTile({
     super.key,
-    required this.isReloadable,
     required this.itemValue,
     required this.itemTitleTextStyle,
     this.itemSubTitle,
@@ -181,7 +187,6 @@ class CakePayInfoTile extends StatelessWidget {
     required this.tileBackgroundColor,
   });
 
-  final bool isReloadable;
   final String itemValue;
   final TextStyle itemTitleTextStyle;
   final String? itemSubTitle;
@@ -192,7 +197,7 @@ class CakePayInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: isReloadable ? 'Balance' : 'Total Value',
+      label: S.of(context).total_value,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration:
@@ -203,19 +208,11 @@ class CakePayInfoTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(isReloadable ? 'Balance' : 'Total Value', style: itemTitleTextStyle),
+                Text(S.of(context).total_value, style: itemTitleTextStyle),
                 Text(itemValue,
                     style: itemTitleTextStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
               ],
             ),
-            const SizedBox(height: 14),
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Text(isReloadable ? 'Top Up Balance' : 'Manually update Balance',
-                    style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w600)),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    color: Theme.of(context).dialogBackgroundColor)),
             const SizedBox(height: 4),
           ],
         ),
@@ -273,7 +270,12 @@ Widget _buildCardImage(BuildContext ctx, String path, bool addShadow) {
   );
 }
 
-Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, required String pin}) =>
+Widget _buildBarcodeSide(
+  BuildContext context, {
+  String? cardNumber,
+  required String cardNumberLabel,
+  String? pin,
+}) =>
     SizedBox.expand(
       child: Container(
         padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 34),
@@ -292,43 +294,90 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
             ),
             const SizedBox(height: 12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Gift Card Number',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromRGBO(207, 207, 207, 1))),
-                    const SizedBox(height: 4),
-                    Text(cardNumber,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromRGBO(146, 146, 146, 1))),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('PIN Number',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromRGBO(207, 207, 207, 1))),
-                    const SizedBox(height: 4),
-                    Text(pin,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromRGBO(146, 146, 146, 1))),
-                  ],
-                ),
+                if (cardNumber != null)
+                  Flexible(
+                    child: _CopyableField(
+                      key: const ValueKey('cake_pay_card_info_number_field_key'),
+                      label: cardNumberLabel,
+                      value: cardNumber,
+                    ),
+                  ),
+                if (pin != null) ...[
+                  const SizedBox(width: 12),
+                  _CopyableField(
+                    key: const ValueKey('cake_pay_card_info_pin_field_key'),
+                    label: S.of(context).pin_number,
+                    value: pin,
+                  ),
+                ],
               ],
             ),
           ],
         ),
       ),
     );
+
+class _CopyableField extends StatelessWidget {
+  const _CopyableField({super.key, required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: Color.fromRGBO(207, 207, 207, 1),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SelectableText(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: Color.fromRGBO(146, 146, 146, 1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Semantics(
+            button: true,
+            label: '${S.of(context).copy} $label',
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () async {
+                await Clipboard.setData(ClipboardData(text: value));
+
+                if (context.mounted) {
+                  await showBar<void>(context, S.of(context).copied_to_clipboard);
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.copy_rounded,
+                  size: 16,
+                  color: Color.fromRGBO(146, 146, 146, 1),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}

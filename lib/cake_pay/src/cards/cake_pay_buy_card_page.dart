@@ -88,9 +88,10 @@ class CakePayBuyCardPage extends BasePage {
       textAlign: TextAlign.center,
       maxLines: 2,
       style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          color: titleColor(context)),
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+        color: titleColor(context),
+      ),
     );
   }
 
@@ -681,6 +682,29 @@ class CakePayBuyCardPage extends BasePage {
             if (result == null) _sendViewModel.dismissTransaction();
           }
         });
+      }
+
+      if (state is TransactionCommitted && cakePayBuyCardViewModel.isSimulating) {
+        final simulatedResponse = cakePayBuyCardViewModel.simulatedResponse;
+        cakePayBuyCardViewModel.isSimulatingFlow = false;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) {
+            return;
+          }
+
+          showPopUp<void>(
+            context: context,
+            builder: (context) => AlertWithOneAction(
+              key: const ValueKey('cake_pay_buy_page_simulated_payment_dialog_key'),
+              alertTitle: 'Cake Pay',
+              alertContent: simulatedResponse,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(),
+            ),
+          );
+        });
+        return;
       }
 
       if (state is TransactionCommitted) {

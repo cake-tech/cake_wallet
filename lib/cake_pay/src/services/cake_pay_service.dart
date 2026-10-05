@@ -2,7 +2,9 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 
 class CakePayService {
@@ -116,6 +118,27 @@ class CakePayService {
           orderId: orderId,
           token: token,
         ),
+      );
+
+  /// Gift cards bought by the user, one entry per purchased unit, newest first.
+  Future<List<CakePayUserCard>> getUserCards() => _withUserToken((token) async {
+        final orders = <Map<String, dynamic>>[];
+        var page = 1;
+        var hasNextPage = true;
+
+        while (hasNextPage) {
+          final result = await cakePayApi.getMyOrders(token: token, page: page);
+          orders.addAll(result.orders);
+          hasNextPage = result.hasNextPage;
+          page++;
+        }
+
+        return CakePayUserCard.fromOrders(orders);
+      });
+
+  /// Run the VPN/location checks and reveal the codes of a purchased order.
+  Future<CakePayRedemption> redeem({required String redemptionToken}) => _withUserToken(
+        (token) => cakePayApi.getRedemption(redemptionToken: redemptionToken, token: token),
       );
 
   ///Simulate Purchase Gift Card
