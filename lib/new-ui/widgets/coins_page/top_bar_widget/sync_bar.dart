@@ -52,7 +52,7 @@ class SyncBar extends StatelessWidget {
   Widget build(BuildContext context) => Observer(
     builder: (_) {
       final status = dashboardViewModel.status;
-      if (!_showFullBar || forceCompact) {
+      if (!showsFullBar || forceCompact) {
         return _buildCompactBar(context);
       }
 
@@ -75,11 +75,9 @@ class SyncBar extends StatelessWidget {
             onTap: () => _openNodeManagement(context),
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 100),
-              child: OverflowBox(
+              child: SizedBox(
                 key: ValueKey(status.runtimeType),
-                alignment: Alignment.center,
-                minHeight: barHeight,
-                maxHeight: barHeight,
+                height: barHeight,
                 child: Container(
                   height: barHeight,
                   decoration: BoxDecoration(
@@ -298,7 +296,7 @@ class SyncBar extends StatelessWidget {
     );
   }
 
-  bool get _showFullBar {
+  bool get showsFullBar {
     if (dashboardViewModel.status.runtimeType == SyncedSyncStatus) {
       return isSyncHeavy && _isShowingSyncedMessage;
     }

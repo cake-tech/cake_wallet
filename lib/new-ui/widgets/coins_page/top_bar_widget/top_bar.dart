@@ -43,16 +43,6 @@ class _TopBarState extends State<TopBar> {
   Timer? syncedMessageTimer;
   ReactionDisposer? _statusReactionDisposer;
 
-  bool get replacesWalletName {
-    final status = widget.dashboardViewModel.status.runtimeType;
-    if (status == SyncedSyncStatus) {
-      return showSyncedMessage;
-    }
-
-    return widget.dashboardViewModel.isSyncHeavy ||
-        SyncBar.progressStatuses.contains(status) ||
-        SyncBar.failStatuses.contains(status);
-  }
 
   @override
   void initState() {
@@ -136,7 +126,7 @@ class _TopBarState extends State<TopBar> {
           forceCompact: true,
         );
 
-        final isHeavySyncing = syncBar.isSyncHeavy;
+        final isHeavySyncing = syncBar.showsFullBar;
 
         final Widget leading = ChainIcon(
           iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
