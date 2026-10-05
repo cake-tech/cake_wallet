@@ -235,7 +235,7 @@ class MoonPayProvider extends BuyProvider {
       "baseCurrencyAmount": amount.toStringAsFixed(2),
       if (paymentMethod != null) "enabledPaymentMethods": paymentMethod,
       "areFeesIncluded": "false",
-      'apiKey': "pk_live_JPGapObCLwMCCxREzYE8zvsRN06eppUf"
+      'apiKey': _apiKey
     };
 
     log("MoonPay: Fetching $action quote: ${isBuyAction ? formattedCryptoCurrency : fiatCurrency.name.toLowerCase()} -> ${isBuyAction ? baseCurrencyCode : formattedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod");
