@@ -13,7 +13,13 @@ RUN groupadd -g "$GID" "$USER" && \
 RUN sudo chown $UID:$GID -R /w /root
 USER builder
 
-RUN /w/scripts/android/build_torch.sh && rm -rf /w/scripts/torch_dart/simplybs
+ARG TARGET
+RUN if [ -n "$TARGET" ]; then \
+      /w/scripts/android/build_torch.sh "$TARGET"; \
+    else \
+      /w/scripts/android/build_torch.sh; \
+    fi \
+    && rm -rf /w/scripts/torch_dart/simplybs
 
 FROM --platform=linux/amd64 alpine
 COPY --from=build /w /w

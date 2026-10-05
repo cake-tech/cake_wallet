@@ -42,7 +42,6 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -114,8 +113,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: network,
@@ -1357,6 +1358,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: 0,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.fromInt(resp.fee.toInt(), currency),
