@@ -235,17 +235,10 @@ class CoinControlListSection extends StatelessWidget {
         height: 1,
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
       ),
-      itemBuilder: (_, index) => BlocBuilder<CoinControlBloc, CoinControlState>(
-        bloc: bloc,
-  builder: (context, state) {
-    if(state is! CoinControlLoaded) {
-      return const SizedBox.shrink();
-    }
+      itemBuilder: (context, index) {
+        final row = rows[index];
 
-    final row = state.rows[index];
-
-
-    return GestureDetector(
+        return GestureDetector(
           onTap: () => Navigator.of(context).pushNamed(
             Routes.unspentCoinsDetails,
             arguments: [row.id, bloc],
@@ -268,7 +261,6 @@ class CoinControlListSection extends StatelessWidget {
                 .add(SelectionChanged(row.id, value: !row.isSelected)),
           ),
         );
-  },
-),
+      },
     );
 }
