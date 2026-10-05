@@ -9,6 +9,8 @@ if [ -z "$APP_IOS_TYPE" ]; then
         echo "Please set APP_IOS_TYPE"
         exit 1
 fi
+
+"$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/use_boltz_client_mirror.sh" || exit 1
 cd ..
 ./gen_android_manifest.sh
 cd .. # go to root

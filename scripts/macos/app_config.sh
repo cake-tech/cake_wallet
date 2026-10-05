@@ -10,6 +10,8 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
+"$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/use_boltz_client_mirror.sh" || exit 1
+
 cd .. # go to scripts
 ./gen_android_manifest.sh
 cd .. # go to root

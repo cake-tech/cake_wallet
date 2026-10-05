@@ -8,6 +8,8 @@ if [ -z "$APP_LINUX_TYPE" ]; then
         exit 1
 fi
 
+"$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/use_boltz_client_mirror.sh" || exit 1
+
 cd ../.. # go to root
 CONFIG_ARGS=""
 
