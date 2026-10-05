@@ -210,6 +210,8 @@
   "change_wallet_alert_content": "Do you want to change current wallet to ${wallet_name}?",
   "change_wallet_alert_title": "Change current wallet",
   "charts": "Charts",
+  "charts_unavailable": "Charts unavailable",
+  "charts_unavailable_desc": "Please enable the Fiat API in Settings.",
   "check_receiver_forms": "Please, check receiver forms",
   "choose_a_payment_method": "Choose a payment method",
   "choose_a_provider": "Choose a provider",
