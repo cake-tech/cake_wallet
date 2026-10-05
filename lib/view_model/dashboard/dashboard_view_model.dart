@@ -1300,6 +1300,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:
@@ -1697,4 +1698,25 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
+
+
+  static const walletTypesToBeRemoved = [
+    WalletType.zano,
+    WalletType.decred,
+  ];
+
+  Future<bool> shouldShowRemovalPopup() async {
+    final show = (await WalletInfo.getAll()).any((item) =>
+        walletTypesToBeRemoved.contains(item.type) &&
+        !(sharedPreferences.getBool(PreferencesKey.deprecationPopupViewed(item.type)) ?? false),);
+    for (final type in walletTypesToBeRemoved) {
+      await sharedPreferences.setBool(PreferencesKey.deprecationPopupViewed(type), true);
+    }
+    // if user is actively using a wallet type that's about to be removed, keep nagging them
+    return show || walletTypesToBeRemoved.contains(wallet.type);
+  }
+
+  Future<List<WalletInfo>> get walletsToBeRemoved async => (await WalletInfo.getAll())
+      .where((item) => walletTypesToBeRemoved.contains(item.type))
+      .toList();
 }

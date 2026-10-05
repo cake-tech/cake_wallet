@@ -793,7 +793,8 @@ class WalletInfo {
   }
 
   static Future<int> delete(WalletInfo walletInfo) async {
-    return await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
+    final deleted = await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
+    return deleted;
   }
 
   static Future<List<WalletInfo>> selectList(String where, List<dynamic> whereArgs,
