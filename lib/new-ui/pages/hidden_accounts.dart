@@ -15,6 +15,7 @@ import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dar
 import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
 class HiddenAccountsPage extends StatefulWidget {
@@ -73,7 +74,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
   }
 
   Future<bool> _confirmUnarchival(AccountListItem account) async {
-    final isFunded = isAccountFunded(account);
+    final isFunded = account.isFunded;
 
     final result = await showPopUp<bool>(
       context: context,
@@ -153,7 +154,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
         content: _isLoading
             ? const SizedBox(
                 height: 320,
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: CupertinoActivityIndicator()),
               )
             : _items.isEmpty
                 ? const _EmptyArchiveView()
@@ -223,9 +224,9 @@ class _PopulatedArchiveView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final fundedAccounts = accounts.where(isAccountFunded).toList(growable: false);
+    final fundedAccounts = accounts.where((account) => account.isFunded).toList(growable: false);
     final emptyAccounts =
-        accounts.where((account) => !isAccountFunded(account)).toList(growable: false);
+        accounts.where((account) => !account.isFunded).toList(growable: false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -417,17 +418,14 @@ class _AccountBalanceTrailing extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     if (isBusy) {
-      return const SizedBox.square(
-        dimension: 20,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
+      return const CupertinoActivityIndicator(radius: 10);
     }
 
-    final fiatBalance = accountFiatBalance(account, dashboardViewModel);
+    final fiatBalance = dashboardViewModel.balanceViewModel.accountFiatBalance(account);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (isAccountFunded(account)) ...[
+        if (account.isFunded) ...[
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 142),
             child: Column(

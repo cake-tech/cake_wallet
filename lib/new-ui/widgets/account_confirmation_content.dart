@@ -1,4 +1,3 @@
-import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -6,7 +5,6 @@ import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
 
 class ArchiveConfirmationContent extends StatelessWidget {
@@ -140,7 +138,7 @@ class AccountFundsSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fiatBalance = accountFiatBalance(account, dashboardViewModel);
+    final fiatBalance = dashboardViewModel.balanceViewModel.accountFiatBalance(account);
 
     return Container(
       width: double.infinity,
@@ -183,47 +181,4 @@ class AccountFundsSummary extends StatelessWidget {
       ),
     );
   }
-}
-
-bool isAccountFunded(AccountListItem account) {
-  if (account.balance?.contains("●") ?? false) {
-    return true;
-  }
-  return (_accountAmount(account) ?? 0) > 0;
-}
-
-double? _accountAmount(AccountListItem account) {
-  final balance = account.balance;
-  if (balance == null) {
-    return null;
-  }
-  return double.tryParse(balance.trim().replaceAll(",", ""));
-}
-
-String? accountFiatBalance(AccountListItem account, DashboardViewModel dashboardViewModel) {
-  if (dashboardViewModel.balanceViewModel.isFiatDisabled) {
-    return null;
-  }
-
-  final fiat = dashboardViewModel.settingsStore.fiatCurrency.title;
-  if (account.balance?.contains("●") ?? false) {
-    return "●●●●● $fiat";
-  }
-
-  final canonicalBalance = AmountParsingProxy(
-    dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-  ).getCanonicalCryptoAmount(
-    (account.balance ?? "").trim().replaceAll(",", ""),
-    dashboardViewModel.wallet.currency,
-  );
-  final amount = double.tryParse(canonicalBalance);
-  if (amount == null) {
-    return null;
-  }
-
-  final value = calculateFiatAmount(
-    price: dashboardViewModel.balanceViewModel.price,
-    cryptoAmount: amount.toString(),
-  ).withLocalSeperator(dashboardViewModel.settingsStore.languageCode);
-  return "$value $fiat";
 }

@@ -5,4 +5,11 @@ class AccountListItem {
   final int id;
   final bool isSelected;
   final String? balance;
+
+  bool get isFunded {
+    if (balance?.contains("●") ?? false) {
+      return true;
+    }
+    return (double.tryParse(balance?.trim().replaceAll(",", "") ?? "") ?? 0) > 0;
+  }
 }

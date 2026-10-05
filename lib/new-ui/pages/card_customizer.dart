@@ -73,7 +73,9 @@ class CardCustomizer extends StatefulWidget {
           dashboardViewModel: dashboardViewModel,
           account: account,
           accountListViewModel: accountList,
-          fiatBalance: account == null ? "" : accountFiatBalance(account, dashboardViewModel) ?? "",
+          fiatBalance: account == null
+              ? ""
+              : dashboardViewModel.balanceViewModel.accountFiatBalance(account) ?? "",
         ),
       ),
     );
@@ -147,7 +149,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
       balance: latestAccount.balance,
       isSelected: latestAccount.isSelected,
     );
-    final isFunded = isAccountFunded(account);
+    final isFunded = account.isFunded;
     final confirmed = await showPopUp<bool>(
       context: context,
       barrierDismissible: false,

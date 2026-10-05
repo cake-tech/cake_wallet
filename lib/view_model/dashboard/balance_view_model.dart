@@ -11,6 +11,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -544,6 +545,32 @@ abstract class BalanceViewModelBase with Store {
     } else {
       settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
     }
+  }
+
+  String? accountFiatBalance(AccountListItem account) {
+    if (isFiatDisabled) {
+      return null;
+    }
+
+    final fiat = settingsStore.fiatCurrency.title;
+    if (account.balance?.contains("●") ?? false) {
+      return "●●●●● $fiat";
+    }
+
+    final canonicalBalance = appStore.amountParsingProxy.getCanonicalCryptoAmount(
+      (account.balance ?? "").trim().replaceAll(",", ""),
+      wallet.currency,
+    );
+    final amount = double.tryParse(canonicalBalance);
+    if (amount == null) {
+      return null;
+    }
+
+    final value = calculateFiatAmount(
+      price: price,
+      cryptoAmount: amount.toString(),
+    ).withLocalSeperator(settingsStore.languageCode);
+    return "$value $fiat";
   }
 
   String _getFiatBalance({required double price, Money? cryptoAmount}) {

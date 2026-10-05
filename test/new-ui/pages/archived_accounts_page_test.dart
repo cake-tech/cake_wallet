@@ -1,6 +1,8 @@
 import "dart:async";
 
+import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
@@ -13,6 +15,8 @@ import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
@@ -31,6 +35,7 @@ import "package:cw_core/transaction_info.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
@@ -41,6 +46,8 @@ class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEdi
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
 class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
+
+class _MockAppStore extends Mock implements AppStore {}
 
 class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
 
@@ -59,7 +66,7 @@ Future<void> _waitForArchivePage(WidgetTester tester) async {
       () => Future<void>.delayed(const Duration(milliseconds: 10)),
     );
     await tester.pump();
-    if (find.byType(CircularProgressIndicator).evaluate().isEmpty) {
+    if (find.byType(CupertinoActivityIndicator).evaluate().isEmpty) {
       return;
     }
   }
@@ -241,11 +248,23 @@ void main() {
 
     when(() => accountListViewModel.accounts)
         .thenReturn([fundedAccount, activeAccount, emptyAccount]);
-    when(() => balanceViewModel.isFiatDisabled).thenReturn(false);
-    when(() => balanceViewModel.price).thenReturn(20);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
     when(() => settingsStore.languageCode).thenReturn("de_DE");
+    when(() => settingsStore.fiatApiMode).thenReturn(FiatApiMode.enabled);
+    when(() => settingsStore.mwebAlwaysScan).thenReturn(false);
+    when(() => walletInfo.isShowIntroCakePayCard).thenReturn(false);
+    final appStore = _MockAppStore();
+    when(() => appStore.wallet).thenReturn(wallet);
+    when(() => appStore.amountParsingProxy)
+        .thenReturn(const AmountParsingProxy(BitcoinAmountDisplayMode.bitcoin));
+    when(() => dashboardViewModel.balanceViewModel).thenReturn(
+      BalanceViewModel(
+        appStore: appStore,
+        settingsStore: settingsStore,
+        fiatConversionStore: FiatConversionStore()..prices[CryptoCurrency.xmr] = 20,
+      ),
+    );
     await tester.runAsync(() async {
       await hideAccount(fundedAccount.id, 0);
       await hideAccount(emptyAccount.id, 1);
