@@ -22,7 +22,7 @@ class LatestPriceRequest {
         "quote": to.apiString,
       });
 
-  Uri get onionUri => Uri.https(priceApiHostOnion, uri.path, uri.queryParameters);
+  Uri get onionUri => Uri.http(priceApiHostOnion, uri.path, uri.queryParameters);
 }
 
 class PriceRequest {
