@@ -54,6 +54,10 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+    if (!_isPairSupported(from, to)) {
+      return null;
+    }
+
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
@@ -96,6 +100,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
+      if (!_isPairSupported(from, to)) return 0.0;
       if (isFixedRateMode && !supportsFixedRate) {
         return 0.0;
       }
@@ -191,13 +196,24 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
+    final sendNetwork = _networkFor(request.fromCurrency);
+    final receiveNetwork = _networkFor(request.toCurrency);
+    if (sendNetwork == null || receiveNetwork == null) {
+      throw TradeNotCreatedException(
+        description,
+        description: "SwapTrade has no network for "
+            "${request.fromCurrency.title} ${request.fromCurrency.tag ?? ""} or "
+            "${request.toCurrency.title} ${request.toCurrency.tag ?? ""}",
+      );
+    }
+
     try {
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
-        'coin_send_network': _networkFor(request.fromCurrency),
+        'coin_send_network': sendNetwork,
         'coin_receive': _normalizeCurrency(request.toCurrency),
-        'coin_receive_network': _networkFor(request.toCurrency),
+        'coin_receive_network': receiveNetwork,
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
@@ -396,22 +412,16 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _networkFor(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eth => 'ETH',
-      CryptoCurrency.bnb => 'BNB_BSC',
-      CryptoCurrency.usdterc20 => 'USDT_ERC20',
-      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      CryptoCurrency.usdtbsc => 'USDT_BSC',
-      CryptoCurrency.sol => 'SOL',
-      CryptoCurrency.btc => 'BTC',
-      CryptoCurrency.xmr => 'XMR',
-      CryptoCurrency.ltc => 'LTC',
-      CryptoCurrency.ada => 'ADA',
-      CryptoCurrency.bch => 'BCH',
-      CryptoCurrency.zec => 'ZEC',
-      _ => currency.title.toUpperCase(),
-    };
-    return network;
-  }
+  bool _isPairSupported(CryptoCurrency from, CryptoCurrency to) =>
+      _networkFor(from) != null && _networkFor(to) != null;
+
+  String? _networkFor(CryptoCurrency currency) =>
+      switch ((currency.title.toUpperCase(), currency.tag?.toUpperCase())) {
+        ("BNB", "BSC") => "BNB_BSC",
+        ("USDT", "ETH") => "USDT_ERC20",
+        ("USDT", "TRX") => "TRX_USDT_S2UZ",
+        ("USDT", "BSC") => "USDT_BSC",
+        (final title, null) => title,
+        _ => null,
+      };
 }

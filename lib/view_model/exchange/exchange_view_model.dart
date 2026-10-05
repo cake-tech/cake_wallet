@@ -304,7 +304,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
         LetsExchangeExchangeProvider(),
-        StealthExExchangeProvider(),
+        // StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         SwapsXyzExchangeProvider(),
         JupiterExchangeProvider(),
@@ -1545,6 +1545,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bsc:
         depositCurrency = CryptoCurrency.bnb;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.robinhood:
+        depositCurrency = CryptoCurrency.robEth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.solana:

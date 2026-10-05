@@ -476,6 +476,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return "https://arbiscan.io/tx/${txId}";
       case WalletType.bsc:
         return "https://bscscan.com/tx/${txId}";
+      case WalletType.robinhood:
+        return "https://robinhoodchain.blockscout.com/tx/${txId}";
       case WalletType.polygon:
         return "https://polygonscan.com/tx/${txId}";
       case WalletType.nano:

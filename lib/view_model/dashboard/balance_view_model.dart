@@ -159,7 +159,7 @@ abstract class BalanceViewModelBase with Store {
   bool get isEVMCompatible => isEVMCompatibleChain(wallet.type);
 
   @computed
-  bool get hasAccounts => [WalletType.monero, WalletType.wownero].contains(wallet.type);
+  bool get hasAccounts => wallet.hasAccountsSupport;
 
   @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
@@ -219,6 +219,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
         return S.current.xmr_full_balance;
