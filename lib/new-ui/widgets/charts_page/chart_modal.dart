@@ -115,7 +115,7 @@ class ChartModal extends StatelessWidget {
                         imageUrl: "assets/new-ui/favorite.svg",
                         colorFilter: ColorFilter.mode(
                           isFavorite
-                              ? Theme.of(context).colorScheme.onSurface
+                              ? Colors.white
                               : Theme.of(context).colorScheme.primary,
                           BlendMode.srcIn,
                         ),
