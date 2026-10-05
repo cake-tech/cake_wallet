@@ -6,6 +6,7 @@ enum EVMChainId {
   base,
   arbitrum,
   bsc,
+  robinhood,
 }
 
 extension EVMChainIdX on EVMChainId {
@@ -24,6 +25,7 @@ extension EVMChainIdX on EVMChainId {
       EVMChainId.base => 8453,
       EVMChainId.arbitrum => 42161,
       EVMChainId.bsc => 56,
+      EVMChainId.robinhood => 4663,
     };
   }
 

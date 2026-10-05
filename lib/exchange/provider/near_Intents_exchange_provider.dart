@@ -50,6 +50,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     'AVAXC': '0x1111111111111111111111111111111111111111',
     'ARB': '0x1111111111111111111111111111111111111111',
     'BASE': '0x1111111111111111111111111111111111111111',
+    "ROB": "0x1111111111111111111111111111111111111111",
 
     // Others
     'SOL': '11111111111111111111111111111111',
@@ -516,6 +517,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return switch (tag) {
       'TRX' => 'tron',
       'AVAXC' => 'avax',
+      "ROB" => "hood",
       _ => tag?.toLowerCase(),
     };
   }
@@ -524,6 +526,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return switch (blockchain) {
       'tron' => 'TRX',
       'avax' => 'AVAXC',
+      "hood" => "ROB",
       _ => blockchain?.toUpperCase(),
     };
   }

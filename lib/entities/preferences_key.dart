@@ -1,3 +1,5 @@
+import "package:cw_core/wallet_type.dart";
+
 class PreferencesKey {
   static const currentWalletType = 'current_wallet_type';
   static const currentWalletName = 'current_wallet_name';
@@ -11,6 +13,7 @@ class PreferencesKey {
   static const currentBaseNodeIdKey = 'current_node_id_base';
   static const currentArbitrumNodeIdKey = 'current_node_id_arbitrum';
   static const currentBscNodeIdKey = 'current_node_id_bsc';
+  static const currentRobinhoodNodeIdKey = "current_node_id_robinhood";
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -90,6 +93,7 @@ class PreferencesKey {
   static const useBaseScan = 'use_base_scan';
   static const useArbiScan = 'use_arbitrum_scan';
   static const useBscScan = 'use_bscscan';
+  static const useRobinhoodScan = "use_robinhood_scan";
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const evmHiddenChainIds = 'evm_hidden_chain_ids';
@@ -117,7 +121,6 @@ class PreferencesKey {
   static const showDecredInfoCard = 'show_decred_info_card';
   static const forceDecentralizedExchanges = 'force_decentralized_exchanges';
   static const decentralizedExchangesPromptDismissed = 'decentralized_exchanges_prompt_dismissed';
-
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
@@ -148,6 +151,8 @@ class PreferencesKey {
   static const balanceHideCounter = "balance_hide_counter";
   static const zcashMigrationModalViewed = "zcash_migration_modal_viewed";
   static const showCiBuildOverlay = "show_ci_build_overlay";
+  static String deprecationPopupViewed(WalletType type) =>
+      "deprecation_popup_viewed_${walletTypeToString(type)}";
   static const giftCardsExplainerViewed = "gift_cards_explainer_viewed";
   static const lightningDepositExplainerViewed = "lightning_deposit_explainer_viewed";
   static const lightningWithdrawExplainerViewed = "lightning_withdraw_explainer_viewed";
