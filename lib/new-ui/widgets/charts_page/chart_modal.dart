@@ -26,9 +26,7 @@ class ChartModal extends StatelessWidget {
   final ChartsBloc bloc;
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (context) => getIt.get<ChartsBloc>()..add(Init()),
-        child: Container(
+  Widget build(BuildContext context) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
@@ -137,9 +135,8 @@ class ChartModal extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      );
-
+        );
+        
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
     final page = getIt.get<NewBuySellAmountPage>(
