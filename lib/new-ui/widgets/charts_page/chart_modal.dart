@@ -19,10 +19,11 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class ChartModal extends StatelessWidget {
-  const ChartModal({required this.currency, required this.isFavorite, super.key});
+  const ChartModal({required this.bloc, required this.currency, required this.isFavorite, super.key});
 
   final CryptoCurrency currency;
   final bool isFavorite;
+  final ChartsBloc bloc;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
@@ -43,6 +44,7 @@ class ChartModal extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 18, left: 18),
                 ),
                 ChartHeader(
+                  bloc: bloc,
                   currency: currency,
                   chartHeight: 220,
                   chartPadding: 32,
