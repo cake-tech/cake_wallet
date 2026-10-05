@@ -7,6 +7,7 @@ import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
+import "package:cake_wallet/new-ui/widgets/wallet_removal_popup.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
@@ -55,6 +56,7 @@ class _NewDashboardState extends State<NewDashboard> {
       setState(() {
         _selectedPage = 0;
       });
+      _showWalletRemovalPopup(context);
     });
 
     Future.delayed(Duration(milliseconds: 300)).then((_) {
@@ -63,6 +65,7 @@ class _NewDashboardState extends State<NewDashboard> {
       });
     });
     _showVulnerableSeedsPopup(context);
+    _showWalletRemovalPopup(context);
   }
 
   @override
@@ -71,6 +74,7 @@ class _NewDashboardState extends State<NewDashboard> {
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
         body: Material(
+          key: ValueKey("new_dashboard_page_key"),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -179,6 +183,16 @@ class _NewDashboardState extends State<NewDashboard> {
           }
         },
       );
+    }
+  }
+
+  Future<void> _showWalletRemovalPopup(BuildContext context) async {
+    if(await widget.dashboardViewModel.shouldShowRemovalPopup()) {
+      await Future.delayed(const Duration(seconds: 1));
+      final toBeRemoved = await widget.dashboardViewModel.walletsToBeRemoved;
+      if(context.mounted) {
+        await showPopUp<void>(context: context, builder: (context)=>WalletRemovalPopup(affectedWallets: toBeRemoved,));
+      }
     }
   }
 }

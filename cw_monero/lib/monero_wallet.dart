@@ -121,6 +121,12 @@ abstract class MoneroWalletBase
   bool get hasRescan => true;
 
   @override
+  bool get hasAccountsSupport => true;
+
+  @override
+  bool get hasNativeAccounts => true;
+
+  @override
   String get seed => monero_wallet.getSeed();
   String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
 
@@ -491,7 +497,10 @@ abstract class MoneroWalletBase
           paymentId: '');
     }
 
-    // final status = monero.PendingTransaction_status(pendingTransactionDescription);
+    if (pendingTransactionDescription.txCount != 1) {
+      throw MoneroTransactionCreationException(
+          "This payment would be split into ${pendingTransactionDescription.txCount} transactions. Send smaller transaction to yourself first.",);
+    }
 
     return PendingMoneroTransaction(pendingTransactionDescription, this);
   }

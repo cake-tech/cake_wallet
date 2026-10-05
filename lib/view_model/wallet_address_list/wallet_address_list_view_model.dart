@@ -86,7 +86,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       );
 
   void setTokenCurrency(Currency curr) {
-    if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
+    if (curr == CryptoCurrency.btcln) {
+      tokenCurrency = null;
+      selectedCurrency = CryptoCurrency.btcln;
+      return;
+    }
+    if (curr == wallet.currency) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
@@ -555,6 +560,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             "assets/new-ui/crypto_full_icons/bnb.svg",
             "assets/images/usdc_icon.svg",
             "assets/images/usdt_wallet_icon.svg",
+            "assets/images/more_tokens.svg",
+          ];
+        case 4663:
+          return [
+            "assets/new-ui/crypto_full_icons/robinhood.svg",
+            "assets/images/usdg_icon.png",
             "assets/images/more_tokens.svg",
           ];
         default:

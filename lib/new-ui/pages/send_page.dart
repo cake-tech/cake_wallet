@@ -464,6 +464,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               child: Text(S.of(context).address_or_alias),
                                             ),
                                             NewSendAddressInput(
+                                              key: ValueKey("send_page_address_input_key"),
                                               displayName: output.displayName,
                                               validator: output.isParsedAddress
                                                   ? widget.sendViewModel.textValidator
@@ -534,6 +535,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                           // test/new-ui/widgets/send_page/send_amount_input_test.dart.
                                           Text(S.of(context).amount),
                                           NewSendAmountInput(
+                                            key: ValueKey("send_page_amount_input_key"),
                                             validator: output.sendAll
                                                 ? widget.sendViewModel.allAmountValidator
                                                 : widget.sendViewModel.amountValidator(output),
@@ -610,7 +612,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                                   // Without fee priorities the row does nothing,
-                                                  // so it must not be announced as interactive.
+                                                  // so it must not be announced as interactive or
+                                                  // show a tappable arrow.
+                                                  showArrow: widget
+                                                      .sendViewModel.feesViewModel.hasFeesPriority,
                                                   onTap: widget.sendViewModel.feesViewModel
                                                           .hasFeesPriority
                                                       ? () =>

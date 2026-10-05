@@ -7,6 +7,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: android-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   # -----------------------------------------
   # PATH A: Internal PRs
