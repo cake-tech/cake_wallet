@@ -112,6 +112,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('blinkApiKey', () => ''),
+    SecretKey('alchemyApiKey', () => ''),
   ];
 
   static final solanaSecrets = [

@@ -458,6 +458,13 @@ mixin ZanoWalletApi {
 
   static Map<String, CreateWalletResult> openWalletCache = {};
 
+  static Future<void> closeCachedWallet(String path) async {
+    final cached = openWalletCache.remove(path);
+    if (cached != null) {
+      await _closeWallet(cached.walletId);
+    }
+  }
+
   Future<TransferResult> transfer(
       List<Destination> destinations, BigInt fee, String comment) async {
     final params = TransferParams(

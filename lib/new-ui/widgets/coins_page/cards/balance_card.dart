@@ -215,10 +215,12 @@ class BalanceCard extends StatelessWidget {
                         child: AnimatedSwitcher(
                           duration: designSwitchDuration,
                           layoutBuilder: (currentChild, previousChildren) {
+                            final currentKey = currentChild?.key;
                             return Stack(
                               alignment: Alignment.centerLeft,
                               children: <Widget>[
-                                ...previousChildren,
+                                for (final child in previousChildren)
+                                  if (child.key != currentKey) child,
                                 if (currentChild != null) currentChild,
                               ],
                             );

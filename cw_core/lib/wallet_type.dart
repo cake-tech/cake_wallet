@@ -24,6 +24,7 @@ const walletTypes = [
   WalletType.arbitrum,
   WalletType.zcash,
   WalletType.bsc,
+  WalletType.robinhood,
 ];
 
 const electrumWalletTypes = [
@@ -38,7 +39,8 @@ const evmWalletTypes = [
   WalletType.polygon,
   WalletType.base,
   WalletType.arbitrum,
-  WalletType.bsc
+  WalletType.bsc,
+  WalletType.robinhood
 ];
 
 // @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -102,6 +104,9 @@ enum WalletType {
 
   // @HiveField(19)
   bsc,
+
+  // @HiveField(20)
+  robinhood,
 }
 
 extension WalletTypeNetworkIcon on WalletType {
@@ -166,6 +171,8 @@ int serializeToInt(WalletType type) {
       return 17;
     case WalletType.bsc:
       return 18;
+    case WalletType.robinhood:
+      return 19;
     case WalletType.none:
       return -1;
   }
@@ -211,6 +218,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.zcash;
     case 18:
       return WalletType.bsc;
+    case 19:
+      return WalletType.robinhood;
     default:
       throw Exception("Unexpected token: $raw for WalletType deserializeFromInt");
   }
@@ -255,56 +264,60 @@ String walletTypeToString(WalletType type) {
     case WalletType.zcash:
       return "Zcash";
     case WalletType.bsc:
-      return "BNB Smart Chain";
+      return 'BNB Smart Chain';
+    case WalletType.robinhood:
+      return "Robinhood Chain";
     case WalletType.none:
       return "";
   }
 }
 
 String walletTypeToDisplayName(WalletType type) => switch (type) {
-      WalletType.monero => "Monero",
-      WalletType.bitcoin => "Bitcoin",
-      WalletType.litecoin => "Litecoin",
-      WalletType.haven => "Haven",
-      WalletType.ethereum => "Ethereum",
-      WalletType.bitcoinCash => "Bitcoin Cash",
-      WalletType.nano => "Nano",
-      WalletType.banano => "Banano",
-      WalletType.polygon => "Polygon",
-      WalletType.solana => "Solana",
-      WalletType.tron => "Tron",
-      WalletType.wownero => "Wownero",
-      WalletType.zano => "Zano",
-      WalletType.decred => "Decred",
-      WalletType.dogecoin => "Dogecoin",
-      WalletType.base => "Base",
-      WalletType.arbitrum => "Arbitrum",
-      WalletType.zcash => "Zcash",
-      WalletType.bsc => "BNB Smart Chain",
-      WalletType.none => ""
+      WalletType.monero => 'Monero',
+      WalletType.bitcoin => 'Bitcoin',
+      WalletType.litecoin => 'Litecoin',
+      WalletType.haven => 'Haven',
+      WalletType.ethereum => 'Ethereum',
+      WalletType.bitcoinCash => 'Bitcoin Cash',
+      WalletType.nano => 'Nano',
+      WalletType.banano => 'Banano',
+      WalletType.polygon => 'Polygon',
+      WalletType.solana => 'Solana',
+      WalletType.tron => 'Tron',
+      WalletType.wownero => 'Wownero',
+      WalletType.zano => 'Zano',
+      WalletType.decred => 'Decred',
+      WalletType.dogecoin => 'Dogecoin',
+      WalletType.base => 'Base',
+      WalletType.arbitrum => 'Arbitrum',
+      WalletType.zcash => 'Zcash',
+      WalletType.bsc => 'BNB Smart Chain',
+      WalletType.robinhood => "Robinhood Chain",
+      WalletType.none => ''
     };
 
 String walletTypeToDisplayTicker(WalletType type) => switch (type) {
-      WalletType.monero => "XMR",
-      WalletType.bitcoin => "BTC",
-      WalletType.litecoin => "LTC",
-      WalletType.haven => "XHV",
-      WalletType.ethereum => "ETH",
-      WalletType.bitcoinCash => "BCH",
-      WalletType.nano => "XNO",
-      WalletType.banano => "BAN",
-      WalletType.polygon => "POL",
-      WalletType.solana => "SOL",
-      WalletType.tron => "TRX",
-      WalletType.wownero => "WOW",
-      WalletType.zano => "ZANO",
-      WalletType.decred => "DCR",
-      WalletType.dogecoin => "DOGE",
-      WalletType.base => "",
-      WalletType.arbitrum => "ARB",
-      WalletType.zcash => "ZEC",
-      WalletType.bsc => "BNB",
-      WalletType.none => ""
+      WalletType.monero => 'XMR',
+      WalletType.bitcoin => 'BTC',
+      WalletType.litecoin => 'LTC',
+      WalletType.haven => 'XHV',
+      WalletType.ethereum => 'ETH',
+      WalletType.bitcoinCash => 'BCH',
+      WalletType.nano => 'XNO',
+      WalletType.banano => 'BAN',
+      WalletType.polygon => 'POL',
+      WalletType.solana => 'SOL',
+      WalletType.tron => 'TRX',
+      WalletType.wownero => 'WOW',
+      WalletType.zano => 'ZANO',
+      WalletType.decred => 'DCR',
+      WalletType.dogecoin => 'DOGE',
+      WalletType.base => '',
+      WalletType.arbitrum => 'ARB',
+      WalletType.zcash => 'ZEC',
+      WalletType.bsc => 'BNB',
+      WalletType.robinhood => "",
+      WalletType.none => ''
     };
 
 WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
@@ -349,6 +362,8 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.dogecoin;
     case CryptoCurrency.zec:
       return WalletType.zcash;
+    case CryptoCurrency.robEth:
+      return WalletType.robinhood;
     default:
       return null;
   }

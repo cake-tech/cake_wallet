@@ -122,6 +122,22 @@ class PriceStore {
       return start;
     }
     prices.sort();
+
+    final precisionMs = precision.inMilliseconds;
+    DateTime expected = start;
+    for (final price in prices) {
+      if (price.time.millisecondsSinceEpoch % precisionMs != 0 || price.time.isBefore(start)) {
+        continue;
+      }
+      if (price.time.difference(expected) > precision) {
+        return expected;
+      }
+      expected = price.time.add(precision);
+    }
+    if (end.difference(expected) > precision) {
+      return expected;
+    }
+
     final last = prices.last;
     printV("last.time: ${last.time.toIso8601String()} end: ${end.toIso8601String()}");
     if (last.time.isAfter(end.subtract(precision)) ||

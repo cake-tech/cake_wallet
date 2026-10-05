@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'dart:io' show Directory, File, Platform;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import "package:cake_wallet/core/key_service.dart";
 import 'package:cake_wallet/core/secure_storage.dart';
+import "package:cake_wallet/decred/decred.dart";
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
@@ -14,6 +17,9 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/zano/zano.dart";
+import "package:cw_core/cake_hive.dart";
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -23,8 +29,10 @@ import 'package:cw_core/node_list.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
+import "package:cw_core/unspent_coins_info.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import "package:cw_core/wallet_service.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
@@ -56,6 +64,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(
@@ -652,6 +661,12 @@ Future<void> defaultSettingsMigration(
           break;
         case 72:
           await createDefaultChartsData();
+          await addWalletNodeList(type: WalletType.robinhood);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.robinhood,
+            currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
           break;
         default:
           break;

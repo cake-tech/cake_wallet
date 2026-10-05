@@ -9,6 +9,7 @@ abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
     this.address, {
     required this.index,
+    this.accountIndex = 0,
     this.isHidden = false,
     this.isLegacyDerivation = false,
     int txCount = 0,
@@ -29,6 +30,7 @@ abstract class BaseBitcoinAddressRecord {
   bool isHidden;
   bool isLegacyDerivation;
   final int index;
+  final int accountIndex;
   int _txCount;
   int _balance;
   String _name;
@@ -63,7 +65,9 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinAddressRecord(
     super.address, {
     required super.index,
+    super.accountIndex = 0,
     super.isHidden = false,
+    this.isHiddenChecked = false,
     super.isLegacyDerivation = false,
     super.txCount = 0,
     super.balance = 0,
@@ -105,7 +109,9 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
+      accountIndex: decoded['accountIndex'] as int? ?? 0,
       isHidden: decoded['isHidden'] as bool? ?? false,
+      isHiddenChecked: decoded['isHiddenChecked'] as bool? ?? false,
       isLegacyDerivation: parsedIsLegacy,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
@@ -116,6 +122,10 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       network: network,
     );
   }
+
+  /// Whether [isHidden] has been checked against the wallet's keys. Records created from the
+  /// wallet's own keys are correct by construction; older ones are checked once on wallet open.
+  bool isHiddenChecked;
 
   String? scriptHash;
 
@@ -162,7 +172,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
     final coinType = _coinTypeForNetwork();
     final purpose = _purposeForType(type);
-    final accountPath = isLegacyDerivation ? electrum_path : "m/$purpose'/$coinType'/0'";
+    final accountPath =
+        isLegacyDerivation ? electrum_path : "m/$purpose'/$coinType'/$accountIndex'";
 
     final chain = isHidden ? 1 : 0;
     return "$accountPath/$chain/$index";
@@ -172,7 +183,9 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() => json.encode({
         'address': address,
         'index': index,
+        'accountIndex': accountIndex,
         'isHidden': isHidden,
+        'isHiddenChecked': isHiddenChecked,
         'isLegacyDerivation': isLegacyDerivation,
         'isUsed': isUsed,
         'txCount': txCount,
@@ -187,6 +200,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinSilentPaymentAddressRecord(
     super.address, {
     required super.index,
+    super.accountIndex = 0,
     super.isHidden = false,
     super.txCount = 0,
     super.balance = 0,
@@ -205,6 +219,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
+      accountIndex: decoded['accountIndex'] as int? ?? 0,
       isHidden: decoded['isHidden'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
@@ -233,6 +248,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() => json.encode({
         'address': address,
         'index': index,
+        'accountIndex': accountIndex,
         'isHidden': isHidden,
         'isUsed': isUsed,
         'txCount': txCount,

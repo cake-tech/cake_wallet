@@ -143,6 +143,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.arbEth,
     CryptoCurrency.usdcArb,
     CryptoCurrency.usdtArb,
+    CryptoCurrency.robEth,
   ];
 
   static const havenCurrencies = [
@@ -974,6 +975,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       name: 'ltcmweb',
       iconPath: 'assets/new-ui/crypto_full_icons/litecoin.svg',
       decimals: 8);
+  static const robEth = CryptoCurrency(
+      title: "ETH",
+      tag: "ROB",
+      fullName: "Ethereum",
+      raw: 111,
+      name: "robeth",
+      iconPath: "assets/new-ui/crypto_full_icons/ethereum.svg",
+      decimals: 18,
+      flatIconPath: "assets/new-ui/balance_card_icons/robinhood.svg",
+      chainIconPath: "assets/new-ui/chain_badges/robinhood.svg");
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap = [
     ...all,
@@ -999,7 +1010,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     ...zcashCurrencies
   ].fold<Map<String, CryptoCurrency>>(<String, CryptoCurrency>{}, (acc, item) {
     if (item.fullName != null) {
-      acc.addAll({item.fullName!.toLowerCase(): item});
+      final fullName = item.fullName!.toLowerCase();
+      final existing = acc[fullName];
+
+      // Mainnet ETH and the L2 ETHs share the "Ethereum" full name, 
+      // so we make the untagged coin keeps the name
+      if (existing == null || existing.tag != null) {
+        acc[fullName] = item;
+      }
     }
     return acc;
   });
@@ -1025,6 +1043,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'base': baseEth,
     'arbitrum': arbEth,
     'bsc': bnb,
+    "rob": robEth,
+    "robinhood": robEth,
   };
 
   static CryptoCurrency deserialize({required int raw}) {

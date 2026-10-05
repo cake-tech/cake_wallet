@@ -87,7 +87,12 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
       });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
+      reaction((_) {
+        final index = widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id ?? 0;
+        final designs = widget.dashboardViewModel.cardDesigns;
+        return (index >= 0 && index < designs.length) ? designs[index] : null;
+      }, (value) {
+        if (!mounted) return;
         setState(() {
           design = value;
         });
@@ -130,8 +135,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
-                            if (widget.dashboardViewModel.type == WalletType.monero ||
-                                widget.dashboardViewModel.type == WalletType.wownero)
+                            if (widget.dashboardViewModel.isMultiAccountsEnabled)
                               Observer(
                                   builder: (_) => AccountPreviewHeader(
                                         dashboardViewModel: widget.dashboardViewModel,
@@ -271,8 +275,7 @@ class AccountPreviewHeader extends StatelessWidget {
   final CardDesign? design;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: 64,
       width: MediaQuery.of(context).size.width * 0.9,
       decoration: BoxDecoration(
@@ -295,9 +298,7 @@ class AccountPreviewHeader extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          "",
+                      dashboardViewModel.accountListViewModel?.selectedAccount?.label ?? '',
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(
@@ -325,7 +326,6 @@ class AccountPreviewHeader extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class AddressRow extends StatelessWidget {
