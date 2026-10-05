@@ -7,7 +7,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -569,8 +569,8 @@ abstract class ElectrumWalletBase
       runningIsolate.kill(priority: Isolate.immediate);
     }
 
-    final appDir = await getAppDir();
-    String debugLogPath = "${appDir.path}/logs/debug.log";
+    final appDir = await getApplicationSupportDirectory();
+    String debugLogPath = "${appDir.path}/logs/silent_payments.log";
 
     final receivePort = ReceivePort();
     _isolate = Isolate.spawn(

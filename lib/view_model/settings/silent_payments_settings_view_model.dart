@@ -36,7 +36,7 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
 
   Future<String> getAbbreviatedLogs() async {
     final appSupportPath = (await getApplicationSupportDirectory()).path;
-    final logsFile = File("$appSupportPath/logs/debug.log");
+    final logsFile = File("$appSupportPath/logs/silent_payments.log");
     if (!logsFile.existsSync()) {
       return "";
     }

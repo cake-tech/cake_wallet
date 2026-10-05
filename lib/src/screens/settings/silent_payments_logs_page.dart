@@ -100,20 +100,20 @@ class SilentPaymentsLogPage extends BasePage {
   }
 
   Future<void> share(BuildContext context) async {
-    final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
-    await ShareUtil.shareFile(filePath: inAppPath, fileName: "debug.log", context: context);
+    final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/silent_payments.log";
+    await ShareUtil.shareFile(filePath: inAppPath, fileName: "silent_payments.log", context: context);
   }
 
   Future<void> _saveFile() async {
     String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Your File to desired location',
-        fileName: "debug.log",
+        fileName: "silent_payments.log",
         lockParentWindow: true);
 
     if (outputFile == null) return;
 
     try {
-      final filePath = (await getApplicationSupportDirectory()).path + "/debug.log";
+      final filePath = (await getApplicationSupportDirectory()).path + "/logs/silent_payments.log";
       File debugLogFile = File(filePath);
       await debugLogFile.copy(outputFile);
     } catch (exception, stackTrace) {
