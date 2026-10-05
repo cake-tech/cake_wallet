@@ -43,6 +43,7 @@ class ExtraAction {
         "${S.current.buy} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy_more_actions.svg",
     isModal: true,
+    applicable: (vm)=>vm.isEnabledTradeAction,
     destinationBuilder: (_) =>
         getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.buy)),
   );
@@ -52,6 +53,7 @@ class ExtraAction {
         "${S.current.sell} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy.svg",
     isModal: true,
+    applicable: (vm)=>vm.isEnabledTradeAction,
     destinationBuilder: (_) =>
         getIt.get<NewBuySellAmountPage>(param1: NewBuySellParams(mode: BuySellPageMode.sell)),
   );
@@ -61,7 +63,7 @@ class ExtraAction {
     iconPath: "assets/new-ui/deposit_to_onchain.svg",
     isModal: true,
     modalHeightFactor: 0.6,
-    applicable: (vm) => vm.wallet.type == WalletType.bitcoin,
+    applicable: (vm) => vm.wallet.hasLightningSupport,
     destinationBuilder: (vm) async {
       PaymentRequest? paymentRequest;
       final depositAddress = await bitcoin!.getUnusedSpakDepositAddress(vm.wallet);
@@ -83,7 +85,7 @@ class ExtraAction {
     iconPath: "assets/new-ui/withdraw_to_onchain.svg",
     isModal: true,
     modalHeightFactor: 0.6,
-    applicable: (vm) => vm.wallet.type == WalletType.bitcoin,
+    applicable: (vm) => vm.wallet.hasLightningSupport,
     destinationBuilder: (vm) {
       PaymentRequest? paymentRequest;
       final withdrawAddress = bitcoin!.getUnusedSegwitAddress(vm.wallet);
