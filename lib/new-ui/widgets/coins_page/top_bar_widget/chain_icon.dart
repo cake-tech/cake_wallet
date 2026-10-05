@@ -26,7 +26,8 @@ class ChainIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Observer(
     builder: (_) {
-      final progress = dashboardViewModel.status.progress();
+      final rawProgress = dashboardViewModel.status.progress();
+      final progress = rawProgress.isFinite ? rawProgress.clamp(0.0, 1.0) : 0.0;
       final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
 
       return Material(

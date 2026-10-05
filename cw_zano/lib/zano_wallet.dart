@@ -9,6 +9,7 @@ import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
+import "package:cw_core/pathForWallet.dart";
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -160,7 +161,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = credentials.walletInfo!.path;
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final providedMnemonic =
     credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
@@ -191,7 +192,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = credentials.walletInfo!.path;
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final passphrase = credentials.passphrase ?? '';
     final CreateWalletResult createWalletResult;
     final isBip39 = isBip39Seed(credentials.mnemonic);
@@ -242,7 +243,7 @@ abstract class ZanoWalletBase
         required String password,
         required WalletInfo walletInfo,
         required EncryptionFileUtils encryptionFileUtils}) async {
-    final path = walletInfo.path;
+    final path = await pathForWalletOf(walletInfo);
     final wallet =
     ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
 

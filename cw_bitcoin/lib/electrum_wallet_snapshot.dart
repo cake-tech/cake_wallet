@@ -65,7 +65,7 @@ class ElectrumWalletSnapshot {
 
   static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils,
       WalletInfo walletInfo, String password, BasedUtxoNetwork network) async {
-    final path = walletInfo.path;
+    final path = await pathForWalletOf(walletInfo);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;

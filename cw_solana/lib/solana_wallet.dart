@@ -599,7 +599,7 @@ abstract class SolanaWalletBase
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
-    final path = walletInfo.dirPath;
+    final path = await pathForWalletDirOf(walletInfo);
 
     Map<String, dynamic>? data;
     try {

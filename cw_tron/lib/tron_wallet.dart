@@ -130,7 +130,7 @@ abstract class TronWalletBase
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
-    final path = await pathForWallet(id: walletInfo.id, type: walletInfo.type);
+    final path = await pathForWalletOf(walletInfo);
 
     Map<String, dynamic>? data;
     try {

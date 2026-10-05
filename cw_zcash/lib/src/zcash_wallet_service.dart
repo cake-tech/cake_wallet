@@ -83,8 +83,8 @@ class ZcashWalletService
 
   @override
   Future<bool> isWalletExit(final WalletInfo walletInfo) async {
-    final oldPath = walletInfo.path;
-    final path = walletInfo.path + ".v2";
+    final oldPath = await pathForWalletOf(walletInfo);
+    final path = "$oldPath.v2";
     return File(path).existsSync() || File(oldPath).existsSync();
   }
 
@@ -94,7 +94,7 @@ class ZcashWalletService
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
 
     if (await isWalletExit(walletInfo)) {
-      final path = walletInfo.path + ".v2";
+      final path = "${await pathForWalletOf(walletInfo)}.v2";
       if (!File(path).existsSync()) {
         await migrateOldSqliteToZkool2(walletInfo: walletInfo);
       }

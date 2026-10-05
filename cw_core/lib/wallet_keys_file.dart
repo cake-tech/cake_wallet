@@ -14,7 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
         TransactionType extends TransactionInfo>
     on WalletBase<BalanceType, HistoryType, TransactionType> {
-  Future<String> makePath() => pathForWallet(id: walletInfo.id, type: walletInfo.type);
+  Future<String> makePath() => pathForWalletOf(walletInfo);
 
   // this needs to be overridden
   WalletKeysData get walletKeysData;
@@ -36,7 +36,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
       WalletKeysData walletKeysData, EncryptionFileUtils encryptionFileUtils,
       [bool withBackup = true]) async {
     try {
-      final rootPath = await pathForWallet(id: walletInfo.id, type: walletInfo.type);
+      final rootPath = await pathForWalletOf(walletInfo);
       final path = "$rootPath.keys";
 
       dev.log("Saving .keys file '$path'");
@@ -53,7 +53,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
 
   static Future<bool> hasKeysFile(WalletInfo walletInfo) async {
     try {
-      final path = await pathForWallet(id: walletInfo.id, type: walletInfo.type);
+      final path = await pathForWalletOf(walletInfo);
       return File("$path.keys").existsSync() || File("$path.keys.backup").existsSync();
     } catch (_) {
       return false;
@@ -65,7 +65,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
       String password,
       EncryptionFileUtils encryptionFileUtils,
       ) async {
-    final path = await pathForWallet(id: walletInfo.id, type: walletInfo.type);
+    final path = await pathForWalletOf(walletInfo);
 
     var readPath = "$path.keys";
     try {

@@ -87,7 +87,7 @@ class WowneroWalletService extends WalletService<
   @override
   Future<WowneroWallet> create(WowneroNewWalletCredentials credentials, {bool? isTestnet}) async {
     try {
-      final path = await pathForWallet(id: credentials.walletInfo!.id, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
 
       if (credentials.isPolyseed) {
         final polyseed = Polyseed.create();
@@ -126,7 +126,8 @@ class WowneroWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(WalletInfo walletInfo) async {
     try {
-      return wownero_wallet_manager.isWalletExist(path: walletInfo.path);
+      final path = await pathForWalletOf(walletInfo);
+      return wownero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       printV('WowneroWalletsManager Error: $e');
@@ -137,9 +138,8 @@ class WowneroWalletService extends WalletService<
   @override
   Future<WowneroWallet> openWallet(WalletInfo walletInfo, String password) async {
     WowneroWallet? wallet;
-    final name = walletInfo.name;
     try {
-      final path = walletInfo.path;
+      final path = await pathForWalletOf(walletInfo);
 
       if (walletFilesExist(path)) {
         await repairOldAndroidWallet(walletInfo);
@@ -203,14 +203,15 @@ class WowneroWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    final path = walletInfo.dirPath;
-    if (openedWalletsByPath["$path/${walletInfo.name}"] != null) {
+    final path = await pathForWalletOf(walletInfo);
+
+    if (openedWalletsByPath[path] != null) {
       printV("closing wallet");
       final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath["$path/${walletInfo.name}"]!.address;
+      final waddr = openedWalletsByPath[path]!.address;
       wownero.WalletManager_closeWallet(
           Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
-      openedWalletsByPath.remove("$path/${walletInfo.name}");
+      openedWalletsByPath.remove(path);
       printV("wallet closed");
     }
 
@@ -221,7 +222,7 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromKeys(WowneroRestoreWalletFromKeysCredentials credentials,
       {bool? isTestnet}) async {
     try {
-      final path = await pathForWallet(id: credentials.walletInfo!.id, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       await wownero_wallet_manager.restoreFromKeys(
           path: path,
           password: credentials.password!,
@@ -260,7 +261,7 @@ class WowneroWalletService extends WalletService<
     }
 
     try {
-      final path = await pathForWallet(id: credentials.walletInfo!.id, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       await wownero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
@@ -285,7 +286,7 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> restoreFromPolyseed(
       WowneroRestoreWalletFromSeedCredentials credentials) async {
     try {
-      final path = await pathForWallet(id: credentials.walletInfo!.id, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       final polyseedCoin = PolyseedCoin.POLYSEED_WOWNERO;
       final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
       final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
@@ -370,7 +371,7 @@ class WowneroWalletService extends WalletService<
         return;
       }
 
-      final newWalletDirPath = walletInfo.dirPath;
+      final newWalletDirPath = await pathForWalletDirOf(walletInfo);
 
       dir.listSync().forEach((f) {
         final file = File(f.path);

@@ -117,8 +117,6 @@ abstract class WalletCreationVMBase with Store {
       int? keepSortOrder;
       String? placeholderRealGroupId;
       String? reservedId;
-      String? reservedDirPath;
-      String? reservedPath;
 
       if (walletInfoIdOverride != null) {
         final rows = await WalletInfo.selectList('walletInfoId = ?', [walletInfoIdOverride]);
@@ -135,8 +133,6 @@ abstract class WalletCreationVMBase with Store {
         keepSortOrder = placeholder.sortOrder;
         placeholderRealGroupId = placeholder.groupId;
         reservedId = placeholder.id;
-        reservedDirPath = placeholder.dirPath;
-        reservedPath = placeholder.path;
 
         await WalletInfoAddressInfo.deleteByWalletInfoId(placeholder.internalId);
         await WalletInfoAddressMap.deleteByWalletInfoId(placeholder.internalId);
@@ -147,8 +143,6 @@ abstract class WalletCreationVMBase with Store {
       }
 
       final walletId = reservedId ?? const Uuid().v4();
-      final dirPath = reservedDirPath ?? await pathForWalletDir(id: walletId, type: type);
-      final path = reservedPath ?? await pathForWallet(id: walletId, type: type);
 
       final credentials = getCredentials(options);
 
@@ -166,8 +160,8 @@ abstract class WalletCreationVMBase with Store {
         isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
-        path: path,
-        dirPath: dirPath,
+        path: "",
+        dirPath: "",
         address: "",
         showIntroCakePayCard:
         (!await walletCreationService.typeExists(type)) && type != WalletType.haven,

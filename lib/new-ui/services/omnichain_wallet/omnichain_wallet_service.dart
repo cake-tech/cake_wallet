@@ -208,10 +208,6 @@ class OmniChainWalletCreationService {
     for (final type in restTypes) {
       final id = const Uuid().v4();
 
-      // Reserve the id + directory now; activating this placeholder later
-      // reuses this exact id/path rather than generating a new one.
-      final dirPath = await pathForWalletDir(id: id, type: type);
-      final path = await pathForWallet(id: id, type: type);
 
       final info = WalletInfo.external(
         id: id,
@@ -220,8 +216,8 @@ class OmniChainWalletCreationService {
         isRecovery: false,
         restoreHeight: 0,
         date: DateTime.now(),
-        path: path,
-        dirPath: dirPath,
+        path: "",
+        dirPath: "",
         address: "",
         showIntroCakePayCard: false,
         derivationInfoId: null,

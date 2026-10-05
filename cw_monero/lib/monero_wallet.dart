@@ -209,12 +209,12 @@ abstract class MoneroWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();
-      final currentWalletDirPath = walletInfo.dirPath;
-      if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+      final walletPath = await pathForWalletOf(walletInfo);
+      if (openedWalletsByPath[walletPath] != null) {
         printV("closing wallet");
         final wmaddr = wmPtr.ffiAddress();
-        final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
-        openedWalletsByPath.remove("$currentWalletDirPath/$name");
+        final waddr = openedWalletsByPath[walletPath]!.ffiAddress();
+        openedWalletsByPath.remove(walletPath);
         closeWalletAwaitIfShould(wmaddr, waddr);
         if (currentWallet?.ffiAddress() == waddr) {
           currentWallet = null;

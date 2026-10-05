@@ -1,5 +1,6 @@
-import 'dart:io';
-import 'package:cw_core/wallet_info.dart';
+import "dart:io";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/wallet_info.dart";
 
 String backupFileName(String originalPath) {
   final pathParts = originalPath.split('/');
@@ -10,7 +11,7 @@ String backupFileName(String originalPath) {
 }
 
 Future<void> backupWalletFiles(WalletInfo walletInfo) async {
-  final path = walletInfo.path;
+  final path = await pathForWalletOf(walletInfo);
   final cacheFile = File(path);
   final keysFile = File('$path.keys');
   final addressListFile = File('$path.address.txt');
@@ -30,10 +31,9 @@ Future<void> backupWalletFiles(WalletInfo walletInfo) async {
 }
 
 Future<void> restoreWalletFiles(WalletInfo walletInfo) async {
-  final walletDirPath = walletInfo.dirPath;
-  final cacheFilePath = walletInfo.path;
-  final keysFilePath = '${walletInfo.path}.keys';
-  final addressListFilePath = '${walletInfo.path}.address.txt';
+  final cacheFilePath = await pathForWalletOf(walletInfo);
+  final keysFilePath = '$cacheFilePath.keys';
+  final addressListFilePath = '$cacheFilePath.address.txt';
   final backupCacheFile = File(backupFileName(cacheFilePath));
   final backupKeysFile = File(backupFileName(keysFilePath));
   final backupAddressListFile = File(backupFileName(addressListFilePath));
@@ -52,7 +52,7 @@ Future<void> restoreWalletFiles(WalletInfo walletInfo) async {
 Future<void> resetCache(WalletInfo walletInfo) async {
   await removeCache(walletInfo);
 
-  final cacheFilePath = walletInfo.path;
+  final cacheFilePath = await pathForWalletOf(walletInfo);
   final backupCacheFile = File(backupFileName(cacheFilePath));
   if (backupCacheFile.existsSync()) {
     await backupCacheFile.copy(cacheFilePath);
@@ -60,9 +60,9 @@ Future<void> resetCache(WalletInfo walletInfo) async {
 }
 
 Future<bool> backupWalletFilesExists(WalletInfo walletInfo) async {
-  final cacheFilePath = walletInfo.path;
-  final keysFilePath = '${walletInfo.path}.keys';
-  final addressListFilePath = '${walletInfo.path}.address.txt';
+  final cacheFilePath = await pathForWalletOf(walletInfo);
+  final keysFilePath = '$cacheFilePath.keys';
+  final addressListFilePath = '$cacheFilePath.address.txt';
   final backupCacheFile = File(backupFileName(cacheFilePath));
   final backupKeysFile = File(backupFileName(keysFilePath));
   final backupAddressListFile = File(backupFileName(addressListFilePath));
@@ -74,7 +74,7 @@ Future<bool> backupWalletFilesExists(WalletInfo walletInfo) async {
 
 // WARNING: Transaction keys and your Polyseed CANNOT be recovered if this file is deleted
 Future<void> removeCache(WalletInfo walletInfo) async {
-  final path = walletInfo.path;
+  final path = await pathForWalletOf(walletInfo);
   final cacheFile = File(path);
   final backgroundCacheFile = File(path + ".background");
   if (cacheFile.existsSync()) {

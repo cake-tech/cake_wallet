@@ -1,17 +1,22 @@
 import "dart:io";
 import "package:cw_core/root_dir.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:path/path.dart" as p;
+import "package:uuid/uuid.dart";
 
-/// Shared root directory for all wallets of [type] (e.g. `wallets/bitcoin/`),
-/// not one specific wallet's folder. Every wallet of this type is a flat
-/// sibling here regardless of group — grouping doesn't affect disk layout.
-/// Creates the directory if missing.
+// New wallets have a UUID id; legacy wallets have "<type>_<name>"
+bool isUuidWallet(WalletInfo info) => Uuid.isValidUUID(fromString: info.id);
+
+// Folder name on disk: the UUID for new wallets, the name for legacy ones
+String _dirNameOf(WalletInfo info) => isUuidWallet(info) ? info.id : info.name;
+
+//<appDir>/wallets/<type>
 Future<String> pathForWalletTypeDir({required WalletType type}) async {
   final root = await getAppDir();
   final prefix = walletTypeToString(type).toLowerCase();
-  final walletsDir = Directory("${root.path}/wallets");
-  final walletDir = Directory("${walletsDir.path}/$prefix");
+
+  final walletDir = Directory(p.join(root.path, "wallets", prefix));
 
   if (!walletDir.existsSync()) {
     walletDir.createSync(recursive: true);
@@ -20,13 +25,11 @@ Future<String> pathForWalletTypeDir({required WalletType type}) async {
   return walletDir.path;
 }
 
-/// One wallet's own directory, nested inside [pathForWalletTypeDir] — e.g.
-/// `wallets/bitcoin/3fa1c2e0-.../`. Keyed by [id] (WalletInfo.id), never by name
-/// so that renaming a wallet doesn't require moving files around. Creates the
-/// directory if missing.
-Future<String> pathForWalletDir({required String id, required WalletType type}) async {
+// <appDir>/wallets/<type>/<dirName>
+Future<String> _pathForWalletDir({required String dirName, required WalletType type}) async {
   final typeRoot = await pathForWalletTypeDir(type: type);
-  final walletDir = Directory("$typeRoot/$id");
+
+  final walletDir = Directory(p.join(typeRoot, dirName));
 
   if (!walletDir.existsSync()) {
     walletDir.createSync(recursive: true);
@@ -35,13 +38,25 @@ Future<String> pathForWalletDir({required String id, required WalletType type}) 
   return walletDir.path;
 }
 
-Future<String> pathForWallet({required String id, required WalletType type}) async =>
-    await pathForWalletDir(id: id, type: type).then((path) => "$path/$id");
+// resolver: <appDir>/wallets/<type>/<name or uuid>
+Future<String> pathForWalletDirOf(WalletInfo info) async {
+  final dirName = _dirNameOf(info);
+  return _pathForWalletDir(dirName: dirName, type: info.type);
+}
 
+// <appDir>/wallets/<type>/<dirName>/<dirName>
+Future<String> _pathForWallet({required String dirName, required WalletType type}) async {
+  final walletDir = await _pathForWalletDir(dirName: dirName, type: type);
+  return p.join(walletDir, dirName);
+}
+
+// resolver: legacy wallets use the name, new wallets use the UUID
+Future<String> pathForWalletOf(WalletInfo info) async {
+  final dirName = _dirNameOf(info);
+  return _pathForWallet(dirName: dirName, type: info.type);
+}
 
 Future<String> outdatedAndroidPathForWalletDir({required String name}) async {
   final directory = await getAppDir();
-  final pathDir = '${directory.path}/$name';
-
-  return pathDir;
+  return p.join(directory.path, name);
 }

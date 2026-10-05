@@ -29,10 +29,11 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<WalletBase> openWallet(WalletInfo walletInfo, String password);
 
-  Future<bool> isWalletExit(WalletInfo walletInfo) async => File(walletInfo.path).existsSync();
+  Future<bool> isWalletExit(WalletInfo walletInfo) async =>
+      File(await pathForWalletOf(walletInfo)).existsSync();
 
   Future<void> remove(WalletInfo walletInfo) async {
-    final dir = Directory(walletInfo.dirPath);
+    final dir = Directory(await pathForWalletDirOf(walletInfo));
 
     if (dir.existsSync()) {
       await dir.delete(recursive: true);
@@ -71,21 +72,24 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
   }
 
-  String _backupPathFor(WalletInfo walletInfo) => "${walletInfo.dirPath}/${walletInfo.id}.backup";
+  Future<String> _backupPathFor(WalletInfo walletInfo) async =>
+      "${await pathForWalletOf(walletInfo)}.backup";
 
   Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
-    final backupPath = _backupPathFor(walletInfo);
+    final path = await pathForWalletOf(walletInfo);
+    final backupPath = await _backupPathFor(walletInfo);
 
     if (File(backupPath).existsSync()) {
-      await File(backupPath).copy(walletInfo.path);
+      await File(backupPath).copy(path);
     }
   }
 
   Future<void> saveBackup(WalletInfo walletInfo) async {
-    final backupPath = _backupPathFor(walletInfo);
+    final path = await pathForWalletOf(walletInfo);
+    final backupPath = await _backupPathFor(walletInfo);
 
-    if (File(walletInfo.path).existsSync()) {
-      await File(walletInfo.path).copy(backupPath);
+    if (File(path).existsSync()) {
+      await File(path).copy(backupPath);
     }
   }
 
@@ -99,7 +103,8 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
         return keysData.mnemonic ?? keysData.altMnemonic ?? keysData.privateKey ?? "";
       }
 
-      final jsonSource = await encryption.read(path: walletInfo.path, password: password);
+      final path = await pathForWalletOf(walletInfo);
+      final jsonSource = await encryption.read(path: path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
         return data["mnemonic"] as String? ?? "";

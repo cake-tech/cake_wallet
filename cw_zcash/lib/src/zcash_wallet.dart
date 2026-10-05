@@ -1584,7 +1584,7 @@ abstract class ZcashWalletBase
   }
 
   static Future<int?> getLegacyZcashAccountIdForName(final WalletInfo walletInfo) async {
-    final wPath = walletInfo.path;
+    final wPath = await pathForWalletOf(walletInfo);
     final f = File(wPath);
     if (!f.existsSync()) {
       final accs = await zkool_account.listAccounts(c: c);
@@ -1599,7 +1599,7 @@ abstract class ZcashWalletBase
   }
 
   static Future<int?> getZcashAccountIdForName(final WalletInfo walletInfo) async {
-    final wPath = walletInfo.path + ".v2";
+    final wPath = "${await pathForWalletOf(walletInfo)}.v2";
     final f = File(wPath);
     if (!f.existsSync()) {
       final accs = await zkool_account.listAccounts(c: c);
@@ -1614,7 +1614,7 @@ abstract class ZcashWalletBase
   }
 
   static Future<void> saveAccountId(final WalletInfo walletInfo, final int accountId) async {
-    final wPath = walletInfo.path + ".v2";
+    final wPath = "${await pathForWalletOf(walletInfo)}.v2";
     final dirName = Directory(wPath).parent.path;
     if (!Directory(dirName).existsSync()) {
       Directory(dirName).createSync(recursive: true);

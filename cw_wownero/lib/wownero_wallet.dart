@@ -410,67 +410,6 @@ abstract class WowneroWalletBase
   }
 
   @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = walletInfo.dirPath;
-    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
-      printV("closing wallet");
-      final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
-      await Isolate.run(() {
-        wownero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-      });
-      openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      printV("wallet closed");
-    }
-    try {
-      final currentWalletDir = Directory(walletInfo.dirPath);
-      final newWalletDirPath = await pathForWalletDir(id: newWalletName, type: type);
-      await currentWalletDir.rename(newWalletDirPath);
-
-      final renamedWalletPath = newWalletDirPath + '/$name';
-
-      final currentCacheFile = File(renamedWalletPath);
-      final currentKeysFile = File('$renamedWalletPath.keys');
-      final currentAddressListFile = File('$renamedWalletPath.address.txt');
-
-      final newWalletPath = await pathForWallet(id: newWalletName, type: type);
-
-      if (currentCacheFile.existsSync()) {
-        await currentCacheFile.rename(newWalletPath);
-      }
-      if (currentKeysFile.existsSync()) {
-        await currentKeysFile.rename('$newWalletPath.keys');
-      }
-      if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile.rename('$newWalletPath.address.txt');
-      }
-
-      await backupWalletFiles(walletInfo);
-    } catch (e) {
-      final currentWalletPath = walletInfo.path;
-
-      final currentCacheFile = File(currentWalletPath);
-      final currentKeysFile = File('$currentWalletPath.keys');
-      final currentAddressListFile = File('$currentWalletPath.address.txt');
-
-      final newWalletPath = await pathForWallet(id: newWalletName, type: type);
-
-      if (currentCacheFile.existsSync()) {
-        await currentCacheFile.copy(newWalletPath);
-      }
-      if (currentKeysFile.existsSync()) {
-        await currentKeysFile.copy('$newWalletPath.keys');
-      }
-      if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile.copy('$newWalletPath.address.txt');
-      }
-
-      await Directory(currentWalletDirPath).delete(recursive: true);
-    }
-  }
-
-  @override
   Future<void> changePassword(String password) async => wownero_wallet.setPasswordSync(password);
 
   Future<int> getNodeHeight() async => wownero_wallet.getNodeHeight();

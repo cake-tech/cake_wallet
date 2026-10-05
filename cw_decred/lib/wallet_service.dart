@@ -61,7 +61,7 @@ class DecredWalletService extends WalletService<
         : bip39.generateMnemonic(strength: strength);
     validateDecredMnemonic(mnemonic, allowNativeSeed: false);
     await this.init();
-    final dirPath = credentials.walletInfo!.path;
+    final dirPath = await pathForWalletDirOf(credentials.walletInfo!);
     final network = isTestnet == true ? testnet : mainnet;
     final config = {
       "name": credentials.walletInfo!.name,
@@ -138,12 +138,7 @@ class DecredWalletService extends WalletService<
 
     await this.init();
 
-    // TODO(wallet-id-refactor): this whole file always recomputes the wallet
-    // dir from an identifier rather than trusting walletInfo.dirPath — see
-    // create()'s comment about iOS relocating the directory. Needs a
-    // deliberate decision, not resolved here: does that iOS issue still  exist?
-    // If not, we can just use walletInfo.dirPath.
-    final dirPath = await pathForWalletDir(id: walletInfo.id, type: getType());
+    final dirPath = await pathForWalletDirOf(walletInfo);
 
     // Cake wallet version 4.27.0 and earlier gave a wallet dir that did not
     // match the name. Move those to the correct place.
@@ -152,10 +147,8 @@ class DecredWalletService extends WalletService<
       // On ios the stored dir no longer exists. We can only trust the basename.
       // dirPath may already be updated and lost the basename, so look at path.
       final randomBasename = basename(walletInfo.path);
-      final oldDir = await pathForWalletDir(
-          id: randomBasename,
-          type: getType()); // TODO: see note above — randomBasename is a legacy name, not an id
-      if (oldDir != dirPath) {
+      final oldDir = join(await pathForWalletTypeDir(type: getType()), randomBasename);
+      if (oldDir != dirPath && Directory(oldDir).existsSync()) {
         await this.moveWallet(oldDir, dirPath);
       }
       // Clear the path so this does not trigger again.
@@ -206,7 +199,7 @@ class DecredWalletService extends WalletService<
     validateDecredMnemonic(credentials.mnemonic);
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
-    final dirPath = credentials.walletInfo!.path;
+    final dirPath = await pathForWalletDirOf(credentials.walletInfo!);
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,
@@ -292,7 +285,7 @@ class DecredWalletService extends WalletService<
       {bool? isTestnet}) async {
     await this.init();
     final network = isTestnet == true ? testnet : mainnet;
-    final dirPath = credentials.walletInfo!.path;
+    final dirPath = await pathForWalletDirOf(credentials.walletInfo!);
     final config = {
       "name": credentials.walletInfo!.name,
       "datadir": dirPath,
