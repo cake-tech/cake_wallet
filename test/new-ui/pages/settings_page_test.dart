@@ -1,14 +1,15 @@
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/pages/account_customizer.dart";
+import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -27,6 +28,8 @@ import "package:sqflite/sqflite.dart";
 class MockBalanceViewModel extends Mock implements BalanceViewModel {}
 
 class MockDashboardViewModel extends Mock implements DashboardViewModel {}
+
+class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEditOrCreateViewModel {}
 
 class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
 
@@ -62,12 +65,14 @@ void main() {
     authService = _MockAuthService();
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
+    when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
+    when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
     when(() => dashboardViewModel.hasLightning).thenReturn(false);
     when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
     when(() => dashboardViewModel.hasMweb).thenReturn(false);
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
-    when(() => balanceViewModel.hasAccounts).thenReturn(false);
+    when(() => wallet.hasAccountsSupport).thenReturn(false);
     when(() => wallet.hasCoinControl).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
     when(() => wallet.hardwareWalletType).thenReturn(null);
@@ -162,7 +167,7 @@ void main() {
     expect(routes, contains(Routes.manageNodes));
     expect(routes, contains(Routes.unspentCoinsList));
     expect(routes, contains(Routes.lightningUsernamePage));
-    expect(routes, isNot(contains(Routes.accountCustomizer)));
+    expect(routes, isNot(contains(Routes.walletAccountsPage)));
     expect(routes, isNot(contains(Routes.silentPaymentsSettings)));
   });
 
@@ -259,7 +264,7 @@ void main() {
     var scopeOpen = false;
     DashboardViewModel? routedDashboardViewModel;
 
-    when(() => balanceViewModel.hasAccounts).thenReturn(true);
+    when(() => wallet.hasAccountsSupport).thenReturn(true);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
@@ -278,11 +283,12 @@ void main() {
       sqlite.db = database;
       getIt.pushNewScope(scopeName: "settings-accounts-route-test");
       scopeOpen = true;
-      getIt.registerFactoryParam<AccountCustomizer, DashboardViewModel, void>(
+      getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
         (routedViewModel, _) {
           routedDashboardViewModel = routedViewModel;
-          return AccountCustomizer(
+          return WalletAccountsPage(
             accountListViewModel: accountListViewModel,
+            accountEditOrCreateViewModel: _MockAccountEditOrCreateViewModel(),
             dashboardViewModel: routedViewModel,
           );
         },
@@ -297,7 +303,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(routedDashboardViewModel, same(dashboardViewModel));
-      expect(find.byType(AccountCustomizer), findsOneWidget);
+      expect(find.byType(WalletAccountsPage), findsOneWidget);
       expect(tester.takeException(), isNull);
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -310,13 +316,13 @@ void main() {
   });
 
   test("Bitcoin account copy is explicitly onchain when the capability is available", () {
-    when(() => balanceViewModel.hasAccounts).thenReturn(true);
+    when(() => wallet.hasAccountsSupport).thenReturn(true);
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
 
     final accountItem = const WalletSettingsResolver()
         .resolveSections(dashboardViewModel)
         .expand((section) => section)
-        .singleWhere((item) => item.route == Routes.accountCustomizer);
+        .singleWhere((item) => item.route == Routes.walletAccountsPage);
 
     expect(accountItem.title, english.accounts_onchain);
   });

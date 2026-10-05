@@ -1,10 +1,11 @@
 import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:flutter/material.dart";
 
@@ -17,7 +18,7 @@ class ArchiveConfirmationContent extends StatelessWidget {
   });
 
   final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool isFunded;
 
@@ -133,7 +134,7 @@ class AccountFundsSummary extends StatelessWidget {
   });
 
   final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final Color borderColor;
 
@@ -163,7 +164,7 @@ class AccountFundsSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "${account.balance ?? "0"} ${accountListViewModel.currency.title}",
+                  "${account.balance ?? "0"} ${AmountParsingProxy(dashboardViewModel.settingsStore.displayAmountsInSatoshi).getCryptoSymbol(accountListViewModel.currency)}",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 if (fiatBalance != null) ...[
@@ -209,7 +210,13 @@ String? accountFiatBalance(AccountListItem account, DashboardViewModel dashboard
     return "●●●●● $fiat";
   }
 
-  final amount = _accountAmount(account);
+  final canonicalBalance = AmountParsingProxy(
+    dashboardViewModel.settingsStore.displayAmountsInSatoshi,
+  ).getCanonicalCryptoAmount(
+    (account.balance ?? "").trim().replaceAll(",", ""),
+    dashboardViewModel.wallet.currency,
+  );
+  final amount = double.tryParse(canonicalBalance);
   if (amount == null) {
     return null;
   }

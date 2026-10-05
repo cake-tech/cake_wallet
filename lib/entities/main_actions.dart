@@ -82,7 +82,7 @@ class MainActions {
     canShow: (viewModel) => viewModel.hasTradeAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       if (!viewModel.isEnabledTradeAction) return;
-      await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
+      await Navigator.of(context).pushNamed(Routes.buySellPage);
     },
   );
 }

@@ -1,16 +1,18 @@
 import "dart:async";
 
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
@@ -23,6 +25,8 @@ class _MockCardCustomizerBloc extends Mock implements CardCustomizerBloc {}
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
 class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
+
+class _MockSettingsStore extends Mock implements SettingsStore {}
 
 class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
 
@@ -114,6 +118,9 @@ void main() {
     accountListViewModel = _MockAccountListViewModel();
     account = AccountListItem(id: 0, label: "Savings", balance: "1.25");
     final balanceViewModel = _MockBalanceViewModel();
+    final settingsStore = _MockSettingsStore();
+    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     stateController = StreamController<CardCustomizerState>.broadcast();
     when(() => bloc.stream).thenAnswer((_) => stateController.stream);
     when(() => bloc.canHide).thenReturn(true);

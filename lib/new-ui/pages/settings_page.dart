@@ -24,7 +24,7 @@ bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
-bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
+bool _hasAccounts(DashboardViewModel vm) => vm.wallet.hasAccountsSupport;
 
 bool _hasCoinControl(DashboardViewModel vm) => vm.wallet.hasCoinControl;
 
@@ -81,14 +81,16 @@ class WalletSettingsResolver {
       '${walletTypeToString(walletType)} ${strings.settings_title}'.trim();
 
   String iconPathFor(WalletType walletType) =>
-      "assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg";
+      walletType == WalletType.robinhood
+          ? "assets/new-ui/crypto_full_icons/robinhood.svg"
+          : "assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg";
 
   List<List<SettingsListItem>> resolveSections(DashboardViewModel viewModel) {
     final visibleItems = <SettingsListItem>[
       SettingsListItem(
         "assets/new-ui/settings_row_icons/accounts.svg",
         viewModel.wallet.type == WalletType.bitcoin ? S.current.accounts_onchain : S.current.accounts,
-        Routes.accountCustomizer,
+        Routes.walletAccountsPage,
         isCore: true,
         condition: _hasAccounts,
         routeArgsBuilder: (vm) => vm,

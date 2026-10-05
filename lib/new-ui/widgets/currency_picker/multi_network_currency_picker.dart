@@ -166,6 +166,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
             natives: _natives,
             selected: widget.args.selected,
             symbolResolver: widget.args.symbolResolver,
+            showStablesHeader: widget.args.showStablesHeader,
             onSelect: _selectCurrency,
             onStablecoinTap: _onStablecoinPillTapped,
           ),
@@ -190,10 +191,12 @@ class _MultiNetworkPickerBody extends StatefulWidget {
     required this.symbolResolver,
     required this.onSelect,
     required this.onStablecoinTap,
+    required this.showStablesHeader,
   });
 
   final bool isSearching;
   final bool recentsLoaded;
+  final bool showStablesHeader;
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final List<CryptoCurrency> recents;
@@ -319,9 +322,13 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     final visibleRecents = recents.where(items.contains).toList(growable: false);
 
+    final isSingleNetwork = items.map(cryptoCurrencyOrTokenToWalletType).toSet().length == 1;
     final seenStablecoinTitles = <String>{};
     final stablecoins = items
-        .where((c) => isTrustedStablecoin(c) && seenStablecoinTitles.add(c.title.toUpperCase()))
+        .where((c) =>
+            isTrustedStablecoin(c) &&
+            (isSingleNetwork || hasBuiltInStablecoinSymbol(c)) &&
+            seenStablecoinTitles.add(c.title.toUpperCase()))
         .toList(growable: false);
 
     final cryptocurrencies = items.where(natives.contains).toList(growable: false);
@@ -363,7 +370,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                 onTap: onSelect,
               ),
             ),
-          if (stablecoins.isNotEmpty)
+          if (stablecoins.isNotEmpty && widget.showStablesHeader)
             _PickerSection(
               title: S.of(context).picker_section_stablecoins,
               child: PillGrid(
@@ -478,6 +485,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
   String _shortChainLabel(CryptoCurrency c) {
     if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.bsc) return 'BSC';
+    if (cryptoCurrencyOrTokenToWalletType(c) == WalletType.robinhood) return "ROB";
     return chainNameForCurrency(c);
   }
 
@@ -490,7 +498,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
   }
 
   bool _isL2NativeEth(CryptoCurrency c) =>
-      c == CryptoCurrency.arbEth || c == CryptoCurrency.baseEth;
+      c == CryptoCurrency.arbEth || c == CryptoCurrency.baseEth || c == CryptoCurrency.robEth;
 
   _SelSection? _selectedSection({
     required List<CryptoCurrency> recents,

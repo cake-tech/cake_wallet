@@ -1,40 +1,44 @@
 import "dart:async";
 
-import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
-import 'package:cake_wallet/new-ui/modal_navigator.dart';
-import 'package:cake_wallet/new-ui/pages/account_education_page.dart';
-import 'package:cake_wallet/new-ui/pages/account_customizer.dart';
-import 'package:cake_wallet/new-ui/pages/card_customizer.dart';
-import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
-import 'package:cake_wallet/new-ui/pages/settings_page.dart';
-import 'package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart';
-import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
-import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart';
-import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/card_customizer.dart";
+import "package:cake_wallet/new-ui/pages/account_education_page.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cw_core/sync_status.dart";
+import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
+import "package:cake_wallet/new-ui/pages/send_page.dart";
+import "package:cake_wallet/new-ui/pages/settings_page.dart";
+import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
+import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/utils/payment_request.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/dashboard/nft_view_model.dart";
+import "package:cw_core/unspent_coin_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class NewHomePage extends StatefulWidget {
-  NewHomePage({super.key, required this.dashboardViewModel, required this.nftViewModel});
+  const NewHomePage({required this.dashboardViewModel, required this.nftViewModel, super.key});
 
   final DashboardViewModel dashboardViewModel;
   final NFTViewModel nftViewModel;
@@ -44,20 +48,15 @@ class NewHomePage extends StatefulWidget {
 }
 
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
-  MoneroAccountListViewModel? accountListViewModel;
-  bool _lightningMode = false;
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
 
   @override
   void initState() {
     super.initState();
-    _setAccountViewModel();
+
     _walletReaction = reaction((_) => widget.dashboardViewModel.wallet, (_) {
-      _setAccountViewModel();
-      setState(() {
-        _lightningMode = false;
-      });
+      setState(() {});
     });
 
     _migrationReaction = reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
@@ -96,186 +95,192 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   @override
   void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
 
-  void _setAccountViewModel() {
-    accountListViewModel = widget.dashboardViewModel.balanceViewModel.hasAccounts
-        ? getIt.get<MoneroAccountListViewModel>()
-        : null;
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surfaceDim,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  Widget build(BuildContext context) => Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceDim,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-      ),
-      child: Stack(
-        children: [
-          CustomScrollView(
-              physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                  sliver: CupertinoSliverRefreshControl(
-                    refreshTriggerPullDistance: 160,
-                    refreshIndicatorExtent: 90,
-                    onRefresh: () {
-                      unawaited(widget.nftViewModel.getNFTAssetByWallet());
+        child: Stack(
+          children: [
+            CustomScrollView(
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                slivers: [
+                  SliverPadding(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                    sliver: CupertinoSliverRefreshControl(
+                      refreshTriggerPullDistance: 160,
+                      refreshIndicatorExtent: 90,
+                      onRefresh: () {
+                        unawaited(widget.nftViewModel.getNFTAssetByWallet());
 
-                      return widget.dashboardViewModel.refreshDashboard();
-                    },
+                        return widget.dashboardViewModel.refreshDashboard();
+                      },
+                    ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: 24.0,
-                    children: [
-                      TopBar(
-                        key: ValueKey(widget.dashboardViewModel.wallet.id),
-                        dashboardViewModel: widget.dashboardViewModel,
-                        lightningMode: _lightningMode,
-                        onLightningSwitchPress: () {
-                          setState(() {
-                            _lightningMode = !_lightningMode;
-                          });
-                        },
-                        onSettingsButtonPress: () async {
-                          await CupertinoScaffold.showCupertinoModalBottomSheet(
-                            context: context,
-                            barrierColor: Colors.black.withAlpha(85),
-                            builder: (context) => FractionallySizedBox(
-                                child: Material(
-                                    child: NewSettingsPage(
+                  SliverToBoxAdapter(
+                    child: Observer(
+                      builder: (_) {
+                        final _lightningMode = widget.dashboardViewModel.lightningMode;
+                        return Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 24.0,
+                          children: [
+                            TopBar(
+                              key: ValueKey(widget.dashboardViewModel.wallet.id),
                               dashboardViewModel: widget.dashboardViewModel,
-                              authService: getIt.get<AuthService>(),
-                            ))),
-                          );
-
-                          if (!mounted) {
-                            return;
-                          }
-                          _setAccountViewModel();
-                          await widget.dashboardViewModel.loadCardDesigns();
-                          if (mounted) {
-                            setState(() {});
-                          }
-                        },
-                      ),
-                      Column(
-                        spacing: 20,
-                        children: [
-                          Column(
-                            children: [
-                              Observer(
-                                builder: (_) => CardsView(
-                                  key: ValueKey(widget.dashboardViewModel.wallet.name),
-                                  onCustomizeTapped: openCardCustomizer,
-                                  dashboardViewModel: widget.dashboardViewModel,
-                                  accountListViewModel: accountListViewModel,
-                                  onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                                  lightningMode: _lightningMode,
-                                ),
-                              ),
-                              Observer(builder: (_) {
-                                return AnimatedSize(
-                                  duration: Duration(milliseconds: 150),
-                                  curve: Curves.easeInOutCubic,
-                                  child: (widget.dashboardViewModel.shouldShowBalanceHiddenMessage)
-                                      ? Column(
-                                          children: [
-                                            SizedBox(
-                                              height: 12,
-                                              width: double.infinity,
-                                            ),
-                                            Text(
-                                              S.of(context).long_press_show_balance,
-                                              style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant),
-                                            )
-                                          ],
-                                        )
-                                      : SizedBox(width: double.infinity),
-                                );
-                              }),
-                              UnconfirmedBalanceWidget(
-                                dashboardViewModel: widget.dashboardViewModel,
-                              ),
-                            ],
-                          ),
-                          if (_supportsAccountsPromo &&
-                              accountListViewModel != null &&
-                              !_lightningMode)
-                            AccountsPromo(
-                              settingsStore: widget.dashboardViewModel.settingsStore,
-                              walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
-                              onTap: _openAccountsFromPromo,
+                              onLightningSwitchPress: () {
+                                widget.dashboardViewModel.toggleLightningMode();
+                              },
+                              onSettingsButtonPress: () {
+                                CupertinoScaffold.showCupertinoModalBottomSheet(
+                                  context: context,
+                                  barrierColor: Colors.black.withAlpha(85),
+                                  builder: (context) => FractionallySizedBox(
+                                    child: Material(
+                                      child: NewSettingsPage(
+                                        dashboardViewModel: widget.dashboardViewModel,
+                                        authService: getIt.get<AuthService>(),
+                                      ),
+                                    ),
+                                  ),
+                                ).then((_) async {
+                                  widget.dashboardViewModel.accountListViewModel?.reload();
+                                  await Future<void>.delayed(Duration.zero);
+                                  await widget.dashboardViewModel.loadCardDesigns();
+                                  if (mounted) setState(() {});
+                                });
+                              },
                             ),
-                          Observer(
-                            builder: (_) {
-                              return Column(
-                                children: [
-                                  CoinActionRow(
-                                    lightningMode: _lightningMode,
-                                    showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                                    walletType: widget.dashboardViewModel.wallet.type,
+                            Column(
+                              children: [
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  switchInCurve: Curves.easeOut,
+                                  switchOutCurve: Curves.easeOut,
+                                  layoutBuilder: (currentChild, previousChildren) => Stack(
+                                    // the front (selected) card sits at the bottom of the stack box
+                                    alignment: Alignment.bottomCenter,
+                                    children: <Widget>[
+                                      ...previousChildren,
+                                      if (currentChild != null) currentChild,
+                                    ],
                                   ),
-                                  MwebAd(
-                                    dashboardViewModel: widget.dashboardViewModel,
+                                  child: KeyedSubtree(
+                                    key: ValueKey(_lightningMode),
+                                    child: CardsView(
+                                        key: ValueKey(
+                                            "${widget.dashboardViewModel.wallet.name}_${_lightningMode}_${widget.dashboardViewModel.accountListViewModel?.accounts.length ?? 0}_${widget.dashboardViewModel.cardDesigns.length}"),
+                                        onCustomizeTapped: openCardCustomizer,
+                                        dashboardViewModel: widget.dashboardViewModel,
+                                        accountListViewModel:
+                                            widget.dashboardViewModel.accountListViewModel,
+                                        onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                                        lightningMode: _lightningMode),
                                   ),
-                                  SeedBackupReminderCard(
-                                    dashboardViewModel: widget.dashboardViewModel,
-                                    onTap: openSeedBackupReminder,
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                                ),
+                                Observer(
+                                    builder: (_) => AnimatedSize(
+                                          duration: const Duration(milliseconds: 150),
+                                          curve: Curves.easeInOutCubic,
+                                          child: (widget.dashboardViewModel
+                                                  .shouldShowBalanceHiddenMessage)
+                                              ? Column(
+                                                  children: [
+                                                    const SizedBox(
+                                                      height: 12,
+                                                      width: double.infinity,
+                                                    ),
+                                                    Text(
+                                                      S.of(context).long_press_show_balance,
+                                                      style: TextStyle(
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onSurfaceVariant),
+                                                    )
+                                                  ],
+                                                )
+                                              : const SizedBox(width: double.infinity),
+                                        )),
+                                UnconfirmedBalanceWidget(
+                                    dashboardViewModel: widget.dashboardViewModel),
+                                SeedBackupReminderCard(
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  onTap: openSeedBackupReminder,
+                                ),
+                              ],
+                            ),
+                            if (AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) &&
+                                widget.dashboardViewModel.accountListViewModel != null &&
+                                !_lightningMode)
+                              AccountsPromo(
+                                settingsStore: widget.dashboardViewModel.settingsStore,
+                                walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
+                                onTap: _openAccountsFromPromo,
+                              ),
+                            Column(
+                              children: [
+                                CoinActionRow(
+                                  lightningMode: _lightningMode,
+                                  showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                                  walletType: widget.dashboardViewModel.wallet.type,
+                                ),
+                                MwebAd(
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                ),
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    ),
                   ),
-                ),
-                Observer(
-                  builder: (_) => AssetsHistorySection(
-                    nftViewModel: widget.nftViewModel,
-                    dashboardViewModel: widget.dashboardViewModel,
+                  Observer(
+                    builder: (_) => AssetsHistorySection(
+                      nftViewModel: widget.nftViewModel,
+                      dashboardViewModel: widget.dashboardViewModel,
+                    ),
                   ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 80.0),
+                  )
+                ]),
+            Container(
+              height: (MediaQuery.of(context).padding.top),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: <Color>[
+                    Theme.of(context).colorScheme.surface.withAlpha(5),
+                    Theme.of(context).colorScheme.surface.withAlpha(25),
+                    Theme.of(context).colorScheme.surface.withAlpha(50),
+                    Theme.of(context).colorScheme.surface.withAlpha(100),
+                    Theme.of(context).colorScheme.surface.withAlpha(150),
+                    Theme.of(context).colorScheme.surface.withAlpha(175),
+                    Theme.of(context).colorScheme.surface.withAlpha(200),
+                  ],
                 ),
-                SliverToBoxAdapter(
-                  child: SizedBox(height: 80.0),
-                )
-              ]),
-          Container(
-            height: (MediaQuery.of(context).padding.top),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: <Color>[
-                  Theme.of(context).colorScheme.surface.withAlpha(5),
-                  Theme.of(context).colorScheme.surface.withAlpha(25),
-                  Theme.of(context).colorScheme.surface.withAlpha(50),
-                  Theme.of(context).colorScheme.surface.withAlpha(100),
-                  Theme.of(context).colorScheme.surface.withAlpha(150),
-                  Theme.of(context).colorScheme.surface.withAlpha(175),
-                  Theme.of(context).colorScheme.surface.withAlpha(200),
-                ],
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      );
+
+  Future<void> openCardCustomizer() async {
+    if (!_checkReadyToManage()) return;
+    await CardCustomizer.show(
+      context: context,
+      dashboardViewModel: widget.dashboardViewModel,
+      lightningMode: widget.dashboardViewModel.lightningMode,
     );
   }
 
@@ -291,93 +296,36 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   }
 
   Future<void> openAccountCustomizer() async {
-    final accountList = accountListViewModel;
-    if (accountList == null || !_checkReadyToManage()) {
-      return;
-    }
-    await _showAccountCustomizer(accountList);
+    if (widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
+
+    final page = getIt.get<WalletAccountsPage>(param1: widget.dashboardViewModel);
+
+    await CupertinoScaffold.showCupertinoModalBottomSheet(
+      barrierColor: Colors.black.withAlpha(60),
+      context: context,
+      builder: (context) => ModalNavigator(
+        parentContext: context,
+        heightMode: ModalHeightModes.fullScreen,
+        rootPage: Material(
+          child: page,
+        ),
+      ),
+    );
+    await widget.dashboardViewModel.loadCardDesigns();
   }
-
   Future<void> _openAccountsFromPromo() async {
-    if (!_supportsAccountsPromo) {
-      return;
-    }
-
-    final accountList = accountListViewModel;
-    if (accountList == null || !_checkReadyToManage()) {
-      return;
-    }
+    if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
+        widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
 
     await AccountEducationPage(
       settingsStore: widget.dashboardViewModel.settingsStore,
     ).show(context);
-    if (!mounted) {
-      return;
-    }
-    await _showAccountCustomizer(accountList);
-  }
-
-  bool get _supportsAccountsPromo =>
-      AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type);
-
-  Future<void> _showAccountCustomizer(MoneroAccountListViewModel accountList) async {
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      barrierColor: Colors.black.withAlpha(60),
-      context: context,
-      builder: (context) {
-        return ModalNavigator(
-          parentContext: context,
-          heightMode: ModalHeightModes.fullScreen,
-          rootPage: Material(
-            child: AccountCustomizer(
-              accountListViewModel: accountList,
-              dashboardViewModel: widget.dashboardViewModel,
-            ),
-          ),
-        );
-      },
-    );
-    if (!mounted) {
-      return;
-    }
-    await widget.dashboardViewModel.loadCardDesigns();
-  }
-
-  void openCardCustomizer() async {
-    if (!_checkReadyToManage()) {
-      return;
-    }
-    final bloc = getIt.get<CardCustomizerBloc>(
-        param1: CardCustomizerBlocParams(
-            lightningMode: _lightningMode,
-            amountDisplayMode: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-            canHide: false));
-    await CupertinoScaffold.showCupertinoModalBottomSheet(
-      barrierColor: Colors.black.withAlpha(60),
-      context: context,
-      builder: (context) {
-        return ModalNavigator(
-            parentContext: context,
-            heightMode: ModalHeightModes.fullScreen,
-            rootPage: BlocProvider.value(
-              value: bloc,
-              child: Material(
-                  child: CardCustomizer(
-                cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                    widget.dashboardViewModel.wallet.currency.name,
-                cryptoName: widget.dashboardViewModel.wallet.currency.name,
-                dashboardViewModel: widget.dashboardViewModel,
-              )),
-            ));
-      },
-    );
-    bloc.add(DesignSaved());
-    await bloc.stream.firstWhere((s) => s is CardCustomizerSaved);
-    widget.dashboardViewModel.loadCardDesigns();
+    if (mounted) await openAccountCustomizer();
   }
 
   bool _checkReadyToManage() {
-    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
+    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin &&
+        widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
         context: context,
         builder: (context) => AlertWithOneAction(

@@ -3,8 +3,8 @@ import "dart:async";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/pages/account_customizer.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart";
+import "package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
@@ -32,7 +32,7 @@ void main() {
                   MaterialPageRoute(
                     builder: (_) => Scaffold(
                       body: AccountCreationModal(
-                        accountEditOrCreateViewModel: viewModel,
+                        viewModel: viewModel,
                       ),
                     ),
                   ),

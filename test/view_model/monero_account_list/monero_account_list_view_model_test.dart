@@ -1,8 +1,9 @@
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/monero/monero.dart" as xmr;
 import "package:cake_wallet/store/settings_store.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
+import "package:cw_core/account.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
@@ -45,11 +46,11 @@ void main() {
     when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => wowneroAdapter.getAccountList(wallet)).thenReturn(accountList);
     when(() => wowneroAdapter.getCurrentAccount(wallet))
-        .thenReturn(wow.Account(id: 1, label: "Selected", balance: "2.0"));
+        .thenReturn(Account(id: 1, label: "Selected", balance: "2.0"));
     when(() => accountList.accounts).thenReturn(
       ObservableList.of([
-        wow.Account(id: 0, label: "Primary", balance: "1.0"),
-        wow.Account(id: 1, label: "Selected", balance: "2.0"),
+        Account(id: 0, label: "Primary", balance: "1.0"),
+        Account(id: 1, label: "Selected", balance: "2.0"),
       ]),
     );
   });

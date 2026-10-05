@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -10,8 +11,8 @@ import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:flutter/material.dart";
@@ -23,7 +24,7 @@ class HiddenAccountsPage extends StatefulWidget {
     super.key,
   });
 
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
 
   @override
@@ -131,7 +132,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
       final latestAccount =
           widget.accountListViewModel.accounts.firstWhereOrNull((item) => item.id == account.id) ??
               account;
-      widget.accountListViewModel.select(latestAccount);
+      await widget.accountListViewModel.select(latestAccount);
       await widget.dashboardViewModel.loadCardDesigns();
       await _loadAccounts();
     } finally {
@@ -215,7 +216,7 @@ class _PopulatedArchiveView extends StatelessWidget {
 
   final List<AccountListItem> accounts;
   final Set<int> accountsBeingRestored;
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final Future<void> Function(AccountListItem account) onUnarchive;
 
@@ -299,7 +300,7 @@ class _ArchivedAccountRow extends StatelessWidget {
   });
 
   final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool isBusy;
   final VoidCallback? onTap;
@@ -408,7 +409,7 @@ class _AccountBalanceTrailing extends StatelessWidget {
   });
 
   final AccountListItem account;
-  final MoneroAccountListViewModel accountListViewModel;
+  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool isBusy;
 
@@ -433,7 +434,7 @@ class _AccountBalanceTrailing extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "${account.balance ?? "0"} ${accountListViewModel.currency.title}",
+                  "${account.balance ?? "0"} ${AmountParsingProxy(dashboardViewModel.settingsStore.displayAmountsInSatoshi).getCryptoSymbol(accountListViewModel.currency)}",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall,

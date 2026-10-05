@@ -1,6 +1,9 @@
 import "dart:math";
 
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
@@ -12,8 +15,8 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/card_design.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -33,8 +36,70 @@ class CardCustomizer extends StatefulWidget {
   final String cryptoName;
   final DashboardViewModel dashboardViewModel;
   final AccountListItem? account;
-  final MoneroAccountListViewModel? accountListViewModel;
+  final WalletAccountListViewModel? accountListViewModel;
   final String fiatBalance;
+
+  static Future<void> show({
+    required BuildContext context,
+    required DashboardViewModel dashboardViewModel,
+    required bool lightningMode,
+    bool asModalSheet = true,
+  }) async {
+    final bloc = getIt.get<CardCustomizerBloc>(
+      param1: CardCustomizerBlocParams(
+        lightningMode: lightningMode,
+        amountDisplayMode: dashboardViewModel.settingsStore.displayAmountsInSatoshi,
+        canHide: false,
+      ),
+    );
+    if (bloc.state is CardCustomizerNotLoaded) {
+      await bloc.stream.firstWhere((state) => state is! CardCustomizerNotLoaded);
+    }
+    if (!context.mounted) {
+      await bloc.close();
+      return;
+    }
+    final accountList = dashboardViewModel.accountListViewModel;
+    final account = !lightningMode && dashboardViewModel.isMultiAccountsEnabled
+        ? accountList?.selectedAccount
+        : null;
+    final customizer = BlocProvider.value(
+      value: bloc,
+      child: Material(
+        child: CardCustomizer(
+          cryptoTitle: dashboardViewModel.wallet.currency.fullName ??
+              dashboardViewModel.wallet.currency.name,
+          cryptoName: dashboardViewModel.wallet.currency.name,
+          dashboardViewModel: dashboardViewModel,
+          account: account,
+          accountListViewModel: accountList,
+          fiatBalance: account == null ? "" : accountFiatBalance(account, dashboardViewModel) ?? "",
+        ),
+      ),
+    );
+
+    if (asModalSheet) {
+      await CupertinoScaffold.showCupertinoModalBottomSheet(
+        barrierColor: Colors.black.withAlpha(60),
+        context: context,
+        builder: (context) => ModalNavigator(
+          parentContext: context,
+          heightMode: ModalHeightModes.fullScreen,
+          rootPage: customizer,
+        ),
+      );
+    } else {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => customizer),
+      );
+    }
+
+    bloc.add(DesignSaved());
+    await bloc.stream.firstWhere((state) => state is CardCustomizerSaved);
+    await bloc.close();
+    await dashboardViewModel.accountListViewModel?.reload();
+    await dashboardViewModel.loadCardDesigns();
+  }
 
   @override
   State<CardCustomizer> createState() => _CardCustomizerState();

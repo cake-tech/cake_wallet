@@ -1,7 +1,8 @@
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/monero/monero.dart" as xmr;
-import "package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
+import "package:cw_core/account.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -74,15 +75,15 @@ void main() {
 
   test("creates a Wownero account and stores its card design at the next Wownero index", () async {
     final accountList = _MockWowneroAccountList();
-    final accounts = ObservableList<wow.Account>.of([
-      wow.Account(id: 0, label: "Primary"),
-      wow.Account(id: 1, label: "Savings"),
+    final accounts = ObservableList<Account>.of([
+      Account(id: 0, label: "Primary"),
+      Account(id: 1, label: "Savings"),
     ]);
     when(() => wallet.type).thenReturn(WalletType.wownero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
     when(() => accountList.accounts).thenReturn(accounts);
     when(() => accountList.addAccount(wallet, label: "Spending")).thenAnswer((_) async {
-      accounts.add(wow.Account(id: 2, label: "Spending"));
+      accounts.add(Account(id: 2, label: "Spending"));
     });
 
     final viewModel = MoneroAccountEditOrCreateViewModel(
@@ -105,14 +106,14 @@ void main() {
 
   test("creates a Monero account and stores its card design at the next Monero index", () async {
     final accountList = _MockMoneroAccountList();
-    final accounts = ObservableList<xmr.Account>.of([
-      xmr.Account(id: 0, label: "Primary"),
+    final accounts = ObservableList<Account>.of([
+      Account(id: 0, label: "Primary"),
     ]);
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountList.accounts).thenReturn(accounts);
     when(() => accountList.addAccount(wallet, label: "Savings")).thenAnswer((_) async {
-      accounts.add(xmr.Account(id: 1, label: "Savings"));
+      accounts.add(Account(id: 1, label: "Savings"));
     });
 
     final viewModel = MoneroAccountEditOrCreateViewModel(

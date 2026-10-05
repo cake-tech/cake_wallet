@@ -3,8 +3,10 @@ import "dart:async";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/pages/account_customizer.dart";
+import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
@@ -15,8 +17,8 @@ import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/monero_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
@@ -33,6 +35,8 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
+
+class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEditOrCreateViewModel {}
 
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
@@ -88,7 +92,7 @@ Future<void> _pumpUntil(WidgetTester tester, bool Function() done) async {
     }
   }
 
-  throw TestFailure("Timed out waiting for AccountCustomizer");
+  throw TestFailure("Timed out waiting for WalletAccountsPage");
 }
 
 void main() {
@@ -149,12 +153,21 @@ void main() {
     accountListViewModel = _MockAccountListViewModel();
     wallet = _MockWallet();
     walletInfo = _MockWalletInfo();
+    final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
+    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+    when(() => accountListViewModel.select(any())).thenAnswer((_) async {});
+    when(() => accountListViewModel.reload()).thenAnswer((_) async {});
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
+    when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
+    when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
     when(() => balanceViewModel.isFiatDisabled).thenReturn(true);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
+    when(() => wallet.type).thenReturn(WalletType.monero);
+    when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountListViewModel.accounts).thenReturn([activeAccount]);
@@ -224,6 +237,7 @@ void main() {
 
   testWidgets("archived account fiat balance uses the current price and locale", (tester) async {
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
 
     when(() => accountListViewModel.accounts)
         .thenReturn([fundedAccount, activeAccount, emptyAccount]);
@@ -253,10 +267,11 @@ void main() {
     expect(find.text("0,00 USD"), findsNothing);
   });
 
-  testWidgets("AccountCustomizer shows education only until it has been seen", (tester) async {
+  testWidgets("WalletAccountsPage shows education only until it has been seen", (tester) async {
     var cardDesignLoads = 0;
     var educationDismissed = false;
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
 
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => settingsStore.isEducationDismissed("accounts"))
@@ -273,8 +288,9 @@ void main() {
 
     await tester.pumpWidget(
       testApp(
-        AccountCustomizer(
+        WalletAccountsPage(
           accountListViewModel: accountListViewModel,
+          accountEditOrCreateViewModel: _MockAccountEditOrCreateViewModel(),
           dashboardViewModel: dashboardViewModel,
         ),
       ),
@@ -297,8 +313,9 @@ void main() {
 
     await tester.pumpWidget(
       testApp(
-        AccountCustomizer(
+        WalletAccountsPage(
           accountListViewModel: accountListViewModel,
+          accountEditOrCreateViewModel: _MockAccountEditOrCreateViewModel(),
           dashboardViewModel: dashboardViewModel,
         ),
       ),
@@ -394,6 +411,7 @@ void main() {
     );
     final bloc = _MockCardCustomizerBloc();
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     final states = StreamController<CardCustomizerState>.broadcast();
     final events = <Type>[];
     final selections = <int>[];
@@ -427,7 +445,7 @@ void main() {
 
     var accounts = <AccountListItem>[remainingAccount, archivedAccount];
     when(() => accountListViewModel.accounts).thenAnswer((_) => accounts);
-    when(() => accountListViewModel.select(any())).thenAnswer((invocation) {
+    when(() => accountListViewModel.select(any())).thenAnswer((invocation) async {
       selections.add((invocation.positionalArguments.single as AccountListItem).id);
     });
     when(() => dashboardViewModel.status).thenReturn(SyncedSyncStatus());
@@ -445,6 +463,7 @@ void main() {
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => bloc.state).thenAnswer((_) => customizerState);
+    when(() => bloc.close()).thenAnswer((_) async {});
     when(() => bloc.stream).thenAnswer((_) => states.stream);
     when(() => bloc.canHide).thenAnswer((_) => canHide);
     when(() => bloc.add(any())).thenAnswer((invocation) {
@@ -458,7 +477,7 @@ void main() {
       if (event is DesignSaved) {
         scheduleMicrotask(() => states.add(savedState));
       } else if (event is AccountHidden) {
-        // Simulate AccountHidden's persisted output so AccountCustomizer reloads visible cards.
+        // Simulate AccountHidden's persisted output so WalletAccountsPage reloads visible cards.
         scheduleMicrotask(() {
           unawaited(
             BalanceCardStyleSettings.fromCardDesign(
@@ -496,8 +515,9 @@ void main() {
     await tester.pumpWidget(
       testApp(
         Scaffold(
-          body: AccountCustomizer(
+          body: WalletAccountsPage(
             accountListViewModel: accountListViewModel,
+            accountEditOrCreateViewModel: _MockAccountEditOrCreateViewModel(),
             dashboardViewModel: dashboardViewModel,
           ),
         ),
@@ -573,8 +593,9 @@ void main() {
     await tester.pumpWidget(
       testApp(
         Scaffold(
-          body: AccountCustomizer(
+          body: WalletAccountsPage(
             accountListViewModel: accountListViewModel,
+            accountEditOrCreateViewModel: _MockAccountEditOrCreateViewModel(),
             dashboardViewModel: dashboardViewModel,
           ),
         ),
@@ -582,7 +603,7 @@ void main() {
     );
     await _pumpUntil(tester, () => find.text("Add Account").evaluate().isNotEmpty);
 
-    final colorScheme = Theme.of(tester.element(find.byType(AccountCustomizer))).colorScheme;
+    final colorScheme = Theme.of(tester.element(find.byType(WalletAccountsPage))).colorScheme;
     expect(archiveButton().backgroundColor, colorScheme.primary);
     expect(archiveButton().iconColor, colorScheme.onPrimary);
 

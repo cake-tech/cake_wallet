@@ -1,4 +1,3 @@
-import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
 import "package:cake_wallet/core/key_service.dart";
 import "package:cake_wallet/core/trade_monitor.dart";
 import "package:cake_wallet/store/anonpay/anonpay_transactions_store.dart";
@@ -13,6 +12,7 @@ import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
+import "package:cw_core/account.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -44,8 +44,6 @@ class _MockTransactionFilterStore extends Mock implements TransactionFilterStore
 
 class _MockSettingsStore extends Mock implements SettingsStore {}
 
-class _MockYatStore extends Mock implements YatStore {}
-
 class _MockOrdersStore extends Mock implements OrdersStore {}
 
 class _MockAnonpayTransactionsStore extends Mock implements AnonpayTransactionsStore {}
@@ -72,6 +70,7 @@ class _MockWowneroBalance extends Mock implements wow.WowneroBalance {}
 class _DashboardViewModelProbe extends DashboardViewModelBase {
   _DashboardViewModelProbe({
     required super.balanceViewModel,
+    required super.accountListViewModelFactory,
     required super.tradeMonitor,
     required super.appStore,
     required super.tradesStore,
@@ -79,7 +78,6 @@ class _DashboardViewModelProbe extends DashboardViewModelBase {
     required super.orderFilterStore,
     required super.transactionFilterStore,
     required super.settingsStore,
-    required super.yatStore,
     required super.ordersStore,
     required super.anonpayTransactionsStore,
     required super.payjoinTransactionsStore,
@@ -159,13 +157,14 @@ void main() {
     final accountList = _MockWowneroAccountList();
     final walletDetails = _MockWowneroWalletDetails();
     final wowneroBalance = _MockWowneroBalance();
-    final accounts = ObservableList.of(<wow.Account>[
-      wow.Account(id: 0, label: "Primary", balance: "1.0"),
-      wow.Account(id: 1, label: "Savings", balance: "2.0"),
+    final accounts = ObservableList.of(<Account>[
+      Account(id: 0, label: "Primary", balance: "1.0"),
+      Account(id: 1, label: "Savings", balance: "2.0"),
     ]);
 
     wow.wownero = wowneroAdapter;
     when(() => appStore.wallet).thenReturn(wallet);
+    when(() => wallet.hasNativeAccounts).thenReturn(true);
     when(() => wallet.name).thenReturn("Wownero Wallet");
     when(() => wallet.id).thenReturn("wownero-wallet");
     when(() => wallet.type).thenReturn(WalletType.wownero);
@@ -188,6 +187,7 @@ void main() {
 
     final viewModel = _DashboardViewModelProbe(
       balanceViewModel: _MockBalanceViewModel(),
+      accountListViewModelFactory: () => null,
       tradeMonitor: tradeMonitor,
       appStore: appStore,
       tradesStore: tradesStore,
@@ -195,7 +195,6 @@ void main() {
       orderFilterStore: _MockOrderFilterStore(),
       transactionFilterStore: _MockTransactionFilterStore(),
       settingsStore: settingsStore,
-      yatStore: _MockYatStore(),
       ordersStore: _MockOrdersStore(),
       anonpayTransactionsStore: _MockAnonpayTransactionsStore(),
       payjoinTransactionsStore: _MockPayjoinTransactionsStore(),

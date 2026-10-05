@@ -267,7 +267,13 @@ abstract class EVMChainWalletBase
 
   Future<bool> checkIfScanProviderIsEnabled() async {
     final key = EVMChainUtils.getScanProviderPreferenceKey(selectedChainId);
-    return (await sharedPrefs.future).getBool(key) ?? true;
+
+    try {
+      return (await sharedPrefs.future).getBool(key) ?? true;
+    } catch (e) {
+      printV("Could not read the $key preference: $e");
+      return false;
+    }
   }
 
   EVMChainTransactionInfo getTransactionInfo(
@@ -317,6 +323,10 @@ abstract class EVMChainWalletBase
       isPotentialScam: token.isPotentialScam,
       walletName: walletInfo.name,
       chainId: selectedChainId,
+      groups: EVMChainDefaultTokens.getDefaultGroupsByAddress(
+        selectedChainId,
+        token.contractAddress,
+      ),
     );
   }
 
@@ -333,14 +343,16 @@ abstract class EVMChainWalletBase
     );
   }
 
-  String _getUSDCContractAddress() {
+  String? _getUSDCContractAddress() {
     return switch (selectedChainId) {
       1 => "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
       56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
-      _ => throw Exception("Unsupported chain ID: $selectedChainId"),
+      // Robinhood Chain does not have USDC so using USDG in its place
+      4663 => "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
+      _ => null,
     };
   }
 
@@ -349,10 +361,13 @@ abstract class EVMChainWalletBase
     try {
       await _client.getBalance(_evmChainPrivateKey.address);
 
-      final usdcContractAddress = Erc20Token(
-          name: "USDC", symbol: "USDC", contractAddress: _getUSDCContractAddress(), decimal: 6);
+      final usdcAddress = _getUSDCContractAddress();
+      if (usdcAddress != null) {
+        final usdcContractAddress =
+            Erc20Token(name: "USDC", symbol: "USDC", contractAddress: usdcAddress, decimal: 6);
 
-      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
+        await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
+      }
 
       return true;
     } catch (e) {
@@ -538,7 +553,10 @@ abstract class EVMChainWalletBase
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
-      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+      final chainName = EVMChainUtils.getMoralisChainName(selectedChainId);
+      if (chainName == null) {
+        return MoralisDiscoveryResult.empty;
+      }
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
@@ -982,6 +1000,7 @@ abstract class EVMChainWalletBase
       56 => CryptoCurrency.bnb,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
+      4663 => CryptoCurrency.robEth,
       _ => CryptoCurrency.eth,
     };
 
@@ -1124,6 +1143,10 @@ abstract class EVMChainWalletBase
 
   @override
   Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return {};
+    }
+
     final List<EVMChainTransactionModel> transactions = [];
     final List<Future<List<EVMChainTransactionModel>>> erc20TokensTransactions = [];
 
@@ -1393,11 +1416,18 @@ abstract class EVMChainWalletBase
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
-      try {
-        iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-      } catch (_) {}
+      iconPath = EVMChainDefaultTokens.getDefaultIconPathByAddress(
+        selectedChainId,
+        token.contractAddress,
+      );
+
+      if (iconPath == null || iconPath.isEmpty) {
+        try {
+          iconPath = CryptoCurrency.all
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .iconPath;
+        } catch (_) {}
+      }
     } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }
@@ -1438,7 +1468,7 @@ abstract class EVMChainWalletBase
     await transactionHistory.save();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String? chainName) async {
     try {
       return await _client.getErc20Token(contractAddress, chainName);
     } catch (e) {
@@ -1557,8 +1587,6 @@ abstract class EVMChainWalletBase
     if (isEnabled) {
       _updateTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 

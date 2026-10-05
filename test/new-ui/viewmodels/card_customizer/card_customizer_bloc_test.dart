@@ -1,5 +1,6 @@
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
+import "package:cw_core/account.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -65,13 +66,14 @@ void main() {
     accountList = _MockWowneroAccountList();
     wow.wownero = wowneroAdapter;
 
+    when(() => wallet.hasNativeAccounts).thenReturn(true);
     when(() => wallet.type).thenReturn(WalletType.wownero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => wallet.save()).thenAnswer((_) async {});
     when(() => wowneroAdapter.getCurrentAccount(wallet))
-        .thenReturn(wow.Account(id: 3, label: "Savings", balance: "2.0"));
+        .thenReturn(Account(id: 3, label: "Savings", balance: "2.0"));
     when(() => wowneroAdapter.getAccountList(wallet)).thenReturn(accountList);
     when(
       () => accountList.setLabelAccount(
