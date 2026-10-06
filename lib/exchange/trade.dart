@@ -10,6 +10,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/generate_name.dart";
 import "package:cw_core/payment_uris.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:sqflite/sqflite.dart";
 
 class Trade {
@@ -111,10 +112,16 @@ class Trade {
       tableName,
       orderBy: orderBy ?? "createdAt DESC",
     );
-    return Future.wait( List.generate(
-      list.length,
-      (i) => Trade.fromSqliteRow(list[i]),
-    ));
+    return (await Future.wait(
+      list.map((row) async {
+        try {
+          return await Trade.fromSqliteRow(row);
+        } catch (e, st) {
+          printV("failed to deserialize trade ${row[selfIdColumn]}: $e\n$st");
+          return null;
+        }
+      }),
+    )).nonNulls.toList();
   }
 
   static Future<Trade?> getByTradeId(String id) async {
