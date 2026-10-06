@@ -39,8 +39,6 @@ class TradeMonitor {
     switch (description) {
       case ExchangeProviderDescription.changeNow:
         return ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
-      case ExchangeProviderDescription.simpleSwap:
-        throw UnimplementedError();
       case ExchangeProviderDescription.trocador:
         return TrocadorExchangeProvider();
       case ExchangeProviderDescription.exolix:
@@ -59,6 +57,8 @@ class TradeMonitor {
         return JupiterExchangeProvider();
       case ExchangeProviderDescription.nearIntents:
         return NearIntentsExchangeProvider();
+      case ExchangeProviderDescription.swapsXyz:
+        return SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore);
     }
     return null;
   }

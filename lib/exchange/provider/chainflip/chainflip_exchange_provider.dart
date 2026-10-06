@@ -179,30 +179,12 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         throw Exception("Trade not found for id: ${trade.id}");
       }
 
-      final status = statusResponse.status;
-      final currentState = status.state;
-
-      final depositAmount = Money(status.deposit?.amountNative ?? BigInt.zero, status.sourceAsset);
-      final receiveAmount = Money(
-        status.swapEgress?.amountNative ?? BigInt.zero,
-        status.destinationAsset,
-      );
-      final refundAmount = Money(
-        status.refundEgress?.amountNative ?? BigInt.zero,
-        status.sourceAsset,
-      );
-      final isRefund = status.refundEgress != null;
-      final amount = isRefund ? refundAmount : receiveAmount;
-
       return trade.copyWith(
-        state: currentState,
-        outputTransaction: status.swapEgress?.transactionReference,
-        isRefund: isRefund,
-        depositAmount: depositAmount,
-        payoutAmount: amount,
-        fundingAddress: status.depositChannel?.depositAddress ?? "",
-        payoutAddress: status.destinationAddress,
-        refundAddress: "",
+        state: statusResponse.status.state,
+        outputTransaction: statusResponse.status.swapEgress?.transactionReference,
+        isRefund: statusResponse.status.refundEgress != null,
+        fundingAddress: statusResponse.status.depositChannel?.depositAddress,
+        payoutAddress: statusResponse.status.destinationAddress,
       );
 
   }

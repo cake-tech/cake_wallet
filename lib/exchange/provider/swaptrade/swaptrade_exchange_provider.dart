@@ -228,7 +228,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       ),
       fundingAddress: responseData.serverAddress,
       payoutAddress: responseData.recipient,
-      refundAddress: "",
     );
   }
 

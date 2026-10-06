@@ -221,7 +221,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
 
     return trade.copyWith(
-      fundingAddress: quote.depositAddress ?? "",
+      fundingAddress: quote.depositAddress,
       payoutAddress: quoteRequest.recipient,
       refundAddress: quoteRequest.refundTo,
       state: data.status.toState,

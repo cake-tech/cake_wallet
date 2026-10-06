@@ -312,7 +312,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       refundAddress: responseData.fromAddress,
       fundingAddress: responseData.payInAddress,
       depositAmount: Money.safeParse(responseData.amount.value, trade.depositCurrency),
-      payoutAmount: Money.safeParse(responseData.toAmount?.value ?? 0, trade.payoutCurrency),
+      payoutAmount: responseData.toAmount?.value != null ? Money.safeParse(
+          responseData.toAmount!.value, trade.payoutCurrency) : null,
       state: responseData.status,
       createdAt: responseData.createdAt,
       payoutAddress: responseData.toAddress,

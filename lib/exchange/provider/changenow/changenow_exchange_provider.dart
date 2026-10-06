@@ -255,8 +255,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         expiredAt: responseJSON.validUntil,
         extraId: responseJSON.payinExtraId,
         outputTransaction: responseJSON.payoutHash,
-        depositAmount: Money.safeParse(responseJSON.amountFrom, trade.depositCurrency),
-        payoutAmount: Money.safeParse(responseJSON.amountTo, trade.payoutCurrency)
+        depositAmount: responseJSON.amountFrom == null ? null : Money.safeParse(responseJSON.amountFrom, trade.depositCurrency),
+        payoutAmount: responseJSON.amountTo == null ? null : Money.safeParse(responseJSON.amountTo, trade.payoutCurrency)
     );
   }
 
