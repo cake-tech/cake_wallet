@@ -508,7 +508,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final dstTs = dstTransaction?.timestamp;
     final timestamp = srcTs ?? dstTs;
 
-    return SwapsXyzTrade(
+    return trade.copyWith(
       id: data.txId,
       provider: description,
       fundingAddress: inputAddress ?? "",
@@ -517,15 +517,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       state: status,
       createdAt: timestamp,
       refundAddress: refundAddress,
-      needToRegister: false,
-      sourceTokenAddress: srcPaymentToken?.address ?? "",
-      sourceTokenDecimals: srcPaymentToken?.decimals ?? 0,
-      sourceTokenAmountRaw: srcPaymentToken?.amount.toString() ?? "",
-      requiresTokenApproval: false,
       depositAmount: Money(srcAmountRaw ?? BigInt.zero, trade.depositCurrency),
       payoutAmount: Money(dstAmountRaw ?? BigInt.zero, trade.payoutCurrency),
-      routerData: "",
-      routerValue: "",
     );
   }
 
