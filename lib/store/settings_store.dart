@@ -120,6 +120,7 @@ abstract class SettingsStoreBase with Store {
       required this.useBaseScan,
       required this.useArbiScan,
       required this.useBscScan,
+      required this.useRobinhoodScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -532,6 +533,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => useBscScan,
         (bool useBscScan) => _sharedPreferences.setBool(PreferencesKey.useBscScan, useBscScan));
+
+    reaction(
+        (_) => useRobinhoodScan,
+        (bool useRobinhoodScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useRobinhoodScan, useRobinhoodScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -979,6 +985,9 @@ abstract class SettingsStoreBase with Store {
   bool useBscScan;
 
   @observable
+  bool useRobinhoodScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -1144,6 +1153,8 @@ abstract class SettingsStoreBase with Store {
         return PreferencesKey.currentArbitrumNodeIdKey;
       case 56:
         return PreferencesKey.currentBscNodeIdKey;
+      case 4663:
+        return PreferencesKey.currentRobinhoodNodeIdKey;
       default:
         // Default to Ethereum for unknown chainIds
         return PreferencesKey.currentEthereumNodeIdKey;
@@ -1338,6 +1349,7 @@ abstract class SettingsStoreBase with Store {
     final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     final useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
+    final useRobinhoodScan = sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
@@ -1402,6 +1414,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1455,6 +1468,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
+    final robinhoodNode = nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == robinhoodDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1521,6 +1536,10 @@ abstract class SettingsStoreBase with Store {
 
     if (bscNode != null) {
       nodes[WalletType.bsc] = bscNode;
+    }
+
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
     }
 
     if (bitcoinCashElectrumServer != null) {
@@ -1725,6 +1744,7 @@ abstract class SettingsStoreBase with Store {
       useBaseScan: useBaseScan,
       useArbiScan: useArbiScan,
       useBscScan: useBscScan,
+      useRobinhoodScan: useRobinhoodScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
@@ -1972,6 +1992,7 @@ abstract class SettingsStoreBase with Store {
     useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? true;
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? true;
     useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? true;
+    useRobinhoodScan = sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     useBlinkProtection = sharedPreferences.getBool(PreferencesKey.useBlinkProtection) ?? true;
@@ -2014,6 +2035,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -2031,6 +2053,7 @@ abstract class SettingsStoreBase with Store {
     final baseNode = await Node.get(baseNodeId ?? -1);
     final arbitrumNode = await Node.get(arbitrumNodeId ?? -1);
     final bscNode = await Node.get(bscNodeId ?? -1);
+    final robinhoodNode = await Node.get(robinhoodNodeId ?? -1);
     final bitcoinCashNode = await Node.get(bitcoinCashElectrumServerId ?? -1);
     final nanoNode = await Node.get(nanoNodeId ?? -1);
     final solanaNode = await Node.get(solanaNodeId ?? -1);
@@ -2075,6 +2098,10 @@ abstract class SettingsStoreBase with Store {
 
     if (bscNode != null) {
       nodes[WalletType.bsc] = bscNode;
+    }
+
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -2230,6 +2257,7 @@ abstract class SettingsStoreBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.id);

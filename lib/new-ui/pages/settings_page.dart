@@ -25,8 +25,6 @@ bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 
-bool _hasAccounts(DashboardViewModel vm) => vm.balanceViewModel.hasAccounts;
-
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
@@ -65,8 +63,8 @@ class SettingsSectionData {
     SettingsListItem(
       "assets/new-ui/settings_row_icons/accounts.svg",
       S.current.accounts,
-      Routes.accountCustomizer,
-      condition: _hasAccounts,
+      Routes.walletAccountsPage,
+      condition: (vm) => vm.wallet.hasAccountsSupport,
       routeArgsBuilder: (vm) => vm,
     ),
     SettingsListItem(
