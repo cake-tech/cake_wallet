@@ -147,6 +147,18 @@ void main() {
         expect(validator.isValid('invalid_address'), isFalse);
         expect(validator.isValid('ltc1qzvxlvlk8wsmue0np20eh3d3qxsusxCakeWallet'), isFalse);
       });
+
+      test('validates valid Dash address', () {
+        final validator = AddressValidator(type: CryptoCurrency.dash);
+        expect(validator.isValid('Xs8xnigGeN1FG9fZfWJFHhJaCg5oxAUmQU'), isTrue);
+      });
+
+      test('rejects invalid Dash address', () {
+        final validator = AddressValidator(type: CryptoCurrency.dash);
+        expect(validator.isValid('invalid_address'), isFalse);
+        expect(validator.isValid('Ys8xnigGeN1FG9fZfWJFHhJaCg5oxAUmQU'), isFalse); // Wrong prefix
+        expect(validator.isValid('Xs8xnigGeN1FG9fZfWJFHhJaCg5oxAUmQ'), isFalse); // Too short
+      });
     });
 
     group('silentPaymentAddressPatternMainnet', () {
