@@ -233,7 +233,7 @@ class MoonPayProvider extends BuyProvider {
     final params = {
       "baseCurrencyCode": baseCurrencyCode,
       "baseCurrencyAmount": amount.toStringAsFixed(2),
-      if (paymentMethod != null) "enabledPaymentMethods": paymentMethod,
+      if (paymentMethod != null) "paymentMethod": paymentMethod,
       "areFeesIncluded": "false",
       'apiKey': _apiKey
     };
