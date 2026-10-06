@@ -69,12 +69,6 @@ class JupiterExchangeProvider extends ExchangeProvider
   String get title => "Jupiter";
 
   @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

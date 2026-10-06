@@ -104,12 +104,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   String get title => "Swaps.XYZ";
 
   @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

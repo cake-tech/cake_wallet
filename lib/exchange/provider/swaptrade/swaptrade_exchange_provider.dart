@@ -30,12 +30,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   String get title => "SwapTrade";
 
   @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

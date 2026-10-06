@@ -544,7 +544,7 @@ Future<void> setup({
 
   getIt.registerSingleton<SwapAddressResolver>(SwapAddressResolver(appStore: getIt.get<AppStore>()));
 
-  getIt.registerSingleton<TradeCreator>(TradeCreator(tradesStore: getIt.get<TradesStore>(),
+  getIt.registerSingleton<TradeCreator>(TradeCreator(
       appStore: getIt.get<AppStore>(),
       registry: getIt.get<ExchangeProviderRegistry>()));
 

@@ -46,12 +46,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   String get title => "Chainflip";
 
   @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

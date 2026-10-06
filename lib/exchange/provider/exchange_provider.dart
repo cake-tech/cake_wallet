@@ -19,10 +19,6 @@ abstract class ExchangeProvider {
 
   ExchangeProviderDescription get description;
 
-  bool get isAvailable;
-
-  bool get isEnabled;
-
   bool get supportsFixedRate;
 
   bool get supportsOnionAddress => false;

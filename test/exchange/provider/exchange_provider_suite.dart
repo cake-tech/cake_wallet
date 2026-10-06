@@ -221,8 +221,6 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
     test("describes itself consistently", () {
       expect(provider.title, isNotEmpty);
       expect(provider.description.title, isNotEmpty);
-      expect(provider.isEnabled, isTrue);
-      expect(provider.isAvailable, isTrue);
       expect(provider.checkIsAvailable(), completion(isTrue));
     });
 

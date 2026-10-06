@@ -4,23 +4,19 @@ import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/store/dashboard/trades_store.dart";
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 
 class TradeCreator {
   const TradeCreator({
-    required TradesStore tradesStore,
     required AppStore appStore,
     required ExchangeProviderRegistry registry,
-  }) : _tradesStore = tradesStore,
-       _appStore = appStore,
+  }) : _appStore = appStore,
        _registry = registry;
 
   final ExchangeProviderRegistry _registry;
   final AppStore _appStore;
-  final TradesStore _tradesStore;
 
   Future<Trade?> createTrade(List<ProviderRate> rates, TradeRequest req) async {
     Trade? trade;
@@ -54,7 +50,6 @@ class TradeCreator {
         await trade
             .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
             .save();
-        _tradesStore.setTrade(trade);
       } catch(e, st) {
         printV("trade save failed! this should NOT happen!\n$e\n$st");
       }

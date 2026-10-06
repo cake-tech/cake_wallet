@@ -40,12 +40,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String get title => "ChangeNOW";
 
   @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => true;
 
   @override
