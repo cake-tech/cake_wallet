@@ -107,6 +107,10 @@ extension PaymentTypeTitle on PaymentType {
         return 'Bancontact';
       case PaymentType.pixPay:
         return 'PIX Pay';
+      case PaymentType.moonpayCashApp:
+        return 'Cash App';
+      case PaymentType.moonpayBalance:
+        return 'MoonPay Balance';
       default:
         return null;
     }

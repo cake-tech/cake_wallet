@@ -91,13 +91,15 @@ class BuySellConfirmationPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              if (buySellViewModel.selectedQuote!.paymentType.title?.isNotEmpty ??
-                                  false)
+                              if (buySellViewModel.selectedQuote!.paymentType.title?.isNotEmpty
+                                  ?? buySellViewModel.selectedQuote!.customPaymentMethodType?.isNotEmpty
+                                  ?? false)
                                 ListItemRegularRow(
                                   showArrow: false,
                                   keyValue: "payment method",
                                   label: S.of(context).payment_method,
-                                  trailingText: buySellViewModel.selectedQuote!.paymentType.title,
+                                  trailingText: buySellViewModel.selectedQuote!.paymentType.title
+                                  ?? buySellViewModel.selectedQuote!.customPaymentMethodType,
                                 ),
                               ListItemRegularRow(
                                 showArrow: false,
@@ -105,6 +107,13 @@ class BuySellConfirmationPage extends StatelessWidget {
                                 label: S.of(context).rate,
                                 trailingText: buySellViewModel.selectedQuote!.topLeftSubTitle,
                               ),
+                              if (buySellViewModel.selectedQuote?.limits != null)
+                                ListItemRegularRow(
+                                  showArrow: false,
+                                  keyValue: "limits",
+                                  label: "Limits",
+                                  trailingText: "${buySellViewModel.selectedQuote?.limits?.min} - ${buySellViewModel.selectedQuote?.limits?.max}",
+                                )
                             ],
                           },
                         ),

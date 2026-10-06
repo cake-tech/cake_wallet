@@ -220,8 +220,7 @@ class MoonPayProvider extends BuyProvider {
     String? paymentMethod;
 
     if (paymentType != null && paymentType != PaymentType.all) {
-      paymentMethod = normalizePaymentMethod(paymentType);
-      paymentMethod ??= paymentType.name;
+      paymentMethod = normalizePaymentMethod(paymentType) ?? customPaymentMethodType;
     }
 
     final action = isBuyAction ? "buy" : "sell";
@@ -263,8 +262,12 @@ class MoonPayProvider extends BuyProvider {
 
         final paymentMethods = data['paymentMethod'] as String?;
 
-        final quote =
-            Quote.fromMoonPayJson(data, isBuyAction, _getPaymentTypeByString(paymentMethods ?? paymentMethod));
+        final quote = Quote.fromMoonPayJson(
+          data,
+          isBuyAction,
+          _getPaymentTypeByString(paymentMethods ?? paymentMethod),
+          customPaymentMethodType: paymentMethod,
+        );
 
         quote.setFiatCurrency = fiatCurrency;
         quote.setCryptoCurrency = cryptoCurrency;
@@ -308,6 +311,7 @@ class MoonPayProvider extends BuyProvider {
       "showWalletAddressForm": "false",
       if (isBuyAction)
         "enabledPaymentMethods": normalizePaymentMethod(quote.paymentType) ??
+            quote.customPaymentMethodType ??
             "credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment",
       if (!isBuyAction) 'refundWalletAddress': cryptoCurrencyAddress
     };
