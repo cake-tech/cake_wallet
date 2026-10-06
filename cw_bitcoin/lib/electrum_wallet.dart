@@ -140,6 +140,8 @@ abstract class ElectrumWalletBase
         return 145;
       case CryptoCurrency.doge:
         return 3;
+      case CryptoCurrency.dash:
+        return 5;
       default:
         return 0;
     }
@@ -169,6 +171,7 @@ abstract class ElectrumWalletBase
       case WalletType.bitcoinCash:
         return BITCOIN_CASH_ADDRESS_TYPES;
       case WalletType.dogecoin:
+      case WalletType.dash:
         return DOGECOIN_ADDRESS_TYPES;
       case WalletType.litecoin:
         return LITECOIN_ADDRESS_TYPES;
@@ -203,6 +206,8 @@ abstract class ElectrumWalletBase
           return bitcoinCashHDWallet(seedBytes);
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
+        case CryptoCurrency.dash:
+          return dashHDWallet(seedBytes);
         default:
           throw Exception("Unsupported currency");
       }
@@ -217,6 +222,9 @@ abstract class ElectrumWalletBase
 
   static Bip32Slip10Secp256k1 dogecoinHDWallet(Uint8List seedBytes) =>
       Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/3'/0'") as Bip32Slip10Secp256k1;
+
+  static Bip32Slip10Secp256k1 dashHDWallet(Uint8List seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/5'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -2886,7 +2894,7 @@ abstract class ElectrumWalletBase
             (type) => shouldUseBatchFetching
                 ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
                 : fetchTransactionsForAddressType(historiesWithDetails, type)));
-      } else if (type == WalletType.dogecoin) {
+      } else if (type == WalletType.dogecoin || type == WalletType.dash) {
         await Future.wait(DOGECOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
             ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
             : fetchTransactionsForAddressType(historiesWithDetails, type)));

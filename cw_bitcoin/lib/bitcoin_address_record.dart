@@ -149,6 +149,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         return 145;
       case DogecoinNetwork.mainnet:
         return 3;
+      case DashNetwork.mainnet:
+        return 5;
       default:
         return 0;
     }
