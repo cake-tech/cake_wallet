@@ -127,6 +127,7 @@ class TradeLegacy extends HiveObject {
       payoutAddress: payoutAddress ?? "",
       password: password,
       providerId: providerId,
+      providerName: providerName,
       memo: memo,
       txId: txId,
       isRefund: isRefund,

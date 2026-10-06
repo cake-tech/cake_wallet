@@ -38,6 +38,7 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
         "toAddressExtraId": row["toAddressExtraId"],
         "password": row["password"],
         "providerId": row["providerId"],
+        "providerName": row["providerName"],
         "memo": row["memo"],
         "txId": row["txId"],
         "isRefund": row["isRefund"],

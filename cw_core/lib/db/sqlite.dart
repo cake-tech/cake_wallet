@@ -356,6 +356,7 @@ CREATE TABLE Trade (
     toAddressExtraId TEXT,
     password TEXT,
     providerId TEXT,
+    providerName TEXT,
     memo TEXT,
     txId TEXT,
     isRefund INTEGER,
