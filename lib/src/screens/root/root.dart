@@ -108,8 +108,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       // listen for quick actions
       widget.quickActionsStream.listen(handleDeepLinking);
 
-      handleDeepLinking(await AppLinks().getInitialLink());
-
       if (widget.initialQuickAction != null) {
         final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
         handleDeepLinking(uri);
