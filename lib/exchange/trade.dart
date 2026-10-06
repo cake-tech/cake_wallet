@@ -20,7 +20,7 @@ class Trade {
     required this.payoutAmount,
     required this.fundingAddress,
     this.providerName,
-    required this.id, required this.provider, required this.payoutAddress, required this.refundAddress, this.internalId = 0,
+    required this.id, required this.provider, required this.payoutAddress, required this.refundAddress,
     this.createdAt,
     this.expiredAt,
     this.accountIndex = 0,
@@ -37,14 +37,12 @@ class Trade {
   });
 
   static const tableName = "Trade";
-  static const selfIdColumn = "tradeId";
+  static const selfIdColumn = "id";
 
   static const boxName = "Trades";
   static const boxKey = "tradesBoxKey";
 
   static final StreamController<void> onChanged = StreamController<void>.broadcast();
-
-  int internalId;
 
   final String id;
 
@@ -93,18 +91,13 @@ class Trade {
 
   // ── SQLite CRUD ──────────────────────────────────────
 
-  Future<int> save() async {
-    final json = toSqliteMap();
-    if (json[selfIdColumn] == 0) {
-      json[selfIdColumn] = null;
-    }
-    internalId = await db!.insert(
+  Future<void> save() async {
+    await db!.insert(
       tableName,
-      json,
+      toSqliteMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     onChanged.add(null);
-    return internalId;
   }
 
   static Future<List<Trade>> getAll({String? orderBy}) async {
@@ -127,7 +120,7 @@ class Trade {
   static Future<Trade?> getByTradeId(String id) async {
     final list = await db!.query(
       tableName,
-      where: "id = ?",
+      where: "$selfIdColumn = ?",
       whereArgs: [id],
       limit: 1,
     );
@@ -141,15 +134,14 @@ class Trade {
     final rows = await db!.delete(
       tableName,
       where: "$selfIdColumn = ?",
-      whereArgs: [trade.internalId],
+      whereArgs: [trade.id],
     );
     onChanged.add(null);
     return rows;
   }
 
   Map<String, dynamic> toSqliteMap() => {
-      selfIdColumn: internalId,
-      "id": id,
+      selfIdColumn: id,
       "provider": provider.raw,
       "payoutAmount": payoutAmount.serialized,
       "depositAmount": depositAmount.serialized,
@@ -173,8 +165,7 @@ class Trade {
     };
 
   static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async => Trade(
-      internalId:  row[selfIdColumn] as int? ?? 0,
-      id: row["id"] as String? ?? "",
+      id: row[selfIdColumn] as String,
       createdAt: row["createdAt"] != null
           ? DateTime.fromMillisecondsSinceEpoch(
               row["createdAt"] as int,
@@ -215,7 +206,6 @@ class Trade {
     String? payoutAddress,
     String? refundAddress,
     int? accountIndex,
-    int? internalId,
     DateTime? createdAt,
     DateTime? expiredAt,
     String? extraId,
@@ -239,7 +229,6 @@ class Trade {
       provider: provider ?? this.provider,
       payoutAddress: payoutAddress ?? this.payoutAddress,
       refundAddress: refundAddress ?? this.refundAddress,
-      internalId: internalId ?? this.internalId,
       createdAt: createdAt ?? this.createdAt,
       expiredAt: expiredAt ?? this.expiredAt,
       extraId: extraId ?? this.extraId,

@@ -5,6 +5,7 @@ import "package:sqflite/sqflite.dart";
 
 Future<void> migrateTradeTableToNewSchema(Database db) async {
   await db.execute("ALTER TABLE Trade RENAME TO Trade_old;");
+  await db.execute("DROP INDEX IF EXISTS idx_trade_id_unique;");
   await createTradeTable(db);
   final List<Map<String, Object?>> oldTrades = await db.query("Trade_old");
 
@@ -20,7 +21,6 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
       );
 
       final newRow = {
-        "tradeId": row["tradeId"],
         "id": row["id"],
         "provider": row["providerRaw"] ?? 0,
         "state": row["stateRaw"] ?? "",

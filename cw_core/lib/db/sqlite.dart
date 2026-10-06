@@ -339,8 +339,7 @@ CREATE TABLE ChartsAssets (
 Future<void> createTradeTable(Database db) async {
   await db.execute("""
 CREATE TABLE Trade (
-    tradeId INTEGER PRIMARY KEY AUTOINCREMENT,
-    id TEXT NOT NULL,
+    id TEXT PRIMARY KEY NOT NULL,
     provider INTEGER, 
     state TEXT,
     accountIndex INTEGER,
@@ -362,11 +361,6 @@ CREATE TABLE Trade (
     isRefund INTEGER,
     chainId INTEGER
 );
-
-""");
-  await db.execute("""
-CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
-ON Trade (id);
 """);
 }
 
