@@ -29,10 +29,6 @@ class TradeCreator {
 
       try {
         trade = await provider.createTrade(request: req);
-        await trade
-            .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
-            .save();
-        _tradesStore.setTrade(trade);
         ExchangeProviderLogger.logSuccess(
           provider: provider.description,
           function: "createTrade",
@@ -49,6 +45,21 @@ class TradeCreator {
         );
         printV("failed to create trade at ${provider.description.title}: $e");
       }
+
+      if(trade == null) {
+        continue;
+      }
+
+      try {
+        await trade
+            .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
+            .save();
+        _tradesStore.setTrade(trade);
+      } catch(e, st) {
+        printV("trade save failed! this should NOT happen!\n$e\n$st");
+      }
+
+
     }
 
     return trade;
