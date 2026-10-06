@@ -112,6 +112,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.dash:
         return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:

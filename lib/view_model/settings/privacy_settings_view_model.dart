@@ -50,6 +50,7 @@ abstract class PrivacySettingsViewModelBase with Store {
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.dogecoin,
+        WalletType.dash,
         WalletType.decred
       ].contains(_wallet.type);
 
@@ -61,7 +62,8 @@ abstract class PrivacySettingsViewModelBase with Store {
         WalletType.wownero,
         WalletType.decred,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.dash
       ].contains(_wallet.type);
 
   bool get isMoneroWallet => _wallet.type == WalletType.monero;

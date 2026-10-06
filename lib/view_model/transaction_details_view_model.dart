@@ -496,6 +496,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.dogecoin:
         return "https://blockchair.com/dogecoin/transaction/${txId}";
+      case WalletType.dash:
+        return "https://blockchair.com/dash/transaction/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
       case WalletType.none:

@@ -291,6 +291,7 @@ import 'package:trezor_connect/trezor_connect.dart';
 
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
+import 'dash/dash.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
@@ -1241,6 +1242,9 @@ Future<void> setup({
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.dogecoin:
         return dogecoin!.createDogeCoinWalletService(
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.dash:
+        return dash!.createDashWalletService(
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:

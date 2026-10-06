@@ -36,6 +36,8 @@ String getQrImage(WalletType type) {
       return 'assets/images/dcr_chain_qr.svg';
     case WalletType.dogecoin:
       return 'assets/images/doge_chain_qr.svg';
+    case WalletType.dash:
+      return 'assets/images/dash_icon.png';
     case WalletType.zcash:
       return 'assets/images/zec_icon_qr.svg';
     case WalletType.banano:

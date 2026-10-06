@@ -17,6 +17,7 @@ bool isBIP39Wallet(WalletType walletType) {
     case WalletType.banano:
     case WalletType.monero:
     case WalletType.dogecoin:
+    case WalletType.dash:
     case WalletType.zcash:
     case WalletType.zano:
     case WalletType.decred:
@@ -34,6 +35,7 @@ bool isElectrumWallet(WalletType walletType) {
     case WalletType.litecoin:
     case WalletType.bitcoinCash:
     case WalletType.dogecoin:
+    case WalletType.dash:
       return true;
     default:
       return false;

@@ -238,6 +238,12 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.doge,
       ),
 
+      // Dash P2PKH
+      _DetectionPattern(
+        pattern: RegExp(r'^X[a-km-zA-HJ-NP-Z1-9]{33}$'),
+        currency: CryptoCurrency.dash,
+      ),
+
       // Zcash (transparent, Sapling shielded, unified)
       _DetectionPattern(
         pattern: RegExp("^(?:${AddressValidator.zcashAddressPattern})\$"),

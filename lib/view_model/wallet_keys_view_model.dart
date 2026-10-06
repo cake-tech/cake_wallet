@@ -211,6 +211,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.dash:
         if (_wallet.type == WalletType.bitcoin) {
           keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
         }
@@ -336,6 +337,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'decred-wallet';
       case WalletType.dogecoin:
         return 'dogecoin-wallet';
+      case WalletType.dash:
+        return 'dash-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
       case WalletType.none:

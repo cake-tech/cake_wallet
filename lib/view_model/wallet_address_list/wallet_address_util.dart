@@ -9,7 +9,8 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
   final isElectrum = wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.bitcoinCash ||
       wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.dogecoin;
+      wallet.type == WalletType.dogecoin ||
+      wallet.type == WalletType.dash;
 
   if (isElectrum) {
     await bitcoin!.generateNewAddress(wallet, label);

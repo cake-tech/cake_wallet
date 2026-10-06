@@ -195,6 +195,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.dash:
       case WalletType.nano:
       case WalletType.decred:
       case WalletType.zcash:
