@@ -25,6 +25,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/utils/list_extension.dart";
@@ -33,6 +34,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/sync_status.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -654,9 +656,26 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(
           SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source),
         );
+        await _hideSwapAddress(s.trade);
       } catch (e) {
         emit(s.toError(e));
       }
+    }
+  }
+
+  Future<void> _hideSwapAddress(Trade trade) async {
+    if (trade.depositCurrency == CryptoCurrency.btcln ||
+        (!isElectrumWallet(_appStore.wallet!.type) &&
+            !<WalletType>[.monero, .zcash].contains(_appStore.wallet!.type))) {
+      return;
+    }
+
+    try {
+      _appStore.wallet!.walletAddresses.hiddenAddresses
+          .add(_appStore.wallet!.walletAddresses.addressForExchange);
+      await _appStore.wallet!.walletAddresses.saveAddressesInBox();
+    } catch (e) {
+      printV("failed to hide swap address: $e");
     }
   }
 }
