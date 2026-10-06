@@ -40,6 +40,7 @@ class FeesHelper {
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return priority == evm!.getEVMTransactionPrioritySlow();
       case WalletType.bitcoinCash:
         return priority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();

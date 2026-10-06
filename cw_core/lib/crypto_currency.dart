@@ -1191,5 +1191,5 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
 
   @override
-  String get serialized => tag == null ? "crypto.$symbol" : "crypto.$symbol.$tag";
+  String get serialized => tag == null ? "crypto^$symbol" : "crypto^$symbol^$tag";
 }

@@ -6,7 +6,7 @@ import "package:cw_core/currency.dart";
 import "package:cw_core/wallet_type.dart";
 
 Future<Currency> currencyFromSerialized(String serialized) async {
-  final parts = serialized.split(".");
+  final parts = serialized.split(serialized.contains("^") ? "^" : ".");
 
   switch (parts.first) {
     case "fiat":

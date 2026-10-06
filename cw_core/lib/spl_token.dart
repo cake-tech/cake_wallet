@@ -202,5 +202,5 @@ class SPLToken extends CryptoCurrency {
   String get apiString => "sol.$mintAddress";
 
   @override
-  String get serialized => "sol.$mintAddress";
+  String get serialized => "sol^$mintAddress";
 }

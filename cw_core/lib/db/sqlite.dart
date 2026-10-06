@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
 
       if (oldVersion <= 5) {
-        await _createTradeTable(db);
+        await createTradeTable(db);
       }
       if (oldVersion <= 6) {
         await _addColumnIfNotExists(

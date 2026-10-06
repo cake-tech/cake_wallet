@@ -25,6 +25,7 @@ class SwapUriHelper {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return _createERC681URI(currency, address, amount);
       case WalletType.solana:
         return SolanaURI(amount: amount, address: address);
