@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -40,15 +41,16 @@ class _ChangelogModalState extends State<ChangelogModal> {
   }
 
   void loadChangelog() async {
+    final fileName = isMoneroOnly ? "monerocom_changelog" : "changelog";
     String lang = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
     if (lang == "und" ||
         lang.isEmpty ||
-        !(await File("$changelogTextLocation/changelog_$lang.json").exists())) {
+        !(await File("$changelogTextLocation/${fileName}_$lang.json").exists())) {
       lang = "en";
     }
 
     final List<dynamic> changelog =
-        jsonDecode(await rootBundle.loadString("$changelogTextLocation/changelog_$lang.json"))
+        jsonDecode(await rootBundle.loadString("$changelogTextLocation/${fileName}_$lang.json"))
             as List<dynamic>;
 
     for (final item in changelog) {
@@ -146,7 +148,9 @@ class VersionNumberHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CakeImageWidget(
-              imageUrl: "assets/images/cake_logo_dark.svg",
+              imageUrl: isMoneroOnly
+                  ? "assets/images/monerocom_logo.svg"
+                  : "assets/images/cake_logo_dark.svg",
               height: 32,
               width: 32,
               colorFilter:
