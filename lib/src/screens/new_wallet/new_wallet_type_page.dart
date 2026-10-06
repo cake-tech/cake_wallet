@@ -124,8 +124,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 ? const NewWalletTypePageHeader()
                 : CakeImageWidget(
                     imageUrl: Theme.of(context).brightness == Brightness.dark
-                        ? "assets/new-ui/welcome_wallet_dark.svg"
-                        : "assets/new-ui/welcome_wallet_light.svg",
+                        ? "assets/new-ui/hero/welcome_wallet_dark.svg"
+                        : "assets/new-ui/hero/welcome_wallet_light.svg",
                     width: 100,
                     height: 100,
                   ),
