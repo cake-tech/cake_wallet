@@ -22,9 +22,10 @@ class SwapAddressResolver {
     } else if (source is InternalSwapSource) {
       String refundAddress;
 
-      refundAddress = curr == CryptoCurrency.btcln
-          ? (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!
-        : _appStore.wallet!.walletAddresses.addressForExchange;
+      refundAddress = source.refundAddress ??
+          (curr == CryptoCurrency.btcln
+              ? (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!
+              : _appStore.wallet!.walletAddresses.addressForExchange);
       return refundAddress;
     }
     throw Exception("unreachable");

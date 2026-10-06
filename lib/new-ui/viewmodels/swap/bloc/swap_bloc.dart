@@ -656,15 +656,16 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(
           SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source),
         );
-        await _hideSwapAddress(s.trade);
+        await _hideSwapAddress(s.trade, s.source);
       } catch (e) {
         emit(s.toError(e));
       }
     }
   }
 
-  Future<void> _hideSwapAddress(Trade trade) async {
+  Future<void> _hideSwapAddress(Trade trade, SwapSource source) async {
     if (trade.depositCurrency == CryptoCurrency.btcln ||
+        (source is InternalSwapSource && source.refundAddress != null) ||
         (!isElectrumWallet(_appStore.wallet!.type) &&
             !<WalletType>[.monero, .zcash].contains(_appStore.wallet!.type))) {
       return;
