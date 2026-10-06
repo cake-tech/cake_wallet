@@ -43,11 +43,10 @@ class RateCubit extends Cubit<RateState> {
         .where(supportedForSwap)
         .map((provider) async {
           try {
-            final rate = await _registry.getProvider(provider).fetchRate(
-              from: from,
-              to: to,
-              isFixedRate: isFixedRate,
-            );
+            final rate = await _registry
+                .getProvider(provider)
+                .fetchRate(from: from, to: to, isFixedRate: isFixedRate)
+                .timeout(const Duration(seconds: 7));
 
             if(rate.rate.quote.isZero) {
               return null;

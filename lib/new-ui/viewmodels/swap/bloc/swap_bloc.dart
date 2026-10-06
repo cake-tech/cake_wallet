@@ -147,7 +147,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       fiatAmount: Money.zero(_appStore.settingsStore.fiatCurrency),
     );
 
-    _rateTimer = Timer.periodic(const Duration(seconds: 4), (_) => add(RatesLoadStarted()));
+    _rateTimer = Timer.periodic(const Duration(seconds: 10), (_) => add(RatesLoadStarted()));
 
     emit(
       SwapInputState(
