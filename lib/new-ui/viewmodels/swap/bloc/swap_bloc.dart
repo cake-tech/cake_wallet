@@ -170,9 +170,25 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     await super.close();
   }
 
-  void _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) {
+  Future<void> _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
-      emit(s.copyWith(source: event.newSource));
+      if (s.isSwapAll && event.newSource is ExternalSwapSource) {
+        emit(
+          s.copyWith(
+            source: event.newSource,
+            depositAmount: await _amountFactory.getSwapAmount(
+              Money.zero(s.depositAmount.currency),
+              s.depositAmount.currency,
+            ),
+            payoutAmount: await _amountFactory.getSwapAmount(
+              Money.zero(s.payoutAmount.currency),
+              s.payoutAmount.currency,
+            ),
+          ),
+        );
+      } else {
+        emit(s.copyWith(source: event.newSource));
+      }
       add(RatesLoadStarted());
     }
   }

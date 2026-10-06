@@ -305,7 +305,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     fiatInputMode: _fiatInputMode,
                     onSwitchButtonPressed: () => setState(() => _fiatInputMode = !_fiatInputMode),
-                    allAmount: widget.isReceiverCard
+                    allAmount: widget.isReceiverCard ||
+                            (state is SwapStateWithInputs && state.isExternalSend)
                         ? null
                         : widget.bloc.spendingBalance.toString(),
                     allAmountColor: hasSwapAll ? Theme
