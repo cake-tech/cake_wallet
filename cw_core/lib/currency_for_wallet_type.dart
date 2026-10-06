@@ -158,7 +158,7 @@ String? symbolIconPathForWalletType(WalletType type) {
     case WalletType.dogecoin:
       return "$prefix/doge-symbol.svg";
     case WalletType.dash:
-      return "assets/images/dash_icon.png";
+      return "$prefix/dash-symbol.svg";
     case WalletType.zcash:
       return "$prefix/zec-symbol.svg";
     case WalletType.nano:
