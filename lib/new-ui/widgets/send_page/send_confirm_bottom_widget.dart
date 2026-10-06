@@ -119,6 +119,7 @@ class SwapConfirmBottomWidget extends StatelessWidget {
           from: state.trade.depositAmount.currency as CryptoCurrency,
           to: state.trade.payoutAmount.currency as CryptoCurrency,
           uri: state.trade.uri,
+          extraId: state.trade.extraId,
         ),
       );
     }
