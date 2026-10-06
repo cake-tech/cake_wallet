@@ -119,7 +119,7 @@ extension PaymentTypeTitle on PaymentType {
       case PaymentType.creditCard:
       case PaymentType.debitCard:
       case PaymentType.yellowCardBankTransfer:
-        return 'assets/images/card.svg';
+        return 'assets/new-ui/buy_payment_methods/debit_card.svg';
       case PaymentType.bankTransfer:
         return 'assets/images/bank_light.svg';
       case PaymentType.skrill:
@@ -136,23 +136,33 @@ extension PaymentTypeTitle on PaymentType {
   String? get darkIconPath {
     switch (this) {
       case PaymentType.all:
-        return 'assets/images/usd_round_dark.svg';
+        return 'assets/new-ui/buy_payment_methods/all_methods.svg';
       case PaymentType.creditCard:
       case PaymentType.debitCard:
       case PaymentType.yellowCardBankTransfer:
-        return 'assets/images/card_dark.svg';
+        return 'assets/new-ui/buy_payment_methods/debit_card.svg';
       case PaymentType.bankTransfer:
-        return 'assets/images/bank_dark.svg';
+        return 'assets/new-ui/buy_payment_methods/bank_transfer.svg';
       case PaymentType.skrill:
         return 'assets/images/skrill.svg';
       case PaymentType.applePay:
-        return 'assets/images/apple_pay_round_dark.svg';
+        return 'assets/new-ui/buy_payment_methods/apple_pay.svg';
+      case PaymentType.googlePay:
+        return "assets/new-ui/buy_payment_methods/google_pay.svg";
+      case PaymentType.paypal:
+        return "assets/new-ui/buy_payment_methods/paypal.svg";
       case PaymentType.revolutPay:
         return 'assets/images/revolut_dark.svg';
       default:
         return null;
     }
   }
+
+  bool get isMonochromeIcon => [
+        "assets/new-ui/buy_payment_methods/all_methods.svg",
+        "assets/new-ui/buy_payment_methods/debit_card.svg",
+        "assets/new-ui/buy_payment_methods/bank_transfer.svg"
+      ].contains(darkIconPath);
 
   String? get description {
     switch (this) {
@@ -204,7 +214,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
         paymentMethodType: PaymentType.all,
         customTitle: 'All Payment Methods',
-        customIconPath: 'assets/images/dollar_coin.svg');
+        customIconPath: 'assets/new-ui/buy_payment_methods/all_methods.svg');
   }
 
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
@@ -213,7 +223,7 @@ class PaymentMethod extends SelectableOption {
         paymentMethodType: type ?? PaymentType.unknown,
         customPaymentMethodType: json['paymentTypeId'] as String?,
         customTitle: json['name'] as String? ?? 'Unknown',
-        customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
+        customIconPath: json['icon'] as String? ?? 'assets/new-ui/buy_payment_methods/debit_card.svg',
         customDescription: json['description'] as String?);
   }
 
@@ -221,7 +231,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
         paymentMethodType: paymentType,
         customTitle: paymentMethod,
-        customIconPath: 'assets/images/card.png');
+        customIconPath: 'assets/new-ui/buy_payment_methods/debit_card.svg');
   }
 
   factory PaymentMethod.fromMoonPayJson(MoonPayPaymentMethod method, PaymentType paymentType) {
@@ -251,7 +261,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
         paymentMethodType: type ?? PaymentType.unknown,
         customTitle: json['name'] as String? ?? 'Unknown',
-        customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
+        customIconPath: logos['dark'] as String? ?? 'assets/new-ui/buy_payment_methods/debit_card.svg',
         customDescription: json['description'] as String?);
   }
 
@@ -260,7 +270,7 @@ class PaymentMethod extends SelectableOption {
     return PaymentMethod(
       paymentMethodType: type ?? PaymentType.unknown,
       customTitle: json['payment_method'] as String? ?? 'Unknown',
-      customIconPath: 'assets/images/card.png',
+      customIconPath: 'assets/new-ui/buy_payment_methods/debit_card.svg',
     );
   }
 

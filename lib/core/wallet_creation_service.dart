@@ -81,19 +81,20 @@ class WalletCreationService {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
       case WalletType.nano:
       case WalletType.zcash:
+      case WalletType.zano:
+      case WalletType.decred:
         return true;
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
-      case WalletType.zano:
-      case WalletType.decred:
         return false;
     }
   }

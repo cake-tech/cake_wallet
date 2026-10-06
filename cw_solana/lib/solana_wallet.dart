@@ -323,11 +323,46 @@ abstract class SolanaWalletBase
     return matches.first;
   }
 
+  Future<Set<String>> heldTokenMints() => _client.fetchHeldTokenMints(walletAddresses.address);
+
+  Future<PendingTransaction> sendNFT({
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  }) async {
+    if (!await _client.isSupplyOfOne(mintAddress, throwOnError: true)) {
+      throw SolanaNotAnNFTException();
+    }
+
+    final nftCurrency = SPLToken(
+      name: name ?? "NFT",
+      symbol: "NFT",
+      mintAddress: mintAddress,
+      decimal: 0,
+      mint: mintAddress,
+    );
+
+    final solBalance = await _client.getBalance(walletAddresses.address, throwOnError: true);
+
+    return _client.signSolanaTransaction(
+      tokenMint: mintAddress,
+      inputAmount: Money(BigInt.one, nftCurrency),
+      ownerPrivateKey: _solanaPrivateKey,
+      destinationAddress: destinationAddress,
+      isSendAll: false,
+      solBalance: solBalance,
+      closeSenderAccountWhenEmptied: true,
+    );
+  }
+
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
   @override
   Future<void> updateTransactionsHistory({List<String>? specificTokenMints}) async {
+    _seedTokenInfoCache();
+    await _reparseUnresolvedTokenTransactionsOnce();
+
     await Future.wait([
       _updateNativeSOLTransactions(),
       updateSPLTokenTransactions(specificMints: specificTokenMints),
@@ -361,6 +396,32 @@ abstract class SolanaWalletBase
     await prefs.remove(_lastSyncedSignatureKey(source));
   }
 
+  void _seedTokenInfoCache() {
+    for (final token in _splTokens) {
+      _client.tokenInfoCache[token.mintAddress] = token;
+    }
+  }
+
+  Future<void> _reparseUnresolvedTokenTransactionsOnce() async {
+    final prefs = await _sharedPrefs.future;
+    final key = "solana_unresolved_token_reparse_done_${walletInfo.name}";
+
+    if (prefs.getBool(key) ?? false) {
+      return;
+    }
+
+    final hasUnresolvedTransactions = transactionHistory.transactions.values.any(
+      (transaction) =>
+          transaction.amount.currency.symbol == SolanaWalletClient.unresolvedTokenTitle,
+    );
+
+    if (hasUnresolvedTransactions) {
+      await _clearLastSyncedSignature(_nativeSource);
+    }
+
+    await prefs.setBool(key, true);
+  }
+
   /// Polls for a specific transaction by signature with exponential backoff
   /// I'm using this in case we make the call to fetch the transaction and it has not finished its confirmations on the solana network and been indexed by the node networks we use.
   Future<void> pollForTransaction({
@@ -369,6 +430,7 @@ abstract class SolanaWalletBase
     int maxRetries = 5,
   }) async {
     final walletAddress = _solanaPublicKey.toAddress().address;
+    _seedTokenInfoCache();
 
     for (int i = 0; i < maxRetries; i++) {
       await Future.delayed(initialDelay * (i + 1));

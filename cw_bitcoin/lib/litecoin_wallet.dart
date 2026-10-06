@@ -115,8 +115,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: network,
@@ -1365,6 +1367,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: 0,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.fromInt(resp.fee.toInt(), currency),
@@ -1556,7 +1559,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -1568,28 +1571,48 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
     final masterFingerprint =
-        await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
+        await (hardwareWalletService! as BitcoinHardwareWalletService).getMasterFingerprint();
 
     final readyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      readyInputs.add(PSBTReadyUtxoWithAddress(
-        utxo: utxo.utxo,
-        rawTx: rawTx,
-        ownerDetails: utxo.ownerDetails,
-        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint: masterFingerprint,
-        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
-      ));
+      readyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
     }
 
-    final orderedOutputs = orderOutputs(outputs, outputOrdering);
+    final orderedOutputs =
+    orderOutputs(outputs, outputOrdering).map((o) {
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+        );
+      }
+      return PSBTReadyBitcoinOutput.fromOutput(o);
+    });
 
-    final rawHex = await (hardwareWalletService as LitecoinHardwareWalletService)
-        .signLitecoinTransaction(
-            outputs: orderedOutputs, inputs: readyInputs, publicKeys: publicKeys);
+    final rawHex =
+        await (hardwareWalletService! as LitecoinHardwareWalletService).signLitecoinTransaction(
+      outputs: orderedOutputs.toList(),
+      inputs: readyInputs,
+      publicKeys: publicKeys,
+    );
 
     return BtcTransaction.fromRaw(rawHex);
   }

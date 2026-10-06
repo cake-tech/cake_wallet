@@ -201,7 +201,6 @@
             <array>
                 <string>solana</string>
                 <string>solana-wallet</string>
-                <string>solana_wallet</string>
             </array>
         </dict>
         <dict>
@@ -362,6 +361,26 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>bsc-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>robinhood</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>robinhood</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>robinhood-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>robinhood-wallet</string>
             </array>
         </dict>
         <dict>

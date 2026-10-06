@@ -120,6 +120,9 @@ class CWZcash extends Zcash {
   }
 
   @override
+  Future<int?> getBirthHeight(Object wallet) => (wallet as ZcashWallet).getBirthHeight();
+
+  @override
   Map<String, String> getKeys(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final seed = zcashWallet.seed;
@@ -223,7 +226,7 @@ class CWZcash extends Zcash {
   }
 
   @override
-  Future<bool> hasOrchardMigratableBalance(WalletBase wallet) {
+  bool hasOrchardMigratableBalance(WalletBase wallet) {
     return (wallet as ZcashWallet).hasOrchardMigratableBalance();
   }
 }

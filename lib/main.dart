@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
+import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -65,6 +66,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
+import "package:flutter_localizations/flutter_localizations.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -188,17 +190,22 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         ),
       );
     } else {
-      runApp(App(
-          key: topLevelKey,
-          initialQuickAction: initialQuickAction,
-          quickActionsStream: quickActionsStream.stream));
+      runApp(
+        CiBuildOverlay(
+          settingsStore: getIt.get<SettingsStore>(),
+          child: App(
+              key: topLevelKey,
+              initialQuickAction: initialQuickAction,
+              quickActionsStream: quickActionsStream.stream),
+        ),
+      );
     }
 
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
+        CiBuildOverlay(child: TopLevelErrorWidget(error: error, stackTrace: stackTrace)),
       );
     }
 
@@ -308,7 +315,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 70,
+    initialMigrationVersion: 72,
   );
 }
 
@@ -329,6 +336,7 @@ Future<void> initialSetup({
   required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
+  await GlobalMaterialLocalizations.delegate.load(const Locale("en"));
   await defaultSettingsMigration(
     secureStorage: secureStorage,
     version: initialMigrationVersion,
@@ -426,7 +434,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: Locale(appStore.settingsStore.languageCode),
+              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),
