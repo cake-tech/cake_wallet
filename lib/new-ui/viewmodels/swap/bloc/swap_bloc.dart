@@ -165,8 +165,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     );
 
     if(_feesHelper.isLowFee) {
-      unawaited(Future.delayed(const Duration(seconds: 1)).then((_) =>
-          emitPresentation(const LowFeeAlert())));
+      emitPresentation(const LowFeeAlert());
     }
   }
 

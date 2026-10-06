@@ -109,7 +109,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           AliaspayAddressFound(:final address) => _showParsedAddressPopup(address),
           SwapCreationStarted() => _showConfirmSheet(),
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
-          LowFeeAlert() => _showFeeAlert(),
+          LowFeeAlert() => Future.delayed(const Duration(seconds: 1), _showFeeAlert),
           WalletSwitchFailed(:final error) => _showWalletSwitchFailedPopup(error),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
