@@ -1,5 +1,6 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
@@ -24,6 +25,7 @@ class RateCubit extends Cubit<RateState> {
         required Money from,
         required CryptoCurrency to,
         required bool isFixedRate,
+        required bool isExternalSend,
       }) async {
     if(from.isZero) {
       emit(RatesNotLoaded(from.currency, to));
@@ -34,40 +36,45 @@ class RateCubit extends Cubit<RateState> {
       emit(RatesLoading(from.currency, to));
     }
 
-    final futures = providers.map((provider) async {
-      try {
-        final rate = await _registry.getProvider(provider).fetchRate(
-          from: from,
-          to: to,
-          isFixedRate: isFixedRate,
-        );
+    bool supportedForSwap(ExchangeProviderDescription provider) =>
+        !isExternalSend || _registry.getProvider(provider) is! TransactionCreationExchangeProvider;
 
-        if(rate.rate.quote.isZero) {
-          return null;
-        }
-        ExchangeProviderLogger.logSuccess(function: "fetchRate",
-            provider: provider,
-            requestData: {
-              "from": from.serialized,
-              "to": to.serialized,
-              "isFixedRate": isFixedRate
-            });
-        return rate;
+    final futures = providers
+        .where(supportedForSwap)
+        .map((provider) async {
+          try {
+            final rate = await _registry.getProvider(provider).fetchRate(
+              from: from,
+              to: to,
+              isFixedRate: isFixedRate,
+            );
 
-      } catch (e, st) {
-        ExchangeProviderLogger.logError(function: "fetchRate",
-            provider: provider,
-            error: e,
-            stackTrace: st,
-            requestData: {
-              "from": from.serialized,
-              "to": to.serialized,
-              "isFixedRate": isFixedRate
-            });
-        printV("failed to fetch rate from ${provider.title}: $e\n$st");
-        return null;
-      }
-    });
+            if(rate.rate.quote.isZero) {
+              return null;
+            }
+            ExchangeProviderLogger.logSuccess(function: "fetchRate",
+                provider: provider,
+                requestData: {
+                  "from": from.serialized,
+                  "to": to.serialized,
+                  "isFixedRate": isFixedRate
+                });
+            return rate;
+
+          } catch (e, st) {
+            ExchangeProviderLogger.logError(function: "fetchRate",
+                provider: provider,
+                error: e,
+                stackTrace: st,
+                requestData: {
+                  "from": from.serialized,
+                  "to": to.serialized,
+                  "isFixedRate": isFixedRate
+                });
+            printV("failed to fetch rate from ${provider.title}: $e\n$st");
+            return null;
+          }
+        });
 
     final results = await Future.wait(futures);
 

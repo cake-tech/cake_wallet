@@ -121,6 +121,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         from: s.isFixedRate ? s.payoutAmount.cryptoAmount : s.depositAmount.cryptoAmount,
         to: s.isFixedRate ? s.depositAmount.currency : s.payoutAmount.currency,
         isFixedRate: s.isFixedRate,
+        isExternalSend: s.isExternalSend,
       );
     }
   }
@@ -172,6 +173,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   void _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) {
     if (state case final SwapInputState s) {
       emit(s.copyWith(source: event.newSource));
+      add(RatesLoadStarted());
     }
   }
 
