@@ -443,7 +443,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final currencies = widget.isReceiverCard
           ? widget.bloc.currencyStore.receiveCurrencies
           : widget.bloc.currencyStore.depositCurrencies;
-      final selected = widget.isReceiverCard ? s.depositAmount.currency : s.payoutAmount.currency;
+      final selected = widget.isReceiverCard ? s.payoutAmount.currency : s.depositAmount.currency;
       CurrencyPickerSheet.show(
         context: context,
         args: CurrencyPickerArgs(
