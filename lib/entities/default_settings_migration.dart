@@ -53,6 +53,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
+const dashDefaultNodeUri = 'electrum.dash.siampm.com:50002';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
@@ -658,6 +659,14 @@ Future<void> defaultSettingsMigration(
             sharedPreferences: sharedPreferences,
             type: WalletType.robinhood,
             currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
+          break;
+        case 73:
+          await addWalletNodeList(type: WalletType.dash);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.dash,
+            currentNodePreferenceKey: PreferencesKey.currentDashNodeIdKey,
           );
           break;
         default:

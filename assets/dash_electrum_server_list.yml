@@ -1,0 +1,13 @@
+# ponytail: verify each server responds to blockchain.headers.subscribe before release;
+# auto-switching + user node settings absorb dead entries.
+-
+  uri: electrum.dash.siampm.com:50002
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "SiaPM"
+-
+  uri: electrum1.cipig.net:20061
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Cipig"

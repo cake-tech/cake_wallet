@@ -18,6 +18,7 @@ class PreferencesKey {
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
   static const currentDogecoinNodeIdKey = 'current_node_id_doge';
+  static const currentDashNodeIdKey = 'current_node_id_dash';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
@@ -68,6 +69,7 @@ class PreferencesKey {
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const zcashTransactionPriority = 'current_fee_priority_zcash';
   static const dogecoinTransactionPriority = 'current_fee_priority_dogecoin';
+  static const dashTransactionPriority = 'current_fee_priority_dash';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const mwebCardDisplay = 'mwebCardDisplay';
