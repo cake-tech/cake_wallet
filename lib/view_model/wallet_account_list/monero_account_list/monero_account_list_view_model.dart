@@ -55,6 +55,11 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
   final WalletBase _wallet;
 
   @override
+  Money fullBalance(int accountId) => _wallet.type == WalletType.monero
+      ? monero!.getAccountFullBalance(accountId)
+      : wownero!.getAccountFullBalance(accountId);
+
+  @override
   Future<void> reload() async {}
 
   @override

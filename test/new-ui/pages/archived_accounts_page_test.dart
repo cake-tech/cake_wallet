@@ -193,6 +193,11 @@ void main() {
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountListViewModel.accounts).thenReturn([activeAccount]);
+    when(() => accountListViewModel.fullBalance(any())).thenAnswer(
+      (invocation) => accountListViewModel.accounts
+          .firstWhere((account) => account.id == invocation.positionalArguments.single)
+          .balance,
+    );
   });
 
   tearDown(() async {

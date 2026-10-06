@@ -145,6 +145,7 @@ void main() {
         .thenReturn("USD 2.50");
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountListViewModel.accounts).thenAnswer((_) => [account]);
+    when(() => accountListViewModel.fullBalance(any())).thenAnswer((_) => account.balance);
   });
 
   tearDown(() async {

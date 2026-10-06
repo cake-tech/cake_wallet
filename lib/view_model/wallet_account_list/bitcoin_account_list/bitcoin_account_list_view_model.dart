@@ -1,15 +1,16 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
-import 'package:collection/collection.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
+import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:mobx/mobx.dart";
 
-part 'bitcoin_account_list_view_model.g.dart';
+part "bitcoin_account_list_view_model.g.dart";
 
 class BitcoinAccountListViewModel = BitcoinAccountListViewModelBase
     with _$BitcoinAccountListViewModel;
@@ -96,6 +97,12 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
               orElse: () => items.first,
             );
     });
+  }
+
+  @override
+  Money fullBalance(int accountId) {
+    final balance = bitcoin!.balanceForAccount(_wallet, accountId);
+    return balance.confirmed + balance.unconfirmed;
   }
 
   @override

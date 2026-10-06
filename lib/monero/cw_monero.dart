@@ -147,6 +147,10 @@ class CWMonero extends Monero {
   MoneroAccountList getAccountList(Object wallet) => CWMoneroAccountList(wallet);
 
   @override
+  Money getAccountFullBalance(int accountIndex) =>
+      monero_wallet_api.getFullBalance(accountIndex: accountIndex);
+
+  @override
   MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
 
   @override

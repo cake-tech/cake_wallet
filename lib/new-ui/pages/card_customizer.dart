@@ -141,7 +141,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
     final account = AccountListItem(
       id: latestAccount.id,
       label: bloc.state.accountName,
-      balance: latestAccount.balance,
+      balance: widget.accountListViewModel!.fullBalance(latestAccount.id),
       isSelected: latestAccount.isSelected,
     );
     final isFunded = account.isFunded;
