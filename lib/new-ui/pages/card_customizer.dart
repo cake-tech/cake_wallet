@@ -28,7 +28,6 @@ class CardCustomizer extends StatefulWidget {
     required this.dashboardViewModel,
     this.account,
     this.accountListViewModel,
-    this.fiatBalance = "",
     super.key,
   });
 
@@ -37,7 +36,6 @@ class CardCustomizer extends StatefulWidget {
   final DashboardViewModel dashboardViewModel;
   final AccountListItem? account;
   final WalletAccountListViewModel? accountListViewModel;
-  final String fiatBalance;
 
   static Future<void> show({
     required BuildContext context,
@@ -73,9 +71,6 @@ class CardCustomizer extends StatefulWidget {
           dashboardViewModel: dashboardViewModel,
           account: account,
           accountListViewModel: accountList,
-          fiatBalance: account == null
-              ? ""
-              : dashboardViewModel.balanceViewModel.accountFiatBalance(account) ?? "",
         ),
       ),
     );
@@ -223,8 +218,15 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             : state.accountName.trim().isEmpty
                                 ? S.of(context).unnamed_account
                                 : state.accountName,
-                        balance: widget.account?.balance ?? "0.00",
-                        fiatBalance: widget.fiatBalance,
+                        balance: _isAccount
+                            ? widget.dashboardViewModel.balanceViewModel
+                                .accountBalance(widget.account!)
+                            : "0.00",
+                        fiatBalance: _isAccount
+                            ? widget.dashboardViewModel.balanceViewModel
+                                    .accountFiatBalance(widget.account!, currencyPrefix: true) ??
+                                ""
+                            : "",
                         assetName: state.displaySats ? "sats" : widget.cryptoName,
                         capitalizeAssetName: !state.displaySats,
                         design: state.selectedDesign,

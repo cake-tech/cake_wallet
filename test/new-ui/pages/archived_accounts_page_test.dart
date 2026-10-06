@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -14,6 +15,7 @@ import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_settings_provider.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
@@ -23,6 +25,7 @@ import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
@@ -38,6 +41,7 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mobx/mobx.dart" show Observable, runInAction;
 import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
@@ -112,13 +116,18 @@ void main() {
   late _MockWallet wallet;
   late _MockWalletInfo walletInfo;
 
-  final fundedAccount = AccountListItem(id: 0, label: "Savings", balance: "1.25");
-  final activeAccount = AccountListItem(id: 1, label: "Primary", balance: "0");
-  final emptyAccount = AccountListItem(id: 2, label: "Travel", balance: "0");
+  final fundedAccount =
+      AccountListItem(id: 0, label: "Savings", balance: Money.parse("1.25", CryptoCurrency.xmr));
+  final activeAccount =
+      AccountListItem(id: 1, label: "Primary", balance: Money.parse("0", CryptoCurrency.xmr));
+  final emptyAccount =
+      AccountListItem(id: 2, label: "Travel", balance: Money.parse("0", CryptoCurrency.xmr));
 
   setUpAll(() {
     registerFallbackValue(DesignSaved());
-    registerFallbackValue(AccountListItem(id: -1, label: "fallback"));
+    registerFallbackValue(
+      AccountListItem(id: -1, label: "fallback", balance: Money.zero(CryptoCurrency.xmr)),
+    );
 
     registeredThemeStore = !getIt.isRegistered<ThemeStore>();
     if (registeredThemeStore) {
@@ -161,17 +170,23 @@ void main() {
     wallet = _MockWallet();
     walletInfo = _MockWalletInfo();
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => accountListViewModel.select(any())).thenAnswer((_) async {});
     when(() => accountListViewModel.reload()).thenAnswer((_) async {});
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
+    when(() => balanceViewModel.accountBalance(any())).thenAnswer(
+      (invocation) => (invocation.positionalArguments.single as AccountListItem)
+          .balance
+          .toStringWithPrecision(),
+    );
+    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true)).thenReturn(null);
     when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
     when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
-    when(() => balanceViewModel.isFiatDisabled).thenReturn(true);
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
@@ -196,6 +211,10 @@ void main() {
   Widget testApp(Widget home) => MaterialApp(
         localizationsDelegates: localizationDelegates,
         supportedLocales: S.delegate.supportedLocales,
+        builder: (_, child) => MoneySettingsProvider(
+          settingsStore: dashboardViewModel.settingsStore,
+          child: child!,
+        ),
         home: home,
       );
 
@@ -242,54 +261,83 @@ void main() {
     expect(find.text("0 XMR"), findsNothing);
   });
 
-  testWidgets("archived account fiat balance uses the current price and locale", (tester) async {
-    final settingsStore = _MockSettingsStore();
-    when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
+  for (final currency in [CryptoCurrency.xmr, CryptoCurrency.btc]) {
+    testWidgets("archived ${currency.title} balances respect price, units, and privacy",
+        (tester) async {
+      final settingsStore = _MockSettingsStore();
+      final displayMode = Observable(BalanceDisplayMode.displayableBalance);
+      final amountDisplayMode = Observable(BitcoinAmountDisplayMode.bitcoin);
+      when(() => settingsStore.balanceDisplayMode).thenAnswer((_) => displayMode.value);
+      when(() => settingsStore.displayAmountsInSatoshi).thenAnswer((_) => amountDisplayMode.value);
+      final fundedAccount = AccountListItem(
+        id: 0,
+        label: "Savings",
+        balance: Money.parse("1.25", currency),
+      );
+      when(() => wallet.currency).thenReturn(currency);
+      when(() => wallet.type)
+          .thenReturn(currency == CryptoCurrency.btc ? WalletType.bitcoin : WalletType.monero);
+      when(() => accountListViewModel.currency).thenReturn(currency);
 
-    when(() => accountListViewModel.accounts)
-        .thenReturn([fundedAccount, activeAccount, emptyAccount]);
-    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
-    when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
-    when(() => settingsStore.languageCode).thenReturn("de_DE");
-    when(() => settingsStore.fiatApiMode).thenReturn(FiatApiMode.enabled);
-    when(() => settingsStore.mwebAlwaysScan).thenReturn(false);
-    when(() => walletInfo.isShowIntroCakePayCard).thenReturn(false);
-    final appStore = _MockAppStore();
-    when(() => appStore.wallet).thenReturn(wallet);
-    when(() => appStore.amountParsingProxy)
-        .thenReturn(const AmountParsingProxy(BitcoinAmountDisplayMode.bitcoin));
-    when(() => dashboardViewModel.balanceViewModel).thenReturn(
-      BalanceViewModel(
-        appStore: appStore,
-        settingsStore: settingsStore,
-        fiatConversionStore: FiatConversionStore()..prices[CryptoCurrency.xmr] = 20,
-      ),
-    );
-    await tester.runAsync(() async {
-      await hideAccount(fundedAccount.id, 0);
-      await hideAccount(emptyAccount.id, 1);
-    });
-
-    await tester.pumpWidget(
-      testApp(
-        HiddenAccountsPage(
-          accountListViewModel: accountListViewModel,
-          dashboardViewModel: dashboardViewModel,
+      when(() => accountListViewModel.accounts)
+          .thenReturn([fundedAccount, activeAccount, emptyAccount]);
+      when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+      when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
+      when(() => settingsStore.languageCode).thenReturn("de_DE");
+      when(() => settingsStore.fiatApiMode).thenReturn(FiatApiMode.enabled);
+      when(() => settingsStore.mwebAlwaysScan).thenReturn(false);
+      when(() => walletInfo.isShowIntroCakePayCard).thenReturn(false);
+      final appStore = _MockAppStore();
+      when(() => appStore.wallet).thenReturn(wallet);
+      when(() => appStore.amountParsingProxy)
+          .thenAnswer((_) => AmountParsingProxy(amountDisplayMode.value));
+      when(() => dashboardViewModel.balanceViewModel).thenReturn(
+        BalanceViewModel(
+          appStore: appStore,
+          settingsStore: settingsStore,
+          fiatConversionStore: FiatConversionStore()..prices[currency] = 20,
         ),
-      ),
-    );
-    await _waitForArchivePage(tester);
+      );
+      await tester.runAsync(() async {
+        await hideAccount(fundedAccount.id, 0);
+        await hideAccount(emptyAccount.id, 1);
+      });
 
-    expect(find.text("1.25 XMR"), findsOneWidget);
-    expect(find.text("25,00 USD"), findsOneWidget);
-    expect(find.text("3. Travel"), findsOneWidget);
-    expect(find.text("0,00 USD"), findsNothing);
-  });
+      await tester.pumpWidget(
+        testApp(
+          HiddenAccountsPage(
+            accountListViewModel: accountListViewModel,
+            dashboardViewModel: dashboardViewModel,
+          ),
+        ),
+      );
+      await _waitForArchivePage(tester);
+
+      expect(find.text("1.25 ${currency.title}"), findsOneWidget);
+      expect(find.text("25,00 USD"), findsOneWidget);
+      expect(find.text("3. Travel"), findsOneWidget);
+      expect(find.text("0,00 USD"), findsNothing);
+
+      if (currency == CryptoCurrency.btc) {
+        runInAction(() => amountDisplayMode.value = BitcoinAmountDisplayMode.satoshi);
+        await tester.pumpAndSettle();
+        expect(find.text("125,000,000 sats"), findsOneWidget);
+        expect(find.text("25,00 USD"), findsOneWidget);
+      }
+
+      runInAction(() => displayMode.value = BalanceDisplayMode.hiddenBalance);
+      await tester.pumpAndSettle();
+      expect(find.text("●●●●●●"), findsOneWidget);
+      expect(find.text("●●●●● USD"), findsOneWidget);
+      expect(find.text("25,00 USD"), findsNothing);
+    });
+  }
 
   testWidgets("WalletAccountsPage shows education only until it has been seen", (tester) async {
     var cardDesignLoads = 0;
     var educationDismissed = false;
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
 
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
@@ -350,7 +398,8 @@ void main() {
   });
 
   testWidgets("unnamed archived accounts get the Figma display fallback", (tester) async {
-    final unnamedAccount = AccountListItem(id: 4, label: "", balance: "0");
+    final unnamedAccount =
+        AccountListItem(id: 4, label: "", balance: Money.parse("0", CryptoCurrency.xmr));
     when(() => accountListViewModel.accounts).thenReturn([activeAccount, unnamedAccount]);
     await tester.runAsync(() => hideAccount(unnamedAccount.id, 0));
 
@@ -382,8 +431,11 @@ void main() {
     );
     await _waitForArchivePage(tester);
 
-    final accountForConfirmation =
-        AccountListItem(id: emptyAccount.id, label: emptyAccount.label, balance: "1.5");
+    final accountForConfirmation = AccountListItem(
+      id: emptyAccount.id,
+      label: emptyAccount.label,
+      balance: Money.parse("1.5", CryptoCurrency.xmr),
+    );
     when(() => accountListViewModel.accounts).thenReturn([accountForConfirmation, activeAccount]);
     await tester.tap(find.text("3. Travel"));
     await tester.pumpAndSettle();
@@ -395,7 +447,11 @@ void main() {
     );
     expect(find.text("1.5 XMR"), findsOneWidget);
 
-    final latestAccount = AccountListItem(id: emptyAccount.id, label: "Updated", balance: "2.5");
+    final latestAccount = AccountListItem(
+      id: emptyAccount.id,
+      label: "Updated",
+      balance: Money.parse("2.5", CryptoCurrency.xmr),
+    );
     when(() => accountListViewModel.accounts).thenReturn([latestAccount, activeAccount]);
     await tester.tap(find.text("Continue"));
     await tester.pump();
@@ -421,15 +477,17 @@ void main() {
 
   testWidgets("archive flow survives dismissal and protects the final visible account",
       (tester) async {
-    final remainingAccount = AccountListItem(id: 0, label: "Primary", balance: "0");
+    final remainingAccount =
+        AccountListItem(id: 0, label: "Primary", balance: Money.parse("0", CryptoCurrency.xmr));
     final archivedAccount = AccountListItem(
       id: 1,
       label: "Savings",
-      balance: "0",
+      balance: Money.parse("0", CryptoCurrency.xmr),
       isSelected: true,
     );
     final bloc = _MockCardCustomizerBloc();
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     final states = StreamController<CardCustomizerState>.broadcast();
     final events = <Type>[];
@@ -475,10 +533,8 @@ void main() {
         await finishArchiveReload.future;
       }
     });
-    when(() => balanceViewModel.isFiatDisabled).thenReturn(false);
-    when(() => balanceViewModel.price).thenReturn(20);
-    when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
-    when(() => settingsStore.languageCode).thenReturn("de_DE");
+    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
+        .thenReturn("USD 0,00");
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => bloc.state).thenAnswer((_) => customizerState);
@@ -576,7 +632,7 @@ void main() {
       AccountListItem(
         id: archivedAccount.id,
         label: archivedAccount.label,
-        balance: "2.5",
+        balance: Money.parse("2.5", CryptoCurrency.xmr),
         isSelected: true,
       ),
     ];

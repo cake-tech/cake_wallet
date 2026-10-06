@@ -1,11 +1,12 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/core/amount_parsing_proxy.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class ArchiveConfirmationContent extends StatelessWidget {
   const ArchiveConfirmationContent({
@@ -137,48 +138,51 @@ class AccountFundsSummary extends StatelessWidget {
   final Color borderColor;
 
   @override
-  Widget build(BuildContext context) {
-    final fiatBalance = dashboardViewModel.balanceViewModel.accountFiatBalance(account);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        border: Border.all(color: borderColor),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          CakeImageWidget(
-            imageUrl: accountListViewModel.currency.iconPath ??
-                "assets/new-ui/crypto_full_icons/${accountListViewModel.currency.name.toLowerCase()}.svg",
-            width: 24,
-            height: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${account.balance ?? "0"} ${AmountParsingProxy(dashboardViewModel.settingsStore.displayAmountsInSatoshi).getCryptoSymbol(accountListViewModel.currency)}",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                if (fiatBalance != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    fiatBalance,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
-              ],
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            CakeImageWidget(
+              imageUrl: accountListViewModel.currency.iconPath ??
+                  "assets/new-ui/crypto_full_icons/${accountListViewModel.currency.name.toLowerCase()}.svg",
+              width: 24,
+              height: 24,
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            const SizedBox(width: 12),
+            Expanded(
+              child: Observer(
+                builder: (_) {
+                  final fiatBalance =
+                      dashboardViewModel.balanceViewModel.accountFiatBalance(account);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MoneyText(
+                        account.balance,
+                        fractionalDigits: account.balance.decimals,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      if (fiatBalance != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          fiatBalance,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
 }

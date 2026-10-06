@@ -2,9 +2,9 @@ import "dart:async";
 
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
@@ -17,6 +17,7 @@ import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class HiddenAccountsPage extends StatefulWidget {
   const HiddenAccountsPage({
@@ -161,7 +162,6 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
                 : _PopulatedArchiveView(
                     accounts: _items,
                     accountsBeingRestored: _accountsBeingRestored,
-                    accountListViewModel: widget.accountListViewModel,
                     dashboardViewModel: widget.dashboardViewModel,
                     onUnarchive: _unarchive,
                   ),
@@ -210,14 +210,12 @@ class _PopulatedArchiveView extends StatelessWidget {
   const _PopulatedArchiveView({
     required this.accounts,
     required this.accountsBeingRestored,
-    required this.accountListViewModel,
     required this.dashboardViewModel,
     required this.onUnarchive,
   });
 
   final List<AccountListItem> accounts;
   final Set<int> accountsBeingRestored;
-  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final Future<void> Function(AccountListItem account) onUnarchive;
 
@@ -272,7 +270,6 @@ class _PopulatedArchiveView extends StatelessWidget {
             for (var index = 0; index < sectionAccounts.length; index++) ...[
               _ArchivedAccountRow(
                 account: sectionAccounts[index],
-                accountListViewModel: accountListViewModel,
                 dashboardViewModel: dashboardViewModel,
                 isBusy: accountsBeingRestored.contains(sectionAccounts[index].id),
                 onTap: accountsBeingRestored.contains(sectionAccounts[index].id)
@@ -294,14 +291,12 @@ class _PopulatedArchiveView extends StatelessWidget {
 class _ArchivedAccountRow extends StatelessWidget {
   const _ArchivedAccountRow({
     required this.account,
-    required this.accountListViewModel,
     required this.dashboardViewModel,
     required this.isBusy,
     required this.onTap,
   });
 
   final AccountListItem account;
-  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool isBusy;
   final VoidCallback? onTap;
@@ -354,7 +349,6 @@ class _ArchivedAccountRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 _AccountBalanceTrailing(
                   account: account,
-                  accountListViewModel: accountListViewModel,
                   dashboardViewModel: dashboardViewModel,
                   isBusy: isBusy,
                 ),
@@ -404,13 +398,11 @@ class _ArchiveSectionHeader extends StatelessWidget {
 class _AccountBalanceTrailing extends StatelessWidget {
   const _AccountBalanceTrailing({
     required this.account,
-    required this.accountListViewModel,
     required this.dashboardViewModel,
     required this.isBusy,
   });
 
   final AccountListItem account;
-  final WalletAccountListViewModel accountListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool isBusy;
 
@@ -421,34 +413,39 @@ class _AccountBalanceTrailing extends StatelessWidget {
       return const CupertinoActivityIndicator(radius: 10);
     }
 
-    final fiatBalance = dashboardViewModel.balanceViewModel.accountFiatBalance(account);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (account.isFunded) ...[
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 142),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  "${account.balance ?? "0"} ${AmountParsingProxy(dashboardViewModel.settingsStore.displayAmountsInSatoshi).getCryptoSymbol(accountListViewModel.currency)}",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall,
-                ),
-                if (fiatBalance != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    fiatBalance,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+            child: Observer(
+              builder: (_) {
+                final fiatBalance = dashboardViewModel.balanceViewModel.accountFiatBalance(account);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    MoneyText(
+                      account.balance,
+                      fractionalDigits: account.balance.decimals,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall,
                     ),
-                  ),
-                ],
-              ],
+                    if (fiatBalance != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        fiatBalance,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(width: 8),

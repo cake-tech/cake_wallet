@@ -1,18 +1,21 @@
 import "dart:async";
 
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_settings_provider.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
@@ -58,6 +61,10 @@ Future<_RouteTracker> _openCustomizer(
     MaterialApp(
       localizationsDelegates: localizationDelegates,
       supportedLocales: S.delegate.supportedLocales,
+      builder: (_, child) => MoneySettingsProvider(
+        settingsStore: dashboardViewModel.settingsStore,
+        child: child!,
+      ),
       home: Builder(
         builder: (context) => Scaffold(
           body: TextButton(
@@ -74,7 +81,6 @@ Future<_RouteTracker> _openCustomizer(
                         dashboardViewModel: dashboardViewModel,
                         account: account,
                         accountListViewModel: account == null ? null : accountListViewModel,
-                        fiatBalance: "USD 2.50",
                       ),
                     ),
                   ),
@@ -105,6 +111,9 @@ void main() {
   late StreamController<CardCustomizerState> stateController;
 
   setUpAll(() {
+    registerFallbackValue(
+      AccountListItem(id: -1, label: "fallback", balance: Money.zero(CryptoCurrency.xmr)),
+    );
     getIt.registerSingleton(ThemeStore());
   });
 
@@ -116,16 +125,24 @@ void main() {
     bloc = _MockCardCustomizerBloc();
     dashboardViewModel = _MockDashboardViewModel();
     accountListViewModel = _MockAccountListViewModel();
-    account = AccountListItem(id: 0, label: "Savings", balance: "1.25");
+    account =
+        AccountListItem(id: 0, label: "Savings", balance: Money.parse("1.25", CryptoCurrency.xmr));
     final balanceViewModel = _MockBalanceViewModel();
     final settingsStore = _MockSettingsStore();
+    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     stateController = StreamController<CardCustomizerState>.broadcast();
     when(() => bloc.stream).thenAnswer((_) => stateController.stream);
     when(() => bloc.canHide).thenReturn(true);
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
-    when(() => balanceViewModel.isFiatDisabled).thenReturn(true);
+    when(() => balanceViewModel.accountBalance(any())).thenAnswer(
+      (invocation) => (invocation.positionalArguments.single as AccountListItem)
+          .balance
+          .toStringWithPrecision(),
+    );
+    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
+        .thenReturn("USD 2.50");
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountListViewModel.accounts).thenAnswer((_) => [account]);
   });
@@ -184,8 +201,16 @@ void main() {
     expect(tracker.completed, isFalse);
   });
 
-  testWidgets("confirming empty-account archival returns true to the parent", (tester) async {
-    account = AccountListItem(id: 0, label: "Savings", balance: "0");
+  testWidgets("confirming hidden empty-account archival returns true to the parent",
+      (tester) async {
+    account =
+        AccountListItem(id: 0, label: "Savings", balance: Money.parse("0", CryptoCurrency.xmr));
+    final settingsStore = dashboardViewModel.settingsStore;
+    final balanceViewModel = dashboardViewModel.balanceViewModel;
+    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.hiddenBalance);
+    when(() => balanceViewModel.accountBalance(any())).thenReturn("●●●●●●");
+    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
+        .thenReturn("USD ●●●●●");
     when(() => bloc.state).thenReturn(_accountState("Savings"));
     final tracker = await _openCustomizer(
       tester,
@@ -201,6 +226,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("1. Savings"), findsOneWidget);
+    expect(find.text("This account has the following funds:"), findsNothing);
     expect(
       find.text(
         "This action won’t delete the account or its past activity, but only hide it inside Cake Wallet",

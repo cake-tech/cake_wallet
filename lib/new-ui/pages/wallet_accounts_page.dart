@@ -11,7 +11,6 @@ import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/src/screens/settings/widgets/account_creation_modal.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:mobx/mobx.dart";
-import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
@@ -28,7 +27,6 @@ import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_v
 import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/sync_status.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -87,9 +85,13 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   void initState() {
     super.initState();
     _accountsReaction = reaction(
-      (_) => widget.accountListViewModel.accounts
-          .map((account) => "${account.id}:${account.label}:${account.balance}")
-          .join(","),
+      (_) => (
+        widget.dashboardViewModel.settingsStore.balanceDisplayMode,
+        widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
+        widget.accountListViewModel.accounts
+            .map((account) => "${account.id}:${account.label}:${account.balance}")
+            .join(","),
+      ),
       (_) {
         if (mounted) unawaited(loadCards());
       },
@@ -166,14 +168,17 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       final setting = layout.settingFor(accountIndex);
       final isFrontCard = position == layout.visible.length - 1;
       final accountLabel = account.label.trim().isEmpty ? unnamedAccount : account.label;
+      final balance = widget.dashboardViewModel.balanceViewModel.accountBalance(account);
 
       newItems.add(
         AccountCustomizerListItem(
           card: BalanceCard(
             accountName: "${account.id + 1}. $accountLabel",
-            balance: account.balance ?? "0.00",
-            accountBalance: account.balance ?? "0.00",
-            fiatBalance: _fiatBalance(account),
+            balance: balance,
+            accountBalance: balance,
+            fiatBalance: widget.dashboardViewModel.balanceViewModel
+                    .accountFiatBalance(account, currencyPrefix: true) ??
+                "",
             designSwitchDuration: Duration.zero,
             assetName: _assetName,
             capitalizeAssetName: _capitalizeAssetName,
@@ -386,7 +391,6 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
               dashboardViewModel: widget.dashboardViewModel,
               account: account,
               accountListViewModel: widget.accountListViewModel,
-              fiatBalance: _fiatBalance(account),
             ),
           ),
         ),
@@ -478,34 +482,6 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         gradientIndexOverride: item.settings?.gradientIndex,
       ).insert();
     }
-  }
-
-  String _fiatBalance(AccountListItem account) {
-    final balanceViewModel = widget.dashboardViewModel.balanceViewModel;
-    if (balanceViewModel.isFiatDisabled) {
-      return "";
-    }
-
-    final fiat = widget.dashboardViewModel.settingsStore.fiatCurrency.title;
-    final balance = account.balance ?? "0";
-    if (balance.contains("●")) {
-      return "$fiat ●●●●●";
-    }
-
-    final canonicalBalance = AmountParsingProxy(
-      widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-    ).getCanonicalCryptoAmount(
-        balance.trim().replaceAll(",", ""), widget.accountListViewModel.currency);
-    final amount = double.tryParse(canonicalBalance);
-    if (amount == null) {
-      return "";
-    }
-
-    final value = calculateFiatAmount(
-      price: balanceViewModel.price,
-      cryptoAmount: amount.toString(),
-    ).withLocalSeperator(widget.dashboardViewModel.settingsStore.languageCode);
-    return "$fiat $value";
   }
 }
 

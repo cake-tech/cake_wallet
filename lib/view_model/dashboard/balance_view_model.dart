@@ -547,30 +547,26 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String? accountFiatBalance(AccountListItem account) {
+  String accountBalance(AccountListItem account) =>
+      savedDisplayMode == BalanceDisplayMode.hiddenBalance
+          ? "●●●●●●"
+          : account.balance.toStringWithPrecision(
+              useBaseUnit: appStore.amountParsingProxy.useSatoshi(account.balance.currency),
+            );
+
+  String? accountFiatBalance(AccountListItem account, {bool currencyPrefix = false}) {
     if (isFiatDisabled) {
       return null;
     }
 
     final fiat = settingsStore.fiatCurrency.title;
-    if (account.balance?.contains("●") ?? false) {
-      return "●●●●● $fiat";
-    }
-
-    final canonicalBalance = appStore.amountParsingProxy.getCanonicalCryptoAmount(
-      (account.balance ?? "").trim().replaceAll(",", ""),
-      wallet.currency,
-    );
-    final amount = double.tryParse(canonicalBalance);
-    if (amount == null) {
-      return null;
-    }
-
-    final value = calculateFiatAmount(
-      price: price,
-      cryptoAmount: amount.toString(),
-    ).withLocalSeperator(settingsStore.languageCode);
-    return "$value $fiat";
+    final value = savedDisplayMode == BalanceDisplayMode.hiddenBalance
+        ? "●●●●●"
+        : calculateFiatAmount(
+            price: price,
+            cryptoAmount: account.balance.toString(),
+          ).withLocalSeperator(settingsStore.languageCode);
+    return currencyPrefix ? "$fiat $value" : "$value $fiat";
   }
 
   String _getFiatBalance({required double price, Money? cryptoAmount}) {

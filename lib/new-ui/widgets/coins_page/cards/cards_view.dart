@@ -192,7 +192,7 @@ class _CardsViewState extends State<CardsView> {
                 accountBalance = "";
               } else {
                 accountName = account.label;
-                accountBalance = account.balance ?? "0.00";
+                accountBalance = widget.dashboardViewModel.balanceViewModel.accountBalance(account);
               }
 
               final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance

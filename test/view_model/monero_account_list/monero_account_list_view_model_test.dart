@@ -1,10 +1,9 @@
-import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/monero/monero.dart" as xmr;
-import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
 import "package:cw_core/account.dart";
 import "package:cw_core/balance.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:cw_core/wallet_base.dart";
@@ -16,8 +15,6 @@ import "package:mocktail/mocktail.dart";
 class _MockWallet extends Mock
     implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
 
-class _MockSettingsStore extends Mock implements SettingsStore {}
-
 class _MockWownero extends Mock implements wow.Wownero {}
 
 class _MockWowneroAccountList extends Mock implements wow.WowneroAccountList {}
@@ -26,7 +23,6 @@ void main() {
   late xmr.Monero? originalMonero;
   late wow.Wownero? originalWownero;
   late _MockWallet wallet;
-  late _MockSettingsStore settingsStore;
   late _MockWownero wowneroAdapter;
   late _MockWowneroAccountList accountList;
 
@@ -35,7 +31,6 @@ void main() {
     originalWownero = wow.wownero;
 
     wallet = _MockWallet();
-    settingsStore = _MockSettingsStore();
     wowneroAdapter = _MockWownero();
     accountList = _MockWowneroAccountList();
 
@@ -43,14 +38,14 @@ void main() {
     wow.wownero = wowneroAdapter;
 
     when(() => wallet.type).thenReturn(WalletType.wownero);
-    when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
+    when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
     when(() => wowneroAdapter.getAccountList(wallet)).thenReturn(accountList);
     when(() => wowneroAdapter.getCurrentAccount(wallet))
-        .thenReturn(Account(id: 1, label: "Selected", balance: "2.0"));
+        .thenReturn(Account(id: 1, label: "Selected", balance: "2.00000000001"));
     when(() => accountList.accounts).thenReturn(
       ObservableList.of([
-        Account(id: 0, label: "Primary", balance: "1.0"),
-        Account(id: 1, label: "Selected", balance: "2.0"),
+        Account(id: 0, label: "Primary", balance: "0.0"),
+        Account(id: 1, label: "Selected", balance: "2.00000000001"),
       ]),
     );
   });
@@ -60,10 +55,15 @@ void main() {
     wow.wownero = originalWownero;
   });
 
-  test("selected account uses the Wownero adapter", () {
-    final viewModel = MoneroAccountListViewModel(wallet, settingsStore);
+  test("Wownero accounts retain exact amounts and select through the Wownero adapter", () async {
+    final viewModel = MoneroAccountListViewModel(wallet);
 
     expect(viewModel.selected.id, 1);
     expect(viewModel.selected.label, "Selected");
+    expect(viewModel.accounts.first.isFunded, isFalse);
+    expect(viewModel.selected.balance.amount, BigInt.from(200000000001));
+    await viewModel.select(viewModel.selected);
+    verify(() => wowneroAdapter.setCurrentAccount(wallet, 1, "Selected", "2.00000000001"))
+        .called(1);
   });
 }

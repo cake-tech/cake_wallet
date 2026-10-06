@@ -896,7 +896,7 @@ Future<void> setup({
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet, getIt.get<SettingsStore>());
+      return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
@@ -905,7 +905,7 @@ Future<void> setup({
   getIt.registerFactory<BitcoinAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.bitcoin) {
-      return BitcoinAccountListViewModel(wallet, getIt.get<SettingsStore>());
+      return BitcoinAccountListViewModel(wallet);
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Bitcoin AccountListViewModel');
@@ -931,13 +931,8 @@ Future<void> setup({
     final wallet = getIt.get<AppStore>().wallet!;
 
     if (wallet.type == WalletType.monero) {
-      final accountList = monero?.getAccountList(wallet);
-      if (accountList == null) {
-        throw StateError("Monero account support is unavailable");
-      }
-
       return MoneroAccountEditOrCreateViewModel(
-        accountList,
+        monero!.getAccountList(wallet),
         null,
         wallet: wallet,
         accountListItem: account,
@@ -945,14 +940,9 @@ Future<void> setup({
     }
 
     if (wallet.type == WalletType.wownero) {
-      final accountList = wownero?.getAccountList(wallet);
-      if (accountList == null) {
-        throw StateError("Wownero account support is unavailable");
-      }
-
       return MoneroAccountEditOrCreateViewModel(
         null,
-        accountList,
+        wownero!.getAccountList(wallet),
         wallet: wallet,
         accountListItem: account,
       );
