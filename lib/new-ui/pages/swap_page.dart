@@ -14,6 +14,7 @@ import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
@@ -30,9 +31,11 @@ import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/sync_status.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class NewSwapPage extends StatefulWidget {
@@ -195,8 +198,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           spacing: 12,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            // if (widget.wallet.status is! SyncedSyncStatus)
-                            //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            Observer(builder:(context){
+              if (widget.bloc.wallet.syncStatus is! SyncedSyncStatus) {
+                return SendSyncingIndicator(status: widget.bloc.wallet.syncStatus);
+              }return const SizedBox.shrink();
+
+                            }),
                             if (widget.fromSend == null && widget.bloc.state is SwapStateWithInputs &&
                                 (widget.bloc.state as SwapStateWithInputs).isFixedRate)
                               Text(

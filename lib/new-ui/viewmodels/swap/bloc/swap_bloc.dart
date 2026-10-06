@@ -35,6 +35,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -93,6 +94,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   final AppStore _appStore;
+  WalletBase get wallet => _appStore.wallet!;
   final AddressResolverService _addressResolverService;
   final TransactionService _transactionService;
   final WalletSwitchService _walletSwitchService;
@@ -457,7 +459,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           s.depositAmount.currency,
         );
         newPayoutAmount = await _amountFactory.getSwapAmount(
-          Money(s.payoutAmount.cryptoAmount.amount, event.newCurrency),
+          Money.safeParse(s.payoutAmount.cryptoAmount.toString(), event.newCurrency),
           event.newCurrency,
         );
       } else {

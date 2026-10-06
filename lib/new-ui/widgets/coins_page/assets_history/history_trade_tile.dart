@@ -85,7 +85,7 @@ class HistoryTradeTile extends StatelessWidget {
         spacing: 4,
         children: [
           Text("-", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          Text(amount.withMaxDecimals(8),
+          Text(amount,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),

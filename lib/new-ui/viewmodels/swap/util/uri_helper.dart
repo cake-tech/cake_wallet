@@ -3,6 +3,8 @@
 import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_type.dart";
 
 class SwapUriHelper {
@@ -28,9 +30,9 @@ class SwapUriHelper {
       case WalletType.robinhood:
         return _createERC681URI(currency, address, amount);
       case WalletType.solana:
-        return SolanaURI(amount: amount, address: address);
+        return SolanaURI(amount: amount, address: address, contractAddress: currency is SPLToken ? currency.mintAddress : null);
       case WalletType.tron:
-        return TronURI(amount: amount, address: address);
+        return TronURI(amount: amount, address: address, contractAddress: currency is TronToken ? currency.contractAddress : null);
       case WalletType.monero:
         return MoneroURI(address: address, amount: amount);
       case WalletType.wownero:
@@ -70,6 +72,7 @@ class SwapUriHelper {
           chainId: chainId,
           address: address,
           amount: amount,
+          tokenDecimals: erc20Token.decimal,
           contractAddress: erc20Token.contractAddress,
         );
     }
