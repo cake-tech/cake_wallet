@@ -7,6 +7,22 @@ sealed class SwapEvent {
 
 final class _Init extends SwapEvent {}
 
+final class InitialValuesApplied extends SwapEvent {
+  const InitialValuesApplied({
+    this.depositCurrency,
+    this.depositAmount,
+    this.payoutCurrency,
+    this.payoutAmount,
+    this.payoutAddress,
+  });
+
+  final CryptoCurrency? depositCurrency;
+  final Money? depositAmount;
+  final CryptoCurrency? payoutCurrency;
+  final Money? payoutAmount;
+  final SwapAddress? payoutAddress;
+}
+
 final class SourceChanged extends SwapEvent {
   const SourceChanged(this.newSource);
 

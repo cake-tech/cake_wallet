@@ -67,21 +67,23 @@ class _NewSwapPageState extends State<NewSwapPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialPaymentRequest != null) {
         final newCurr = CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
-        widget.bloc.add(DepositCurrencyChanged(newCurr));
         widget.bloc.add(
-          DepositAmountChanged(Money.parse(widget.initialPaymentRequest!.amount, newCurr)),
-        );
-        widget.bloc.add(
-          PayoutAddressChanged(ExternalSwapAddress(widget.initialPaymentRequest!.address)),
+          InitialValuesApplied(
+            depositCurrency: newCurr,
+            depositAmount: Money.tryParse(widget.initialPaymentRequest!.amount, newCurr),
+            payoutAddress: ExternalSwapAddress(widget.initialPaymentRequest!.address),
+          ),
         );
       }
-      
-      if(widget.fromSend != null) {
-        widget.bloc.add(PayoutCurrencyChanged(widget.fromSend!.receiveCurrency));
-        widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(widget.fromSend!.recipientAddress)));
-        if(widget.fromSend!.receiveAmount != null) {
-          widget.bloc.add(PayoutAmountChanged(widget.fromSend!.receiveAmount!));
-        }
+
+      if (widget.fromSend != null) {
+        widget.bloc.add(
+          InitialValuesApplied(
+            payoutCurrency: widget.fromSend!.receiveCurrency,
+            payoutAmount: widget.fromSend!.receiveAmount,
+            payoutAddress: ExternalSwapAddress(widget.fromSend!.recipientAddress),
+          ),
+        );
       }
     });
   }

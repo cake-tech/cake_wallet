@@ -67,6 +67,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
        _appStore = appStore,
        super(const SwapStateNotLoaded()) {
     on<_Init>(_init);
+    on<InitialValuesApplied>(_onInitialValuesApplied, transformer: sequential());
     on<SourceChanged>(_onSourceChanged, transformer: sequential());
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
@@ -211,30 +212,70 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
   }
 
+  Future<void> _onInitialValuesApplied(InitialValuesApplied event, Emitter<SwapState> emit) async {
+    if (state case final SwapInputState s) {
+      final depositCurrency = event.depositCurrency ?? s.depositAmount.currency;
+      final payoutCurrency = event.payoutCurrency ?? s.payoutAmount.currency;
+      final isSamePayoutChain = _isSameChain(s.payoutAmount.currency, payoutCurrency);
+
+      final payoutAddress = event.payoutAddress != null
+          ? await _resolvePayoutAddress(event.payoutAddress!, payoutCurrency)
+          : (isSamePayoutChain ? s.payoutAddress : null);
+
+      emit(
+        s.copyWith(
+          isFixedRate: event.payoutAmount != null,
+          depositAmount: await _amountFactory.getSwapAmount(
+            (event.payoutAmount == null ? event.depositAmount : null) ??
+                Money.zero(depositCurrency),
+            depositCurrency,
+          ),
+          payoutAmount: await _amountFactory.getSwapAmount(
+            event.payoutAmount ?? Money.zero(payoutCurrency),
+            payoutCurrency,
+          ),
+          source: _isSameChain(s.depositAmount.currency, depositCurrency)
+              ? s.source
+              : const ExternalSwapSource(""),
+          memo: isSamePayoutChain && payoutCurrency.memoLabelType != null ? s.memo : "",
+          payoutAddress: () => payoutAddress,
+        ),
+      );
+      add(RatesLoadStarted());
+    }
+  }
+
   Future<void> _onPayoutAddressChanged(PayoutAddressChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
-      SwapAddress newAddress = event.newAddress;
-      if (event.newAddress is ExternalSwapAddress) {
-        final parsed = await _addressResolverService.resolve(
-          query: event.newAddress.address,
-          wallet: _appStore.wallet!,
-          currency: s.payoutAmount.currency,
-        );
-        if (parsed.isNotEmpty) {
-          final parsedAddr = parsed.first;
-          emitPresentation(AliaspayAddressFound(parsedAddr));
-          newAddress = PayAnythingSwapAddress(parsedAddr, s.payoutAmount.currency);
-        }
+      final newAddress = await _resolvePayoutAddress(event.newAddress, s.payoutAmount.currency);
+      if (newAddress != null) {
+        emit(s.copyWith(payoutAddress: () => newAddress));
       }
-
-      if (newAddress is! InternalWalletSwapAddress &&
-          !AddressValidator(type: s.payoutAmount.currency).isValid(newAddress.address)) {
-        emitPresentation(const AddressValidationFailed());
-        return;
-      }
-
-      emit(s.copyWith(payoutAddress: () => newAddress));
     }
+  }
+
+  Future<SwapAddress?> _resolvePayoutAddress(SwapAddress address, CryptoCurrency currency) async {
+    SwapAddress newAddress = address;
+    if (address is ExternalSwapAddress) {
+      final parsed = await _addressResolverService.resolve(
+        query: address.address,
+        wallet: _appStore.wallet!,
+        currency: currency,
+      );
+      if (parsed.isNotEmpty) {
+        final parsedAddr = parsed.first;
+        emitPresentation(AliaspayAddressFound(parsedAddr));
+        newAddress = PayAnythingSwapAddress(parsedAddr, currency);
+      }
+    }
+
+    if (newAddress is! InternalWalletSwapAddress &&
+        !AddressValidator(type: currency).isValid(newAddress.address)) {
+      emitPresentation(const AddressValidationFailed());
+      return null;
+    }
+
+    return newAddress;
   }
 
   Future<void> _onDepositAmountChanged(DepositAmountChanged event, Emitter<SwapState> emit) async {
