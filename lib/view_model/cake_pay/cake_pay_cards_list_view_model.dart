@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -90,7 +91,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   String? username;
 
   @observable
-  List<CakePayCard> userCards;
+  List<CakePayUserCard> userCards;
 
   @observable
   String searchMyCardsString;
@@ -147,7 +148,7 @@ abstract class CakePayCardsListViewModelBase with Store {
       settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
 
   @computed
-  List<CakePayCard> get filteredUserCards {
+  List<CakePayUserCard> get filteredUserCards {
     final query = searchMyCardsString.trim().toLowerCase();
     if (query.isEmpty) return userCards;
     return userCards
@@ -163,29 +164,64 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayCustomValueCards != _initialDisplayCustomValueCards;
   }
 
-  Future<void> getUserCards() async {
-    //Dummy user cards // TODO: fetch from API
-    userCardState = UserCakePayCardsStateFetching();
+  @action
+  Future<void> getUserCards({bool showLoading = true}) async {
+    final isLogged = await cakePayService.isLogged();
+
+    if (!isLogged) {
+      userCards = [];
+      userCardState = UserCakePayCardsStateInitial();
+      return;
+    }
+
+    if (showLoading) {
+      userCardState = UserCakePayCardsStateFetching();
+    }
+
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      final vendorsCard = cakePayVendors
-          .where((vendor) => vendor.card != null)
-          .map((vendor) => vendor.card!)
-          .toList();
-      userCards = vendorsCard.sublist(0, 10);
+      userCards = await cakePayService.getUserCards();
 
-      vendorsCard.forEach((card) {
-        if (card.name.toLowerCase().contains('amazon.com')) {
-          userCards.add(card);
-        }
-      });
+      userCardState =
+          userCards.isEmpty ? UserCakePayCardsStateNoCards() : UserCakePayCardsStateSuccess();
+    } on CakePayUnauthorizedException catch (e) {
+      // The service already dropped the stored session.
+      printV(e);
 
-      userCardState = UserCakePayCardsStateSuccess();
-      if (userCards.isEmpty) {
-        userCardState = UserCakePayCardsStateNoCards();
-      }
+      await checkAuth();
     } catch (e) {
+      printV(e);
       userCardState = UserCakePayCardsStateFailure(error: e.toString());
+    }
+  }
+
+  /// Runs the VPN/location checks and reveals the codes of [card].
+  Future<CakePayRedemptionState> redeem(CakePayUserCard card) async {
+    try {
+      final redemption = await cakePayService.redeem(redemptionToken: card.redemptionToken);
+
+      if (!redemption.allowed) {
+        return CakePayRedemptionStateBlocked(
+          message: redemption.message ?? S.current.cakepay_redemption_unavailable,
+          reason: redemption.blockReason,
+        );
+      }
+
+      final voucher = card.voucherFrom(redemption.vouchers);
+      if (voucher == null) {
+        return CakePayRedemptionStateBlocked(message: S.current.cakepay_no_gift_code_returned);
+      }
+
+      return CakePayRedemptionStateSuccess(voucher: voucher);
+    } on CakePayUnauthorizedException catch (e) {
+      printV(e);
+
+      await checkAuth();
+
+      return CakePayRedemptionStateFailure(error: e.toString());
+    } catch (e) {
+      printV(e);
+
+      return CakePayRedemptionStateFailure(error: e.toString());
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_card_info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -167,9 +169,10 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
             Expanded(
               child: TabViewWrapper(
                   labelStyle: TextStyle(
-                      color: titleColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600),
+                    color: titleColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
                   unselectedLabelStyle: TextStyle(
                       color: titleColor?.withAlpha(150) ?? Colors.white70,
                       fontSize: 20,
@@ -293,14 +296,25 @@ class _MyCardsTabState extends State<_MyCardsTab> {
           Expanded(
             child: Observer(builder: (_) {
               final cards = viewModel.filteredUserCards;
-              if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
+              if (viewModel.userCardState is UserCakePayCardsStateInitial ||
+                  viewModel.userCardState is UserCakePayCardsStateFetching) {
+                return const _Loading();
+              }
+
               if (viewModel.userCardState is UserCakePayCardsStateNoCards)
                 return Center(child: Text(S.of(context).no_cards_found));
+
+              final cardsState = viewModel.userCardState;
+
+              if (cardsState is UserCakePayCardsStateFailure) {
+                return Center(child: Text(cardsState.error, textAlign: TextAlign.center));
+              }
 
               final showThumb = cards.length > 6;
               final userCardsList = Stack(
                 children: [
                   GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         childAspectRatio: 1.25,
                         crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 3 : 2,
@@ -311,23 +325,28 @@ class _MyCardsTabState extends State<_MyCardsTab> {
                     itemBuilder: (_, i) {
                       final card = cards[i];
                       return UserCardItem(
-                        logoUrl: card.cardImageUrl,
+                        logoUrl: card.imageUrl,
                         title: card.name,
-                        subTitle: '\$100',
-                        onTap: () => _showCardInfoBottomSheet(context, card),
+                        subTitle: card.valueLabel,
+                        onTap: () => _redeemAndShowCard(context, viewModel, card),
                       );
                     },
                   ),
                 ],
               );
-              return showThumb
-                  ? Scrollbar(
-                      key: ValueKey('cake_pay_my_cards_tab_scrollbar_key'),
-                      thumbVisibility: true,
-                      trackVisibility: true,
-                      child: userCardsList,
-                    )
-                  : userCardsList;
+
+              return RefreshIndicator(
+                key: const ValueKey('cake_pay_my_cards_tab_refresh_indicator_key'),
+                onRefresh: () => viewModel.getUserCards(showLoading: false),
+                child: showThumb
+                    ? Scrollbar(
+                        key: ValueKey('cake_pay_my_cards_tab_scrollbar_key'),
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        child: userCardsList,
+                      )
+                    : userCardsList,
+              );
             }),
           ),
         ],
@@ -336,46 +355,64 @@ class _MyCardsTabState extends State<_MyCardsTab> {
   }
 }
 
-Future<void> _showCardInfoBottomSheet(BuildContext context, CakePayCard card) async {
-  bool isReloadable = false; // TODO: replace with real logic
-  if (card.name.toLowerCase().contains('prepaid')) {
-    isReloadable = true;
+Future<void> _redeemAndShowCard(
+  BuildContext context,
+  CakePayCardsListViewModel viewModel,
+  CakePayUserCard card,
+) async {
+  final state = await viewModel.redeem(card);
+  if (!context.mounted) {
+    return;
   }
+
+  switch (state) {
+    case CakePayRedemptionStateSuccess():
+      await _showCardInfoBottomSheet(context, card, state.voucher);
+    case CakePayRedemptionStateBlocked():
+      await _showRedemptionMessage(context, state.message);
+    case CakePayRedemptionStateFailure():
+      await _showRedemptionMessage(context, state.error);
+  }
+}
+
+Future<void> _showRedemptionMessage(BuildContext context, String message) => showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: 'Cake Pay',
+        alertContent: message,
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
+    );
+
+Future<void> _showCardInfoBottomSheet(
+  BuildContext context,
+  CakePayUserCard card,
+  CakePayVoucher voucher,
+) async {
   await showModalBottomSheet<void>(
     context: context,
     isDismissible: false,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (BuildContext bottomSheetContext) {
-      return isReloadable
-          ? CakePayCardInfoBottomSheet(
-              isReloadable: isReloadable,
-              titleText: 'Reloadable Card',
-              balance: '100 USD',
-              howToUse: card.howToUse,
-              footerType: FooterType.doubleActionButton,
-              applyBoxShadow: true,
-              contentImage: card.cardImageUrl,
-              leftActionButtonKey: const Key('cake_pay_cards_page_reload_card_left_button_key'),
-              doubleActionLeftButtonText: 'Archive',
-              onLeftActionButtonPressed: () {},
-              rightActionButtonKey: const Key('cake_pay_cards_page_reload_card_right_button_key'),
-              doubleActionRightButtonText: 'Top Up',
-              onRightActionButtonPressed: () {},
-              onUpdateBalancePressed: () {})
-          : CakePayCardInfoBottomSheet(
-              isReloadable: isReloadable,
-              titleText: card.name,
-              balance: '500 USD',
-              howToUse: card.howToUse,
-              footerType: FooterType.singleActionButton,
-              applyBoxShadow: true,
-              contentImage: card.cardImageUrl,
-              singleActionButtonKey: const Key('cake_pay_cards_page_card_info_bottom_sheet_key'),
-              singleActionButtonText: 'Mark As Used',
-              onSingleActionButtonPressed: () {},
-              onUpdateBalancePressed: () {});
-    },
+    builder: (bottomSheetContext) => CakePayCardInfoBottomSheet(
+      titleText: card.name,
+      balance: card.valueLabel,
+      cardNumber: voucher.primaryValue,
+      cardNumberLabel: switch (voucher.primaryValueKind) {
+        CakePayVoucherValueKind.cardNumber => S.of(bottomSheetContext).gift_card_number,
+        CakePayVoucherValueKind.code => S.of(bottomSheetContext).gift_card_code,
+        CakePayVoucherValueKind.redemptionLink => S.of(bottomSheetContext).redemption_link,
+      },
+      pin: voucher.pin,
+      howToUse: voucher.redemptionInstructions,
+      footerType: FooterType.singleActionButton,
+      singleActionButtonKey: const Key('cake_pay_cards_page_card_info_bottom_sheet_close_key'),
+      singleActionButtonText: S.of(bottomSheetContext).close,
+      onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+      applyBoxShadow: true,
+      contentImage: card.imageUrl,
+    ),
   );
 }
 
@@ -485,6 +522,7 @@ class _ShopTabState extends State<_ShopTab> {
                           arguments: [vendor],
                         );
                         await viewModel.checkAuth();
+                        await viewModel.getUserCards(showLoading: false);
                       },
                     );
                   },

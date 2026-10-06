@@ -202,7 +202,11 @@ abstract class CakePayBuyCardViewModelBase with Store {
       if (paymentData == null || order == null)
         throw Exception('Payment data or order is not available.');
 
-      await confirmSending(paymentData);
+      // A simulated payment must not build a real transaction, so it works with an empty wallet.
+      if (!isSimulating) {
+        await confirmSending(paymentData);
+      }
+
       expirationTime = order!.paymentData.expirationTime;
 
       final orderRecord = Order(
@@ -220,6 +224,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
           giftCardProvider: OrderProviderDescription.cakePay,
           walletId: sendViewModel.wallet.id);
       orders.add(orderRecord);
+
+      if (isSimulating) {
+        sendViewModel.state = IsExecutingState();
+        await simulatePayment();
+        return;
+      }
+
       updateRemainingTime();
       _startExpirationTimer();
     } on CakePayUnauthorizedException {
@@ -254,6 +265,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       simulatedResponse = await _cakePayService.simulatePayment(orderId: order!.orderId);
       sendViewModel.state = TransactionCommitted();
     } catch (e) {
+      isSimulatingFlow = false;
       sendViewModel.state = FailureState(
           sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
     }

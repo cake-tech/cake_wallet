@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class FeatureFlag {
   static const bool isCakePayEnabled = false;
   static const bool isCakePayPurchaseSimulationEnabled = true;
-  static const bool isCakePayRedemptionFlowEnabled = false;
+  static const bool isCakePayRedemptionFlowEnabled = true;
   static const bool isExolixEnabled = true;
   static const bool isBackgroundSyncEnabled = true;
   static bool get isInAppTorEnabled => CakeTor.instance is! CakeTorDisabled;
