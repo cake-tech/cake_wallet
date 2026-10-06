@@ -1195,7 +1195,6 @@ Future<void> setup({
     return NewSwapPage(
       getIt.get<SwapBloc>(),
       getIt.get<AuthService>(),
-      getIt.get<AddressResolverService>(),
       paymentRequest,
       initialCurrency: initialCurrency,
     );

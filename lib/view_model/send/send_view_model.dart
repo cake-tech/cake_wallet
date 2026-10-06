@@ -145,10 +145,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     });
   }
 
-  // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
-  Trade? _currentTrade;
-  ExchangeProvider? _currentProvider;
-
   @observable
   ExecutionState state;
 
@@ -684,9 +680,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Timer? _ledgerTxStateTimer;
 
   @action
-  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
-    _currentTrade = trade;
-    _currentProvider = provider;
+  Future<PendingTransaction?> createTransaction() async {
     pendingTransaction = null;
 
     try {
@@ -718,7 +712,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      pendingTransaction = await wallet.createTransaction(_credentials(provider));
+      pendingTransaction = await wallet.createTransaction(_credentials());
 
 
 
@@ -825,7 +819,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = TransactionCommitted();
 
 
-      await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
       if (walletType == WalletType.solana) {
         Future.delayed(Duration(seconds: 1), () async {
@@ -915,26 +908,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
 
       final failedSignature = e is JupiterSwapFailedException ? e.signature : "";
-
-      await _updateSolanaTrade(signature: failedSignature, isSuccess: false);
     }
   }
 
-  /// Update Jupiter trade with relevant details after transaction is committed
-  Future<void> _updateSolanaTrade({required String signature, required bool isSuccess}) async {
-    if (_currentTrade == null ||
-        _currentProvider?.title != 'Jupiter' ||
-        walletType != WalletType.solana) return;
-
-
-
-    _currentTrade = _currentTrade!.copyWith(
-      txId: signature,
-      state: isSuccess ? TradeState.completed : TradeState.failed
-    );
-
-    await _currentTrade!.save();
-  }
 
   @action
   Future<void> updateWalletBalance() async => await wallet.updateBalance();
@@ -978,7 +954,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           ));
   }
 
-  Object _credentials([ExchangeProvider? provider]) {
+  Object _credentials() {
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null &&
@@ -1011,7 +987,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
-          coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
 
       case WalletType.monero:

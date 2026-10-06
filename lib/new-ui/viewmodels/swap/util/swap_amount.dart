@@ -26,8 +26,6 @@ class SwapAmount {
   final Money fiatAmount;
   final bool isSwapAll;
 
-  String get serialized => "${cryptoAmount.serialized}/${fiatAmount.serialized}";
-
   CryptoCurrency get currency => cryptoAmount.currency as CryptoCurrency;
 }
 

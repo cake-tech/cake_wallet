@@ -60,15 +60,3 @@ class InternalAccountSwapAddress extends SwapAddress {
   @override
   String get displayName => "${walletName} → ${accountName}";
 }
-
-class ContactSwapAddress extends SwapAddress {
-  const ContactSwapAddress({required this.contact});
-
-  final Contact contact;
-
-  @override
-  String get address => contact.address;
-
-  @override
-  String get displayName => contact.name;
-}

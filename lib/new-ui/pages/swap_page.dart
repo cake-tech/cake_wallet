@@ -39,7 +39,6 @@ class NewSwapPage extends StatefulWidget {
   NewSwapPage(
     this.bloc,
     this.authService,
-    this.adrResService,
     this.initialPaymentRequest, {
       this.fromSend,
     CryptoCurrency? initialCurrency,
@@ -51,7 +50,6 @@ class NewSwapPage extends StatefulWidget {
 
   final SwapBloc bloc;
   final AuthService authService;
-  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final SwapFromSendArgs? fromSend;
 

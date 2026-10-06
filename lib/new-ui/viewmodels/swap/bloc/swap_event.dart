@@ -13,11 +13,6 @@ final class SourceChanged extends SwapEvent {
   final SwapSource newSource;
 }
 
-final class SendingWalletChanged extends SwapEvent {
-  const SendingWalletChanged(this.newWallet);
-
-  final WalletInfo newWallet;
-}
 
 final class PayoutAddressChanged extends SwapEvent {
   const PayoutAddressChanged(this.newAddress);
