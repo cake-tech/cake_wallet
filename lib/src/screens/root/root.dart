@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import "package:app_links/app_links.dart";
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -22,7 +23,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:trezor_connect/trezor_connect.dart';
-import 'package:uni_links/uni_links.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -103,16 +103,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   /// whether its in the foreground or in the background.
   Future<void> initUniLinks() async {
     try {
-      stream = uriLinkStream.listen((Uri? uri) {
-        handleDeepLinking(uri);
-      });
+      stream = AppLinks().uriLinkStream.listen(handleDeepLinking);
 
       // listen for quick actions
-      widget.quickActionsStream.listen((Uri? uri) {
-        handleDeepLinking(uri);
-      });
+      widget.quickActionsStream.listen(handleDeepLinking);
 
-      handleDeepLinking(await getInitialUri());
+      handleDeepLinking(await AppLinks().getInitialLink());
 
       if (widget.initialQuickAction != null) {
         final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
