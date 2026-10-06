@@ -84,10 +84,6 @@ class SwapConfirmBottomWidget extends StatelessWidget {
     return switch (state.runtimeType) {
       SwapInputState => LoadingBottomWidget(text: "${S.of(context).preparing}..."),
       SwapStateCreating => LoadingBottomWidget(text: "${S.of(context).creating_trade}..."),
-      SwapAwaitingWalletSwitch => LoadingBottomWidget(
-        text:
-            "${S.of(context).switching_to} ${(state as SwapAwaitingWalletSwitch).source.sourceWallet.name}",
-      ),
       SwapGeneratingTransaction => LoadingBottomWidget(
         text: "${S.of(context).generating_transaction}...",
       ),

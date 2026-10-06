@@ -2,7 +2,6 @@
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/lightning_invoice_service.dart";
 import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -10,13 +9,8 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_info.dart";
 
 class SwapAddressResolver {
-  const SwapAddressResolver(
-      {required WalletSwitchService walletSwitchService, required AppStore appStore})
-      : _walletSwitchService = walletSwitchService,
-        _appStore = appStore;
+  const SwapAddressResolver({required AppStore appStore}) : _appStore = appStore;
 
-
-  final WalletSwitchService _walletSwitchService;
   final AppStore _appStore;
 
 
@@ -25,12 +19,9 @@ class SwapAddressResolver {
   Future<String> resolveRefundAddress(SwapSource source, CryptoCurrency curr)async {
     if (source case final ExternalSwapSource source) {
       return source.refundAddress;
-    } else if (source case final InternalSwapSource source) {
+    } else if (source is InternalSwapSource) {
       String refundAddress;
 
-      if (source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-        await _walletSwitchService.switchToWallet(source.sourceWallet);
-      }
       refundAddress = curr == CryptoCurrency.btcln
           ? (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!
         : _appStore.wallet!.walletAddresses.addressForExchange;

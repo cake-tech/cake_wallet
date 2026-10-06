@@ -110,6 +110,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           SwapCreationStarted() => _showConfirmSheet(),
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
           LowFeeAlert() => _showFeeAlert(),
+          WalletSwitchFailed(:final error) => _showWalletSwitchFailedPopup(error),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
           bloc: widget.bloc,
@@ -298,6 +299,18 @@ class _NewSwapPageState extends State<NewSwapPage> {
         ),
       );
     }
+  }
+
+  Future<void> _showWalletSwitchFailedPopup(Object error) async {
+    await showPopUp(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: error.toString(),
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
+    );
   }
 
   Future<void> _showSwapAllNotReadyPopup() async {

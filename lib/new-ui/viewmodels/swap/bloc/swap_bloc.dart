@@ -14,6 +14,7 @@ import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
@@ -46,6 +47,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     required FeesHelper feesHelper, required TradeCreator creator, required SwapAddressResolver addressResolver,
     required AddressResolverService addressResolverService,
     required TransactionService transactionService,
+    required WalletSwitchService walletSwitchService,
     required this.rateCubit,
     required this.currencyStore,
     required SwapAmountFactory amountFactory,
@@ -57,12 +59,13 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         _addressResolver = addressResolver,
        _addressResolverService = addressResolverService,
        _transactionService = transactionService,
+       _walletSwitchService = walletSwitchService,
        _amountFactory = amountFactory,
        _registry = registry,
        _appStore = appStore,
        super(const SwapStateNotLoaded()) {
     on<_Init>(_init);
-    on<SourceChanged>(_onSourceChanged, transformer: restartable());
+    on<SourceChanged>(_onSourceChanged, transformer: sequential());
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
     on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
@@ -89,6 +92,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   final AppStore _appStore;
   final AddressResolverService _addressResolverService;
   final TransactionService _transactionService;
+  final WalletSwitchService _walletSwitchService;
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
@@ -171,11 +175,24 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<void> _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) async {
+    var isWalletSwitched = false;
+    if (event.newSource case final InternalSwapSource source
+        when source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
+      try {
+        await _walletSwitchService.switchToWallet(source.sourceWallet);
+        isWalletSwitched = true;
+      } catch (e) {
+        emitPresentation(WalletSwitchFailed(e));
+        return;
+      }
+    }
+
     if (state case final SwapInputState s) {
-      if (s.isSwapAll && event.newSource is ExternalSwapSource) {
+      if (s.isSwapAll && (isWalletSwitched || event.newSource is ExternalSwapSource)) {
         emit(
           s.copyWith(
             source: event.newSource,
+            hasSwapAll: _amountFactory.hasSwapAll,
             depositAmount: await _amountFactory.getSwapAmount(
               Money.zero(s.depositAmount.currency),
               s.depositAmount.currency,
@@ -187,7 +204,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           ),
         );
       } else {
-        emit(s.copyWith(source: event.newSource));
+        emit(s.copyWith(source: event.newSource, hasSwapAll: _amountFactory.hasSwapAll));
       }
       add(RatesLoadStarted());
     }
@@ -560,17 +577,6 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     final rates = (rateCubit.state as RatesLoaded).rates.toList();
 
     if (state case final SwapStateWithInputs s) {
-      if(s.source case final InternalSwapSource source) {
-        if(source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-          emit(SwapAwaitingWalletSwitch(depositAmount: s.depositAmount,
-              isFixedRate: s.isFixedRate,
-              memo: s.memo,
-              payoutAmount: s.payoutAmount,
-              usableProviders: s.usableProviders,
-              source: source));
-        }
-      }
-
       final req = TradeRequest(
         refundAddress: await _addressResolver.resolveRefundAddress(
             s.source, s.depositAmount.currency),

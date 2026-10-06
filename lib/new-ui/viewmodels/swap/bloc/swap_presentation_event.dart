@@ -27,3 +27,9 @@ final class SwapAllNotReady extends SwapPresentationEvent {
 final class LowFeeAlert extends SwapPresentationEvent {
   const LowFeeAlert();
 }
+
+final class WalletSwitchFailed extends SwapPresentationEvent {
+  const WalletSwitchFailed(this.error);
+
+  final Object error;
+}

@@ -196,39 +196,6 @@ final class SwapStateCreationError extends SwapStateCreating implements SwapFail
   final Object error;
 }
 
-final class SwapAwaitingWalletSwitch extends SwapStateWithInputs {
-  const SwapAwaitingWalletSwitch({
-    required this.depositAmount,
-    required this.isFixedRate,
-    required this.memo,
-    required this.payoutAmount,
-    required this.usableProviders,
-    required this.source,
-    this.payoutAddress,
-  });
-
-  @override
-  final InternalSwapSource source;
-
-  @override
-  final SwapAmount depositAmount;
-
-  @override
-  final bool isFixedRate;
-
-  @override
-  final String memo;
-
-  @override
-  final SwapAddress? payoutAddress;
-
-  @override
-  final SwapAmount payoutAmount;
-
-  @override
-  final List<ExchangeProviderDescription> usableProviders;
-}
-
 abstract class SwapStateWithTrade extends SwapState {
   const SwapStateWithTrade({required this.source, required this.trade});
 

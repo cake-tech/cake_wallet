@@ -542,8 +542,7 @@ Future<void> setup({
 
   getIt.registerSingleton<TransactionService>(TransactionService(appStore: getIt.get<AppStore>()));
 
-  getIt.registerSingleton<SwapAddressResolver>(SwapAddressResolver(
-      walletSwitchService: getIt.get<WalletSwitchService>(), appStore: getIt.get<AppStore>()));
+  getIt.registerSingleton<SwapAddressResolver>(SwapAddressResolver(appStore: getIt.get<AppStore>()));
 
   getIt.registerSingleton<TradeCreator>(TradeCreator(tradesStore: getIt.get<TradesStore>(),
       appStore: getIt.get<AppStore>(),
@@ -558,6 +557,7 @@ Future<void> setup({
         creator: getIt.get<TradeCreator>(),
         addressResolverService: getIt.get<AddressResolverService>(),
         transactionService: getIt.get<TransactionService>(),
+        walletSwitchService: getIt.get<WalletSwitchService>(),
         currencyStore: getIt.get<SwapCurrencyStore>(),
         rateCubit: getIt.get<RateCubit>(),
         amountFactory: getIt.get<SwapAmountFactory>(),
