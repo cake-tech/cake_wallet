@@ -107,13 +107,13 @@ class BuySellConfirmationPage extends StatelessWidget {
                                 label: S.of(context).rate,
                                 trailingText: buySellViewModel.selectedQuote!.topLeftSubTitle,
                               ),
-                              if (buySellViewModel.selectedQuote?.limits != null)
+                              if (_limitsText != null)
                                 ListItemRegularRow(
                                   showArrow: false,
                                   keyValue: "limits",
                                   label: "Limits",
-                                  trailingText: "${buySellViewModel.selectedQuote?.limits?.min} - ${buySellViewModel.selectedQuote?.limits?.max}",
-                                )
+                                  trailingText: _limitsText,
+                                ),
                             ],
                           },
                         ),
@@ -135,6 +135,14 @@ class BuySellConfirmationPage extends StatelessWidget {
           ),
         ),
       );
+
+  String? get _limitsText {
+    final limits = buySellViewModel.selectedQuote?.limits;
+    final max = limits?.max;
+    if (limits == null || max == null || max == double.infinity) return null;
+
+    return "${limits.min ?? 0} - $max";
+  }
 
   String get _pageTitle =>
       "${buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell} ${buySellViewModel.cryptoCurrency.fullName ?? ""}";
