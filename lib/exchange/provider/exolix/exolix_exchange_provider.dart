@@ -157,6 +157,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       ),
       networkFrom: _networkFor(request.depositCurrency),
       networkTo: _networkFor(request.payoutCurrency),
+      refundAddress: request.refundAddress,
+      withdrawalExtraId: request.toAddressExtraId,
       withdrawalAddress: await _normalizeAddress(request.payoutAddress),
       withdrawalAmount: request.isFixedRate ? request.payoutAmount.toString() : null,
       amount: request.isFixedRate ? null : request.depositAmount.toString(),

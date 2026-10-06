@@ -181,6 +181,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       toAmount: request.payoutAmount.toString(),
       address: request.payoutAddress,
       refundAddress: request.refundAddress,
+      extraId: request.toAddressExtraId,
       flow: request.isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
       type: ChangeNowExchangeType.direct,
       payload: payload,

@@ -88,9 +88,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
-  bool get supportsMemoOrDestinationTag => false;
-
-  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.nearIntents;
 
   @override

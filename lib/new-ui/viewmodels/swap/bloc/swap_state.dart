@@ -94,7 +94,8 @@ final class SwapInputState extends SwapStateWithInputs {
 
   bool _supportedForSwap(ExchangeProviderDescription provider) =>
       (!forceDecentralizedProviders || !provider.isCentralized) &&
-      (!isSwapAll || provider.supportsSwapAll);
+      (!isSwapAll || provider.supportsSwapAll) &&
+      (payoutAmount.currency.memoLabelType == null || provider.supportsMemoOrDestinationTag);
 
   SwapInputState copyWith({
     SwapAmount? depositAmount,

@@ -341,7 +341,20 @@ class SwapMemoInput extends StatefulWidget {
 }
 
 class _SwapMemoInputState extends State<SwapMemoInput> {
-  final memoController = TextEditingController();
+  late final TextEditingController memoController;
+
+  @override
+  void initState() {
+    super.initState();
+    memoController = TextEditingController()
+      ..addListener(() => widget.bloc.add(MemoChanged(memoController.text)));
+  }
+
+  @override
+  void dispose() {
+    memoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(

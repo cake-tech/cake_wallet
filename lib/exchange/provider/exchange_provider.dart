@@ -27,8 +27,6 @@ abstract class ExchangeProvider {
 
   bool get supportsOnionAddress => false;
 
-  bool get supportsMemoOrDestinationTag => true;
-
   @override
   String toString() => title;
 
