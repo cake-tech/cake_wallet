@@ -178,7 +178,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     if (isFixedRateMode) {
       final tokensField = path.tokens;
 
-      if (tokensField is List && tokensField.isNotEmpty) {
+      if (tokensField.isNotEmpty) {
         final tokens = tokensField.tokens!;
         final wantSym = _normalizeCakeNativeTokenName(toToUse.title).toUpperCase();
         final wantAddr = dstToken.toLowerCase();
@@ -203,32 +203,28 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
   }
 
-  Future<_PathInfo?> _pickPath({
+  Future<SwapsXyzChainPath?> _pickPath({
     required int srcChainId,
     required String srcToken,
     required int dstChainId,
     required String dstToken,
   }) async {
-    final uri = Uri.https(_baseUrl, _getPaths, {
-      "srcChainId": "$srcChainId",
-      "srcToken": srcToken,
-      "dstChainId": "$dstChainId",
-      "dstToken": dstToken,
-    });
+    final params = SwapsXyzPathsRequest(
+      srcChainId: srcChainId.toString(),
+      srcToken: srcToken,
+      dstChainId: dstChainId.toString(),
+      dstToken: dstToken,
+    );
+
+    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
     final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) {
       return null;
     }
-    final body = json.decode(res.body) as Map<String, dynamic>;
-    final paths = (body["paths"] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-    if (paths.isEmpty) {
-      return null;
-    }
-    final p = paths.first;
-    return _PathInfo(
-      supportsExactOut: p["supportsExactAmountOut"] == true,
-      minToAmountHuman: (p["amountLimits"]?["minAmount"] as String?) ?? "0",
-    );
+
+    return SwapsXyzPathsResponse.fromJson(
+      json.decode(res.body) as Map<String, dynamic>,
+    ).paths.firstOrNull;
   }
 
   @override
@@ -274,7 +270,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         dstChainId: dstChain.chainId,
         dstToken: dstToken,
       );
-      if (path == null || !path.supportsExactOut) {
+      if (path == null || !path.supportsExactAmountOut) {
         throw Exception(
           "fetchRate: route does not support exact-amount-out for ${from.currency.symbol} -> ${to.title}",
         );
@@ -573,85 +569,39 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({required int srcChainId}) async {
-    final params = <String, String>{
-      "srcChainId": "$srcChainId",
-      "srcToken": "0x0000000000000000000000000000000000000000",
+    final params = SwapsXyzPathsRequest(
+      srcChainId: srcChainId.toString(),
       // Native placeholder
-    };
+      srcToken: "0x0000000000000000000000000000000000000000",
+    );
 
-    final uri = Uri.https(_baseUrl, _getPaths, params);
+    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
     final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
     if (res.statusCode != 200) {
       printV("getPaths failed: ${res.statusCode} ${res.body}");
       return;
     }
 
-    Map<String, dynamic> body;
+    final SwapsXyzPathsResponse body;
     try {
-      body = json.decode(res.body) as Map<String, dynamic>;
+      body = SwapsXyzPathsResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
     } catch (e) {
-      printV("getPaths JSON decode error: $e");
+      printV("getPaths parse error: $e");
       return;
     }
 
-    // Always cache the source chain's native token (from body['srcToken'])
-    final srcTokenJson = body["srcToken"] as Map<String, dynamic>?;
-    if (srcTokenJson != null) {
-      final symbol = (srcTokenJson["symbol"] as String? ?? "").toUpperCase();
-      if (symbol.isNotEmpty) {
-        final isNative = srcTokenJson["isNative"] == true;
-        final decimals = (srcTokenJson["decimals"] as num?)?.toInt();
-        // Treat native token as address = null so _getTokenAddress() emits zero-address
-        final addr = isNative ? null : (srcTokenJson["address"] as String?);
-        _mergeCache(srcChainId, [
-          TokenPathInfo(
-            symbol: symbol,
-            address: addr,
-            decimals: decimals,
-            minAmount: srcTokenJson["minAmount"]?.toString(),
-            maxAmount: srcTokenJson["maxAmount"]?.toString(),
-          ),
-        ]);
-      }
+    // Always cache the source chain's native token
+    if (body.srcToken.symbol.isNotEmpty) {
+      // Treat native token as address = null so _getTokenAddress() emits zero-address
+      _mergeCache(srcChainId, [TokenPathInfo.fromToken(body.srcToken, dropNativeAddress: true)]);
     }
 
-    final paths = (body["paths"] as List?) ?? const [];
-    if (paths.isEmpty) {
-      return;
-    }
-
-    for (final path in paths) {
-      final map = path as Map<String, dynamic>;
-      final pathChainId = (map["chainId"] as num?)?.toInt();
-      if (pathChainId == null) {
-        continue;
-      }
-
-      final tokensField = map["tokens"];
-
-      // Case 1: String "all" -> cache empty list to indicate all tokens supported
-      if (tokensField is String) {
-        if (tokensField.toLowerCase() == "all") {
-          _tokensCache[pathChainId] = _tokensCache[pathChainId] ?? <TokenPathInfo>[];
-        }
-        continue;
-      }
-
-      // Case 2: List -> parse and merge
-      if (tokensField is List) {
-        final parsed = <TokenPathInfo>[];
-        for (final token in tokensField) {
-          if (token is Map<String, dynamic>) {
-            try {
-              parsed.add(TokenPathInfo.fromJson(token));
-            } catch (e) {
-              printV("Token parse error on chain $pathChainId: $e : $token");
-            }
-          }
-        }
-        if (parsed.isNotEmpty) {
-          _mergeCache(pathChainId, parsed);
-        }
+    for (final path in body.paths) {
+      // "all" -> cache empty list to indicate all tokens supported
+      if (path.tokens.isAll) {
+        _tokensCache[path.chainId] ??= <TokenPathInfo>[];
+      } else if (path.tokens.isNotEmpty) {
+        _mergeCache(path.chainId, path.tokens.tokens!.map(TokenPathInfo.fromToken).toList());
       }
     }
   }
@@ -1022,23 +972,19 @@ class TokenPathInfo {
     required this.maxAmount,
   });
 
-  factory TokenPathInfo.fromJson(Map<String, dynamic> json) => TokenPathInfo(
-    symbol: (json["symbol"] as String?)?.toUpperCase() ?? "",
-    address: json["address"] as String?,
-    decimals: json["decimals"] as int?,
-    minAmount: json["minAmount"]?.toString(),
-    maxAmount: json["maxAmount"]?.toString(),
+  factory TokenPathInfo.fromToken(
+    SwapsXyzTokenInfoWithAmounts token, {
+    bool dropNativeAddress = false,
+  }) => TokenPathInfo(
+    symbol: token.symbol.toUpperCase(),
+    address: dropNativeAddress && token.isNative ? null : token.address,
+    decimals: token.decimals,
+    minAmount: token.minAmount,
+    maxAmount: token.maxAmount,
   );
   final String symbol;
   final String? address;
   final int? decimals;
   final String? minAmount;
   final String? maxAmount;
-}
-
-class _PathInfo {
-  _PathInfo({required this.supportsExactOut, required this.minToAmountHuman});
-
-  final bool supportsExactOut;
-  final String minToAmountHuman;
 }

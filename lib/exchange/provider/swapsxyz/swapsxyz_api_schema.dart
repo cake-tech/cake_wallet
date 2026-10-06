@@ -100,6 +100,12 @@ enum SwapsXyzTxStatusValue {
   expired,
   @JsonValue("failed")
   failed,
+  @JsonValue("processing")
+  procesing,
+  @JsonValue("cancelled")
+  cancelled,
+  @JsonValue("error")
+  error,
   unknown,
 }
 
@@ -114,7 +120,10 @@ extension StatusToState on SwapsXyzTxStatusValue {
     .refunded => .refunded,
     .expired => .expired,
     .failed => .failed,
-    _ => .notFound,
+    .procesing => .pending,
+    .cancelled => .failed,
+    .error => .failed,
+    _ => .pending,
   };
 }
 

@@ -302,6 +302,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       if (_appStore.wallet!.syncStatus is! SyncedSyncStatus) {
         // enabling swap all on an unsynced wallet would lead to garbage results because balances either won't match or won't exist.
         emitPresentation(const SwapAllNotReady());
+        return;
       }
 
       final newDepositAmount = await _amountFactory.getSwapAllAmount(s.depositAmount.currency);
