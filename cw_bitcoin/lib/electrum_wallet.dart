@@ -486,13 +486,13 @@ abstract class ElectrumWalletBase
       .toSet();
 
   List<String> get scriptHashes => walletAddresses.addressesByReceiveType
-      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
+      .where((addr) => addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
       .toList();
 
   List<String> get publicScriptHashes => walletAddresses.allAddresses
       .where((addr) => !addr.isHidden)
-      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
+      .where((addr) => addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => addr.getScriptHash(network))
       .toList();
 
@@ -1240,7 +1240,7 @@ abstract class ElectrumWalletBase
       allInputsAmount += utx.value;
       leftAmount = leftAmount - utx.value;
 
-      final address = RegexUtils.addressTypeFromStr(utx.address, network);
+      final address = addressTypeFromStr(utx.address, network);
       ECPrivate? privkey;
       bool? isSilentPayment = false;
       final hd = _hdForAddressRecord(record: utx.bitcoinAddressRecord);
@@ -1493,7 +1493,7 @@ abstract class ElectrumWalletBase
       outputs: updatedOutputs,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
-    final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
+    final address = addressTypeFromStr(changeAddress.address, network);
     updatedOutputs.add(BitcoinOutput(
       address: address,
       value: BigInt.from(amountLeftForChangeAndFee),
@@ -1756,7 +1756,7 @@ abstract class ElectrumWalletBase
 
         credentialsAmount += outputAmount;
 
-        final address = RegexUtils.addressTypeFromStr(
+        final address = addressTypeFromStr(
             out.isParsedAddress ? out.extractedAddress! : out.address, network);
         final isSilentPayment = address is SilentPaymentAddress;
 
@@ -2382,7 +2382,7 @@ abstract class ElectrumWalletBase
 
       for (final element in currentWalletUnspentCoins) {
         if (element.isFrozen) continue;
-        if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
+        if (addressTypeFromStr(element.address, network) is MwebAddress) continue;
 
         final existUnspentCoins = unspentCoins.where((coin) => element == coin);
 
@@ -2530,7 +2530,7 @@ abstract class ElectrumWalletBase
 
         final addressRecord =
             walletAddresses.allAddresses.firstWhere((element) => element.address == address);
-        final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
+        final btcAddress = addressTypeFromStr(addressRecord.address, network);
 
         final hd = _hdForAddressRecord(record: addressRecord);
 
@@ -2569,7 +2569,7 @@ abstract class ElectrumWalletBase
         }
 
         final address = addressFromOutputScript(out.scriptPubKey, network);
-        final btcAddress = RegexUtils.addressTypeFromStr(address, network);
+        final btcAddress = addressTypeFromStr(address, network);
         outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(out.amount.toInt())));
       }
 
@@ -2615,7 +2615,7 @@ abstract class ElectrumWalletBase
           ..shuffle(Random.secure());
 
         for (final utxo in unusedUtxos) {
-          final address = RegexUtils.addressTypeFromStr(utxo.address, network);
+          final address = addressTypeFromStr(utxo.address, network);
 
           final hd = _hdForAddressRecord(record: utxo.bitcoinAddressRecord);
 
@@ -2649,7 +2649,7 @@ abstract class ElectrumWalletBase
             } else {
               final changeAddress = await walletAddresses.getChangeAddress();
               outputs.add(BitcoinOutput(
-                  address: RegexUtils.addressTypeFromStr(changeAddress.address, network),
+                  address: addressTypeFromStr(changeAddress.address, network),
                   value: -remainingFee));
             }
 
@@ -4008,7 +4008,7 @@ abstract class ElectrumWalletBase
   Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses
         .where((address) => address.address.isNotEmpty)
-        .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+        .where((address) => addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
 
     List<Map<String, dynamic>> balances;
@@ -4209,7 +4209,7 @@ abstract class ElectrumWalletBase
     try {
       final addresses = walletAddresses.allAddresses
           .where(
-              (address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+              (address) => addressTypeFromStr(address.address, network) is! MwebAddress)
           .toList();
 
       if (addresses.isEmpty) {
@@ -4340,7 +4340,7 @@ abstract class ElectrumWalletBase
 
     List<int> possibleRecoverIds = [0, 1];
 
-    final baseAddress = RegexUtils.addressTypeFromStr(address, network);
+    final baseAddress = addressTypeFromStr(address, network);
 
     for (int recoveryId in possibleRecoverIds) {
       final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
