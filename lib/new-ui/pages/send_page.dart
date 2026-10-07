@@ -609,6 +609,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               if (widget.sendViewModel.hasFees)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
+                                                  testId: "send_page_fee_row_key",
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
@@ -626,6 +627,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
+                                                  testId: "send_page_coin_control_row_key",
                                                   label: S.of(context).coin_control,
                                                   onTap: () {
                                                     showCupertinoModalBottomSheet(
