@@ -218,10 +218,8 @@ class _CardCustomizerState extends State<CardCustomizer> {
                             : state.accountName.trim().isEmpty
                                 ? S.of(context).unnamed_account
                                 : state.accountName,
-                        balance: _isAccount
-                            ? widget.dashboardViewModel.balanceViewModel
-                                .accountBalance(widget.account!)
-                            : "0.00",
+                        accountBalance: widget.account?.balance,
+                        balance: _isAccount ? "" : "0.00",
                         fiatBalance: _isAccount
                             ? widget.dashboardViewModel.balanceViewModel
                                     .accountFiatBalance(widget.account!, currencyPrefix: true) ??

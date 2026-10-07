@@ -547,13 +547,6 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String accountBalance(AccountListItem account) =>
-      savedDisplayMode == BalanceDisplayMode.hiddenBalance
-          ? "●●●●●●"
-          : account.balance.toStringWithPrecision(
-              useBaseUnit: appStore.amountParsingProxy.useSatoshi(account.balance.currency),
-            );
-
   String? accountFiatBalance(AccountListItem account, {bool currencyPrefix = false}) {
     if (isFiatDisabled) {
       return null;

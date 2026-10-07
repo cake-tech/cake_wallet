@@ -177,11 +177,6 @@ void main() {
     when(() => accountListViewModel.reload()).thenAnswer((_) async {});
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
-    when(() => balanceViewModel.accountBalance(any())).thenAnswer(
-      (invocation) => (invocation.positionalArguments.single as AccountListItem)
-          .balance
-          .toStringWithPrecision(),
-    );
     when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true)).thenReturn(null);
     when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
     when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);

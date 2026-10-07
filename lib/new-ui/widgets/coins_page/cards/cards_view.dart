@@ -185,15 +185,9 @@ class _CardsViewState extends State<CardsView> {
                   ? CardDesign.genericDefault
                   : widget.dashboardViewModel.cardDesigns[designIndex];
 
-              final String accountName;
-              final String accountBalance;
-              if (account == null || _hideAccountInfo) {
-                accountName = "";
-                accountBalance = "";
-              } else {
-                accountName = account.label;
-                accountBalance = widget.dashboardViewModel.balanceViewModel.accountBalance(account);
-              }
+              final showAccount = account != null && !_hideAccountInfo;
+              final accountName = showAccount ? account.label : "";
+              final accountBalance = showAccount ? account.balance : null;
 
               final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
                   ? ""

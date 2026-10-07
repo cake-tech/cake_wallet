@@ -136,11 +136,6 @@ void main() {
     when(() => bloc.stream).thenAnswer((_) => stateController.stream);
     when(() => bloc.canHide).thenReturn(true);
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
-    when(() => balanceViewModel.accountBalance(any())).thenAnswer(
-      (invocation) => (invocation.positionalArguments.single as AccountListItem)
-          .balance
-          .toStringWithPrecision(),
-    );
     when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
         .thenReturn("USD 2.50");
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
@@ -165,7 +160,7 @@ void main() {
     expect(find.text("Edit Account"), findsOneWidget);
     expect(find.text("#1"), findsOneWidget);
     expect(find.text("Unnamed Account"), findsOneWidget);
-    expect(find.text("1.25"), findsOneWidget);
+    expect(find.text("1.25"), findsWidgets);
     expect(find.text("USD 2.50"), findsOneWidget);
     expect(find.text("Account name"), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
@@ -209,7 +204,6 @@ void main() {
     final settingsStore = dashboardViewModel.settingsStore;
     final balanceViewModel = dashboardViewModel.balanceViewModel;
     when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.hiddenBalance);
-    when(() => balanceViewModel.accountBalance(any())).thenReturn("●●●●●●");
     when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
         .thenReturn("USD ●●●●●");
     when(() => bloc.state).thenReturn(_accountState("Savings"));

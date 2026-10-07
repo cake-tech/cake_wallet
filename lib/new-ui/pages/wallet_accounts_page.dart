@@ -85,13 +85,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   void initState() {
     super.initState();
     _accountsReaction = reaction(
-      (_) => (
-        widget.dashboardViewModel.settingsStore.balanceDisplayMode,
-        widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-        widget.accountListViewModel.accounts
-            .map((account) => "${account.id}:${account.label}:${account.balance}")
-            .join(","),
-      ),
+      (_) => widget.accountListViewModel.accounts
+          .map((account) => "${account.id}:${account.label}:${account.balance}")
+          .join(","),
       (_) {
         if (mounted) unawaited(loadCards());
       },
@@ -168,14 +164,12 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       final setting = layout.settingFor(accountIndex);
       final isFrontCard = position == layout.visible.length - 1;
       final accountLabel = account.label.trim().isEmpty ? unnamedAccount : account.label;
-      final balance = widget.dashboardViewModel.balanceViewModel.accountBalance(account);
 
       newItems.add(
         AccountCustomizerListItem(
           card: BalanceCard(
             accountName: "${account.id + 1}. $accountLabel",
-            balance: balance,
-            accountBalance: balance,
+            accountBalance: account.balance,
             fiatBalance: widget.dashboardViewModel.balanceViewModel
                     .accountFiatBalance(account, currencyPrefix: true) ??
                 "",
