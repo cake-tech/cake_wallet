@@ -612,7 +612,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final shouldSaveRecipientAddress = credentials.shouldSaveRecipientAddress;
     final pjUri = payjoinUri!;
     tx.commitOverride = () async {
-      await payjoinManager.initSender(pjUri, originalPsbt, int.parse(tx.feeRate));
+      await payjoinManager.initSender(pjUri, originalPsbt);
       final parsedUri = Uri.parse(pjUri);
       final recipientAddress = shouldSaveRecipientAddress
           ? (parsedUri.queryParameters['address'] ?? parsedUri.path)
@@ -621,6 +621,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         pjUrl: pjUri,
         originalPsbt: originalPsbt,
         amount: tx.amount.amount,
+        networkFeesSatPerVb: int.parse(tx.feeRate),
         recipientAddress: recipientAddress?.isEmpty == true ? null : recipientAddress,
       );
     };

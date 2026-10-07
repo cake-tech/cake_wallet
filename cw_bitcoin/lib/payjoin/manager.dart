@@ -367,7 +367,6 @@ class PayjoinManager {
   Future<String> initSender(
     String pjUriString,
     String originalPsbt,
-    int networkFeesSatPerVb,
   ) async {
     try {
       final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
