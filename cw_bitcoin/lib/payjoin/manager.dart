@@ -107,6 +107,7 @@ class PayjoinManager {
     if (sessionId.isEmpty) return;
 
     try {
+      await _eventStore.ensureOpen();
       final events = _eventStore.loadReceiver(sessionId);
       if (events.isEmpty) {
         await _payjoinStorage.markReceiverSessionUnrecoverable(
@@ -193,7 +194,7 @@ class PayjoinManager {
       // Backfill amount / fallback PSBT from the event log in case the
       // worker respawn replays past the payload-retrieval callback.
       await _tryProcessOriginalPayloadFromEvents(sessionId);
-      _maybeResumeReceiverWorker(sessionId);
+      await _maybeResumeReceiverWorker(sessionId);
     } on pj.ReceiverReplayException catch (e) {
       if (e.isExpired()) {
         await _payjoinStorage.markReceiverSessionUnrecoverable(
@@ -210,6 +211,7 @@ class PayjoinManager {
 
   Future<void> _resumeSenderSession(String pjUri) async {
     try {
+      await _eventStore.ensureOpen();
       final events = _eventStore.loadSender(pjUri);
       if (events.isEmpty) {
         return;
@@ -284,7 +286,7 @@ class PayjoinManager {
       } else {
         writePayjoinLog("Sender($pjUri) resume: ${state.runtimeType}");
       }
-      _maybeResumeSenderWorker(pjUri);
+      await _maybeResumeSenderWorker(pjUri);
     } on pj.SenderReplayException catch (e) {
       if (e.isExpired()) {
         await _payjoinStorage.markSenderSessionUnrecoverable(
@@ -308,6 +310,7 @@ class PayjoinManager {
     String? recipientAddress,
   }) async {
     final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
+    await _eventStore.ensureOpen();
     await _payjoinStorage.insertSenderSession(
       pjUri,
       _wallet.id,
@@ -415,6 +418,8 @@ class PayjoinManager {
       writePayjoinLog("Retrying initReceiver ${retryCount + 1} attempt");
     }
 
+    await _eventStore.ensureOpen();
+
     // Try directories in order with relay failover (like Rust reference impl)
     while (true) {
       String directory;
@@ -470,6 +475,8 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     try {
+      await _eventStore.ensureOpen();
+
       // The event log persisted by initReceiver is non-empty, so the worker
       // always takes the replay path — no new directory/OHTTP keys are
       // needed. Fetching them here would only add a failure point that
@@ -583,12 +590,13 @@ class PayjoinManager {
   /// when there are no events to replay. The replay path inside the worker
   /// ignores the `address`/`directory`/`ohttpKeys` args (those are bound to
   /// the replayed FFI state), so callers can pass placeholders.
-  void _maybeResumeReceiverWorker(String endpoint) {
+  Future<void> _maybeResumeReceiverWorker(String endpoint) async {
     if (_runningReceivers.containsKey(endpoint)) return;
 
     final session = _payjoinStorage.getReceiverSession(endpoint);
     if (session == null) return;
 
+    await _eventStore.ensureOpen();
     final persister = PayjoinReceiverPersister(_eventStore.box, endpoint);
     if (persister.load().isEmpty) return;
 
@@ -671,7 +679,7 @@ class PayjoinManager {
   ///
   /// Idempotent: skips when a worker is already running for [endpoint], or
   /// when the session has no original PSBT / no events to replay.
-  void _maybeResumeSenderWorker(String endpoint) {
+  Future<void> _maybeResumeSenderWorker(String endpoint) async {
     if (_runningSenders.containsKey(endpoint)) return;
 
     final session = _payjoinStorage.getSenderSession(endpoint);
@@ -679,6 +687,7 @@ class PayjoinManager {
     final originalPsbt = session.originalPsbt;
     if (originalPsbt == null || originalPsbt.isEmpty) return;
 
+    await _eventStore.ensureOpen();
     final persister = PayjoinSenderPersister(_eventStore.box, endpoint);
     if (persister.load().isEmpty) return;
 
@@ -747,6 +756,7 @@ class PayjoinManager {
   ///    real value instead of 0 during the processing window.
   Future<void> _tryProcessOriginalPayloadFromEvents(String sessionId) async {
     try {
+      await _eventStore.ensureOpen();
       final events = _eventStore.loadReceiver(sessionId);
       for (final event in events) {
         final map = jsonDecode(event);
@@ -856,6 +866,7 @@ class PayjoinManager {
   /// transaction hex for later fallback broadcast.
   Future<void> _tryExtractReceiverFallback(String sessionId) async {
     try {
+      await _eventStore.ensureOpen();
       final events = _eventStore.loadReceiver(sessionId);
       if (events.isEmpty) return;
 
@@ -960,6 +971,7 @@ class PayjoinManager {
   }
 
   Future<void> fallbackBroadcast(String endpoint) async {
+    await _eventStore.ensureOpen();
     final session = _payjoinStorage.getSessionByEndpoint(endpoint);
     final data = session?.originalPsbt;
     if (data == null || data.isEmpty) {
@@ -1116,6 +1128,7 @@ class PayjoinManager {
     buf.writeln('');
 
     final allSessions = _payjoinStorage.readAllSessions(_wallet.id);
+    final eventsReady = _eventStore.isReady;
     for (final session in allSessions) {
       buf.writeln('--- Session ---');
       buf.writeln('Wallet: ${session.walletId}');
@@ -1130,7 +1143,7 @@ class PayjoinManager {
       buf.writeln('Used Fallback: ${session.usedFallback}');
       buf.writeln('Error: ${session.error ?? "-"}');
 
-      if (session.isSenderSession && session.pjUri != null) {
+      if (eventsReady && session.isSenderSession && session.pjUri != null) {
         final events = _eventStore.loadSender(session.pjUri!);
         if (events.isNotEmpty) {
           buf.writeln('Protocol Events (Sender):');
@@ -1138,7 +1151,7 @@ class PayjoinManager {
             buf.writeln('  $event');
           }
         }
-      } else if (session.receiver != null) {
+      } else if (eventsReady && session.receiver != null) {
         final events = _eventStore.loadReceiver(session.receiver!);
         if (events.isNotEmpty) {
           buf.writeln('Protocol Events (Receiver):');
