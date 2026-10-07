@@ -1,6 +1,5 @@
 import "dart:math";
 
-import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
@@ -135,14 +134,10 @@ class _CardCustomizerState extends State<CardCustomizer> {
   }
 
   Future<void> _requestArchive() async {
-    final latestAccount = widget.accountListViewModel!.accounts
-            .firstWhereOrNull((item) => item.id == widget.account!.id) ??
-        widget.account!;
     final account = AccountListItem(
-      id: latestAccount.id,
+      id: widget.account!.id,
       label: bloc.state.accountName,
-      balance: widget.accountListViewModel!.fullBalance(latestAccount.id),
-      isSelected: latestAccount.isSelected,
+      balance: widget.accountListViewModel!.fullBalance(widget.account!.id),
     );
     final isFunded = account.isFunded;
     final confirmed = await showPopUp<bool>(
