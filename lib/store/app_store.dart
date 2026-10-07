@@ -32,7 +32,6 @@ abstract class AppStoreBase with Store {
       (_) => settingsStore.displayAmountsInSatoshi,
       (value) => _amountParsingProxy = AmountParsingProxy(value),
     );
-    reaction((_) => wallet, _onWalletChanged);
   }
 
   AuthenticationStore authenticationStore;
@@ -57,7 +56,7 @@ abstract class AppStoreBase with Store {
 
   WalletType? _lastWalletType;
 
-  Future<void> _onWalletChanged(
+  Future<void> onWalletChanged(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet,) async {
     if (wallet == null) {
       return;
