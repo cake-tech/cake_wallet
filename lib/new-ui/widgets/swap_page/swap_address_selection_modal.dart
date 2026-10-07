@@ -3,6 +3,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
+import 'package:cake_wallet/utils/test_id.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -123,6 +124,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6.0),
                               child: SwapAddressSelectionModalRow(
+                                key: ValueKey("swap_wallet_picker_wallet_${index}_key"),
                                 wallet: item,
                                 iconPath: currencyIconPath,
                                 isSelected: selected,
@@ -255,7 +257,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: Column(
           children: [
-            GestureDetector(
+            TestId.merge(TestId.fromKey(widget.key), child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 if (widget.accounts != null) {
@@ -292,7 +294,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                   ],
                 ),
               ),
-            ),
+            )),
             if (widget.accounts != null)
               AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
