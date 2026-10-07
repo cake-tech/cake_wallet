@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import "package:cake_wallet/new-ui/page_open_listener.dart";
+import "package:cake_wallet/new-ui/page_open_listener.dart";
+import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
+import "package:cake_wallet/new-ui/widgets/wallet_removal_popup.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
@@ -18,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../view_model/dashboard/dashboard_view_model.dart';
 
 class NewDashboard extends StatefulWidget {
@@ -35,7 +39,7 @@ class NewDashboard extends StatefulWidget {
     getIt.get<WalletListPage>(),
     getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
-    Placeholder(),
+    getIt.get<ChartsPage>()
   ];
 
   @override
@@ -52,10 +56,16 @@ class _NewDashboardState extends State<NewDashboard> {
       setState(() {
         _selectedPage = 0;
       });
+      _showWalletRemovalPopup(context);
     });
 
-    Future.delayed(Duration(milliseconds: 300)).then((_) => _showChangelog(context));
+    Future.delayed(Duration(milliseconds: 300)).then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showChangelog(context);
+      });
+    });
     _showVulnerableSeedsPopup(context);
+    _showWalletRemovalPopup(context);
   }
 
   @override
@@ -64,6 +74,7 @@ class _NewDashboardState extends State<NewDashboard> {
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
         body: Material(
+          key: ValueKey("new_dashboard_page_key"),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -172,6 +183,16 @@ class _NewDashboardState extends State<NewDashboard> {
           }
         },
       );
+    }
+  }
+
+  Future<void> _showWalletRemovalPopup(BuildContext context) async {
+    if(await widget.dashboardViewModel.shouldShowRemovalPopup()) {
+      await Future.delayed(const Duration(seconds: 1));
+      final toBeRemoved = await widget.dashboardViewModel.walletsToBeRemoved;
+      if(context.mounted) {
+        await showPopUp<void>(context: context, builder: (context)=>WalletRemovalPopup(affectedWallets: toBeRemoved,));
+      }
     }
   }
 }

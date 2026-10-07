@@ -35,8 +35,9 @@ Future<void> main(List<String> args) async {
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
+  final hasRobinhood = args.contains("${prefix}robinhood");
   final hasZcash = args.contains('${prefix}zcash');
-  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc;
+  final hasEVM = hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc || hasRobinhood;
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -71,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
+    hasRobinhood: hasRobinhood,
     hasZcash: hasZcash,
   );
   await generateWalletTypes(
@@ -90,6 +92,7 @@ Future<void> main(List<String> args) async {
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
+    hasRobinhood: hasRobinhood,
     hasZcash: hasZcash,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
@@ -103,6 +106,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import "package:cw_core/account.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -119,6 +123,7 @@ import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import "package:cw_core/balance.dart";
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -159,6 +164,7 @@ import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
@@ -301,6 +307,11 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
+  Future<Account> getCurrentAccount(Object wallet);
+  Balance balanceForAccount(Object wallet, int accountIndex);
+  Map<int, Object> accountBalancesSnapshot(Object wallet);
+  Future<void> setCurrentAccount(Object wallet, int accountIndex);
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
 }
   """;
 
@@ -324,6 +335,7 @@ abstract class Bitcoin {
 Future<void> generateMonero(bool hasImplementation) async {
   final outputFile = File(moneroOutputPath);
   const moneroCommonHeaders = """
+import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -341,9 +353,9 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -372,12 +384,6 @@ import 'package:cw_monero/pending_monero_transaction.dart';
 """;
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
-class Account {
-  Account({required this.id, required this.label, this.balance});
-  final int id;
-  final String label;
-  final String? balance;
-}
 
 class Subaddress {
   Subaddress({
@@ -489,6 +495,11 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   Future<void> syncTrezor(Object wallet);
   Map<String, List<int>> debugCallLength();
   Map<String, dynamic> getWalletCacheDebug();
+  Future<int> getNodeHeight(Object wallet);
+  String getLegacySeed(Object wallet, String langName);
+  bool isBackgroundSyncRunning(Object wallet);
+  Future<void> startBackgroundSync(Object wallet);
+  Future<void> stopBackgroundSync(Object wallet, String password);
 }
 
 abstract class MoneroSubaddressList {
@@ -531,6 +542,7 @@ abstract class MoneroAccountList {
 Future<void> generateWownero(bool hasImplementation) async {
   final outputFile = File(wowneroOutputPath);
   const wowneroCommonHeaders = """
+import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -580,12 +592,6 @@ import 'package:cw_wownero/pending_wownero_transaction.dart';
 """;
   const wowneroCwPart = "part 'cw_wownero.dart';";
   const wowneroContent = """
-class Account {
-  Account({required this.id, required this.label, this.balance});
-  final int id;
-  final String label;
-  final String? balance;
-}
 
 class Subaddress {
   Subaddress({
@@ -1020,7 +1026,16 @@ abstract class Solana {
   });
 
   Future<void> discoverAndAddWalletTokens(WalletBase wallet);
-  
+
+  Future<PendingTransaction> sendNFT(
+    WalletBase wallet, {
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  });
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress);
+  Future<Set<String>> getHeldTokenMints(WalletBase wallet);
+
   TransactionInfo getTransactionInfo({
     required String id,
     required DateTime blockTime,
@@ -1031,6 +1046,22 @@ abstract class Solana {
     required bool isPending,
     required Money fee,
   });
+}
+
+class SolanaNFTMetadata {
+  const SolanaNFTMetadata({
+    required this.mint,
+    required this.name,
+    required this.symbol,
+    required this.metadataUri,
+    this.imageUrl,
+  });
+
+  final String mint;
+  final String name;
+  final String symbol;
+  final String metadataUri;
+  final String? imageUrl;
 }
 
 class JupiterSwapFailedException implements Exception {
@@ -1572,6 +1603,7 @@ abstract class EVM {
   WalletType? getWalletTypeByChainId(int chainId);
   String getChainNameByChainId(int chainId);
   String getTokenNameByChainId(int chainId);
+  String? getMoralisChainName(WalletBase wallet);
   // Chain selection methods
   List<ChainInfo> getAllChains();
   ChainInfo? getCurrentChain(WalletBase wallet);
@@ -1748,6 +1780,7 @@ abstract class Zcash {
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
   Map<String, String> getKeys(Object wallet);
+  Future<int?> getBirthHeight(Object wallet);
 
   Object createZcashTransactionCredentials(
     List<Output> outputs, {
@@ -1821,6 +1854,7 @@ Future<void> generatePubspec({
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
+  required bool hasRobinhood,
   required bool hasZcash,
 }) async {
   const cwCore = """
@@ -1932,7 +1966,7 @@ Future<void> generatePubspec({
     output += '\n$flutterSecureStorage\n';
   }
 
-  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc) {
+  if (hasEthereum || hasPolygon || hasBase || hasArbitrum || hasBsc || hasRobinhood) {
     output += '\n$cwEVM';
   }
 
@@ -1981,6 +2015,7 @@ Future<void> generateWalletTypes({
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
+  required bool hasRobinhood,
   required bool hasZcash,
 }) async {
   final walletTypesFile = File(walletTypesPath);
@@ -2007,6 +2042,10 @@ Future<void> generateWalletTypes({
 
   if (hasBsc) {
     outputContent += '\tWalletType.bsc,\n';
+  }
+
+  if (hasRobinhood) {
+    outputContent += "\tWalletType.robinhood,\n";
   }
 
   if (hasSolana) {
@@ -2049,13 +2088,13 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.nano,\n';
   }
 
-  if (hasDecred) {
-    outputContent += '\tWalletType.decred,\n';
-  }
+  // if (hasDecred) {
+  //   outputContent += '\tWalletType.decred,\n';
+  // }
 
-  if (hasZano) {
-    outputContent += '\tWalletType.zano,\n';
-  }
+  // if (hasZano) {
+  //   outputContent += '\tWalletType.zano,\n';
+  // }
 
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';

@@ -17,10 +17,11 @@ class HistoryTopBar extends StatelessWidget {
         onTap: onTap,
         child: ExcludeSemantics(
           child: GestureDetector(
+            key: const ValueKey("history_top_bar_key"),
             onTap: onTap,
             behavior: HitTestBehavior.opaque,
             child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.vertical(

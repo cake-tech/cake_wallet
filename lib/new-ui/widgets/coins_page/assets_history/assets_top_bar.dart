@@ -26,7 +26,12 @@ class AssetsTopBar extends StatelessWidget {
 
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(top: 32.0, bottom: 0.0, left: 12.0, right: 18.0),
+        padding: const EdgeInsets.only(
+          top: 20,
+          bottom: 0,
+          left: 12,
+          right: 18,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,6 +67,7 @@ class AssetsTopBar extends StatelessWidget {
                       child: Semantics(
                         button: true,
                         child: GestureDetector(
+                          key: const ValueKey("assets_history_action_button_key"),
                           onTap: actionButton.onPressed,
                           child: Container(
                             height: 40,
