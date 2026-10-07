@@ -1,4 +1,8 @@
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart";
+import "package:cake_wallet/themes/theme_classes/black_theme.dart";
+import "package:cake_wallet/themes/theme_classes/dark_theme.dart";
+import "package:cake_wallet/view_model/settings/display_settings_view_model.dart";
 import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
@@ -47,6 +51,8 @@ class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
 class _MockAppStore extends Mock implements AppStore {}
 
 class _MockReceiveOptionViewModel extends Mock implements ReceiveOptionViewModel {}
+
+class _MockDisplaySettingsViewModel extends Mock implements DisplaySettingsViewModel {}
 
 class _MockSettingsStore extends Mock implements SettingsStore {}
 
@@ -365,5 +371,37 @@ void main() {
         handle.dispose();
       });
     }
+  });
+
+  group("theme choice", () {
+    testWidgets("options are labelled by title and identified by family", (tester) async {
+      final handle = tester.ensureSemantics();
+      final dark = DarkTheme();
+      final black = BlackTheme(BlackThemeAccentColor.cakePrimary);
+      final viewModel = _MockDisplaySettingsViewModel();
+      when(() => viewModel.availableThemes).thenReturn([dark, black]);
+      when(() => viewModel.currentTheme).thenReturn(dark);
+      when(() => viewModel.availableAccentColors).thenReturn([]);
+      when(() => viewModel.isThemeSelected(dark)).thenReturn(true);
+      when(() => viewModel.isThemeSelected(black)).thenReturn(false);
+      for (final theme in [dark, black]) {
+        when(() => viewModel.getImageForTheme(theme)).thenReturn("assets/new-ui/dark.svg");
+      }
+      tester.view.physicalSize = const Size(1170, 2700);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(wrap(SettingsThemeChoicesCell(viewModel)));
+
+      expect(
+        one(tester, "display_settings_theme_dark_key"),
+        isSemantics(label: "Dark Theme", isSelected: true, hasTapAction: true),
+      );
+      expect(
+        one(tester, "display_settings_theme_blacktheme_key"),
+        isSemantics(label: "Black Theme (Cake Primary)", isSelected: false),
+      );
+      expect(find.bySemanticsLabel(RegExp("Instance of")), findsNothing);
+      handle.dispose();
+    });
   });
 }

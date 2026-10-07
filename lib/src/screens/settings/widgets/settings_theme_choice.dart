@@ -47,7 +47,8 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                     final isSelected = _displaySettingsViewModel.isThemeSelected(theme);
 
                     return Semantics(
-                      label: theme.toString(),
+                      identifier: "display_settings_theme_${(theme.themeFamily ?? theme.type.name).toLowerCase()}_key",
+                      label: theme.title,
                       selected: isSelected,
                       child: GestureDetector(
                         onTap: () {
