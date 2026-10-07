@@ -17,7 +17,7 @@ String getTxIdFromPsbtV0(String psbt) {
   // BtcTransaction.fromRaw then misparses the trailing locktime bytes
   // as witness varints and throws a RangeError on larger txs.
   return BtcTransaction.fromRaw(
-    BytesUtils.toHexString(psbtV2.extractUnsignedTX(getSegwit: false)),
+    BytesUtils.toHexString(psbtV2.extractUnsignedTX(false)),
   ).txId();
 }
 
