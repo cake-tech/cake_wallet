@@ -15,7 +15,11 @@ class WalletListPageRobot extends BaseRobot {
   }
 
   Future<void> openEditFor(String walletName) async {
-    await tapByKey("wallet_list_edit_${walletName}_button_key");
+    final page = tester.widget<WalletListPage>(find.byType(WalletListPage).first);
+    final index =
+        page.walletListViewModel.singleWalletsList.indexWhere((wallet) => wallet.name == walletName);
+
+    await tapByKey("wallet_list_single_wallet_${index}_edit_button_key");
   }
 
   bool hasWallet(String walletName) => tester.any(
