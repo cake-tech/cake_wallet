@@ -11,6 +11,7 @@ import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
@@ -225,7 +226,37 @@ void main() {
         childLabels.add(child.label);
         return true;
       });
-      expect(childLabels, containsAll(["0", "XMR", "0.00", "Menu"]));
+      expect(childLabels, contains("Menu"));
+      expect(childLabels.join(), allOf(contains("XMR"), contains("0.00")));
+      handle.dispose();
+    });
+
+    testWidgets("the selected card's balance lines are identified nodes", (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpCardsView(tester);
+
+      expect(one(tester, "balance_card_crypto_balance_key"), isSemantics(label: "0\nXMR"));
+      expect(one(tester, "balance_card_fiat_balance_key"), isSemantics(label: "0.00"));
+      handle.dispose();
+    });
+
+    testWidgets("an unselected card still hides its crypto balance", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          BalanceCard(
+            width: 300,
+            design: CardDesign.genericDefault,
+            balance: "1.5",
+            assetName: "BTC",
+            fiatBalance: "USD 90,000.00",
+          ),
+        ),
+      );
+
+      expect(platformNodesWithId(tester, "balance_card_crypto_balance_key"), isEmpty);
+      expect(find.bySemanticsLabel(RegExp("1.5")), findsNothing);
+      expect(one(tester, "balance_card_fiat_balance_key"), isSemantics(label: "USD 90,000.00"));
       handle.dispose();
     });
   });
