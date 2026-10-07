@@ -4,45 +4,29 @@ Dash wallet module using the shared Bitcoin Electrum implementation (`cw_bitcoin
 
 ### Features
 
-- Derive keys via BIP‑39; Dash HD paths using `bitcoin_base`.
-- Connect to Electrum nodes; maintain address sets and UTXOs.
-- Create/sign/broadcast DOGE transactions with configurable fee rate.
-- Address book and index management (receive/change, auto-generate settings).
-- Message signing and verification.
-
-### Getting started
-
-Create/open via `DashWalletService` in the app using `WalletType.dash`. Ensure Electrum nodes are configured for Dash.
-
-```dart
-final wallet = await DashWallet.create(
-  mnemonic: '...',
-  password: 'secret',
-  walletInfo: walletInfo,
-  unspentCoinsInfo: unspentCoinsBox,
-  encryptionFileUtils: encryption,
-);
-```
+- BIP-39 keys, Dash HD path `m/44'/5'/0'`.
+- Electrum node sync: address set, UTXOs, balances.
+- Create/sign/broadcast P2PKH transactions with configurable fee rate.
+- Address book and index management, message signing.
 
 ### Usage
 
-Estimate fee and send:
+Create via `DashWalletService` (wired through `lib/dash/`), then send:
 
 ```dart
-final feeRate = wallet.feeRate(BitcoinCashTransactionPriority.medium); // example priority mapping
 final pending = await wallet.createTransaction(
   outputs: [
     BitcoinTransactionOutput(
-      address: 'D...',
-      amount: 1 * 100000000, // 1 DOGE in koinu
+      address: 'X...',
+      amount: 100000000, // 1 DASH in duffs
     ),
   ],
-  feeRate: feeRate,
+  feeRate: wallet.feeRate(DashTransactionPriority.medium),
 );
 final txHash = await pending.commit();
 ```
 
-### Additional information
+### Notes
 
-- See `lib/src/` for classes: `DashWallet`, `DashWalletAddresses`.
-- Relies on core Electrum features in `cw_bitcoin` for UTXO selection and persistence.
+- Mainnet, P2PKH only. No hardware wallets, WIF restore, InstantSend, or testnet.
+- Relies on `cw_bitcoin` for UTXO selection and persistence.

@@ -28,11 +28,3 @@ class DashRestoreWalletFromSeedCredentials extends WalletCredentials {
 
   final String mnemonic;
 }
-
-class DashRestoreWalletFromWIFCredentials extends WalletCredentials {
-  DashRestoreWalletFromWIFCredentials(
-      {required String name, required String password, required this.wif, WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
-
-  final String wif;
-}

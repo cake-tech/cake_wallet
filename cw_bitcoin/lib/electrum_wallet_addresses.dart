@@ -59,10 +59,6 @@ const List<BitcoinAddressType> DOGECOIN_ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
 ];
 
-const List<BitcoinAddressType> DASH_ADDRESS_TYPES = [
-  P2pkhAddressType.p2pkh,
-];
-
 const List<BitcoinAddressType> EXTRA_ACCOUNT_ADDRESS_TYPES = [SegwitAddresType.p2wpkh];
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {

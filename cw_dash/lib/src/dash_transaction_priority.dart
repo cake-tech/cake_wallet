@@ -38,13 +38,13 @@ class DashTransactionPriority extends BitcoinTransactionPriority {
 
     switch (this) {
       case DashTransactionPriority.slow:
-        label = 'Slow'; // S.current.transaction_priority_slow;
+        label = 'Slow';
         break;
       case DashTransactionPriority.medium:
-        label = 'Medium'; // S.current.transaction_priority_medium;
+        label = 'Medium';
         break;
       case DashTransactionPriority.fast:
-        label = 'Fast'; // S.current.transaction_priority_fast;
+        label = 'Fast';
         break;
       default:
         break;
