@@ -132,12 +132,15 @@ Future<Transaction> getTransaction(String txId) async {
     return txCache[currentWallet!.ffiAddress()]![txId]!;
   }
   await txHistoryMutex.acquire();
-  final tx = txhistory!.transactionById(txId);
-  final txDart = Transaction(txInfo: tx);
-  txCache[currentWallet!.ffiAddress()] ??= {};
-  txCache[currentWallet!.ffiAddress()]![txId] = txDart;
-  txHistoryMutex.release();
-  return txDart;
+  try {
+    final tx = txhistory!.transactionById(txId);
+    final txDart = Transaction(txInfo: tx);
+    txCache[currentWallet!.ffiAddress()] ??= {};
+    txCache[currentWallet!.ffiAddress()]![txId] = txDart;
+    return txDart;
+  } finally {
+    txHistoryMutex.release();
+  }
 }
 
 Future<PendingTransactionDescription> createTransactionSync(
@@ -148,6 +151,11 @@ Future<PendingTransactionDescription> createTransactionSync(
     int accountIndex = 0,
     List<String> preferredInputs = const []}) async {
   final amt = amount == null ? 0 : currentWallet!.amountFromString(amount);
+
+  if (amount != null && amt == 0) {
+    throw MoneroTransactionCreationException(
+        'Refusing to create a transaction with a zero amount: 0 is the sweep-all ');
+  }
 
   final waddr = currentWallet!.ffiAddress();
 
@@ -211,6 +219,7 @@ Future<PendingTransactionDescription> createTransactionSync(
     fee: rFee,
     hash: rHash,
     hex: rHex,
+    txCount: pendingTx.txCount(),
     pointerAddress: pendingTx.ffiAddress(),
   );
 }
@@ -255,6 +264,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
     hash: tx.txid(''),
     hex: tx.hex(''),
     pointerAddress: tx.ffiAddress(),
+    txCount: tx.txCount(),
   );
 }
 

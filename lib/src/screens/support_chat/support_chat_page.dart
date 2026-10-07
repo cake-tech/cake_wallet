@@ -12,37 +12,40 @@ class SupportChatPage extends StatelessWidget {
   final SecureStorage secureStorage;
 
   @override
-  Widget build(BuildContext context) => Container(
-        color: Theme.of(context).colorScheme.surface,
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Column(
-              children: [
-                ModalTopBar(
-                    title: S.current.settings_support,
-                    leadingIcon: Icon(Icons.arrow_back_ios_new),
-                    leadingSemanticLabel: S.current.seed_alert_back,
-                    onLeadingPressed: Navigator.of(context).pop),
-                FutureBuilder<String>(
-                  future: getCookie(),
-                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.hasData)
-                      return Expanded(
-                        child: ChatwootWidget(
-                          secureStorage,
-                          supportUrl: supportViewModel.fetchUrl(authToken: snapshot.data!),
-                          appVersion: supportViewModel.appVersion,
-                          fiatApiMode: supportViewModel.fiatApiMode,
-                          walletType: supportViewModel.walletType,
-                          walletSyncState: supportViewModel.walletSyncState,
-                          builtInTorState: supportViewModel.builtInTorState,
-                        ),
-                      );
-                    return Container();
-                  },
-                ),
-              ],
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Column(
+                children: [
+                  ModalTopBar(
+                      title: S.current.settings_support,
+                      leadingIcon: Icon(Icons.arrow_back_ios_new),
+                      leadingSemanticLabel: S.current.seed_alert_back,
+                      onLeadingPressed: Navigator.of(context).pop),
+                  FutureBuilder<String>(
+                    future: getCookie(),
+                    builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      if (snapshot.hasData)
+                        return Expanded(
+                          child: ChatwootWidget(
+                            secureStorage,
+                            supportUrl: supportViewModel.fetchUrl(authToken: snapshot.data!),
+                            appVersion: supportViewModel.appVersion,
+                            fiatApiMode: supportViewModel.fiatApiMode,
+                            walletType: supportViewModel.walletType,
+                            walletSyncState: supportViewModel.walletSyncState,
+                            builtInTorState: supportViewModel.builtInTorState,
+                          ),
+                        );
+                      return Container();
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
