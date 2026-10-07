@@ -75,6 +75,23 @@ abstract class BaseRobot {
     throw TestFailure("Widget still present after ${timeout.inSeconds}s: $finder");
   }
 
+  Future<void> expectTestId(String id, {Duration timeout = const Duration(seconds: 30)}) async {
+    final handle = tester.ensureSemantics();
+    final finder = find.bySemanticsIdentifier(id);
+
+    try {
+      await pumpUntilFound(finder, timeout: timeout);
+
+      if (finder.evaluate().length != 1) {
+        await takeScreenshot("${runtimeType}_expect_test_id_$id");
+      }
+
+      expect(finder, findsOneWidget, reason: "Semantics identifier $id");
+    } finally {
+      handle.dispose();
+    }
+  }
+
   Future<void> tapByKey(String key, {Duration timeout = const Duration(seconds: 30)}) async {
     final finder = find.byKey(ValueKey(key));
 
