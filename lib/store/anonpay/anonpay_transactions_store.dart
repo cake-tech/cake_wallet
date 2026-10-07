@@ -26,11 +26,12 @@ abstract class AnonpayTransactionsStoreBase with Store {
 
   @action
   Future<void> updateTransactionList() async {
+    var index = 0;
     transactions = anonpayInvoiceInfoSource.values
         .map(
           (transaction) => AnonpayTransactionListItem(
             transaction: transaction,
-            key: ValueKey('anonpay_invoice_transaction_list_item_${transaction.invoiceId}_key'),
+            key: ValueKey('anonpay_invoice_transaction_list_item_${index++}_key'),
           ),
         )
         .toList();

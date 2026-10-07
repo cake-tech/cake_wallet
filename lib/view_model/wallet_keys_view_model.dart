@@ -23,7 +23,6 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : _wallet = _appStore.wallet!,
-        _walletName = _appStore.wallet!.type.name,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         _restoreHeightByTransactions = 0,
         items = ObservableList<StandartListItem>(),
@@ -93,7 +92,6 @@ abstract class WalletKeysViewModelBase with Store {
   String get title => _title;
 
   final WalletBase _wallet;
-  final String _walletName;
   final AppStore _appStore;
   final int _restoreHeight;
 
@@ -177,7 +175,7 @@ abstract class WalletKeysViewModelBase with Store {
         items.addAll([
           if (_wallet.privateKey != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_private_key_item_key'),
               title: S.current.private_key,
               value: _wallet.privateKey!,
             ),
@@ -189,13 +187,13 @@ abstract class WalletKeysViewModelBase with Store {
         items.addAll([
           if (_wallet.hexSeed != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_hex_seed_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_hex_seed_key'),
               title: S.current.seed_hex_form,
               value: _wallet.hexSeed!,
             ),
           if (_wallet.privateKey != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_private_key_item_key'),
               title: S.current.private_key,
               value: _wallet.privateKey!,
             ),
@@ -243,42 +241,42 @@ abstract class WalletKeysViewModelBase with Store {
       keysList.addAll([
         if ((keys['primaryAddress'] ?? '').isNotEmpty)
           StandartListItem(
-              key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_primary_address_item_key'),
               title: S.current.primary_address,
               value: keys['primaryAddress']!),
         if ((keys['publicSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_public_spend_key_item_key'),
             title: S.current.spend_key_public,
             value: keys['publicSpendKey']!,
           ),
         if ((keys['privateSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_private_spend_key_item_key'),
             title: S.current.spend_key_private,
             value: keys['privateSpendKey']!,
           ),
         if ((keys['publicViewKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_public_view_key_item_key'),
             title: S.current.view_key_public,
             value: keys['publicViewKey']!,
           ),
         if ((keys['privateViewKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_private_view_key_item_key'),
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
           ),
         if ((keys['tsk'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_transparent_secret_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_transparent_secret_key_item_key'),
             title: S.current.transparent_secret_key,
             value: keys['tsk']!,
           ),
         if ((keys['uvk'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_unified_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_unified_view_key_item_key'),
             title: S.current.unified_view_key,
             value: keys['uvk']!,
           ),

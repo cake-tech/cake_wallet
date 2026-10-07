@@ -142,13 +142,14 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
+      var index = 0;
       transactions = ObservableList.of(
         sortedTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${index++}_key'),
           ),
         ),
       );
@@ -172,13 +173,14 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
+      var index = 0;
       transactions = ObservableList.of(
         sortedTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${index++}_key'),
           ),
         ),
       );
@@ -365,13 +367,14 @@ abstract class DashboardViewModelBase with Store {
     filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
 
 
+    var index = 0;
     transactions.addAll(
       filteredTransactions.map(
         (transaction) => TransactionListItem(
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           appStore: appStore,
-          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${index++}_key'),
         ),
       ),
     );
@@ -540,6 +543,7 @@ abstract class DashboardViewModelBase with Store {
               item.transaction.isPending))
           .toSet();
 
+      var index = 0;
       final newTransactions = relevantTxs
           .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
               tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
@@ -547,7 +551,7 @@ abstract class DashboardViewModelBase with Store {
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
                 appStore: appStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${index++}_key'),
               ))
           .toList();
 
@@ -1501,13 +1505,14 @@ abstract class DashboardViewModelBase with Store {
               monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
+      var index = 0;
       transactions.addAll(
         _accountTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${index++}_key'),
           ),
         ),
       );
@@ -1521,13 +1526,14 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
+      var index = 0;
       transactions.addAll(
         _accountTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${index++}_key'),
           ),
         ),
       );

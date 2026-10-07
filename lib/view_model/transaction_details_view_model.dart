@@ -277,7 +277,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
             value: recipientAddressForDisplay,
-            key: ValueKey("standard_list_item_${recipientAddressForDisplay}_key"),
+            key: ValueKey("standard_list_item_transaction_details_recipient_address_key"),
           ),
         );
       }
