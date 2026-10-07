@@ -367,6 +367,12 @@ Future<void> initialSetup({
     secureStorage: secureStorage,
   );
   final settingsStore = getIt<SettingsStore>();
+  if (E2EMode.enabled) {
+    // Start in English so drivers get deterministic labels. The setting stays
+    // writable — the language suite exercises switching, so do not pin
+    // MaterialApp.locale instead.
+    settingsStore.languageCode = 'en';
+  }
   await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
@@ -444,9 +450,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: E2EMode.enabled
-                  ? const Locale('en')
-                  : localeFromLanguageCode(appStore.settingsStore.languageCode),
+              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),

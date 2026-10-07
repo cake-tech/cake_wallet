@@ -8,6 +8,7 @@ import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/scheduler.dart";
 import "package:flutter/semantics.dart";
+import "package:flutter/widgets.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 /// E2E launch mode (QA handoff Phase 1b).
@@ -50,6 +51,18 @@ class E2EMode {
   /// Called once early in `runAppWithZone`, after the binding is initialized.
   static void applyLaunchSettings() {
     if (!enabled) {
+      return;
+    }
+    // Under a widget-test binding (integration_test / flutter drive) the test
+    // framework OWNS time and semantics: it fails every test if timeDilation is
+    // left changed (`debugAssertNoTimeDilation`) or a SemanticsHandle is still
+    // outstanding at teardown (`_verifySemanticsHandlesWereDisposed`). Tests
+    // pump their own time and call `tester.ensureSemantics()` when they need it,
+    // so this launch path applies only to real-app runs (agent-device driving
+    // physical devices / simulators). Detected by name to avoid importing
+    // flutter_test from lib/.
+    final binding = WidgetsBinding.instance;
+    if (binding.runtimeType.toString().contains("Test")) {
       return;
     }
     timeDilation = animationScale;
