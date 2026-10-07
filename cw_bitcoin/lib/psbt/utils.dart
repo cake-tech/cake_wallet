@@ -11,7 +11,9 @@ import 'package:ledger_bitcoin/src/utils/uint8list_extension.dart';
 String getTxIdFromPsbtV0(String psbt) {
   final psbtV2 = PsbtV2()..deserializeV0(base64.decode(psbt));
 
-  return BtcTransaction.fromRaw(BytesUtils.toHexString(psbtV2.extract())).txId();
+  return BtcTransaction.fromRaw(
+    BytesUtils.toHexString(psbtV2.extractUnsignedTX()),
+  ).txId();
 }
 
 String getOutputAmountFromPsbt(String psbtV0, BitcoinWalletBase wallet) {
