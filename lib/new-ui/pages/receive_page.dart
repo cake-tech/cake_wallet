@@ -184,6 +184,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                                   .contains("mweb")
                       ? ModernButton(
                           key: ValueKey(_largeQrMode),
+                          testId: _largeQrMode
+                              ? "receive_page_share_button_key"
+                              : "receive_page_rotate_button_key",
                           size: 36,
                           icon: _largeQrMode
                               ? const Icon(Icons.share)
@@ -248,6 +251,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     excluding: _largeQrMode || !hasLabel,
                     child: MergeSemantics(
                       child: Semantics(
+                        identifier: "receive_page_label_chip_key",
                         button: true,
                         hint: S.of(context).set_label,
                         child: GestureDetector(
