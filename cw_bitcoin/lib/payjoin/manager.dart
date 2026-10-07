@@ -546,10 +546,13 @@ class PayjoinManager {
     }
   }
 
-  void cancelReceiver(String pjEndpoint) {
+  Future<void> cancelReceiver(String pjEndpoint) async {
     final worker = _runningReceivers.remove(pjEndpoint);
     worker?.cancel();
     worker?.dispose();
+    // Persist the fallback tx (when the session progressed far enough) so
+    // the user can still broadcast it after cancellation.
+    await _tryExtractReceiverFallback(pjEndpoint);
     _payjoinStorage.markReceiverSessionUnrecoverable(pjEndpoint, 'Cancelled');
     writePayjoinLog("Receiver($pjEndpoint) Cancelled");
   }
@@ -866,7 +869,7 @@ class PayjoinManager {
       await _payjoinStorage.markSenderSessionFallback(endpoint);
       cancelSender(endpoint);
     } else {
-      cancelReceiver(endpoint);
+      await cancelReceiver(endpoint);
     }
 
     try {
