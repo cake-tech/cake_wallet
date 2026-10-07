@@ -1,43 +1,45 @@
-import "package:cake_wallet/di.dart";
-import "package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart";
-import "package:cake_wallet/themes/theme_classes/black_theme.dart";
-import "package:cake_wallet/themes/theme_classes/dark_theme.dart";
-import "package:cake_wallet/view_model/settings/display_settings_view_model.dart";
-import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
-import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
-import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
-import "package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart";
-import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
-import "package:cake_wallet/view_model/settings/choices_list_item.dart";
-import "package:cw_core/receive_page_option.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/locales/locale.dart";
+import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
+import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
+import "package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart";
+import "package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/themes/core/theme_store.dart";
+import "package:cake_wallet/themes/theme_classes/black_theme.dart";
+import "package:cake_wallet/themes/theme_classes/dark_theme.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
+import "package:cake_wallet/view_model/settings/choices_list_item.dart";
+import "package:cake_wallet/view_model/settings/display_settings_view_model.dart";
+import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/card_design.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:mobx/mobx.dart" show ObservableList, ObservableMap;
-import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
-import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
-import "package:cake_wallet/themes/core/theme_store.dart";
-import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
-import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mobx/mobx.dart" show ObservableList, ObservableMap;
 import "package:mocktail/mocktail.dart";
 
 import "../../utils/semantics_helpers.dart";
@@ -157,19 +159,10 @@ void main() {
       final progress = one(tester, "pin_code_progress_key");
       expect(progress, isSemantics(label: "2 of 4 digits entered", isLiveRegion: true));
       expect(progress.value, isEmpty);
-      final texts = <String>[];
-      void visit(SemanticsNode node) {
-        texts
-          ..add(node.label)
-          ..add(node.value);
-        node.visitChildren((child) {
-          visit(child);
-          return true;
-        });
-      }
-
-      visit(tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!);
-      expect(texts.where((text) => text.contains("73")), isEmpty);
+      expect(
+        find.semantics.byPredicate((node) => "${node.label}${node.value}".contains("73")),
+        findsNothing,
+      );
       expect(one(tester, "pin_code_button_7_key"), isSemantics(label: "7", isButton: true));
       expect(one(tester, "pin_code_button_0_key"), isSemantics(label: "0", isButton: true));
       expect(
@@ -250,7 +243,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         wrap(
-          BalanceCard(
+          const BalanceCard(
             width: 300,
             design: CardDesign.genericDefault,
             balance: "1.5",
@@ -401,6 +394,48 @@ void main() {
         isSemantics(label: "Black Theme (Cake Primary)", isSelected: false),
       );
       expect(find.bySemanticsLabel(RegExp("Instance of")), findsNothing);
+      handle.dispose();
+    });
+  });
+
+  group("alert actions", () {
+    testWidgets("one- and two-action alerts expose button nodes", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          AlertWithOneAction(
+            alertTitle: "Title",
+            alertContent: "Content",
+            buttonText: "OK",
+            buttonAction: () {},
+          ),
+        ),
+      );
+      expect(
+        one(tester, "alert_dialog_action_button_key"),
+        isSemantics(label: "OK", isButton: true, hasTapAction: true),
+      );
+
+      await tester.pumpWidget(
+        wrap(
+          AlertWithTwoActions(
+            alertTitle: "Title",
+            alertContent: "Content",
+            leftButtonText: "Cancel",
+            rightButtonText: "Confirm",
+            actionLeftButton: () {},
+            actionRightButton: () {},
+          ),
+        ),
+      );
+      expect(
+        one(tester, "alert_dialog_left_button_key"),
+        isSemantics(label: "Cancel", isButton: true, hasTapAction: true),
+      );
+      expect(
+        one(tester, "alert_dialog_right_button_key"),
+        isSemantics(label: "Confirm", isButton: true, hasTapAction: true),
+      );
       handle.dispose();
     });
   });
