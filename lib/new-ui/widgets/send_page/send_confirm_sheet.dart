@@ -142,6 +142,7 @@ class SendTransactionDetails extends StatelessWidget {
             mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min,
             children: [
               ModalTopBar(
+                testId: "send_confirm_sheet_top_bar",
                 title: "",
                 leadingWidget: Row(
                   spacing: 8,

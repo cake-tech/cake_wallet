@@ -147,6 +147,7 @@ class _ScanPageState extends State<ScanPage> {
             child: Column(
               children: [
                 ModalTopBar(
+                  testId: "scan_page_top_bar",
                   title: "",
                   trailingWidget: AnimatedOpacity(
                     duration: textModeSwitchDuration,

@@ -66,6 +66,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
               child: Column(
                 children: [
                   ModalTopBar(
+                    testId: "transaction_details_modal_top_bar",
                     title: S.of(context).transaction,
                     leadingIcon: const Icon(Icons.close),
                     leadingSemanticLabel: S.of(context).close,

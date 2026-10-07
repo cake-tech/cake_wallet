@@ -164,6 +164,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ModalTopBar(
+              testId: "receive_page_top_bar",
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,

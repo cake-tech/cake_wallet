@@ -365,6 +365,7 @@ class _NewSendPageState extends State<NewSendPage> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       ModalTopBar(
+                        testId: "send_page_top_bar",
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
@@ -1360,6 +1361,7 @@ class SendHelpPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ModalTopBar(
+              testId: "send_help_page_top_bar",
               title: content.title,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

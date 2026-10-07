@@ -137,6 +137,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ModalTopBar(
+                        testId: "card_customizer_top_bar",
                         title: editEnabled ? S.of(context).edit_account : S.of(context).edit_card,
                         leadingIcon: Icon(Icons.close),
                         leadingSemanticLabel: S.of(context).close,

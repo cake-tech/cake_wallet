@@ -51,6 +51,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
                 child: Column(
                   children: [
                     ModalTopBar(
+                      testId: "sync_key_images_sheet_top_bar",
                       title: S.of(context).resync_device,
                       leadingIcon: Icon(
                         Icons.close,

@@ -27,6 +27,7 @@ class HistoryFiltersPage extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "history_filters_page_top_bar",
               title: S.of(context).filters,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

@@ -71,6 +71,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
             shrinkWrap: true,
             children: [
               ModalTopBar(
+                  testId: "receive_address_type_selector_top_bar",
                   title: S.of(context).address_type,
                   leadingIcon: Icon(Icons.close),
                   leadingSemanticLabel: S.of(context).close,

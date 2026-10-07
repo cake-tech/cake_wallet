@@ -36,6 +36,7 @@ class ChartModal extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalTopBar(
+                  testId: "chart_modal_top_bar",
                   title: "",
                   onLeadingPressed: Navigator.of(context).pop,
                   leadingIcon: const Icon(Icons.close),

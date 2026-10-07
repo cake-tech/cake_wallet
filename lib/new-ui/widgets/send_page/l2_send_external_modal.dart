@@ -60,6 +60,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
+            testId: "l2_send_external_modal_top_bar",
             title: "",
             leadingWidget: Row(
               spacing: 12,

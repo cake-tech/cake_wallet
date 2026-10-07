@@ -78,6 +78,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
+                testId: "swap_address_selection_modal_top_bar",
                 title: widget.isSelectingReceiver
                     ? "${S.of(context).receive_to}..."
                     : "${S.of(context).send_from}...",

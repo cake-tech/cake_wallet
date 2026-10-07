@@ -44,6 +44,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           child: Column(
             children: [
               ModalTopBar(
+                testId: "buy_sell_provider_page_top_bar",
                 title: _pageTitle,
                 leadingIcon: const Icon(Icons.arrow_back_ios_new),
                 onLeadingPressed: Navigator.of(context).pop,

@@ -592,6 +592,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "swap_page_top_bar",
               title:
                   fromSend != null ? S.of(context).swap_from_network(fromName) : S.of(context).swap,
               leadingIcon: Icon(fromSend != null ? Icons.arrow_back_ios_new : Icons.close),
