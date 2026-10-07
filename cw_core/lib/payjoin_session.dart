@@ -61,9 +61,6 @@ class PayjoinSession extends HiveObject {
   // @HiveField(11)
   String? recipientAddress;
 
-  // @HiveField(12)
-  DateTime? expiresAt;
-
   bool get isSenderSession => sender != null;
 
   BigInt get amount => BigInt.parse(rawAmount ?? "0");
