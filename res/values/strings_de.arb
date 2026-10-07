@@ -210,6 +210,8 @@
   "change_wallet_alert_content": "Möchten Sie zur Wallet ${wallet_name} wechseln?",
   "change_wallet_alert_title": "Aktuelles Wallet ändern",
   "charts": "Diagramme",
+  "charts_unavailable": "Diagramme nicht verfügbar",
+  "charts_unavailable_desc": "Bitte aktivieren Sie die Fiat-API in den Einstellungen.",
   "check_receiver_forms": "Bitte überprüfen Sie die Empfängerangaben",
   "choose_a_payment_method": "Wählen Sie eine Zahlungsmethode",
   "choose_a_provider": "Anbieter auswählen",
