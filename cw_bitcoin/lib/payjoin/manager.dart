@@ -266,10 +266,23 @@ class PayjoinManager {
           final utxos = _wallet.getUtxoWithPrivateKeys();
           final finalizedPsbt = await _wallet.signPsbt(psbt, utxos);
           final txId = getTxIdFromPsbtV0(finalizedPsbt);
-          await _wallet.commitPsbt(finalizedPsbt);
+          try {
+            await _wallet.commitPsbt(finalizedPsbt);
+            writePayjoinLog(
+                "Sender($pjUri) retry broadcast succeeded: $txId");
+          } catch (e) {
+            // Re-broadcast of an already-known tx errors — the common case
+            // here (prior run broadcast before the wallet closed). Confirm
+            // the tx is actually on chain before claiming success; otherwise
+            // fall through to the outer catch so the session stays
+            // inProgress and retries on the next resume.
+            writePayjoinLog(
+                "[WARNING] Sender($pjUri) retry broadcast failed: $e");
+            await _wallet.electrumClient.getTransactionHex(hash: txId);
+            writePayjoinLog(
+                "Sender($pjUri) tx $txId already on chain — marking complete");
+          }
           await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
-          writePayjoinLog(
-              "Sender($pjUri) retry broadcast succeeded: $txId");
         } catch (e) {
           writePayjoinLog(
               "[WARNING] Sender($pjUri) retry broadcast failed: $e");
