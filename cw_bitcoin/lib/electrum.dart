@@ -139,6 +139,14 @@ class ElectrumClient {
       cancelOnError: true,
     );
 
+    // ElectrumX 2.0.0+ (e.g. electrum1.cipig.net) rejects and closes any
+    // connection whose first request isn't server.version, which is what made
+    // every other call fail with "use server.version to identify client".
+    // Handshake before the keepalive ping and any wallet subscriptions.
+    try {
+      await callWithTimeout(method: "server.version", params: ["", "1.4"]);
+    } catch (_) {}
+
     keepAlive();
   }
 
