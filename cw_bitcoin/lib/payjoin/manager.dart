@@ -214,6 +214,15 @@ class PayjoinManager {
       await _eventStore.ensureOpen();
       final events = _eventStore.loadSender(pjUri);
       if (events.isEmpty) {
+        // Mirror the receiver path: without an event log the protocol state
+        // is gone (e.g. pre-upgrade session), so the session can never
+        // progress — mark it unrecoverable instead of leaving it pending.
+        // Sessions with a stored original PSBT keep their fallback-broadcast
+        // affordance (readAllOpenSessions keeps them open).
+        await _payjoinStorage.markSenderSessionUnrecoverable(
+          pjUri,
+          'Stale session from previous version',
+        );
         return;
       }
 
