@@ -132,6 +132,7 @@ class Routes {
   static const devNetworkRequests = '/dev/network_requests';
   static const devQRTools = '/dev/qr_tools';
   static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
+  static const devRunWithWalletPlayground = '/dev/run_with_wallet_playground';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';

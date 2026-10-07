@@ -716,6 +716,414 @@ void main() {
     });
   });
 
+  group("hold", () {
+    test("keeps the resource open until released, and release waits for the close", () async {
+      final h = _Harness(gateDisposes: true);
+
+      final hold = await h.manager.hold(_Key("a"));
+      final fromTask = await h.manager.runWithResource(_Key("a"), (r) async => r);
+      await pump();
+
+      expect(fromTask, same(hold.resource));
+      expect(hold.resource.disposeCalls, 0, reason: "the task leaving must not close a held resource");
+
+      var released = false;
+      final releasing = hold.release().then((_) => released = true);
+      await pump();
+      expect(released, isFalse, reason: "still closing");
+
+      hold.resource.disposeGate!.complete();
+      await releasing;
+      h.expectFullyDrained();
+    });
+
+    test("joins a task's in-flight load", () async {
+      final h = _Harness(gateLoads: true);
+      final gate = Completer<void>();
+      _Res? fromTask;
+
+      final task = h.manager.runWithResource<void>(_Key("a"), (r) async {
+        fromTask = r;
+        r.use();
+        await gate.future;
+      });
+      final holding = h.manager.hold(_Key("a"));
+      await pump();
+
+      expect(h.loadCount, 1);
+
+      h.completeLoad(_Key("a"));
+      final hold = await holding;
+      gate.complete();
+      await task;
+      await pump();
+
+      expect(hold.resource, same(fromTask));
+      expect(hold.resource.disposeCalls, 0, reason: "still held after the task left");
+
+      await hold.release();
+      h.expectFullyDrained();
+    });
+
+    test("releasing while a task is inside defers the close to that task", () async {
+      final h = _Harness();
+      final gate = Completer<void>();
+
+      final hold = await h.manager.hold(_Key("a"));
+      final task = h.manager.runWithResource<void>(_Key("a"), (r) async {
+        r.use();
+        await gate.future;
+        r.use();
+      });
+      await pump();
+
+      await hold.release();
+      await hold.release();
+      expect(
+        hold.resource.disposeCalls,
+        0,
+        reason: "the task is still inside, and the extra release must not steal its reference",
+      );
+
+      gate.complete();
+      await task;
+      await pump();
+      h.expectFullyDrained();
+    });
+
+    test("holds are independent: releasing one twice can't drop another", () async {
+      final h = _Harness();
+
+      final first = await h.manager.hold(_Key("a"));
+      final second = await h.manager.hold(_Key("a"));
+      expect(second.resource, same(first.resource));
+      expect(h.loadCount, 1);
+
+      await first.release();
+      await first.release();
+      await pump();
+      expect(second.resource.disposeCalls, 0, reason: "the second hold is still out");
+
+      await second.release();
+      h.expectFullyDrained();
+    });
+
+    test("parallel holds share one load, and each holds its own reference", () async {
+      final h = _Harness(gateLoads: true);
+
+      final calls = List<Future<ResourceHold<_Res>>>.generate(3, (_) => h.manager.hold(_Key("a")));
+      await pump();
+      expect(h.loadCount, 1);
+
+      h.completeLoad(_Key("a"));
+      final holds = await Future.wait(calls);
+      expect(holds.every((hold) => identical(hold.resource, h.created.single)), isTrue);
+
+      await holds[0].release();
+      await holds[1].release();
+      expect(h.created.single.disposeCalls, 0, reason: "one hold is still out");
+
+      await holds[2].release();
+      h.expectFullyDrained();
+    });
+
+    for (final failure in _LoadFailure.values) {
+      test("a hold whose load fails (${failure.name}) holds nothing and the next one retries",
+          () async {
+        final h = _Harness();
+        h.failNextLoad(failure);
+
+        await expectLater(h.manager.hold(_Key("a")), throwsA(isA<StateError>()));
+        await pump();
+
+        final hold = await h.manager.hold(_Key("a"));
+        hold.resource.use();
+        expect(h.loadCount, 2);
+
+        await hold.release();
+        h.expectFullyDrained();
+      });
+    }
+
+    test("holding during a close waits for it, then loads a fresh resource", () async {
+      final h = _Harness(gateDisposes: true);
+
+      final first = await h.manager.hold(_Key("a"));
+      final releasing = first.release();
+      await pump();
+      expect(first.resource.disposeCalls, 1, reason: "closing is in flight");
+
+      final pending = h.manager.hold(_Key("a"));
+      await pump();
+      expect(h.loadCount, 1, reason: "must not reload while the old resource is still closing");
+
+      first.resource.disposeGate!.complete();
+      await releasing;
+      final second = await pending;
+
+      expect(h.loadCount, 2);
+      expect(second.resource, isNot(same(first.resource)));
+      expect(h.maxLive["a"], 1, reason: "the two generations must never overlap");
+
+      final releasingSecond = second.release();
+      second.resource.disposeGate!.complete();
+      await releasingSecond;
+      h.expectFullyDrained();
+    });
+
+    test("switching: hold the next key, then release the previous one", () async {
+      final h = _Harness();
+      final gate = Completer<void>();
+
+      final a = await h.manager.hold(_Key("a"));
+      final taskOnA = h.manager.runWithResource<void>(_Key("a"), (r) async {
+        r.use();
+        await gate.future;
+        r.use();
+      });
+      await pump();
+
+      final b = await h.manager.hold(_Key("b"));
+      await a.release();
+
+      expect(a.resource.disposeCalls, 0, reason: "a task on the old key is still running");
+      expect(b.resource.disposeCalls, 0);
+
+      gate.complete();
+      await taskOnA;
+      await pump();
+
+      expect(a.resource.disposeCalls, 1);
+      expect(b.resource.disposeCalls, 0, reason: "the new key is still held");
+
+      await b.release();
+      h.expectFullyDrained();
+    });
+
+    test("load replaces the loader when the key isn't open", () async {
+      final h = _Harness();
+      final adopted = h._create(_Key("a"));
+
+      final hold = await h.manager.hold(_Key("a"), load: () async => adopted);
+      final fromTask = await h.manager.runWithResource(_Key("a"), (r) async => r);
+
+      expect(hold.resource, same(adopted));
+      expect(fromTask, same(adopted));
+      expect(h.loadCount, 0, reason: "the manager's own loader must not run");
+
+      await hold.release();
+      h.expectFullyDrained();
+    });
+
+    test("load is ignored when the key is already open", () async {
+      final h = _Harness();
+      var called = false;
+
+      final first = await h.manager.hold(_Key("a"));
+      final second = await h.manager.hold(_Key("a"), load: () async {
+        called = true;
+        return h._create(_Key("a"));
+      });
+
+      expect(second.resource, same(first.resource));
+      expect(called, isFalse);
+
+      await first.release();
+      await second.release();
+      h.expectFullyDrained();
+    });
+
+    test("a failing load holds nothing and the next hold uses the loader", () async {
+      final h = _Harness();
+
+      await expectLater(
+        h.manager.hold(_Key("a"), load: () async => throw StateError("async")),
+        throwsA(isA<StateError>()),
+      );
+      await expectLater(
+        h.manager.hold(_Key("a"), load: () => throw StateError("sync")),
+        throwsA(isA<StateError>()),
+      );
+      await pump();
+
+      final hold = await h.manager.hold(_Key("a"));
+      hold.resource.use();
+      expect(h.loadCount, 1);
+
+      await hold.release();
+      h.expectFullyDrained();
+    });
+
+    test("a held key can't be taken exclusively", () async {
+      final h = _Harness();
+      final hold = await h.manager.hold(_Key("a"));
+
+      await expectLater(
+        h.manager.runExclusive(_Key("a"), () async {}),
+        throwsA(isA<ResourceInUseException>()),
+      );
+
+      await hold.release();
+      await h.manager.runExclusive(_Key("a"), () async {});
+      h.expectFullyDrained();
+    });
+  });
+
+  group("exclusive", () {
+    test("runs the task when nothing holds the key", () async {
+      final h = _Harness();
+
+      expect(await h.manager.runExclusive(_Key("a"), () async => "renamed"), "renamed");
+      expect(h.loadCount, 0, reason: "an exclusive task never opens the resource");
+    });
+
+    test("refuses while a task holds the key, and works once it leaves", () async {
+      final h = _Harness();
+      final gate = Completer<void>();
+
+      final task = h.manager.runWithResource<void>(_Key("a"), (r) async {
+        r.use();
+        await gate.future;
+        r.use();
+      });
+      await pump();
+
+      await expectLater(
+        h.manager.runExclusive(_Key("a"), () async {}),
+        throwsA(isA<ResourceInUseException>()),
+      );
+
+      gate.complete();
+      await task;
+      await pump();
+
+      await h.manager.runExclusive(_Key("a"), () async {});
+      h.expectFullyDrained();
+    });
+
+    test("refuses while the key is still loading", () async {
+      final h = _Harness(gateLoads: true);
+
+      final task = h.manager.runWithResource<void>(_Key("a"), (r) async => r.use());
+      await pump();
+
+      await expectLater(
+        h.manager.runExclusive(_Key("a"), () async {}),
+        throwsA(isA<ResourceInUseException>()),
+      );
+
+      h.completeLoad(_Key("a"));
+      await task;
+      await pump();
+      h.expectFullyDrained();
+    });
+
+    test("waits for a close in progress before running", () async {
+      final h = _Harness(gateDisposes: true);
+      await h.manager.runWithResource<void>(_Key("a"), (r) async => r.use());
+      await pump();
+
+      final first = h.created.single;
+      var closedWhenTaskRan = false;
+      final exclusive = h.manager.runExclusive(_Key("a"), () async => closedWhenTaskRan = first.disposed);
+      await pump();
+
+      first.disposeGate!.complete();
+      await exclusive;
+
+      expect(closedWhenTaskRan, isTrue, reason: "the task must not start until the old resource is closed");
+      h.expectFullyDrained();
+    });
+
+    test("callers arriving during the task wait for it, then load fresh", () async {
+      final h = _Harness();
+      final gate = Completer<void>();
+
+      final exclusive = h.manager.runExclusive(_Key("a"), () => gate.future);
+      await pump();
+
+      _Res? fromTask;
+      final task = h.manager.runWithResource<void>(_Key("a"), (r) async => fromTask = r);
+      final holding = h.manager.hold(_Key("a"));
+      final other = h.manager.runWithResource(_Key("b"), (r) async => r.key.id);
+      await pump();
+
+      expect(h.loadedKeys.map((k) => k.id), ["b"], reason: "only the locked key waits");
+      expect(await other, "b");
+
+      gate.complete();
+      await exclusive;
+      final hold = await holding;
+      await task;
+
+      expect(h.loadedKeys.map((k) => k.id), ["b", "a"]);
+      expect(fromTask, same(hold.resource));
+
+      await hold.release();
+      h.expectFullyDrained();
+    });
+
+    test("a caller already waiting on a close does not slip in ahead of the task", () async {
+      final h = _Harness(gateDisposes: true);
+      await h.manager.runWithResource<void>(_Key("a"), (r) async => r.use());
+      await pump();
+
+      final waiting = h.manager.runWithResource<void>(_Key("a"), (r) async => r.use());
+      await pump();
+
+      int? loadsDuringTask;
+      final exclusive = h.manager.runExclusive(_Key("a"), () async {
+        await pump();
+        loadsDuringTask = h.loadCount;
+      });
+      await pump();
+
+      h.created.single.disposeGate!.complete();
+      await exclusive;
+      expect(loadsDuringTask, 1, reason: "nothing may reopen the key while the task runs");
+
+      await waiting;
+      expect(h.loadCount, 2);
+
+      h.created[1].disposeGate!.complete();
+      await pump();
+      h.expectFullyDrained();
+    });
+
+    test("exclusive tasks on the same key run one at a time", () async {
+      final h = _Harness();
+      final gate = Completer<void>();
+      final order = <String>[];
+
+      final first = h.manager.runExclusive(_Key("a"), () async {
+        order.add("first start");
+        await gate.future;
+        order.add("first end");
+      });
+      final second = h.manager.runExclusive(_Key("a"), () async => order.add("second"));
+      await pump();
+
+      expect(order, ["first start"]);
+
+      gate.complete();
+      await Future.wait([first, second]);
+      expect(order, ["first start", "first end", "second"]);
+    });
+
+    test("a failing task still unlocks the key", () async {
+      final h = _Harness();
+
+      await expectLater(
+        h.manager.runExclusive<void>(_Key("a"), () async => throw StateError("rename failed")),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(await h.manager.runWithResource(_Key("a"), (r) async => r.key.id), "a");
+      await pump();
+      h.expectFullyDrained();
+    });
+  });
+
   group("contract gaps", () {
     test("a key that ignores the equality mandate silently defeats sharing", () async {
       final loads = <_IdentityKey>[];
@@ -813,6 +1221,59 @@ void main() {
           expect(
             h.maxLive[key.id],
             1,
+            reason: "two resources for ${key.id} were open at the same time",
+          );
+        }
+        expect(h.created, isNotEmpty);
+        h.expectFullyDrained();
+      });
+
+      test("randomised holds mixed with tasks (seed $seed) never double-load or leak", () async {
+        final rng = Random(seed);
+        final h = _Harness(rng: rng);
+        final keys = [_Key("a"), _Key("b"), _Key("c")];
+        final holds = <ResourceHold<_Res>>[];
+
+        final calls = <Future<void>>[];
+        for (var i = 0; i < 120; i++) {
+          final key = keys[rng.nextInt(keys.length)];
+          final taskDelay = Duration(microseconds: rng.nextInt(1500));
+          final op = rng.nextInt(3);
+          final pick = rng.nextInt(1 << 20);
+
+          calls.add(
+            Future<void>.delayed(
+              Duration(microseconds: rng.nextInt(4000)),
+              () async {
+                switch (op) {
+                  case 0:
+                    final hold = await h.manager.hold(key);
+                    hold.resource.use();
+                    holds.add(hold);
+                  case 1:
+                    if (holds.isNotEmpty) await holds[pick % holds.length].release();
+                  default:
+                    await h.manager.runWithResource<void>(key, (r) async {
+                      expect(r.key, key);
+                      r.use();
+                      await Future<void>.delayed(taskDelay);
+                      r.use();
+                    });
+                }
+              },
+            ),
+          );
+        }
+
+        await Future.wait(calls);
+        await Future.wait(holds.map((hold) => hold.release()));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        await pump(20);
+
+        for (final key in keys) {
+          expect(
+            h.maxLive[key.id] ?? 0,
+            lessThanOrEqualTo(1),
             reason: "two resources for ${key.id} were open at the same time",
           );
         }

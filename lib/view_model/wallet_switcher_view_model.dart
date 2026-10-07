@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -14,12 +13,10 @@ class WalletSwitcherViewModel = WalletSwitcherViewModelBase with _$WalletSwitche
 
 abstract class WalletSwitcherViewModelBase with Store {
   WalletSwitcherViewModelBase({
-    required this.appStore,
-    required this.walletLoadingService,
+    required this.walletPoolService,
   });
 
-  final AppStore appStore;
-  final WalletLoadingService walletLoadingService;
+  final WalletPoolService walletPoolService;
 
   @observable
   WalletInfo? selectedWallet;
@@ -44,9 +41,7 @@ abstract class WalletSwitcherViewModelBase with Store {
     try {
       isProcessing = true;
 
-      final wallet = await walletLoadingService.load(selectedWallet!.type, selectedWallet!.name);
-
-      await appStore.changeCurrentWallet(wallet);
+      await walletPoolService.switchTo(selectedWallet!.key);
 
       return true;
     } catch (e) {

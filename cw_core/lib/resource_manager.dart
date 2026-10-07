@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cw_core/utils/print_verbose.dart";
 import "package:meta/meta.dart";
 
@@ -19,12 +21,36 @@ abstract class ResourceKey {
   int get hashCode;
 }
 
+class ResourceInUseException implements Exception {
+  ResourceInUseException(this.key);
+
+  final ResourceKey key;
+
+  @override
+  String toString() => "$key is in use. Try again in a moment.";
+}
+
+class ResourceHold<R> {
+  ResourceHold._(this.resource, this._onRelease);
+
+  final R resource;
+  Future<void> Function()? _onRelease;
+
+  Future<void> release() async {
+    final onRelease = _onRelease;
+    _onRelease = null;
+    await onRelease?.call();
+  }
+}
+
 class ResourceManager<K extends ResourceKey, R extends Resource<K>> {
   ResourceManager({required Future<R> Function(K) loader}) : _loader = loader;
 
   final Future<R> Function(K) _loader;
 
   final Map<K, _ResourceState<R>> _states = {};
+
+  final Map<K, Future<void>> _locks = {};
 
   Future<T> runWithResource<T>(K key, Future<T> Function(R) task) async {
     final state = await _get(key);
@@ -37,17 +63,54 @@ class ResourceManager<K extends ResourceKey, R extends Resource<K>> {
     }
   }
 
-  Future<_ResourceState<R>> _get(K key) async {
+  Future<ResourceHold<R>> hold(K key, {Future<R> Function()? load}) async {
+    final state = await _get(key, load);
+
+    try {
+      return ResourceHold._(await state.createFuture, () async {
+        _release(key);
+        await _states[key]?.disposeFuture;
+      });
+    } catch (_) {
+      _release(key);
+      rethrow;
+    }
+  }
+
+  // avoid this unless you're 100% sure it's needed, generally used for stuff that will result in the resource not existing later (ex. deleting a wallet)
+  Future<T> runExclusive<T>(K key, Future<T> Function() task) async {
+    while (_locks[key] != null) {
+      await _locks[key];
+    }
+
+    final state = _states[key];
+    if (state != null && state.refCount > 0) {
+      throw ResourceInUseException(key);
+    }
+
+    final lock = Completer<void>();
+    _locks[key] = lock.future;
+
+    try {
+      await state?.disposeFuture;
+      return await task();
+    } finally {
+      _locks.remove(key);
+      lock.complete();
+    }
+  }
+
+  Future<_ResourceState<R>> _get(K key, [Future<R> Function()? load]) async {
     _ResourceState<R>? state = _states[key];
 
-    if (state != null && state.disposeFuture != null) {
-      await state.disposeFuture;
+    while (_locks[key] != null || state?.disposeFuture != null) {
+      await (_locks[key] ?? state!.disposeFuture);
 
       state = _states[key];
     }
 
     if (state == null) {
-      state = _ResourceState(_loader(key));
+      state = _ResourceState(load?.call() ?? _loader(key));
       _states[key] = state;
     }
 

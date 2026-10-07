@@ -32,6 +32,7 @@ abstract class AppStoreBase with Store {
       (_) => settingsStore.displayAmountsInSatoshi,
       (value) => _amountParsingProxy = AmountParsingProxy(value),
     );
+    reaction((_) => wallet, _onWalletChanged);
   }
 
   AuthenticationStore authenticationStore;
@@ -54,15 +55,18 @@ abstract class AppStoreBase with Store {
   @computed
   AmountParsingProxy get amountParsingProxy => _amountParsingProxy;
 
-  @action
-  Future<void> changeCurrentWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
-    final changingToSameWalletType = this.wallet?.type == wallet.type;
-    final previousWalletType = this.wallet?.type;
+  WalletType? _lastWalletType;
 
-    await this.wallet?.close(shouldCleanup: !changingToSameWalletType);
-    this.wallet = wallet;
-    this.wallet!.setExceptionHandler(ExceptionHandler.onError);
+  Future<void> _onWalletChanged(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet,) async {
+    if (wallet == null) {
+      return;
+    }
+
+    final previousWalletType = _lastWalletType;
+    _lastWalletType = wallet.type;
+
+    wallet.setExceptionHandler(ExceptionHandler.onError);
 
     if (isWalletConnectCompatibleChain(wallet.type)) {
       getIt.get<WalletKitService>().resetConnectionsState();

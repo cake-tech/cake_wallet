@@ -3,7 +3,7 @@ import "package:cake_wallet/core/anypay/anypay_parser.dart";
 import "package:cake_wallet/core/anypay/anypay_resolver.dart";
 import "package:cake_wallet/core/anypay/anypay_router.dart";
 import "package:cake_wallet/evm/evm.dart";
-import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/solana/solana.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -19,12 +19,12 @@ import "package:cw_core/wallet_type.dart";
 class AnyPayService {
   AnyPayService({
     required this.appStore,
-    required this.walletSwitchService,
+    required this.walletPoolService,
     AnyPayResolver? resolver,
   }) : resolver = resolver ?? AnyPayResolver();
 
   final AppStore appStore;
-  final WalletSwitchService walletSwitchService;
+  final WalletPoolService walletPoolService;
   final AnyPayResolver resolver;
 
   Future<AnyPayEvaluation> evaluateRawInput(String input) => _evaluate(AnyPayParser.fromRaw(input));
@@ -112,7 +112,7 @@ class AnyPayService {
 
   Future<bool> switchWalletForPayment(WalletInfo walletInfo, {int? chainId}) async {
     try {
-      await walletSwitchService.switchToWallet(walletInfo);
+      await walletPoolService.switchTo(walletInfo.key);
     } catch (e) {
       printV("wallet switch failed: $e");
       return false;

@@ -6,6 +6,7 @@ import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -136,7 +137,7 @@ abstract class WalletCreationVMBase with Store {
       credentials.walletInfo!.address = wallet.walletAddresses.address;
       await credentials.walletInfo!.save();
       await wallet.save();
-      await _appStore.changeCurrentWallet(wallet);
+      await getIt.get<WalletPoolService>().switchTo(wallet.key, load: () async => wallet);
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {

@@ -404,6 +404,9 @@ class WalletKey extends ResourceKey {
 
   @override
   int get hashCode => name.hashCode ^ type.hashCode;
+
+  @override
+  String toString() => "$name (${walletTypeToString(type)})";
 }
 
 class WalletInfo {
