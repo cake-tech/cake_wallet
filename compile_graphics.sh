@@ -9,9 +9,6 @@
 src="res/pictures"
 dst="assets/new-ui"
 
-# --input-dir is recursive and writes every svg to out-dir/<basename>.vec, so
-# passing a dir with subfolders flattens them and same-named files overwrite
-# each other. compile only each dir's own svgs, via a temp copy.
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
