@@ -232,7 +232,7 @@ extension PsbtSigner on PsbtV2 {
             final amount = witnessUtxo.$1;
             final scriptPubKey = witnessUtxo.$2;
             taprootAmounts.add(BigintUtils.fromBytes(amount.toList(), byteOrder: Endian.little));
-            taprootScripts.add(Script(script: scriptPubKey.toList()));
+            taprootScripts.add(Script.fromRaw(byteData: scriptPubKey));
           } else {
             throw Exception("Missing witness UTXO for P2TR input $i");
           }
