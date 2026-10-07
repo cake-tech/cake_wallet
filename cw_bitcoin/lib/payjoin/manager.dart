@@ -600,9 +600,18 @@ class PayjoinManager {
     final persister = PayjoinReceiverPersister(_eventStore.box, endpoint);
     if (persister.load().isEmpty) return;
 
+    // Same UTXO policy as spawnReceiver: confirmed-only (with a rescan
+    // fallback), shuffled so the input choice can't mirror wallet scan order.
+    var utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
+    if (utxos.isEmpty) {
+      await _wallet.updateAllUnspents();
+      utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
+    }
+    utxos.shuffle(Random.secure());
+
     final worker = PayjoinReceiverWorker(
       mailroomManager: _mailroomManager,
-      utxos: _wallet.getUtxoWithPrivateKeys(),
+      utxos: utxos,
       isMineChecker: (scriptBytes) {
         final script = Script.fromRaw(byteData: scriptBytes);
         return _wallet.isMine(script);
