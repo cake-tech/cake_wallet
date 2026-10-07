@@ -102,7 +102,7 @@ class BaseTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TestId.container(hintText?.isNotEmpty == true ? testId ?? TestId.fromKey(key) : null, child: TextFormField(
+    return TestId.container(testId ?? TestId.fromKey(key), child: TextFormField(
       enableIMEPersonalizedLearning: enableIMEPersonalizedLearning ?? true,
       cursorColor: cursorColor,
       cursorWidth: cursorWidth ?? 2.0,

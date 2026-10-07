@@ -352,12 +352,12 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets("a field without any accessible name is left unwrapped", (tester) async {
+    testWidgets("a field without a hint still carries the identifier", (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         wrap(BaseTextFormField(key: const ValueKey("nameless_textfield_key"))),
       );
-      expect(find.bySemanticsIdentifier("nameless_textfield_key"), findsNothing);
+      expect(platformNodesWithId(tester, "nameless_textfield_key").single, isSemantics(isTextField: true));
       handle.dispose();
     });
   });
