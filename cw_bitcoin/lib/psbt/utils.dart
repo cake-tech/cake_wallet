@@ -11,8 +11,13 @@ import 'package:ledger_bitcoin/src/utils/uint8list_extension.dart';
 String getTxIdFromPsbtV0(String psbt) {
   final psbtV2 = PsbtV2()..deserializeV0(base64.decode(psbt));
 
+  // Txid is the hash of the stripped (non-witness) serialization
+  // (BIP141). Passing getSegwit: false also skips the BIP144 marker,
+  // which extractUnsignedTX would emit without a witness section —
+  // BtcTransaction.fromRaw then misparses the trailing locktime bytes
+  // as witness varints and throws a RangeError on larger txs.
   return BtcTransaction.fromRaw(
-    BytesUtils.toHexString(psbtV2.extractUnsignedTX()),
+    BytesUtils.toHexString(psbtV2.extractUnsignedTX(getSegwit: false)),
   ).txId();
 }
 
