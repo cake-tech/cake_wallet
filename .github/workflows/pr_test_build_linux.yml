@@ -337,3 +337,7 @@ jobs:
       - name: Test [cw_monero]
         timeout-minutes: 15
         run: cd cw_monero && flutter test
+
+      - name: Test [cw_tron]
+        timeout-minutes: 15
+        run: cd cw_tron && flutter test

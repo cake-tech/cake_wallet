@@ -61,6 +61,6 @@ if (usdt != null) {
 
 ### Additional information
 
-- Transaction history is fetched through `TronTransactionsApi`. `TronGridApi` (sends `tronGridApiKey`) and `TronScanApi` (sends `tronScanApiKey` when set) implement it; `TronClient` asks TronGrid and retries a failed request through TronScan.
+- Transaction history is fetched through `TronTransactionsApi`. `TronGridApi` (sends `tronGridApiKey`) and `TronScanApi` (sends `tronScanApiKey` when set) implement it; `TronClient` asks TronScan and retries a failed request through TronGrid.
 - Balances, token metadata and fee estimation go through the connected node.
 - See `lib/` for APIs: `TronClient`, `TronWallet`, `TronWalletService`, and credential types.

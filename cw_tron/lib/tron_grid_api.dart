@@ -50,12 +50,6 @@ class TronGridApi implements TronTransactionsApi {
       throw Exception("TronGrid $path failed: ${response.statusCode} ${response.reasonPhrase}");
     }
 
-    final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
-
-    if (jsonResponse["status"] == false) {
-      throw Exception("TronGrid $path returned status false");
-    }
-
-    return jsonResponse;
+    return json.decode(response.body) as Map<String, dynamic>;
   }
 }

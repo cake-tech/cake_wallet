@@ -23,8 +23,8 @@ import 'package:on_chain/on_chain.dart';
 
 class TronClient {
   TronClient({TronTransactionsApi? transactionsApi, TronTransactionsApi? fallbackTransactionsApi})
-      : _transactionsApi = transactionsApi ?? TronGridApi(),
-        _fallbackTransactionsApi = fallbackTransactionsApi ?? TronScanApi();
+      : _transactionsApi = transactionsApi ?? TronScanApi(),
+        _fallbackTransactionsApi = fallbackTransactionsApi ?? TronGridApi();
 
   final TronTransactionsApi _transactionsApi;
   final TronTransactionsApi _fallbackTransactionsApi;
