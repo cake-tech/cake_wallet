@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
@@ -11,12 +12,14 @@ class CoinActionButton extends StatelessWidget {
     required this.action,
     super.key,
     this.gradientColors,
+    this.testId,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback action;
   final List<Color>? gradientColors;
+  final String? testId;
 
   static const sizeFactor = 0.16;
 
@@ -29,6 +32,7 @@ class CoinActionButton extends StatelessWidget {
     // from the semantics tree to keep this a single button node.
     return MergeSemantics(
       child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
         button: true,
         label: label,
         child: Column(

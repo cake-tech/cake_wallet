@@ -5,6 +5,7 @@ class ListItemTextField extends ListItem {
   const ListItemTextField(
       {required super.keyValue,
       required super.label,
+      super.testId,
       this.initialValue,
       this.validator,
       this.onChanged,

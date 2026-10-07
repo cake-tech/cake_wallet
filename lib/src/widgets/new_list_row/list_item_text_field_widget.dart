@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ListItemTextFieldWidget extends StatefulWidget {
@@ -13,6 +14,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
     this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -24,6 +26,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
@@ -33,6 +36,7 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+        testId: widget.testId ?? TestId.fromKey(widget.key),
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         height: 50,

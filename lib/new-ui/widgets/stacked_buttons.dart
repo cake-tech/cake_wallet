@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 
 class StackedButtons extends StatelessWidget {
@@ -34,7 +35,7 @@ class StackedButtons extends StatelessWidget {
           ),
           if (secondaryAsLink) ...[
             const SizedBox(height: 9),
-            TextButton(
+            TestId.merge(TestId.fromKey(secondaryKey), child: TextButton(
               key: secondaryKey,
               onPressed: onSecondary,
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
@@ -45,6 +46,7 @@ class StackedButtons extends StatelessWidget {
                       letterSpacing: -0.07,
                     ),
               ),
+            ),
             ),
           ] else ...[
             const SizedBox(height: 12),

@@ -76,6 +76,7 @@ class NewListSections extends StatelessWidget {
           'Please provide a TextEditingController for this key.');
 
       return ListItemTextFieldWidget(
+        testId: item.testId,
         keyValue: item.keyValue,
         label: item.label,
         controller: controllers[item.keyValue]!,
@@ -90,6 +91,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemRegularRow) {
       return ListItemRegularRowWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -119,6 +121,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemToggle) {
       return ListItemToggleWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -134,6 +137,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemCheckbox) {
       return ListItemCheckboxWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -151,6 +155,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemDropdown) {
       return ListItemDropdownWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -163,6 +168,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemSelector) {
       return ListItemSelectorWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,

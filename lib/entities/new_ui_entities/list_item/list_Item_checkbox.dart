@@ -5,6 +5,7 @@ class ListItemCheckbox extends ListItem {
   const ListItemCheckbox({
     required super.keyValue,
     required super.label,
+    super.testId,
     this.subtitle,
     this.subtitleColor,
     this.iconPath,

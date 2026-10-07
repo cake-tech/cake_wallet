@@ -4,12 +4,14 @@ abstract class ListItem {
   const ListItem({
     required this.keyValue,
     required this.label,
+    this.testId,
     this.isFirstInSection = false,
     this.isLastInSection = false,
   });
 
   final String keyValue;
   final String label;
+  final String? testId;
 
   final bool isFirstInSection;
   final bool isLastInSection;

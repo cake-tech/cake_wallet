@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class AlertButtonStyle {
@@ -127,7 +128,8 @@ class BaseAlertDialog extends StatelessWidget {
       children: <Widget>[
         if (showLeftButton)
           Expanded(
-            child: GestureDetector(
+            child: TestId.merge(TestId.fromKey(leftActionButtonKey) ?? "alert_dialog_left_button_key",
+                child: Semantics(button: true, child: GestureDetector(
                 key: leftActionButtonKey,
                 onTap: actionLeft,
                 child: Container(
@@ -146,9 +148,14 @@ class BaseAlertDialog extends StatelessWidget {
                             fontWeight: leftButtonStyle.fontWeight)),
                   ),
                 )),
+                ),
+                ),
           ),
         Expanded(
-          child: GestureDetector(
+          child: TestId.merge(
+              TestId.fromKey(rightActionButtonKey) ??
+                  (showLeftButton ? "alert_dialog_right_button_key" : "alert_dialog_action_button_key"),
+              child: Semantics(button: true, child: GestureDetector(
               key: rightActionButtonKey,
               onTap: actionRight,
               child: Container(
@@ -167,6 +174,8 @@ class BaseAlertDialog extends StatelessWidget {
                           fontWeight: rightButtonStyle.fontWeight)),
                 ),
               )),
+              ),
+              ),
         ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,6 +19,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.subtitle,
     this.iconPath,
     this.showArrow = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -31,6 +33,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemCheckboxWidget> createState() => _ListItemCheckboxWidgetState();
@@ -40,6 +43,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      testId: widget.testId ?? TestId.fromKey(widget.key),
       iconPath: widget.iconPath,
       onTap: widget.onTap ??
           () {
