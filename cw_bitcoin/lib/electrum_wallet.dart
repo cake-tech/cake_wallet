@@ -2579,8 +2579,12 @@ abstract class ElectrumWalletBase
             info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
           } else {
             info.direction = TransactionDirection.incoming;
-            info.amount = Money(session.amount, info.amount.currency);
-            info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+            // A zero session amount means no proposal was ever processed —
+            // keep the amount derived from the actual transaction.
+            if (session.amount > BigInt.zero) {
+              info.amount = Money(session.amount, info.amount.currency);
+              info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+            }
           }
         }
       }
@@ -2991,14 +2995,18 @@ abstract class ElectrumWalletBase
                   .sessionForTxIdWithBackfill(
                       txid, storedTx.outputAddresses ?? const []);
               if (session != null) {
-                if (session.isSenderSession) {
-                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
-                  storedTx.additionalInfo['pjNetFlow'] = -session.amount.toInt();
-                } else {
-                  storedTx.direction = TransactionDirection.incoming;
+              if (session.isSenderSession) {
+                storedTx.amount = Money(session.amount, storedTx.amount.currency);
+                storedTx.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+              } else {
+                storedTx.direction = TransactionDirection.incoming;
+                // A zero session amount means no proposal was ever processed —
+                // keep the amount derived from the actual transaction.
+                if (session.amount > BigInt.zero) {
                   storedTx.amount = Money(session.amount, storedTx.amount.currency);
                   storedTx.additionalInfo['pjNetFlow'] = session.amount.toInt();
                 }
+              }
                 transactionHistory.addOne(storedTx);
                 didUpdateHistory = true;
               }

@@ -212,6 +212,16 @@ class PayjoinStorage {
       if (session.status == PayjoinSessionStatus.cancelled.name) {
         continue;
       }
+      // Only sessions with evidence of a submitted original payload are
+      // eligible: a plain (non-payjoin) payment to the recipient address
+      // must not be claimed as the session's outcome.
+      final hasProposalEvidence =
+          (session.originalPsbt?.isNotEmpty ?? false) ||
+              (BigInt.tryParse(session.rawAmount ?? '') ?? BigInt.zero) >
+                  BigInt.zero;
+      if (!hasProposalEvidence) {
+        continue;
+      }
       final recipient = session.recipientAddress;
       if (recipient == null || recipient.isEmpty || !addresses.contains(recipient)) {
         continue;
