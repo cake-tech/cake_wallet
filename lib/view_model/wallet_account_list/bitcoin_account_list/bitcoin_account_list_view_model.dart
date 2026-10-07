@@ -83,7 +83,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
         .map((account) => AccountListItem(
               id: account.accountIndex,
               label: account.label,
-              balance: bitcoin!.balanceForAccount(_wallet, account.accountIndex).available,
+              balance: _fullBalance(account.accountIndex),
               isSelected: account.accountIndex == currentAccountIndex,
             ))
         .toList();
@@ -99,9 +99,8 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     });
   }
 
-  @override
-  Money fullBalance(int accountId) {
-    final balance = bitcoin!.balanceForAccount(_wallet, accountId);
+  Money _fullBalance(int accountIndex) {
+    final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
     return balance.confirmed + balance.unconfirmed;
   }
 

@@ -131,7 +131,17 @@ class BalanceCardStyleSettings {
     await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  static Future<void> setVisibleOrder(int walletInfoId, Map<int, int> orderByAccountIndex) async {
+  static Future<void> setVisibleOrder(int walletInfoId, Map<int, int> orderByAccountIndex) =>
+      _setOrder(walletInfoId, orderByAccountIndex, unhide: true);
+
+  static Future<void> setOrder(int walletInfoId, Map<int, int> orderByAccountIndex) =>
+      _setOrder(walletInfoId, orderByAccountIndex, unhide: false);
+
+  static Future<void> _setOrder(
+    int walletInfoId,
+    Map<int, int> orderByAccountIndex, {
+    required bool unhide,
+  }) async {
     if (orderByAccountIndex.isEmpty) {
       return;
     }
@@ -142,7 +152,7 @@ class BalanceCardStyleSettings {
     for (final entry in entries) {
       batch.update(
         tableName,
-        {"cardOrder": entry.value, "hidden": 0},
+        {"cardOrder": entry.value, if (unhide) "hidden": 0},
         where: "walletInfoId = ? AND accountIndex = ?",
         whereArgs: [walletInfoId, entry.key],
       );
@@ -152,7 +162,11 @@ class BalanceCardStyleSettings {
 
     for (int i = 0; i < entries.length; i++) {
       if (updatedRowCounts[i] == 0) {
-        await positionOnly(walletInfoId, entries[i].key, entries[i].value).insert();
+        await db!.insert(
+          tableName,
+          positionOnly(walletInfoId, entries[i].key, entries[i].value).toJson(),
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        );
       }
     }
   }

@@ -15,8 +15,8 @@ import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dar
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/card_design.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
@@ -24,29 +24,29 @@ class CardCustomizer extends StatefulWidget {
   const CardCustomizer({
     required this.cryptoTitle,
     required this.cryptoName,
-    required this.dashboardViewModel,
     this.account,
-    this.accountListViewModel,
+    this.fiatBalance,
     super.key,
   });
 
   final String cryptoTitle;
   final String cryptoName;
-  final DashboardViewModel dashboardViewModel;
   final AccountListItem? account;
-  final WalletAccountListViewModel? accountListViewModel;
+  final String? fiatBalance;
 
-  static Future<void> show({
+  static Future<bool> show({
     required BuildContext context,
     required DashboardViewModel dashboardViewModel,
-    required bool lightningMode,
-    bool asModalSheet = true,
+    required AccountListItem? account,
+    bool lightningMode = false,
+    bool canHide = false,
+    bool asPage = false,
   }) async {
     final bloc = getIt.get<CardCustomizerBloc>(
       param1: CardCustomizerBlocParams(
         lightningMode: lightningMode,
         amountDisplayMode: dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-        canHide: false,
+        canHide: canHide,
       ),
     );
     if (bloc.state is CardCustomizerNotLoaded) {
@@ -54,12 +54,9 @@ class CardCustomizer extends StatefulWidget {
     }
     if (!context.mounted) {
       await bloc.close();
-      return;
+      return false;
     }
-    final accountList = dashboardViewModel.accountListViewModel;
-    final account = !lightningMode && dashboardViewModel.isMultiAccountsEnabled
-        ? accountList?.selectedAccount
-        : null;
+    final balanceViewModel = dashboardViewModel.balanceViewModel;
     final customizer = BlocProvider.value(
       value: bloc,
       child: Material(
@@ -67,34 +64,33 @@ class CardCustomizer extends StatefulWidget {
           cryptoTitle: dashboardViewModel.wallet.currency.fullName ??
               dashboardViewModel.wallet.currency.name,
           cryptoName: dashboardViewModel.wallet.currency.name,
-          dashboardViewModel: dashboardViewModel,
           account: account,
-          accountListViewModel: accountList,
+          fiatBalance: account == null ? null : balanceViewModel.accountFiatBalance(account),
         ),
       ),
     );
 
-    if (asModalSheet) {
-      await CupertinoScaffold.showCupertinoModalBottomSheet(
-        barrierColor: Colors.black.withAlpha(60),
-        context: context,
-        builder: (context) => ModalNavigator(
-          parentContext: context,
-          heightMode: ModalHeightModes.fullScreen,
-          rootPage: customizer,
-        ),
-      );
-    } else {
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => customizer),
-      );
-    }
+    final archived = await (asPage
+        ? Navigator.of(context).push<bool>(CupertinoPageRoute(builder: (_) => customizer))
+        : CupertinoScaffold.showCupertinoModalBottomSheet<bool>(
+            barrierColor: Colors.black.withAlpha(60),
+            context: context,
+            builder: (context) => ModalNavigator(
+              parentContext: context,
+              heightMode: ModalHeightModes.fullScreen,
+              rootPage: customizer,
+            ),
+          ));
 
+    // Save edits before AccountHidden writes the hidden state.
     bloc.add(DesignSaved());
     await bloc.stream.firstWhere((state) => state is CardCustomizerSaved);
+    if (archived == true) {
+      bloc.add(AccountHidden());
+      await bloc.stream.firstWhere((state) => state is CardCustomizerSaved);
+    }
     await bloc.close();
-    await dashboardViewModel.accountListViewModel?.reload();
-    await dashboardViewModel.loadCardDesigns();
+    return archived == true;
   }
 
   @override
@@ -137,7 +133,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
     final account = AccountListItem(
       id: widget.account!.id,
       label: bloc.state.accountName,
-      balance: widget.accountListViewModel!.fullBalance(widget.account!.id),
+      balance: widget.account!.balance,
     );
     final isFunded = account.isFunded;
     final confirmed = await showPopUp<bool>(
@@ -150,8 +146,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
         alertContent: "",
         alertContentTextWidget: ArchiveConfirmationContent(
           account: account,
-          accountListViewModel: widget.accountListViewModel!,
-          dashboardViewModel: widget.dashboardViewModel,
+          fiatBalance: widget.fiatBalance,
           isFunded: isFunded,
         ),
         leftButtonText: S.of(dialogContext).cancel,
@@ -215,11 +210,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                 : state.accountName,
                         accountBalance: widget.account?.balance,
                         balance: _isAccount ? "" : "0.00",
-                        fiatBalance: _isAccount
-                            ? widget.dashboardViewModel.balanceViewModel
-                                    .accountFiatBalance(widget.account!, currencyPrefix: true) ??
-                                ""
-                            : "",
+                        fiatBalance: widget.fiatBalance ?? "",
                         assetName: state.displaySats ? "sats" : widget.cryptoName,
                         capitalizeAssetName: !state.displaySats,
                         design: state.selectedDesign,

@@ -547,7 +547,7 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  String? accountFiatBalance(AccountListItem account, {bool currencyPrefix = false}) {
+  String? accountFiatBalance(AccountListItem account) {
     if (isFiatDisabled) {
       return null;
     }
@@ -559,7 +559,7 @@ abstract class BalanceViewModelBase with Store {
             price: price,
             cryptoAmount: account.balance.toString(),
           ).withLocalSeperator(settingsStore.languageCode);
-    return currencyPrefix ? "$fiat $value" : "$value $fiat";
+    return "$value $fiat";
   }
 
   String _getFiatBalance({required double price, Money? cryptoAmount}) {

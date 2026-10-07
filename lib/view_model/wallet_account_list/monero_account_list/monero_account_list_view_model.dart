@@ -2,7 +2,6 @@ import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart";
-import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
@@ -29,7 +28,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
           .map((acc) => AccountListItem(
               label: acc.label,
               id: acc.id,
-              balance: Money.parse(acc.balance, currency),
+              balance: monero!.getAccountFullBalance(acc.id),
               isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
           .toList();
     }
@@ -41,7 +40,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
           .map((acc) => AccountListItem(
               label: acc.label,
               id: acc.id,
-              balance: Money.parse(acc.balance, currency),
+              balance: wownero!.getAccountFullBalance(acc.id),
               isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
           .toList();
     }
@@ -53,11 +52,6 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
   AccountListItem get selected => accounts.firstWhere((item) => item.isSelected);
 
   final WalletBase _wallet;
-
-  @override
-  Money fullBalance(int accountId) => _wallet.type == WalletType.monero
-      ? monero!.getAccountFullBalance(accountId)
-      : wownero!.getAccountFullBalance(accountId);
 
   @override
   Future<void> reload() async {}

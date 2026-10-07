@@ -11,10 +11,8 @@ import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_provider.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
-import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -27,11 +25,7 @@ class _MockCardCustomizerBloc extends Mock implements CardCustomizerBloc {}
 
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
-class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
-
 class _MockSettingsStore extends Mock implements SettingsStore {}
-
-class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
 
 class _RouteTracker {
   bool completed = false;
@@ -53,8 +47,8 @@ Future<_RouteTracker> _openCustomizer(
   WidgetTester tester,
   CardCustomizerBloc bloc, {
   required DashboardViewModel dashboardViewModel,
-  required MoneroAccountListViewModel accountListViewModel,
   required AccountListItem? account,
+  String fiatBalance = "",
 }) async {
   final tracker = _RouteTracker();
   await tester.pumpWidget(
@@ -78,9 +72,8 @@ Future<_RouteTracker> _openCustomizer(
                       child: CardCustomizer(
                         cryptoTitle: "Monero",
                         cryptoName: "xmr",
-                        dashboardViewModel: dashboardViewModel,
                         account: account,
-                        accountListViewModel: account == null ? null : accountListViewModel,
+                        fiatBalance: fiatBalance,
                       ),
                     ),
                   ),
@@ -106,14 +99,10 @@ Future<_RouteTracker> _openCustomizer(
 void main() {
   late _MockCardCustomizerBloc bloc;
   late _MockDashboardViewModel dashboardViewModel;
-  late _MockAccountListViewModel accountListViewModel;
   late AccountListItem account;
   late StreamController<CardCustomizerState> stateController;
 
   setUpAll(() {
-    registerFallbackValue(
-      AccountListItem(id: -1, label: "fallback", balance: Money.zero(CryptoCurrency.xmr)),
-    );
     getIt.registerSingleton(ThemeStore());
   });
 
@@ -124,10 +113,8 @@ void main() {
   setUp(() {
     bloc = _MockCardCustomizerBloc();
     dashboardViewModel = _MockDashboardViewModel();
-    accountListViewModel = _MockAccountListViewModel();
     account =
         AccountListItem(id: 0, label: "Savings", balance: Money.parse("1.25", CryptoCurrency.xmr));
-    final balanceViewModel = _MockBalanceViewModel();
     final settingsStore = _MockSettingsStore();
     when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
@@ -135,12 +122,6 @@ void main() {
     stateController = StreamController<CardCustomizerState>.broadcast();
     when(() => bloc.stream).thenAnswer((_) => stateController.stream);
     when(() => bloc.canHide).thenReturn(true);
-    when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
-    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
-        .thenReturn("USD 2.50");
-    when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
-    when(() => accountListViewModel.accounts).thenAnswer((_) => [account]);
-    when(() => accountListViewModel.fullBalance(any())).thenAnswer((_) => account.balance);
   });
 
   tearDown(() async {
@@ -153,15 +134,15 @@ void main() {
       tester,
       bloc,
       dashboardViewModel: dashboardViewModel,
-      accountListViewModel: accountListViewModel,
       account: account,
+      fiatBalance: "2.50 USD",
     );
 
     expect(find.text("Edit Account"), findsOneWidget);
     expect(find.text("#1"), findsOneWidget);
     expect(find.text("Unnamed Account"), findsOneWidget);
     expect(find.text("1.25"), findsWidgets);
-    expect(find.text("USD 2.50"), findsOneWidget);
+    expect(find.text("2.50 USD"), findsOneWidget);
     expect(find.text("Account name"), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text("Archive Account"), findsOneWidget);
@@ -202,16 +183,12 @@ void main() {
     account =
         AccountListItem(id: 0, label: "Savings", balance: Money.parse("0", CryptoCurrency.xmr));
     final settingsStore = dashboardViewModel.settingsStore;
-    final balanceViewModel = dashboardViewModel.balanceViewModel;
     when(() => settingsStore.balanceDisplayMode).thenReturn(BalanceDisplayMode.hiddenBalance);
-    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
-        .thenReturn("USD ●●●●●");
     when(() => bloc.state).thenReturn(_accountState("Savings"));
     final tracker = await _openCustomizer(
       tester,
       bloc,
       dashboardViewModel: dashboardViewModel,
-      accountListViewModel: accountListViewModel,
       account: account,
     );
 
@@ -246,7 +223,6 @@ void main() {
       tester,
       bloc,
       dashboardViewModel: dashboardViewModel,
-      accountListViewModel: accountListViewModel,
       account: account,
     );
 
@@ -265,7 +241,6 @@ void main() {
       tester,
       bloc,
       dashboardViewModel: dashboardViewModel,
-      accountListViewModel: accountListViewModel,
       account: null,
     );
 

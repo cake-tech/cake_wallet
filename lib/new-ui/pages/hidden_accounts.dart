@@ -99,8 +99,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
               const SizedBox(height: 20),
               AccountFundsSummary(
                 account: account,
-                accountListViewModel: widget.accountListViewModel,
-                dashboardViewModel: widget.dashboardViewModel,
+                fiatBalance: widget.dashboardViewModel.balanceViewModel.accountFiatBalance(account),
                 borderColor: Theme.of(dialogContext).colorScheme.primary,
               ),
             ],

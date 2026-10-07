@@ -280,8 +280,14 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     await CardCustomizer.show(
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
+      account: !widget.dashboardViewModel.lightningMode &&
+              widget.dashboardViewModel.isMultiAccountsEnabled
+          ? widget.dashboardViewModel.accountListViewModel?.selectedAccount
+          : null,
       lightningMode: widget.dashboardViewModel.lightningMode,
     );
+    await widget.dashboardViewModel.accountListViewModel?.reload();
+    await widget.dashboardViewModel.loadCardDesigns();
   }
 
   void openSeedBackupReminder() {
@@ -313,6 +319,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     );
     await widget.dashboardViewModel.loadCardDesigns();
   }
+
   Future<void> _openAccountsFromPromo() async {
     if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
         widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
@@ -324,8 +331,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   }
 
   bool _checkReadyToManage() {
-    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin &&
-        widget.dashboardViewModel.status is! SyncedSyncStatus) {
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
         context: context,
         builder: (context) => AlertWithOneAction(

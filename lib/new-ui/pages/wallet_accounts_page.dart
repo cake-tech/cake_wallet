@@ -3,7 +3,6 @@ import "dart:math";
 import "dart:ui";
 
 import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
@@ -15,7 +14,6 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/hidden_accounts.dart";
-import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -30,7 +28,6 @@ import "package:cw_core/card_design.dart";
 import "package:cw_core/sync_status.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AccountCustomizerListItem {
@@ -64,7 +61,6 @@ class WalletAccountsPage extends StatefulWidget {
 class _WalletAccountsPageState extends State<WalletAccountsPage> {
   final List<AccountCustomizerListItem> _items = [];
   bool _hasArchivedAccounts = false;
-  int? _accountBeingArchivedId;
   bool _loading = true;
   ReactionDisposer? _accountsReaction;
 
@@ -114,8 +110,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
   @override
   void dispose() {
     _accountsReaction?.call();
-    saveCardOrder(excludingAccountId: _accountBeingArchivedId)
-        .then((value) => widget.dashboardViewModel.loadCardDesigns());
+    saveCardOrder().then((value) => widget.dashboardViewModel.loadCardDesigns());
     super.dispose();
   }
 
@@ -170,9 +165,8 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
           card: BalanceCard(
             accountName: "${account.id + 1}. $accountLabel",
             accountBalance: account.balance,
-            fiatBalance: widget.dashboardViewModel.balanceViewModel
-                    .accountFiatBalance(account, currencyPrefix: true) ??
-                "",
+            fiatBalance:
+                widget.dashboardViewModel.balanceViewModel.accountFiatBalance(account) ?? "",
             designSwitchDuration: Duration.zero,
             assetName: _assetName,
             capitalizeAssetName: _capitalizeAssetName,
@@ -288,8 +282,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       );
 
   bool _checkReadyToManage() {
-    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin &&
-        widget.dashboardViewModel.status is! SyncedSyncStatus) {
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
       showDialog(
         context: context,
         builder: (context) => AlertWithOneAction(
@@ -358,49 +351,14 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     await widget.accountListViewModel.select(account);
     if (!mounted) return;
 
-    final bloc = getIt.get<CardCustomizerBloc>(
-      param1: CardCustomizerBlocParams(
-        lightningMode: false,
-        amountDisplayMode: widget.dashboardViewModel.settingsStore.displayAmountsInSatoshi,
-        canHide: _items.length > 1,
-      ),
+    final archived = await CardCustomizer.show(
+      context: context,
+      dashboardViewModel: widget.dashboardViewModel,
+      account: account,
+      canHide: _items.length > 1,
+      asPage: true,
     );
-
-    if (bloc.state is CardCustomizerNotLoaded) {
-      await bloc.stream.firstWhere((state) => state is! CardCustomizerNotLoaded);
-    }
-    if (!mounted) {
-      await bloc.close();
-      return;
-    }
-    final result = await Navigator.of(context).push<bool>(
-      CupertinoPageRoute(
-        builder: (context) => BlocProvider.value(
-          value: bloc,
-          child: Material(
-            child: CardCustomizer(
-              cryptoTitle: widget.dashboardViewModel.wallet.currency.fullName ??
-                  widget.dashboardViewModel.wallet.currency.name,
-              cryptoName: widget.dashboardViewModel.wallet.currency.name,
-              dashboardViewModel: widget.dashboardViewModel,
-              account: account,
-              accountListViewModel: widget.accountListViewModel,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final hideRequested = result == true;
-    _accountBeingArchivedId = hideRequested ? account.id : null;
-    // Save edits before AccountHidden writes the hidden state.
-    bloc.add(DesignSaved());
-    await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-    if (hideRequested) {
-      bloc.add(AccountHidden());
-      await bloc.stream.firstWhere((item) => item is CardCustomizerSaved);
-    }
-    if (hideRequested && _items.length > 1) {
+    if (archived && _items.length > 1) {
       final nextAccount = _items[_items.length - 2].accountListItem;
       await widget.accountListViewModel.select(
         widget.accountListViewModel.accounts
@@ -408,18 +366,12 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             nextAccount,
       );
     }
-    await bloc.close();
     await widget.accountListViewModel.reload();
     await widget.dashboardViewModel.loadCardDesigns();
     if (!mounted) {
       return;
     }
     await loadCards();
-    if (!mounted) {
-      return;
-    }
-
-    _accountBeingArchivedId = null;
   }
 
   void reorder(int oldIndex, int newIndex) {
@@ -458,24 +410,12 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     }
   }
 
-  Future<void> saveCardOrder({int? excludingAccountId}) async {
+  Future<void> saveCardOrder() async {
     if (!_isMultiAccountsEnabled) return;
-    for (int position = 0; position < _items.length; position++) {
-      final item = _items[position];
-      if (item.accountListItem.id == excludingAccountId) {
-        continue;
-      }
-
-      await BalanceCardStyleSettings.fromCardDesign(
-        walletInfoId: _walletInfoId,
-        accountIndex: item.accountListItem.id,
-        hidden: false,
-        cardOrder: position,
-        design: item.card.design,
-        iconStyleIndex: item.settings?.iconStyleIndex ?? 0,
-        gradientIndexOverride: item.settings?.gradientIndex,
-      ).insert();
-    }
+    await BalanceCardStyleSettings.setOrder(_walletInfoId, {
+      for (int position = 0; position < _items.length; position++)
+        _items[position].accountListItem.id: position,
+    });
   }
 }
 

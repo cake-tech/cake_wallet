@@ -2,6 +2,7 @@ import "package:cake_wallet/monero/monero.dart" as xmr;
 import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
 import "package:cw_core/account.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/transaction_history.dart";
@@ -48,6 +49,9 @@ void main() {
         Account(id: 1, label: "Selected", balance: "2.00000000001"),
       ]),
     );
+    when(() => wowneroAdapter.getAccountFullBalance(0)).thenReturn(Money.zero(CryptoCurrency.wow));
+    when(() => wowneroAdapter.getAccountFullBalance(1))
+        .thenReturn(Money.fromInt(200000000001, CryptoCurrency.wow));
   });
 
   tearDown(() {

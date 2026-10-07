@@ -2,23 +2,18 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
-import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:flutter/material.dart";
-import "package:flutter_mobx/flutter_mobx.dart";
 
 class ArchiveConfirmationContent extends StatelessWidget {
   const ArchiveConfirmationContent({
     required this.account,
-    required this.accountListViewModel,
-    required this.dashboardViewModel,
+    required this.fiatBalance,
     required this.isFunded,
   });
 
   final AccountListItem account;
-  final WalletAccountListViewModel accountListViewModel;
-  final DashboardViewModel dashboardViewModel;
+  final String? fiatBalance;
   final bool isFunded;
 
   @override
@@ -36,8 +31,7 @@ class ArchiveConfirmationContent extends StatelessWidget {
             const SizedBox(height: 20),
             AccountFundsSummary(
               account: account,
-              accountListViewModel: accountListViewModel,
-              dashboardViewModel: dashboardViewModel,
+              fiatBalance: fiatBalance,
               borderColor: context.customColors.warningOutlineColor,
             ),
             const SizedBox(height: 24),
@@ -127,14 +121,12 @@ class AccountSummary extends StatelessWidget {
 class AccountFundsSummary extends StatelessWidget {
   const AccountFundsSummary({
     required this.account,
-    required this.accountListViewModel,
-    required this.dashboardViewModel,
+    required this.fiatBalance,
     required this.borderColor,
   });
 
   final AccountListItem account;
-  final WalletAccountListViewModel accountListViewModel;
-  final DashboardViewModel dashboardViewModel;
+  final String? fiatBalance;
   final Color borderColor;
 
   @override
@@ -149,37 +141,31 @@ class AccountFundsSummary extends StatelessWidget {
         child: Row(
           children: [
             CakeImageWidget(
-              imageUrl: accountListViewModel.currency.iconPath ??
-                  "assets/new-ui/crypto_full_icons/${accountListViewModel.currency.name.toLowerCase()}.svg",
+              imageUrl: account.balance.currency.iconPath ??
+                  "assets/new-ui/crypto_full_icons/${account.balance.currency.name.toLowerCase()}.svg",
               width: 24,
               height: 24,
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Observer(
-                builder: (_) {
-                  final fiatBalance =
-                      dashboardViewModel.balanceViewModel.accountFiatBalance(account);
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MoneyText(
-                        account.balance,
-                        fractionalDigits: account.balance.decimals,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      if (fiatBalance != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          fiatBalance,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ],
-                  );
-                },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  MoneyText(
+                    account.balance,
+                    fractionalDigits: account.balance.decimals,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  if (fiatBalance != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      fiatBalance!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],

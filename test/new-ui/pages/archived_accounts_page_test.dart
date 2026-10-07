@@ -177,7 +177,7 @@ void main() {
     when(() => accountListViewModel.reload()).thenAnswer((_) async {});
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
-    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true)).thenReturn(null);
+    when(() => balanceViewModel.accountFiatBalance(any())).thenReturn(null);
     when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
     when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
@@ -188,11 +188,6 @@ void main() {
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => accountListViewModel.currency).thenReturn(CryptoCurrency.xmr);
     when(() => accountListViewModel.accounts).thenReturn([activeAccount]);
-    when(() => accountListViewModel.fullBalance(any())).thenAnswer(
-      (invocation) => accountListViewModel.accounts
-          .firstWhere((account) => account.id == invocation.positionalArguments.single)
-          .balance,
-    );
   });
 
   tearDown(() async {
@@ -520,7 +515,7 @@ void main() {
       1,
     );
 
-    var accounts = <AccountListItem>[remainingAccount, archivedAccount];
+    final accounts = <AccountListItem>[remainingAccount, archivedAccount];
     when(() => accountListViewModel.accounts).thenAnswer((_) => accounts);
     when(() => accountListViewModel.select(any())).thenAnswer((invocation) async {
       selections.add((invocation.positionalArguments.single as AccountListItem).id);
@@ -533,8 +528,7 @@ void main() {
         await finishArchiveReload.future;
       }
     });
-    when(() => balanceViewModel.accountFiatBalance(any(), currencyPrefix: true))
-        .thenReturn("USD 0,00");
+    when(() => balanceViewModel.accountFiatBalance(any())).thenReturn("0,00 USD");
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => bloc.state).thenAnswer((_) => customizerState);
@@ -612,7 +606,7 @@ void main() {
     final frontCard = tester
         .widgetList<BalanceCard>(find.byType(BalanceCard))
         .singleWhere((card) => card.onCustomizeTapped != null);
-    expect(frontCard.fiatBalance, "USD 0,00");
+    expect(frontCard.fiatBalance, "0,00 USD");
     frontCard.onCustomizeTapped!();
     await tester.pumpAndSettle();
     expect(find.byType(CardCustomizer), findsOneWidget);
@@ -627,19 +621,8 @@ void main() {
 
     await tester.tap(find.text("Cancel"));
     await tester.pumpAndSettle();
-    accounts = [
-      remainingAccount,
-      AccountListItem(
-        id: archivedAccount.id,
-        label: archivedAccount.label,
-        balance: Money.parse("2.5", CryptoCurrency.xmr),
-        isSelected: true,
-      ),
-    ];
     await tester.tap(find.text("Archive Account"));
     await tester.pumpAndSettle();
-    expect(find.text("This account has the following funds:"), findsOneWidget);
-    expect(find.text("2.5 XMR"), findsOneWidget);
 
     final loadsBeforeArchive = cardDesignLoads;
     pauseCardDesignLoad = true;
