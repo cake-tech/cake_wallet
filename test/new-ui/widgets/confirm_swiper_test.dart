@@ -1,18 +1,13 @@
 import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:flutter/material.dart";
-import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
+
+import "../../utils/semantics_helpers.dart";
 
 const _swiperText = "Swipe to send";
 const _buttonText = "Confirm and send";
 
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
-
-/// [ConfirmSwiper] never settles in swiper mode: the shimmering label runs a
-/// repeating animation, so only ever pump single frames here.
 Future<void> _pump(
   WidgetTester tester, {
   required bool accessibleNavigation,
@@ -63,8 +58,8 @@ void main() {
       expect(find.semantics.byLabel(_buttonText), findsOne);
       expect(find.semantics.byLabel(_swiperText), findsNothing);
       expect(
-        _stops(tester).single,
-        containsSemantics(label: _buttonText, isButton: true, hasTapAction: true, isEnabled: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: _buttonText, isButton: true, hasTapAction: true, isEnabled: true),
       );
     });
 
@@ -73,8 +68,8 @@ void main() {
 
       expect(find.semantics.byLabel(_swiperText), findsOne);
       expect(
-        _stops(tester).single,
-        containsSemantics(label: _swiperText, isButton: true, hasTapAction: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: _swiperText, isButton: true, hasTapAction: true),
       );
     });
 
@@ -99,14 +94,13 @@ void main() {
       await _pump(tester, accessibleNavigation: false);
 
       expect(find.byType(NewPrimaryButton), findsNothing);
-      expect(_stops(tester), hasLength(1));
-      expect(_stops(tester).single.label, _swiperText);
+      expect(screenReaderStops(tester), hasLength(1));
+      expect(screenReaderStops(tester).single.label, _swiperText);
     });
 
     testWidgets("the decorative label and knob are not separate stops", (tester) async {
       await _pump(tester, accessibleNavigation: false);
 
-      // The shimmering caption is painted, but excluded from semantics.
       expect(find.byType(FlowingText), findsOneWidget);
       expect(find.semantics.byPredicate((node) => node.label == _swiperText), findsOne);
     });
@@ -116,8 +110,8 @@ void main() {
       await _pump(tester, accessibleNavigation: false, onConfirmed: () => confirmed++);
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: _swiperText, hasTapAction: false, isButton: false),
+        screenReaderStops(tester).single,
+        isSemantics(label: _swiperText, hasTapAction: false, isButton: false),
       );
 
       await tester.tap(find.byType(ConfirmSwiper));
@@ -130,7 +124,6 @@ void main() {
       var confirmed = 0;
       await _pump(tester, accessibleNavigation: false, onConfirmed: () => confirmed++);
 
-      // Start on the pill at the far left of the track.
       final pill = tester.getTopLeft(find.byType(ConfirmSwiper)) + const Offset(28, 26);
       await tester.dragFrom(pill, const Offset(760, 0));
       await tester.pump();

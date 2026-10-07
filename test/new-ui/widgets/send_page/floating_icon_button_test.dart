@@ -3,12 +3,9 @@ import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 
-/// A raster asset declared in pubspec.yaml, so no vector loader is involved.
-const _iconPath = "assets/images/2fa.png";
+import "../../../utils/semantics_helpers.dart";
 
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
+const _iconPath = "assets/images/2fa.png";
 
 Future<void> _pump(WidgetTester tester, {VoidCallback? onPressed}) async {
   await tester.pumpWidget(
@@ -32,10 +29,10 @@ void main() {
     testWidgets("exposes a single, named button node", (tester) async {
       await _pump(tester);
 
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(
         tester.getSemantics(find.byType(FloatingIconButton)),
-        containsSemantics(
+        isSemantics(
           label: "Scan QR code",
           isButton: true,
           hasEnabledState: true,

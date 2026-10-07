@@ -21,7 +21,7 @@ void main() {
       expect(_checkableNodes, findsOne);
       expect(
         tester.getSemantics(find.byType(RoundedCheckbox)),
-        containsSemantics(hasCheckedState: true, isChecked: true),
+        isSemantics(hasCheckedState: true, isChecked: true),
       );
     });
 
@@ -35,18 +35,9 @@ void main() {
     testWidgets("the checked state carries no name of its own", (tester) async {
       await _pump(tester, RoundedCheckbox(value: true));
 
-      // Deliberately not a semantics container: the state is meant to merge into
-      // the enclosing row/option node instead of adding a second focus stop.
       expect(tester.getSemantics(find.byType(RoundedCheckbox)).label, isEmpty);
     });
 
-    // KNOWN DEFECT, skipped rather than asserted: unchecked renders `Offstage()`,
-    // a zero-sized subtree, and Flutter drops zero-rect nodes from the semantics
-    // tree -- so the `checked: false` annotation never reaches a screen reader and
-    // an unselected option announces nothing at all. Giving the unchecked
-    // indicator the same 20x20 footprint as the checked one fixes it, but that
-    // shifts layout in the two pickers that use it, so it needs a design call
-    // first. Drop the `skip` once the widget is fixed.
     testWidgets(
       "an unchecked box still reports the unchecked state",
       (tester) async {
@@ -55,7 +46,7 @@ void main() {
         expect(_checkableNodes, findsOne);
         expect(
           tester.getSemantics(find.byType(RoundedCheckbox)),
-          containsSemantics(hasCheckedState: true, isChecked: false),
+          isSemantics(hasCheckedState: true, isChecked: false),
         );
       },
       skip: true,

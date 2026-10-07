@@ -1,15 +1,10 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:flutter/material.dart";
-import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
+import "../../utils/semantics_helpers.dart";
 
-/// Pass `settle: false` for the loading variants: the Cupertino spinner runs a
-/// repeating animation, so [WidgetTester.pumpAndSettle] would never return.
 Future<void> _pump(WidgetTester tester, Widget child, {bool settle = true}) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -32,8 +27,6 @@ void main() {
     S.current = const S();
   });
 
-  // PrimaryButton no longer wraps itself in Semantics; the node comes from the
-  // TextButton inside it, so these tests pin the base behaviour that replaced it.
   group("PrimaryButton", () {
     testWidgets("reports one enabled button node named after its text", (tester) async {
       await _pump(
@@ -46,10 +39,10 @@ void main() {
         ),
       );
 
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(
-        _stops(tester).single,
-        containsSemantics(
+        screenReaderStops(tester).single,
+        isSemantics(
           label: "Continue",
           isButton: true,
           hasEnabledState: true,
@@ -90,8 +83,8 @@ void main() {
       );
 
       expect(
-        _stops(tester).single,
-        containsSemantics(
+        screenReaderStops(tester).single,
+        isSemantics(
           label: "Continue",
           isButton: true,
           hasEnabledState: true,
@@ -104,12 +97,12 @@ void main() {
     testWidgets("a missing onPressed also reads as disabled", (tester) async {
       await _pump(
         tester,
-        PrimaryButton(text: "Continue", color: Colors.blue, textColor: Colors.white),
+        const PrimaryButton(text: "Continue", color: Colors.blue, textColor: Colors.white),
       );
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: "Continue", isEnabled: false, hasTapAction: false),
+        screenReaderStops(tester).single,
+        isSemantics(label: "Continue", isEnabled: false, hasTapAction: false),
       );
     });
 
@@ -125,14 +118,10 @@ void main() {
         ),
       );
 
-      expect(_stops(tester), hasLength(1));
-      expect(_stops(tester).single, containsSemantics(label: "Continue", isButton: true));
+      expect(screenReaderStops(tester), hasLength(1));
+      expect(screenReaderStops(tester).single, isSemantics(label: "Continue", isButton: true));
     });
 
-    // Without the old Semantics wrapper there is no longer an `enabled: false`
-    // annotation independent of the TextButton's callback, so a button that is
-    // visually disabled but wired to onDisabledPressed now reports ENABLED.
-    // See the note in the PR description.
     testWidgets("a disabled button with onDisabledPressed reports enabled", (tester) async {
       var explained = 0;
       await _pump(
@@ -148,8 +137,8 @@ void main() {
       );
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: "Continue", isEnabled: true, hasTapAction: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: "Continue", isEnabled: true, hasTapAction: true),
       );
 
       tester.semantics.tap(find.semantics.byLabel("Continue"));
@@ -173,13 +162,11 @@ void main() {
         settle: false,
       );
 
-      // The spinner has replaced the visible caption...
       expect(find.text("Send"), findsNothing);
-      // ...but the accessible name survives, alongside a "loading" value.
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(
         tester.getSemantics(find.byType(LoadingPrimaryButton)),
-        containsSemantics(
+        isSemantics(
           label: "Send",
           value: S.current.loading,
           isButton: true,
@@ -223,7 +210,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.byType(LoadingPrimaryButton)),
-        containsSemantics(
+        isSemantics(
           label: "Send",
           value: "",
           isButton: true,
@@ -266,7 +253,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.byType(LoadingPrimaryButton)),
-        containsSemantics(label: "Send", value: "", isEnabled: false, hasTapAction: false),
+        isSemantics(label: "Send", value: "", isEnabled: false, hasTapAction: false),
       );
     });
   });

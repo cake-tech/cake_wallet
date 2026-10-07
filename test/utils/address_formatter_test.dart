@@ -11,7 +11,6 @@ const _bch = "bitcoincash:qzm47qz5ue99y9yl4aca7jnz7dwgdenl85jwvdp424";
 
 const _style = TextStyle(color: Colors.black);
 
-/// The stops a screen reader would actually visit, in traversal order.
 List<String> _labels(WidgetTester tester) =>
     tester.semantics.simulatedAccessibilityTraversal().map((node) => node.label).toList();
 
@@ -47,7 +46,6 @@ void main() {
     testWidgets("the space-separated chunks are not announced", (tester) async {
       await _pump(tester, address: _btc);
 
-      // The RichText is visually chunked, but that must not reach a screen reader.
       expect(find.byType(RichText), findsWidgets);
       expect(find.semantics.byPredicate((node) => node.label.contains(" ")), findsNothing);
     });
@@ -96,7 +94,6 @@ void main() {
     testWidgets("the bitcoincash: prefix is dropped from the announcement too", (tester) async {
       await _pump(tester, address: _bch);
 
-      // The prefix is stripped for display, so the announced string matches it.
       expect(_labels(tester), [_bch.replaceAll("bitcoincash:", "")]);
     });
 

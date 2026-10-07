@@ -3,9 +3,8 @@ import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 
-/// A raster asset declared in pubspec.yaml. The asset-SVG branch of
-/// [CakeImageWidget] goes through `vector_graphics` and a generated `.vec`
-/// sidecar that is not produced for widget tests, so it is not covered here.
+import "../../utils/semantics_helpers.dart";
+
 const _assetPath = "assets/images/2fa.png";
 
 final _imageNodes = find.semantics.byFlag(SemanticsFlag.isImage);
@@ -14,10 +13,6 @@ final _labelledNodes = find.semantics.byPredicate(
   (node) => node.label.isNotEmpty,
   describeMatch: (_) => "labelled SemanticsNodes",
 );
-
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpWidget(MaterialApp(home: Scaffold(body: Center(child: child))));
@@ -31,7 +26,7 @@ void main() {
 
       expect(_imageNodes, findsNothing);
       expect(_labelledNodes, findsNothing);
-      expect(_stops(tester), isEmpty);
+      expect(screenReaderStops(tester), isEmpty);
     });
 
     testWidgets("a semanticsLabel makes it an announced image", (tester) async {
@@ -46,10 +41,10 @@ void main() {
       );
 
       expect(find.semantics.byLabel("Two-factor authentication"), findsOne);
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(
-        _stops(tester).single,
-        containsSemantics(label: "Two-factor authentication", isImage: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: "Two-factor authentication", isImage: true),
       );
     });
   });
@@ -59,14 +54,14 @@ void main() {
       await _pump(tester, const CakeImageWidget(width: 24, height: 24));
 
       expect(_labelledNodes, findsNothing);
-      expect(_stops(tester), isEmpty);
+      expect(screenReaderStops(tester), isEmpty);
     });
 
     testWidgets("an empty imageUrl is treated the same way", (tester) async {
       await _pump(tester, const CakeImageWidget(imageUrl: "", width: 24, height: 24));
 
       expect(_labelledNodes, findsNothing);
-      expect(_stops(tester), isEmpty);
+      expect(screenReaderStops(tester), isEmpty);
     });
 
     testWidgets("a labelled placeholder is announced as an image", (tester) async {
@@ -75,8 +70,8 @@ void main() {
         const CakeImageWidget(width: 24, height: 24, semanticsLabel: "Wallet avatar"),
       );
 
-      expect(_stops(tester), hasLength(1));
-      expect(_stops(tester).single, containsSemantics(label: "Wallet avatar", isImage: true));
+      expect(screenReaderStops(tester), hasLength(1));
+      expect(screenReaderStops(tester).single, isSemantics(label: "Wallet avatar", isImage: true));
     });
 
     testWidgets("a caller-supplied errorWidget owns its own semantics", (tester) async {

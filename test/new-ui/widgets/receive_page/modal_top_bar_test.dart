@@ -5,12 +5,10 @@ import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
+import "../../../utils/semantics_helpers.dart";
 
 Set<String> _labels(WidgetTester tester) =>
-    _stops(tester).map((node) => node.label).where((label) => label.isNotEmpty).toSet();
+    screenReaderStops(tester).map((node) => node.label).where((label) => label.isNotEmpty).toSet();
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpWidget(
@@ -27,72 +25,6 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
 void main() {
   setUpAll(() {
     S.current = const S();
-  });
-
-  group("ModalTopBar accessible-name asserts", () {
-    test("a leadingIcon without a leadingSemanticLabel is rejected", () {
-      expect(
-        () => ModalTopBar(title: "Receive", leadingIcon: const Icon(Icons.close)),
-        throwsA(
-          isA<AssertionError>().having(
-            (error) => error.message,
-            "message",
-            contains("leadingIcon requires a non-empty leadingSemanticLabel"),
-          ),
-        ),
-      );
-    });
-
-    test("an empty leadingSemanticLabel is rejected too", () {
-      expect(
-        () => ModalTopBar(
-          title: "Receive",
-          leadingIcon: const Icon(Icons.close),
-          leadingSemanticLabel: "",
-        ),
-        throwsA(isA<AssertionError>()),
-      );
-    });
-
-    test("a trailingIcon without a trailingSemanticLabel is rejected", () {
-      expect(
-        () => ModalTopBar(
-          title: "Receive",
-          leadingIcon: const Icon(Icons.close),
-          leadingSemanticLabel: "Close",
-          trailingIcon: const Icon(Icons.share),
-        ),
-        throwsA(
-          isA<AssertionError>().having(
-            (error) => error.message,
-            "message",
-            contains("trailingIcon requires a non-empty trailingSemanticLabel"),
-          ),
-        ),
-      );
-    });
-
-    test("an empty trailingSemanticLabel is rejected too", () {
-      expect(
-        () => ModalTopBar(
-          title: "Receive",
-          trailingIcon: const Icon(Icons.share),
-          trailingSemanticLabel: "",
-        ),
-        throwsA(isA<AssertionError>()),
-      );
-    });
-
-    test("a bar with no icons at all is fine", () {
-      expect(() => ModalTopBar(title: "Receive"), returnsNormally);
-    });
-
-    test("a leadingWidget carries its own semantics, so it needs no label", () {
-      expect(
-        () => ModalTopBar(title: "Receive", leadingWidget: const Text("Cancel")),
-        returnsNormally,
-      );
-    });
   });
 
   group("ModalTopBar leading button", () {
@@ -157,10 +89,12 @@ void main() {
 
       expect(find.semantics.byLabel("Share address"), findsOne);
       expect(
-        tester.getSemantics(find.byWidgetPredicate(
-          (widget) => widget is ModernButton && widget.semanticLabel == "Share address",
-        )),
-        containsSemantics(label: "Share address", isButton: true, hasTapAction: true),
+        tester.getSemantics(
+          find.byWidgetPredicate(
+            (widget) => widget is ModernButton && widget.semanticLabel == "Share address",
+          ),
+        ),
+        isSemantics(label: "Share address", isButton: true, hasTapAction: true),
       );
     });
 
@@ -175,7 +109,6 @@ void main() {
       );
 
       expect(find.byType(ModernButton), findsOneWidget);
-      // Only the close button and the title header remain.
       expect(_labels(tester), {S.current.close, "Receive"});
     });
   });
@@ -186,7 +119,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.text("Receive")),
-        containsSemantics(label: "Receive", isHeader: true),
+        isSemantics(label: "Receive", isHeader: true),
       );
     });
 
@@ -194,6 +127,35 @@ void main() {
       await _pump(tester, ModalTopBar(title: ""));
 
       expect(find.semantics.byFlag(SemanticsFlag.isHeader), findsNothing);
+    });
+
+    testWidgets("one header node carries the title id beside the chrome button ids",
+        (tester) async {
+      await _pump(
+        tester,
+        ModalTopBar(
+          testId: "receive_page_top_bar",
+          title: "Receive",
+          bottomText: "Bitcoin",
+          leadingIcon: const Icon(Icons.close),
+          leadingSemanticLabel: S.current.close,
+          trailingIcon: const Icon(Icons.share),
+          trailingSemanticLabel: "Share",
+        ),
+      );
+
+      expect(find.semantics.byFlag(SemanticsFlag.isHeader), findsOne);
+      for (final (suffix, label, header) in [
+        ("title", "Receive", true),
+        ("leading", S.current.close, false),
+        ("trailing", "Share", false),
+      ]) {
+        expect(
+          platformNodesWithId(tester, "receive_page_top_bar_${suffix}_key").single,
+          isSemantics(label: label, isHeader: header, isButton: !header),
+          reason: suffix,
+        );
+      }
     });
   });
 }

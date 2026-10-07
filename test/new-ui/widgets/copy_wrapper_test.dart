@@ -5,16 +5,11 @@ import "package:flutter/semantics.dart";
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 
+import "../../utils/semantics_helpers.dart";
+
 const _copyable = ClipboardData(text: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq");
 
-/// Long enough to outlive the 600ms `tester.longPress` pump window -- a shorter
-/// flash would be reverted inside it, before the test could observe it -- yet
-/// short enough that every test can drain the revert timer.
 const _flash = Duration(milliseconds: 800);
-
-/// The stops a screen reader would actually visit, in traversal order.
-List<SemanticsNode> _stops(WidgetTester tester) =>
-    tester.semantics.simulatedAccessibilityTraversal().toList();
 
 final _actionableNodes = find.semantics.byPredicate(
   (node) => node.getSemanticsData().customSemanticsActionIds?.isNotEmpty ?? false,
@@ -33,8 +28,6 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpAndSettle();
 }
 
-/// Lets the async copy path (`shouldShowCopied`) settle, then drains the timer
-/// that flips the state back so the test does not end with one pending.
 Future<void> _settleCopy(WidgetTester tester) async {
   await tester.pump();
   await tester.pump();
@@ -46,7 +39,6 @@ void main() {
   });
 
   setUp(() {
-    // Swallow Clipboard.setData and HapticFeedback.vibrate.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(SystemChannels.platform, (call) async => null);
   });
@@ -67,10 +59,10 @@ void main() {
         ),
       );
 
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(
-        _stops(tester).single,
-        containsSemantics(
+        screenReaderStops(tester).single,
+        isSemantics(
           label: "Address",
           hint: S.current.copy,
           isButton: true,
@@ -91,10 +83,9 @@ void main() {
         ),
       );
 
-      // Both captions are painted, but they merge into the single copy node.
       expect(find.text("Address"), findsOneWidget);
       expect(find.text("Bitcoin"), findsOneWidget);
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(_actionableNodes, findsOne);
     });
 
@@ -108,19 +99,18 @@ void main() {
         ),
       );
 
-      expect(_stops(tester).single, containsSemantics(label: "Address", isLiveRegion: false));
+      expect(screenReaderStops(tester).single, isSemantics(label: "Address", isLiveRegion: false));
 
       await tester.tap(find.text("Address"));
       await _settleCopy(tester);
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: S.current.copied, isLiveRegion: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: S.current.copied, isLiveRegion: true),
       );
 
-      // Drain the revert timer.
       await tester.pump(_flash * 2);
-      expect(_stops(tester).single, containsSemantics(label: "Address", isLiveRegion: false));
+      expect(screenReaderStops(tester).single, isSemantics(label: "Address", isLiveRegion: false));
     });
   });
 
@@ -135,7 +125,7 @@ void main() {
       expect(find.byType(GestureDetector), findsNothing);
       expect(_actionableNodes, findsNothing);
       expect(find.semantics.byFlag(SemanticsFlag.isButton), findsNothing);
-      expect(_stops(tester).single, containsSemantics(label: "Address", isButton: false));
+      expect(screenReaderStops(tester).single, isSemantics(label: "Address", isButton: false));
     });
 
     testWidgets("offers no copy hint either", (tester) async {
@@ -161,8 +151,8 @@ void main() {
       );
 
       expect(
-        _stops(tester).single,
-        containsSemantics(
+        screenReaderStops(tester).single,
+        isSemantics(
           label: "Seed phrase",
           hint: S.current.long_press_to_copy,
           isButton: false,
@@ -208,12 +198,11 @@ void main() {
         ),
       );
 
-      // The control is the only node, and it owns the action itself.
-      expect(_stops(tester), hasLength(1));
+      expect(screenReaderStops(tester), hasLength(1));
       expect(_actionableNodes, findsNothing);
       expect(
-        _stops(tester).single,
-        containsSemantics(
+        screenReaderStops(tester).single,
+        isSemantics(
           label: S.current.copy,
           isButton: true,
           isEnabled: true,
@@ -236,8 +225,8 @@ void main() {
       );
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: S.current.copy, isEnabled: false, hasTapAction: false),
+        screenReaderStops(tester).single,
+        isSemantics(label: S.current.copy, isEnabled: false, hasTapAction: false),
       );
     });
 
@@ -258,12 +247,15 @@ void main() {
       await _settleCopy(tester);
 
       expect(
-        _stops(tester).single,
-        containsSemantics(label: S.current.copied, isLiveRegion: true),
+        screenReaderStops(tester).single,
+        isSemantics(label: S.current.copied, isLiveRegion: true),
       );
 
       await tester.pump(_flash * 2);
-      expect(_stops(tester).single, containsSemantics(label: S.current.copy, isLiveRegion: false));
+      expect(
+        screenReaderStops(tester).single,
+        isSemantics(label: S.current.copy, isLiveRegion: false),
+      );
     });
   });
 }
