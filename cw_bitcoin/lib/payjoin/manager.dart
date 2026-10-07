@@ -506,6 +506,8 @@ class PayjoinManager {
           final script = Script.fromRaw(byteData: scriptBytes);
           return _wallet.isMine(script);
         },
+        isOutpointOwned: (txid, vout) =>
+            _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
         persister: persister,
         onProposalReceived: () {
           _payjoinStorage.markReceiverSessionInProgress(pjEndpoint);
@@ -596,6 +598,8 @@ class PayjoinManager {
         final script = Script.fromRaw(byteData: scriptBytes);
         return _wallet.isMine(script);
       },
+      isOutpointOwned: (txid, vout) =>
+          _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
       persister: persister,
       onProposalReceived: () {
         _payjoinStorage.markReceiverSessionInProgress(endpoint);

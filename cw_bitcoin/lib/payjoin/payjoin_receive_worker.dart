@@ -56,6 +56,7 @@ class PayjoinReceiverWorker {
     required MailroomManager mailroomManager,
     required this.utxos,
     required this.isMineChecker,
+    required this.isOutpointOwned,
     this.getCurrentHeight,
     pj.JsonReceiverSessionPersister? persister,
     void Function()? onProposalReceived,
@@ -67,6 +68,11 @@ class PayjoinReceiverWorker {
   final http.Client client = ProxyWrapper().getHttpIOClient();
   final List<UtxoWithPrivateKey> utxos;
   final bool Function(Uint8List) isMineChecker;
+  // Consults the wallet's full tracked UTXO set (frozen, unconfirmed,
+  // marked-sending included) at check time — NOT the spendable snapshot in
+  // [utxos] — so checkInputsNotOwned can't be bypassed by referencing a
+  // wallet-owned outpoint that falls outside that snapshot.
+  final bool Function(String txid, int vout) isOutpointOwned;
   final int Function()? getCurrentHeight;
   final pj.JsonReceiverSessionPersister? _persister;
   final void Function()? _onProposalReceived;
@@ -281,14 +287,11 @@ class PayjoinReceiverWorker {
     pj.JsonReceiverSessionPersister persister,
   ) async {
     try {
-      final ownedOutpoints = <String>{
-        for (final u in utxos) '${u.utxo.txHash}:${u.utxo.vout}'
-      };
       final checkOwned = _wrapSync(
         () => maybeInputsOwned.checkInputsNotOwned(
           isOwned: _IsInputOwned(
             (outpoint) =>
-                ownedOutpoints.contains('${outpoint.txid}:${outpoint.vout}'),
+                isOutpointOwned(outpoint.txid, outpoint.vout),
           ),
         ),
         'checkInputsNotOwned',
