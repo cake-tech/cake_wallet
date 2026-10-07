@@ -5,14 +5,29 @@ import 'package:hive/hive.dart';
 
 class PayjoinEventStore {
   Box<String>? _box;
+  Future<Box<String>>? _opening;
 
   static const _boxName = 'PayjoinSessionEvents';
 
+  bool get isReady => _box != null && _box!.isOpen;
+
+  /// Concurrent-safe: parallel callers (e.g. an unawaited `initPayjoin`
+  /// racing a receive-page `initReceiver`) share one in-flight `openBox`
+  /// future instead of issuing duplicate opens; a failed open clears the
+  /// in-flight future so the next call retries.
   Future<Box<String>> ensureOpen() async {
-    if (_box == null || !_box!.isOpen) {
-      _box = await CakeHive.openBox<String>(_boxName);
+    final box = _box;
+    if (box != null && box.isOpen) return box;
+    final opening = _opening ??= CakeHive.openBox<String>(_boxName);
+    try {
+      final opened = await opening;
+      _box = opened;
+      _opening = null;
+      return opened;
+    } catch (_) {
+      _opening = null;
+      rethrow;
     }
-    return _box!;
   }
 
   Box<String> get box => _box!;

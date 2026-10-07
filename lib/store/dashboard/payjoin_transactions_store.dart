@@ -28,15 +28,17 @@ abstract class PayjoinTransactionsStoreBase with Store {
     final updatedTransactions = <PayjoinTransactionListItem>[];
     payjoinSessionSource.toMap().forEach((dynamic key, PayjoinSession session) {
       // Hide sessions that used fallback (the underlying regular tx displays
-      // instead). Unrecoverable without a stored PSBT is also hidden (no way
-      // to recover or broadcast). Success sessions are always shown even
-      // without a txId — the receiver never broadcasts, so txId is optional
-      // metadata from PSBT parsing; absence doesn't mean failure.
+      // instead). Cancelled / unrecoverable sessions without a stored PSBT are
+      // also hidden (no way to recover or broadcast). Success sessions are
+      // always shown even without a txId — the receiver never broadcasts, so
+      // txId is optional metadata from PSBT parsing; absence doesn't mean
+      // failure.
       final hasFallbackPsbt = session.originalPsbt?.isNotEmpty == true;
-      final isHidden =
-          (session.status == PayjoinSessionStatus.unrecoverable.name &&
-              !hasFallbackPsbt) ||
-          session.usedFallback;
+      final isTerminalWithoutFallback =
+          (session.status == PayjoinSessionStatus.unrecoverable.name ||
+                  session.status == PayjoinSessionStatus.cancelled.name) &&
+              !hasFallbackPsbt;
+      final isHidden = isTerminalWithoutFallback || session.usedFallback;
 
       if (!isHidden &&
           session.inProgressSince != null &&
@@ -44,6 +46,7 @@ abstract class PayjoinTransactionsStoreBase with Store {
             PayjoinSessionStatus.inProgress.name,
             PayjoinSessionStatus.success.name,
             PayjoinSessionStatus.unrecoverable.name,
+            PayjoinSessionStatus.cancelled.name,
           ].contains(session.status)) {
         updatedTransactions.add(PayjoinTransactionListItem(
           sessionId: key as String,

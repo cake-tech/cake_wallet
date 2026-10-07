@@ -72,5 +72,6 @@ enum PayjoinSessionStatus {
   waiting,
   inProgress,
   success,
+  cancelled,
   unrecoverable,
 }
