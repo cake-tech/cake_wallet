@@ -39,6 +39,7 @@ class SettingsListItem {
     this.condition = _trueFunc,
     this.routeArgs,
     this.routeArgsBuilder,
+    this.testId,
   });
 
   final String iconPath;
@@ -49,6 +50,7 @@ class SettingsListItem {
   final bool requireAuth;
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
+  final String? testId;
 }
 
 class SettingsSectionData {
@@ -64,20 +66,26 @@ class SettingsSectionData {
       "assets/new-ui/settings_row_icons/accounts.svg",
       S.current.accounts,
       Routes.walletAccountsPage,
+      testId: "settings_page_wallet_accounts_row_key",
       condition: (vm) => vm.wallet.hasAccountsSupport,
       routeArgsBuilder: (vm) => vm,
     ),
     SettingsListItem(
-        "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes),
+        "assets/new-ui/settings_row_icons/nodes.svg", S.current.nodes, Routes.manageNodes,
+        testId: "settings_page_manage_nodes_row_key"),
     SettingsListItem(
-        "assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage),
+        "assets/new-ui/settings_row_icons/privacy.svg", S.current.privacy, Routes.privacyPage,
+        testId: "settings_page_privacy_row_key"),
     SettingsListItem("assets/new-ui/settings_row_icons/seed.svg", S.current.recovery_and_keys,
-        Routes.showKeysDisclaimer),
+        Routes.showKeysDisclaimer,
+        testId: "settings_page_show_keys_disclaimer_row_key"),
     SettingsListItem("assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}", Routes.lightningUsernamePage,
+        testId: "settings_page_lightning_username_row_key",
         condition: _hasLightning),
     SettingsListItem("assets/new-ui/settings_row_icons/wc.svg", S.current.walletConnect,
         Routes.walletConnectConnectionsListing,
+        testId: "settings_page_wallet_connect_connections_listing_row_key",
         condition: _hasWalletConnect),
     //SettingsListItem("assets/new-ui/settings_row_icons/silent-payments.svg", S.current.silent_payments_settings, Routes.silentPaymentsSettings, condition: _isBtc),
     //SettingsListItem("assets/new-ui/settings_row_icons/mweb.svg", S.current.litecoin_mweb_settings, Routes.mwebSettings, condition: _hasMweb),
@@ -85,32 +93,40 @@ class SettingsSectionData {
       "assets/new-ui/settings_row_icons/sync-balance.svg",
       S.current.resync_device,
       Routes.syncKeyImagesDevices,
+      testId: "settings_page_sync_key_images_devices_row_key",
       routeArgs: {'export-outputs': 'export-outputs'},
       condition: _requiresKeyImageSync,
     ),
     SettingsListItem(
-        "assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage),
+        "assets/new-ui/settings_row_icons/other.svg", S.current.other, Routes.otherSettingsPage,
+        testId: "settings_page_other_settings_row_key"),
   ]);
 
   static SettingsSectionData appSettings =
       SettingsSectionData(S.current.app_settings, "assets/new-ui/cake-setting.svg", [
     SettingsListItem("assets/new-ui/settings_row_icons/connections.svg", S.current.connections,
-        Routes.connectionSync),
+        Routes.connectionSync,
+        testId: "settings_page_connection_sync_row_key"),
     // SettingsListItem("assets/new-ui/settings_row_icons/defaults.svg", "Defaults", ""),
     SettingsListItem("assets/new-ui/settings_row_icons/display.svg", S.current.display,
-        Routes.displaySettingsPage),
+        Routes.displaySettingsPage,
+        testId: "settings_page_display_settings_row_key"),
     SettingsListItem("assets/new-ui/settings_row_icons/security.svg", S.current.security,
-        Routes.securityBackupPage),
+        Routes.securityBackupPage,
+        testId: "settings_page_security_backup_row_key"),
     SettingsListItem("assets/new-ui/settings_row_icons/backup.svg", S.current.backup, Routes.backup,
+        testId: "settings_page_backup_row_key",
         requireAuth: true,
         use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
   ]);
 
   static SettingsSectionData otherSettings = SettingsSectionData("", "", [
     SettingsListItem(
-        "assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support),
+        "assets/new-ui/settings_row_icons/support.svg", S.current.settings_support, Routes.support,
+        testId: "settings_page_support_row_key"),
     SettingsListItem(
-        "assets/new-ui/settings_row_icons/info.svg", S.current.about, Routes.aboutPage),
+        "assets/new-ui/settings_row_icons/info.svg", S.current.about, Routes.aboutPage,
+        testId: "settings_page_about_row_key"),
   ]);
 
   static List<SettingsSectionData> all = [walletSettings, appSettings, otherSettings];
@@ -145,6 +161,7 @@ class SettingsMainPage extends StatelessWidget {
         .map((item) => item.condition(dashboardViewModel)
             ? ListItemRegularRow(
                 keyValue: item.route,
+                testId: item.testId,
                 label: item.title,
                 iconPath: item.iconPath,
                 onTap: () {
@@ -170,6 +187,7 @@ class SettingsMainPage extends StatelessWidget {
       color: Theme.of(context).colorScheme.surface,
       child: Column(children: [
         ModalTopBar(
+          testId: "settings_page_top_bar",
           title: S.of(context).settings_title,
           leadingIcon: Icon(Icons.close),
           leadingSemanticLabel: S.of(context).close,
