@@ -307,29 +307,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return getAddress(index: 0, hd: mainHd, addressType: addressPageType);
   }
 
-  /// Generates a fresh receive address suitable for payjoin and registers it
-  /// in the wallet's tracked address set so that:
-  ///   - isMine(script) returns true for the resulting output
-  ///   - identifyReceiverOutputs flags the receiver's output correctly
-  ///   - the UTXO is scanned, balanced, and spendable once confirmed
-  ///
-  /// Silent Payments and Lightning page types are mapped to p2wpkh since the
-  /// payjoin (BIP78) protocol requires a script-based output the receiver can
-  /// identify and sign.
-  ///
-  /// Each call derives a new address at the next unused index of the
-  /// resolved type; callers should cache the returned string for the lifetime
-  /// of one payjoin session rather than invoking this repeatedly.
-  @action
-  String generatePayjoinCompatibleAddress() {
-    final addrType = (addressPageType == SilentPaymentsAddresType.p2sp ||
-            addressPageType == LightningAddressType.p2l)
-        ? SegwitAddresType.p2wpkh
-        : addressPageType;
-
-    return generateNewAddress(type: addrType).address;
-  }
-
   Map<String, int> currentReceiveAddressIndexByType;
 
   int get currentReceiveAddressIndex =>

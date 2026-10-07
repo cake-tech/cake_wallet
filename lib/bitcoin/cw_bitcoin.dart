@@ -786,7 +786,10 @@ class CWBitcoin extends Bitcoin {
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     if (!isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    return addresses.payjoinAddress == _wallet.walletAddresses.address
+        ? (addresses.payjoinEndpoint ?? '')
+        : '';
   }
 
   @override
@@ -830,6 +833,7 @@ class CWBitcoin extends Bitcoin {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinAddress = null;
   }
 
   @override
@@ -851,6 +855,7 @@ class CWBitcoin extends Bitcoin {
     final _wallet = wallet as ElectrumWallet;
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
     addresses.payjoinEndpoint = null;
+    addresses.payjoinAddress = null;
     await addresses.newPayjoinReceiver(shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 

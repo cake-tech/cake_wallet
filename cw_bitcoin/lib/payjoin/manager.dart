@@ -969,7 +969,16 @@ class PayjoinManager {
       _wallet.id,
       outputAddresses.toSet(),
     );
-    if (matched == null || matched.receiver == null) return null;
+    if (matched == null || matched.receiver == null) {
+      return null;
+    }
+    if (matched.txId?.isNotEmpty ?? false) {
+      return null;
+    }
+    if (matched.status == PayjoinSessionStatus.success.name ||
+        matched.status == PayjoinSessionStatus.cancelled.name) {
+      return null;
+    }
 
     // Backfill: this broadcast IS the receiver's payjoin outcome.
     matched.status = PayjoinSessionStatus.success.name;

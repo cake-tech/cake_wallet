@@ -158,20 +158,48 @@ class PayjoinStorage {
   /// `markReceiverSessionComplete` path (e.g. wallet-switch killed the worker
   /// mid-flight, or replay landed in a terminal FFI state that threw before
   /// the psbt was returned).
+  ///
+  /// The same script address can back multiple receiver sessions (one per
+  /// receive-page visit), so only sessions that can still be pending are
+  /// eligible (never a success/cancelled one, never one already tied to a
+  /// txId) and the most recent one wins — older stale sessions must never
+  /// absorb the outcome of a newer request.
   PayjoinSession? findReceiverSessionByRecipientAddress(
     String walletId,
     Set<String> addresses,
   ) {
-    if (addresses.isEmpty) return null;
+    if (addresses.isEmpty) {
+      return null;
+    }
+    PayjoinSession? best;
     for (final session in _payjoinSessionSources.values) {
-      if (session.walletId != walletId) continue;
-      if (session.isSenderSession) continue;
+      if (session.walletId != walletId) {
+        continue;
+      }
+      if (session.isSenderSession) {
+        continue;
+      }
+      if (session.txId?.isNotEmpty ?? false) {
+        continue;
+      }
+      if (session.status == PayjoinSessionStatus.success.name) {
+        continue;
+      }
+      if (session.status == PayjoinSessionStatus.cancelled.name) {
+        continue;
+      }
       final recipient = session.recipientAddress;
-      if (recipient != null && recipient.isNotEmpty && addresses.contains(recipient)) {
-        return session;
+      if (recipient == null || recipient.isEmpty || !addresses.contains(recipient)) {
+        continue;
+      }
+      final bestSince = best?.inProgressSince;
+      final since = session.inProgressSince;
+      if (best == null ||
+          (since != null && (bestSince == null || since.isAfter(bestSince)))) {
+        best = session;
       }
     }
-    return null;
+    return best;
   }
 
   bool hasActiveReceiverSession(String walletId) => _payjoinSessionSources.values.any((s) =>

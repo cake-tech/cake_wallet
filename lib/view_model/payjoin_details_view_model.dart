@@ -137,8 +137,21 @@ abstract class PayjoinDetailsViewModelBase with Store {
   bool get canFallback =>
       payjoinSession.originalPsbt?.isNotEmpty == true &&
       !payjoinSession.usedFallback &&
+      !isTxBroadcastSeen &&
       (payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
-          payjoinSession.status == PayjoinSessionStatus.unrecoverable.name);
+          payjoinSession.status == PayjoinSessionStatus.unrecoverable.name ||
+          payjoinSession.status == PayjoinSessionStatus.cancelled.name ||
+          // Receiver-only: `success` means the proposal was posted, not that
+          // a transaction was broadcast. The sender broadcasts, so sender
+          // `success` is final — no fallback.
+          (payjoinSession.status == PayjoinSessionStatus.success.name &&
+              !payjoinSession.isSenderSession));
+
+  /// True once the wallet has observed the payjoin transaction — in the
+  /// mempool (sender broadcast / receiver found it) or already confirmed.
+  /// From that point on, a fallback broadcast is pointless (the payment
+  /// already settled) and is disabled for both sender and receiver.
+  bool get isTxBroadcastSeen => transactionInfo != null;
 
   int _recipientInsertIndex(List<TransactionDetailsListItem> items) {
     if (payjoinSession.isSenderSession) {
