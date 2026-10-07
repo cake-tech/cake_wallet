@@ -796,7 +796,10 @@ class CWBitcoin extends Bitcoin {
   void updatePayjoinState(Object wallet, bool value) {
     final _wallet = wallet as ElectrumWallet;
     if (value) {
-      (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+      // init + resume: when the wallet is already synced no sync-status
+      // transition will fire, so toggling payjoin on must itself restart
+      // the stored sender/receiver workers.
+      resumePayjoinSessions(_wallet);
     } else {
       stopPayjoinSessions(wallet);
     }
