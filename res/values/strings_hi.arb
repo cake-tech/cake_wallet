@@ -842,6 +842,7 @@
   "picker_see_all": "सभी देखें",
   "picker_show_less": "कम दिखाओ",
   "pin_at_top": "${token} को शीर्ष पर पिन करें",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN गलत है",
   "pin_number": "पिन नंबर",
   "placeholder_contacts": "आपके संपर्क यहां प्रदर्शित होंगे",

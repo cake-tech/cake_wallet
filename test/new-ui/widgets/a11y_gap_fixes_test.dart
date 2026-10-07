@@ -2,6 +2,7 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
+import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -84,6 +85,53 @@ void main() {
       final label = one(tester, "receive_amount_modal_amount_textfield_key").label;
       expect(label, startsWith("Amount\n"));
       expect(label, isNot(contains(":")));
+      handle.dispose();
+    });
+  });
+
+  group("PIN pad", () {
+    testWidgets("progress is a live region that never exposes the PIN", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          PinCodeWidget(
+            key: const ValueKey("pin_code_widget"),
+            onFullPin: (_, __) {},
+            initialPinLength: 4,
+            onChangedPin: (_) {},
+            hasLengthSwitcher: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(one(tester, "pin_code_progress_key"), isSemantics(label: "0 of 4 digits entered"));
+      await tester.tap(find.byKey(const ValueKey("pin_code_button_7_key")));
+      await tester.tap(find.byKey(const ValueKey("pin_code_button_3_key")));
+      await tester.pump();
+
+      final progress = one(tester, "pin_code_progress_key");
+      expect(progress, isSemantics(label: "2 of 4 digits entered", isLiveRegion: true));
+      expect(progress.value, isEmpty);
+      final texts = <String>[];
+      void visit(SemanticsNode node) {
+        texts
+          ..add(node.label)
+          ..add(node.value);
+        node.visitChildren((child) {
+          visit(child);
+          return true;
+        });
+      }
+
+      visit(tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!);
+      expect(texts.where((text) => text.contains("73")), isEmpty);
+      expect(one(tester, "pin_code_button_7_key"), isSemantics(label: "7", isButton: true));
+      expect(one(tester, "pin_code_button_0_key"), isSemantics(label: "0", isButton: true));
+      expect(
+        one(tester, "pin_code_delete_button_key"),
+        isSemantics(label: "Delete", isButton: true, hasTapAction: true),
+      );
       handle.dispose();
     });
   });

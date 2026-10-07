@@ -841,6 +841,7 @@
   "picker_see_all": "Tingnan lahat",
   "picker_show_less": "Magpakita ng mas kaunti",
   "pin_at_top": "I-pin ang ${token} sa itaas",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "Mali ang PIN",
   "pin_number": "Numero ng PIN",
   "placeholder_contacts": "Ipapakita rito ang iyong mga contact",

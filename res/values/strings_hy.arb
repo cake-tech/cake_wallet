@@ -841,6 +841,7 @@
   "picker_see_all": "Տես բոլորը",
   "picker_show_less": "Ցույց տալ ավելի քիչ",
   "pin_at_top": "${token}-ը ամրացնել վերևում",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN-ը սխալ է",
   "pin_number": "PIN համար",
   "placeholder_contacts": "Ձեր կոնտակտները կցուցադրվեն այստեղ",

@@ -843,6 +843,7 @@
   "picker_see_all": "Alle anzeigen",
   "picker_show_less": "Weniger anzeigen",
   "pin_at_top": "${token} oben anheften",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN ist falsch",
   "pin_number": "PIN-Nummer",
   "placeholder_contacts": "Ihre Kontakte werden hier angezeigt",

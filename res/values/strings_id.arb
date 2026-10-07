@@ -843,6 +843,7 @@
   "picker_see_all": "Lihat semuanya",
   "picker_show_less": "Tampilkan lebih sedikit",
   "pin_at_top": "Sematkan ${token} di atas",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN tidak benar",
   "pin_number": "Nomor PIN",
   "placeholder_contacts": "Kontak Anda akan ditampilkan di sini",

@@ -841,6 +841,7 @@
   "picker_see_all": "모두 보기",
   "picker_show_less": "간략히 보기",
   "pin_at_top": "${token}을(를) 상단에 고정",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN이 올바르지 않습니다",
   "pin_number": "PIN 번호",
   "placeholder_contacts": "연락처가 여기에 표시됩니다",

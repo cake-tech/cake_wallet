@@ -842,6 +842,7 @@
   "picker_see_all": "Посмотреть все",
   "picker_show_less": "Показать меньше",
   "pin_at_top": "Закрепить ${token} сверху",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN неверный",
   "pin_number": "PIN-код",
   "placeholder_contacts": "Ваши контакты будут отображаться здесь",
