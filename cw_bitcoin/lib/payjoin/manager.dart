@@ -531,13 +531,17 @@ class PayjoinManager {
         }
         // Keep a fallback PSBT on the session so the user can
         // fallback-broadcast if the sender drops off after the proposal is
-        // posted. Never overwrite an existing one: the sender's original
-        // PSBT (stored when the payload was retrieved) is the only valid
-        // fallback — the proposal PSBT can't be broadcast because the
-        // sender's signature is stripped from it.
+        // posted. Only the sender's original PSBT is broadcastable — the
+        // proposal PSBT has the sender's signature stripped, so it must
+        // never be stored as the fallback. Extract the original
+        // synchronously from the event log instead of racing with the
+        // unawaited onProposalReceived handler.
+        final senderOriginal = _senderOriginalPsbtFromEvents(pjEndpoint);
         final session = _payjoinStorage.getReceiverSession(pjEndpoint);
-        if (session != null && (session.originalPsbt ?? '').isEmpty) {
-          session.originalPsbt = psbt;
+        if (session != null &&
+            (session.originalPsbt ?? '').isEmpty &&
+            senderOriginal != null) {
+          session.originalPsbt = senderOriginal;
           await session.save();
         }
 
@@ -630,11 +634,16 @@ class PayjoinManager {
       } catch (e) {
         writePayjoinLog('[WARNING] Receiver($endpoint) netAmount calc: $e');
       }
-      // Same rule as spawnReceiver: only store when empty — the sender's
-      // original PSBT is the only broadcastable fallback.
+      // Same rule as spawnReceiver: only the sender's original PSBT is a
+      // broadcastable fallback — the proposal PSBT is not. Extract it
+      // synchronously from the event log instead of racing with the
+      // unawaited onProposalReceived handler.
+      final senderOriginal = _senderOriginalPsbtFromEvents(endpoint);
       final session = _payjoinStorage.getReceiverSession(endpoint);
-      if (session != null && (session.originalPsbt ?? '').isEmpty) {
-        session.originalPsbt = psbt;
+      if (session != null &&
+          (session.originalPsbt ?? '').isEmpty &&
+          senderOriginal != null) {
+        session.originalPsbt = senderOriginal;
         await session.save();
       }
       _payjoinStorage.markReceiverSessionComplete(endpoint, txId, netAmount);
@@ -760,25 +769,34 @@ class PayjoinManager {
           continue;
         }
         if (psbtBase64 == null || psbtBase64.isEmpty) continue;
-        if (outputs == null || outputs.isEmpty) continue;
 
-        int total = 0;
-        for (final output in outputs) {
-          final scriptPubkey = output['script_pubkey'] as String?;
-          if (scriptPubkey == null || scriptPubkey.isEmpty) continue;
-          final script = Script.fromRaw(
-            byteData: BytesUtils.fromHexString(scriptPubkey),
-          );
-          if (_wallet.isMine(script)) {
-            total += (output['value'] as num).toInt();
+        // The amount sum needs parsed outputs, but the PSBT store does not:
+        // a missing/empty `unsigned_tx` must never block storing the only
+        // broadcastable fallback.
+        int? total;
+        if (outputs != null && outputs.isNotEmpty) {
+          int sum = 0;
+          for (final output in outputs) {
+            final scriptPubkey = output['script_pubkey'] as String?;
+            if (scriptPubkey == null || scriptPubkey.isEmpty) {
+              continue;
+            }
+            final script = Script.fromRaw(
+              byteData: BytesUtils.fromHexString(scriptPubkey),
+            );
+            if (_wallet.isMine(script)) {
+              sum += (output['value'] as num).toInt();
+            }
           }
+          if (sum > 0) total = sum;
         }
 
         final session = _payjoinStorage.getReceiverSession(sessionId);
         if (session != null) {
           var changed = false;
 
-          if (total > 0 && (session.rawAmount == null || session.rawAmount == '0')) {
+          if (total != null &&
+              (session.rawAmount == null || session.rawAmount == '0')) {
             session.rawAmount = total.toString();
             changed = true;
             writePayjoinLog(
