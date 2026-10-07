@@ -6,12 +6,9 @@ class DashTransactionPriority extends BitcoinTransactionPriority {
       : super(title: title, raw: raw);
 
   static const List<DashTransactionPriority> all = [fast, medium, slow];
-  static const DashTransactionPriority slow =
-      DashTransactionPriority(title: 'Slow', raw: 0);
-  static const DashTransactionPriority medium =
-      DashTransactionPriority(title: 'Medium', raw: 1);
-  static const DashTransactionPriority fast =
-      DashTransactionPriority(title: 'Fast', raw: 2);
+  static const DashTransactionPriority slow = DashTransactionPriority(title: 'Slow', raw: 0);
+  static const DashTransactionPriority medium = DashTransactionPriority(title: 'Medium', raw: 1);
+  static const DashTransactionPriority fast = DashTransactionPriority(title: 'Fast', raw: 2);
 
   static DashTransactionPriority deserialize({required int raw}) {
     switch (raw) {

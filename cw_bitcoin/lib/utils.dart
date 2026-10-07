@@ -30,9 +30,8 @@ BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) 
 /// type through the dependency's `addressTypeFromStr` and fails the same way.
 String scriptHashOfAddress(String address, BasedUtxoNetwork network) {
   if (network is DashNetwork) {
-    final script = P2pkhAddress.fromAddress(address: address, network: network)
-        .toScriptPubKey()
-        .toBytes();
+    final script =
+        P2pkhAddress.fromAddress(address: address, network: network).toScriptPubKey().toBytes();
     return BytesUtils.toHexString(QuickCrypto.sha256Hash(script).reversed.toList());
   }
 

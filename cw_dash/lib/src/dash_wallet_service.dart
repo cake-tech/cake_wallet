@@ -12,11 +12,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_dash/cw_dash.dart';
 import 'package:hive/hive.dart';
 
-class DashWalletService extends WalletService<
-    DashNewWalletCredentials,
-    DashRestoreWalletFromSeedCredentials,
-    WalletCredentials,
-    DashNewWalletCredentials> {
+class DashWalletService extends WalletService<DashNewWalletCredentials,
+    DashRestoreWalletFromSeedCredentials, WalletCredentials, DashNewWalletCredentials> {
   DashWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
