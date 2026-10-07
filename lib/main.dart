@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/e2e_mode.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
@@ -88,6 +89,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    E2EMode.applyLaunchSettings();
 
     final Completer<String?> initialShortcutCompleter = Completer<String?>();
 
@@ -199,6 +201,14 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
               quickActionsStream: quickActionsStream.stream),
         ),
       );
+    }
+
+    // E2E_MODE fixture wallet: after the first frame so the authentication
+    // reaction can load it and navigate to the dashboard.
+    if (E2EMode.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await E2EMode.bootstrapFixtureWallet();
+      });
     }
 
     isAppRunning = true;
@@ -434,7 +444,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
+              locale: E2EMode.enabled
+                  ? const Locale('en')
+                  : localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),
