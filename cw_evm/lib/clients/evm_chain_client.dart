@@ -192,7 +192,7 @@ class EVMChainClient {
       } else if (nodeHost.endsWith(".g.alchemy.com") &&
           (pathSegments.isEmpty || (pathSegments.length == 1 && pathSegments.first == "v2"))) {
         isModifiedNodeUri = true;
-        String alchemyApiKey = secrets.alchemyApiKey;
+        String alchemyApiKey = "secrets.alchemyApiKey";
 
         if (alchemyApiKey.isEmpty) {
           printV("Alchemy API key is empty, cannot connect to ${node.uriRaw}");
@@ -481,8 +481,8 @@ class EVMChainClient {
   }) async {
     final prepared = prepareSignedTransactionForSending(signedTransaction);
 
-    if (useBlinkProtection && secrets.blinkApiKey.isNotEmpty) {
-      final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
+    if (useBlinkProtection) {
+      final blinkClient = Web3Client(_blinkUrl("secret"), client);
       try {
         return await blinkClient.sendRawTransaction(prepared);
       } catch (e) {
