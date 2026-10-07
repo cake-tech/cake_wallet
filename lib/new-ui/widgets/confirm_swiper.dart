@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/utils/test_id.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ConfirmSwiper extends StatefulWidget {

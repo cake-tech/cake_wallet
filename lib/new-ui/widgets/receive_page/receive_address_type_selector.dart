@@ -3,7 +3,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/utils/test_id.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:flutter/material.dart';
