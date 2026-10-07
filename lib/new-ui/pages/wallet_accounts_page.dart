@@ -282,6 +282,9 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
                             return Container(
                               key: ValueKey(index),
                               child: Semantics(
+                                container: true,
+                                explicitChildNodes: true,
+                                identifier: "wallet_accounts_page_account_${index}_key",
                                 button: true,
                                 selected: selectedItemIndex == index,
                                 label: _items[index].accountListItem.label,

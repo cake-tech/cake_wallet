@@ -1,4 +1,20 @@
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/core/amount_parsing_proxy.dart";
+import "package:cake_wallet/entities/balance_display_mode.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
+import "package:cw_core/balance.dart";
+import "package:cw_core/card_design.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart" show ObservableList, ObservableMap;
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
@@ -14,6 +30,17 @@ import "package:mocktail/mocktail.dart";
 import "../../utils/semantics_helpers.dart";
 
 class _MockWalletAddressListViewModel extends Mock implements WalletAddressListViewModel {}
+
+class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
+
+class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
+
+class _MockAppStore extends Mock implements AppStore {}
+
+class _MockSettingsStore extends Mock implements SettingsStore {}
+
+class _MockWallet extends Mock
+    implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
 
 void main() {
   late bool registeredThemeStore;
@@ -132,6 +159,63 @@ void main() {
         one(tester, "pin_code_delete_button_key"),
         isSemantics(label: "Delete", isButton: true, hasTapAction: true),
       );
+      handle.dispose();
+    });
+  });
+
+  Future<void> pumpCardsView(WidgetTester tester) async {
+    final dashboard = _MockDashboardViewModel();
+    final balance = _MockBalanceViewModel();
+    final appStore = _MockAppStore();
+    final settingsStore = _MockSettingsStore();
+    final wallet = _MockWallet();
+    when(() => dashboard.cardOrder).thenReturn(ObservableMap<int, int>());
+    when(() => dashboard.cardDesigns).thenReturn(
+      ObservableList.of([CardDesign.genericDefault, CardDesign.genericDefault]),
+    );
+    when(() => dashboard.wallet).thenReturn(wallet);
+    when(() => wallet.type).thenReturn(WalletType.monero);
+    when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
+    when(() => dashboard.balanceViewModel).thenReturn(balance);
+    when(() => balance.displayMode).thenReturn(BalanceDisplayMode.displayableBalance);
+    when(() => balance.getMainBalanceRecord(any())).thenReturn(null);
+    when(() => balance.showCombinedBalance).thenReturn(false);
+    when(() => dashboard.mwebEnabled).thenReturn(false);
+    when(() => dashboard.hasMweb).thenReturn(false);
+    when(() => dashboard.isEnabledTradeAction).thenReturn(false);
+    when(() => dashboard.settingsStore).thenReturn(settingsStore);
+    when(() => settingsStore.fiatCurrency).thenReturn(FiatCurrency.usd);
+    when(() => dashboard.appStore).thenReturn(appStore);
+    when(() => appStore.amountParsingProxy)
+        .thenReturn(const AmountParsingProxy(BitcoinAmountDisplayMode.bitcoin));
+    await tester.pumpWidget(
+      wrap(
+        CardsView(
+          dashboardViewModel: dashboard,
+          accountListViewModel: null,
+          lightningMode: false,
+          onCompactModeBackgroundCardsTapped: () {},
+          onCustomizeTapped: () {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  group("balance cards", () {
+    testWidgets("the home card is a container whose balances stay separate nodes", (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpCardsView(tester);
+
+      final card = one(tester, "home_page_balance_card_0_key");
+      expect(card, isSemantics(label: "Balance", isButton: true, hasTapAction: true));
+      expect(card.mergeAllDescendantsIntoThisNode, isFalse);
+      final childLabels = <String>[];
+      card.visitChildren((child) {
+        childLabels.add(child.label);
+        return true;
+      });
+      expect(childLabels, containsAll(["0", "XMR", "0.00", "Menu"]));
       handle.dispose();
     });
   });

@@ -133,6 +133,9 @@ class _CardsViewState extends State<CardsView> {
         // The card is the tap target; the balances and the card's own buttons stay
         // reachable as children of this node.
         child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          identifier: "home_page_balance_card_${realIndex}_key",
           button: true,
           selected: isSelected,
           label: cardLabel,
