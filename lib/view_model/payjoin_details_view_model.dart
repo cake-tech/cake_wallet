@@ -173,7 +173,11 @@ abstract class PayjoinDetailsViewModelBase with Store {
         return S.current.payjoin_request_in_progress;
       case 'waiting':
         return S.current.payjoin_request_awaiting_tx;
+      case 'cancelled':
+        return S.current.cancelled;
       case 'unrecoverable':
+        // Legacy sessions persisted before the explicit `cancelled` status
+        // stored the cancel as unrecoverable + error 'Cancelled'.
         if (payjoinSession.error == 'Cancelled') return S.current.cancelled;
         return S.current.error;
       default:

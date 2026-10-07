@@ -40,11 +40,22 @@ class PayjoinStorage {
   }
 
   Future<void> markReceiverSessionUnrecoverable(String sessionId, String reason) async {
-    final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}");
+    final session = _payjoinSessionSources.get("$_receiverPrefix$sessionId");
     if (session == null) return;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
     session.error = reason;
+    await session.save();
+  }
+
+  /// Marks the session cancelled by an explicit user action. Clears any
+  /// stale error so the UI shows a clean "Cancelled" status.
+  Future<void> markReceiverSessionCancelled(String sessionId) async {
+    final session = _payjoinSessionSources.get("$_receiverPrefix$sessionId");
+    if (session == null) return;
+
+    session.status = PayjoinSessionStatus.cancelled.name;
+    session.error = null;
     await session.save();
   }
 
@@ -132,6 +143,19 @@ class PayjoinStorage {
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
     session.error = reason;
+    await session.save();
+  }
+
+  /// Marks the session cancelled by an explicit user action. Skips sessions
+  /// that already broadcast (or are broadcasting) via fallback.
+  Future<void> markSenderSessionCancelled(String pjUrl) async {
+    final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl");
+    if (session == null) return;
+    if (session.usedFallback) return;
+    if (session.status == PayjoinSessionStatus.success.name) return;
+
+    session.status = PayjoinSessionStatus.cancelled.name;
+    session.error = null;
     await session.save();
   }
 
@@ -227,6 +251,9 @@ class PayjoinStorage {
       .where((session) {
     if (session.walletId != walletId) return false;
     if (session.status == PayjoinSessionStatus.success.name) return false;
+    // Explicit user cancel is terminal — never resume, even with a stored
+    // fallback PSBT (the user chose to abandon the payjoin).
+    if (session.status == PayjoinSessionStatus.cancelled.name) return false;
     if (session.status == PayjoinSessionStatus.unrecoverable.name) {
       // Keep unrecoverable sessions IF they have a stored fallback PSBT
       // (broadcast not yet done) OR if they haven't used the fallback yet.
