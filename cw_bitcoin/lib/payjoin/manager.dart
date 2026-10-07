@@ -474,9 +474,10 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     try {
-      final directory = _mailroomManager.chooseDirectory();
-      final ohttpKeys = await _fetchOhttpKeys(directory);
-
+      // The event log persisted by initReceiver is non-empty, so the worker
+      // always takes the replay path — no new directory/OHTTP keys are
+      // needed. Fetching them here would only add a failure point that
+      // leaves the persisted session without a polling worker.
       _payjoinStorage.markReceiverSessionWaiting(pjEndpoint);
 
       final persister = PayjoinReceiverPersister(
@@ -512,7 +513,7 @@ class PayjoinManager {
       _runningReceivers[pjEndpoint] = worker;
 
       try {
-        final psbt = await worker.run(address, directory, ohttpKeys);
+        final psbt = await worker.resume();
         writePayjoinLog("Receiver($pjEndpoint) proposalSent len=${psbt.length}");
         // worker.run() returned — the proposal was posted to the directory.
         // Metadata extraction is best-effort; failures here don't affect the
