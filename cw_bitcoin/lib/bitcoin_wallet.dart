@@ -37,6 +37,7 @@ import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -418,6 +419,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
+
+  @override
+  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
+      {required String txId}) async {
+    final session =
+        await payjoinManager.sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
+    if (session == null) return false;
+
+    if (session.isSenderSession) {
+      info.amount = Money(session.amount, info.amount.currency);
+      info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+    } else {
+      info.direction = TransactionDirection.incoming;
+      // A zero session amount means no proposal was ever processed —
+      // keep the amount derived from the actual transaction.
+      if (session.amount > BigInt.zero) {
+        info.amount = Money(session.amount, info.amount.currency);
+        info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+      }
+    }
+
+    return true;
+  }
 
   @override
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;

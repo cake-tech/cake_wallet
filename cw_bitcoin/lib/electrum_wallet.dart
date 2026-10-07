@@ -2869,6 +2869,16 @@ abstract class ElectrumWalletBase
     );
   }
 
+  /// Lets a concrete wallet enrich a parsed transaction with metadata that is
+  /// not derivable from the chain data alone (payjoin amounts/direction).
+  ///
+  /// Every path that builds an [ElectrumTransactionInfo] calls this, so
+  /// subclasses only need to override it once instead of patching each
+  /// call site. Returns true when [info] was modified.
+  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
+          {required String txId}) async =>
+      false;
+
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
@@ -2886,21 +2896,7 @@ abstract class ElectrumWalletBase
       info.accountIndex = owner;
       info.id = hash;
 
-      if (this is BitcoinWallet) {
-        final session = (this as BitcoinWallet)
-            .payjoinManager
-            .sessionForTxIdWithBackfill(hash, info.outputAddresses ?? const []);
-        if (session != null) {
-          if (session.isSenderSession) {
-            info.amount = Money(session.amount, info.amount.currency);
-            info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
-          } else {
-            info.direction = TransactionDirection.incoming;
-            info.amount = Money(session.amount, info.amount.currency);
-            info.additionalInfo['pjNetFlow'] = session.amount.toInt();
-          }
-        }
-      }
+      await applyTransactionMetadata(info, txId: hash);
 
       return info;
     } catch (e) {
@@ -3217,23 +3213,9 @@ abstract class ElectrumWalletBase
               }
             }
 
-            if (this is BitcoinWallet) {
-              final session = (this as BitcoinWallet)
-                  .payjoinManager
-                  .sessionForTxIdWithBackfill(
-                      txid, storedTx.outputAddresses ?? const []);
-              if (session != null) {
-                if (session.isSenderSession) {
-                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
-                  storedTx.additionalInfo['pjNetFlow'] = -session.amount.toInt();
-                } else {
-                  storedTx.direction = TransactionDirection.incoming;
-                  storedTx.amount = Money(session.amount, storedTx.amount.currency);
-                  storedTx.additionalInfo['pjNetFlow'] = session.amount.toInt();
-                }
-                transactionHistory.addOne(storedTx);
-                didUpdateHistory = true;
-              }
+            if (await applyTransactionMetadata(storedTx, txId: txid)) {
+              transactionHistory.addOne(storedTx);
+              didUpdateHistory = true;
             }
 
             transactions[txid] = storedTx;
@@ -3685,21 +3667,7 @@ abstract class ElectrumWalletBase
           info.id = txId;
           info.accountIndex = owner;
 
-          if (this is BitcoinWallet) {
-            final session = (this as BitcoinWallet)
-                .payjoinManager
-                .sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
-            if (session != null) {
-              if (session.isSenderSession) {
-                info.amount = Money(session.amount, info.amount.currency);
-                info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
-              } else {
-                info.direction = TransactionDirection.incoming;
-                info.amount = Money(session.amount, info.amount.currency);
-                info.additionalInfo['pjNetFlow'] = session.amount.toInt();
-              }
-            }
-          }
+          await applyTransactionMetadata(info, txId: txId);
 
           result[txId] = info;
         } catch (_) {
