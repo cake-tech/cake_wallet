@@ -1754,8 +1754,8 @@ import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
   const zcashCWHeaders = """
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart';
+import 'package:cw_zcash/src/hardware/zcash_ledger_service.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
-import 'package:cw_zcash/src/zcash_ledger_service.dart';
 
 """;
   const zcashCwPart = "part 'cw_zcash.dart';";

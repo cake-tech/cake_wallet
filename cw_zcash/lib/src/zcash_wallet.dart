@@ -496,6 +496,11 @@ abstract class ZcashWalletBase
         },
       );
 
+      final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
+      final totalAmount = isAll ? availableBalance - txFee : credentials.outputs.map((
+          final output) => output.cryptoAmount).reduce((final a, final b) => a + b);
+
+
       if (isHardwareWallet) {
         final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
 
@@ -509,7 +514,7 @@ abstract class ZcashWalletBase
 
         return PendingZcashTransaction(
             zcashWallet: this as ZcashWallet,
-            credentials: creds,
+            amount: totalAmount,
             txPlan: txPlan,
             fee: txFee,
             availableBalance: availableBalance,
@@ -519,7 +524,7 @@ abstract class ZcashWalletBase
 
       return PendingZcashTransaction(
         zcashWallet: this as ZcashWallet,
-        credentials: creds,
+        amount: totalAmount,
         txPlan: txPlan,
         fee: txFee,
         availableBalance: availableBalance,
@@ -1218,17 +1223,21 @@ abstract class ZcashWalletBase
     }
   }
 
-  static Mutex warpSyncMutex = Mutex();
-
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
+
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
+
+  bool _autorunNotReady(DateTime? lastExecution) =>
+      syncStatus is! SyncedSyncStatus || (lastExecution != null &&
+          lastExecution.isAfter(DateTime.now().subtract(const Duration(seconds: 75))));
+
   Future<void> _autoShield() async {
-    if (_lastAutoShieldAt != null &&
-        _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+    if (_autorunNotReady(_lastAutoShieldAt)) {
       return;
     }
+
     try {
       await autoShieldMutex.acquire();
       await _$autoShield();
@@ -1276,12 +1285,8 @@ abstract class ZcashWalletBase
 
   bool hasOrchardMigratableBalance() => _orchardMigratable;
 
-  Future<void> _$autoShield() async {
-    if (syncStatus is! SyncedSyncStatus || isHardwareWallet) {
-      return;
-    }
-
-    final txId = await runWithCoin(
+  Future<PendingTransaction?> shieldFunds() async {
+    final txPlan = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
         final sweepable = await _sweepableTotal(coin);
@@ -1290,7 +1295,7 @@ abstract class ZcashWalletBase
         if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
           return null;
         }
-        final txPlan = await zkool_pay.prepare(
+        return zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
               assetBase: zecBase,
@@ -1306,33 +1311,56 @@ abstract class ZcashWalletBase
           ),
           c: coin,
         );
-
-        final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
-        final txBytes = await zkool_pay.extractTransaction(package: signTx);
-        final currentHeight = await zkool_network.getCurrentHeight(c: coin);
-        return zkool_pay.broadcastTransaction(
-          height: currentHeight,
-          txBytes: txBytes,
-          c: coin,
-        );
       },
     );
-    if (txId == null) {
-      return;
+
+    if (txPlan == null) {
+      return null;
     }
 
-    await ZcashWalletService.addShieldedTx(txId);
-    _lastAutoShieldAt = DateTime.now();
-    printV("shielded: $txId");
-    await updateTransactions();
-    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
+    zkool_pay.PcztPackage? signedTxPackage;
+    if (isHardwareWallet) {
+      final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
+
+      final signedTxBytes = await runWithCoin(
+          accountId: accountId,
+          func: (coin) =>
+              hardwareWalletService!.withCoin(coin).signTransaction(
+                transaction: base64Encode(unsignedTx),
+              )
+      );
+
+      signedTxPackage = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
+    }
+
+    final zcashBalance = balance[CryptoCurrency.zec];
+    final availableBalance = zcashBalance?.available ?? Money.zero(currency);
+    final sweepableBigInt = await runWithCoin(accountId: accountId, func: _sweepableTotal);
+    final sweepable = Money(sweepableBigInt, currency);
+
+    return PendingZcashTransaction(
+      zcashWallet: this as ZcashWallet,
+      amount: sweepable,
+      txPlan: txPlan,
+      fee: Money.zero(currency),
+      availableBalance: availableBalance,
+      signedTxPackage: signedTxPackage,
+      isShieldingTx: true,
+    );
+  }
+
+  Future<void> _$autoShield() async {
+    final shieldTx = await shieldFunds();
+    if (shieldTx != null) {
+      await shieldTx.commit();
+    }
   }
 
   Future<void> _ironwoodMigrate() async {
-    if (_lastIronwoodMigrateAt != null &&
-        _lastIronwoodMigrateAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+    if (_autorunNotReady(_lastIronwoodMigrateAt)) {
       return;
     }
+
     try {
       await ironwoodMigrateMutex.acquire();
       await _$ironwoodMigrate();
@@ -1345,9 +1373,6 @@ abstract class ZcashWalletBase
   }
 
   Future<void> _$ironwoodMigrate() async {
-    if (syncStatus is! SyncedSyncStatus || isHardwareWallet) {
-      return;
-    }
     final event = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1421,11 +1446,15 @@ abstract class ZcashWalletBase
   }) async {
     try {
       await _updateIronwoodActive();
-      if (runAutoShield) {
-        await _autoShield();
-      }
-      if (runIronwoodMigrate) {
-        await _ironwoodMigrate();
+
+      if (!isHardwareWallet) {
+        if (runAutoShield) {
+          await _autoShield();
+        }
+
+        if (runIronwoodMigrate) {
+          await _ironwoodMigrate();
+        }
       }
 
       final (bal, sweepable, migratableOrchard) = await runWithCoin(
@@ -1474,9 +1503,8 @@ abstract class ZcashWalletBase
 
   @override
   @action
-  Future<void> updateBalance() async {
-    await _refreshBalance(runAutoShield: true);
-  }
+  Future<void> updateBalance({bool runAutoShield = true, bool runIronwoodMigrate = true}) =>
+      _refreshBalance(runAutoShield: runAutoShield, runIronwoodMigrate: runIronwoodMigrate);
 
   @override
   Future<bool> verifyMessage(

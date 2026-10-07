@@ -43,13 +43,12 @@ class ZcashLedgerService extends ZcashHardwareWalletService {
 
   Future<Uint8List> exchange(final Uint8List apdu) async {
     try {
-      final reply = await connection.sendOperation<Uint8List>(ExchangeOperation(apdu));
+      final reply = await connection.sendOperation<Uint8List>(_ExchangeOperation(apdu));
       lastTransportError = null;
       return reply;
     } on LedgerDeviceException catch (e) {
       printV(
-        "ledger: status ${e.errorCode.toRadixString(16)} for ins ${apdu[1].toRadixString(16)}",
-      );
+        "ledger: status ${e.errorCode.toRadixString(16)} for ins ${apdu[1].toRadixString(16)}");
       return Uint8List.fromList([(e.errorCode >> 8) & 0xff, e.errorCode & 0xff]);
     } catch (e) {
       printV("ledger transport error: $e");
@@ -83,8 +82,7 @@ class ZcashLedgerService extends ZcashHardwareWalletService {
         (current.$1 == major && current.$2 == minor && current.$3 < patch);
     if (tooOld) {
       throw ZcashLedgerException(
-        "Zcash app $version on the Ledger is too old for shielded transactions",
-      );
+        "Zcash app $version on the Ledger is too old for shielded transactions");
     }
   }
 
@@ -208,8 +206,8 @@ class ZcashLedgerService extends ZcashHardwareWalletService {
   }
 }
 
-class ExchangeOperation extends LedgerRawOperation<Uint8List> {
-  ExchangeOperation(this.inputData);
+class _ExchangeOperation extends LedgerRawOperation<Uint8List> {
+  _ExchangeOperation(this.inputData);
 
   final Uint8List inputData;
 

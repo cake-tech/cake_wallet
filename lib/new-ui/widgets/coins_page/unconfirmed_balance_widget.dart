@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -49,18 +50,20 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                           onTap: () {
                             final modal = isIronwoodMigration
                                 ? ZcashMigrationModal(
-                                    hasContinue: false, balance: "${balance} ${currency.symbol}")
+                                    hasContinue: false,
+                                    balance: balance.toStringWithSymbol(),
+                                  )
                                 : UnconfirmedBalanceModal(
                                     balance: balance.toStringWithSymbol(),
-                              currencyIconPath: currency.iconPath ?? "",
-                            );
+                                    currencyIconPath: currency.iconPath ?? "",
+                                  );
                             showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
                                 builder: (context) => modal);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -85,8 +88,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                     Row(
                                       spacing: 4,
                                       children: [
-                                        Text(
-                                          "$balance ${currency.title}",
+                                        MoneyText(
+                                          balance,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,
                                           ),
