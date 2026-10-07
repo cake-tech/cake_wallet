@@ -82,7 +82,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
   final Function()? onDispose;
-  final String cardInstanceName;
+  final ExchangeCardInstance cardInstanceName;
   final Color fillColor;
   final bool useSatoshis;
   final void Function(BuildContext context)? onTapCurrencyPicker;
@@ -100,13 +100,12 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         _isAddressEditable = false,
         _walletName = '',
         _isAmountEstimated = false,
-        _isMoneroWallet = false,
-        _cardInstanceName = '';
+        _isMoneroWallet = false;
 
   final addressController = TextEditingController();
   final amountController = TextEditingController();
 
-  String _cardInstanceName;
+  late ExchangeCardInstance _cardInstanceName;
   String _title;
   String? _min;
   String? _max;
@@ -205,7 +204,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             children: <Widget>[
               SizedBox(height: 40),
               Text(
-                key: ValueKey('${_cardInstanceName}_title_key'),
+                key: ValueKey('${_cardInstanceName.name}_title_key'),
                 _title,
                 style: Theme.of(context).textTheme.titleLarge!.copyWith(
                       fontSize: 18,
@@ -219,14 +218,14 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             hasUnderlineBorder: true,
             borderWidth: 0.0,
             padding: EdgeInsets.zero,
-            currencyPickerButtonKey: ValueKey('${_cardInstanceName}_currency_picker_button_key'),
-            selectedCurrencyTextKey: ValueKey('${_cardInstanceName}_selected_currency_text_key'),
+            currencyPickerButtonKey: ValueKey('${_cardInstanceName.name}_currency_picker_button_key'),
+            selectedCurrencyTextKey: ValueKey('${_cardInstanceName.name}_selected_currency_text_key'),
             selectedCurrencyTagTextKey:
-                ValueKey('${_cardInstanceName}_selected_currency_tag_text_key'),
-            amountTextfieldKey: ValueKey('${_cardInstanceName}_amount_textfield_key'),
-            sendAllButtonKey: ValueKey('${_cardInstanceName}_send_all_button_key'),
+                ValueKey('${_cardInstanceName.name}_selected_currency_tag_text_key'),
+            amountTextfieldKey: ValueKey('${_cardInstanceName.name}_amount_textfield_key'),
+            sendAllButtonKey: ValueKey('${_cardInstanceName.name}_send_all_button_key'),
             currencyAmountTextFieldWidgetKey:
-                ValueKey('${_cardInstanceName}_currency_amount_textfield_widget_key'),
+                ValueKey('${_cardInstanceName.name}_currency_amount_textfield_widget_key'),
             imageArrow: widget.imageArrow,
             selectedCurrency: widget.useSatoshis ? "SATS" : "$_selectedCurrency",
             selectedCurrencyDecimals: widget.useSatoshis ? 0 : _selectedCurrency.decimals,
@@ -252,7 +251,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                       children: <Widget>[
                         _min != null
                             ? Text(
-                                key: ValueKey('${_cardInstanceName}_min_limit_text_key'),
+                                key: ValueKey('${_cardInstanceName.name}_min_limit_text_key'),
                                 S.of(context).min_value(_min ?? '', _selectedCurrency.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
@@ -264,7 +263,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                         _min != null ? SizedBox(width: 10) : Offstage(),
                         _max != null
                             ? Text(
-                                key: ValueKey('${_cardInstanceName}_max_limit_text_key'),
+                                key: ValueKey('${_cardInstanceName.name}_max_limit_text_key'),
                                 S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
@@ -300,7 +299,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           hasUnderlineBorder: true,
                           borderWidth: 0.0,
                           addressKey:
-                              ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
+                              ValueKey('${_cardInstanceName.name}_editable_address_textfield_key'),
                           focusNode: widget.addressFocusNode,
                           controller: addressController,
                           onURIScanned: (uri) {
@@ -354,7 +353,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                             hasUnderlineBorder: true,
                             borderWidth: 0.0,
                             key:
-                                ValueKey('${_cardInstanceName}_non_editable_address_textfield_key'),
+                                ValueKey('${_cardInstanceName.name}_non_editable_address_textfield_key'),
                             controller: addressController,
                             suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
                             textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -380,10 +379,11 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                       height: 34,
                                       padding: EdgeInsets.only(top: 0),
                                       child: Semantics(
+                                        identifier: "${_cardInstanceName.name}_address_book_button_key",
                                         label: S.of(context).address_book,
                                         child: InkWell(
                                           key: ValueKey(
-                                              '${_cardInstanceName}_address_book_button_key'),
+                                              '${_cardInstanceName.name}_address_book_button_key'),
                                           onTap: () async {
                                             final contact = await Navigator.of(context).pushNamed(
                                               Routes.pickerAddressBook,
@@ -417,10 +417,11 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                     height: 34,
                                     padding: EdgeInsets.only(top: 0),
                                     child: Semantics(
+                                      identifier: "${_cardInstanceName.name}_copy_refund_address_button_key",
                                       label: S.of(context).copy_address,
                                       child: InkWell(
                                         key: ValueKey(
-                                            '${_cardInstanceName}_copy_refund_address_button_key'),
+                                            '${_cardInstanceName.name}_copy_refund_address_button_key'),
                                         onTap: () {
                                           Clipboard.setData(
                                               ClipboardData(text: addressController.text));
@@ -456,7 +457,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        key: ValueKey('${_cardInstanceName}_currency_picker_dialog_button_key'),
+        key: ValueKey('${_cardInstanceName.name}_currency_picker_dialog_button_key'),
         selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
         items: widget.currencies,
         hintText: S.of(context).search_currency,
@@ -489,3 +490,5 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
     return address;
   }
 }
+
+enum ExchangeCardInstance { deposit, receive }
