@@ -1311,6 +1311,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.nano:
       case WalletType.banano:

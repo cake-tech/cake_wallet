@@ -584,7 +584,7 @@ Future<void> setup({
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
 
-  getIt.registerLazySingleton<PriceStore>(() => PriceStore());
+  getIt.registerLazySingleton<PriceStore>(() => PriceStore(settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<ChartsBloc>(
           () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
@@ -1247,6 +1247,7 @@ Future<void> setup({
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.createEVMWalletService(param1, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(
