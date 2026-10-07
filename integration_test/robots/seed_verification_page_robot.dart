@@ -29,7 +29,9 @@ class SeedVerificationPageRobot extends BaseRobot {
 
       hasTextAtLeastOnce(currentCorrectWord);
 
-      await tapByKey("seed_verification_option_${currentCorrectWord}_button_key");
+      final index = walletSeedViewModel.currentOptions.indexOf(currentCorrectWord);
+
+      await tapByKey("seed_verification_option_${index}_button_key");
 
       final hasMovedOn = await pumpUntil(
         () =>
