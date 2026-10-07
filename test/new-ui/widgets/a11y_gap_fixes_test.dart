@@ -1,4 +1,12 @@
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/range_selector.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
+import "package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart";
+import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
+import "package:cake_wallet/view_model/settings/choices_list_item.dart";
+import "package:cw_core/receive_page_option.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
@@ -36,6 +44,8 @@ class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
 
 class _MockAppStore extends Mock implements AppStore {}
+
+class _MockReceiveOptionViewModel extends Mock implements ReceiveOptionViewModel {}
 
 class _MockSettingsStore extends Mock implements SettingsStore {}
 
@@ -218,5 +228,111 @@ void main() {
       expect(childLabels, containsAll(["0", "XMR", "0.00", "Menu"]));
       handle.dispose();
     });
+  });
+
+  group("segmented controls", () {
+    testWidgets("chart range options are selectable buttons in one group", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(ChartRangeSelector(selectedRange: ChartRange.oneDay, onRangeSelected: (_) {})),
+      );
+
+      for (final (index, range) in ChartRange.ranges.indexed) {
+        expect(
+          one(tester, "chart_range_${index}_key"),
+          isSemantics(
+            label: range.displayText,
+            isButton: true,
+            hasSelectedState: true,
+            isSelected: range == ChartRange.oneDay,
+            isInMutuallyExclusiveGroup: true,
+            hasTapAction: true,
+          ),
+        );
+      }
+      handle.dispose();
+    });
+
+    testWidgets("lightning switch carries its id on the toggle node", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(LightningSwitcher(lightningMode: true, onLightningSwitchPress: () {})),
+      );
+      expect(
+        one(tester, "home_page_lightning_switch_key"),
+        isSemantics(
+          label: "Lightning mode",
+          isButton: true,
+          hasToggledState: true,
+          isToggled: true,
+          hasTapAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets("address type rows carry an index-based id", (tester) async {
+      final handle = tester.ensureSemantics();
+      final viewModel = _MockReceiveOptionViewModel();
+      when(() => viewModel.options)
+          .thenReturn([ReceivePageOption.mainnet, ReceivePageOption.testnet]);
+      when(() => viewModel.walletTypeString).thenReturn("Monero");
+      await tester.pumpWidget(
+        wrap(
+          ReceiveAddressTypeRow(
+            option: ReceivePageOption.testnet,
+            roundedTop: true,
+            roundedBottom: true,
+            selected: true,
+            onItemTap: () {},
+            receiveOptionViewModel: viewModel,
+          ),
+        ),
+      );
+      expect(
+        one(tester, "receive_address_type_1_key"),
+        isSemantics(
+          label: "testnet",
+          hasSelectedState: true,
+          isSelected: true,
+          isInMutuallyExclusiveGroup: true,
+          hasTapAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    for (final testId in [null, "display_settings_mode"]) {
+      testWidgets("SettingsChoicesCell options expose selection (testId: $testId)", (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          wrap(
+            SettingsChoicesCell(
+              ChoicesListItem<String>(title: "", selectedItem: "B", items: ["A", "B"]),
+              testId: testId,
+            ),
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text("A")),
+          isSemantics(label: "A", isButton: true, hasSelectedState: true, isSelected: false),
+        );
+        expect(
+          tester.getSemantics(find.text("B")),
+          isSemantics(
+            label: "B",
+            isButton: true,
+            hasSelectedState: true,
+            isSelected: true,
+            isInMutuallyExclusiveGroup: true,
+            hasTapAction: true,
+          ),
+        );
+        if (testId != null) {
+          expect(one(tester, "display_settings_mode_1_key"), isSemantics(label: "B"));
+        }
+        handle.dispose();
+      });
+    }
   });
 }
