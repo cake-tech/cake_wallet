@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tra
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/test_id.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -41,6 +42,7 @@ class HistorySection extends StatelessWidget {
   /// date, amounts) merges into one label.
   Widget _historyRow({required VoidCallback onTap, required Widget child}) => MergeSemantics(
         child: Semantics(
+          identifier: TestId.fromKey(child.key),
           button: true,
           child: GestureDetector(onTap: onTap, child: child),
         ),
@@ -116,7 +118,7 @@ class HistorySection extends StatelessWidget {
                                 }
                               },
                               child: HistoryTile(
-                                key: ValueKey("home_page_transaction_${transaction.id}_key"),
+                                key: ValueKey("home_page_transaction_${index}_key"),
                                 title: item.formattedTitle + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
