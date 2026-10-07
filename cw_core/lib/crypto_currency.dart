@@ -223,6 +223,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 6,
       name: 'dash',
       iconPath: 'assets/images/dash_icon.png',
+      flatIconPath: 'assets/new-ui/balance_card_icons/dash.svg',
       decimals: 8);
   static const eos = CryptoCurrency(
       title: 'EOS',
