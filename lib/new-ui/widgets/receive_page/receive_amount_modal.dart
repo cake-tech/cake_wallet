@@ -57,6 +57,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                 onTrailingPressed: () {},
                 leadingIcon: Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
+                testId: "receive_amount_modal",
               ),
               Padding(
                 padding: const EdgeInsets.all(18.0),
@@ -149,6 +150,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                             ),
                             child: MergeSemantics(
                               child: Semantics(
+                                identifier: "receive_amount_modal_amount_textfield_key",
                                 label: S.of(context).amount,
                                 child: TextField(
                                   textAlign: TextAlign.left,
@@ -240,6 +242,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                     ),
                     SizedBox(),
                     NewPrimaryButton(
+                      testId: "receive_amount_modal_continue_button_key",
                       text: S.of(context).continue_text,
                       onPressed: () {
                         if (double.tryParse(_amountController.text) != null) {
