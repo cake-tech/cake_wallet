@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cw_core/generate_name.dart';
 import 'package:flutter/services.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class WalletRestoreFromKeysForm extends StatefulWidget {
   WalletRestoreFromKeysForm({
@@ -154,7 +155,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
               controller: nameTextEditingController,
               hintText: S.of(context).wallet_name,
               validator: WalletNameValidator(),
-              suffixIcon: IconButton(
+              suffixIcon: TestId.merge("wallet_restore_from_keys_wallet_name_refresh_button_key", child: IconButton(
                 key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
                 onPressed: () async {
                   final rName = await generateName();
@@ -179,7 +180,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ),
+              )),
             ),
             if (widget.displayWalletPassword) ...[
               Container(

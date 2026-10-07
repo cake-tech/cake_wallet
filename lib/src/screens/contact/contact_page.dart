@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class ContactPage extends BasePage {
   ContactPage(this.contactViewModel)
@@ -81,7 +82,7 @@ class ContactPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Container(
-                    child: InkWell(
+                    child: TestId.merge("contact_page_currency_picker_button_key", child: InkWell(
                       key: ValueKey("contact_page_currency_picker_button_key"),
                       onTap: () => _presentCurrencyPicker(context),
                       child: IgnorePointer(
@@ -98,7 +99,7 @@ class ContactPage extends BasePage {
                           ),
                         ),
                       ),
-                    ),
+                    )),
                   ),
                 ),
                 if (contactViewModel.currency != null)
