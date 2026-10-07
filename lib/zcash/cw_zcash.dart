@@ -226,7 +226,9 @@ class CWZcash extends Zcash {
 
   @override
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
-    // (wallet as ZcashWallet).hardwareWalletService = service;
+    if (service is ZcashHardwareWalletService) {
+      (wallet as ZcashWallet).hardwareWalletService = service;
+    }
   }
 
   @override

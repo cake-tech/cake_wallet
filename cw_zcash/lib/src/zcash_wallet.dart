@@ -1,11 +1,11 @@
 import 'dart:async';
+import "dart:convert";
 import 'dart:io';
 import 'dart:math';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/get_height_by_date_zec.dart';
-import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -20,8 +20,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
+import "package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart";
 import 'package:cw_zcash/src/util/crc32.dart';
-import "package:cw_zcash/src/zcash_ledger_service.dart";
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
@@ -74,7 +74,7 @@ abstract class ZcashWalletBase
     _pendingOutgoingAmounts[ZcashWalletService.normalizeTxId(txId)] = amount.amount;
   }
 
-  HardwareWalletService? hardwareWalletService;
+  ZcashHardwareWalletService? hardwareWalletService;
 
   @override
   @observable
@@ -478,7 +478,7 @@ abstract class ZcashWalletBase
     // pools parameter: bitmask for which pools to use for sending
     // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
-      return await runWithCoin(
+      final (txPlan, txFee) = await runWithCoin(
         accountId: accountId,
         func: (coin) async {
           final ironwood = await zkool_network.isIronwoodActive(c: coin);
@@ -492,14 +492,37 @@ abstract class ZcashWalletBase
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
-          return PendingZcashTransaction(
+          return (txPlan, txFee);
+        },
+      );
+
+      if (isHardwareWallet) {
+        final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
+
+        final signedTxBytes = await runWithCoin(
+            accountId: accountId,
+            func: (coin) => hardwareWalletService!.withCoin(coin).signTransaction(
+                transaction: base64Encode(unsignedTx),
+              )
+        );
+        final signedTx = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
+
+        return PendingZcashTransaction(
             zcashWallet: this as ZcashWallet,
             credentials: creds,
             txPlan: txPlan,
             fee: txFee,
             availableBalance: availableBalance,
-          );
-        },
+            signedTxPackage: signedTx
+        );
+      }
+
+      return PendingZcashTransaction(
+        zcashWallet: this as ZcashWallet,
+        credentials: creds,
+        txPlan: txPlan,
+        fee: txFee,
+        availableBalance: availableBalance,
       );
     } catch (e) {
       if (tryReduceFeeAmount != 0) rethrow;
@@ -1563,15 +1586,13 @@ abstract class ZcashWalletBase
     credentials.walletInfo?.network = network.value;
 
     final service = credentials.hardwareWalletService;
-    if (service is! ZcashLedgerService) {
+    if (service is! ZcashHardwareWalletService) {
       throw Exception("A Ledger connection is required to restore a Zcash hardware wallet");
     }
 
-    final accounts = await service.getAvailableAccounts(
-      index: credentials.accountIndex,
-      limit: 1,
-      network: network,
-    );
+    final accounts = await service
+        .withCoin(zkool_coin.Coin(defaultCoin: network.networkIndex))
+        .getAvailableAccounts(index: credentials.accountIndex, limit: 1);
     final ufvk = accounts.firstOrNull?.xpub;
     if (ufvk == null || ufvk.isEmpty) {
       throw Exception("The Ledger did not return a viewing key");

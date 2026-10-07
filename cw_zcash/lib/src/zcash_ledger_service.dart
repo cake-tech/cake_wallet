@@ -1,9 +1,10 @@
 import 'dart:async';
+import "dart:convert";
 import 'dart:typed_data';
 
 import 'package:cw_core/hardware/hardware_account_data.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart";
 import 'package:cw_zcash/src/zcash_network.dart';
 import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -12,15 +13,6 @@ import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/ledger.dart' as zkool_ledger;
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
 
-/// Zcash on a Ledger running the Official Zcash app (LedgerHQ app-zcash).
-///
-/// The device only ever sees APDUs. The Rust side speaks the app's PCZT
-/// protocol -- viewing-key export, transaction review, Ironwood (NU6.3) and
-/// transparent signing -- and hands every command to [exchange], which sends
-/// it over the BLE or USB connection that ledger_flutter_plus owns. Proofs and
-/// the binding signature are computed by the backend afterwards.
-/// A Ledger problem in the words of the person holding the device. Shown as
-/// is, without an "Exception:" prefix or the signer's backtrace.
 class ZcashLedgerException implements Exception {
   ZcashLedgerException(this.message);
 
@@ -33,10 +25,16 @@ class ZcashLedgerException implements Exception {
 const _notConnected =
     "The Ledger is not connected. Make sure it is unlocked and nearby, then try again.";
 
-class ZcashLedgerService extends HardwareWalletService {
-  ZcashLedgerService(this.connection);
+class ZcashLedgerService extends ZcashHardwareWalletService {
+  ZcashLedgerService(this.connection, {this.network = ZcashNetwork.mainnet, zkool_coin.Coin? coin})
+    : super(coin);
 
   final LedgerConnection connection;
+  final ZcashNetwork network;
+
+  @override
+  ZcashLedgerService withCoin(zkool_coin.Coin coin) =>
+      ZcashLedgerService(connection, network: network, coin: coin);
 
   /// Ironwood/v6 signing shipped in app-zcash 3.9.2.
   static const (int, int, int) minAppVersion = (3, 9, 2);
@@ -46,12 +44,12 @@ class ZcashLedgerService extends HardwareWalletService {
   Future<Uint8List> exchange(final Uint8List apdu) async {
     try {
       final reply = await connection.sendOperation<Uint8List>(ExchangeOperation(apdu));
-      // A cause recorded for an earlier exchange no longer explains a later
-      // failure.
       lastTransportError = null;
       return reply;
     } on LedgerDeviceException catch (e) {
-      printV("ledger: status ${e.errorCode.toRadixString(16)} for ins ${apdu[1].toRadixString(16)}");
+      printV(
+        "ledger: status ${e.errorCode.toRadixString(16)} for ins ${apdu[1].toRadixString(16)}",
+      );
       return Uint8List.fromList([(e.errorCode >> 8) & 0xff, e.errorCode & 0xff]);
     } catch (e) {
       printV("ledger transport error: $e");
@@ -68,58 +66,43 @@ class ZcashLedgerService extends HardwareWalletService {
     try {
       version = await appVersion();
     } on ZcashLedgerException {
-      // Already in the user's words: locked, wrong app, not connected.
       rethrow;
     } catch (e) {
       throw ZcashLedgerException(
-        "Open the Zcash app on your Ledger, then try again (${firstLine(e)})",
-      );
+        "Open the Zcash app on your Ledger, then try again (${_trimRustException(e.toString())})");
     }
     final parts = version.split(".").map(int.tryParse).toList();
     if (parts.length < 3 || parts.any((final p) => p == null)) {
-      // Never skip the minimum-version check on a version we cannot read.
-      throw ZcashLedgerException(
-        "Could not read the Zcash app version on the Ledger ($version); "
-            "update the app in Ledger Live.",
-      );
+      throw ZcashLedgerException("Could not read the Zcash app version on the Ledger ($version)");
     }
     final (major, minor, patch) = minAppVersion;
     final current = (parts[0]!, parts[1]!, parts[2]!);
-    final tooOld = current.$1 < major ||
+    final tooOld =
+        current.$1 < major ||
         (current.$1 == major && current.$2 < minor) ||
         (current.$1 == major && current.$2 == minor && current.$3 < patch);
     if (tooOld) {
       throw ZcashLedgerException(
-        "Zcash app $version on the Ledger is too old for shielded transactions; "
-            "update it to $major.$minor.$patch or newer in Ledger Live.",
+        "Zcash app $version on the Ledger is too old for shielded transactions",
       );
     }
   }
 
-  /// Exports the viewing key of one ZIP-32 account.
-  ///
-  /// Every export is approved on the device screen, so this returns a single
-  /// account regardless of [limit]: the picker's "load more" asks for the
-  /// next index, one approval at a time. [HardwareAccountData.xpub] carries
-  /// the unified full viewing key the wallet is created from.
-  ///
-  /// [network] selects the viewing key's network (mainnet unless the wallet
-  /// being restored says otherwise); it decides the coin type in the
-  /// derivation path the device exports from.
-  @override
-  Future<List<HardwareAccountData>> getAvailableAccounts({
-    final int index = 0,
-    final int limit = 5,
-    final ZcashNetwork network = ZcashNetwork.mainnet,
-  }) async {
+  Future<void> _ensureServiceReadiness() async {
     await ZcashWalletBase.ensureRustLib();
     await ensureZcashApp();
-    // Only the network is read from this, never the database.
-    final coin = zkool_coin.Coin(defaultCoin: network.networkIndex);
+    if (coin == null) {
+      throw ZcashLedgerException("Zcash coin not set, please contact support");
+    }
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    await _ensureServiceReadiness();
     final ufvk = await _guard(
-          () => zkool_ledger.ledgerGetUfvk(aindex: index, c: coin, exchange: exchange),
+      () => zkool_ledger.ledgerGetUfvk(aindex: index, c: coin!, exchange: exchange),
     );
-    final address = zkool_ledger.ufvkDefaultAddress(ufvk: ufvk, c: coin);
+    final address = zkool_ledger.ufvkDefaultAddress(ufvk: ufvk, c: coin!);
     return [
       HardwareAccountData(
         address: address,
@@ -130,17 +113,26 @@ class ZcashLedgerService extends HardwareWalletService {
     ];
   }
 
-  /// Has the device review and sign a transaction plan. Progress events are
-  /// followed by the proven, finalized package ready to broadcast.
-  Stream<zkool_pay.SigningEvent> sign(
-      final zkool_pay.PcztPackage package,
-      final zkool_coin.Coin coin,
-      ) async* {
-    await ZcashWalletBase.ensureRustLib();
-    await ensureZcashApp();
-    if (connection.isDisconnected) {
-      throw ZcashLedgerException(_notConnected);
+  @override
+  Future<Uint8List> signTransaction({required String transaction}) async {
+    await _ensureServiceReadiness();
+    final txPlan = await zkool_pay.unpackTransaction(bytes: base64Decode(transaction));
+
+    await for (final event in _sign(txPlan, coin!)) {
+      switch (event) {
+        case zkool_pay.SigningEvent_Progress(:final field0):
+          printV("ledger: $field0");
+        case zkool_pay.SigningEvent_Result(:final field0):
+          return zkool_pay.packTransaction(pczt: field0);
+      }
     }
+    throw ZcashLedgerException("Ledger did not sign the transaction");
+  }
+
+  Stream<zkool_pay.SigningEvent> _sign(
+    final zkool_pay.PcztPackage package,
+    final zkool_coin.Coin coin,
+  ) async* {
     lastTransportError = null;
     yield* zkool_ledger
         .ledgerSignTransaction(package: package, c: coin, exchange: exchange)
@@ -164,26 +156,20 @@ class ZcashLedgerService extends HardwareWalletService {
       return error;
     }
     if (lastTransportError != null) {
-      // The exchange itself failed: the device went away, out of range, or
-      // was locked long enough to drop the link. The cause stays in the log.
       printV("ledger transport failure: $lastTransportError");
       return ZcashLedgerException(_notConnected);
     }
-    return statusWordOf(error) == null ? error : ZcashLedgerException(describe(error));
+
+    final sw = _ledgerStatusWordOf(error);
+    return sw == null ? error : ZcashLedgerException(_interpretLedgerErrorCode(sw));
   }
 
-  /// The status word in an error the Rust signer raised for an APDU the
-  /// device answered with a failure, or null if the error is something else.
-  /// The signer reports these as "Error Executing Instruction <ins>: <sw>",
-  /// both in decimal.
-  static int? statusWordOf(final Object error) {
+  int? _ledgerStatusWordOf(final Object error) {
     final m = RegExp(r"Error Executing Instruction \d+: (\d+)").firstMatch(error.toString());
     return m == null ? null : int.tryParse(m.group(1)!);
   }
 
-  /// What a Ledger status word means to the person holding the device.
-  static String describe(final Object error) {
-    final sw = statusWordOf(error);
+  String _interpretLedgerErrorCode(int sw) {
     switch (sw) {
       case 0x5515:
         return "Your Ledger is locked. Unlock it and open the Zcash app, then try again.";
@@ -202,25 +188,23 @@ class ZcashLedgerService extends HardwareWalletService {
       case 0x6f00:
       case 0x6f01:
         return "The Zcash app on the Ledger ran into an internal error. Close and reopen the app, then try again.";
-      case null:
-        return firstLine(error);
       default:
-        return "The Ledger returned an error (0x${sw.toRadixString(16).padLeft(4, '0')}). "
-            "Make sure the Zcash app is open and up to date, then try again.";
+        return "The Ledger returned an error (0x${sw.toRadixString(16).padLeft(4, '0')}). Make sure the Zcash app is open and up to date, then try again.";
     }
   }
 
-  /// An error's message without the Rust backtrace the signer appends.
-  static String firstLine(final Object error) {
-    var text = error.toString();
-    if (text.startsWith("Exception: ")) {
-      text = text.substring("Exception: ".length);
+  String _trimRustException(String error) {
+    if (error.startsWith("Exception: ")) {
+      error = error.substring("Exception: ".length);
     }
-    final cut = text.indexOf("\n\nStack backtrace");
+    final cut = error.indexOf("\n\nStack backtrace");
     if (cut != -1) {
-      text = text.substring(0, cut);
+      error = error.substring(0, cut);
     }
-    return text.trim().replaceFirst(RegExp(r"^AnyhowException\("), "").replaceFirst(RegExp(r"\)$"), "");
+    return error
+        .trim()
+        .replaceFirst(RegExp(r"^AnyhowException\("), "")
+        .replaceFirst(RegExp(r"\)$"), "");
   }
 }
 
