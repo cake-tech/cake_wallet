@@ -349,7 +349,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           child: Semantics(
                             container: true,
                             liveRegion: true,
-                            label: "${S.of(context).amount}${state.errorText!}",
+                            label: "${S.of(context).receive_amount}\n${state.errorText!}",
                             excludeSemantics: true,
                             child: Text(
                               state.errorText!,

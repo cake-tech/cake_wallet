@@ -151,7 +151,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                             child: MergeSemantics(
                               child: Semantics(
                                 identifier: "receive_amount_modal_amount_textfield_key",
-                                label: S.of(context).amount,
+                                label: S.of(context).receive_amount,
                                 child: TextField(
                                   textAlign: TextAlign.left,
                                   textAlignVertical: TextAlignVertical.center,

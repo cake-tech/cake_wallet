@@ -42,28 +42,48 @@ void main() {
     return nodes.single;
   }
 
+  Future<void> pumpReceiveAmountModal(WidgetTester tester) async {
+    final viewModel = _MockWalletAddressListViewModel();
+    when(() => viewModel.selectedCurrency).thenReturn(CryptoCurrency.btc);
+    when(() => viewModel.displayAmount).thenReturn("");
+    when(() => viewModel.hasTokensList).thenReturn(false);
+    when(() => viewModel.selectedCurrencyDecimals).thenReturn(8);
+    when(() => viewModel.useSatoshi).thenReturn(false);
+    when(() => viewModel.selectedCurrencySymbol).thenReturn("BTC");
+    await tester.pumpWidget(
+      wrap(ReceiveAmountModal(walletAddressListViewModel: viewModel, onSubmitted: (_) {})),
+    );
+  }
+
   group("receive amount modal", () {
     testWidgets("field, title and continue button are distinct identified nodes", (tester) async {
       final handle = tester.ensureSemantics();
-      final viewModel = _MockWalletAddressListViewModel();
-      when(() => viewModel.selectedCurrency).thenReturn(CryptoCurrency.btc);
-      when(() => viewModel.displayAmount).thenReturn("");
-      when(() => viewModel.hasTokensList).thenReturn(false);
-      when(() => viewModel.selectedCurrencyDecimals).thenReturn(8);
-      when(() => viewModel.useSatoshi).thenReturn(false);
-      when(() => viewModel.selectedCurrencySymbol).thenReturn("BTC");
-      await tester.pumpWidget(
-        wrap(ReceiveAmountModal(walletAddressListViewModel: viewModel, onSubmitted: (_) {})),
-      );
+      await pumpReceiveAmountModal(tester);
 
-      final field = one(tester, "receive_amount_modal_amount_textfield_key");
-      expect(field, isSemantics(isTextField: true, hasTapAction: true));
-      expect(one(tester, "receive_amount_modal_title_key"),
-          isSemantics(label: "Set amount", isHeader: true));
+      expect(
+        one(tester, "receive_amount_modal_amount_textfield_key"),
+        isSemantics(isTextField: true, hasTapAction: true),
+      );
+      expect(
+        one(tester, "receive_amount_modal_title_key"),
+        isSemantics(label: "Set amount", isHeader: true),
+      );
       expect(
         one(tester, "receive_amount_modal_continue_button_key"),
         isSemantics(label: "Continue", isButton: true, hasTapAction: true),
       );
+      handle.dispose();
+    });
+  });
+
+  group("amount semantics label", () {
+    testWidgets("the Set amount field label has no doubled colon", (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpReceiveAmountModal(tester);
+
+      final label = one(tester, "receive_amount_modal_amount_textfield_key").label;
+      expect(label, startsWith("Amount\n"));
+      expect(label, isNot(contains(":")));
       handle.dispose();
     });
   });
