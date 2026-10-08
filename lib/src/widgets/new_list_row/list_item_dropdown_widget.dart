@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ListItemDropdownWidget extends StatelessWidget {
@@ -30,7 +29,7 @@ class ListItemDropdownWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
-      testId: testId ?? TestId.fromKey(key),
+      testId: testId,
       isFirstInSection: isFirstInSection,
       isLastInSection: isLastInSection,
       onTap: onTap,

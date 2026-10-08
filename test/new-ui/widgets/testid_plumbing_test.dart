@@ -369,6 +369,7 @@ void main() {
         tester,
         ListItemToggleWidget(
           key: const ValueKey("settings_tor_toggle_key"),
+          testId: "settings_tor_toggle_key",
           keyValue: "settings_tor_toggle_key",
           label: "Use Tor",
           value: true,
@@ -416,7 +417,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets("NewListSections applies ListItem.testId and test-key keyValues", (tester) async {
+    testWidgets("NewListSections applies ListItem.testId and never a keyValue", (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         wrap(
@@ -436,10 +437,12 @@ void main() {
                 ),
                 ListItemToggle(
                   keyValue: "settings_page_tor_toggle_key",
+                  testId: "settings_page_tor_toggle_key",
                   label: "Tor",
                   value: false,
                   onChanged: (_) {},
                 ),
+                ListItemRegularRow(keyValue: "savings_key", label: "savings_key", onTap: () {}),
               ],
             },
           ),
@@ -456,6 +459,7 @@ void main() {
         isSemantics(label: "Tor", hasToggledState: true),
       );
       expect(find.bySemanticsIdentifier(RegExp("security")), findsNothing);
+      expect(find.bySemanticsIdentifier(RegExp("savings")), findsNothing);
       handle.dispose();
     });
   });

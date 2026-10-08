@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -73,7 +72,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
         duration: Duration(milliseconds: 150),
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
-            testId: testId ?? TestId.fromKey(key),
+            testId: testId,
             mergeTestId: trailingWidget == null && bottomWidget == null,
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
             onTap: onTap,

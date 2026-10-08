@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -32,7 +31,7 @@ class ListItemSelectorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListItemStyleWrapper(
-        testId: testId ?? TestId.fromKey(key),
+        testId: testId,
         onTap: onTap,
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
