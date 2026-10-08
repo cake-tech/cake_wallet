@@ -1,11 +1,9 @@
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_advanced_settings_sheet.dart";
-import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_select_icon_sheet.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/creation/omnichain_wallet_creation_state.dart";
-import "package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart";
+import "package:cake_wallet/new-ui/widgets/wallet_icon_editor.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -81,45 +79,11 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(flex: 2),
-              Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    WalletIconAvatar(icon: state.walletIcon),
-                    Positioned(
-                      right: -2,
-                      bottom: 4,
-                      child: Material(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-
-                          onTap: () async {
-                            final WalletIcon? selection = await OmniChainWalletIconPickerSheet.show(
-                              context,
-                              initial: state.walletIcon, cryptoTypes: [],
-                            );
-
-                            if (selection != null && context.mounted) {
-                              context.read<OmniChainWalletBloc>().add(
-                                OmniChainWalletIconChanged(selection),
-                              );
-                            }
-                          },
-                          child: SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: Icon(
-                              Icons.add,
-                              size: 22,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              WalletIconEditor(
+                icon: state.walletIcon,
+                cryptoTypes: const [],
+                onChanged: (icon) => context.read<OmniChainWalletBloc>().add(
+                  OmniChainWalletIconChanged(icon),
                 ),
               ),
               const SizedBox(height: 28),

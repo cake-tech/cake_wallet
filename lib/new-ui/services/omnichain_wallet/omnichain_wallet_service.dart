@@ -1,7 +1,7 @@
 import "package:cake_wallet/core/new_wallet_arguments.dart";
 import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/entities/seed_type.dart";
-import "package:cake_wallet/entities/wallet_group_manager.dart";
+import "package:cake_wallet/entities/wallet_group_service.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
 import "package:cake_wallet/src/widgets/seed_language_picker.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -21,7 +21,7 @@ class OmniChainWalletCreationService {
   });
 
   final WalletNewVM Function(NewWalletArguments) walletNewVMBuilder;
-  final WalletGroupManager walletManager;
+  final WalletGroupService walletManager;
   final AppStore appStore;
   final WalletLoadingService walletLoadingService;
 

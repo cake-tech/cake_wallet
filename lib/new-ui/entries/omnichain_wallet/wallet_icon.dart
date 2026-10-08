@@ -30,4 +30,16 @@ class WalletIcon {
         colorIndex: colorIndex ?? this.colorIndex,
         backgroundEnabled: backgroundEnabled ?? this.backgroundEnabled,
       );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WalletIcon &&
+          other.type == type &&
+          other.value == value &&
+          other.colorIndex == colorIndex &&
+          other.backgroundEnabled == backgroundEnabled;
+
+  @override
+  int get hashCode => Object.hash(type, value, colorIndex, backgroundEnabled);
 }

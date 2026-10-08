@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import "package:cake_wallet/core/key_service.dart";
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
+import "package:cake_wallet/entities/wallet_group_service.dart";
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/entities/wallet_group_manager.dart';
+import "package:cw_core/wallet_service.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -19,28 +21,64 @@ abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(
     this._appStore,
     this._walletLoadingService,
-    this._walletManager,
+    this._walletGroupService,
+    this._keyService,
+    this._walletServiceFactory,
   )   : wallets = ObservableList<WalletListItem>(),
-        multiWalletGroups = ObservableList<WalletGroup>(),
+        multiWalletGroups = ObservableList<WalletGroup>.of(_walletGroupService.groups),
         expansionTileStateTrack = ObservableMap<int, bool>() {
+    _groupsSub = _walletGroupService.watch().listen(_setGroups);
+
     setOrderType(_appStore.settingsStore.walletListOrder);
     updateList();
-    reaction((_) => _appStore.wallet, (_) {
-      updateList();
-    });
+    reaction((_) => _appStore.wallet, (_) => updateList());
   }
+
+  final AppStore _appStore;
+  final WalletLoadingService _walletLoadingService;
+  final WalletGroupService _walletGroupService;
+  final KeyService _keyService;
+  final WalletService Function(WalletType type) _walletServiceFactory;
+
+  StreamSubscription<List<WalletGroup>>? _groupsSub;
+  bool _isDeletingGroup = false;
 
   @observable
   ObservableList<WalletListItem> wallets;
 
-  // @observable
-  // ObservableList<WalletGroup> walletGroups;
   @observable
   ObservableList<WalletGroup> multiWalletGroups;
 
-
   @observable
   ObservableMap<int, bool> expansionTileStateTrack;
+
+  @action
+  void _setGroups(List<WalletGroup> groups) => multiWalletGroups
+    ..clear()
+    ..addAll(groups);
+
+  bool groupContainsCurrentWallet(WalletGroup group) =>
+      group.wallets.any((w) => w.id == _appStore.wallet?.walletInfo.id);
+
+
+  Future<void> deleteGroup(WalletGroup group) async {
+    if (_isDeletingGroup) return;
+    if (groupContainsCurrentWallet(group)) {
+      throw StateError("Cannot delete the group of the currently open wallet");
+    }
+
+    _isDeletingGroup = true;
+    try {
+      for (final info in group.wallets) {
+        await _walletServiceFactory(info.type).remove(info);
+        await _keyService.deleteWalletPasswordForWallet(info);
+      }
+      await _walletGroupService.deleteGroupIfEmpty(group.groupKey);
+    } finally {
+      _isDeletingGroup = false;
+      await updateList();
+    }
+  }
 
   @action
   void updateTileState(int index, bool isExpanded) {
@@ -58,10 +96,6 @@ abstract class WalletListViewModelBase with Store {
   @computed
   bool get shouldRequireTOTP2FAForCreatingNewWallets =>
       _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
-
-  final AppStore _appStore;
-  final WalletGroupManager _walletManager;
-  final WalletLoadingService _walletLoadingService;
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
@@ -93,22 +127,15 @@ abstract class WalletListViewModelBase with Store {
     final waitFor = _lastUpdate;
     final done = Completer<void>();
     _lastUpdate = done.future;
-
     await waitFor;
 
     try {
-      wallets.clear();
-      multiWalletGroups.clear();
+      wallets
+        ..clear()
+        ..addAll((await WalletInfo.getAll()).map(convertWalletInfoToWalletListItem));
 
-      final list = await WalletInfo.getAll();
-
-      for (var info in list) {
-        wallets.add(convertWalletInfoToWalletListItem(info));
-      }
-
-      await _walletManager.updateWalletGroups();
-
-      multiWalletGroups.addAll(_walletManager.walletGroups);
+      // Rebuilds groups in the service; its emission refills multiWalletGroups via _setGroups.
+      await _walletGroupService.updateWalletGroups();
     } finally {
       done.complete();
     }
@@ -124,7 +151,6 @@ abstract class WalletListViewModelBase with Store {
 
     // make a copy of the walletInfoSource:
     List<WalletInfo> wiList = await WalletInfo.getAll();
-
 
     for (WalletGroup group in multiWalletGroups) {
       for (WalletInfo walletInfo in group.wallets) {
@@ -232,4 +258,6 @@ abstract class WalletListViewModelBase with Store {
       isHardware: info.isHardwareWallet,
     );
   }
+
+  void dispose() => _groupsSub?.cancel();
 }

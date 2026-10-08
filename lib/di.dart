@@ -10,6 +10,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import "package:cake_wallet/entities/wallet_group_service.dart";
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -44,8 +45,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
-import 'package:cake_wallet/entities/wallet_group_manager.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -262,7 +261,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_bloc.dart";
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
@@ -427,7 +426,7 @@ Future<void> setup({
     () => OmniChainWalletCreationService(
       walletNewVMBuilder: (newWalletArguments) =>
           getIt.get<WalletNewVM>(param1: newWalletArguments),
-      walletManager: getIt.get<WalletGroupManager>(),
+      walletManager: getIt.get<WalletGroupService>(),
       walletLoadingService: getIt.get<WalletLoadingService>(),
       appStore: getIt.get<AppStore>(),
     ),
@@ -452,13 +451,13 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerLazySingleton<WalletGroupManager>(WalletGroupManager.new,);
+  getIt.registerLazySingleton<WalletGroupService>(WalletGroupService.new,);
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
-      getIt.get<WalletGroupManager>(),
+      getIt.get<WalletGroupService>(),
       getIt.get<WalletListViewModel>(),
       type: type,
     ),
@@ -571,7 +570,7 @@ Future<void> setup({
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>(),
-      walletGroupManager: getIt.get<WalletGroupManager>()
+      walletGroupService: getIt.get<WalletGroupService>()
   ));
 
   getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
@@ -844,24 +843,19 @@ Future<void> setup({
 
 
 
+  WalletListViewModel _buildWalletListViewModel() => WalletListViewModel(
+    getIt.get<AppStore>(),
+    getIt.get<WalletLoadingService>(),
+    getIt.get<WalletGroupService>(),
+    getIt.get<KeyService>(),
+    (type) => getIt.get<WalletService>(param1: type),
+  );
+
   if (DeviceInfo.instance.isMobile) {
-    getIt.registerFactory(
-      () => WalletListViewModel(
-        getIt.get<AppStore>(),
-        getIt.get<WalletLoadingService>(),
-        getIt.get<WalletGroupManager>(),
-      ),
-    );
+    getIt.registerFactory<WalletListViewModel>(_buildWalletListViewModel);
   } else {
-    // register wallet list view model as singleton on desktop since it can be accessed
-    // from multiple places at the same time (Wallets DropDown, Wallets List in settings)
-    getIt.registerLazySingleton(
-      () => WalletListViewModel(
-        getIt.get<AppStore>(),
-        getIt.get<WalletLoadingService>(),
-        getIt.get<WalletGroupManager>(),
-      ),
-    );
+    // shared on desktop (Wallets dropdown + Wallets list in settings)
+    getIt.registerLazySingleton<WalletListViewModel>(_buildWalletListViewModel);
   }
 
   getIt.registerFactoryParam<WalletListPage, Function(BuildContext)?, void>(
@@ -871,29 +865,12 @@ Future<void> setup({
             onWalletLoaded: onWalletLoaded as Future<void> Function(BuildContext)?,
           ));
 
-  getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-    (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
-      walletListViewModel,
-      getIt.get<WalletLoadingService>(),
-      getIt.get<WalletGroupManager>(),
-    ),
-  );
+  getIt.registerFactory<WalletEditBloc>(() => WalletEditBloc(
+    groupService: getIt.get<WalletGroupService>(),
+    walletServiceFactory: (type) => getIt.get<WalletService>(param1: type),
+  ),);
 
-  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-    return WalletEditPage(
-      pageArguments: WalletEditPageArguments(
-        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
-        authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
-        ),
-        editingWallet: arguments.editingWallet,
-        isWalletGroup: arguments.isWalletGroup,
-        groupName: arguments.groupName,
-        walletGroupKey: arguments.walletGroupKey,
-      ),
-    );
-  });
+  getIt.registerFactory<WalletEditPage>(WalletEditPage.new,);
 
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -1646,7 +1623,7 @@ Future<void> setup({
   getIt.registerFactory(() => BridgeViewModel(
         appStore: getIt.get<AppStore>(),
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
-        walletManager: getIt.get<WalletGroupManager>(),
+        walletManager: getIt.get<WalletGroupService>(),
         fiatConversionStore: getIt.get<FiatConversionStore>(),
         settingsStore: getIt.get<SettingsStore>(),
       ));

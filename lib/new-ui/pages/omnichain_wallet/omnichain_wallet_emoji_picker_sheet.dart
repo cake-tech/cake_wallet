@@ -42,7 +42,7 @@ class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
 
 class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPickerSheet> {
   static const _defaultIcon = "";
-  static const _pickerHeight = 300.0;
+  static const _pickerHeight = 500.0;
 
   late String _selectedIcon;
   late int _selectedColorIndex;
@@ -55,7 +55,7 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
     final initial = widget.initial;
     _selectedIcon = (initial?.type == WalletIconType.emoji ? initial?.value : null) ?? _defaultIcon;
     _selectedColorIndex = initial?.colorIndex ?? 0;
-    _isBackgroundEnabled = initial?.backgroundEnabled ?? true;
+    _isBackgroundEnabled = initial?.backgroundEnabled ?? false;
   }
 
   void _onEmojiSelected(Category? category, Emoji emoji) {
@@ -141,6 +141,7 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
               shape: BoxShape.circle,
               gradient: _isBackgroundEnabled ? colors[colorIndex] : null,
               color: _isBackgroundEnabled ? null : Colors.transparent,
+              border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2),
             ),
             alignment: Alignment.center,
             child: Text(_selectedIcon, style: const TextStyle(fontSize: 48)),

@@ -52,6 +52,36 @@ class WalletGroupDbEntry {
     await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  static Future<int> updateName(String id, String name) =>
+      db!.update(tableName, {'name': name}, where: 'id = ?', whereArgs: [id]);
+
+  static Future<int> updateIcon(
+    String id, {
+    required String iconType,
+    required String iconValue,
+    required String iconColor,
+    required String iconBg,
+  }) =>
+      db!.update(
+        tableName,
+        {
+          'iconType': iconType,
+          'iconValue': iconValue,
+          'iconColor': iconColor,
+          'iconBg': iconBg,
+        },
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+  static Future<bool> nameExists(String name, {String? excludeId}) async {
+    final rows = await db!.rawQuery(
+      'SELECT 1 FROM $tableName WHERE lower(trim(name)) = lower(?) AND id != ? LIMIT 1',
+      [name.trim(), excludeId ?? ''],
+    );
+    return rows.isNotEmpty;
+  }
+
   static Future<List<WalletGroupDbEntry>> getAll() async {
     final list = await db!.query(tableName);
     return List.generate(list.length, (index) => WalletGroupDbEntry.fromJson(list[index]));
@@ -69,4 +99,3 @@ class WalletGroupDbEntry {
     await db!.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
 }
-

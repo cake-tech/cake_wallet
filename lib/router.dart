@@ -29,7 +29,6 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -139,6 +138,8 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
+import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_bloc.dart";
+import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_event.dart";
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -514,10 +515,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.walletEdit:
-      return MaterialPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) =>
-            getIt.get<WalletEditPage>(param1: settings.arguments as WalletEditPageArguments),
+      final groupKey = settings.arguments! as String;
+      return handleRouteWithPlatformAwareness(
+            (_) => BlocProvider<WalletEditBloc>(
+          create: (_) => getIt.get<WalletEditBloc>()..add(WalletEditStarted(groupKey)),
+          child: getIt.get<WalletEditPage>(),
+        ),
       );
 
     case Routes.auth:
