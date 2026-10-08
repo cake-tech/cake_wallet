@@ -188,7 +188,7 @@ class TxDetailRowDefinition {
       applicable: (vm) => vm.wallet.type == WalletType.monero,
     ),
     TxDetailRowDefinition(
-      keyString: "standard_list_item_lightning_preimage",
+      keyString: "standard_list_item_lightning_preimage_key",
       title: S.current.transaction_preimage,
       valueGetter: (vm) => vm.transactionInfo.additionalInfo["preimage"] as String? ?? "",
       applicable: (vm) =>
