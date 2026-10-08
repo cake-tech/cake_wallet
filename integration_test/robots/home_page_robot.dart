@@ -131,7 +131,7 @@ class HomePageRobot extends BaseRobot {
   String firstTransactionIdInAllView() {
     final tile = tester.widgetList<HistoryTile>(_allViewTiles).first;
     final key = tile.key! as ValueKey<String>;
-    final index = key.value.substring("home_page_transaction_".length, key.value.length - "_key".length);
+    final index = key.value.substring("history_modal_transaction_".length, key.value.length - "_key".length);
     final items = tester.widget<NewHomePage>(find.byType(NewHomePage).first).dashboardViewModel.items;
 
     return (items[int.parse(index)] as TransactionListItem).transaction.id;
