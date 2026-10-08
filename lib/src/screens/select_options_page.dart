@@ -41,8 +41,7 @@ abstract class SelectOptionsPage extends BasePage {
   String get title => pageTitle;
 
   @override
-  Widget body(BuildContext context) {
-    return ScrollableWithBottomSection(
+  Widget body(BuildContext context) => ScrollableWithBottomSection(
       content: BodySelectOptionsPage(
         currentTheme: currentTheme,
         items: items,
@@ -81,7 +80,6 @@ abstract class SelectOptionsPage extends BasePage {
         ),
       ),
     );
-  }
 }
 
 class BodySelectOptionsPage extends StatefulWidget {
@@ -131,8 +129,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
+  Widget build(BuildContext context) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
         child: Column(
@@ -191,5 +188,4 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
         ),
       ),
     );
-  }
 }

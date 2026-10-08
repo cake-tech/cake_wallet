@@ -1024,6 +1024,16 @@ abstract class ZcashWalletBase
 
   static int zashiAnnouncedBlockHeight = 2419420;
 
+  Future<int?> getBirthHeight() async =>
+      runWithCoin(
+        accountId: accountId,
+        func: (final coin) async =>
+        (await zkool_account.listAccounts(c: coin))
+            .where((final a) => a.id == accountId)
+            .firstOrNull
+            ?.birth,
+      );
+
   @override
   @action
   Future<void> rescan({required final int height}) async {

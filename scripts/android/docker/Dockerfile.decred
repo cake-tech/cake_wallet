@@ -10,6 +10,7 @@ RUN mkdir -p /w/cw_decred/lib/api
 COPY --from=torch_source /w/scripts/torch_dart /w/scripts/torch_dart
 COPY cw_core/pubspec.yaml /w/cw_core/pubspec.yaml
 COPY cw_decred/pubspec.yaml /w/cw_decred/pubspec.yaml
+COPY pubspec_overrides.yaml /w/cw_decred/pubspec_overrides.yaml
 COPY scripts/android/build_decred.sh /w/scripts/android/build_decred.sh
 RUN /w/scripts/android/build_decred.sh
 

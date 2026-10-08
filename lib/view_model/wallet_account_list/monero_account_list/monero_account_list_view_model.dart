@@ -1,29 +1,25 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 
 part 'monero_account_list_view_model.g.dart';
 
 class MoneroAccountListViewModel = MoneroAccountListViewModelBase with _$MoneroAccountListViewModel;
 
-abstract class MoneroAccountListViewModelBase with Store {
-  MoneroAccountListViewModelBase(this._wallet, this.settingsStore) : scrollOffsetFromTop = 0;
+abstract class MoneroAccountListViewModelBase with Store implements WalletAccountListViewModel {
+  MoneroAccountListViewModelBase(this._wallet, this.settingsStore);
 
   final SettingsStore settingsStore;
 
-  @observable
-  double scrollOffsetFromTop;
-
-  @action
-  void setScrollOffsetFromTop(double scrollOffsetFromTop) {
-    this.scrollOffsetFromTop = scrollOffsetFromTop;
-  }
+  @override
+  AccountListItem? get selectedAccount => selected;
 
   CryptoCurrency get currency => _wallet.currency;
 
@@ -65,7 +61,11 @@ abstract class MoneroAccountListViewModelBase with Store {
 
   final WalletBase _wallet;
 
-  void select(AccountListItem item) {
+  @override
+  Future<void> reload() async {}
+
+  @override
+  Future<void> select(AccountListItem item) async {
     if (_wallet.type == WalletType.monero) {
       monero!.setCurrentAccount(
         _wallet,
