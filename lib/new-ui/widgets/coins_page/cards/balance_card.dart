@@ -142,7 +142,7 @@ class BalanceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: design.colors.textColor
                                           .withAlpha(leadText == accountName ? 255 : 128)),
-                                  child: Text(leadText),
+                                  child: ExcludeSemantics(excluding: leadText == accountName, child: Text(leadText)),
                                 ),
                               ],
                             ),
