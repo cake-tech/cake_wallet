@@ -14,8 +14,9 @@ class FiatConversionService {
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
-  }) async =>
-      double.parse((await PriceApiClient.getLatestPrice(
+  }) async {
+    try {
+      return double.parse((await PriceApiClient.getLatestPrice(
             LatestPriceRequest(
               from: _overrideCryptoCurrency(crypto),
               to: fiat,
@@ -25,4 +26,8 @@ class FiatConversionService {
               ?.quote
               .toString() ??
           "0");
+    } catch (e) {
+      return 0.0;
+    }
+  }
 }

@@ -322,9 +322,13 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     final visibleRecents = recents.where(items.contains).toList(growable: false);
 
+    final isSingleNetwork = items.map(cryptoCurrencyOrTokenToWalletType).toSet().length == 1;
     final seenStablecoinTitles = <String>{};
     final stablecoins = items
-        .where((c) => isTrustedStablecoin(c) && seenStablecoinTitles.add(c.title.toUpperCase()))
+        .where((c) =>
+            isTrustedStablecoin(c) &&
+            (isSingleNetwork || hasBuiltInStablecoinSymbol(c)) &&
+            seenStablecoinTitles.add(c.title.toUpperCase()))
         .toList(growable: false);
 
     final cryptocurrencies = items.where(natives.contains).toList(growable: false);

@@ -17,10 +17,13 @@ import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 class ChartsAssetGrid extends StatelessWidget {
-  const ChartsAssetGrid({super.key});
+  const ChartsAssetGrid({required this.bloc, super.key});
+
+  final ChartsBloc bloc;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
+    bloc: bloc,
       builder: (context, state) {
         if (state is ChartsStateWithData) {
           final currencies = state.currencies;
@@ -36,6 +39,7 @@ class ChartsAssetGrid extends StatelessWidget {
               itemBuilder: (context, index) {
                 final curr = currencies[index];
                 return ChartsAssetCard(
+                  bloc: bloc,
                   currency: curr,
                   price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
                   ticker: state.fiatTicker,
@@ -53,7 +57,7 @@ class ChartsAssetGrid extends StatelessWidget {
 
 class ChartsAssetCard extends StatelessWidget {
   const ChartsAssetCard(
-      {super.key,
+      {required this.bloc, super.key,
       required this.currency,
       required this.price,
       required this.ticker,
@@ -67,6 +71,7 @@ class ChartsAssetCard extends StatelessWidget {
   final PriceChangeData? changeData;
   final bool favorite;
   final bool isSingleCurrency;
+  final ChartsBloc bloc;
 
   String get displayPrice {
     try {
@@ -88,7 +93,7 @@ class ChartsAssetCard extends StatelessWidget {
             label: S.of(context).favorite,
             iconPath: "assets/new-ui/favorite.svg",
             onSelected: () {
-              context.read<ChartsBloc>().add(CurrencyPinned(currency: currency));
+              bloc.add(CurrencyPinned(currency: currency));
               Navigator.of(context).pop();
             },
             color: favorite ? Theme.of(context).colorScheme.error : null,),
@@ -97,7 +102,7 @@ class ChartsAssetCard extends StatelessWidget {
             iconPath: "assets/new-ui/address_hide.svg",
             onSelected: () {
               if (!isSingleCurrency) {
-                context.read<ChartsBloc>().add(CurrencyRemoved(currency: currency));
+                bloc.add(CurrencyRemoved(currency: currency));
                 Navigator.of(context).pop();
               }
             },
@@ -112,11 +117,12 @@ class ChartsAssetCard extends StatelessWidget {
               isScrollControlled: true,
               context: context,
               builder: (context) => ChartModal(
+                bloc: bloc,
                     currency: currency,
                     isFavorite: favorite,
                   ),);
           if (res != null && res is bool && res) {
-            context.read<ChartsBloc>().add(CurrencyPinned(currency: currency));
+            bloc.add(CurrencyPinned(currency: currency));
           }
         },
         child: Container(
