@@ -234,9 +234,6 @@ class SolanaChainService {
     await MethodsUtils.respondForTopic(topic, response);
   }
 
-  /// True when this request may be answered: the session must belong to the
-  /// open wallet. A request for a different wallet is rejected and the user is
-  /// told why, so switching wallets cannot hand a dApp the wrong account.
   Future<bool> _authorizeRequest(String topic, int requestId) async {
     final wallet = appStore.wallet;
     if (wallet != null) {

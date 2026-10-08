@@ -10,6 +10,8 @@ class Erc20Decoder {
 
   final Erc20TokenResolver tokenResolver;
 
+  static const _permit2Address = "0x000000000022d473030f116ddee9f6b43ac78ba3";
+
   Future<WCDecodedRequest?> decode({
     required EvmCalldata calldata,
     required String? contractAddress,
@@ -67,9 +69,11 @@ class Erc20Decoder {
     final symbol = tokenResolver.symbolOrShort(token, contractAddress);
     final isUnlimited = tokenResolver.isUnlimitedAmount(rawAmount);
     final isRevoke = rawAmount == BigInt.zero;
+    final isPermit2Spender = spender.toLowerCase() == _permit2Address;
 
     return WCDecodedRequest(
       actionTitle: isRevoke ? S.current.wc_action_revoke_approval : S.current.wc_action_approve,
+      actionSubtitle: isPermit2Spender ? "Permit2" : null,
       rows: [
         WCDecodedRow(
           label: S.current.wc_token,
@@ -89,6 +93,7 @@ class Erc20Decoder {
       ],
       warnings: [
         if (isUnlimited) S.current.wc_warning_unlimited_approval,
+        if (isPermit2Spender && !isRevoke) S.current.wc_warning_permit2_approval,
         if (token == null) S.current.wc_warning_unknown_token,
       ],
       hideTo: true,

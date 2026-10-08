@@ -220,4 +220,10 @@ class EvmCalldata {
     }
     return out;
   }
+
+  static String addressFromBytes(List<int> bytes, int offset) {
+    final slice = bytes.sublist(offset, offset + 20);
+    final hex = slice.map((b) => b.toRadixString(16).padLeft(2, "0")).join();
+    return "0x$hex";
+  }
 }

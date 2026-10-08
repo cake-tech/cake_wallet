@@ -4,13 +4,23 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
-import "package:cw_core/erc20_token.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
 class TypedDataDecoder {
   TypedDataDecoder(this.tokenResolver);
 
   final Erc20TokenResolver tokenResolver;
+
+  // UniswapX reactors, read from live orders on api.uniswap.org.
+  static const _uniswapXReactors = {
+    "0x00000011f84b9aa48e5f8aa8b9897600006289be",
+    "0x00000006021a6bce796be7ba509bbba71e956e37",
+    "0x6000da47483062a0d734ba3dc7576ce6a0b645c4",
+    "0xbd7f9d0239f81c94b728d827a87b9864972661ec",
+    "0xe80bf394d190851e215d5f67b67f8f5a52783f1e",
+    "0xb274d5f4b833b61b340b654d600a864fb604a87c",
+    "0x000000008a8330b5d1f43a62bf4c673a49f27ba0",
+  };
 
   static const _timestampFieldNames = {
     "deadline",
@@ -23,7 +33,7 @@ class TypedDataDecoder {
     "validafter",
   };
 
-  Future<WCDecodedRequest> decode(dynamic raw) async {
+  Future<WCDecodedRequest> decode(dynamic raw, {String? walletAddress}) async {
     final legacy = _decodeLegacyV1(raw);
     if (legacy != null) {
       return legacy;
@@ -49,6 +59,7 @@ class TypedDataDecoder {
       domain: domain,
       message: message,
       rawFallback: rawFallback,
+      walletAddress: walletAddress,
     );
     if (semantic != null) {
       return semantic;
@@ -103,6 +114,7 @@ class TypedDataDecoder {
     required Map<String, dynamic> domain,
     required Map<String, dynamic> message,
     required String rawFallback,
+    String? walletAddress,
   }) async {
     final type = primaryType.toLowerCase();
 
@@ -145,7 +157,133 @@ class TypedDataDecoder {
       return _buildEip2612(domain: domain, message: message, rawFallback: rawFallback);
     }
 
+    if (type == "permitwitnesstransferfrom") {
+      return _buildWitnessOrder(
+        domain: domain,
+        message: message,
+        rawFallback: rawFallback,
+        walletAddress: walletAddress,
+      );
+    }
+
     return null;
+  }
+
+  Future<WCDecodedRequest?> _buildWitnessOrder({
+    required Map<String, dynamic> domain,
+    required Map<String, dynamic> message,
+    required String rawFallback,
+    required String? walletAddress,
+  }) async {
+    final permitted = message["permitted"];
+    final witness = message["witness"];
+    if (permitted is! Map || witness is! Map) {
+      return null;
+    }
+
+    final info = witness["info"];
+    final reactor = info is Map ? info["reactor"]?.toString().toLowerCase() : null;
+    final spender = message["spender"]?.toString();
+    if (reactor == null ||
+        !_uniswapXReactors.contains(reactor) ||
+        spender?.toLowerCase() != reactor) {
+      return null;
+    }
+
+    final payToken = permitted["token"]?.toString();
+    final rawOutputs = witness["baseOutputs"] ?? witness["outputs"];
+    if (payToken == null || payToken.isEmpty || rawOutputs is! List) {
+      return null;
+    }
+
+    final outputs = rawOutputs.whereType<Map<dynamic, dynamic>>().toList(growable: false);
+    if (outputs.isEmpty || outputs.length > 16) {
+      return null;
+    }
+
+    final tokenAddresses = {
+      payToken.toLowerCase(),
+      for (final output in outputs) output["token"]?.toString().toLowerCase() ?? "",
+    }..remove("");
+    final resolved = Map.fromIterables(
+      tokenAddresses,
+      await Future.wait(tokenAddresses.map(tokenResolver.resolve)),
+    );
+    String describe(String tokenAddress, BigInt? amount) {
+      final token = resolved[tokenAddress.toLowerCase()];
+      final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
+      if (amount == null) {
+        return "${S.current.wc_decode_failed} $symbol";
+      }
+      return "${tokenResolver.formatAmount(amount, token)} $symbol";
+    }
+
+    final payAmount = _toBigInt(permitted["amount"]);
+    bool unreadableAmount = payAmount == null;
+
+    final walletOutputs = <WCDecodedRow>[];
+    final otherOutputs = <WCDecodedRow>[];
+    for (final output in outputs) {
+      final token = output["token"]?.toString();
+      final recipient = output["recipient"]?.toString();
+      if (token == null || token.isEmpty || recipient == null || recipient.isEmpty) {
+        return null;
+      }
+
+      final minAmount = _toBigInt(output["minAmount"] ?? output["endAmount"] ?? output["amount"]);
+      unreadableAmount = unreadableAmount || minAmount == null;
+
+      if (walletAddress != null && recipient.toLowerCase() == walletAddress.toLowerCase()) {
+        walletOutputs.add(
+          WCDecodedRow(label: S.current.wc_swap_to_min, value: describe(token, minAmount)),
+        );
+      } else {
+        otherOutputs.add(
+          WCDecodedRow(label: S.current.wc_amount, value: describe(token, minAmount)),
+        );
+        otherOutputs.add(
+          WCDecodedRow(
+            label: S.current.wc_recipient,
+            value: recipient,
+            kind: WCDecodedRowKind.address,
+          ),
+        );
+      }
+    }
+
+    final deadline = _toBigInt(message["deadline"]);
+
+    return WCDecodedRequest(
+      actionTitle: S.current.wc_action_swap,
+      actionSubtitle: S.current.wc_via("UniswapX"),
+      rows: [
+        WCDecodedRow(label: S.current.wc_swap_from_max, value: describe(payToken, payAmount)),
+        ...(walletOutputs.isEmpty ? otherOutputs : walletOutputs),
+        if (deadline != null)
+          WCDecodedRow(
+            label: S.current.wc_signature_valid_until,
+            value: tokenResolver.formatTimestamp(deadline),
+          ),
+      ],
+      detailRows: [
+        if (walletOutputs.isNotEmpty) ...otherOutputs,
+        WCDecodedRow(
+          label: S.current.wc_approved_spender,
+          value: reactor,
+          kind: WCDecodedRowKind.address,
+        ),
+        ..._signingContextRows(domain),
+      ],
+      warnings: [
+        S.current.wc_warning_permit_review,
+        if (payAmount != null && tokenResolver.isUnlimitedAmount(payAmount))
+          S.current.wc_warning_unlimited_approval,
+        if (unreadableAmount) S.current.wc_warning_typed_data_invalid,
+      ],
+      hideTo: true,
+      hideValue: true,
+      rawFallback: rawFallback,
+    );
   }
 
   List<WCDecodedRow> _signingContextRows(
@@ -186,7 +324,7 @@ class TypedDataDecoder {
       final expiration = _toBigInt(details["expiration"]);
 
       if (tokenAddress != null && tokenAddress.isNotEmpty) {
-        final token = await _safeResolve(tokenAddress);
+        final token = await tokenResolver.resolve(tokenAddress);
         final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
         rows.add(
           WCDecodedRow(
@@ -214,9 +352,7 @@ class TypedDataDecoder {
         );
       }
 
-      // A number too large for an int arrives from the JSON as a double and
-      // cannot be read back exactly. Say so rather than dropping the row, which
-      // would hide both the amount and the unlimited warning that goes with it.
+      // A JSON number past int range parses as a double, which _toBigInt can't read back.
       if (amount == null && details["amount"] != null) {
         unreadableAmount = true;
         rows.add(
@@ -289,7 +425,7 @@ class TypedDataDecoder {
     final deadline = _toBigInt(message["deadline"]);
 
     if (tokenAddress != null && tokenAddress.isNotEmpty) {
-      final token = await _safeResolve(tokenAddress);
+      final token = await tokenResolver.resolve(tokenAddress);
       final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
       rows.add(
         WCDecodedRow(
@@ -363,14 +499,6 @@ class TypedDataDecoder {
     );
   }
 
-  Future<Erc20Token?> _safeResolve(String contractAddress) async {
-    try {
-      return await tokenResolver.resolve(contractAddress);
-    } catch (e) {
-      printV("TypedDataDecoder: token resolve threw for $contractAddress: $e");
-      return null;
-    }
-  }
 
   WCDecodedRequest? _decodeLegacyV1(dynamic raw) {
     List<dynamic>? entries;
@@ -555,6 +683,14 @@ class TypedDataDecoder {
   }
 
   BigInt? _toBigInt(dynamic value) {
+    final parsed = _parseBigInt(value);
+    if (parsed == null || parsed.isNegative) {
+      return null;
+    }
+    return parsed;
+  }
+
+  BigInt? _parseBigInt(dynamic value) {
     if (value == null) {
       return null;
     }

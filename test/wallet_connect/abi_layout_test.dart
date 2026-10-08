@@ -23,6 +23,22 @@ void main() {
     return "0x$selector${sink.asBytes().map((b) => b.toRadixString(16).padLeft(2, '0')).join()}";
   }
 
+  Uint8List v3Path(List<EthereumAddress> tokens) => Uint8List.fromList([
+        for (var i = 0; i < tokens.length; i++) ...[
+          if (i > 0) ...[0x00, 0x0b, 0xb8],
+          ...tokens[i].addressBytes,
+        ],
+      ]);
+
+  final dai = EthereumAddress.fromHex("0x6B175474E89094C44Da98b954EedeAC495271d0F");
+  const pathParams = TupleType([
+    DynamicBytes(),
+    AddressType(),
+    UintType(),
+    UintType(),
+    UintType(),
+  ]);
+
   test("the selectors we branch on are the signatures we decode for", () {
     String selectorOf(String signature) => keccak256(Uint8List.fromList(signature.codeUnits))
         .take(4)
@@ -80,9 +96,46 @@ void main() {
     expect(decoded!.rows[0].value, startsWith("10000000000000000"));
     expect(decoded.rows[1].value, startsWith("25000000"));
     expect(
-      decoded.rows.any((r) => r.value.toLowerCase() == owner.hex.toLowerCase()),
-      isTrue,
-      reason: "recipient must be the real recipient word",
+      decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
+      S.current.wc_recipient_you,
+    );
+  });
+
+  test("the original SwapRouter reads a zero recipient as the router holding the output", () async {
+    const params = TupleType([
+      AddressType(),
+      AddressType(),
+      UintType(length: 24),
+      AddressType(),
+      UintType(),
+      UintType(),
+      UintType(),
+      UintType(length: 160),
+    ]);
+    final data = encodeCall("414bf389", const TupleType([params]), [
+      [
+        usdc,
+        weth,
+        BigInt.from(3000),
+        EthereumAddress.fromHex("0x0000000000000000000000000000000000000000"),
+        BigInt.from(1793190000),
+        BigInt.from(25000000),
+        BigInt.from(10).pow(16),
+        BigInt.zero,
+      ],
+    ]);
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      walletAddress: owner.hex,
+      valueWei: BigInt.zero,
+    );
+
+    expect(
+      decoded!.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
+      S.current.wc_recipient_router_hold,
     );
   });
 
@@ -93,12 +146,12 @@ void main() {
       UintType(length: 48),
       UintType(length: 48),
     ]);
-    const permitSingle = TupleType([details, const AddressType(), const UintType()]);
+    const permitSingle = TupleType([details, AddressType(), UintType()]);
     final uint160Max = (BigInt.one << 160) - BigInt.one;
 
     final data = encodeCall(
       "2b67b570",
-      TupleType([const AddressType(), permitSingle, const DynamicBytes()]),
+      const TupleType([AddressType(), permitSingle, DynamicBytes()]),
       [
         owner,
         [
@@ -153,17 +206,14 @@ void main() {
     expect(decoded!.rows[0].value, startsWith("1128058998"));
     expect(decoded.rows[1].value, startsWith("452194608349763456"));
     expect(
-      decoded.rows.any(
-        (r) => r.value.toLowerCase() == "0xf204f3acb05c405c0010f2a2ecfa9fe61783f1d1",
-      ),
-      isTrue,
-      reason: "recipient word",
+      decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
+      S.current.wc_recipient_you,
     );
   });
 
   test("golden vector: real SwapRouter02 exactInputSingle from mainnet", () async {
     // tx 0x228ab514c389a6aef2cf17f31ad2c08699f9b5db4eddac055673dd884f2eb75e
-    // Seven words, no deadline: 185.545099 USDT in, 164.725782 out.
+    // Seven words, no deadline: 185.479563 USDT in, 164.992022 out.
     const data = "0x04e45aaf"
         "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7"
         "000000000000000000000000100acd9fcd8e0ff80a6595b66fdabe93184aa100"
@@ -181,7 +231,87 @@ void main() {
       valueWei: BigInt.zero,
     );
 
-    expect(decoded!.rows[0].value, startsWith("185545099"));
-    expect(decoded.rows[1].value, startsWith("164725782"));
+    expect(decoded!.rows[0].value, startsWith("185479563"));
+    expect(decoded.rows[1].value, startsWith("164992022"));
+  });
+
+  test("exactInput multi-hop reads the first and last token of the path", () async {
+    final data = encodeCall("c04b8d59", const TupleType([pathParams]), [
+      [
+        v3Path([weth, usdc, dai]),
+        owner,
+        BigInt.from(1793190000),
+        BigInt.from(10).pow(16),
+        BigInt.from(24) * BigInt.from(10).pow(18),
+      ],
+    ]);
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      walletAddress: owner.hex,
+      valueWei: BigInt.zero,
+    );
+
+    expect(decoded!.rows[0].label, S.current.wc_swap_from);
+    expect(decoded.rows[0].value, "10000000000000000 0xc02a…6cc2");
+    expect(decoded.rows[1].label, S.current.wc_swap_to_min);
+    expect(decoded.rows[1].value, "24000000000000000000 0x6b17…1d0f");
+  });
+
+  test("exactOutput multi-hop reads its path from the output end", () async {
+    final data = encodeCall("f28c0498", const TupleType([pathParams]), [
+      [
+        v3Path([dai, usdc, weth]),
+        owner,
+        BigInt.from(1793190000),
+        BigInt.from(24) * BigInt.from(10).pow(18),
+        BigInt.from(10).pow(16),
+      ],
+    ]);
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+      walletAddress: owner.hex,
+      valueWei: BigInt.zero,
+    );
+
+    expect(decoded!.rows[0].label, S.current.wc_swap_from_max);
+    expect(decoded.rows[0].value, "10000000000000000 0xc02a…6cc2");
+    expect(decoded.rows[1].label, S.current.wc_swap_to);
+    expect(decoded.rows[1].value, "24000000000000000000 0x6b17…1d0f");
+  });
+
+  test("golden vector: real SwapRouter02 exactInput from mainnet", () async {
+    // tx 0x437630364156c5e84fa98d34659947bce8f4d9f253c2711e5392c635a1d56f51, inside multicall.
+    // A circular route, so it pins the amounts and recipient, not the token direction.
+    const data = "0xb858183f"
+        "0000000000000000000000000000000000000000000000000000000000000020"
+        "0000000000000000000000000000000000000000000000000000000000000080"
+        "000000000000000000000000b84aa1eea10cf3347ef95f13ac5e09e40bdd3f03"
+        "0000000000000000000000000000000000000000000000ab4010b6fc310c7ac0"
+        "0000000000000000000000000000000000000000000000a61cdd036a62c6fc30"
+        "0000000000000000000000000000000000000000000000000000000000000042"
+        "28d4e499c4cde621e1cea7c9cbf9d43bf75a9525000bb8a0b86991c6218b36c1"
+        "d19d4a2e9eb0ce3606eb48000bb828d4e499c4cde621e1cea7c9cbf9d43bf75a"
+        "9525000000000000000000000000000000000000000000000000000000000000";
+
+    final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      nativeSymbol: "ETH",
+      routerAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+      walletAddress: "0xb84aa1eea10cf3347ef95f13ac5e09e40bdd3f03",
+      valueWei: BigInt.zero,
+    );
+
+    expect(decoded!.rows[0].value, startsWith("3159009627416659000000 "));
+    expect(decoded.rows[1].value, startsWith("3064239338594159230000 "));
+    expect(
+      decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
+      S.current.wc_recipient_you,
+    );
   });
 }

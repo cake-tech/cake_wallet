@@ -58,6 +58,7 @@ class DexRouterDecoder {
           nativeSymbol,
           routerName,
           routerAddress,
+          walletAddress,
           isExactIn: true,
         );
       case EvmSelectors.uniV3ExactOutputSingle:
@@ -66,6 +67,7 @@ class DexRouterDecoder {
           nativeSymbol,
           routerName,
           routerAddress,
+          walletAddress,
           isExactIn: false,
         );
       case EvmSelectors.uniV3Router02ExactInputSingle:
@@ -74,6 +76,7 @@ class DexRouterDecoder {
           nativeSymbol,
           routerName,
           routerAddress,
+          walletAddress,
           isExactIn: true,
           hasDeadlineWord: false,
         );
@@ -83,6 +86,7 @@ class DexRouterDecoder {
           nativeSymbol,
           routerName,
           routerAddress,
+          walletAddress,
           isExactIn: false,
           hasDeadlineWord: false,
         );
@@ -96,9 +100,43 @@ class DexRouterDecoder {
         );
         return decoded ?? _decodeOpaqueSwap(routerName, routerAddress);
       case EvmSelectors.uniV3ExactInput:
+        return _decodeUniV3Path(
+          calldata,
+          nativeSymbol,
+          routerName,
+          routerAddress,
+          walletAddress,
+          isExactIn: true,
+        );
       case EvmSelectors.uniV3ExactOutput:
+        return _decodeUniV3Path(
+          calldata,
+          nativeSymbol,
+          routerName,
+          routerAddress,
+          walletAddress,
+          isExactIn: false,
+        );
       case EvmSelectors.uniV3Router02ExactInput:
+        return _decodeUniV3Path(
+          calldata,
+          nativeSymbol,
+          routerName,
+          routerAddress,
+          walletAddress,
+          isExactIn: true,
+          hasDeadlineWord: false,
+        );
       case EvmSelectors.uniV3Router02ExactOutput:
+        return _decodeUniV3Path(
+          calldata,
+          nativeSymbol,
+          routerName,
+          routerAddress,
+          walletAddress,
+          isExactIn: false,
+          hasDeadlineWord: false,
+        );
       case EvmSelectors.zeroXTransformErc20:
       case EvmSelectors.zeroXFillLimitOrder:
       case EvmSelectors.oneInchSwap:
@@ -261,7 +299,8 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress, {
+    String? routerAddress,
+    String? walletAddress, {
     required bool isExactIn,
     bool hasDeadlineWord = true,
   }) async {
@@ -275,6 +314,72 @@ class DexRouterDecoder {
       return _decodeOpaqueSwap(routerName, routerAddress);
     }
 
+    return _uniV3SwapRequest(
+      tokenIn: tokenIn,
+      tokenOut: tokenOut,
+      recipient: recipient,
+      amountSpecified: amountSpecified,
+      amountLimit: amountLimit,
+      nativeSymbol: nativeSymbol,
+      routerName: routerName,
+      isExactIn: isExactIn,
+      walletAddress: walletAddress,
+      resolvesSentinels: !hasDeadlineWord,
+    );
+  }
+
+  Future<WCDecodedRequest?> _decodeUniV3Path(
+    EvmCalldata calldata,
+    String nativeSymbol,
+    String routerName,
+    String? routerAddress,
+    String? walletAddress, {
+    required bool isExactIn,
+    bool hasDeadlineWord = true,
+  }) async {
+    final params = calldata.structAt(0);
+    final path = params?.dynamicBytesAt(0);
+    final recipient = params?.addressAt(1);
+    final amountSpecified = params?.uintAt(hasDeadlineWord ? 3 : 2);
+    final amountLimit = params?.uintAt(hasDeadlineWord ? 4 : 3);
+
+    if (path == null ||
+        path.length < 43 ||
+        (path.length - 20) % 23 != 0 ||
+        amountSpecified == null ||
+        amountLimit == null) {
+      return _decodeOpaqueSwap(routerName, routerAddress);
+    }
+
+    final first = EvmCalldata.addressFromBytes(path, 0);
+    final last = EvmCalldata.addressFromBytes(path, path.length - 20);
+
+    return _uniV3SwapRequest(
+      tokenIn: isExactIn ? first : last,
+      tokenOut: isExactIn ? last : first,
+      recipient: recipient,
+      amountSpecified: amountSpecified,
+      amountLimit: amountLimit,
+      nativeSymbol: nativeSymbol,
+      routerName: routerName,
+      isExactIn: isExactIn,
+      walletAddress: walletAddress,
+      resolvesSentinels: !hasDeadlineWord,
+    );
+  }
+
+  Future<WCDecodedRequest> _uniV3SwapRequest({
+    required String tokenIn,
+    required String tokenOut,
+    required String? recipient,
+    required BigInt amountSpecified,
+    required BigInt amountLimit,
+    required String nativeSymbol,
+    required String routerName,
+    required bool isExactIn,
+    required String? walletAddress,
+    required bool resolvesSentinels,
+  }) async {
     final fromAmount = isExactIn ? amountSpecified : amountLimit;
     final toAmount = isExactIn ? amountLimit : amountSpecified;
 
@@ -296,10 +401,10 @@ class DexRouterDecoder {
           value: descs[1],
         ),
         if (recipient != null)
-          WCDecodedRow(
-            label: S.current.wc_recipient,
-            value: recipient,
-            kind: WCDecodedRowKind.address,
+          UniversalRouterDecoder.recipientRow(
+            recipient,
+            walletAddress,
+            resolvesSentinels: resolvesSentinels,
           ),
       ],
       hideTo: true,

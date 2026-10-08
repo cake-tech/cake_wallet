@@ -237,7 +237,11 @@ class EvmChainServiceImpl {
       return;
     }
 
-    final decoded = await _safeDecodeTypedData(parameters: data, rawForFallback: data);
+    final decoded = await _safeDecodeTypedData(
+      parameters: data,
+      rawForFallback: data,
+      walletAddress: wcKeyService.getKeysForChain(appStore.wallet!).first.publicKey,
+    );
 
     final isApproved = await MethodsUtils.requestApproval(
       decoded,
@@ -258,9 +262,7 @@ class EvmChainServiceImpl {
         } else if (method == EVMSupportedMethods.ethSignTypedDataV4) {
           version = TypedDataVersion.V4;
         } else {
-          // Legacy eth_signTypedData carries a V1 payload (a JSON array of
-          // typed entries). Hashing that as V4 produces a signature no dApp
-          // can recover.
+          // eth_signTypedData sends a V1 array, signed as V4 no dApp can recover it.
           version = data.trimLeft().startsWith("[") ? TypedDataVersion.V1 : TypedDataVersion.V4;
         }
         final signature = EthSigUtil.signTypedData(
@@ -300,7 +302,11 @@ class EvmChainServiceImpl {
       return;
     }
 
-    if (!await _authorizeRequest(topic, pRequest.id, requestAddress: data["from"]?.toString())) {
+    if (!await _authorizeRequest(
+      topic,
+      pRequest.id,
+      requestAddress: data["from"]?.toString(),
+    )) {
       return;
     }
 
@@ -364,7 +370,11 @@ class EvmChainServiceImpl {
       return;
     }
 
-    if (!await _authorizeRequest(topic, pRequest.id, requestAddress: data["from"]?.toString())) {
+    if (!await _authorizeRequest(
+      topic,
+      pRequest.id,
+      requestAddress: data["from"]?.toString(),
+    )) {
       return;
     }
 
@@ -424,7 +434,8 @@ class EvmChainServiceImpl {
     final currentChainId = reference.chainId;
     final canSwitch = targetChainId != null && targetChainId == currentChainId;
 
-    final decoded = walletAdminDecoder.decodeSwitchChain(parameters);
+    final decoded =
+        walletAdminDecoder.decodeSwitchChain(parameters, currentChainId: currentChainId);
 
     final isApproved = await MethodsUtils.requestApproval(
       decoded,
@@ -496,10 +507,6 @@ class EvmChainServiceImpl {
     await MethodsUtils.respondForTopic(topic, response);
   }
 
-  /// True when this request may be answered: the session must belong to the
-  /// open wallet, and any address the dApp names must be that wallet's. A
-  /// request for a different wallet is rejected and the user is told why,
-  /// so switching wallets in the app cannot hand a dApp the wrong account.
   Future<bool> _authorizeRequest(String topic, int requestId, {String? requestAddress}) async {
     final wallet = appStore.wallet;
     if (wallet == null) {
@@ -581,14 +588,13 @@ class EvmChainServiceImpl {
     }
   }
 
-  // A decoder bug must never block signing, so any exception falls back to
-  // the raw JSON view.
   Future<WCDecodedRequest> _safeDecodeTypedData({
     required dynamic parameters,
     required String rawForFallback,
+    required String walletAddress,
   }) async {
     try {
-      return await typedDataDecoder.decode(parameters);
+      return await typedDataDecoder.decode(parameters, walletAddress: walletAddress);
     } catch (e, s) {
       printV("typedDataDecoder.decode threw, falling back to raw view: $e\n$s");
       return WCDecodedRequest(

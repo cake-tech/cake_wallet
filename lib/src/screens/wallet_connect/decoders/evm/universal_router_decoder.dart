@@ -30,8 +30,8 @@ class UniversalRouterDecoder {
   static const _v4ActionTakeAll = 0x0f;
   static const _v4ActionTakePortion = 0x10;
 
-  static const _sentinelAddressThis = "0x0000000000000000000000000000000000000001";
-  static const _sentinelMsgSender = "0x0000000000000000000000000000000000000002";
+  static const _sentinelMsgSender = "0x0000000000000000000000000000000000000001";
+  static const _sentinelAddressThis = "0x0000000000000000000000000000000000000002";
   static const _zeroAddress = "0x0000000000000000000000000000000000000000";
 
   Future<WCDecodedRequest?> decode({
@@ -168,7 +168,7 @@ class UniversalRouterDecoder {
           label: leg.exactIn ? S.current.wc_swap_to_min : S.current.wc_swap_to,
           value: descs[1],
         ),
-        if (effectiveRecipient != null) _recipientRow(effectiveRecipient, walletAddress),
+        if (effectiveRecipient != null) recipientRow(effectiveRecipient, walletAddress),
         ...permitRows,
       ],
       detailRows: permitDetailRows,
@@ -214,7 +214,7 @@ class UniversalRouterDecoder {
 
     final recipient = legs.map((l) => l.recipient).firstWhere((r) => r != null, orElse: () => null);
     if (recipient != null) {
-      rows.add(_recipientRow(recipient, walletAddress));
+      rows.add(recipientRow(recipient, walletAddress));
     }
     rows.addAll(permitRows);
 
@@ -311,16 +311,22 @@ class UniversalRouterDecoder {
     ];
   }
 
-  WCDecodedRow _recipientRow(String recipient, String? walletAddress) {
+  static WCDecodedRow recipientRow(
+    String recipient,
+    String? walletAddress, {
+    bool resolvesSentinels = true,
+  }) {
     final lower = recipient.toLowerCase();
     final isOwnWallet = walletAddress != null && lower == walletAddress.toLowerCase();
-    if (lower == _sentinelMsgSender || isOwnWallet) {
+    if ((resolvesSentinels && lower == _sentinelMsgSender) || isOwnWallet) {
       return WCDecodedRow(
         label: S.current.wc_recipient,
         value: S.current.wc_recipient_you,
       );
     }
-    if (lower == _sentinelAddressThis) {
+    // The original SwapRouter reads address(0) as address(this), SwapRouter02 and UR use 0x...02.
+    final holdAddress = resolvesSentinels ? _sentinelAddressThis : _zeroAddress;
+    if (lower == holdAddress) {
       return WCDecodedRow(
         label: S.current.wc_recipient,
         value: S.current.wc_recipient_router_hold,
@@ -365,8 +371,8 @@ class UniversalRouterDecoder {
       return null;
     }
 
-    final firstToken = _addressFromBytes(path, 0);
-    final lastToken = _addressFromBytes(path, path.length - 20);
+    final firstToken = EvmCalldata.addressFromBytes(path, 0);
+    final lastToken = EvmCalldata.addressFromBytes(path, path.length - 20);
 
     if (exactIn) {
       return _SwapLeg(
@@ -630,11 +636,6 @@ class UniversalRouterDecoder {
     return raw;
   }
 
-  String _addressFromBytes(List<int> bytes, int offset) {
-    final slice = bytes.sublist(offset, offset + 20);
-    final hex = slice.map((b) => b.toRadixString(16).padLeft(2, "0")).join();
-    return "0x$hex";
-  }
 }
 
 class _SwapLeg {

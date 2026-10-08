@@ -172,4 +172,29 @@ void main() {
     );
     expect(decoded, isNull);
   });
+
+  test("approving Permit2 names it and explains the per-swap signature", () async {
+    final max = (BigInt.one << 256) - BigInt.one;
+    final decoded = await decoder.decode(
+      calldata: calldata(
+        "095ea7b3",
+        wordAddr("0x000000000022D473030F116dDEE9F6B43aC78BA3") + word(max),
+      ),
+      contractAddress: contract,
+      nativeSymbol: "ETH",
+    );
+    expect(decoded!.actionSubtitle, "Permit2");
+    expect(decoded.warnings, contains(S.current.wc_warning_unlimited_approval));
+    expect(decoded.warnings, contains(S.current.wc_warning_permit2_approval));
+  });
+
+  test("approving any other spender carries no Permit2 note", () async {
+    final decoded = await decoder.decode(
+      calldata: calldata("095ea7b3", wordAddr(spender) + wordInt(500)),
+      contractAddress: contract,
+      nativeSymbol: "ETH",
+    );
+    expect(decoded!.actionSubtitle, isNull);
+    expect(decoded.warnings, isNot(contains(S.current.wc_warning_permit2_approval)));
+  });
 }

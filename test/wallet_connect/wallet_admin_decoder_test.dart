@@ -41,25 +41,42 @@ void main() {
 
   group("decodeSwitchChain", () {
     test("labels the target chain id distinctly from the session chain", () {
-      final decoded = decoder.decodeSwitchChain([
-        {"chainId": "0x89"},
-      ]);
+      final decoded = decoder.decodeSwitchChain(
+        [
+          {"chainId": "0x89"},
+        ],
+        currentChainId: 137,
+      );
       expect(decoded.actionTitle, S.current.wc_action_switch_chain);
       final idRow = decoded.rows.firstWhere((r) => r.value == "137");
       expect(idRow.label, S.current.wc_target_chain_id);
       expect(decoded.hideTo, isTrue);
+      expect(decoded.warnings, isEmpty);
+    });
+
+    test("a chain the connection is not on warns that the switch will fail", () {
+      final decoded = decoder.decodeSwitchChain(
+        [
+          {"chainId": "0x89"},
+        ],
+        currentChainId: 1,
+      );
+      expect(decoded.warnings, [S.current.wc_warning_switch_chain_unavailable("Polygon")]);
     });
 
     test("an unresolvable chain still shows its id and warns", () {
-      final decoded = decoder.decodeSwitchChain([
-        {"chainId": "0x5f5e0ff"},
-      ]);
+      final decoded = decoder.decodeSwitchChain(
+        [
+          {"chainId": "0x5f5e0ff"},
+        ],
+        currentChainId: 1,
+      );
       expect(decoded.warnings, contains(S.current.wc_warning_chain_not_supported));
       expect(decoded.rows.any((r) => r.value == "99999999"), isTrue);
     });
 
     test("a missing chain id renders a placeholder rather than throwing", () {
-      final decoded = decoder.decodeSwitchChain(const []);
+      final decoded = decoder.decodeSwitchChain(const [], currentChainId: 1);
       expect(decoded.rows.single.value, "?");
       expect(decoded.warnings, contains(S.current.wc_warning_chain_not_supported));
     });

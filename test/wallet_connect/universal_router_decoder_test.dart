@@ -30,7 +30,8 @@ void main() {
   const weth = "0x1111111111111111111111111111111111111111";
   const tokenOut = "0x2222222222222222222222222222222222222222";
   const spender = "0x4444444444444444444444444444444444444444";
-  const msgSender = "0x0000000000000000000000000000000000000002";
+  const msgSender = "0x0000000000000000000000000000000000000001";
+  const routerHold = "0x0000000000000000000000000000000000000002";
   final uint160Max = (BigInt.one << 160) - BigInt.one;
 
   // execute(bytes commands, bytes[] inputs, uint256 deadline): the commands
@@ -40,9 +41,13 @@ void main() {
       "0x3593564c${wordInt(0x60)}${wordInt(0xa0)}${wordInt(1700000000)}"
       "${bytesBlob(commandsHex)}${bytesArrayBody(inputs)}";
 
-  String v3ExactInInput({required BigInt amountIn, required BigInt amountOutMin}) {
+  String v3ExactInInput({
+    required BigInt amountIn,
+    required BigInt amountOutMin,
+    String recipient = msgSender,
+  }) {
     final path = "${wordAddr(weth).substring(24)}000bb8${wordAddr(tokenOut).substring(24)}";
-    return wordAddr(msgSender) +
+    return wordAddr(recipient) +
         word(amountIn) +
         word(amountOutMin) +
         wordInt(0xa0) +
@@ -61,7 +66,11 @@ void main() {
   test("V3 exact-in leg takes the receive floor from UNWRAP_WETH", () async {
     final unwrapInput = wordAddr(msgSender) + wordInt(990);
     final calldata = executeCalldata("000c", [
-      v3ExactInInput(amountIn: BigInt.from(10).pow(18), amountOutMin: BigInt.zero),
+      v3ExactInInput(
+        amountIn: BigInt.from(10).pow(18),
+        amountOutMin: BigInt.zero,
+        recipient: routerHold,
+      ),
       unwrapInput,
     ]);
     final decoded = await decoder.decode(
@@ -249,7 +258,7 @@ void main() {
   });
 
   test("WRAP_ETH before a swap renders the input side as native", () async {
-    final wrapInput = wordAddr(msgSender) + word(BigInt.from(10).pow(18));
+    final wrapInput = wordAddr(routerHold) + word(BigInt.from(10).pow(18));
     final swapInput = v2ExactInInput(amountIn: 1000000000000000000, amountOutMin: 250000);
     final decoded = await decoder.decode(
       calldata: EvmCalldata.parse(executeCalldata("0b08", [wrapInput, swapInput]))!,
@@ -382,5 +391,27 @@ void main() {
       routerName: "Uniswap Universal Router",
     );
     expect(decoded, isNull);
+  });
+
+  test("a swap to 0x01 pays the sender and a swap to 0x02 stays with the router", () async {
+    Future<String> recipientOf(String recipient) async {
+      final decoded = await decoder.decode(
+        calldata: EvmCalldata.parse(
+          executeCalldata("00", [
+            v3ExactInInput(
+              amountIn: BigInt.from(10).pow(18),
+              amountOutMin: BigInt.one,
+              recipient: recipient,
+            ),
+          ]),
+        )!,
+        nativeSymbol: "ETH",
+        routerName: "Uniswap Universal Router",
+      );
+      return decoded!.rows.firstWhere((r) => r.label == S.current.wc_recipient).value;
+    }
+
+    expect(await recipientOf(msgSender), S.current.wc_recipient_you);
+    expect(await recipientOf(routerHold), S.current.wc_recipient_router_hold);
   });
 }

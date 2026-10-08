@@ -4,7 +4,7 @@ import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_reque
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 
 class WalletAdminDecoder {
-  WCDecodedRequest decodeSwitchChain(dynamic params) {
+  WCDecodedRequest decodeSwitchChain(dynamic params, {required int? currentChainId}) {
     final chainIdHex = _extractChainIdHex(params);
     final chainIdInt = _hexToInt(chainIdHex);
     final info = chainIdInt == null ? null : evm?.getChainInfoByChainId(chainIdInt);
@@ -22,7 +22,10 @@ class WalletAdminDecoder {
       actionSubtitle: info?.name,
       rows: rows,
       warnings: [
-        if (info == null) S.current.wc_warning_chain_not_supported,
+        if (info == null)
+          S.current.wc_warning_chain_not_supported
+        else if (chainIdInt != currentChainId)
+          S.current.wc_warning_switch_chain_unavailable(info.name),
       ],
       hideTo: true,
       hideValue: true,
