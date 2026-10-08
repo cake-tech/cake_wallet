@@ -83,6 +83,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.createEVMNewWalletCredentials(
           name: name,
           password: walletPassword,
@@ -164,6 +165,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
+    credentials.walletInfo!.showSeedBackupReminder = newWalletArguments!.mnemonic == null;
     return walletCreationService.create(credentials, isTestnet: useTestnet);
   }
 }

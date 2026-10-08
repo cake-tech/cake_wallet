@@ -68,6 +68,7 @@ class ContactListPage extends BasePage implements PageOpenListener {
                 minWidth: 32.0,
                 height: 32.0,
                 child: TextButton(
+                  key: ValueKey("contact_list_page_add_contact_button_key"),
                   // FIX-ME: Style
                   //shape: CircleBorder(),
                   onPressed: () async {
@@ -387,9 +388,12 @@ class _ContactListBodyState extends State<ContactListBody> {
   }
 
   Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type == CryptoCurrency.baseEth
-        ? 'assets/new-ui/crypto_full_icons/base.svg'
-        : contact.type.iconPath;
+    const l2NativeChainIcons = {
+      CryptoCurrency.baseEth: "assets/new-ui/crypto_full_icons/base.svg",
+      CryptoCurrency.arbEth: "assets/new-ui/crypto_full_icons/arbitrum.svg",
+      CryptoCurrency.robEth: "assets/new-ui/crypto_full_icons/robinhood.svg",
+    };
+    final image = l2NativeChainIcons[contact.type] ?? contact.type.iconPath;
     final currencyIcon = (image != null && image.isNotEmpty)
         ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
@@ -459,7 +463,7 @@ class _ContactListBodyState extends State<ContactListBody> {
       color: Theme.of(context).colorScheme.onSurface,
     );
     return Padding(
-      padding: const EdgeInsets.only(bottom: FeatureFlag.hasNewUi ? 48 : 0),
+      padding: const EdgeInsets.only(bottom: 48),
       child: MergeSemantics(
         child: SizedBox(
           height: 58,

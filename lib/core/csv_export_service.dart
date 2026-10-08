@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -13,13 +14,19 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:collection/collection.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CsvExportService {
+  CsvExportService({required this.transactionDescriptionBox});
+
+  final Box<TransactionDescription> transactionDescriptionBox;
+
   static const _columns = [
     'record_type',
     'date_time',
@@ -42,23 +49,46 @@ class CsvExportService {
 
   static const _utf8Bom = '﻿';
 
+  static const _formulaTriggers = {'=', '+', '-', '@', '\t', '\r'};
+
+  static final _plainNumber = RegExp(r'^-?\d+(\.\d+)?$');
+
   String buildCsvContent(List<ActionListItem> items) {
     final buf = StringBuffer();
     buf.write(_utf8Bom);
     buf.writeln(_columns.join(','));
 
+    final primaryAddress = _primaryAddressOf(items);
+
     for (final item in items) {
       if (item is DateSectionItem) continue;
 
-      final row = _buildRow(item);
+      final row = _buildRow(item, primaryAddress);
       if (row != null) buf.writeln(row);
     }
 
     return buf.toString();
   }
 
-  String? _buildRow(ActionListItem item) {
-    if (item is TransactionListItem) return _transactionRow(item);
+  String _primaryAddressOf(List<ActionListItem> items) {
+    for (final item in items) {
+      if (item is TransactionListItem) {
+        return item.balanceViewModel.wallet.walletAddresses.primaryAddress;
+      }
+    }
+    return '';
+  }
+
+  String _noteFor(TransactionListItem item, String primaryAddress) {
+    final txHash = item.transaction.txHash;
+    final descriptionKey = '${txHash}_$primaryAddress';
+    final description = transactionDescriptionBox.values
+        .firstWhereOrNull((val) => val.id == descriptionKey || val.id == txHash);
+    return description?.note ?? '';
+  }
+
+  String? _buildRow(ActionListItem item, String primaryAddress) {
+    if (item is TransactionListItem) return _transactionRow(item, primaryAddress);
     if (item is TradeListItem) return _tradeRow(item);
     if (item is OrderListItem) return _orderRow(item);
     if (item is AnonpayTransactionListItem) return _anonpayRow(item);
@@ -66,7 +96,7 @@ class CsvExportService {
     return null;
   }
 
-  String _transactionRow(TransactionListItem item) {
+  String _transactionRow(TransactionListItem item, String primaryAddress) {
     final tx = item.transaction;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
@@ -88,7 +118,7 @@ class CsvExportService {
       tx.id,
       address,
       status,
-      '',
+      _noteFor(item, primaryAddress),
       '',
       '',
       '',
@@ -200,10 +230,20 @@ class CsvExportService {
   String _row(List<String> fields) => fields.map(escapeField).join(',');
 
   String escapeField(String field) {
-    if (field.contains(',') || field.contains('"') || field.contains('\n')) {
-      return '"${field.replaceAll('"', '""')}"';
+    final value = _neutralizeFormula(field);
+    if (value.contains(',') ||
+        value.contains('"') ||
+        value.contains('\n') ||
+        value.contains('\r')) {
+      return '"${value.replaceAll('"', '""')}"';
     }
-    return field;
+    return value;
+  }
+
+  String _neutralizeFormula(String field) {
+    if (field.isEmpty || !_formulaTriggers.contains(field[0])) return field;
+    if (_plainNumber.hasMatch(field)) return field;
+    return "'$field";
   }
 
   String _isoDate(DateTime dt) => dt.toUtc().toIso8601String();

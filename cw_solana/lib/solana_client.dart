@@ -465,14 +465,16 @@ class SolanaWalletClient {
     return walletSent && walletReceived;
   }
 
+  static const unresolvedTokenTitle = "TOKEN";
+
   static CryptoCurrency currencyForRawAmount(SPLToken? token, int mintDecimals) {
     if (token != null && token.decimals == mintDecimals) {
       return token;
     }
 
     return CryptoCurrency(
-      name: (token?.title ?? "TOKEN").toLowerCase(),
-      title: token?.title ?? "TOKEN",
+      name: (token?.title ?? unresolvedTokenTitle).toLowerCase(),
+      title: token?.title ?? unresolvedTokenTitle,
       decimals: mintDecimals,
     );
   }
@@ -1298,7 +1300,10 @@ class SolanaWalletClient {
         },
       );
 
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200) {
+        throw Exception("Moralis token metadata returned ${response.statusCode}");
+      }
+
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       final symbol = decodedResponse['symbol'] as String? ?? '';

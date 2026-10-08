@@ -14,6 +14,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
@@ -128,8 +129,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: networkParam ?? network,
@@ -612,10 +615,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) => unspentCoins
-      .where((e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
-      .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
-      .toList();
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) =>
+      unspentCoinsForCurrentAccount
+          .where(
+              (e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
+          .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
+          .toList();
 
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
@@ -625,6 +630,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: currentAccountIndex,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.zero(currency),
@@ -683,6 +689,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         btcTx,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.zero(currency),
         fee: Money.zero(currency),
@@ -716,12 +723,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   bool receiveOptionAvailable(ReceivePageOption option) {
-    if(option == BitcoinReceivePageOption.lightning) {
-      return hasLightningSupport;
+    final isExtraAccount = currentAccountIndex > 0;
+
+    if (option == BitcoinReceivePageOption.lightning) {
+      // Lightning is tied to the primary account only
+      return !isExtraAccount && hasLightningSupport;
     }
 
-    if(option == BitcoinReceivePageOption.silent_payments) {
-      return hasSilentPaymentsScanning;
+    if (option == BitcoinReceivePageOption.silent_payments) {
+      // Silent payments are tied to the primary account only
+      return !isExtraAccount && hasSilentPaymentsScanning;
+    }
+
+    // Restrict extra Bitcoin accounts (accountIndex > 0) to the allowed address types
+    if (isExtraAccount && option is BitcoinReceivePageOption) {
+      final addressType = option.toType();
+      if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
+        return false;
+      }
     }
 
     return true;
