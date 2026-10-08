@@ -225,6 +225,30 @@ void main() {
       expect(parsed.chainId, 1);
     });
 
+    test("keeps the amount param when value is not a number", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse("ethereum:$recipient@1?value=abc&amount=1.5"),
+      );
+
+      expect(parsed.amount, "1.5");
+    });
+
+    test("prefers a numeric value over the amount param", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse("ethereum:$recipient@1?value=1.5e18&amount=9"),
+      );
+
+      expect(parsed.amount, "1.5");
+    });
+
+    test("prefers a zero value over the amount param", () {
+      final parsed = ERC681URI.fromUri(
+        Uri.parse("ethereum:$recipient@1?value=0&amount=1.5"),
+      );
+
+      expect(parsed.amount, "0");
+    });
+
     test("defaults to mainnet when the chainId is absent", () {
       final parsed = ERC681URI.fromUri(Uri.parse("ethereum:$recipient"));
 
