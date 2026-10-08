@@ -58,6 +58,18 @@ void main() {
     ]) {
       await receiveRobot.expectTestId(id);
     }
+    await receiveRobot.tapTestId("receive_page_set_amount_button_key");
+    for (final id in [
+      "receive_amount_modal_title_key",
+      "receive_amount_modal_leading_key",
+      "receive_amount_modal_amount_textfield_key",
+      "receive_amount_modal_continue_button_key",
+    ]) {
+      await receiveRobot.expectTestId(id);
+    }
+    await receiveRobot.enterTextByTestId("receive_amount_modal_amount_textfield_key", "1");
+    await receiveRobot.tapTestId("receive_amount_modal_continue_button_key");
+    await receiveRobot.isDisplayed();
     await receiveRobot.dismissModal();
     await homePageRobot.isDisplayed();
 
