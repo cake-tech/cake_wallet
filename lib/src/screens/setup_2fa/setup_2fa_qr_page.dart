@@ -42,14 +42,21 @@ class Setup2FAQRPage extends BasePage {
                 ),
           ),
           SizedBox(height: 10),
-                    QrImage(
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
+            child: AspectRatio(
+              aspectRatio: 1.0,
+                child: Container(
+                    child: QrImage(
                       size: qrSize - padding * 2,
                       embeddedImagePath: "assets/new-ui/settings_row_icons/security.svg",
                       data: setup2FAViewModel.totpVersionOneLink,
                       version: qr.QrVersions.auto,
                       foregroundColor: Theme.of(context).colorScheme.onSurface,
                       backgroundColor: Colors.transparent,
-                ),
+                    ),),
+              ),
+            ),
           SizedBox(height: 26),
           Text(
             S.current.add_secret_code,

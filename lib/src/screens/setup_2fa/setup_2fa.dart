@@ -27,6 +27,7 @@ class Setup2FAPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final cake2FAGuideUri = Uri.parse('https://docs.cakewallet.com/features/advanced/authentication/');
     return ModalPageWrapper(
       topBar: ModalTopBar(
           title: "",
@@ -39,7 +40,7 @@ class Setup2FAPage extends BasePage {
           title: "Cake 2FA"),
       content: Column(
         spacing: 16,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min, 
         children: [
           Observer(
             builder: (_) => NewListSections(sections: {
@@ -51,62 +52,17 @@ class Setup2FAPage extends BasePage {
                     setup2FAViewModel.generateSecretKey();
                     Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
                     }
+                ),
+                ListItemRegularRow(
+                    keyValue: "2fa_guide",
+                    label: "Cake 2FA Guide",
+                    onTap: () => _launchUrl(cake2FAGuideUri)
                 )]
             })
           )
         ]
       )
     );
-    // final cake2FAGuideTitle = 'Cake 2FA Guide';
-    // final cake2FAGuideUri =
-    //     Uri.parse('https://docs.cakewallet.com/features/advanced/authentication/');
-    // return Column(
-    //   crossAxisAlignment: CrossAxisAlignment.center,
-    //   children: [
-    //     Expanded(
-    //       flex: 2,
-    //       child: ConstrainedBox(
-    //         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-    //         child: AspectRatio(
-    //           aspectRatio: 0.6,
-    //           child: CakeImageWidget(imageUrl: 'assets/images/2fa.png'),
-    //         ),
-    //       ),
-    //     ),
-    //     const SizedBox(height: 24),
-    //     Expanded(
-    //       flex: 2,
-    //       child: Padding(
-    //         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-    //         child: Text(
-    //           S.current.setup_2fa_text,
-    //           textAlign: TextAlign.center,
-    //           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-    //                 height: 1.571,
-    //                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-    //               ),
-    //         ),
-    //       ),
-    //     ),
-    //     Expanded(
-    //       child: Column(
-    //         children: [
-    //           SettingsCellWithArrow(
-    //             title: S.current.setup_totp_recommended,
-    //             handler: (_) {
-    //               setup2FAViewModel.generateSecretKey();
-    //               return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
-    //             },
-    //           ),
-    //           HorizontalSectionDivider(margin: EdgeInsets.symmetric(horizontal: 24)),
-    //           SettingsCellWithArrow(
-    //               title: cake2FAGuideTitle, handler: (_) => _launchUrl(cake2FAGuideUri)),
-    //           HorizontalSectionDivider(margin: EdgeInsets.symmetric(horizontal: 24)),
-    //         ],
-    //       ),
-    //     ),
-    //   ],
-    // );
   }
 
   static void _launchUrl(Uri url) async {
