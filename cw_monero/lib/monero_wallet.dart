@@ -723,9 +723,6 @@ abstract class MoneroWalletBase
           unspentCoins.add(unspent);
         }
       }
-      this.unspentCoins
-        ..clear()
-        ..addAll(unspentCoins);
 
       await _askForUpdateBalance();
     } catch (e, s) {
