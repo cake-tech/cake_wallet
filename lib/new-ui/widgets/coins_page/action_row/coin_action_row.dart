@@ -150,11 +150,10 @@ class CoinActionRow extends StatelessWidget {
     if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
       unspentCoinType = UnspentCoinType.lightning;
       final amount = getBolt11Amount(code)?.toString() ?? "0";
-      req = PaymentRequest(code, amount, "", "", "");
+      req = PaymentRequest(stripLightningScheme(code), amount, "", "", "");
     } else if (SendViewModelBase.isLnurlInvoice(code)) {
       unspentCoinType = UnspentCoinType.lightning;
-      final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
-      req = PaymentRequest(code, amount, "", "", "");
+      req = PaymentRequest(stripLightningScheme(code), "", "", "", "");
     } else if (Uri.tryParse(code)?.scheme == "wc") {
       if (!isWalletConnectCompatibleChain(walletType)) {
         showPopUp<void>(

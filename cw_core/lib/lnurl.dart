@@ -8,10 +8,12 @@ import "package:cw_core/utils/proxy_wrapper.dart";
 const _BOLT_PREFIXES = ["lnbcrt", "lntbs", "lnbc", "lntb"];
 const _LUD17_PREFIXES = ["lnurlw", "lnurlc", "lnurlp", "keyauth"];
 
+String stripLightningScheme(String input) =>
+    input.replaceFirst(RegExp("^lightning:", caseSensitive: false), "");
+
 bool isBolt11ZeroInvoice(String invoice) {
   try {
-    final request =
-        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+    final request = const Bech32Codec().decode(stripLightningScheme(invoice), invoice.length);
 
     final prefix =
         _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
@@ -24,8 +26,7 @@ bool isBolt11ZeroInvoice(String invoice) {
 
 /// Get the amount of a Bolt 11 Invoice in
 int? _getAmountBolt11Msat(String invoice) {
-  final request =
-      const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+  final request = const Bech32Codec().decode(stripLightningScheme(invoice), invoice.length);
 
   final prefix = _BOLT_PREFIXES.firstWhere(
     request.hrp.startsWith,
