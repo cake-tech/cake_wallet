@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
+import "package:cake_wallet/themes/core/theme_extension.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -132,7 +133,11 @@ class CoinControlListItem extends StatelessWidget {
     }
 
     if (isFrozen) {
-      return CakeImageWidget(imageUrl: "assets/new-ui/frozen.svg");
+      return CakeImageWidget(
+        imageUrl: "assets/new-ui/frozen.svg",
+        colorFilter: ColorFilter.mode(
+            context.currentTheme.isDark ? Colors.white : Colors.black, BlendMode.srcIn),
+      );
     }
 
     if (!hasCheckbox) {
