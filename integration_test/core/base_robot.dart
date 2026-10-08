@@ -90,13 +90,25 @@ abstract class BaseRobot {
     }
   }
 
-  Future<void> tapTestId(String id) => tapWhenVisible(find.bySemanticsIdentifier(id));
+  Future<void> tapTestId(String id) async {
+    final handle = tester.ensureSemantics();
+    try {
+      await tapWhenVisible(find.bySemanticsIdentifier(id));
+    } finally {
+      handle.dispose();
+    }
+  }
 
   Future<void> enterTextByTestId(String id, String text) async {
-    final finder = find.descendant(of: find.bySemanticsIdentifier(id), matching: find.byType(EditableText));
-    await pumpUntilFound(finder);
-    await tester.enterText(finder.first, text);
-    await tester.pump(const Duration(milliseconds: 300));
+    final handle = tester.ensureSemantics();
+    try {
+      final finder = find.descendant(of: find.bySemanticsIdentifier(id), matching: find.byType(EditableText));
+      await pumpUntilFound(finder);
+      await tester.enterText(finder.first, text);
+      await tester.pump(const Duration(milliseconds: 300));
+    } finally {
+      handle.dispose();
+    }
   }
 
   List<SemanticsNode> _exportedNodesWithId(String id) {
