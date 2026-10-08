@@ -133,7 +133,7 @@ class BalanceCard extends StatelessWidget {
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                           fontWeight: FontWeight.w500,
                                           color: design.colors.textColor),
-                                      child: Text("$accountIndex."),
+                                      child: ExcludeSemantics(excluding: leadText == accountName, child: Text("$accountIndex.")),
                                     ),
                                   ),
                                 AnimatedDefaultTextStyle(

@@ -247,6 +247,7 @@ void main() {
             width: 300,
             design: CardDesign.genericDefault,
             accountName: "Savings",
+            accountIndex: 1,
             selected: true,
             balance: "1.5",
             assetName: "BTC",
@@ -255,7 +256,7 @@ void main() {
         ),
       );
 
-      expect(find.bySemanticsLabel("Savings"), findsNothing);
+      expect(find.bySemanticsLabel(RegExp(r"^(Savings|1\.)$")), findsNothing);
       handle.dispose();
     });
 
