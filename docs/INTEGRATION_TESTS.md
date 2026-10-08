@@ -114,7 +114,7 @@ stable history. funds_suites run only from the manual funds workflow.
 
 ## What is covered today
 
-Twenty seven suites. Add a line here when you add one.
+Twenty eight suites. Add a line here when you add one.
 
 ### tier0, no network needed
 
@@ -137,6 +137,7 @@ Twenty seven suites. Add a line here when you add one.
 | `settings_nav_test` | Every settings row opens its page and backs out of it |
 | `language_test` | Changing the language changes what the settings screen shows |
 | `fiat_currency_test` | Turning the fiat api off hides the currency setting, turning it back on returns it and the currency can be changed |
+| `semantics_identifiers_test` | Home, settings, receive, set amount and send controls expose the semantics identifiers Appium and UIAutomator select on |
 
 ### tier1, needs a node or a provider
 

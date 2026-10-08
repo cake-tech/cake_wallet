@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:cake_wallet/src/widgets/picker.dart";
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
@@ -73,6 +74,59 @@ abstract class BaseRobot {
 
     await takeScreenshot("${runtimeType}_pump_until_gone_timeout");
     throw TestFailure("Widget still present after ${timeout.inSeconds}s: $finder");
+  }
+
+  Future<void> expectTestId(String id, {Duration timeout = const Duration(seconds: 30)}) async {
+    final handle = tester.ensureSemantics();
+    try {
+      await pumpUntil(() => _exportedNodesWithId(id).isNotEmpty, timeout: timeout);
+      final count = _exportedNodesWithId(id).length;
+      if (count != 1) {
+        await takeScreenshot("${runtimeType}_expect_test_id_$id");
+      }
+      expect(count, 1, reason: "Exported semantics nodes with identifier $id");
+    } finally {
+      handle.dispose();
+    }
+  }
+
+  Future<void> tapTestId(String id) async {
+    final handle = tester.ensureSemantics();
+    try {
+      await tapWhenVisible(find.bySemanticsIdentifier(id));
+    } finally {
+      handle.dispose();
+    }
+  }
+
+  Future<void> enterTextByTestId(String id, String text) async {
+    final handle = tester.ensureSemantics();
+    try {
+      final finder = find.descendant(of: find.bySemanticsIdentifier(id), matching: find.byType(EditableText));
+      await pumpUntilFound(finder);
+      await tester.enterText(finder.first, text);
+      await tester.pump(const Duration(milliseconds: 300));
+    } finally {
+      handle.dispose();
+    }
+  }
+
+  List<SemanticsNode> _exportedNodesWithId(String id) {
+    final result = <SemanticsNode>[];
+    void visit(SemanticsNode node) {
+      if (!node.isMergedIntoParent && node.getSemanticsData().identifier == id) {
+        result.add(node);
+      }
+      node.visitChildren((child) {
+        visit(child);
+        return true;
+      });
+    }
+    final root = tester.binding.renderViews.first.owner?.semanticsOwner?.rootSemanticsNode;
+    if (root != null) {
+      visit(root);
+    }
+    return result;
   }
 
   Future<void> tapByKey(String key, {Duration timeout = const Duration(seconds: 30)}) async {
