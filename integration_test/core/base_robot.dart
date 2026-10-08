@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:cake_wallet/src/widgets/picker.dart";
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 
@@ -77,19 +78,34 @@ abstract class BaseRobot {
 
   Future<void> expectTestId(String id, {Duration timeout = const Duration(seconds: 30)}) async {
     final handle = tester.ensureSemantics();
-    final finder = find.bySemanticsIdentifier(id);
-
     try {
-      await pumpUntilFound(finder, timeout: timeout);
-
-      if (finder.evaluate().length != 1) {
+      await pumpUntil(() => _exportedNodesWithId(id).isNotEmpty, timeout: timeout);
+      final count = _exportedNodesWithId(id).length;
+      if (count != 1) {
         await takeScreenshot("${runtimeType}_expect_test_id_$id");
       }
-
-      expect(finder, findsOneWidget, reason: "Semantics identifier $id");
+      expect(count, 1, reason: "Exported semantics nodes with identifier $id");
     } finally {
       handle.dispose();
     }
+  }
+
+  List<SemanticsNode> _exportedNodesWithId(String id) {
+    final result = <SemanticsNode>[];
+    void visit(SemanticsNode node) {
+      if (!node.isMergedIntoParent && node.getSemanticsData().identifier == id) {
+        result.add(node);
+      }
+      node.visitChildren((child) {
+        visit(child);
+        return true;
+      });
+    }
+    final root = tester.binding.renderViews.first.owner?.semanticsOwner?.rootSemanticsNode;
+    if (root != null) {
+      visit(root);
+    }
+    return result;
   }
 
   Future<void> tapByKey(String key, {Duration timeout = const Duration(seconds: 30)}) async {
