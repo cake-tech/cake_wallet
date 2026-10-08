@@ -16,6 +16,7 @@ class LightningSwitcher extends StatelessWidget {
     // One toggle node: the knob position and the coloured glyphs are the only
     // visual cue for which mode is active.
     return Semantics(
+      identifier: "home_page_lightning_switch_key",
       button: true,
       toggled: lightningMode,
       label: S.of(context).lightning_mode,

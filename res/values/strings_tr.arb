@@ -841,6 +841,7 @@
   "picker_see_all": "Tümünü gör",
   "picker_show_less": "Daha az göster",
   "pin_at_top": "${token}'ı üste sabitle",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN yanlış",
   "pin_number": "PIN numarası",
   "placeholder_contacts": "Kişileriniz burada görüntülenecek",

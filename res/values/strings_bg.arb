@@ -841,6 +841,7 @@
   "picker_see_all": "Вижте всички",
   "picker_show_less": "Покажи по-малко",
   "pin_at_top": "Закачи ${token} най-отгоре",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN кодът е неправилен",
   "pin_number": "PIN номер",
   "placeholder_contacts": "Вашите контакти ще бъдат показани тук",

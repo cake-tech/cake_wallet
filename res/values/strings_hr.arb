@@ -841,6 +841,7 @@
   "picker_see_all": "Vidi sve",
   "picker_show_less": "Prikaži manje",
   "pin_at_top": "Prikvači ${token} na vrh",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN je netočan",
   "pin_number": "PIN broj",
   "placeholder_contacts": "Vaši će kontakti biti prikazani ovdje",

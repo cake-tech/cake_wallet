@@ -841,6 +841,7 @@
   "picker_see_all": "شاهد الكل",
   "picker_show_less": "عرض أقل",
   "pin_at_top": "تثبيت ${token} في الأعلى",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "رمز PIN غير صحيح",
   "pin_number": "رقم PIN",
   "placeholder_contacts": "ستُعرض جهات اتصالك هنا",

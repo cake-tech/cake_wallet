@@ -853,6 +853,7 @@
   "picker_see_all": "See All",
   "picker_show_less": "Show less",
   "pin_at_top": "Pin ${token} at top",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN is incorrect",
   "pin_number": "PIN number",
   "placeholder_contacts": "Your contacts will be displayed here",
