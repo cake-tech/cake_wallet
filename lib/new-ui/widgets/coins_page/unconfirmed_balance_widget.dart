@@ -51,7 +51,8 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                             onShield: () async {
                               if (dashboardViewModel.wallet.hardwareWalletType != null) {
                                 final hwVM = getIt<HardwareWalletViewModel>(
-                                    param1: dashboardViewModel.wallet.hardwareWalletType);
+                                    param1: dashboardViewModel.wallet.hardwareWalletType,
+                                );
                                 final connectionEnsured = await hwVM.ensureDeviceConnection(context, dashboardViewModel.wallet);
                                 if (connectionEnsured) {
                                   final pendingTx = await zcash!.createShieldingTransaction(dashboardViewModel.wallet);

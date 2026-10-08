@@ -1024,31 +1024,6 @@ abstract class ZcashWalletBase
 
   static int zashiAnnouncedBlockHeight = 2419420;
 
-  Future<dynamic> _getAddressesForAccount(final int id) async {
-    return runWithCoin(
-      accountId: id,
-      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
-    );
-  }
-
-  bool _addressesMatch(final dynamic old, final dynamic new_) {
-    return old.ua == new_.ua &&
-        old.oaddr == new_.oaddr &&
-        old.saddr == new_.saddr &&
-        old.taddr == new_.taddr;
-  }
-
-  Future<void> _switchToAccount(final int newAccountId, final int height) async {
-    walletsByAccountId.remove(accountId);
-    accountId = newAccountId;
-    walletsByAccountId[newAccountId] = this;
-    walletAddresses.accountId = newAccountId;
-    c = await c.setAccount(account: newAccountId);
-    lastKnownRestoreHeight = height;
-    await walletAddresses.init();
-    await _initKeys();
-  }
-
   @override
   @action
   Future<void> rescan({required final int height}) async {
@@ -1481,7 +1456,7 @@ abstract class ZcashWalletBase
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
-        final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
+        final minSweep = _minSweepThreshold(ironwood: ironwoodActive);
         availableAmount = orchard + ironwood;
         unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
       }
