@@ -115,8 +115,10 @@ class WalletCreationService {
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+
+    await keyService.saveWalletPasswordForWallet(
+        walletInfo: credentials.walletInfo!,
+        password: credentials.password!,);
 
     final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
 
@@ -132,11 +134,11 @@ class WalletCreationService {
     _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
-    if (credentials.password == null) {
-      credentials.password = generateWalletPassword();
-    }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    credentials.password ??= generateWalletPassword();
+    await keyService.saveWalletPasswordForWallet(
+      walletInfo: credentials.walletInfo!,
+      password: credentials.password!,
+    );
 
     final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 
@@ -148,12 +150,17 @@ class WalletCreationService {
     return wallet;
   }
 
+
   Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
     _ensureServiceAvailable();
     await checkIfExists(credentials.name);
-    final password = generateWalletPassword();
-    credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+
+    credentials.password = generateWalletPassword();
+    await keyService.saveWalletPasswordForWallet(
+      walletInfo: credentials.walletInfo!,
+      password: credentials.password!,
+    );
+
     final wallet = await _service!.restoreFromHardwareWallet(credentials);
 
     if (wallet.type == WalletType.monero) {
