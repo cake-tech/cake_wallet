@@ -239,7 +239,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets("an unselected card still hides its crypto balance", (tester) async {
+    testWidgets("an unselected card hides its crypto balance and publishes no balance ids", (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         wrap(
@@ -254,8 +254,9 @@ void main() {
       );
 
       expect(platformNodesWithId(tester, "balance_card_crypto_balance_key"), isEmpty);
+      expect(platformNodesWithId(tester, "balance_card_fiat_balance_key"), isEmpty);
       expect(find.bySemanticsLabel(RegExp("1.5")), findsNothing);
-      expect(one(tester, "balance_card_fiat_balance_key"), isSemantics(label: "USD 90,000.00"));
+      expect(find.bySemanticsLabel("USD 90,000.00"), findsOneWidget);
       handle.dispose();
     });
   });
@@ -310,6 +311,7 @@ void main() {
       await tester.pumpWidget(
         wrap(
           ReceiveAddressTypeRow(
+            key: const ValueKey("receive_address_type_common_1_key"),
             option: ReceivePageOption.testnet,
             roundedTop: true,
             roundedBottom: true,
@@ -320,7 +322,7 @@ void main() {
         ),
       );
       expect(
-        one(tester, "receive_address_type_1_key"),
+        one(tester, "receive_address_type_common_1_key"),
         isSemantics(
           label: "testnet",
           hasSelectedState: true,

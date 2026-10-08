@@ -218,7 +218,7 @@ class BalanceCard extends StatelessWidget {
                             color: design.colors.textColorSecondary),
                         child: Semantics(
                         container: true,
-                        identifier: fiatFirst ? "balance_card_crypto_balance_key" : "balance_card_fiat_balance_key",
+                        identifier: !selected ? null : fiatFirst ? "balance_card_crypto_balance_key" : "balance_card_fiat_balance_key",
                         child: AnimatedSwitcher(
                           duration: designSwitchDuration,
                           layoutBuilder: (currentChild, previousChildren) {
