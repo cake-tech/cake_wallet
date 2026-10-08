@@ -27,10 +27,11 @@ abstract class Setup2FAViewModelBase with Store {
         unhighlightTabs = false,
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
-      selectCakePreset(selectedCake2FAPreset);
-
-    reaction((_) => state, _saveLastAuthTime);
-  }
+          if (selectedCake2FAPreset != Cake2FAPresetsOptions.custom) {
+            selectCakePreset(selectedCake2FAPreset);
+          }
+        reaction((_) => state, _saveLastAuthTime);
+        }
 
   static const maxFailedTrials = 3;
   static const banTimeout = 180; // 3 minutes
