@@ -1027,7 +1027,7 @@ abstract class ZcashWalletBase
   Future<int?> getBirthHeight() async =>
       runWithCoin(
         accountId: accountId,
-        func: (final coin) async =>
+        func: (coin) async =>
         (await zkool_account.listAccounts(c: coin))
             .where((final a) => a.id == accountId)
             .firstOrNull
@@ -1338,6 +1338,7 @@ abstract class ZcashWalletBase
     final shieldTx = await createShieldingTransaction();
     if (shieldTx != null) {
       await shieldTx.commit();
+      _lastAutoShieldAt = DateTime.now();
     }
   }
 
