@@ -253,7 +253,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
       if ([WalletType.monero, WalletType.zcash].contains(type)) {
-        return handleRouteWithPlatformAwareness((_) => HardwareWalletAccountOptionsPage(walletVM));
+        return handleRouteWithPlatformAwareness(
+          (_) => HardwareWalletAccountOptionsPage(
+            walletVM,
+            walletType: type,
+          ),
+        );
       }
 
       return handleRouteWithPlatformAwareness((_) => SelectHardwareWalletAccountPage(walletVM));

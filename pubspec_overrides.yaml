@@ -1237,10 +1237,10 @@ dependency_overrides:
       ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
       path: ./packages/riverpod_annotation
   rlz:
-#    git:
-#      url: https://github.com/cake-tech/zkool2.git
-#      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
-    path: ../zkool2/rust_builder
+    git:
+      url: https://github.com/cake-tech/zkool2.git
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      path: ./rust_builder
   rxdart:
     git:
       url: https://github.com/ReactiveX/rxdart
@@ -1679,7 +1679,6 @@ dependency_overrides:
       ref: 119a499068a903222fbbefdea18ea59efdd417b9
       path: ./pkgs/yaml_edit
   zkool:
-#    git:
-#      url: https://github.com/cake-tech/zkool2.git
-#      ref: 4571d6cc4a61391538544ade770c2ff1d42f84f0
-    path: ../zkool2
+    git:
+      url: https://github.com/cake-tech/zkool2.git
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
