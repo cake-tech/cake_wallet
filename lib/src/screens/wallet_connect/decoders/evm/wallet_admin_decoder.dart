@@ -60,7 +60,7 @@ class WalletAdminDecoder {
       if (currency != null && currency["symbol"] != null)
         WCDecodedRow(
           label: S.current.wc_currency,
-          value: '${currency['name'] ?? currency['symbol']} (${currency['symbol']})',
+          value: "${currency["name"] ?? currency["symbol"]} (${currency["symbol"]})",
         ),
       if (rpcs.isNotEmpty) WCDecodedRow(label: S.current.wc_new_rpc, value: rpcs.first),
       if (explorers.isNotEmpty) WCDecodedRow(label: S.current.wc_explorer, value: explorers.first),

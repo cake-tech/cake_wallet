@@ -499,7 +499,6 @@ class TypedDataDecoder {
     );
   }
 
-
   WCDecodedRequest? _decodeLegacyV1(dynamic raw) {
     List<dynamic>? entries;
     if (raw is List && raw.isNotEmpty && raw.first is Map) {

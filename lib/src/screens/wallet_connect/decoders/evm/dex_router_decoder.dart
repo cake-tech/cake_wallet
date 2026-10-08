@@ -59,6 +59,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: true,
         );
       case EvmSelectors.uniV3ExactOutputSingle:
@@ -68,6 +69,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: false,
         );
       case EvmSelectors.uniV3Router02ExactInputSingle:
@@ -77,6 +79,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: true,
           hasDeadlineWord: false,
         );
@@ -87,6 +90,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: false,
           hasDeadlineWord: false,
         );
@@ -106,6 +110,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: true,
         );
       case EvmSelectors.uniV3ExactOutput:
@@ -115,6 +120,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: false,
         );
       case EvmSelectors.uniV3Router02ExactInput:
@@ -124,6 +130,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: true,
           hasDeadlineWord: false,
         );
@@ -134,6 +141,7 @@ class DexRouterDecoder {
           routerName,
           routerAddress,
           walletAddress,
+          valueWei,
           isExactIn: false,
           hasDeadlineWord: false,
         );
@@ -300,7 +308,8 @@ class DexRouterDecoder {
     String nativeSymbol,
     String routerName,
     String? routerAddress,
-    String? walletAddress, {
+    String? walletAddress,
+    BigInt valueWei, {
     required bool isExactIn,
     bool hasDeadlineWord = true,
   }) async {
@@ -324,6 +333,7 @@ class DexRouterDecoder {
       routerName: routerName,
       isExactIn: isExactIn,
       walletAddress: walletAddress,
+      valueWei: valueWei,
       resolvesSentinels: !hasDeadlineWord,
     );
   }
@@ -333,7 +343,8 @@ class DexRouterDecoder {
     String nativeSymbol,
     String routerName,
     String? routerAddress,
-    String? walletAddress, {
+    String? walletAddress,
+    BigInt valueWei, {
     required bool isExactIn,
     bool hasDeadlineWord = true,
   }) async {
@@ -364,6 +375,7 @@ class DexRouterDecoder {
       routerName: routerName,
       isExactIn: isExactIn,
       walletAddress: walletAddress,
+      valueWei: valueWei,
       resolvesSentinels: !hasDeadlineWord,
     );
   }
@@ -378,13 +390,19 @@ class DexRouterDecoder {
     required String routerName,
     required bool isExactIn,
     required String? walletAddress,
+    required BigInt valueWei,
     required bool resolvesSentinels,
   }) async {
     final fromAmount = isExactIn ? amountSpecified : amountLimit;
     final toAmount = isExactIn ? amountLimit : amountSpecified;
 
+    final wrappedToken = valueWei > BigInt.zero && valueWei == fromAmount
+        ? await tokenResolver.resolve(tokenIn)
+        : null;
+    final paysNative = wrappedToken?.symbol.toUpperCase() == "W${nativeSymbol.toUpperCase()}";
+
     final descs = await Future.wait([
-      _formatAmount(tokenIn, fromAmount, nativeSymbol, asNative: false),
+      _formatAmount(tokenIn, fromAmount, nativeSymbol, asNative: paysNative),
       _formatAmount(tokenOut, toAmount, nativeSymbol, asNative: false),
     ]);
 
@@ -408,6 +426,7 @@ class DexRouterDecoder {
           ),
       ],
       hideTo: true,
+      hideValue: paysNative,
     );
   }
 

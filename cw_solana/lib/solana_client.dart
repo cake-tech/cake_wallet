@@ -1131,7 +1131,7 @@ class SolanaWalletClient {
           try {
             return await _provider!.request(
               SolanaRPCGetTransaction(
-                transactionSignature: signature['signature'] as String,
+                transactionSignature: signature["signature"] as String,
                 encoding: SolanaRPCEncoding.jsonParsed,
                 maxSupportedTransactionVersion: 1,
                 skipVerification: true,
@@ -1306,10 +1306,10 @@ class SolanaWalletClient {
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final symbol = decodedResponse['symbol'] as String? ?? '';
-      final name = decodedResponse['name'] as String? ?? '';
+      final symbol = decodedResponse["symbol"] as String? ?? "";
+      final name = decodedResponse["name"] as String? ?? "";
       final rawDecimals = decodedResponse["decimals"];
-      final iconPath = decodedResponse['logo'] as String? ?? '';
+      final iconPath = decodedResponse["logo"] as String? ?? "";
 
       final filteredTokenSymbol = symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
 
@@ -2043,7 +2043,7 @@ class SolanaWalletClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return jsonResponse['image'] as String?;
+        return jsonResponse["image"] as String?;
       } else {
         return null;
       }

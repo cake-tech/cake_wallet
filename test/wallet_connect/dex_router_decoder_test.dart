@@ -2,9 +2,11 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/dex_router_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_calldata.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "abi_hex.dart";
+import "stubs.dart";
 
 void main() {
   setUpAll(() {
@@ -247,5 +249,53 @@ void main() {
       valueWei: BigInt.zero,
     );
     expect(decoded, isNull);
+  });
+
+  group("V3 swap paid with ETH", () {
+    const mainnetWeth = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+    const dai = "0x6b175474e89094c44da98b954eedeac495271d0f";
+    final twoTenthsEth = BigInt.parse("2c68af0bb140000", radix: 16);
+    final resolvingDecoder = DexRouterDecoder(
+      StubErc20Resolver({
+        mainnetWeth: Erc20Token(
+          name: "Wrapped Ether",
+          symbol: "WETH",
+          contractAddress: mainnetWeth,
+          decimal: 18,
+        ),
+        dai: Erc20Token(name: "Dai", symbol: "DAI", contractAddress: dai, decimal: 18),
+      }),
+    );
+
+    String exactInputSingle(String payToken) => "0x414bf389${wordAddr(payToken)}"
+        "000000000000000000000000c552b5706baa14c1f0104e95380ea3dc102a481f"
+        "0000000000000000000000000000000000000000000000000000000000000064"
+        "000000000000000000000000364cc1be5a6f9f2f743815ebde7e82b5952747b3"
+        "000000000000000000000000000000000000000000000000000000006ac78487"
+        "00000000000000000000000000000000000000000000000002c68af0bb140000"
+        "0000000000000000000000000000000000000000000000000000000000000000"
+        "0000000000000000000000000000000000000000000000000000000000000000";
+
+    test("golden vector: mainnet WETH-in swap with equal value shows ETH once", () async {
+      final decoded = await resolvingDecoder.decode(
+        calldata: EvmCalldata.parse(exactInputSingle(mainnetWeth))!,
+        nativeSymbol: "ETH",
+        routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+        valueWei: twoTenthsEth,
+      );
+      expect(decoded!.rows.first.value, "0.2 ETH");
+      expect(decoded.hideValue, isTrue);
+    });
+
+    test("a non-wrapped token with the same value keeps the value row", () async {
+      final decoded = await resolvingDecoder.decode(
+        calldata: EvmCalldata.parse(exactInputSingle(dai))!,
+        nativeSymbol: "ETH",
+        routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+        valueWei: twoTenthsEth,
+      );
+      expect(decoded!.rows.first.value, "0.2 DAI");
+      expect(decoded.hideValue, isFalse);
+    });
   });
 }

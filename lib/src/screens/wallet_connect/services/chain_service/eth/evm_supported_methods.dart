@@ -18,7 +18,7 @@ enum EVMSupportedMethods {
       case ethSignTypedData:
         return 'eth_signTypedData';
       case ethSignTypedDataV3:
-        return 'eth_signTypedData_v3';
+        return "eth_signTypedData_v3";
       case ethSignTypedDataV4:
         return 'eth_signTypedData_v4';
       case switchChain:

@@ -558,8 +558,8 @@ class UniversalRouterDecoder {
 
   _V4SwapInfo? _parseV4MultiHop(EvmCalldata raw, {required bool exactIn}) {
     final p = _unwrapV4Param(raw);
-    final currencyIn = p.addressAt(0);
-    if (currencyIn == null) {
+    final givenCurrency = p.addressAt(0);
+    if (givenCurrency == null) {
       return null;
     }
 
@@ -583,45 +583,46 @@ class UniversalRouterDecoder {
     }
 
     final pathOffsetBytes = p.uintAt(1)?.toInt();
-    String tokenOut = currencyIn;
-    if (pathOffsetBytes != null) {
-      final lastHop = _readV4LastHopCurrency(p, pathOffsetBytes);
-      if (lastHop != null) {
-        tokenOut = lastHop;
-      }
+    if (pathOffsetBytes == null) {
+      return null;
+    }
+
+    final otherEnd = _readV4PathCurrency(p, pathOffsetBytes, lastHop: exactIn);
+    if (otherEnd == null) {
+      return null;
     }
 
     if (exactIn) {
       return _V4SwapInfo(
-        tokenIn: currencyIn,
-        tokenOut: tokenOut,
+        tokenIn: givenCurrency,
+        tokenOut: otherEnd,
         fromAmount: specified,
         toAmount: limit,
         exactIn: true,
       );
     }
     return _V4SwapInfo(
-      tokenIn: currencyIn,
-      tokenOut: tokenOut,
+      tokenIn: otherEnd,
+      tokenOut: givenCurrency,
       fromAmount: limit,
       toAmount: specified,
       exactIn: false,
     );
   }
 
-  String? _readV4LastHopCurrency(EvmCalldata struct, int byteOffset) {
+  String? _readV4PathCurrency(EvmCalldata struct, int byteOffset, {required bool lastHop}) {
     final pathLengthWord = byteOffset ~/ 32;
     final count = struct.uintAt(pathLengthWord)?.toInt();
     if (count == null || count <= 0) {
       return null;
     }
-    final lastOffsetWord = pathLengthWord + count;
-    final lastOffsetBytes = struct.uintAt(lastOffsetWord)?.toInt();
-    if (lastOffsetBytes == null) {
+    final hopOffsetWord = pathLengthWord + (lastHop ? count : 1);
+    final hopOffsetBytes = struct.uintAt(hopOffsetWord)?.toInt();
+    if (hopOffsetBytes == null) {
       return null;
     }
     final pathBodyStartBytes = (pathLengthWord + 1) * 32;
-    final pathKeyStartWord = (pathBodyStartBytes + lastOffsetBytes) ~/ 32;
+    final pathKeyStartWord = (pathBodyStartBytes + hopOffsetBytes) ~/ 32;
     return struct.addressAt(pathKeyStartWord);
   }
 
@@ -635,7 +636,6 @@ class UniversalRouterDecoder {
     }
     return raw;
   }
-
 }
 
 class _SwapLeg {

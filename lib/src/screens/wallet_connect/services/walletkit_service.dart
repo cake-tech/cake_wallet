@@ -619,7 +619,7 @@ abstract class WalletKitServiceBase with Store {
         widget: BottomSheetMessageDisplayWidget(message: e.message),
       );
     } catch (e, s) {
-      printV('pairWithUri failed: $e\n$s');
+      printV("pairWithUri failed: $e\n$s");
       _showPairingFailed();
     }
   }
