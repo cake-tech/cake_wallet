@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:cake_wallet/new-ui/widgets/modal_header.dart';
 
 import '../../../routes.dart';
 
@@ -20,8 +21,6 @@ class Modify2FAPage extends BasePage {
 
   final Setup2FAViewModel setup2FAViewModel;
 
-  @override
-  String get title => S.current.modify_2fa;
 
   @override
   Widget body(BuildContext context) {
@@ -44,6 +43,10 @@ class _2FAControlsWidget extends StatelessWidget {
       child: Column(
         spacing: 18.0,
         children: [
+          ModalHeader(
+              iconPath: "assets/new-ui/settings_row_icons/security.svg",
+              message: S.current.modify_2fa_description,
+              title: "Cake 2FA"),
           Container(
             decoration: ShapeDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHigh,
@@ -59,18 +62,14 @@ class _2FAControlsWidget extends StatelessWidget {
                         onItemSelected: setup2FAViewModel.selectCakePreset,
                         selectedItem: setup2FAViewModel.selectedCake2FAPreset,
                         items: [
-                          Cake2FAPresetsOptions.narrow,
                           Cake2FAPresetsOptions.normal,
-                          Cake2FAPresetsOptions.aggressive,
+                          Cake2FAPresetsOptions.strict,
+                          Cake2FAPresetsOptions.custom,
                         ],
                       ),
                       useGenericColor: false,
                     );
                   },
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                  child: Text("Require Cake 2FA For", style: Theme.of(context).textTheme.bodyMedium, textAlign: TextAlign.left,),
                 ),
                 Observer(
                     builder: (_) => NewListSections(sections: {
@@ -172,7 +171,7 @@ class _2FAControlsWidget extends StatelessWidget {
                       }),
                 ]
               })
-          )
+          ),
         ],
       ),
 

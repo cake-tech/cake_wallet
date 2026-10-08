@@ -27,9 +27,8 @@ abstract class Setup2FAViewModelBase with Store {
         unhighlightTabs = false,
         selected2FASettings = ObservableList<VerboseControlSettings>(),
         state = InitialExecutionState() {
-    if (selectedCake2FAPreset != Cake2FAPresetsOptions.none) {
       selectCakePreset(selectedCake2FAPreset);
-    }
+
     reaction((_) => state, _saveLastAuthTime);
   }
 
@@ -272,7 +271,7 @@ abstract class Setup2FAViewModelBase with Store {
 
   @action
   void noCake2FAPresetSelected() {
-    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.none;
+    _settingsStore.selectedCake2FAPreset = Cake2FAPresetsOptions.custom;
   }
 
   @action
@@ -298,17 +297,13 @@ abstract class Setup2FAViewModelBase with Store {
       VerboseControlSettings.securityAndBackupSettings,
       VerboseControlSettings.exchangesToInternalWallets
     ],
-    Cake2FAPresetsOptions.narrow: [
+    Cake2FAPresetsOptions.strict: [
       VerboseControlSettings.addingContacts,
       VerboseControlSettings.sendsToNonContacts,
       VerboseControlSettings.creatingNewWallets,
       VerboseControlSettings.securityAndBackupSettings,
     ],
-    Cake2FAPresetsOptions.aggressive: [
-      VerboseControlSettings.accessWallet,
-      VerboseControlSettings.securityAndBackupSettings,
-    ],
-    Cake2FAPresetsOptions.none: [],
+    Cake2FAPresetsOptions.custom: [],
   };
 
   @action

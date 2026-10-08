@@ -4,14 +4,8 @@ import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
-import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -36,7 +30,7 @@ class Setup2FAPage extends BasePage {
           onLeadingPressed: () => Navigator.of(context).pop()),
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/security.svg",
-          message: S.of(context).privacy_and_security_desc,
+          message: S.current.setup_2fa_description,
           title: "Cake 2FA"),
       content: Column(
         spacing: 16,
