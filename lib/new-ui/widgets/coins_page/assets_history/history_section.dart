@@ -118,7 +118,7 @@ class HistorySection extends StatelessWidget {
                                 }
                               },
                               child: HistoryTile(
-                                key: ValueKey("home_page_transaction_${index}_key"),
+                                key: ValueKey("${short ? "home_page" : "history_modal"}_transaction_${index}_key"),
                                 title: item.formattedTitle + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
