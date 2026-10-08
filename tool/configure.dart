@@ -1823,6 +1823,7 @@ abstract class Zcash {
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
   bool hasOrchardMigratableBalance(WalletBase wallet);
+  Future<PendingTransaction?> createShieldingTransaction(WalletBase wallet);
 }
   """;
 

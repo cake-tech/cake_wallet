@@ -1,4 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -9,7 +10,15 @@ class ZcashManualShieldModal extends StatelessWidget {
   const ZcashManualShieldModal({required this.balance, required this.onShield, super.key});
 
   final String balance;
-  final VoidCallback onShield;
+  final Future<void> Function() onShield;
+
+  Future<void> _onShield(BuildContext context) async {
+    await onShield.call();
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -120,8 +129,8 @@ class ZcashManualShieldModal extends StatelessWidget {
                         color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.primary,
                       ),
-                      NewPrimaryButton(
-                        onPressed: onShield,
+                      NewFuturePrimaryButton(
+                        onPressed: () => _onShield(context),
                         text: S.of(context).shield_funds,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,

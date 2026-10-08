@@ -1285,7 +1285,7 @@ abstract class ZcashWalletBase
 
   bool hasOrchardMigratableBalance() => _orchardMigratable;
 
-  Future<PendingTransaction?> shieldFunds() async {
+  Future<PendingTransaction?> createShieldingTransaction() async {
     final txPlan = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1350,7 +1350,7 @@ abstract class ZcashWalletBase
   }
 
   Future<void> _$autoShield() async {
-    final shieldTx = await shieldFunds();
+    final shieldTx = await createShieldingTransaction();
     if (shieldTx != null) {
       await shieldTx.commit();
     }

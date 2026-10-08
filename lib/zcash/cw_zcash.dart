@@ -234,6 +234,10 @@ class CWZcash extends Zcash {
   @override
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
       ZcashLedgerService(connection);
+
+  @override
+  Future<PendingTransaction?> createShieldingTransaction(WalletBase wallet) =>
+      (wallet as ZcashWallet).createShieldingTransaction();
 }
 
 const wordList = [
