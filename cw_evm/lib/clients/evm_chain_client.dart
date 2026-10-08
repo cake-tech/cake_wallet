@@ -481,8 +481,8 @@ class EVMChainClient {
   }) async {
     final prepared = prepareSignedTransactionForSending(signedTransaction);
 
-    if (useBlinkProtection) {
-      final blinkClient = Web3Client(_blinkUrl("secret"), client);
+    if (useBlinkProtection && secrets.blinkApiKey.isNotEmpty) {
+      final blinkClient = Web3Client(_blinkUrl(secrets.blinkApiKey), client);
       try {
         return await blinkClient.sendRawTransaction(prepared);
       } catch (e) {
