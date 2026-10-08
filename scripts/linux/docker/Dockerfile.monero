@@ -13,6 +13,10 @@ RUN mkdir -p /w/scripts/linux
 COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
 COPY scripts/linux/build_monero_all.sh /w/scripts/linux/build_monero_all.sh
 COPY scripts/functions.sh /w/scripts/functions.sh
+ARG COIN
+ARG TARGET
+ENV COIN=$COIN
+ENV TARGET=$TARGET
 RUN /w/scripts/linux/build_monero_all.sh \
     && rm -rf /w/scripts/monero_c/contrib/depends/simplybs \
     /w/scripts/monero_c/monero_libwallet2_api_c/build \

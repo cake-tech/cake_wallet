@@ -127,8 +127,7 @@ class NewCoinControlPage extends StatelessWidget {
                                 spacing: 20,
                                 children: [
                                   GestureDetector(
-                                    onTap: () => context
-                                        .read<CoinControlBloc>()
+                                    onTap: () => bloc
                                         .add(SelectAllChanged(value: true)),
                                     child: Text(S.of(context).select_all,
                                         style: TextStyle(
@@ -137,8 +136,7 @@ class NewCoinControlPage extends StatelessWidget {
                                             fontWeight: FontWeight.w400,),),
                                   ),
                                   GestureDetector(
-                                    onTap: () => context
-                                        .read<CoinControlBloc>()
+                                    onTap: () => bloc
                                         .add(SelectAllChanged(value: false)),
                                     child: Text(S.of(context).unselect_all,
                                         style: TextStyle(
@@ -237,17 +235,10 @@ class CoinControlListSection extends StatelessWidget {
         height: 1,
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
       ),
-      itemBuilder: (_, index) => BlocBuilder<CoinControlBloc, CoinControlState>(
-        bloc: bloc,
-  builder: (context, state) {
-    if(state is! CoinControlLoaded) {
-      return const SizedBox.shrink();
-    }
+      itemBuilder: (context, index) {
+        final row = rows[index];
 
-    final row = state.rows[index];
-
-
-    return GestureDetector(
+        return GestureDetector(
           onTap: () => Navigator.of(context).pushNamed(
             Routes.unspentCoinsDetails,
             arguments: [row.id, bloc],
@@ -270,7 +261,6 @@ class CoinControlListSection extends StatelessWidget {
                 .add(SelectionChanged(row.id, value: !row.isSelected)),
           ),
         );
-  },
-),
+      },
     );
 }

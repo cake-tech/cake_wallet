@@ -120,6 +120,12 @@ abstract class MoneroWalletBase
   bool get hasRescan => true;
 
   @override
+  bool get hasAccountsSupport => true;
+
+  @override
+  bool get hasNativeAccounts => true;
+
+  @override
   String get seed => monero_wallet.getSeed();
   String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
 

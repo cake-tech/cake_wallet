@@ -2,9 +2,17 @@ import 'dart:convert';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/currency.dart';
 
 class ElectrumBalance extends Balance {
+
+  factory ElectrumBalance.zero(CryptoCurrency currency) => ElectrumBalance(
+    confirmed: Money.zero(currency),
+    unconfirmed: Money.zero(currency),
+    frozen: Money.zero(currency),
+  );
+
   ElectrumBalance({
     required this.confirmed,
     required this.unconfirmed,
@@ -36,6 +44,14 @@ class ElectrumBalance extends Balance {
         secondUnconfirmed: secondUnconfirmed,
       );
 
+  ElectrumBalance copy() => ElectrumBalance(
+        confirmed: confirmed,
+        unconfirmed: unconfirmed,
+        frozen: frozen,
+        secondConfirmed: secondConfirmed,
+        secondUnconfirmed: secondUnconfirmed,
+      );
+
   static ElectrumBalance? fromJSON(String? jsonSource, Currency currency) {
     if (jsonSource == null) return null;
 
@@ -57,4 +73,26 @@ class ElectrumBalance extends Balance {
         'secondConfirmed': secondAvailable?.amount.toInt() ?? 0,
         'secondUnconfirmed': secondUnavailable?.amount.toInt() ?? 0,
       });
+
+  // Value equality so instances can be compared/deduped (e.g. by MobX reactions via MapEquality)
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ElectrumBalance &&
+          other.confirmed == confirmed &&
+          other.unconfirmed == unconfirmed &&
+          other.frozen == frozen &&
+          other.secondConfirmed == secondConfirmed &&
+          other.secondUnconfirmed == secondUnconfirmed);
+
+  @override
+  int get hashCode => Object.hash(
+        confirmed,
+        unconfirmed,
+        frozen,
+        secondConfirmed,
+        secondUnconfirmed,
+      );
 }
+
+
