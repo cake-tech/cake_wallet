@@ -56,7 +56,7 @@ class PayjoinManager {
     _logStreamController = StreamController<String>.broadcast();
 
     try {
-      final path = await pathForWalletDir(name: _wallet.name, type: _wallet.type);
+      final path = await pathForWalletDirOf(_wallet.walletInfo);
       File("$path/payjoin.log")
           .create()
           .then(_subscribeToLogStream)

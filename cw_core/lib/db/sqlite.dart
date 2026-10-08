@@ -64,9 +64,10 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
+
   db = await openDatabase(
     dbFile.path,
-    version: 14,
+    version: 15,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -121,7 +122,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       if (oldVersion <= 4) {
         await _createBridgeTransferTable(db);
       }
-
       if (oldVersion <= 5) {
         await _createTradeTable(db);
       }
@@ -193,6 +193,21 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
+      if(oldVersion <= 14) {
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "isReady",
+          definition: "INTEGER NOT NULL DEFAULT 1",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "groupId",
+          definition: "TEXT DEFAULT NULL",
+        );
+        await _createWalletGroupTable(db);
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute('''
@@ -224,7 +239,9 @@ CREATE TABLE WalletInfo (
   favoriteTokenAddress TEXT DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
   isMultiAccountsEnabled INTEGER DEFAULT NULL,
-  showSeedBackupReminder BOOLEAN DEFAULT FALSE
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE,
+  isReady INTEGER NOT NULL DEFAULT 1,
+  groupId TEXT DEFAULT NULL
 );
 ''');
 
@@ -299,6 +316,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createWalletGroupTable(db);
     },
   );
 }
@@ -400,7 +418,6 @@ CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
 ON WalletInfoAccount(walletInfoId);
 """);
 }
-
 
 Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   const bitcoinWallets = 'SELECT walletInfoId FROM WalletInfo WHERE "type" = ?';
@@ -565,6 +582,19 @@ CREATE TABLE IF NOT EXISTS TronToken (
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trontoken_wallet_contract
 ON TronToken (walletName, contractAddress);
+""");
+}
+
+Future<void> _createWalletGroupTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS walletGroup (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT,
+  iconType TEXT,
+  iconValue TEXT,
+  iconColor TEXT,
+  iconBg TEXT
+);
 """);
 }
 

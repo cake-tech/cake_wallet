@@ -276,7 +276,8 @@ class WalletInfo extends HiveObject {
         false,
         true,
         null,
-        false)
+        false,
+        null,)
       ..network = network;
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {

@@ -167,6 +167,7 @@ dependencies:
     path: ./scripts/torch_dart
   quick_actions: ^1.1.0
   fl_chart: ^1.2.0
+  emoji_picker_flutter: 4.5.4
 
 dev_dependencies:
   flutter_test:

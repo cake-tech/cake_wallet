@@ -1,9 +1,9 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class ListItemRegularRowWidget extends StatelessWidget {
   const ListItemRegularRowWidget(
@@ -25,6 +25,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.bottomWidget,
       this.subtitleColor,
       this.trailingWidget,
+      this.leadingAccessory,
       this.copyableText,
       this.leadingIconErrorWidget,
       this.leadingIconSize,
@@ -47,6 +48,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? trailingIconPath;
   final Widget? bottomWidget;
   final Widget? trailingWidget;
+  final bool? leadingAccessory;
   final bool truncateTrailingText;
   final Color? foregroundColor;
   final double? trailingIconSize;
@@ -67,10 +69,11 @@ class ListItemRegularRowWidget extends StatelessWidget {
     return CopyWrapper(
       data: copyableText != null ? ClipboardData(text: copyableText!) : null,
       builder: (context, copied) => AnimatedSwitcher(
-        duration: Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 150),
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
+            leadingAccessory: leadingAccessory,
             onTap: onTap,
             iconPath: iconPath,
             isFirstInSection: isFirstInSection,
@@ -124,11 +127,31 @@ class ListItemRegularRowWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
+                  IntrinsicHeight(
+                    child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: leadingAccessory == true ? 12 : 0),
+                        child: SizedBox(
+                          width: 6,
+                          child: leadingAccessory == true
+                              ? DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(16),
+                                      bottomRight: Radius.circular(16),
+                                    ),
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
                       Expanded(
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             if (iconPath != null)
                               Padding(
@@ -177,6 +200,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         ),
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (trailingTextToShow != null)
                             Padding(
@@ -208,6 +232,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                         ],
                       ),
                     ],
+                  ),
                   ),
                   if (bottomWidget != null) bottomWidget!
                 ],

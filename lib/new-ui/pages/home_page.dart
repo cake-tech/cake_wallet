@@ -7,10 +7,12 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/managing/omnichain_change_network_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
+import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart";
@@ -18,6 +20,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/cards_view.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/mweb_ad.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/seed_backup_reminder_card.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
@@ -93,175 +96,197 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surfaceDim,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Stack(
-          children: [
-            CustomScrollView(
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                    sliver: CupertinoSliverRefreshControl(
-                      refreshTriggerPullDistance: 160,
-                      refreshIndicatorExtent: 90,
-                      onRefresh: () {
-                        unawaited(widget.nftViewModel.getNFTAssetByWallet());
+    height: MediaQuery.of(context).size.height,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Theme.of(context).colorScheme.surface,
+          Theme.of(context).colorScheme.surfaceDim,
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ),
+    ),
+    child: Stack(
+      children: [
+        CustomScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                sliver: CupertinoSliverRefreshControl(
+                  refreshTriggerPullDistance: 160,
+                  refreshIndicatorExtent: 90,
+                  onRefresh: () {
+                    unawaited(widget.nftViewModel.getNFTAssetByWallet());
 
-                        return widget.dashboardViewModel.refreshDashboard();
-                      },
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Observer(
-                      builder: (_) {
-                        final _lightningMode = widget.dashboardViewModel.lightningMode;
-                        return Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 24.0,
-                          children: [
-                            TopBar(
-                              key: ValueKey(widget.dashboardViewModel.wallet.id),
-                              dashboardViewModel: widget.dashboardViewModel,
-                              onLightningSwitchPress: () {
-                                widget.dashboardViewModel.toggleLightningMode();
-                              },
-                              onSettingsButtonPress: () {
-                                CupertinoScaffold.showCupertinoModalBottomSheet(
-                                  context: context,
-                                  barrierColor: Colors.black.withAlpha(85),
-                                  builder: (context) => FractionallySizedBox(
-                                    child: Material(
-                                      child: NewSettingsPage(
-                                        dashboardViewModel: widget.dashboardViewModel,
-                                        authService: getIt.get<AuthService>(),
-                                      ),
-                                    ),
-                                  ),
-                                ).then((_) async {
-                                  widget.dashboardViewModel.accountListViewModel?.reload();
-                                  await Future<void>.delayed(Duration.zero);
-                                  await widget.dashboardViewModel.loadCardDesigns();
-                                  if (mounted) setState(() {});
-                                });
-                              },
-                            ),
-                            Column(
-                              children: [
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  switchInCurve: Curves.easeOut,
-                                  switchOutCurve: Curves.easeOut,
-                                  layoutBuilder: (currentChild, previousChildren) => Stack(
-                                    // the front (selected) card sits at the bottom of the stack box
-                                    alignment: Alignment.bottomCenter,
-                                    children: <Widget>[
-                                      ...previousChildren,
-                                      if (currentChild != null) currentChild,
-                                    ],
-                                  ),
-                                  child: KeyedSubtree(
-                                    key: ValueKey(_lightningMode),
-                                    child: CardsView(
-                                        key: ValueKey(
-                                            "${widget.dashboardViewModel.wallet.name}_${_lightningMode}_${widget.dashboardViewModel.accountListViewModel?.accounts.length ?? 0}_${widget.dashboardViewModel.cardDesigns.length}"),
-                                        onCustomizeTapped: openCardCustomizer,
-                                        dashboardViewModel: widget.dashboardViewModel,
-                                        accountListViewModel:
-                                            widget.dashboardViewModel.accountListViewModel,
-                                        onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                                        lightningMode: _lightningMode),
-                                  ),
-                                ),
-                                Observer(
-                                    builder: (_) => AnimatedSize(
-                                          duration: const Duration(milliseconds: 150),
-                                          curve: Curves.easeInOutCubic,
-                                          child: (widget.dashboardViewModel
-                                                  .shouldShowBalanceHiddenMessage)
-                                              ? Column(
-                                                  children: [
-                                                    const SizedBox(
-                                                      height: 12,
-                                                      width: double.infinity,
-                                                    ),
-                                                    Text(
-                                                      S.of(context).long_press_show_balance,
-                                                      style: TextStyle(
-                                                          color: Theme.of(context)
-                                                              .colorScheme
-                                                              .onSurfaceVariant),
-                                                    )
-                                                  ],
-                                                )
-                                              : const SizedBox(width: double.infinity),
-                                        )),
-                                UnconfirmedBalanceWidget(
-                                    dashboardViewModel: widget.dashboardViewModel),
-                                SeedBackupReminderCard(
-                                  dashboardViewModel: widget.dashboardViewModel,
-                                  onTap: openSeedBackupReminder,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                CoinActionRow(
-                                  lightningMode: _lightningMode,
-                                  showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                                  walletType: widget.dashboardViewModel.wallet.type,
-                                ),
-                                MwebAd(
-                                  dashboardViewModel: widget.dashboardViewModel,
-                                ),
-                              ],
-                            )
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  Observer(
-                    builder: (_) => AssetsHistorySection(
-                      nftViewModel: widget.nftViewModel,
-                      dashboardViewModel: widget.dashboardViewModel,
-                    ),
-                  ),
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 80.0),
-                  )
-                ]),
-            Container(
-              height: (MediaQuery.of(context).padding.top),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: <Color>[
-                    Theme.of(context).colorScheme.surface.withAlpha(5),
-                    Theme.of(context).colorScheme.surface.withAlpha(25),
-                    Theme.of(context).colorScheme.surface.withAlpha(50),
-                    Theme.of(context).colorScheme.surface.withAlpha(100),
-                    Theme.of(context).colorScheme.surface.withAlpha(150),
-                    Theme.of(context).colorScheme.surface.withAlpha(175),
-                    Theme.of(context).colorScheme.surface.withAlpha(200),
-                  ],
+                    return widget.dashboardViewModel.refreshDashboard();
+                  },
                 ),
               ),
+              SliverToBoxAdapter(
+                child: Observer(
+                  builder: (_) {
+                    final _lightningMode = widget.dashboardViewModel.lightningMode;
+                    return Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 24.0,
+                      children: [
+                        TopBar(
+                          key: ValueKey(widget.dashboardViewModel.wallet.id),
+                          dashboardViewModel: widget.dashboardViewModel,
+                          onLightningSwitchPress: () {
+                            widget.dashboardViewModel.toggleLightningMode();
+                          },
+                          lightningMode: _lightningMode,
+                          openChainSelection: () {
+                            CupertinoScaffold.showCupertinoModalBottomSheet(
+                              context: context,
+                              barrierColor: Colors.black.withAlpha(85),
+                              builder: (context) => FractionallySizedBox(
+                                child: Material(
+                                  child: OmniChainChangeNetworkPage(
+                                    omniChainWalletCreationService:
+                                    getIt.get<OmniChainWalletCreationService>(),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          onSettingsButtonPress: () {
+                            CupertinoScaffold.showCupertinoModalBottomSheet(
+                              context: context,
+                              barrierColor: Colors.black.withAlpha(85),
+                              builder: (context) => FractionallySizedBox(
+                                child: Material(
+                                  child: NewSettingsPage(
+                                    dashboardViewModel: widget.dashboardViewModel,
+                                    authService: getIt.get<AuthService>(),
+                                  ),
+                                ),
+                              ),
+                            ).then((_) async {
+                              widget.dashboardViewModel.accountListViewModel?.reload();
+                              await Future<void>.delayed(Duration.zero);
+                              await widget.dashboardViewModel.loadCardDesigns();
+                              if (mounted) setState(() {});
+                            });
+                          },
+                        ),
+                        if (widget.dashboardViewModel.hasLightning)
+                          LightningSwitcher(
+                            lightningMode: _lightningMode,
+                            onLightningSwitchPress: () {
+                              widget.dashboardViewModel.toggleLightningMode();
+                            },
+                          ),
+                        Column(
+                          children: [
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              switchInCurve: Curves.easeOut,
+                              switchOutCurve: Curves.easeOut,
+                              layoutBuilder: (currentChild, previousChildren) => Stack(
+                                // the front (selected) card sits at the bottom of the stack box
+                                alignment: Alignment.bottomCenter,
+                                children: <Widget>[
+                                  ...previousChildren,
+                                  if (currentChild != null) currentChild,
+                                ],
+                              ),
+                              child: KeyedSubtree(
+                                key: ValueKey(_lightningMode),
+                                child: CardsView(
+                                    key: ValueKey(
+                                        "${widget.dashboardViewModel.wallet.name}_${_lightningMode}_${widget.dashboardViewModel.accountListViewModel?.accounts.length ?? 0}_${widget.dashboardViewModel.cardDesigns.length}"),
+                                    onCustomizeTapped: openCardCustomizer,
+                                    dashboardViewModel: widget.dashboardViewModel,
+                                    accountListViewModel:
+                                    widget.dashboardViewModel.accountListViewModel,
+                                    onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                                    lightningMode: _lightningMode),
+                              ),
+                            ),
+                            Observer(
+                                builder: (_) => AnimatedSize(
+                                  duration: const Duration(milliseconds: 150),
+                                  curve: Curves.easeInOutCubic,
+                                  child: (widget.dashboardViewModel
+                                      .shouldShowBalanceHiddenMessage)
+                                      ? Column(
+                                    children: [
+                                      const SizedBox(
+                                        height: 12,
+                                        width: double.infinity,
+                                      ),
+                                      Text(
+                                        S.of(context).long_press_show_balance,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant),
+                                      )
+                                    ],
+                                  )
+                                      : const SizedBox(width: double.infinity),
+                                )),
+                            UnconfirmedBalanceWidget(
+                                dashboardViewModel: widget.dashboardViewModel),
+                            SeedBackupReminderCard(
+                              dashboardViewModel: widget.dashboardViewModel,
+                              onTap: openSeedBackupReminder,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            CoinActionRow(
+                              lightningMode: _lightningMode,
+                              showSwap: widget.dashboardViewModel.isEnabledSwapAction,
+                              walletType: widget.dashboardViewModel.wallet.type,
+                            ),
+                            MwebAd(
+                              dashboardViewModel: widget.dashboardViewModel,
+                            ),
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                ),
+              ),
+              Observer(
+                builder: (_) => AssetsHistorySection(
+                  nftViewModel: widget.nftViewModel,
+                  dashboardViewModel: widget.dashboardViewModel,
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 80.0),
+              )
+            ]),
+        Container(
+          height: (MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: <Color>[
+                Theme.of(context).colorScheme.surface.withAlpha(5),
+                Theme.of(context).colorScheme.surface.withAlpha(25),
+                Theme.of(context).colorScheme.surface.withAlpha(50),
+                Theme.of(context).colorScheme.surface.withAlpha(100),
+                Theme.of(context).colorScheme.surface.withAlpha(150),
+                Theme.of(context).colorScheme.surface.withAlpha(175),
+                Theme.of(context).colorScheme.surface.withAlpha(200),
+              ],
             ),
-          ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 
   Future<void> openCardCustomizer() async {
     await CardCustomizer.show(
