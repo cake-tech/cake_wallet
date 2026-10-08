@@ -8,6 +8,7 @@ bool isBIP39Wallet(WalletType walletType) {
     case WalletType.base:
     case WalletType.arbitrum:
     case WalletType.bsc:
+    case WalletType.robinhood:
     case WalletType.solana:
     case WalletType.tron:
     case WalletType.bitcoin:
@@ -51,6 +52,7 @@ bool hasTokens(WalletType walletType) {
     case WalletType.base:
     case WalletType.arbitrum:
     case WalletType.bsc:
+    case WalletType.robinhood:
       return true;
     default:
       return false;
@@ -64,6 +66,7 @@ String tokenStandardFor(WalletType walletType) {
     case WalletType.polygon:
     case WalletType.arbitrum:
     case WalletType.base:
+    case WalletType.robinhood:
       return 'ERC-20';
     case WalletType.bsc:
       return 'BEP-20';

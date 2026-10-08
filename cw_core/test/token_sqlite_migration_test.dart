@@ -366,26 +366,26 @@ Future<void> main() async {
   );
 
   group(
-    "sqlite v14 migration",
+    "sqlite v15 migration",
     () {
-      final v13Root = Directory("./test/data/sqlite_v14_migration");
+      final v14Root = Directory("./test/data/sqlite_v15_migration");
 
       setUpAll(() async {
-        if (v13Root.existsSync()) {
-          v13Root.deleteSync(recursive: true);
+        if (v14Root.existsSync()) {
+          v14Root.deleteSync(recursive: true);
         }
-        v13Root.createSync(recursive: true);
-        Directory("${v13Root.path}/cake_wallet").createSync(recursive: true);
+        v14Root.createSync(recursive: true);
+        Directory("${v14Root.path}/cake_wallet").createSync(recursive: true);
 
-        PathProviderPlatform.instance = _FakePathProviderPlatform(v13Root.absolute.path);
+        PathProviderPlatform.instance = _FakePathProviderPlatform(v14Root.absolute.path);
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;
 
-        // The two tables the v14 step alters, in their v13 shape
-        final v13 = await databaseFactoryFfi.openDatabase(
+        // The two tables the v15 step alters, in their v14 shape
+        final v14 = await databaseFactoryFfi.openDatabase(
           "${(await getAppDir()).path}/cake.db",
           options: OpenDatabaseOptions(
-            version: 13,
+            version: 14,
             onCreate: (db, version) async {
               await db.execute("""
 CREATE TABLE WalletInfo (
@@ -439,7 +439,7 @@ isDefault BOOLEAN DEFAULT FALSE
           ),
         );
 
-        await v13.insert("WalletInfo", {
+        await v14.insert("WalletInfo", {
           "id": "ethereum_Upgrade Wallet",
           "name": "Upgrade Wallet",
           "type": WalletType.ethereum.index,
@@ -458,7 +458,7 @@ isDefault BOOLEAN DEFAULT FALSE
           "favoriteTokenAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         });
 
-        await v13.insert("Node", {
+        await v14.insert("Node", {
           "NodeId": 41,
           "uri": "ethereum-rpc.publicnode.com",
           "path": "",
@@ -471,7 +471,7 @@ isDefault BOOLEAN DEFAULT FALSE
           "isDefault": 1,
         });
 
-        await v13.close();
+        await v14.close();
 
         await initDb();
       });
@@ -479,14 +479,14 @@ isDefault BOOLEAN DEFAULT FALSE
       tearDownAll(() async {
         await db?.close();
         db = null;
-        if (v13Root.existsSync()) {
-          v13Root.deleteSync(recursive: true);
+        if (v14Root.existsSync()) {
+          v14Root.deleteSync(recursive: true);
         }
       });
 
-      test("upgrades to version 14 with the EvmNetwork table", () async {
+      test("upgrades to version 15 with the EvmNetwork table", () async {
         final version = await db!.rawQuery("PRAGMA user_version");
-        expect(version.single.values.single, 14);
+        expect(version.single.values.single, 15);
 
         final tables = await db!.rawQuery(
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'EvmNetwork'");

@@ -9,6 +9,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import "package:cw_evm/history/evm_history_provider.dart";
+import "package:cw_evm/history/moralis_history_provider.dart";
 import "package:cw_evm/utils/evm_chain_utils.dart";
 import "package:cw_evm/utils/network_chain_utils.dart";
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -64,17 +65,31 @@ class EVMChainClient {
     try {
       Uri? rpcUri;
       bool isModifiedNodeUri = false;
+      final nodeHost = Uri.parse("https://${node.uriRaw}").host;
+      final pathSegments =
+          (node.path ?? "").split("/").where((segment) => segment.isNotEmpty).toList();
 
-      if (node.uriRaw.contains('nownodes.io')) {
+      if (nodeHost.endsWith(".nownodes.io") && pathSegments.isEmpty) {
         isModifiedNodeUri = true;
         String nowNodeApiKey = secrets.nowNodesApiKey;
 
         if (nowNodeApiKey.isEmpty) {
-          printV('NowNodes API key is empty, cannot connect to ${node.uriRaw}');
+          printV("NowNodes API key is empty, cannot connect to ${node.uriRaw}");
           return false;
         }
 
         rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
+      } else if (nodeHost.endsWith(".g.alchemy.com") &&
+          (pathSegments.isEmpty || (pathSegments.length == 1 && pathSegments.first == "v2"))) {
+        isModifiedNodeUri = true;
+        String alchemyApiKey = "";
+
+        if (alchemyApiKey.isEmpty) {
+          printV("Alchemy API key is empty, cannot connect to ${node.uriRaw}");
+          return false;
+        }
+
+        rpcUri = Uri.https(node.uriRaw, "/v2/$alchemyApiKey");
       }
 
       _client = Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
@@ -536,13 +551,15 @@ class EVMChainClient {
 
   Future<Erc20Token?> getErc20Token(String contractAddress) async {
     try {
-      final token = await getErc20TokenFromMoralis(contractAddress);
+      if (MoralisHistoryProvider.supportedChainIds.contains(chainId)) {
+        final token = await getErc20TokenFromMoralis(contractAddress);
 
-      if (token == null || token.name.isEmpty || token.symbol.isEmpty) {
-        return await getErcTokenInfoFromNode(contractAddress);
+        if (token != null && token.name.isNotEmpty && token.symbol.isNotEmpty) {
+          return token;
+        }
       }
 
-      return token;
+      return await getErcTokenInfoFromNode(contractAddress);
     } catch (e) {
       try {
         return await getErcTokenInfoFromNode(contractAddress);

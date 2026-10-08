@@ -3,7 +3,6 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -13,7 +12,6 @@ import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 
 class TokenUtilities {
   static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
@@ -326,7 +324,12 @@ class TokenUtilities {
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
         (tag != null &&
-            (tag == "ETH" || tag == "POL" || tag == "BASE" || tag == "ARB" || tag == "BSC"));
+            (tag == "ETH" ||
+                tag == "POL" ||
+                tag == "BASE" ||
+                tag == "ARB" ||
+                tag == "BSC" ||
+                tag == "ROB"));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')

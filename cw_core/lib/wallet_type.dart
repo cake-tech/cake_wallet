@@ -25,6 +25,7 @@ const walletTypes = [
   WalletType.arbitrum,
   WalletType.zcash,
   WalletType.bsc,
+  WalletType.robinhood,
   WalletType.evm,
 ];
 
@@ -41,6 +42,7 @@ const evmWalletTypes = [
   WalletType.base,
   WalletType.arbitrum,
   WalletType.bsc,
+  WalletType.robinhood,
   WalletType.evm,
 ];
 
@@ -107,6 +109,9 @@ enum WalletType {
   bsc,
 
   // @HiveField(20)
+  robinhood,
+
+  // @HiveField(21)
   evm,
 }
 
@@ -150,8 +155,10 @@ int serializeToInt(WalletType type) {
       return 17;
     case WalletType.bsc:
       return 18;
-    case WalletType.evm:
+    case WalletType.robinhood:
       return 19;
+    case WalletType.evm:
+      return 20;
     case WalletType.none:
       return -1;
   }
@@ -198,6 +205,8 @@ WalletType deserializeFromInt(int raw) {
     case 18:
       return WalletType.bsc;
     case 19:
+      return WalletType.robinhood;
+    case 20:
       return WalletType.evm;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
@@ -244,6 +253,8 @@ String walletTypeToString(WalletType type) {
       return 'Zcash';
     case WalletType.bsc:
       return 'BNB Smart Chain';
+    case WalletType.robinhood:
+      return "Robinhood Chain";
     case WalletType.evm:
       return "EVM";
     case WalletType.none:
@@ -271,6 +282,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.arbitrum => 'Arbitrum',
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
+      WalletType.robinhood => "Robinhood Chain",
       WalletType.evm => "EVM",
       WalletType.none => ''
     };
@@ -295,6 +307,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.arbitrum => 'ARB',
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
+      WalletType.robinhood => "",
       WalletType.evm => "",
       WalletType.none => ''
     };
@@ -341,6 +354,8 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.dogecoin;
     case CryptoCurrency.zec:
       return WalletType.zcash;
+    case CryptoCurrency.robEth:
+      return WalletType.robinhood;
     default:
       return null;
   }

@@ -110,6 +110,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.arbitrum:
+      case WalletType.robinhood:
       case WalletType.zcash:
         return false;
     }
@@ -129,8 +130,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron &&
-      wallet.chainId !=
-          42161; // Wallet type is generic for all EVM chains, so we need to check the chainId
+      wallet.chainId != 42161 &&
+      wallet.chainId != 4663;
 
   @computed
   bool get isElectrumWallet =>

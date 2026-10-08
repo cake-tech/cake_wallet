@@ -10,6 +10,7 @@ const List<WalletType> walletConnectCompatibleChains = [
   WalletType.base,
   WalletType.arbitrum,
   WalletType.bsc,
+  WalletType.robinhood,
   WalletType.evm,
   WalletType.solana,
 ];
@@ -43,6 +44,7 @@ bool isEVMCompatibleChain(WalletType walletType) {
     case WalletType.base:
     case WalletType.arbitrum:
     case WalletType.bsc:
+    case WalletType.robinhood:
       return true;
     default:
       return false;

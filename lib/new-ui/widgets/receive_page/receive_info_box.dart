@@ -8,6 +8,7 @@ import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/evm_network.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +42,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.polygon:
       case WalletType.zano:
       case WalletType.bsc:
+      case WalletType.robinhood:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         final addedNetwork =
             type == WalletType.evm && chainId != null ? evm!.getChainInfoByChainId(chainId) : null;
@@ -54,7 +56,7 @@ class ReceiveInfoBox extends StatelessWidget {
               // Added networks have no mono chain badge, they show their own icon
               chainIconPath: type == WalletType.evm
                   ? null
-                  : "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+                  : walletTypeToCryptoCurrency(type).chainIconPath ?? "",
               addedNetwork: addedNetwork,
             ));
       default:

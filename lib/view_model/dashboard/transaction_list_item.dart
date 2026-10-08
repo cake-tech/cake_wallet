@@ -55,10 +55,6 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
-    if (balanceViewModel.wallet.type == WalletType.bitcoin &&
-        transaction.additionalInfo['hasMissingInputTx'] == true) {
-      return 'Transaction has missing data';
-    }
 
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
@@ -212,6 +208,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final asset = assetOfTransaction;
         if (asset != null &&
             balanceViewModel.fiatConversionStore.isUnpricedAddedNetworkCurrency(asset)) {

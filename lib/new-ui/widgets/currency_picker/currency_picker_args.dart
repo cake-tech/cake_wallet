@@ -33,6 +33,9 @@ bool isTrustedStablecoin(CryptoCurrency c) =>
         _stablecoinSymbols.contains(c.title.toUpperCase())) &&
     !c.isPotentialScam;
 
+bool hasBuiltInStablecoinSymbol(CryptoCurrency c) =>
+    _stablecoinSymbols.contains(c.title.toUpperCase());
+
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
   CryptoCurrency.arbEth,

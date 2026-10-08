@@ -31,6 +31,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.dogecoin:
       return dogecoin!.getTransactionPriorities();
     case WalletType.arbitrum:
+    case WalletType.robinhood:
     case WalletType.nano:
     case WalletType.banano:
     case WalletType.solana:

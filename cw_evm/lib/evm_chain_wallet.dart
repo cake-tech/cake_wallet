@@ -29,6 +29,7 @@ import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_history.dart';
+import "package:cw_evm/history/moralis_history_provider.dart";
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
@@ -346,6 +347,10 @@ abstract class EVMChainWalletBase
       isPotentialScam: token.isPotentialScam,
       walletName: walletInfo.name,
       chainId: selectedChainId,
+      groups: EVMChainDefaultTokens.getDefaultGroupsByAddress(
+        selectedChainId,
+        token.contractAddress,
+      ),
     );
   }
 
@@ -369,6 +374,8 @@ abstract class EVMChainWalletBase
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
       56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      // Robinhood Chain does not have USDC so using USDG in its place
+      4663 => "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
       _ => null,
     };
   }
@@ -573,6 +580,10 @@ abstract class EVMChainWalletBase
     try {
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
+
+      if (!MoralisHistoryProvider.supportedChainIds.contains(selectedChainId)) {
+        return MoralisDiscoveryResult.empty;
+      }
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address);
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
@@ -1378,11 +1389,18 @@ abstract class EVMChainWalletBase
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
-      try {
-        iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-      } catch (_) {}
+      iconPath = EVMChainDefaultTokens.getDefaultIconPathByAddress(
+        selectedChainId,
+        token.contractAddress,
+      );
+
+      if (iconPath == null || iconPath.isEmpty) {
+        try {
+          iconPath = CryptoCurrency.all
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .iconPath;
+        } catch (_) {}
+      }
     } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }

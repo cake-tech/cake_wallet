@@ -26,23 +26,23 @@ void main() {
       }
     });
 
-    test("evm is appended after bsc in every codec", () {
-      expect(serializeToInt(WalletType.bsc), 18);
-      expect(serializeToInt(WalletType.evm), 19);
-      expect(WalletType.values.indexOf(WalletType.bsc), 19);
-      expect(WalletType.values.indexOf(WalletType.evm), 20);
+    test("evm is appended after robinhood in every codec", () {
+      expect(serializeToInt(WalletType.robinhood), 19);
+      expect(serializeToInt(WalletType.evm), 20);
+      expect(WalletType.values.indexOf(WalletType.robinhood), 20);
+      expect(WalletType.values.indexOf(WalletType.evm), 21);
     });
 
-    test("the Hive adapter reads and writes evm as byte 20", () {
+    test("the Hive adapter reads and writes evm as byte 21", () {
       final adapter = WalletTypeAdapter();
 
-      expect(adapter.read(_FakeBinaryReader(20)), WalletType.evm);
-      expect(adapter.read(_FakeBinaryReader(19)), WalletType.bsc);
+      expect(adapter.read(_FakeBinaryReader(21)), WalletType.evm);
+      expect(adapter.read(_FakeBinaryReader(20)), WalletType.robinhood);
 
       final writer = _FakeBinaryWriter();
       adapter.write(writer, WalletType.evm);
-      adapter.write(writer, WalletType.bsc);
-      expect(writer.written, [20, 19]);
+      adapter.write(writer, WalletType.robinhood);
+      expect(writer.written, [21, 20]);
     });
 
     test("every wallet type round-trips through the Hive adapter", () {

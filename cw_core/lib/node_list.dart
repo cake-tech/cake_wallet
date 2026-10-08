@@ -61,6 +61,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.bsc:
       path = 'assets/bsc_node_list.yml';
       break;
+    case WalletType.robinhood:
+      path = "assets/robinhood_node_list.yml";
+      break;
     case WalletType.banano:
     case WalletType.evm:
     case WalletType.none:
@@ -127,6 +130,7 @@ Future<List<Node>> loadAllDefaultNodes() async {
   final arbitrumNodes = await loadDefaultNodes(WalletType.arbitrum);
   final zcashNodes = await loadDefaultNodes(WalletType.zcash);
   final bscNodes = await loadDefaultNodes(WalletType.bsc);
+  final robinhoodNodes = await loadDefaultNodes(WalletType.robinhood);
 
   return moneroNodes +
       bitcoinElectrumServerList +
@@ -144,7 +148,8 @@ Future<List<Node>> loadAllDefaultNodes() async {
       baseNodes +
       arbitrumNodes +
       zcashNodes +
-      bscNodes;
+      bscNodes +
+      robinhoodNodes;
 }
 
 Future<void> resetToDefault() async {

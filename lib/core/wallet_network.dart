@@ -77,6 +77,7 @@ String builtinNetworkIconPath(WalletType type) => switch (type) {
       WalletType.haven ||
       WalletType.banano ||
       WalletType.wownero ||
+      WalletType.robinhood ||
       WalletType.evm ||
       WalletType.none =>
         getCryptoCurrencyIconForWalletListItem(type),

@@ -24,6 +24,7 @@ class EvmNativeCurrencies {
     8453: const _EvmNative(currency: CryptoCurrency.baseEth, walletType: WalletType.base),
     42161: const _EvmNative(currency: CryptoCurrency.arbEth, walletType: WalletType.arbitrum),
     56: const _EvmNative(currency: CryptoCurrency.bnb, walletType: WalletType.bsc),
+    4663: const _EvmNative(currency: CryptoCurrency.robEth, walletType: WalletType.robinhood),
   };
 
   static void register(int chainId, CryptoCurrency currency, WalletType walletType) =>
@@ -96,6 +97,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.arbEth;
     case WalletType.bsc:
       return CryptoCurrency.bnb;
+    case WalletType.robinhood:
+      return CryptoCurrency.robEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -170,6 +173,10 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
     return "assets/new-ui/crypto_full_icons/base.svg";
   }
 
+  if (type == WalletType.robinhood) {
+    return "assets/new-ui/crypto_full_icons/robinhood.svg";
+  }
+
   final currency = walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId);
   if (type == WalletType.evm) {
     return currency.chainIconPath ?? "";
@@ -199,6 +206,8 @@ String? symbolIconPathForWalletType(WalletType type) {
       return "$prefix/bch-symbol.svg";
     case WalletType.polygon:
       return "$prefix/pol-symbol.svg";
+    case WalletType.robinhood:
+      return "$prefix/rob-symbol.svg";
     case WalletType.solana:
       return "$prefix/sol-symbol.svg";
     case WalletType.tron:

@@ -190,6 +190,7 @@ abstract class OutputBase with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           final isNative = cryptoCurrencyHandler() is! Erc20Token;
 
           final fee = isNative

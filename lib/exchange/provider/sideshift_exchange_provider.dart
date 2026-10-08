@@ -464,6 +464,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'zcash';
       case 'AVAXC':
         return 'avax';
+      case "ROB":
+        return "robinhood";
       default:
         return tag.toLowerCase();
     }

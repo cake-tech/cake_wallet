@@ -12,13 +12,15 @@ class EVMChainUtils {
       8453 => _basePriorityFee(priority),
       56 => _ethereumPriorityFee(priority),
       42161 => 0, // Arbitrum doesn't use priority fees
+      4663 => 0, // Robinhood Chain (Arbitrum Orbit) doesn't use priority fees
       _ => null,
     };
 
   static bool hasPriorityFee(int chainId) => switch (chainId) {
-      42161 => false, // Arbitrum doesn't use priority fees
-      _ => true,
-    };
+        42161 => false, // Arbitrum doesn't use priority fees
+        4663 => false, // Robinhood Chain (Arbitrum Orbit) doesn't use priority fees
+        _ => true,
+      };
 
   static int computeBufferedMaxFeePerGasWei({
     required int? gasBaseFee,
@@ -48,13 +50,14 @@ class EVMChainUtils {
   static String hexChainId(int chainId) => "0x${chainId.toRadixString(16)}";
 
   static String getTransactionHistoryFileName(int chainId) => switch (chainId) {
-      1 => "transactions.json", // Ethereum
-      137 => "polygon_transactions.json",
-      8453 => "base_transactions.json",
-      42161 => "arbitrum_transactions.json",
-      56 => "bsc_transactions.json",
-      _ => "transactions_$chainId.json", // Generic format for other chains
-    };
+        1 => "transactions.json", // Ethereum
+        137 => "polygon_transactions.json",
+        8453 => "base_transactions.json",
+        42161 => "arbitrum_transactions.json",
+        56 => "bsc_transactions.json",
+        4663 => "robinhood_transactions.json",
+        _ => "transactions_$chainId.json", // Generic format for other chains
+      };
 
   /// Get scan provider preference key for a wallet type
   static String getScanProviderPreferenceKey(int chainId) => switch (chainId) {
@@ -63,6 +66,7 @@ class EVMChainUtils {
       8453 => "use_base_scan",
       42161 => "use_arbitrum_scan",
       56 => "use_bscscan",
+      4663 => "use_robinhood_scan",
       _ => "use_evm_scan_$chainId",
     };
 
@@ -82,7 +86,8 @@ class EVMChainUtils {
     return config.nativeCurrency;
   }
 
-  static int _ethereumPriorityFee(EVMChainTransactionPriority priority) => EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+  static int _ethereumPriorityFee(EVMChainTransactionPriority priority) =>
+      EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
 
   // Polygon priority fee calculation (minimum 25 gwei + additional based on priority)
   static int _polygonPriorityFee(EVMChainTransactionPriority priority) {
@@ -101,9 +106,10 @@ class EVMChainUtils {
   }
 
   static int _basePriorityFee(EVMChainTransactionPriority priority) => switch (priority) {
-      EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
-      EVMChainTransactionPriority.medium => EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
-      EVMChainTransactionPriority.slow => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
-      _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
-    };
+        EVMChainTransactionPriority.fast => EtherAmount.fromInt(EtherUnit.mwei, 5).getInWei.toInt(),
+        EVMChainTransactionPriority.medium =>
+          EtherAmount.fromInt(EtherUnit.mwei, 3).getInWei.toInt(),
+        EVMChainTransactionPriority.slow => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+        _ => EtherAmount.fromInt(EtherUnit.mwei, 1).getInWei.toInt(),
+      };
 }
