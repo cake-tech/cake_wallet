@@ -59,11 +59,13 @@ class WalletPoolService {
 
     // we still use appStore for backwards compatibility
     // we could also store the active wallet in this class, but only after every mobx dependency is removed
-    runInAction(() => _appStore.wallet = next.resource);
-    await _appStore.onWalletChanged(_appStore.wallet);
-
-    if (prev != null) {
-      unawaited(prev.release());
+    try {
+      runInAction(() => _appStore.wallet = next.resource);
+      await _appStore.onWalletChanged(_appStore.wallet);
+    } finally {
+      if (prev != null) {
+        unawaited(prev.release());
+      }
     }
   }
 
