@@ -77,9 +77,11 @@ class ZcashManualShieldModal extends StatelessWidget {
                               ),
                               Text(
                                 balance,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: context.customColors.warningOutlineColor,
-                                    ),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: context.customColors.warningOutlineColor,
+                                ),
                               ),
                             ],
                           ),
@@ -87,9 +89,10 @@ class ZcashManualShieldModal extends StatelessWidget {
                         const SizedBox(height: 32),
                         Text(
                           S.of(context).why_is_shielding_needed,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 12),
@@ -108,7 +111,7 @@ class ZcashManualShieldModal extends StatelessWidget {
                     children: [
                       Text(
                         S.of(context).do_you_want_to_proceed,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: const TextStyle(fontSize: 14),
                       ),
                       const SizedBox(height: 4),
                       NewPrimaryButton(
@@ -138,9 +141,9 @@ class ZcashManualShieldModal extends StatelessWidget {
 
     return Text.rich(
       TextSpan(
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 14),
+        style: const TextStyle(fontSize: 14),
         children: [
-          TextSpan(text: parts.first),
+          TextSpan(text: "${parts.first}\n"),
           TextSpan(
             text: S.of(context).unshielded,
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -168,9 +171,10 @@ class _InfoCard extends StatelessWidget {
         ),
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           textAlign: TextAlign.center,
         ),
       );
