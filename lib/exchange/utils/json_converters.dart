@@ -12,6 +12,16 @@ class MillisDateTimeConverter implements JsonConverter<DateTime, int> {
   int toJson(DateTime dateTime) => dateTime.millisecondsSinceEpoch;
 }
 
+class IntStringConverter extends JsonConverter<int, String> {
+  const IntStringConverter();
+
+  @override
+  int fromJson(String json) => int.parse(json);
+
+  @override
+  String toJson(int value) => value.toString();
+}
+
 
 class TradeStateConverter implements JsonConverter<TradeState, String> {
   const TradeStateConverter();
