@@ -40,7 +40,7 @@ class ExtraAction {
 
   static final buy = ExtraAction(
     name: (vm) =>
-        "${S.current.buy} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
+        "${S.current.buy} ${vm.wallet.balance.length > 1 && vm.wallet.type != WalletType.bitcoin ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy_more_actions.svg",
     isModal: true,
     applicable: (vm)=>vm.isEnabledTradeAction,
@@ -50,7 +50,7 @@ class ExtraAction {
 
   static final sell = ExtraAction(
     name: (vm) =>
-        "${S.current.sell} ${vm.wallet.balance.length > 1 ? S.current.crypto : vm.wallet.currency.fullName}",
+        "${S.current.sell} ${vm.wallet.balance.length > 1 && vm.wallet.type != WalletType.bitcoin ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy.svg",
     isModal: true,
     applicable: (vm)=>vm.isEnabledTradeAction,
