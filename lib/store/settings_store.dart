@@ -2361,6 +2361,12 @@ abstract class SettingsStoreBase with Store {
     await _sharedPreferences.setString(key, serializedData);
   }
 
+  bool hasViewedExplainer(String preferencesKey) =>
+      _sharedPreferences.getBool(preferencesKey) ?? false;
+
+  Future<void> setExplainerViewed(String preferencesKey) =>
+      _sharedPreferences.setBool(preferencesKey, true);
+
   static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {
     final code = sharedPreferences.getString(PreferencesKey.currentLanguageCode);
 
