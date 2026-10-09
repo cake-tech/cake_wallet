@@ -177,6 +177,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         if (mounted) setState(() => isRestoring = false);
       });
     } catch (e) {
+      if (mounted) setState(() => isRestoring = false);
       _showQRScanError(context, e.toString());
     }
   }

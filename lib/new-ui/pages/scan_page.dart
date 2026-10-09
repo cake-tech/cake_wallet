@@ -441,6 +441,9 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   void _handleBarcodeInternal(BarcodeCapture barcodes) {
+    if (popped) {
+      return;
+    }
     for (final barcode in barcodes.barcodes) {
       if (barcode.rawValue?.trim().isEmpty ?? false == false) continue;
       if (barcode.rawValue!.startsWith("ur:")) {
@@ -450,15 +453,15 @@ class _ScanPageState extends State<ScanPage> {
           urCodes.add(barcode.rawValue!);
           ur = URQRToURQRData(urCodes);
         });
-        if (decoder.estimatedPercentComplete() == 1) {
-          setState(() {
-            popped = true;
-          });
+        if (decoder.isSuccess()) {
+          popped = true;
+          final value = ur.inputs.join("\n");
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop(ur.inputs.join("\n"));
+            if (!mounted) return;
+            Navigator.of(context).pop(value);
           });
+          return;
         }
-        ;
       }
     }
     if (urCodes.isNotEmpty) return;

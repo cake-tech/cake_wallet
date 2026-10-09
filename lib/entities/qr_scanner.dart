@@ -81,6 +81,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   }
 
   void _handleBarcodeInternal(BarcodeCapture barcodes) {
+    if (popped) return;
     for (final barcode in barcodes.barcodes) {
       // don't handle unknown QR codes
       if (barcode.rawValue?.trim().isEmpty ?? false == false) continue;
@@ -91,15 +92,17 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           urCodes.add(barcode.rawValue!);
           ur = URQRToURQRData(urCodes);
         });
-        if (decoder.estimatedPercentComplete() == 1) {
-          setState(() {
-            popped = true;
-          });
+        // URQR frames keep arriving after the payload is reconstructed.
+        // Popping on each of them dismisses the page below the scanner.
+        if (decoder.isSuccess()) {
+          popped = true;
+          final value = ur.inputs.join("\n");
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop(ur.inputs.join("\n"));
+            if (!mounted) return;
+            Navigator.of(context).pop(value);
           });
+          return;
         }
-        ;
       }
     }
     if (urCodes.isNotEmpty) return;
