@@ -66,7 +66,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 16,
+    version: 15,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _migrateBitcoinCardStylesForAccounts(db);
       }
 
-      if (oldVersion <= 15) {
+      if (oldVersion <= 14) {
         await _createCoinControlTables(db);
       }
     },
