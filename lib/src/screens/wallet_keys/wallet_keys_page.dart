@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
@@ -406,12 +405,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   Future<void> _showQR(BuildContext context) async {
     final url = await widget.walletKeysViewModel.getUrl(false);
 
-    BrightnessUtil.changeBrightnessForFunction(() async {
-      await Navigator.pushNamed(
-        context,
-        Routes.fullscreenQR,
-        arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
-      );
-    });
+    await Navigator.pushNamed(
+      context,
+      Routes.fullscreenQR,
+      arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
+    );
   }
 }
