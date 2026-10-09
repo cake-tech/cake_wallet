@@ -508,6 +508,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.decred,
         WalletType.dogecoin,
+        WalletType.dash,
         WalletType.zcash,
       ].contains(wallet.type) &&
       !isLightning &&
@@ -522,6 +523,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.dogecoin,
+        WalletType.dash,
       ].contains(wallet.type);
 
   List<String> getWalletImages(int? chainId) {

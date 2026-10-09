@@ -285,6 +285,7 @@ class Node {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.dash:
         return createUriFromElectrumAddress(uriRaw, path!);
       case WalletType.nano:
       case WalletType.banano:
@@ -358,6 +359,7 @@ class Node {
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.dogecoin:
+        case WalletType.dash:
         case WalletType.zcash:
           return requestElectrumServer();
         case WalletType.zano:

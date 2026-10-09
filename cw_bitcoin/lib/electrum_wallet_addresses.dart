@@ -410,7 +410,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
         await _generateInitialAddresses(type: SegwitAddresType.mweb);
       }
-    } else if (walletInfo.type == WalletType.dogecoin) {
+    } else if (walletInfo.type == WalletType.dogecoin || walletInfo.type == WalletType.dash) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       for (final accountIndex in effectiveAccountIndexes) {
@@ -724,6 +724,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addP2PKHAddressTypes();
           break;
         case WalletType.dogecoin:
+        case WalletType.dash:
           addP2PKHAddressTypes();
           break;
         default:

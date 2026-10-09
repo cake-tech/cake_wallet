@@ -1,3 +1,5 @@
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,6 +20,17 @@ void main() {
     test('Invalid invoice', () {
       final content = "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"; // This is a Bitcoin address
       expect(lightningInvoiceRegex.hasMatch(content), false);
+    });
+  });
+
+  group('address classification', () {
+    test('leaves bitcoin classification to bitcoin_base', () {
+      const bitcoinAddress = "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq";
+
+      expect(
+        addressTypeFromStr(bitcoinAddress, BitcoinNetwork.mainnet),
+        isA<P2wpkhAddress>(),
+      );
     });
   });
 }

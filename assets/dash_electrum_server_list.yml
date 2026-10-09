@@ -1,0 +1,12 @@
+# ponytail: entries verified against blockchain.headers.subscribe (ElectrumX 2.0.0, protocol 1.4).
+-
+  uri: electrum1.cipig.net:20061
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Cipig"
+-
+  uri: electrum2.cipig.net:20061
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Cipig 2"

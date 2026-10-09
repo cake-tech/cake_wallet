@@ -166,6 +166,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.trx:
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
+        pattern = r'^X[a-km-zA-HJ-NP-Z1-9]{33}';
       case CryptoCurrency.eos:
       case CryptoCurrency.wow:
         pattern = '[0-9a-zA-Z]+';
@@ -229,8 +230,6 @@ class AddressValidator extends TextValidator {
         return null;
       case CryptoCurrency.ltc:
         return null;
-      case CryptoCurrency.dash:
-        return [34];
       case CryptoCurrency.eos:
         return [42];
       case CryptoCurrency.eth:
@@ -316,6 +315,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btt:
       case CryptoCurrency.bttc:
       case CryptoCurrency.doge:
+      case CryptoCurrency.dash:
       case CryptoCurrency.firo:
         return [34];
       case CryptoCurrency.hbar:

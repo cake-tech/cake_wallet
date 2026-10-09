@@ -21,6 +21,7 @@ const Map<WalletType, String> nodePreferenceKeys = {
   WalletType.decred: PreferencesKey.currentDecredNodeIdKey,
   WalletType.bitcoinCash: PreferencesKey.currentBitcoinCashNodeIdKey,
   WalletType.dogecoin: PreferencesKey.currentDogecoinNodeIdKey,
+  WalletType.dash: PreferencesKey.currentDashNodeIdKey,
   WalletType.solana: PreferencesKey.currentSolanaNodeIdKey,
   WalletType.tron: PreferencesKey.currentTronNodeIdKey,
   WalletType.wownero: PreferencesKey.currentWowneroNodeIdKey,

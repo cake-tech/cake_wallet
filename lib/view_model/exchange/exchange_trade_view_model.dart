@@ -342,6 +342,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         return BitcoinCashURI(address: inputAddress, amount: amount);
       case WalletType.dogecoin:
         return DogeURI(address: inputAddress, amount: amount);
+      case WalletType.dash:
+        return DashURI(address: inputAddress, amount: amount);
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:

@@ -48,6 +48,8 @@ class TestWallets {
         return secrets.decredTestWalletSeeds;
       case WalletType.dogecoin:
         return secrets.dogeTestWalletSeeds;
+      case WalletType.dash:
+        return secrets.dashTestWalletSeeds;
       case WalletType.zcash:
         return secrets.zcashTestWalletSeeds;
       case WalletType.none:
@@ -90,6 +92,7 @@ class TestWallets {
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.dogecoin:
+      case WalletType.dash:
       case WalletType.zcash:
       case WalletType.none:
       case WalletType.haven:

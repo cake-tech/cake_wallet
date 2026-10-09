@@ -3,6 +3,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/dash/dash.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -64,6 +65,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoinCash:
       case WalletType.zano:
       case WalletType.dogecoin:
+      case WalletType.dash:
         availableModes = [WalletRestoreMode.seed];
         break;
       case WalletType.none:
@@ -162,6 +164,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.dogecoin:
           return dogecoin!.createDogeCoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
+        case WalletType.dash:
+          return dash!.createDashRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,

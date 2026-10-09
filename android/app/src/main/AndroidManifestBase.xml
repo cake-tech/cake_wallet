@@ -108,6 +108,9 @@
                 <data android:scheme="dogecoin" />
                 <data android:scheme="dogecoin-wallet" />
                 <data android:scheme="dogecoin_wallet" />
+                <data android:scheme="dash" />
+                <data android:scheme="dash-wallet" />
+                <data android:scheme="dash_wallet" />
                 <data android:scheme="base" />
                 <data android:scheme="base-wallet" />
                 <data android:scheme="base_wallet" />

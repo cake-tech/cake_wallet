@@ -233,6 +233,21 @@ class DogeURI extends PaymentURI {
   }
 }
 
+class DashURI extends PaymentURI {
+  DashURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = "dash:$address";
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class ZcashURI extends PaymentURI {
   ZcashURI({required super.amount, required super.address});
 

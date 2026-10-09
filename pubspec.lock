@@ -576,6 +576,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  cw_dash:
+    dependency: "direct main"
+    description:
+      path: cw_dash
+      relative: true
+    source: path
+    version: "0.0.1"
   cw_decred:
     dependency: "direct main"
     description:
@@ -2935,7 +2942,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7

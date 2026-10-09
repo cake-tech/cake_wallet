@@ -10,6 +10,7 @@ const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
+const dashOutputPath = 'lib/dash/dash.dart';
 const evmOutputPath = 'lib/evm/evm.dart';
 const zcashOutputPath = 'lib/zcash/zcash.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
@@ -32,6 +33,7 @@ Future<void> main(List<String> args) async {
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
+  final hasDash = args.contains('${prefix}dash');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
@@ -51,6 +53,7 @@ Future<void> main(List<String> args) async {
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
   await generateDogecoin(hasDogecoin);
+  await generateDash(hasDash);
   await generateEVM(hasEVM);
   await generateZcash(hasZcash);
 
@@ -69,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasDash: hasDash,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
@@ -89,6 +93,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasDash: hasDash,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
@@ -1393,6 +1398,58 @@ abstract class DogeCoin {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateDash(bool hasImplementation) async {
+  final outputFile = File(dashOutputPath);
+  const dashCommonHeaders = """
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const dashCWHeaders = """
+import 'package:cw_dash/cw_dash.dart';
+""";
+  const dashCwPart = "part 'cw_dash.dart';";
+  const dashContent = """
+abstract class Dash {
+
+  WalletService createDashWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+
+  WalletCredentials createDashNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
+
+  WalletCredentials createDashRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password, String? passphrase});
+
+  TransactionPriority deserializeDashTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+
+  TransactionPriority getDashTransactionPrioritySlow();
+}
+""";
+
+  const dashEmptyDefinition = 'Dash? dash;\n';
+  const dashCWDefinition = 'Dash? dash = CWDash();\n';
+
+  final output = '$dashCommonHeaders\n' +
+      (hasImplementation ? '$dashCWHeaders\n' : '\n') +
+      (hasImplementation ? '$dashCwPart\n\n' : '\n') +
+      (hasImplementation ? dashCWDefinition : dashEmptyDefinition) +
+      '\n' +
+      dashContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateEVM(bool hasImplementation) async {
   final outputFile = File(evmOutputPath);
   const evmCommonHeaders = """
@@ -1851,6 +1908,7 @@ Future<void> generatePubspec({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasDash,
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
@@ -1915,6 +1973,10 @@ Future<void> generatePubspec({
   const cwDogecoin = """
   cw_dogecoin:
       path: ./cw_dogecoin
+  """;
+  const cwDash = """
+  cw_dash:
+      path: ./cw_dash
   """;
   const cwZcash = """
   cw_zcash:
@@ -1982,6 +2044,10 @@ Future<void> generatePubspec({
     output += '\n$cwDogecoin';
   }
 
+  if (hasDash) {
+    output += '\n$cwDash';
+  }
+
   if (hasZcash) {
     output += '\n$cwZcash';
   }
@@ -2012,6 +2078,7 @@ Future<void> generateWalletTypes({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasDash,
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
@@ -2062,6 +2129,10 @@ Future<void> generateWalletTypes({
 
   if (hasDogecoin) {
     outputContent += '\tWalletType.dogecoin,\n';
+  }
+
+  if (hasDash) {
+    outputContent += '\tWalletType.dash,\n';
   }
 
   if (hasBitcoinCash) {

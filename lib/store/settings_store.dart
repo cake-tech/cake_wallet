@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/utilities.dart';
+import 'package:cake_wallet/dash/dash.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -172,6 +173,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialDecredTransactionPriority,
       TransactionPriority? initialZcashTransactionPriority,
       TransactionPriority? initialDogecoinTransactionPriority,
+      TransactionPriority? initialDashTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -281,6 +283,9 @@ abstract class SettingsStoreBase with Store {
     if (initialDogecoinTransactionPriority != null) {
       priority[WalletType.dogecoin] = initialDogecoinTransactionPriority;
     }
+    if (initialDashTransactionPriority != null) {
+      priority[WalletType.dash] = initialDashTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -355,6 +360,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.dogecoin:
           key = PreferencesKey.dogecoinTransactionPriority;
+          break;
+        case WalletType.dash:
+          key = PreferencesKey.dashTransactionPriority;
           break;
         default:
           key = null;
@@ -1223,6 +1231,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? decredTransactionPriority;
     TransactionPriority? zcashTransactionPriority;
     TransactionPriority? dogecoinTransactionPriority;
+    TransactionPriority? dashTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -1274,6 +1283,10 @@ abstract class SettingsStoreBase with Store {
       dogecoinTransactionPriority = dogecoin?.deserializeDogeCoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.dashTransactionPriority) != null) {
+      dashTransactionPriority = dash?.deserializeDashTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.dashTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -1290,6 +1303,7 @@ abstract class SettingsStoreBase with Store {
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
     zcashTransactionPriority ??= zcash?.getDefaultTransactionPriority();
     dogecoinTransactionPriority ??= dogecoin?.getDefaultTransactionPriority();
+    dashTransactionPriority ??= dash?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1424,6 +1438,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final dashNodeId = sharedPreferences.getInt(PreferencesKey.currentDashNodeIdKey);
 
     final nodeSource = await Node.getAll();
     final powNodeSource = await Node.getAllPow();
@@ -1464,6 +1479,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
     final dogecoinNode = nodeSource.firstWhereOrNull((e) => e.id == dogecoinNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final dashNode = nodeSource.firstWhereOrNull((e) => e.id == dashNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == dashDefaultNodeUri);
     final zcashNode = nodeSource.firstWhereOrNull((e) => e.id == zcashNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
@@ -1580,6 +1597,9 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+    if (dashNode != null) {
+      nodes[WalletType.dash] = dashNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1790,6 +1810,7 @@ abstract class SettingsStoreBase with Store {
       initialDecredTransactionPriority: decredTransactionPriority,
       initialZcashTransactionPriority: zcashTransactionPriority,
       initialDogecoinTransactionPriority: dogecoinTransactionPriority,
+      initialDashTransactionPriority: dashTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1897,6 +1918,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority) != null) {
       priority[WalletType.dogecoin] = dogecoin!.deserializeDogeCoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.dogecoinTransactionPriority)!);
+    }
+    if (dash != null && sharedPreferences.getInt(PreferencesKey.dashTransactionPriority) != null) {
+      priority[WalletType.dash] = dash!
+          .deserializeDashTransactionPriority(
+              sharedPreferences.getInt(PreferencesKey.dashTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -2044,6 +2070,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNodeId = sharedPreferences.getInt(PreferencesKey.currentZcashNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final dashNodeId = sharedPreferences.getInt(PreferencesKey.currentDashNodeIdKey);
     final moneroNode = await Node.get(nodeId ?? -1);
     final bitcoinElectrumServer = await Node.get(bitcoinElectrumServerId ?? -1);
     final litecoinElectrumServer = await Node.get(litecoinElectrumServerId ?? -1);
@@ -2063,6 +2090,7 @@ abstract class SettingsStoreBase with Store {
     final zcashNode = await Node.get(zcashNodeId ?? -1);
     final decredNode = await Node.get(decredNodeId ?? -1);
     final dogecoinNode = await Node.get(dogecoinNodeId ?? -1);
+    final dashNode = await Node.get(dashNodeId ?? -1);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -2138,6 +2166,9 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+    if (dashNode != null) {
+      nodes[WalletType.dash] = dashNode;
     }
 
     // MIGRATED:
@@ -2286,6 +2317,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.dogecoin:
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
+        break;
+      case WalletType.dash:
+        await _sharedPreferences.setInt(PreferencesKey.currentDashNodeIdKey, node.id);
         break;
       case WalletType.zcash:
         await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);

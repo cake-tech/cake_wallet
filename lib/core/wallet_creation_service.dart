@@ -85,6 +85,7 @@ class WalletCreationService {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.dash:
       case WalletType.nano:
       case WalletType.zcash:
       case WalletType.zano:

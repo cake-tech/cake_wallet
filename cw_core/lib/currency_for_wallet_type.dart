@@ -48,6 +48,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.dcr;
     case WalletType.dogecoin:
       return CryptoCurrency.doge;
+    case WalletType.dash:
+      return CryptoCurrency.dash;
     case WalletType.zcash:
       return CryptoCurrency.zec;
     case WalletType.none:
@@ -155,6 +157,8 @@ String? symbolIconPathForWalletType(WalletType type) {
       return "$prefix/dcr-symbol.svg";
     case WalletType.dogecoin:
       return "$prefix/doge-symbol.svg";
+    case WalletType.dash:
+      return "$prefix/dash-symbol.svg";
     case WalletType.zcash:
       return "$prefix/zec-symbol.svg";
     case WalletType.nano:

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
@@ -79,7 +80,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   }) {
     try {
       this.scriptHash = scriptHash ??
-          (network != null ? BitcoinAddressUtils.scriptHash(address, network: network!) : null);
+          (network != null ? scriptHashOfAddress(address, network!) : null);
     } catch (e) {
       printV(e);
     }
@@ -149,6 +150,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         return 145;
       case DogecoinNetwork.mainnet:
         return 3;
+      case DashNetwork.mainnet:
+        return 5;
       default:
         return 0;
     }
@@ -157,7 +160,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
     try {
-      scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+      scriptHash = scriptHashOfAddress(address, network);
     } catch (e) {
       return '';
     }
