@@ -52,7 +52,9 @@ enum SwapsXyzVmId {
   hypercore,
   @JsonValue("tron")
   tron,
-  unknown,
+  unknown;
+
+  String toJson() => _$SwapsXyzVmIdEnumMap[this]!;
 }
 
 enum SwapsXyzActionType {

@@ -25,7 +25,7 @@ import "package:json_annotation/json_annotation.dart";
 
 class SwapsXyzTrade extends RoutableTrade {
   SwapsXyzTrade({
-    required this.needToRegister,
+    required this.vmId, required this.needToRegister,
     required this.sourceTokenAddress,
     required this.sourceTokenDecimals,
     required this.sourceTokenAmountRaw,
@@ -55,16 +55,10 @@ class SwapsXyzTrade extends RoutableTrade {
     super.isRefund,
   }) : super();
 
-  // final trade = Trade(
-  //   needToRegisterInSwapXyz: needToRegisterInSwapXyz,
-  //   sourceTokenAddress: srcTokenAddr ?? srcToken,
-  //   sourceTokenDecimals: srcTokenDecs,
-  //   sourceTokenAmountRaw: reqAmountRaw,
-  //   requiresTokenApproval: requiresTokenApproval,
-  // );
   final bool needToRegister;
   final String sourceTokenAddress;
   final int sourceTokenDecimals;
+  final SwapsXyzVmId vmId;
   final String sourceTokenAmountRaw;
   final bool requiresTokenApproval;
 }
@@ -413,6 +407,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       routerValue: txValue,
       router: chainId,
       providerId: vmId.name,
+      vmId: vmId,
       needToRegister: needToRegisterInSwapXyz,
       sourceTokenAddress: data.amountIn.address,
       sourceTokenDecimals: data.amountIn.decimals,
@@ -426,11 +421,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required String txId,
     required String txHash,
     required int chainId,
-    required String vmId,
+    required SwapsXyzVmId vmId,
   }) async {
     try {
       final uri = Uri.https(_baseUrl, _registerTxs);
-      final payload = {"txId": txId, "vmId": vmId, "txHash": txHash, "chainId": chainId};
+      final payload = {"txId": txId, "vmId": vmId.toJson(), "txHash": txHash, "chainId": chainId};
 
       final res = await proxyWrapper.post(
         clearnetUri: uri,
@@ -920,11 +915,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         return;
       }
 
-      final vmId = (trade.providerId ?? "").toLowerCase();
-      if (vmId.isEmpty) {
-        printV("SwapsXyz: transaction register: skipped (vmId empty)");
-        return;
-      }
+      final vmId = trade.vmId;
 
       final txHash = pendingTransaction.evmTxHashFromRawHex ?? pendingTransaction.id;
 
