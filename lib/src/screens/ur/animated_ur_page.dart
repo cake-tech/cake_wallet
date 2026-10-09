@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -64,7 +65,7 @@ class AnimatedURPage extends BasePage {
             hardwareWalletType: animatedURmodel.wallet.hardwareWalletType,
           ),
         ),
-        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header].contains(urQrType)) ...{
+        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", "ur:zcash-pczt", BBQR.header].contains(urQrType)) ...{
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
@@ -106,6 +107,27 @@ class AnimatedURPage extends BasePage {
           if (ur == null) return;
           await bitcoin!.commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
           Navigator.of(context).pop(true);
+          break;
+        case "ur:zcash-pczt":
+          final ur = await presentQRScanner(context, showManualInput: false);
+          if (ur == null || !context.mounted) return;
+          unawaited(
+            showDialog<void>(
+              context: context,
+              useRootNavigator: true,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: CircularProgressIndicator()),
+            ),
+          );
+          try {
+            await zcash!.commitZcashPcztUR(animatedURmodel.wallet, ur);
+          } finally {
+            if (context.mounted) {
+              Navigator.of(context, rootNavigator: true).pop();
+            }
+          }
+          if (context.mounted) Navigator.of(context).pop(true);
+          break;
         default:
           throw UnimplementedError("unable to handle UR: ${urQrType}");
       }

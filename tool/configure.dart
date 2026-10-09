@@ -1780,7 +1780,12 @@ abstract class Zcash {
       required int? height,
       int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password, required int height});
+      {required String name,
+      required String privateKey,
+      required String password,
+      required int height,
+      int accountIndex = 0,
+      HardwareWalletType? hardwareWalletType});
   WalletCredentials createZcashHardwareWalletCredentials({
     required String name,
     required HardwareWalletService hardwareWalletService,
@@ -1826,6 +1831,7 @@ abstract class Zcash {
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
   bool hasOrchardMigratableBalance(WalletBase wallet);
+  Future<void> commitZcashPcztUR(Object wallet, String ur);
   Future<PendingTransaction?> createShieldingTransaction(WalletBase wallet);
 }
   """;

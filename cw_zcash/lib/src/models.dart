@@ -41,9 +41,12 @@ class ZcashFromKeysWalletCredentials extends WalletCredentials {
     final String? password,
     required final int? height,
     required this.privateKey,
+    this.accountIndex = 0,
     this.network = 0,
+    super.hardwareWalletType,
   }) : super(name: name, password: password, height: height);
   final String? privateKey;
+  final int accountIndex;
   int network;
 }
 

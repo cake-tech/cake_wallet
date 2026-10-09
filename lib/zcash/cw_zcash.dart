@@ -23,12 +23,16 @@ class CWZcash extends Zcash {
       {required String name,
       required String privateKey,
       required String password,
-      required int height}) {
+      required int height,
+      int accountIndex = 0,
+      HardwareWalletType? hardwareWalletType}) {
     return ZcashFromKeysWalletCredentials(
       name: name,
       height: height,
       privateKey: privateKey,
       password: password,
+      accountIndex: accountIndex,
+      hardwareWalletType: hardwareWalletType,
     );
   }
 
@@ -166,6 +170,12 @@ class CWZcash extends Zcash {
     final zcashWallet = wallet as ZcashWallet;
     final addresses = zcashWallet.walletAddresses as ZcashWalletAddresses;
     final type = ZcashReceivePageOption.typeFromString(addresses.walletInfo.addressPageType ?? "");
+    if (type == ZcashAddressType.transparentRotated && !zcashWallet.canRotateTransparentAddress) {
+      return ZcashReceivePageOption.transparent;
+    }
+    if (type == ZcashAddressType.shieldedSapling && !zcashWallet.canUseLegacyShielded) {
+      return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
+    }
     if (type == ZcashAddressType.shieldedOrchard) {
       return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
     }
@@ -225,6 +235,15 @@ class CWZcash extends Zcash {
   @override
   bool hasOrchardMigratableBalance(WalletBase wallet) {
     return (wallet as ZcashWallet).hasOrchardMigratableBalance();
+  }
+
+  @override
+  Future<void> commitZcashPcztUR(Object wallet, String ur) {
+    final commit = (wallet as ZcashWallet).onCommitAirgapUr;
+    if (commit == null) {
+      throw StateError('No Zcash QR transaction is waiting to be signed');
+    }
+    return commit(ur);
   }
 
   @override
