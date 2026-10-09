@@ -223,7 +223,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
     if(_notSupportedAsSourceToken.contains(to)) {
       throw Exception(
-        "fetchRate: source token ${from.currency.symbol} is not supported as destination token",
+        "fetchRate: source token ${to.symbol} is not supported as destination token",
       );
     }
 
