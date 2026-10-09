@@ -123,9 +123,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final responseData = ChangeNowEstimatedAmountResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
-    if (responseData.fromAmount <= 0 || responseData.toAmount <= 0) {
-      throw Exception("api returned bad amounts");
-    }
 
     if (responseData.rateId?.isNotEmpty ?? false) {
       _lastUsedRateId = responseData.rateId!;

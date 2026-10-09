@@ -138,11 +138,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     final swapResponse = await _openDepositChannel(swapParams);
 
-    final id =
-        "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}";
-
     return Trade(
-      id: id,
+      id: "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}",
       provider: description,
       createdAt: DateTime.now(),
       state: TradeState.waiting,
@@ -158,7 +155,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Trade> updateTrade(Trade trade) async {
       final channelParts = trade.id.split("-");
       final network = channelParts[1];
-      final normalizedNetwork = _normalizeNetworkName(network);
+      final normalizedNetwork = network.toLowerCase();
 
       final statusParams = ChainflipStatusRequest(
         apiKey: _affiliateKey,
@@ -174,27 +171,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       }
 
       return trade.copyWith(
-        state: statusResponse.status.state,
+        state: statusResponse.status.state.toState,
         outputTransaction: statusResponse.status.swapEgress?.transactionReference,
         isRefund: statusResponse.status.refundEgress != null,
         fundingAddress: statusResponse.status.depositChannel?.depositAddress,
         payoutAddress: statusResponse.status.destinationAddress,
       );
 
-  }
-
-  String _normalizeNetworkName(String name) {
-    final networkName = switch (name.toUpperCase()) {
-      "BITCOIN" => "bitcoin",
-      "ETHEREUM" => "ethereum",
-      "ARBITRUM" => "arbitrum",
-      "SOLANA" => "solana",
-      "TRON" => "tron",
-      "ASSETHUB" => "assethub",
-      _ => name,
-    };
-
-    return networkName;
   }
 
   Future<Map<String, dynamic>> _getAssets() => _getRequest(_assetsPath, {});

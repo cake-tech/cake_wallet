@@ -369,7 +369,8 @@ void main() {
     test("the status body is a swap in flight with both legs", () {
       final status = ChainflipStatusResponse.fromJson(_map(chainflipStatus)).status;
 
-      expect(status.state, TradeState.processing);
+      expect(status.state, ChainflipSwapState.swapping);
+      expect(status.state.toState, TradeState.processing);
       expect(status.sourceAsset, CryptoCurrency.btc);
       expect(status.destinationAsset, CryptoCurrency.eth);
       expect(status.destinationAddress, payoutAddress);

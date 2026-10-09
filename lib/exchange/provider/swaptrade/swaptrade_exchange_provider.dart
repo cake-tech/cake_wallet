@@ -142,6 +142,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       amountSend: request.depositAmount.toString(),
       recipient: request.payoutAddress,
       markup: markup,
+      ref: "cake",
       refundAddress: request.refundAddress,
     );
 

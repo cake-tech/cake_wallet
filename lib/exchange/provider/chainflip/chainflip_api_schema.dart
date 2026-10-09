@@ -65,31 +65,6 @@ class ChainflipCurrencyConverter implements JsonConverter<CryptoCurrency, String
   }
 }
 
-class ChainflipTradeStateConverter implements JsonConverter<TradeState, String> {
-  const ChainflipTradeStateConverter();
-
-  @override
-  String toJson(TradeState state) => switch (state) {
-    TradeState.waiting => "waiting",
-    TradeState.processing => "processing",
-    TradeState.success => "completed",
-    TradeState.failed => "failed",
-    _ => "unknown",
-  };
-
-  @override
-  TradeState fromJson(String json) => switch (json) {
-    "waiting" => TradeState.waiting,
-    "receiving" => TradeState.processing,
-    "swapping" => TradeState.processing,
-    "sending" => TradeState.processing,
-    "sent" => TradeState.processing,
-    "completed" => TradeState.success,
-    "failed" => TradeState.failed,
-    _ => TradeState.notFound,
-  };
-}
-
 @JsonSerializable()
 @ChainflipCurrencyConverter()
 class ChainflipFetchQuotesRequest {
@@ -139,6 +114,37 @@ enum ChainflipQuoteType {
   @JsonValue("dca")
   dca,
   unknown,
+}
+
+enum ChainflipSwapState {
+  @JsonValue("waiting")
+  waiting,
+  @JsonValue("receiving")
+  receiving,
+  @JsonValue("swapping")
+  swapping,
+  @JsonValue("sending")
+  sending,
+  @JsonValue("sent")
+  sent,
+  @JsonValue("completed")
+  completed,
+  @JsonValue("failed")
+  failed,
+  unknown,
+}
+
+extension StatusToState on ChainflipSwapState {
+  TradeState get toState => switch (this) {
+    .waiting => .waiting,
+    .receiving => .processing,
+    .swapping => .processing,
+    .sending => .processing,
+    .sent => .processing,
+    .completed => .success,
+    .failed => .failed,
+    .unknown => .notFound,
+  };
 }
 
 @JsonSerializable(createToJson: false)
@@ -874,7 +880,6 @@ class ChainflipStatusDepositChannel {
 
 @JsonSerializable(createToJson: false)
 @ChainflipCurrencyConverter()
-@ChainflipTradeStateConverter()
 @MillisDateTimeConverter()
 class ChainflipStatusData {
   const ChainflipStatusData({
@@ -899,8 +904,8 @@ class ChainflipStatusData {
   factory ChainflipStatusData.fromJson(Map<String, dynamic> json) =>
       _$ChainflipStatusDataFromJson(json);
 
-  @JsonKey(name: "state")
-  final TradeState state;
+  @JsonKey(name: "state", unknownEnumValue: ChainflipSwapState.unknown)
+  final ChainflipSwapState state;
   @JsonKey(name: "swapId")
   final String? swapId;
   @JsonKey(name: "sourceAsset")

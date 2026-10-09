@@ -61,6 +61,7 @@ class JupiterExchangeProvider extends ExchangeProvider
   static const _executePath = "/ultra/v1/execute";
   static const _referralFee = secrets.jupiterReferralFeeBps;
   static const _referralAccount = secrets.jupiterReferralAccount;
+  static final _hasReferral = _referralFee.isNotEmpty && _referralAccount.isNotEmpty;
 
   // Wrapped SOL address (native SOL)
   static const _nativeSolMint = "So11111111111111111111111111111111111111112";
@@ -168,8 +169,8 @@ class JupiterExchangeProvider extends ExchangeProvider
       amount: request.depositAmount.amount,
       taker: request.refundAddress,
       receiver: isInternalTransfer ? null : request.payoutAddress,
-      referralFee: _referralFee,
-      referralAccount: _referralAccount,
+      referralFee: _hasReferral ? _referralFee : null,
+      referralAccount: _hasReferral ? _referralAccount : null,
     );
 
     final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
@@ -194,14 +195,6 @@ class JupiterExchangeProvider extends ExchangeProvider
       );
     }
 
-    if (orderData.transaction == null || orderData.transaction!.isEmpty) {
-      throw Exception("No transaction returned from Jupiter order endpoint");
-    }
-
-    if (orderData.requestId.isEmpty) {
-      throw Exception("No requestId returned from Jupiter order endpoint");
-    }
-
     return JupiterTrade(
       id: orderData.requestId,
       provider: description,
@@ -222,7 +215,6 @@ class JupiterExchangeProvider extends ExchangeProvider
     required String signedTransaction,
     required String requestId,
   }) async {
-    try {
       final executeUri = Uri.https(_baseUrl, _executePath);
 
       final params = JupiterExecuteRequest(
@@ -253,24 +245,7 @@ class JupiterExchangeProvider extends ExchangeProvider
 
       final executeData = json.decode(response.body) as Map<String, dynamic>;
 
-      ExchangeProviderLogger.logSuccess(
-        provider: description,
-        function: "executeSwap",
-        requestData: {"requestId": requestId, "hasSignedTransaction": signedTransaction.isNotEmpty},
-        responseData: executeData,
-      );
-
       return JupiterExecuteResponse.fromJson(executeData);
-    } catch (e, s) {
-      ExchangeProviderLogger.logError(
-        provider: description,
-        function: "executeSwap",
-        error: e,
-        stackTrace: s,
-        requestData: {"requestId": requestId, "hasSignedTransaction": signedTransaction.isNotEmpty},
-      );
-      rethrow;
-    }
   }
 
   @override
