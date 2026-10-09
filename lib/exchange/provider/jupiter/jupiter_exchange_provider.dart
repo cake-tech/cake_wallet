@@ -218,19 +218,22 @@ class JupiterExchangeProvider extends ExchangeProvider
   }
 
   /// Executes a signed Jupiter swap transaction via Jupiter's /execute endpoint
-  Future<Map<String, dynamic>> executeSwap({
+  Future<JupiterExecuteResponse> executeSwap({
     required String signedTransaction,
     required String requestId,
   }) async {
     try {
       final executeUri = Uri.https(_baseUrl, _executePath);
 
-      final body = json.encode({"signedTransaction": signedTransaction, "requestId": requestId});
+      final params = JupiterExecuteRequest(
+        signedTransaction: signedTransaction,
+        requestId: requestId,
+      );
 
       final response = await proxyWrapper.post(
         clearnetUri: executeUri,
         headers: _headers,
-        body: body,
+        body: json.encode(params.toJson()),
       );
 
       if (response.statusCode != 200) {
@@ -257,7 +260,7 @@ class JupiterExchangeProvider extends ExchangeProvider
         responseData: executeData,
       );
 
-      return executeData;
+      return JupiterExecuteResponse.fromJson(executeData);
     } catch (e, s) {
       ExchangeProviderLogger.logError(
         provider: description,
