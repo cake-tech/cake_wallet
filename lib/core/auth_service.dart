@@ -12,6 +12,7 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_group_db_entry.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -266,6 +267,7 @@ Future<void> _handleDuressLogin(
       await txn.delete(WalletInfoAddressMap.tableName);
       await txn.delete(WalletInfoAddress.tableName);
       await txn.delete(DerivationInfo.tableName);
+      await txn.delete(WalletGroupDbEntry.tableName);
       await txn.delete(WalletInfo.tableName);
     });
     printV('[DURESS] SQLite wallet tables wiped');
