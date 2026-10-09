@@ -2,12 +2,12 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -33,7 +33,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type, this.restoredWallet, this.hardwareWalletType})
+      {required WalletType type, this.restoredWallet, this.hardwareWalletType, this.chainId})
       : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
@@ -50,6 +50,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -94,6 +95,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
+    WalletType.evm,
     WalletType.polygon,
     WalletType.base,
     WalletType.arbitrum,
@@ -111,6 +113,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   final RestoredWallet? restoredWallet;
   final HardwareWalletType? hardwareWalletType;
+
+  final int? chainId;
 
   @observable
   WalletRestoreMode mode;
@@ -177,6 +181,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             passphrase: passphrase,
           );
         case WalletType.ethereum:
+        case WalletType.evm:
         case WalletType.polygon:
         case WalletType.base:
         case WalletType.arbitrum:
@@ -187,6 +192,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
+            chainId: chainId,
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromSeedCredentials(
@@ -287,6 +293,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: derivationInfo!.derivationType!,
           );
         case WalletType.ethereum:
+        case WalletType.evm:
         case WalletType.polygon:
         case WalletType.base:
         case WalletType.arbitrum:
@@ -296,6 +303,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             privateKey: options['private_key'] as String,
+            chainId: chainId,
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromPrivateKey(
@@ -344,15 +352,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var walletType = credentials["walletType"] as WalletType;
     var appStore = getIt.get<AppStore>();
 
-    int? chainId;
-    if (isEVMCompatibleChain(walletType)) {
-      if (appStore.wallet != null) {
-        chainId = evm!.getSelectedChainId(appStore.wallet!);
-      }
-      chainId ??= evm!.getChainIdByWalletType(walletType);
-    }
+    final nodeChainId = WalletNetwork(walletType, chainId).evmChainId;
 
-    var node = appStore.settingsStore.getCurrentNode(walletType, chainId: chainId);
+    var node = appStore.settingsStore.getCurrentNode(walletType, chainId: nodeChainId);
 
     switch (walletType) {
       case WalletType.bitcoin:

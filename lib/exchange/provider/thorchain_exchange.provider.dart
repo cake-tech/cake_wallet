@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -320,6 +321,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
+    final addedNetworkCode = evmExchangeProviderNetworkCode(currency, description);
+    if (addedNetworkCode != null) {
+      return "$addedNetworkCode.${currency.title}";
+    }
+
     final networkTitle = currency.tag == 'ETH' ? 'ETH' : currency.tag ?? currency.title;
     return '$networkTitle.${currency.title}';
   }

@@ -78,7 +78,18 @@ class UniversalAddressDetector {
       if (uri.scheme.toLowerCase() == 'ethereum') {
         final erc681 = ERC681URI.fromUri(uri);
         chainId = erc681.chainId;
-        currency = getCryptoCurrencyByChainId(chainId);
+        final native = EvmNativeCurrencies.getNativeCurrencyByChainId(chainId);
+
+        if (native == null) {
+          return AddressDetectionResult(
+            address: paymentRequest.address,
+            amount: paymentRequest.amount,
+            scheme: paymentRequest.scheme,
+            isValid: true,
+            chainId: chainId,
+          );
+        }
+        currency = native;
       } else {
         currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
         chainId = getChainIdByCryptoCurrency(currency);

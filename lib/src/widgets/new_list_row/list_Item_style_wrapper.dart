@@ -8,12 +8,13 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.builder,
     this.backgroundColor,
     this.onTap,
-    this.iconPath,
     this.contentPadding,
     this.height,
+    this.hasLeading = false,
+    this.isDense = false,
   });
 
-  final String? iconPath;
+  final bool hasLeading;
   final bool isFirstInSection;
   final bool isLastInSection;
   final double? height;
@@ -21,6 +22,7 @@ class ListItemStyleWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
+  final bool isDense;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class ListItemStyleWrapper extends StatelessWidget {
       fontWeight: FontWeight.w400,
       fontFamily: 'Wix Madefor Text',
       color: theme.colorScheme.onSurface,
+      letterSpacing: isDense ? -0.07 : null,
     );
 
     final labelStyle = TextStyle(
@@ -40,9 +43,10 @@ class ListItemStyleWrapper extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
     );
 
+    final cardRadius = isDense ? 20.0 : 18.0;
     final radius = BorderRadius.vertical(
-      top: Radius.circular(isFirstInSection ? 18 : 0),
-      bottom: Radius.circular(isLastInSection ? 18 : 0),
+      top: Radius.circular(isFirstInSection ? cardRadius : 0),
+      bottom: Radius.circular(isLastInSection ? cardRadius : 0),
     );
 
     return ClipRSuperellipse(
@@ -65,11 +69,13 @@ class ListItemStyleWrapper extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: height == null ? 11 : 0),
                           child: builder(context, textStyle, labelStyle))))),
-          if (iconPath != null && isLastInSection == false)
+          if (hasLeading && isLastInSection == false)
             Container(
               color: theme.colorScheme.surfaceContainer,
               child: Padding(
-                padding: const EdgeInsets.only(left: 50, right: 13),
+                padding: isDense
+                    ? const EdgeInsets.only(left: 48, right: 12)
+                    : const EdgeInsets.only(left: 50, right: 13),
                 child: Container(height: 1, color: theme.colorScheme.outlineVariant),
               ),
             )

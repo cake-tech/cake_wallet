@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/copy_wrapper.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -30,7 +31,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.leadingIconSize,
       this.badgeIconSize,
       this.iconColor,
-      this.secondaryLabel});
+      this.secondaryLabel,
+      this.leadingWidget,
+      this.isDense = false});
 
   final String keyValue;
   final String label;
@@ -55,6 +58,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final Widget? leadingWidget;
+  final bool isDense;
 
   @override
   Widget build(BuildContext context) {
@@ -72,21 +77,26 @@ class ListItemRegularRowWidget extends StatelessWidget {
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
             onTap: onTap,
-            iconPath: iconPath,
+            hasLeading: iconPath != null || leadingWidget != null,
+            isDense: isDense,
+            height: isDense ? (subtitle == null ? 48 : 62) : null,
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,
             builder: (context, textStyle, labelStyle) {
-              final leadingIcon = iconPath != null
-                  ? CakeImageWidget(
-                      imageUrl: iconPath!,
-                      width: leadingIconSize ?? 24,
-                      height: leadingIconSize ?? 24,
-                      errorWidget: leadingIconErrorWidget,
-                      colorFilter:
-                          iconColor == null ? null : ColorFilter.mode(iconColor!, BlendMode.srcIn),
-                    )
-                  : null;
+              final leadingIcon = leadingWidget ??
+                  (iconPath != null
+                      ? CakeImageWidget(
+                          imageUrl: iconPath!,
+                          width: leadingIconSize ?? 24,
+                          height: leadingIconSize ?? 24,
+                          errorWidget: leadingIconErrorWidget,
+                          colorFilter: iconColor == null
+                              ? null
+                              : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                        )
+                      : null);
 
+              final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(badgeIconPath ?? "");
               final imageWidget = badgeIconPath != null
                   ? Stack(
                       clipBehavior: Clip.none,
@@ -112,7 +122,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
                               width: badgeIconSize ?? 12,
                               height: badgeIconSize ?? 12,
                               fit: BoxFit.cover,
-                              color: theme.colorScheme.surface,
+                              isRoundedSquare: !isGlyphBadge,
+                              color: isGlyphBadge ? theme.colorScheme.surface : null,
                               errorWidget: leadingIconErrorWidget,
                             ),
                           ),
@@ -120,6 +131,16 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       ],
                     )
                   : leadingIcon;
+
+              final labelText = Text(
+                label,
+                maxLines: isDense ? 1 : null,
+                overflow: isDense ? TextOverflow.ellipsis : null,
+                style: foregroundColor == null
+                    ? textStyle
+                    : textStyle.copyWith(color: foregroundColor),
+              );
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +151,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            if (iconPath != null)
+                            if (leadingIcon != null)
                               Padding(
                                 padding: const EdgeInsets.only(right: 12.0),
                                 child: imageWidget ?? SizedBox(),
@@ -150,10 +171,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     Row(
                                       spacing: 4,
                                       children: [
-                                        Text(label,
-                                            style: foregroundColor == null
-                                                ? textStyle
-                                                : textStyle.copyWith(color: foregroundColor)),
+                                        isDense ? Flexible(child: labelText) : labelText,
                                         if (secondaryLabel != null)
                                           Text(
                                             secondaryLabel!,
@@ -163,7 +181,20 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                           )
                                       ],
                                     ),
-                                  if (subtitle != null)
+                                  if (subtitle != null && isDense)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        subtitle!,
+                                        style: labelStyle.copyWith(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          letterSpacing: -0.06,
+                                          color: subtitleColor,
+                                        ),
+                                      ),
+                                    )
+                                  else if (subtitle != null)
                                     Text(
                                       subtitle!,
                                       style: subtitleColor == null
@@ -196,6 +227,22 @@ class ListItemRegularRowWidget extends StatelessWidget {
                               colorFilter: ColorFilter.mode(
                                   foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
                                   BlendMode.srcIn),
+                            )
+                          else if (showArrow && isDense)
+                            SizedBox.square(
+                              dimension: 16,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: CakeImageWidget(
+                                  imageUrl: "assets/new-ui/arrow_right.svg",
+                                  width: 7,
+                                  height: 12,
+                                  colorFilter: ColorFilter.mode(
+                                    foregroundColor ?? theme.colorScheme.onSurfaceVariant,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
                             )
                           else if (showArrow)
                             Padding(

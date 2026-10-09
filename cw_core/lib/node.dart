@@ -55,6 +55,7 @@ class Node {
     this.isOfficial = false,
     this.isBuiltin = false,
     this.isDefault = false,
+    this.chainId,
     String? uri,
     WalletType? type,
   }) {
@@ -98,7 +99,8 @@ class Node {
         isEnabledForAutoSwitching = _getBoolFromDB(map['isEnabledForAutoSwitching']),
         isOfficial = _getBoolFromDB(map['isOfficial']),
         isBuiltin = _getBoolFromDB(map['isBuiltin']),
-        isDefault = _getBoolFromDB(map['isDefault']);
+        isDefault = _getBoolFromDB(map["isDefault"]),
+        chainId = map["chainId"] as int?;
 
   static bool _getBoolFromDB(value, {bool? defaultValue}) {
     if (value is bool) {
@@ -126,7 +128,8 @@ class Node {
       'isEnabledForAutoSwitching': isEnabledForAutoSwitching ? 1 : 0,
       "isOfficial": isOfficial ? 1 : 0,
       "isBuiltin": isBuiltin ? 1 : 0,
-      "isDefault": isDefault ? 1 : 0
+      "isDefault": isDefault ? 1 : 0,
+      "chainId": chainId,
     };
   }
 
@@ -154,8 +157,12 @@ class Node {
     return await db!.delete(tableName, where: '${selfIdColumn} = ?', whereArgs: [id]);
   }
 
-  static Future<int> deleteAll() async {
-    return await db!.delete(tableName, where: "isPow = ?", whereArgs: [0]);
+  static Future<int> deleteAllExceptAddedNetworks() async {
+    return await db!.delete(
+      tableName,
+      where: "isPow = ? AND typeRaw != ?",
+      whereArgs: [0, serializeToInt(WalletType.evm)],
+    );
   }
 
   static Future<int> deleteAllPow() async {
@@ -230,6 +237,17 @@ class Node {
     return selectList("typeRaw = ? AND isPow = ?", [serializeToInt(type), 1]);
   }
 
+  static Future<List<Node>> getAllForEvmChain(int chainId) async {
+    return selectList(
+        "typeRaw = ? AND isPow = ? AND chainId = ?", [serializeToInt(WalletType.evm), 0, chainId]);
+  }
+
+  static Future<Node?> getDefaultForEvmChain(int chainId) async {
+    return (await selectList("typeRaw = ? AND isPow = ? AND isDefault = ? AND chainId = ?",
+            [serializeToInt(WalletType.evm), 0, 1, chainId]))
+        .firstOrNull;
+  }
+
   static Future<List<Node>> getAllPow() async {
     return selectList("isPow = ?", [1]);
   }
@@ -255,6 +273,7 @@ class Node {
   bool isOfficial;
   bool isBuiltin;
   bool isDefault;
+  int? chainId;
 
   String? label;
 
@@ -289,6 +308,7 @@ class Node {
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.bsc:
@@ -360,6 +380,8 @@ class Node {
         case WalletType.dogecoin:
         case WalletType.zcash:
           return requestElectrumServer();
+        case WalletType.evm:
+          return requestEthereumServer();
         case WalletType.zano:
           return requestZanoNode();
         case WalletType.decred:
@@ -525,19 +547,51 @@ class Node {
   }
 
   Future<bool> requestEthereumServer() async {
-    try {
-      final req = await ProxyWrapper()
-          .getHttpClient()
-          .getUrl(
-            uri,
-          )
-          .timeout(Duration(seconds: 15));
-      final response = await req.close();
-
-      return response.statusCode >= 200 && response.statusCode < 300;
-    } catch (err) {
-      printV("Failed to request ethereum server: $err");
+    if (chainId == null) {
       return false;
+    }
+
+    if (await requestEvmChainId() != chainId) {
+      return false;
+    }
+
+    return await requestEvmBlockNumber() != null;
+  }
+
+  Future<bool> isOnAnotherChain() async {
+    final answered = await requestEvmChainId();
+    return answered != null && answered != chainId;
+  }
+
+  Future<int?> requestEvmChainId() => _requestEvmHexNumber("eth_chainId");
+
+  // Added this so we can catch those free RPCs that responds to eth_chainId but refuse or rate limit everything else
+  // any node that can sync must eb able to give a response to this
+  Future<int?> requestEvmBlockNumber() => _requestEvmHexNumber("eth_blockNumber");
+
+  Future<int?> _requestEvmHexNumber(String method) async {
+    try {
+      final response = await ProxyWrapper()
+          .post(
+            clearnetUri: uri,
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({"jsonrpc": "2.0", "id": 1, "method": method, "params": []}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return null;
+      }
+
+      final result = (jsonDecode(response.body) as Map<String, dynamic>)["result"];
+      if (result is! String) {
+        return null;
+      }
+
+      return int.tryParse(result.toLowerCase().replaceFirst("0x", ""), radix: 16);
+    } catch (err) {
+      printV("Failed to request $method from ethereum server: $err");
+      return null;
     }
   }
 

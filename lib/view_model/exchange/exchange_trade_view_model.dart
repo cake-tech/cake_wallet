@@ -32,6 +32,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -145,9 +146,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       : "${sendViewModel.pendingTransactionFiatAmount} ${sendViewModel.fiat.title}";
 
   @computed
-  String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
-      ? ""
-      : "${sendViewModel.pendingTransactionFeeFiatAmount} ${sendViewModel.fiat.title}";
+  String get pendingTransactionFeeFiatAmountFormatted =>
+      sendViewModel.pendingTransactionFeeFiatAmountFormatted;
 
 
   ExchangeProvider? _provider;
@@ -343,6 +343,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.dogecoin:
         return DogeURI(address: inputAddress, amount: amount);
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -385,7 +386,12 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   PaymentURI? _createERC681URI(CryptoCurrency currency, String address, String amount) {
     final chainId = TokenUtilities.getChainId(currency);
-    final isNativeToken = TokenUtilities.isNativeToken(currency);
+    if (chainId == null) {
+      return null;
+    }
+
+    final isNativeToken = EvmNativeCurrencies.getNativeCurrencyByChainId(chainId) == currency ||
+        TokenUtilities.isNativeToken(currency);
 
     if (isNativeToken) {
       return ERC681URI(

@@ -29,22 +29,12 @@ const String moralisApiKey = '...';       // optional, ERC-20 metadata lookup
 
 ### Extending to a new EVM chain
 
-Create a client and wallet subclass:
+Every chain uses the same `EVMChainClient`, built by `EVMChainClientFactory.createClient(chainId)`.
 
-```dart
-class MyChainClient extends EVMChainClient {
-  @override
-  int get chainId => 8453; // example
-  @override
-  Uint8List prepareSignedTransactionForSending(Uint8List tx) => tx;
-  @override
-  Future<List<EVMChainTransactionModel>> fetchTransactions(String address, {String? contractAddress}) async { /* ... */ }
-  @override
-  Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async { /* ... */ }
-}
-```
+- A built-in chain gets its own `WalletType` and is registered in `EvmChainRegistry`. Follow `docs/ADDING_EVM_L2_WALLET_NETWORK_TYPES.md`.
+- Networks users add in the app go through `EvmChainRegistry.registerAddedNetwork` and need no code.
 
-Then wire into a `WalletService` similar to `EthereumWalletService`/`PolygonWalletService`.
+History comes from the first provider in `lib/history/` that covers the chain ID (Etherscan, Blockscout or Moralis). A chain none of them covers polls receipts for the wallet's own sends.
 
 ### Additional information
 

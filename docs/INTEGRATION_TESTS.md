@@ -137,6 +137,7 @@ Twenty seven suites. Add a line here when you add one.
 | `settings_nav_test` | Every settings row opens its page and backs out of it |
 | `language_test` | Changing the language changes what the settings screen shows |
 | `fiat_currency_test` | Turning the fiat api off hides the currency setting, turning it back on returns it and the currency can be changed |
+| `wallet_network_picker_test` | A hidden built-in network leaves the picker and comes back when shown, the last visible one cannot be hidden, and the Add EVM Networks disclaimer only lets the user through on Continue |
 
 ### tier1, needs a node or a provider
 
@@ -148,6 +149,8 @@ Twenty seven suites. Add a line here when you add one.
 | `transaction_details_test` | Tapping a transaction opens the details of that transaction and not another one |
 | `swap_quote_test` | The swap sheet reaches a provider and returns a real quote, no trade is created |
 | `monero_legacy_seed_test` | A 25 word monero seed restores through the legacy path, which takes a seed type and a restore height the polyseed path never asks for |
+| `evm_popular_network_test` | A Popular network enabled from ChainList shows up in the create and restore pickers, a wallet on it opens with the network's name and coin, and a network with wallets keeps its RPC and chain id locked |
+| `evm_manual_network_test` | A network added by hand is refused for every bad field and for an RPC on another chain, saves when its RPC answers with the right chain id, and can only be deleted once no wallet uses it |
 
 ### funds_suites, manual workflow only
 

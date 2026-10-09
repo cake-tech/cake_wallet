@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -320,6 +321,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';
 
   String _networkFor(CryptoCurrency currency) {
+    final addedNetworkCode = evmExchangeProviderNetworkCode(currency, description);
+    if (addedNetworkCode != null) {
+      return addedNetworkCode;
+    }
+
     switch (currency) {
       case CryptoCurrency.usdt:
         return 'btc';
@@ -336,6 +342,12 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (currency.title == "USDC" && currency.tag == "POLY") {
       throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
     }
+
+    final addedNetworkTicker = evmNativeCurrencyTicker(currency, description);
+    if (addedNetworkTicker != null) {
+      return addedNetworkTicker;
+    }
+
     switch (currency) {
       case CryptoCurrency.zec:
         return 'zec';

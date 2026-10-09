@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/node_list.dart';
+import "package:cw_core/db/sqlite.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
@@ -15,6 +17,8 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'node_list_view_model.g.dart';
+
+class NodeOnAnotherChainException implements Exception {}
 
 class NodeSpeed {
   final String iconPath;
@@ -162,7 +166,9 @@ abstract class NodeListViewModelBase with Store {
       final chainId = evm!.getSelectedChainId(wallet);
       if (chainId != null) {
         final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
-        if (nodeWalletType != null) {
+        if (nodeWalletType == WalletType.evm) {
+          node = await _resetAddedNetworkNodes(chainId);
+        } else if (nodeWalletType != null) {
           node = (await Node.getDefaultForWalletType(nodeWalletType))!;
         } else {
           throw Exception(
@@ -178,6 +184,16 @@ abstract class NodeListViewModelBase with Store {
     await setAsCurrent(node);
   }
 
+  Future<Node> _resetAddedNetworkNodes(int chainId) async {
+    final network = await EvmNetwork.get(chainId);
+    if (network == null) {
+      throw Exception("Cannot reset nodes for EVM network $chainId: it is not saved");
+    }
+
+    await db!.transaction(network.replaceNodes);
+    return (await Node.getDefaultForEvmChain(chainId))!;
+  }
+
   @action
   Future<void> delete(Node node) async => node.delete();
 
@@ -191,7 +207,11 @@ abstract class NodeListViewModelBase with Store {
       if (chainId != null) {
         final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
         if (nodeWalletType != null) {
-          settingsStore.nodes[nodeWalletType] = node;
+          if (node.type == WalletType.evm && await node.isOnAnotherChain()) {
+            throw NodeOnAnotherChainException();
+          }
+
+          settingsStore.setCurrentNode(node);
           return;
         }
       }
@@ -217,6 +237,12 @@ abstract class NodeListViewModelBase with Store {
       final chainId = evm!.getSelectedChainId(wallet);
       if (chainId != null) {
         final nodeWalletType = evm!.getWalletTypeByChainId(chainId);
+        if (nodeWalletType == WalletType.evm) {
+          nodes.addAll(await Node.getAllForEvmChain(chainId));
+
+          return;
+        }
+
         if (nodeWalletType != null) {
           nodes.addAll(await Node.getAllForWalletType(nodeWalletType));
 

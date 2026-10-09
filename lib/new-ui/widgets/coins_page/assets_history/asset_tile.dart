@@ -1,9 +1,13 @@
 import 'dart:math' show min;
 
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +25,8 @@ class AssetTile extends StatelessWidget {
       required this.wallet,
       required this.showSwap,
       required this.isFirst,
-      required this.isLast});
+      required this.isLast,
+      this.addedNetwork});
 
   final BalanceRecord balance;
   final bool showSecondary;
@@ -35,9 +40,22 @@ class AssetTile extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
 
+  final ChainInfo? addedNetwork;
+
   @override
   Widget build(BuildContext context) {
     final iconPath = balance.asset.iconPath ?? "";
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(balance.asset);
+    final addedNetworkImage = networkIconNative != null
+        ? CakeImageWidget(
+            imageUrl: networkIconNative.iconPath,
+            width: 36,
+            height: 36,
+            isRoundedSquare: true,
+            isOutlined: true,
+            fallbackName: networkIconNative.fullName,
+          )
+        : null;
 
     // The row is one control: name, amount and fiat value merge into a single
     // button node that opens the asset details sheet.
@@ -65,6 +83,7 @@ class AssetTile extends StatelessWidget {
                         : balance.fiatAvailableBalance,
                     iconPath: balance.asset.iconPath ?? "",
                     chainIconPath: chainIconPath,
+                    addedNetwork: addedNetwork,
                     mode: modalMode,
                     wallet: wallet,
                   );
@@ -94,11 +113,12 @@ class AssetTile extends StatelessWidget {
                         children: [
                           // Decorative: the asset name is already in the row text.
                           ExcludeSemantics(
-                            child: iconPath.isNotEmpty
-                                ? TokenImageWidget(
-                                    imageUrl: iconPath,
-                                    size: 36,
-                                  )
+                            child: iconPath.isNotEmpty || addedNetworkImage != null
+                                ? addedNetworkImage ??
+                                    TokenImageWidget(
+                                      imageUrl: iconPath,
+                                      size: 36,
+                                    )
                                 : Container(
                                     width: 36,
                                     height: 36,
@@ -178,5 +198,7 @@ class AssetTile extends StatelessWidget {
     );
   }
 
-  String _getChainTitle() => walletTypeToDisplayName(wallet.type);
+  String _getChainTitle() => wallet.type == WalletType.evm
+      ? networkDisplayName(wallet.type, wallet.walletInfo.chainId)
+      : walletTypeToDisplayName(wallet.type);
 }

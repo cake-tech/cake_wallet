@@ -22,6 +22,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -293,11 +294,19 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   }
 
   Widget _buildCurrencyIcon(ContactBase contact) {
+    final addedNetwork = AddedNetworkCurrency.of(contact.type);
     final image = (contact is WalletContact && contact.walletType != null)
-        ? getCryptoCurrencyIconForWalletListItem(contact.walletType!)
+        ? getCryptoCurrencyIconForWalletListItem(contact.walletType!, chainId: contact.chainId)
         : contact.type.iconPath;
-    return (image != null && image.isNotEmpty)
-        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
+    return (addedNetwork != null || (image != null && image.isNotEmpty))
+        ? CakeImageWidget(
+            imageUrl: image,
+            height: 24,
+            width: 24,
+            isRoundedSquare: addedNetwork != null,
+            isOutlined: addedNetwork != null,
+            fallbackName: addedNetwork?.fullName,
+          )
         : const SizedBox(height: 24, width: 24);
   }
 }
@@ -393,10 +402,21 @@ class _ContactListBodyState extends State<ContactListBody> {
       CryptoCurrency.arbEth: "assets/new-ui/crypto_full_icons/arbitrum.svg",
       CryptoCurrency.robEth: "assets/new-ui/crypto_full_icons/robinhood.svg",
     };
-    final image = l2NativeChainIcons[contact.type] ?? contact.type.iconPath;
-    final currencyIcon = (image != null && image.isNotEmpty)
-        ? CakeImageWidget(imageUrl: image, height: 24, width: 24)
+    final addedNetwork = AddedNetworkCurrency.of(contact.type);
+    final image = addedNetwork != null
+        ? addedNetwork.chainIconPath
+        : l2NativeChainIcons[contact.type] ?? contact.type.iconPath;
+    final currencyIcon = (addedNetwork != null || (image != null && image.isNotEmpty))
+        ? CakeImageWidget(
+            imageUrl: image,
+            height: 24,
+            width: 24,
+            isRoundedSquare: addedNetwork != null,
+            isOutlined: addedNetwork != null,
+            fallbackName: addedNetwork?.fullName,
+          )
         : const SizedBox(height: 24, width: 24);
+
     return Column(
       children: [
         Container(

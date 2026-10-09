@@ -38,7 +38,7 @@ class CardCustomizer extends StatefulWidget {
         child: CardCustomizer(
           cryptoTitle: dashboardViewModel.wallet.currency.fullName ??
               dashboardViewModel.wallet.currency.name,
-          cryptoName: dashboardViewModel.wallet.currency.name,
+          cryptoName: dashboardViewModel.walletCurrencyName,
         ),
       ),
     );
@@ -276,6 +276,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                       itemBuilder: (context, index) {
                                                         final icon =
                                                             state.availableIconPaths[index];
+                                                        final addedNetwork = icon.addedNetwork;
                                                         final isSelected =
                                                             index == state.selectedIconIndex;
                                                         return GestureDetector(
@@ -313,7 +314,19 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                             child: Padding(
                                                               padding: const EdgeInsets.all(10.0),
                                                               child: CakeImageWidget(
-                                                                  imageUrl: icon.path),
+                                                                imageUrl: icon.path,
+                                                                width: addedNetwork == null
+                                                                    ? null
+                                                                    : 24,
+                                                                height: addedNetwork == null
+                                                                    ? null
+                                                                    : 24,
+                                                                isRoundedSquare:
+                                                                    addedNetwork != null,
+                                                                isOutlined: addedNetwork != null,
+                                                                fallbackName:
+                                                                    addedNetwork?.fullName,
+                                                              ),
                                                             ),
                                                           ),
                                                         );

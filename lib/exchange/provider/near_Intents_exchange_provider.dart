@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/core/utilities.dart';
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -535,7 +536,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     if (supported.isEmpty) return null;
 
     final symbol = currency.title.toUpperCase();
-    final blockchain = _normalizeTagToNearBlockchain(currency.tag);
+    final blockchain = evmExchangeProviderNetworkCode(currency, description) ??
+        _normalizeTagToNearBlockchain(currency.tag);
 
 // Use the native Bitcoin asset routed through Omni Bridge.
     if (currency == CryptoCurrency.btc) {

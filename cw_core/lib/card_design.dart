@@ -1,5 +1,6 @@
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
@@ -36,8 +37,9 @@ class CardColorCombination {
 class CardIconPath {
   final String path;
   final bool preColored;
+  final AddedNetworkCurrency? addedNetwork;
 
-  const CardIconPath(this.path, {this.preColored = false});
+  const CardIconPath(this.path, {this.preColored = false, this.addedNetwork});
 }
 
 class CardDesign {
@@ -46,6 +48,7 @@ class CardDesign {
   final CardDesignBackgroundTypes backgroundType;
   final CardColorCombination colors;
   final bool preColoredIcon;
+  final AddedNetworkCurrency? addedNetwork;
 
   const CardDesign(
       {this.backgroundType = CardDesignBackgroundTypes.svgIcon,
@@ -53,7 +56,8 @@ class CardDesign {
           colors: [Colors.black], begin: Alignment.topCenter, end: Alignment.bottomCenter),
       this.imagePath = "assets/new-ui/blank.svg",
       this.colors = CardColorCombination.dark,
-      this.preColoredIcon = false});
+      this.preColoredIcon = false,
+      this.addedNetwork});
 
   static const LinearGradient gradientOrange = LinearGradient(
     colors: <Color>[Color(0xFFFF7C02), Color(0xFFFF5602)],
@@ -338,7 +342,8 @@ class CardDesign {
       colors: preferredColorCombinations[gradient] ?? colors,
       imagePath: imagePath,
       backgroundType: backgroundType,
-      preColoredIcon: preColoredIcon);
+      preColoredIcon: preColoredIcon,
+      addedNetwork: addedNetwork);
 
   CardDesign withGradientAndColorCombination(
           Gradient gradient, CardColorCombination cardColorCombination) =>
@@ -347,14 +352,16 @@ class CardDesign {
           colors: cardColorCombination,
           imagePath: imagePath,
           backgroundType: backgroundType,
-          preColoredIcon: preColoredIcon);
+          preColoredIcon: preColoredIcon,
+          addedNetwork: addedNetwork);
 
   CardDesign withIcon(CardIconPath icon) => CardDesign(
       gradient: gradient,
       colors: colors,
       imagePath: icon.path,
       backgroundType: backgroundType,
-      preColoredIcon: icon.preColored);
+      preColoredIcon: icon.preColored,
+      addedNetwork: icon.addedNetwork);
 
   static const String _balanceCardIconPrefix = "assets/new-ui/balance_card_icons";
   static const String _chainIconPrefix = "assets/new-ui/card_icons/chain_icons";
@@ -390,7 +397,19 @@ class CardDesign {
 
   static List<CardIconPath> iconPathsForWalletType(CryptoCurrency currency) {
     final n = _iconNames[currency];
-    if (n == null) return const [];
+    if (n == null) {
+      final addedNetwork = AddedNetworkCurrency.of(currency);
+      return addedNetwork == null
+          ? const []
+          : [
+              CardIconPath(
+                addedNetwork.chainIconPath ?? "",
+                preColored: true,
+                addedNetwork: addedNetwork,
+              ),
+              const CardIconPath(_genericCakeIcon),
+            ];
+    }
 
     return [
       CardIconPath('$_symbolIconPrefix/${n.ticker}-symbol.svg'),
@@ -444,6 +463,10 @@ class CardDesign {
   }
 
   static CardDesign forCurrencyIcon(CryptoCurrency currency) {
+    if (AddedNetworkCurrency.of(currency) != null) {
+      return genericDefault.withIcon(iconPathsForWalletType(currency).first);
+    }
+
     return iconDesignsForCurrencies[currency] ?? genericDefault;
   }
 
@@ -529,7 +552,9 @@ class CardDesign {
   static CardDesign fromStyleSettings(
       BalanceCardStyleSettings? setting, CryptoCurrency walletCurrency) {
     if (setting == null) {
-      return CardDesign.forCurrencySpecial(walletCurrency);
+      return walletCurrency is AddedNetworkCurrency
+          ? CardDesign.forCurrencyIcon(walletCurrency)
+          : CardDesign.forCurrencySpecial(walletCurrency);
     }
 
     if (setting.isGradientOnly) {

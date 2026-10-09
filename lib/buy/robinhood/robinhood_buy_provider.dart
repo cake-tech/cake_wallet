@@ -7,6 +7,8 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cake_wallet/entities/provider_types.dart";
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -42,6 +44,7 @@ class RobinhoodBuyProvider extends BuyProvider {
   static const _assetsPath = '/catpay/v1/supported_currencies/';
 
   static List<CryptoCurrency> _supportedCrypto = [];
+  static final Map<String, List<String>> _networksByAssetCode = {};
   static final List<FiatCurrency> _supportedFiat = [FiatCurrency.usd];
 
   static final List<CryptoCurrency> _notSupportedCrypto = [];
@@ -64,6 +67,10 @@ class RobinhoodBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => false;
 
+  @override
+  String? addedEvmNetworkCode(CryptoCurrency currency) =>
+      evmBuyProviderNetworkCode(currency, ProviderType.robinhood);
+
   String get _applicationId => secrets.robinhoodApplicationId;
 
   String get _apiSecret => secrets.exchangeHelperApiKey;
@@ -83,6 +90,9 @@ class RobinhoodBuyProvider extends BuyProvider {
 
         for (final item in pairs) {
           String code = item['assetCurrency']['code'] as String;
+          final networks = item["supportedNetworks"];
+          _networksByAssetCode[code] =
+              networks is List ? networks.whereType<String>().toList() : [];
           if (code == 'AVAX') code = 'AVAXC';
           try {
             final currency = CryptoCurrency.fromString(code);
@@ -104,6 +114,7 @@ class RobinhoodBuyProvider extends BuyProvider {
   Future<String> getSignature(String message) async {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -155,7 +166,9 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   Future<Uri> requestProviderUrl() async {
     final connectId = await getConnectId();
-    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "_");
+    final networkName = wallet.type == WalletType.evm
+        ? addedEvmNetworkCode(wallet.currency)
+        : wallet.currency.fullName?.toUpperCase().replaceAll(" ", "_");
 
     return Uri.https(_baseUrl, '/u/connect', <String, dynamic>{
       'applicationId': _applicationId,
@@ -223,7 +236,16 @@ class RobinhoodBuyProvider extends BuyProvider {
     String? paymentMethod;
 
     if (_supportedCrypto.isEmpty) _supportedCrypto = await getSupportedAssets();
-    if (_supportedCrypto.isNotEmpty && !(_supportedCrypto.contains(cryptoCurrency))) return null;
+
+    final addedNetworkCode = addedEvmNetworkCode(cryptoCurrency);
+    if (addedNetworkCode != null) {
+      final networks = _networksByAssetCode[cryptoCurrency.title.toUpperCase()] ?? const [];
+      if (!networks.contains(addedNetworkCode)) {
+        return null;
+      }
+    } else if (_supportedCrypto.isNotEmpty && !(_supportedCrypto.contains(cryptoCurrency))) {
+      return null;
+    }
 
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);

@@ -6,6 +6,8 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import "package:cake_wallet/entities/provider_types.dart";
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -13,6 +15,8 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/erc20_token.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -73,12 +77,35 @@ class DFXBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => false;
 
+  @override
+  String? addedEvmNetworkCode(CryptoCurrency currency) =>
+      evmBuyProviderNetworkCode(currency, ProviderType.dfx);
+
+  bool get _isWalletNetworkSupported =>
+      wallet.type != WalletType.evm || addedEvmNetworkCode(wallet.currency) != null;
+
+  @override
+  bool supportsCurrencyNetwork(CryptoCurrency currency) =>
+      _isWalletNetworkSupported && super.supportsCurrencyNetwork(currency);
+
+  @override
+  bool isPairSupported(
+          CryptoCurrency cryptoCurrency, FiatCurrency fiatCurrency, bool isBuyAction) =>
+      _isWalletNetworkSupported && super.isPairSupported(cryptoCurrency, fiatCurrency, isBuyAction);
+
   String get blockchain {
     switch (wallet.type) {
       case WalletType.bitcoin:
         return 'Bitcoin';
       case WalletType.zano:
         return 'Zano';
+      case WalletType.evm:
+        final code = addedEvmNetworkCode(wallet.currency);
+        if (code == null) {
+          throw Exception("DFX does not support ${wallet.currency.title} on this network");
+        }
+
+        return code;
       default:
         return walletTypeToString(wallet.type);
     }
@@ -133,6 +160,7 @@ class DFXBuyProvider extends BuyProvider {
   Future<String> getSignature(String message, String walletAddress) async {
     switch (wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -176,7 +204,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<Map<String, dynamic>> fetchAssetCredential(String assetsName) async {
+  Future<Map<String, dynamic>> fetchAssetCredential(CryptoCurrency currency) async {
     final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
 
     try {
@@ -188,10 +216,15 @@ class DFXBuyProvider extends BuyProvider {
 
         if (responseData is List && responseData.isNotEmpty) {
           for (final i in responseData) {
-            if (assetsName.toLowerCase() == i["dexName"].toString().toLowerCase()) {
-              return i as Map<String, dynamic>;
+            if (_assetMatches(i as Map<String, dynamic>, currency)) {
+              return i;
             }
           }
+
+          if (EvmNativeCurrencies.isAddedNetworkCurrency(currency)) {
+            return {};
+          }
+
           return responseData.first as Map<String, dynamic>;
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
@@ -230,7 +263,7 @@ class DFXBuyProvider extends BuyProvider {
         });
       }
     } else {
-      final assetCredentials = await fetchAssetCredential(cryptoCurrency.title);
+      final assetCredentials = await fetchAssetCredential(cryptoCurrency);
       if (assetCredentials.isNotEmpty) {
         if (assetCredentials['sellable'] == true) {
           final availablePaymentTypes = [
@@ -278,7 +311,7 @@ class DFXBuyProvider extends BuyProvider {
     final fiatCredentials = await fetchFiatCredentials(fiatCurrency.name.toString());
     if (fiatCredentials['id'] == null) return null;
 
-    final assetCredentials = await fetchAssetCredential(cryptoCurrency.title.toString());
+    final assetCredentials = await fetchAssetCredential(cryptoCurrency);
     if (assetCredentials['id'] == null) return null;
 
     log('DFX: Fetching $action quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
@@ -423,6 +456,18 @@ class DFXBuyProvider extends BuyProvider {
       return value;
     }
     return null;
+  }
+
+  bool _assetMatches(Map<String, dynamic> asset, CryptoCurrency currency) {
+    if (!EvmNativeCurrencies.isAddedNetworkCurrency(currency)) {
+      return currency.title.toLowerCase() == asset["dexName"].toString().toLowerCase();
+    }
+
+    if (currency is Erc20Token) {
+      return currency.contractAddress.toLowerCase() == asset["chainId"]?.toString().toLowerCase();
+    }
+
+    return asset["type"] == "Coin";
   }
 
   String _getErrorMessage(int statusCode, String body) {

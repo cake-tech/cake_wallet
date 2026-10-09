@@ -152,4 +152,8 @@ class Routes {
   static const bridgeHistoryPage = '/bridge_history_page';
   static const bridgeDestinationNetworkPage = '/bridge_destination_network_page';
   static const bridgeReceivingWalletPage = '/bridge_receiving_wallet_page';
+  static const manageBuiltinNetworks = "/manage_builtin_networks";
+  static const manageEvmNetworks = "/manage_evm_networks";
+  static const addEvmNetworksDisclaimer = "/add_evm_networks_disclaimer";
+  static const evmNetworkDetails = "/evm_network_details";
 }

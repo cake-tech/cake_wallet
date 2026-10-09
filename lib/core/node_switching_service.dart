@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -155,8 +156,11 @@ class NodeSwitchingService {
       final currentNode = settingsStore.getCurrentNode(nodeWalletType, chainId: chainId);
 
       // Get all trusted nodes for this wallet type
+      final network = WalletNetwork(nodeWalletType, chainId);
       final trustedNodes = (await Node.getAll())
-          .where((node) => node.type == nodeWalletType && node.isEnabledForAutoSwitching)
+          .where((node) =>
+              WalletNetwork(node.type, node.chainId) == network &&
+              node.isEnabledForAutoSwitching)
           .toList();
 
       if (trustedNodes.isEmpty) {
@@ -206,7 +210,7 @@ class NodeSwitchingService {
       printV('Used nodes for ${nodeWalletType}: ${_usedNodeKeys[nodeWalletType]}');
 
       // Update the current node in settings
-      settingsStore.nodes[nodeWalletType] = nextNode;
+      settingsStore.setCurrentNode(nextNode);
 
       // Connect the wallet to the new node
       await appStore.wallet!.connectToNode(node: nextNode);

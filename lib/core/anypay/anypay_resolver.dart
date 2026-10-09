@@ -19,7 +19,8 @@ class AnyPayResolver {
     final contract = request.contractAddress!;
     final detectedType = request.detection.detectedWalletType;
 
-    if (detectedType != null && isEVMCompatibleChain(detectedType)) {
+    if (request.chainBinding is ExplicitEvmChain ||
+        (detectedType != null && isEVMCompatibleChain(detectedType))) {
       return _resolveEvm(request, snapshot, contract);
     }
 
@@ -47,8 +48,11 @@ class AnyPayResolver {
 
     final lookupType = snapshot.supportedEvmChains[requestedChainId];
     if (lookupType != null) {
-      final token =
-          await _tokenLookup.findTokenByAddress(walletType: lookupType, address: contract);
+      final token = await _tokenLookup.findTokenByAddress(
+        walletType: lookupType,
+        address: contract,
+        chainId: requestedChainId,
+      );
       if (token != null) {
         return TokenResolved(
           token: token,
@@ -68,8 +72,11 @@ class AnyPayResolver {
       final reboundType =
           reboundChainId != null ? snapshot.supportedEvmChains[reboundChainId] : null;
       if (reboundType != null) {
-        final token =
-            await _tokenLookup.findTokenByAddress(walletType: reboundType, address: contract);
+        final token = await _tokenLookup.findTokenByAddress(
+          walletType: reboundType,
+          address: contract,
+          chainId: reboundChainId,
+        );
         if (token != null) {
           return TokenResolved(
             token: token,
@@ -88,6 +95,7 @@ abstract class AnyPayTokenLookup {
   Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
     required String address,
+    int? chainId,
   });
 
   Future<int?> findEvmChainIdForContract(String contractAddress, {int? excludingChainId});
@@ -100,8 +108,9 @@ class TokenUtilitiesLookup implements AnyPayTokenLookup {
   Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
     required String address,
+    int? chainId,
   }) =>
-      TokenUtilities.findTokenByAddress(walletType: walletType, address: address);
+      TokenUtilities.findTokenByAddress(walletType: walletType, address: address, chainId: chainId);
 
   @override
   Future<int?> findEvmChainIdForContract(String contractAddress, {int? excludingChainId}) =>

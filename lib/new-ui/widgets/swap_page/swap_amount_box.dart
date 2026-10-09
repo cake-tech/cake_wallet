@@ -1,4 +1,5 @@
 import "package:cake_wallet/core/amount_validator.dart";
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
@@ -17,6 +18,8 @@ import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currencies_with_memo.dart";
 import "package:cw_core/currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -67,7 +70,7 @@ class SwapAmountBox extends StatefulWidget {
   final void Function(BuildContext context)? onPushAddressBookButton;
   final ExchangeViewModel exchangeViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
-  final WalletType? filteredNetwork;
+  final WalletNetwork? filteredNetwork;
   final bool sourceSelectorMode;
   final String? walletName;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
@@ -146,12 +149,24 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final chainIconPath = (widget.currency is CryptoCurrency)
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
-
-    final colors = Theme.of(context).colorScheme;
+    final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(chainIconPath ?? "");
+    final currency = widget.currency;
+    final networkIconNative =
+        currency is AddedNetworkCurrency && currency.usesNetworkIcon ? currency : null;
 
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
         currencyIconPath: widget.currency.iconPath ?? "",
+        currencyIcon: networkIconNative == null
+            ? null
+            : CakeImageWidget(
+                imageUrl: networkIconNative.iconPath,
+                width: 24,
+                height: 24,
+                isRoundedSquare: true,
+                isOutlined: true,
+                fallbackName: networkIconNative.fullName,
+              ),
         currencyLabel: currencyToShow,
         chainIconPath: chainIconPath,
         walletName: widget.walletName,
@@ -282,6 +297,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         imageUrl: widget.currency.iconPath ?? "",
                                         width: 28,
                                         height: 28,
+                                        isRoundedSquare: networkIconNative != null,
+                                        isOutlined: networkIconNative != null,
+                                        fallbackName: networkIconNative?.fullName,
                                       ),
                                       const SizedBox(width: 10),
                                       Text(
@@ -294,10 +312,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                           imageUrl: chainIconPath,
                                           width: 12,
                                           height: 12,
-                                          colorFilter: ColorFilter.mode(
-                                            Theme.of(context).colorScheme.onSurfaceVariant,
-                                            BlendMode.srcIn,
-                                          ),
+                                          isRoundedSquare: !isGlyphBadge,
+                                          colorFilter: isGlyphBadge
+                                              ? ColorFilter.mode(
+                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  BlendMode.srcIn,
+                                                )
+                                              : null,
                                         ),
                                         const SizedBox(width: 6),
                                       ] else
@@ -396,6 +417,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           : widget.exchangeViewModel.roundedDepositAmountFiat(6),
                       cryptoCurrencySymbol: currencyToShow,
                       fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                      hasFiatValue: !widget.exchangeViewModel.fiatConversionStore
+                          .isUnpricedAddedNetworkCurrency(widget.isReceiverCard
+                              ? widget.exchangeViewModel.receiveCurrency
+                              : widget.exchangeViewModel.depositCurrency),
                     );
                   },
                 ),
@@ -592,7 +617,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     if (widget.isReceiverCard && widget.filteredNetwork != null) {
       final network = widget.filteredNetwork!;
-      items = items.where((c) => cryptoCurrencyOrTokenToWalletType(c) == network).toList();
+      items = items.where(network.isCurrencyNetwork).toList();
     }
 
     if (items.length <= 1) {
@@ -669,18 +694,14 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         askForRefundAddress();
       } else {
         widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res.walletInfo!.name);
+        switchToDepositWallet(res.walletInfo!);
       }
     }
   }
 
-  void switchToDepositWallet(String walletName) async {
-    final walletType = cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.depositCurrency);
-    if (walletType == null) {
-      return;
-    }
-    final wallet = await WalletInfo.get(walletName, walletType);
-    if (wallet == null) {
+  void switchToDepositWallet(WalletInfo wallet) async {
+    if (!EvmNativeCurrencies.isWalletForCurrency(
+        wallet, widget.exchangeViewModel.depositCurrency)) {
       return;
     }
     widget.exchangeViewModel.depositAddress = wallet.address;
@@ -729,6 +750,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   }
 
   String? _getCurrencyChainIconPath(CryptoCurrency curr) {
+    if (curr is AddedNetworkCurrency) {
+      return curr.usesNetworkIcon ? null : curr.chainIconPath;
+    }
+
     try {
       if (curr.chainIconPath != null) {
         return curr.chainIconPath!;

@@ -1,5 +1,7 @@
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class TokenChainDisplay extends StatelessWidget {
@@ -12,6 +14,10 @@ class TokenChainDisplay extends StatelessWidget {
 
   double get _chainIconSize => size * _chainIconSizeFactor;
 
+  AddedNetworkCurrency? get _networkIconNative => AddedNetworkCurrency.tryWithNetworkIcon(asset);
+
+  bool get _isGlyphBadge => CryptoCurrency.isGlyphChainBadge(asset.chainIconPath ?? "");
+
   @override
   Widget build(BuildContext context) => SizedBox(
         width: size+(_chainIconSize/2),
@@ -21,8 +27,11 @@ class TokenChainDisplay extends StatelessWidget {
             CakeImageWidget(
               imageUrl: asset.iconPath ?? "",
               width: size,
+              isRoundedSquare: _networkIconNative != null,
+              isOutlined: _networkIconNative != null,
+              fallbackName: _networkIconNative?.fullName,
             ),
-            if ((asset.chainIconPath ?? "").isNotEmpty)
+            if (_networkIconNative == null && (asset.chainIconPath ?? "").isNotEmpty)
               Align(
                 alignment: Alignment.bottomRight,
                 child: Container(
@@ -39,7 +48,11 @@ class TokenChainDisplay extends StatelessWidget {
                       imageUrl: asset.chainIconPath,
                       width: _chainIconSize,
                       height: _chainIconSize,
-                      colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      isRoundedSquare: !_isGlyphBadge,
+                      isOutlined: EvmNativeCurrencies.isAddedNetworkCurrency(asset),
+                      colorFilter: _isGlyphBadge
+                          ? const ColorFilter.mode(Colors.black, BlendMode.srcIn)
+                          : null,
                     ),
                   ),
                 ),

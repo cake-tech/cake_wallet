@@ -21,6 +21,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -134,7 +135,8 @@ class SendTransactionDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedIconPath = iconPath ?? sendViewModel.currency.iconPath ?? "";
+    final iconPath = this.iconPath;
+    final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(sendViewModel.currency);
 
     return LayoutBuilder(
       builder: (context, constraints) => Column(
@@ -146,15 +148,24 @@ class SendTransactionDetails extends StatelessWidget {
                 leadingWidget: Row(
                   spacing: 8,
                   children: [
-                    if (resolvedIconPath.toLowerCase().endsWith(".svg"))
+                    if (iconPath == null)
                       CakeImageWidget(
-                        imageUrl: resolvedIconPath,
+                        imageUrl: sendViewModel.currency.iconPath,
+                        width: 28,
+                        height: 28,
+                        isRoundedSquare: networkIconNative != null,
+                        isOutlined: networkIconNative != null,
+                        fallbackName: networkIconNative?.fullName,
+                      )
+                    else if (iconPath.toLowerCase().endsWith(".svg"))
+                      CakeImageWidget(
+                        imageUrl: iconPath,
                         width: 28,
                         height: 28,
                       )
                     else
                       Image.asset(
-                        resolvedIconPath,
+                        iconPath,
                         width: 28,
                         height: 28,
                       ),
@@ -285,7 +296,7 @@ class SendTransactionDetails extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      fiatAmount,
+                      sendViewModel.isSelectedCurrencyUnpriced ? "" : fiatAmount,
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -338,8 +349,9 @@ class SendTransactionDetails extends StatelessWidget {
                                             : item.address,
                                         amount:
                                             "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
-                                        fiatAmount:
-                                            "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
+                                        fiatAmount: sendViewModel.isSelectedCurrencyUnpriced
+                                            ? ""
+                                            : "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
                                       ),
                                       if (item != outputs.last)
                                         Container(
@@ -383,11 +395,12 @@ class SendTransactionDetails extends StatelessWidget {
                                       fontWeight: FontWeight.w400,
                                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
-                                Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant))
+                                if (fiatFee.isNotEmpty && !sendViewModel.isFeeCurrencyUnpriced)
+                                  Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant))
                               ],
                             )
                           ],

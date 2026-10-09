@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -52,7 +53,7 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   static String _getInitialTitle(WalletBase wallet) {
-    final baseName = walletTypeToString(wallet.type);
+    final baseName = networkDisplayName(wallet.type, wallet.walletInfo.chainId);
     final keysLabel = S.current.wallet_keys;
 
     final hwSuffix =
@@ -167,6 +168,7 @@ abstract class WalletKeysViewModelBase with Store {
         keys = zcash!.getKeys(_wallet);
         break;
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -338,6 +340,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'dogecoin-wallet';
       case WalletType.zcash:
         return 'zcash-wallet';
+      case WalletType.evm:
+        return "evm-wallet";
       case WalletType.none:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
     }

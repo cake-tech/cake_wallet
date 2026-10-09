@@ -203,12 +203,18 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.robinhood:
         final asset = assetOfTransaction;
+        if (asset != null &&
+            balanceViewModel.fiatConversionStore.isUnpricedAddedNetworkCurrency(asset)) {
+          return "";
+        }
+
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: double.parse(transaction.amount.toString()),

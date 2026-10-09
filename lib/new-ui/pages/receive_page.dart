@@ -134,6 +134,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(
       widget.addressListViewModel.type,
+      chainId: widget.addressListViewModel.wallet.walletInfo.chainId,
       supportedCurrencies:
           widget.addressListViewModel.tokenCurrencies.whereType<CryptoCurrency>().toList(),
       onDismissed: () {

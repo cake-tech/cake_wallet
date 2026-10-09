@@ -77,6 +77,7 @@ class WalletCreationService {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:

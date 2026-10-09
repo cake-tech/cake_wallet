@@ -130,7 +130,12 @@ abstract class NFTViewModelBase with Store {
         await _getSolanaNFTAssets(wallet, walletAddress, chainName, refreshId)
             .timeout(_runDeadline);
       } else {
-        await _getEvmNFTAssets(wallet.name, walletAddress, chainName, refreshId);
+        final chainId = wallet.chainId;
+        if (chainId == null) {
+          throw Exception("EVM wallet ${wallet.name} has no chain ID");
+        }
+
+        await _getEvmNFTAssets(wallet.name, walletAddress, chainName, chainId, refreshId);
       }
 
       _nftErrorPopupShown = false;
@@ -155,6 +160,7 @@ abstract class NFTViewModelBase with Store {
     String walletName,
     String walletAddress,
     String chainName,
+    int chainId,
     int refreshId,
   ) async {
     final saved = await _savedNFTs.evmNFTs(walletName, chainName);
@@ -169,7 +175,7 @@ abstract class NFTViewModelBase with Store {
               "deep-index.moralis.io",
               "/api/v2.2/$walletAddress/nft",
               {
-                "chain": chainName,
+                "chain": evm!.getHexChainId(chainId),
                 "format": "decimal",
                 "media_items": "false",
                 "exclude_spam": "true",
@@ -426,6 +432,7 @@ abstract class NFTViewModelBase with Store {
     String tokenAddress,
     String? tokenId,
     String chainName,
+    int chainId,
   ) async {
     final response = await ProxyWrapper()
         .get(
@@ -433,7 +440,7 @@ abstract class NFTViewModelBase with Store {
             "deep-index.moralis.io",
             "/api/v2.2/nft/$tokenAddress/$tokenId",
             {
-              "chain": chainName,
+              "chain": evm!.getHexChainId(chainId),
               "format": "decimal",
               "media_items": "false",
               "normalizeMetadata": "true",
@@ -475,7 +482,11 @@ abstract class NFTViewModelBase with Store {
 
         await _savedNFTs.addSolana(wallet.name, result);
       } else {
-        await _importEvmNFT(wallet.name, tokenAddress, tokenId, chainName);
+        if (chainId == null) {
+          throw Exception("EVM wallet ${wallet.name} has no chain ID");
+        }
+
+        await _importEvmNFT(wallet.name, tokenAddress, tokenId, chainName, chainId);
       }
     } catch (e) {
       printV("Importing NFT $tokenAddress failed: ${e.toString()}");

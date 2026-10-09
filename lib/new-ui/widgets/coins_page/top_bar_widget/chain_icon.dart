@@ -24,6 +24,7 @@ class ChainIcon extends StatelessWidget {
       builder: (_) {
         final progress = dashboardViewModel.status.progress();
         final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
+        final addedNetwork = dashboardViewModel.addedNetwork;
 
         return Stack(
           children: [
@@ -47,18 +48,31 @@ class ChainIcon extends StatelessWidget {
               scale: done ? 1 : 0.8,
               child: AnimatedSwitcher(
                 duration: Duration(milliseconds: 150),
-                child: CakeImageWidget(
-                  imageUrl: iconPath,
-                  key: ValueKey(progress >= 1),
-                  width: 36,
-                  height: 36,
-                  colorFilter: ColorFilter.mode(
-                    done
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                        : Theme.of(context).colorScheme.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
+                child: addedNetwork != null
+                    ? Opacity(
+                        key: ValueKey(progress >= 1),
+                        opacity: done ? 0.2 : 1,
+                        child: CakeImageWidget(
+                          imageUrl: addedNetwork.iconPath,
+                          width: 36,
+                          height: 36,
+                          isRoundedSquare: true,
+                          isOutlined: true,
+                          fallbackName: addedNetwork.name,
+                        ),
+                      )
+                    : CakeImageWidget(
+                        imageUrl: iconPath,
+                        key: ValueKey(progress >= 1),
+                        width: 36,
+                        height: 36,
+                        colorFilter: ColorFilter.mode(
+                          done
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                              : Theme.of(context).colorScheme.primary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
               ),
             ),
           ],

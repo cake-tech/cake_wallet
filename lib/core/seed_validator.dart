@@ -33,6 +33,7 @@ class SeedValidator extends Validator<MnemonicItem> {
       case WalletType.monero:
         return monero!.getMoneroWordList(language);
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:

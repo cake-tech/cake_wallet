@@ -33,7 +33,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priorities = priorityForWalletType(_wallet.type);
 
     if (!priorities.contains(priority) && priorities.isNotEmpty) {
-      _settingsStore.setPriority(_wallet.type, priorities.first, chainId: _wallet.chainId);
+      _settingsStore.setPriority(_wallet.type, priorities.first);
     }
   }
 
@@ -140,13 +140,13 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
-      _settingsStore.setPriority(walletType, priority, chainId: chainId);
+      _settingsStore.setPriority(walletType, priority);
 
   void onDisplayBitcoinPrioritySelected(TransactionPriority priority, double customValue) {
     if (_wallet.type == WalletType.bitcoin) {
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
-    _settingsStore.setPriority(_wallet.type, priority, chainId: _wallet.chainId);
+    _settingsStore.setPriority(_wallet.type, priority);
   }
 
   @action

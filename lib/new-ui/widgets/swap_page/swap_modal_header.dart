@@ -1,15 +1,20 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 
 class SwapModalHeader extends StatelessWidget {
-  const SwapModalHeader({super.key, required this.fromIconPath, required this.toIconPath});
+  const SwapModalHeader({super.key, required this.from, required this.to});
 
-  final String fromIconPath;
-  final String toIconPath;
+  final CryptoCurrency from;
+  final CryptoCurrency to;
 
   @override
   Widget build(BuildContext context) {
+    final fromNetwork = AddedNetworkCurrency.tryWithNetworkIcon(from);
+    final toNetwork = AddedNetworkCurrency.tryWithNetworkIcon(to);
+
     return Row(
       spacing: 8,
       children: [
@@ -18,11 +23,25 @@ class SwapModalHeader extends StatelessWidget {
           width: 36,
           child: Stack(
             children: [
-              CakeImageWidget(imageUrl: fromIconPath, width: 24, height: 24),
+              CakeImageWidget(
+                imageUrl: from.iconPath,
+                width: 24,
+                height: 24,
+                isRoundedSquare: fromNetwork != null,
+                isOutlined: fromNetwork != null,
+                fallbackName: fromNetwork?.fullName,
+              ),
               Positioned(
                 top: 12,
                 left: 12,
-                child: CakeImageWidget(imageUrl: toIconPath, width: 24, height: 24),
+                child: CakeImageWidget(
+                  imageUrl: to.iconPath,
+                  width: 24,
+                  height: 24,
+                  isRoundedSquare: toNetwork != null,
+                  isOutlined: toNetwork != null,
+                  fallbackName: toNetwork?.fullName,
+                ),
               ),
             ],
           ),

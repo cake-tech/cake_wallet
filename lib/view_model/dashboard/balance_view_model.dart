@@ -215,6 +215,7 @@ abstract class BalanceViewModelBase with Store {
     switch (wallet.type) {
       case WalletType.haven:
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -296,20 +297,23 @@ abstract class BalanceViewModelBase with Store {
       //   throw Exception('Price is null for: $key');
       // }
 
+      final shouldHideFiat =
+          isFiatDisabled || fiatConversionStore.isUnpricedAddedNetworkCurrency(key);
+
       final availableFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.available);
+          shouldHideFiat ? "" : _getFiatBalance(price: price, cryptoAmount: value.available);
 
       final additionalFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.unavailable);
+          shouldHideFiat ? "" : _getFiatBalance(price: price, cryptoAmount: value.unavailable);
 
       final frozenFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.frozen);
+          shouldHideFiat ? "" : _getFiatBalance(price: price, cryptoAmount: value.frozen);
 
       final secondAvailableFiatBalance =
-          isFiatDisabled ? '' : _getFiatBalance(price: price, cryptoAmount: value.secondAvailable);
+          shouldHideFiat ? "" : _getFiatBalance(price: price, cryptoAmount: value.secondAvailable);
 
-      final secondAdditionalFiatBalance = isFiatDisabled
-          ? ''
+      final secondAdditionalFiatBalance = shouldHideFiat
+          ? ""
           : _getFiatBalance(price: price, cryptoAmount: value.secondUnavailable);
 
       return MapEntry(
@@ -328,7 +332,7 @@ abstract class BalanceViewModelBase with Store {
           fiatSecondAdditionalBalanceRaw: secondAdditionalFiatBalance,
           asset: key,
           secondAsset: secondAsset,
-          fiatCurrency: isFiatDisabled ? null : settingsStore.fiatCurrency,
+          fiatCurrency: shouldHideFiat ? null : settingsStore.fiatCurrency,
           formattedAssetTitle: _formatterAsset(key),
           languageCode: settingsStore.languageCode,
         ),

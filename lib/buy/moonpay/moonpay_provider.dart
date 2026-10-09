@@ -19,6 +19,7 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:flutter/material.dart";
@@ -57,6 +58,9 @@ class MoonPayProvider extends BuyProvider {
 
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
+
+  static List<Map<String, dynamic>> _currencies = [];
+  static DateTime? _currenciesFetchedAt;
 
   static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
@@ -108,6 +112,8 @@ class MoonPayProvider extends BuyProvider {
 
   @override
   bool get isAggregator => false;
+  @override
+  bool supportsCurrencyNetwork(CryptoCurrency currency) => true;
 
   String get _apiKey => isTestEnvironment ? secrets.moonPaySandboxApiKey : secrets.moonPayApiKey;
 
@@ -182,6 +188,11 @@ class MoonPayProvider extends BuyProvider {
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(cryptoCurrency) &&
+        await _moonPayCurrencyCode(cryptoCurrency) == null) {
+      return paymentMethods;
+    }
+
     try {
       final moonPayMethods = await fetchMoonPayPaymentMethods(
         currencyCode: fiatCurrency,
@@ -225,9 +236,19 @@ class MoonPayProvider extends BuyProvider {
 
     final action = isBuyAction ? "buy" : "sell";
 
-    final formattedCryptoCurrency = _normalizeCurrency(cryptoCurrency);
-    final baseCurrencyCode =
-        isBuyAction ? fiatCurrency.name.toLowerCase() : cryptoCurrency.title.toLowerCase();
+    final isOnAddedNetwork = EvmNativeCurrencies.isAddedNetworkCurrency(cryptoCurrency);
+    final formattedCryptoCurrency = isOnAddedNetwork
+        ? await _moonPayCurrencyCode(cryptoCurrency)
+        : _normalizeCurrency(cryptoCurrency);
+    if (formattedCryptoCurrency == null) {
+      return null;
+    }
+
+    final baseCurrencyCode = isBuyAction
+        ? fiatCurrency.name.toLowerCase()
+        : isOnAddedNetwork
+            ? formattedCryptoCurrency
+            : cryptoCurrency.title.toLowerCase();
 
     final params = {
       "baseCurrencyCode": baseCurrencyCode,
@@ -297,13 +318,20 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
+    final cryptoCurrencyCode = EvmNativeCurrencies.isAddedNetworkCurrency(quote.cryptoCurrency)
+        ? await _moonPayCurrencyCode(quote.cryptoCurrency)
+        : quote.cryptoCurrency.name;
+    if (cryptoCurrencyCode == null) {
+      throw Exception("MoonPay does not list ${quote.cryptoCurrency.title} on this network");
+    }
+
     final Map<String, String> params = {
       "theme": _appStore.themeStore.currentTheme.type.name,
       "language": _appStore.settingsStore.languageCode,
       "colorCode": _appStore.themeStore.currentTheme.isDark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      "baseCurrencyCode": isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
+      "baseCurrencyCode": isBuyAction ? quote.fiatCurrency.name : cryptoCurrencyCode,
       "baseCurrencyAmount": amount.toStringAsFixed(2),
       "walletAddress": cryptoCurrencyAddress,
       "lockAmount": "false",
@@ -316,8 +344,8 @@ class MoonPayProvider extends BuyProvider {
       if (!isBuyAction) 'refundWalletAddress': cryptoCurrencyAddress
     };
 
-    if (isBuyAction) params['currencyCode'] = quote.cryptoCurrency.name;
-    if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
+    if (isBuyAction) params["currencyCode"] = cryptoCurrencyCode;
+    if (!isBuyAction) params["quoteCurrencyCode"] = cryptoCurrencyCode;
 
     try {
       final uri = await requestMoonPayUrl(
@@ -387,6 +415,61 @@ class MoonPayProvider extends BuyProvider {
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
         walletId: wallet.id);
+  }
+
+  Future<String?> _moonPayCurrencyCode(CryptoCurrency currency) async {
+    final chainId = EvmNativeCurrencies.getAddedNetworkChainId(currency);
+    if (chainId == null) {
+      return null;
+    }
+
+    final fetchedAt = _currenciesFetchedAt;
+    if (_currencies.isEmpty ||
+        fetchedAt == null ||
+        DateTime.now().difference(fetchedAt) > const Duration(hours: 1)) {
+      _currencies = await _fetchCurrencies();
+      _currenciesFetchedAt = DateTime.now();
+    }
+
+    final contractAddress = currency is Erc20Token
+        ? currency.contractAddress.toLowerCase()
+        : "0x0000000000000000000000000000000000000000";
+
+    for (final item in _currencies) {
+      final metadata = item["metadata"];
+      if (metadata is! Map<String, dynamic> ||
+          metadata["chainId"]?.toString() != "$chainId" ||
+          item["isSuspended"] == true) {
+        continue;
+      }
+
+      if (metadata["contractAddress"]?.toString().toLowerCase() == contractAddress) {
+        return item["code"] as String?;
+      }
+    }
+
+    return null;
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchCurrencies() async {
+    final url = Uri.https(_baseUrl, _currenciesPath, {"apiKey": _apiKey});
+
+    try {
+      final response = await ProxyWrapper().get(
+          clearnetUri: url,
+          headers: {"accept": "application/json"}).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode != 200) {
+        printV("MoonPay: Failed to fetch currencies: ${response.statusCode}");
+        return [];
+      }
+
+      final data = jsonDecode(response.body);
+      return data is List ? data.whereType<Map<String, dynamic>>().toList() : [];
+    } catch (e) {
+      printV("MoonPay: Error fetching currencies: $e");
+      return [];
+    }
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

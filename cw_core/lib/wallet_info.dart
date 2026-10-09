@@ -413,7 +413,8 @@ class WalletInfo {
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
       this.favoriteTokenAddress,
-      this.showSeedBackupReminder)
+      this.showSeedBackupReminder,
+      {this.chainId})
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -439,6 +440,7 @@ class WalletInfo {
     bool? receiveInfoboxDismissed,
     bool? showCombinedBalance,
     String? favoriteTokenAddress,
+    int? chainId,
   }) {
     final wi = WalletInfo(
       0,
@@ -466,6 +468,7 @@ class WalletInfo {
       showCombinedBalance ?? true,
       favoriteTokenAddress?.isNotEmpty == true ? favoriteTokenAddress : null,
       false,
+      chainId: chainId,
     );
 
     if (type == WalletType.bitcoin) {
@@ -498,6 +501,7 @@ class WalletInfo {
   bool showCombinedBalance;
   String? favoriteTokenAddress;
   bool showSeedBackupReminder;
+  int? chainId;
 
   Future<Map<String, String>> getAddresses() async {
     final list = await WalletInfoAddressMap.selectList(internalId);
@@ -741,6 +745,7 @@ class WalletInfo {
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
             isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
+        "chainId": chainId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -771,7 +776,8 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
-        json["showSeedBackupReminder"] == 1);
+        json["showSeedBackupReminder"] == 1,
+        chainId: json["chainId"] as int?);
     info.network = json['network'] as String?;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];

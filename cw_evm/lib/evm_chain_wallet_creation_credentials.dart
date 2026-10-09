@@ -9,9 +9,11 @@ class EVMChainNewWalletCredentials extends WalletCredentials {
     super.password,
     this.mnemonic,
     super.passphrase,
+    this.chainId,
   });
 
   final String? mnemonic;
+  final int? chainId;
 }
 
 class EVMChainRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -21,9 +23,11 @@ class EVMChainRestoreWalletFromSeedCredentials extends WalletCredentials {
     required this.mnemonic,
     super.walletInfo,
     super.passphrase,
+    this.chainId,
   });
 
   final String mnemonic;
+  final int? chainId;
 }
 
 class EVMChainRestoreWalletFromPrivateKey extends WalletCredentials {
@@ -32,9 +36,11 @@ class EVMChainRestoreWalletFromPrivateKey extends WalletCredentials {
     required String password,
     required this.privateKey,
     WalletInfo? walletInfo,
+    this.chainId,
   }) : super(name: name, password: password, walletInfo: walletInfo);
 
   final String privateKey;
+  final int? chainId;
 }
 
 class EVMChainRestoreWalletFromHardware extends WalletCredentials {
@@ -42,7 +48,9 @@ class EVMChainRestoreWalletFromHardware extends WalletCredentials {
     required String name,
     required this.hwAccountData,
     WalletInfo? walletInfo,
+    this.chainId,
   }) : super(name: name, walletInfo: walletInfo);
 
   final HardwareAccountData hwAccountData;
+  final int? chainId;
 }

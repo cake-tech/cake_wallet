@@ -10,7 +10,7 @@ import "../core/test_wallets.dart";
 import "../robots/create_pin_welcome_page_robot.dart";
 import "../robots/lightning_username_page_robot.dart";
 import "../robots/new_wallet_page_robot.dart";
-import "../robots/new_wallet_type_page_robot.dart";
+import "../robots/wallet_network_page_robot.dart";
 import "../robots/pre_seed_page_robot.dart";
 import "../robots/restore_from_seed_or_key_robot.dart";
 import "../robots/restore_options_page_robot.dart";
@@ -31,7 +31,7 @@ class OnboardingFlows {
         _newWalletPageRobot = NewWalletPageRobot(tester),
         _walletSeedPageRobot = WalletSeedPageRobot(tester),
         _walletListPageRobot = WalletListPageRobot(tester),
-        _newWalletTypePageRobot = NewWalletTypePageRobot(tester),
+        _walletNetworkPageRobot = WalletNetworkPageRobot(tester),
         _seedVerificationPageRobot = SeedVerificationPageRobot(tester),
         _createPinWelcomePageRobot = CreatePinWelcomePageRobot(tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(tester),
@@ -49,7 +49,7 @@ class OnboardingFlows {
   final NewWalletPageRobot _newWalletPageRobot;
   final WalletSeedPageRobot _walletSeedPageRobot;
   final WalletListPageRobot _walletListPageRobot;
-  final NewWalletTypePageRobot _newWalletTypePageRobot;
+  final WalletNetworkPageRobot _walletNetworkPageRobot;
   final SeedVerificationPageRobot _seedVerificationPageRobot;
   final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
@@ -212,10 +212,10 @@ class OnboardingFlows {
   }
 
   Future<void> _selectWalletType(WalletType type) async {
-    await _newWalletTypePageRobot.isDisplayed();
+    await _walletNetworkPageRobot.isDisplayed();
 
-    await _newWalletTypePageRobot.findParticularWalletTypeInScrollableList(type);
-    await _newWalletTypePageRobot.selectWalletType(type);
+    await _walletNetworkPageRobot.findParticularWalletTypeInScrollableList(type);
+    await _walletNetworkPageRobot.selectWalletType(type);
   }
 
   Future<void> _completeWalletCreationSteps(WalletType type) async {

@@ -14,6 +14,7 @@ import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
@@ -107,6 +108,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                       WalletRow(
                         isCurrent: true,
                         currencyIconPath: widget.sendViewModel.wallet.currency.iconPath ?? "",
+                        chainId: widget.sendViewModel.wallet.chainId,
                         walletName: widget.sendViewModel.wallet.name,
                         onTap: () {
                           Navigator.of(context).push(CupertinoPageRoute(
@@ -132,7 +134,11 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: WalletRow(
-                                currencyIconPath: getCryptoCurrencyIconForWalletListItem(item.type),
+                                currencyIconPath: getCryptoCurrencyIconForWalletListItem(
+                                  item.type,
+                                  chainId: item.chainId,
+                                ),
+                                chainId: item.chainId,
                                 walletName: item.name,
                                 isCurrent: item.name == widget.sendViewModel.wallet.name,
                                 isSelected: _selectedWalletIndex == index && !textEntered,
@@ -343,10 +349,12 @@ class WalletRow extends StatelessWidget {
     this.isLoading = false,
     this.isCurrent = false,
     this.isSelected,
+    this.chainId,
     super.key,
   });
 
   final String currencyIconPath;
+  final int? chainId;
   final String walletName;
   final VoidCallback onTap;
   final bool isCurrent;
@@ -355,6 +363,7 @@ class WalletRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addedNetwork = AddedNetworkCurrency.tryFromChainId(chainId);
     return Container(
       height: isCurrent ? 64 : 48,
       decoration: BoxDecoration(
@@ -375,10 +384,20 @@ class WalletRow extends StatelessWidget {
                 Row(
                   spacing: 12,
                   children: [
-                    TokenImageWidget(
-                      imageUrl: currencyIconPath,
-                      size: 24,
-                    ),
+                    if (addedNetwork == null)
+                      TokenImageWidget(
+                        imageUrl: currencyIconPath,
+                        size: 24,
+                      )
+                    else
+                      CakeImageWidget(
+                        imageUrl: currencyIconPath,
+                        width: 24,
+                        height: 24,
+                        isRoundedSquare: true,
+                        isOutlined: true,
+                        fallbackName: addedNetwork.fullName,
+                      ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,

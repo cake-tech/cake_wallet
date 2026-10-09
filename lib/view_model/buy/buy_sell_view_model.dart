@@ -431,12 +431,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     try{
       paymentMethodState = PaymentMethodLoading();
       selectedPaymentMethod = null;
-      final result = await Future.wait(providerList.map((element) => element
-          .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, mode == BuySellPageMode.buy)
-          .timeout(
-        Duration(seconds: 10),
-        onTimeout: () => [],
-      )));
+      final result = await Future.wait(providerList
+          .where((provider) => provider.supportsCurrencyNetwork(cryptoCurrency))
+          .map((element) => element
+              .getAvailablePaymentTypes(
+                  fiatCurrency.title, cryptoCurrency, mode == BuySellPageMode.buy)
+              .timeout(
+                Duration(seconds: 10),
+                onTimeout: () => [],
+              )));
 
       final List<PaymentMethod> tempPaymentMethods = [];
 
@@ -473,19 +476,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
 
-    final List<BuyProvider> validProviders = providerList.where((provider) {
-      if (mode == BuySellPageMode.buy) {
-        return provider.supportedCryptoList.any((pair) =>
-            pair.from.symbol == cryptoCurrency.symbol &&
-            pair.from.tag == cryptoCurrency.tag &&
-            pair.to.symbol == fiatCurrency.symbol);
-      } else {
-        return provider.supportedFiatList.any((pair) =>
-            pair.from.symbol == fiatCurrency.symbol &&
-            pair.to.symbol == cryptoCurrency.symbol &&
-            pair.to.tag == cryptoCurrency.tag);
-      }
-    }).toList();
+    final List<BuyProvider> validProviders = providerList
+        .where((provider) =>
+            provider.isPairSupported(cryptoCurrency, fiatCurrency, mode == BuySellPageMode.buy))
+        .toList();
 
     if (validProviders.isEmpty) {
       buySellQuotState = BuySellQuotFailed(

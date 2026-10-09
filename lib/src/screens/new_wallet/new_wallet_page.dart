@@ -314,6 +314,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               onPressed: () {
                 Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
                   "type": _walletNewVM.type,
+                  "chainId": _walletNewVM.newWalletArguments?.chainId,
                   "useTestnet": _walletNewVM.useTestnet,
                   "toggleTestnet": _walletNewVM.toggleUseTestnet,
                   "zcashNetwork": _walletNewVM.zcashNetwork,

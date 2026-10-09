@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -38,7 +39,7 @@ abstract class ReceiveOptionViewModelBase with Store {
   List<ReceivePageOption> get options =>
       _wallet.walletAddresses.receivePageOptions.where(_wallet.receiveOptionAvailable).toList();
 
-  String get walletTypeString => walletTypeToString(_wallet.type);
+  String get walletTypeString => networkDisplayName(_wallet.type, _wallet.walletInfo.chainId);
 
   @action
   void selectReceiveOption(ReceivePageOption option) => selectedReceiveOption = option;

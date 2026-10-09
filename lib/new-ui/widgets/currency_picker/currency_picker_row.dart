@@ -1,6 +1,8 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 
 class CurrencyPickerRow extends StatelessWidget {
@@ -97,20 +99,32 @@ class _IconWithBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = TokenImageWidget(
-      imageUrl: currency.iconPath ?? '',
-      size: 32,
-      errorWidget: Container(
-        width: 32,
-        height: 32,
-        child: Center(
-          child: Text(
-            currency.title.length >= 2 ? currency.title.substring(0, 2) : currency.title,
-          ),
-        ),
-      ),
-    );
+    final addedNetwork = AddedNetworkCurrency.tryWithNetworkIcon(currency);
+    final icon = addedNetwork != null
+        ? CakeImageWidget(
+            imageUrl: addedNetwork.iconPath,
+            width: 32,
+            height: 32,
+            isRoundedSquare: true,
+            isOutlined: true,
+            fallbackName: addedNetwork.fullName,
+          )
+        : TokenImageWidget(
+            imageUrl: currency.iconPath ?? '',
+            size: 32,
+            errorWidget: Container(
+              width: 32,
+              height: 32,
+              child: Center(
+                child: Text(
+                  currency.title.length >= 2 ? currency.title.substring(0, 2) : currency.title,
+                ),
+              ),
+            ),
+          );
     if (badgePath == null) return icon;
+
+    final isGlyphBadge = CryptoCurrency.isGlyphChainBadge(badgePath!);
     return SizedBox(
       width: 36,
       height: 36,
@@ -135,10 +149,12 @@ class _IconWithBadge extends StatelessWidget {
               padding: const EdgeInsets.all(2),
               child: CakeImageWidget(
                 imageUrl: badgePath,
-                color: Theme.of(context).colorScheme.surface,
+                color: isGlyphBadge ? Theme.of(context).colorScheme.surface : null,
                 width: 13,
                 height: 13,
                 fit: BoxFit.cover,
+                isRoundedSquare: !isGlyphBadge,
+                isOutlined: EvmNativeCurrencies.isAddedNetworkCurrency(currency),
               ),
             ),
           ),

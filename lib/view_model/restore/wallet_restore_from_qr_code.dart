@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/core/address_resolver/address_resolver_utils.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,6 +10,8 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import "package:cake_wallet/wallet_type_utils.dart";
+import "package:cake_wallet/wallet_types.g.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -87,11 +90,11 @@ class WalletRestoreFromQRCode {
     return _walletTypeMap[extracted];
   }
 
-  static String? _extractAddressFromUrl(String rawString, WalletType type) {
+  static String? _extractAddressFromUrl(String rawString, WalletType type, int? chainId) {
     try {
       return AddressResolverUtils.extractAddressByType(
         raw: rawString,
-        type: walletTypeToCryptoCurrency(type),
+        type: walletTypeToCryptoCurrency(type, chainId: chainId),
         requireSurroundingWhitespaces: false,
       );
     } catch (_) {
@@ -124,16 +127,25 @@ class WalletRestoreFromQRCode {
 
     String formattedUri = '';
     WalletType? walletType = _extractWalletType(code);
+    int? chainId;
     final prefix = code.startsWith('xpub')
         ? 'xpub'
         : code.startsWith('zpub')
         ? 'zpub'
         : '????';
     if (walletType == null) {
-      await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
-      walletType =
-          await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
-      if (walletType == null) throw Exception("Failed to determine wallet type.");
+      final WalletNetwork? network;
+      if (isSingleCoin) {
+        network = WalletNetwork.builtin(availableWalletTypes.first);
+      } else {
+        await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
+        network =
+            await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletNetwork?;
+      }
+
+      if (network == null) throw Exception("Failed to determine wallet type.");
+      walletType = network.type;
+      chainId = network.chainId;
 
       final seedPhrase = _extractSeedPhraseFromUrl(code, walletType);
 
@@ -155,10 +167,15 @@ class WalletRestoreFromQRCode {
       queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType);
     }
     if (queryParameters['address'] == null) {
-      queryParameters['address'] = _extractAddressFromUrl(code, walletType);
+      queryParameters["address"] = _extractAddressFromUrl(code, walletType, chainId);
     }
 
-    Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};
+    Map<String, dynamic> credentials = {
+      "type": walletType,
+      ...queryParameters,
+      "raw_qr": code,
+      "chainId": chainId,
+    };
 
     credentials['mode'] = _determineWalletRestoreMode(credentials);
 

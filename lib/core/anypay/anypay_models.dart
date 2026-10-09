@@ -1,4 +1,5 @@
 import "package:cake_wallet/core/universal_address_detector.dart";
+import "package:cake_wallet/core/wallet_network.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -70,6 +71,9 @@ class WalletSnapshot {
 
   List<WalletInfo> walletsOfType(WalletType walletType) =>
       wallets.where((wallet) => wallet.type == walletType).toList();
+
+  List<WalletInfo> walletsOnNetwork(WalletNetwork network) =>
+      wallets.where((wallet) => WalletNetwork.fromWallet(wallet) == network).toList();
 }
 
 sealed class AnyPayResolution {
