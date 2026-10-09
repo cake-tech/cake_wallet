@@ -29,6 +29,9 @@ bool isTrustedStablecoin(CryptoCurrency c) =>
         _stablecoinSymbols.contains(c.title.toUpperCase())) &&
     !c.isPotentialScam;
 
+bool hasBuiltInStablecoinSymbol(CryptoCurrency c) =>
+    _stablecoinSymbols.contains(c.title.toUpperCase());
+
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
   CryptoCurrency.arbEth,
@@ -123,6 +126,7 @@ class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
     required this.items,
+    this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
     required this.onSelected,
@@ -136,6 +140,7 @@ class CurrencyPickerArgs {
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;

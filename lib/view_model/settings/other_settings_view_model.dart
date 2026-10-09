@@ -104,6 +104,7 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.solana,
         WalletType.tron,
         WalletType.arbitrum,
+        WalletType.robinhood,
       ].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
@@ -160,6 +161,12 @@ abstract class OtherSettingsViewModelBase with Store {
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
+
+  @computed
+  bool get showCiBuildOverlay => _settingsStore.showCiBuildOverlay;
+
+  @action
+  void setShowCiBuildOverlay(bool value) => _settingsStore.showCiBuildOverlay = value;
 
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
