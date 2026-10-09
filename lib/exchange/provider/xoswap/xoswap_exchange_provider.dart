@@ -85,9 +85,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.xoSwap;
 
-  @override
-  Future<bool> checkIsAvailable() async => true;
-
   Future<String?> _getAssets(CryptoCurrency currency) async {
     if (currency.tag == null) {
       return currency.title;

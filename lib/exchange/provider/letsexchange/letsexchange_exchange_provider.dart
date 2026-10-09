@@ -33,9 +33,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   ExchangeProviderDescription get description => ExchangeProviderDescription.letsExchange;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
-
-  @override
   Future<ExchangeLimits> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
@@ -180,29 +177,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final responseData = LetsExchangeTransactionResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
-    //
-    // // Parsing 'from' currency
-    // final fromCurrency = responseJSON["coin_from"] as String;
-    // final fromNetwork = responseJSON["coin_from_network"] as String?;
-    // final normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? "");
-    // final fromTag = fromCurrency == normalizedFromNetwork ? null : normalizedFromNetwork;
-    // final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency, tag: fromTag);
-    //
-    // // Parsing 'to' currency
-    // final toCurrency = responseJSON["coin_to"] as String;
-    // final toNetwork = responseJSON["coin_to_network"] as String?;
-    // final normalizedToNetwork = _normalizeNetworkType(toNetwork ?? "");
-    // final toTag = toCurrency == normalizedToNetwork ? null : normalizedToNetwork;
-    // final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency, tag: toTag);
-    //
-    // final payoutAddress = responseJSON["withdrawal"] as String;
-    // final depositAddress = responseJSON["deposit"] as String;
-    // final refundAddress = responseJSON["return"] as String;
-    // final depositAmount = responseJSON["deposit_amount"] as String;
-    // final receiveAmount = responseJSON["withdrawal_amount"] as String;
-    // final status = responseJSON["status"] as String;
-    //
-    // final extraId = responseJSON["deposit_extra_id"] as String?;
 
     return trade.copyWith(
       payoutAddress: responseData.withdrawal,

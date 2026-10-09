@@ -49,9 +49,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   ExchangeProviderDescription get description => ExchangeProviderDescription.chainflip;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
-
-  @override
   Future<ExchangeLimits> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,

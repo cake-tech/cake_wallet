@@ -35,9 +35,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static const _headers = <String, String>{"Content-Type": "application/json"};
 
   @override
-  Future<bool> checkIsAvailable() async => true;
-
-  @override
   Future<ExchangeLimits> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,

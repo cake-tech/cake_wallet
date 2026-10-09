@@ -35,8 +35,6 @@ abstract class ExchangeProvider {
   Future<Trade> updateTrade(Trade trade);
 
   Future<ProviderRate> fetchRate({required Money from, required CryptoCurrency to, required bool isFixedRate});
-
-  Future<bool> checkIsAvailable();
 }
 
 

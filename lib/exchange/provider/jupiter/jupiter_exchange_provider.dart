@@ -72,9 +72,6 @@ class JupiterExchangeProvider extends ExchangeProvider
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.jupiter;
 
-  @override
-  Future<bool> checkIsAvailable() async => true;
-
   String _getTokenMint(CryptoCurrency currency) {
     if (currency == CryptoCurrency.sol) {
       return _nativeSolMint;

@@ -30,9 +30,6 @@ class StealthExExchangeProvider extends ExchangeProvider {
   ExchangeProviderDescription get description => ExchangeProviderDescription.stealthEx;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
-
-  @override
   Future<ExchangeLimits> fetchLimits({required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode}) async {
