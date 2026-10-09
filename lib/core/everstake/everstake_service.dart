@@ -5,7 +5,7 @@ import "package:cake_wallet/core/everstake/models.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
-import "package:http/http.dart";
+import "package:http/http.dart" as very_insecure_http_do_not_use;
 
 class EverstakeService {
   static const _apiHost = "wallet-sdk-api.everstake.com";
@@ -62,7 +62,10 @@ class EverstakeService {
       "allowedInterchangeNum": allowedInterchangeNum,
       "source": source,
     });
-    return Money.parse(response["result"] as String, CryptoCurrency.eth);
+    // Unlike the other endpoints, this returns a JSON number already rounded to double precision.
+    final result = response["result"] as num;
+    final text = result.toString();
+    return Money.parse(text.contains("e") ? result.toStringAsFixed(18) : text, CryptoCurrency.eth);
   }
 
   Future<EverstakeEthereumTransaction> prepareEthereumUnstake({
@@ -122,7 +125,7 @@ class EverstakeService {
     return _decodeResponse(response);
   }
 
-  Map<String, dynamic> _decodeResponse(Response response) {
+  Map<String, dynamic> _decodeResponse(very_insecure_http_do_not_use.Response response) {
     if (response.statusCode != 200) {
       throw EverstakeException("${response.statusCode}: ${response.body}");
     }
