@@ -81,6 +81,10 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
+          # hosted runners booted in 764s once and blew the 600s default on
+          # the next run; 20min removes the flake, 4 cores shorten the boot.
+          emulator-boot-timeout: 1200
+          cores: 4
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
           disable-animations: false
