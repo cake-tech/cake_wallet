@@ -8,6 +8,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
+import "package:cw_core/mweb_utxo.dart";
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -99,6 +100,7 @@ class LitecoinWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
     await WalletInfo.delete(walletInfo);
+    await MwebUtxo.deleteAllForWallet(walletInfo.internalId);
 
     // if there are no more litecoin wallets left, cleanup the neutrino db and other files created by mwebd:
     if ((await WalletInfo.selectList('type = ?', [WalletType.litecoin.index])).isEmpty) {
@@ -123,15 +125,6 @@ class LitecoinWalletService extends WalletService<
 
     await FrozenCoinsStore.instance.deleteWallet(walletInfo.internalId);
     await CoinNotesStore.instance.deleteWallet(walletInfo.internalId);
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
-
-    await LitecoinWalletBase.copyMwebBox(fromName: currentName, toName: newName);
-    await super.rename(currentName, password, newName);
-    await LitecoinWalletBase.deleteMwebBox(currentName);
   }
 
   @override

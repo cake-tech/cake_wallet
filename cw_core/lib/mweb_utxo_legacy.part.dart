@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mweb_utxo.dart';
+part of 'mweb_utxo_legacy.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
