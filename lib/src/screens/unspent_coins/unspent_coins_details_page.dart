@@ -27,56 +27,59 @@ class UnspentCoinsDetailsPage extends StatelessWidget {
 
           final row = state.rowFor(rowId)!;
 
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            child: Column(
-              children: [
-                ModalTopBar(
-                  title: S.of(context).unspent_coins_details_title,
-                  leadingIcon: const Icon(Icons.arrow_back_ios_new),
-                  onLeadingPressed: Navigator.of(context).pop,
-                  leadingSemanticLabel: S.of(context).seed_alert_back,
-                ),
-                Expanded(
-                  child: Column(
-                  children: [
-                    _row(context, S.of(context).transaction_details_amount, "${row.amount.toString()} ${bloc.wallet.currency.symbol}"),
-                    _row(context, S.of(context).transaction_details_transaction_id, row.txHash),
-                    _row(context, S.of(context).widgets_address, row.address),
-                    TextFieldListRow(
-                      title: S.of(context).note_tap_to_change,
-                      value: row.note,
-                      onSubmitted: (value) {
-                        bloc.add(NoteChanged(row.id, note: value));
-                      },
-                    ),
-                    UnspentCoinsSwitchRow(
-                      title: S.of(context).freeze,
-                      switchValue: row.isFrozen,
-                      onSwitchValueChange: (value) {
-                        bloc.add(FreezeToggled(row.id, value: value));
-                      },
-                    ),
-                    if (bloc.wallet.coinControlUrl(row.txHash) != null)
-                      GestureDetector(
-                        child: ListRow(
-                          onTap: () {
-                            try {
-                              launchUrl(bloc.wallet.coinControlUrl(row.txHash)!);
-                            } catch (_) {}
-                          },
-                          title: S.of(context).view_in_block_explorer,
-                          value:
-                              "${S.of(context).view_transaction_on}${bloc.wallet.coinControlUrl(row.txHash)!.authority}",
-                        ),
+          return Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                color: Theme.of(context).colorScheme.surface,
+              ),
+              child: Column(
+                children: [
+                  ModalTopBar(
+                    title: S.of(context).unspent_coins_details_title,
+                    leadingIcon: const Icon(Icons.arrow_back_ios_new),
+                    onLeadingPressed: Navigator.of(context).pop,
+                    leadingSemanticLabel: S.of(context).seed_alert_back,
+                  ),
+                  Expanded(
+                    child: Column(
+                    children: [
+                      _row(context, S.of(context).transaction_details_amount, "${row.amount.toString()} ${bloc.wallet.currency.symbol}"),
+                      _row(context, S.of(context).transaction_details_transaction_id, row.txHash),
+                      _row(context, S.of(context).widgets_address, row.address),
+                      TextFieldListRow(
+                        title: S.of(context).note_tap_to_change,
+                        value: row.note,
+                        onSubmitted: (value) {
+                          bloc.add(NoteChanged(row.id, note: value));
+                        },
                       ),
-                  ],
+                      UnspentCoinsSwitchRow(
+                        title: S.of(context).freeze,
+                        switchValue: row.isFrozen,
+                        onSwitchValueChange: (value) {
+                          bloc.add(FreezeToggled(row.id, value: value));
+                        },
+                      ),
+                      if (bloc.wallet.coinControlUrl(row.txHash) != null)
+                        GestureDetector(
+                          child: ListRow(
+                            onTap: () {
+                              try {
+                                launchUrl(bloc.wallet.coinControlUrl(row.txHash)!);
+                              } catch (_) {}
+                            },
+                            title: S.of(context).view_in_block_explorer,
+                            value:
+                                "${S.of(context).view_transaction_on}${bloc.wallet.coinControlUrl(row.txHash)!.authority}",
                           ),
-                ),
-              ],
+                        ),
+                    ],
+                            ),
+                  ),
+                ],
+              ),
             ),
           );
         },
