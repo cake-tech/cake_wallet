@@ -1,0 +1,153 @@
+# Layer-B e2e lane (QA handoff §6 4-a).
+#
+# REPORT-ONLY — permanently until Seth says otherwise: `continue-on-error: true`
+# at job level, never a required check. It tests the SAME run's pr_test_build
+# "android apk" artifact (no rebuild, no dev fallback) and the QA project from
+# cake-qa (deploy key), with the no-funds slice in read-only cache (the runner
+# is CI, so e2e defaults to `cache: read-only` and never records).
+name: E2E (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs_on:
+        description: "runner label: ubuntu-latest (hosted KVM) or a self-hosted label"
+        type: string
+        default: ubuntu-latest
+      build_run:
+        description: "pr_test_build run id whose 'android apk' artifact to test (empty = auto-resolve from the head SHA)"
+        type: string
+        default: ""
+      shard:
+        description: "e.g. 2/3 (empty = single run)"
+        type: string
+        default: ""
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: e2e-android-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    # Internal PRs only (forks have no pr_test_build artifact for us to test).
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
+    environment: qa
+    # REPORT-ONLY, permanently until Seth says otherwise.
+    continue-on-error: true
+    timeout-minutes: 150
+    steps:
+      - name: Checkout the QA project (cake-qa, via deploy key)
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Resolve and download the build artifact
+        # Criterion = OWNING an "android apk" artifact; the run's conclusion can
+        # be failure after the upload (learned on the 6.5.0 RC). No dev fallback.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="${{ inputs.build_run }}"
+          if [ -z "$RUN_ID" ]; then
+            SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+            for id in $(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[].id'); do
+              if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+                RUN_ID=$id
+                break
+              fi
+            done
+          fi
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::no pr_test_build run with an 'android apk' artifact for this ref (no dev fallback, per handoff)"
+            exit 1
+          fi
+          echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
+          gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
+          test -f apk/app-x86_64-release.apk || { echo "::error::app-x86_64-release.apk missing from artifact"; exit 1; }
+
+      - name: Boot the emulator and run the no-funds slice
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GLM_BASE_URL: ${{ secrets.DSPARK_BASE_URL }}
+          GLM_API_KEY: ${{ secrets.DSPARK_API_KEY }}
+          E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
+          E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
+          E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
+          E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
+          # The handoff pins animations off for this lane (the Dart-binding
+          # funds lane leaves them on deliberately — that is a different lane).
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            adb install -r apk/app-x86_64-release.apk
+            cd cake-qa
+            nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+            sleep 2
+            SHARD="${{ inputs.shard }}"
+            ARGS=(--target pixel --reporter list,junit,markdown)
+            if [ -n "$SHARD" ]; then ARGS+=(--shard "$SHARD"); fi
+            npx e2e run "${ARGS[@]}"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: |
+            cake-qa/.e2e/junit.xml
+            cake-qa/.e2e/summary.md
+            cake-qa/.e2e/report.json
+            cake-qa/.e2e/artifacts
+          if-no-files-found: warn
+
+      - name: PR comment with counts, cost and cache hit rate
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- qa-e2e-android -->';
+            let body = '_the run produced no summary (see the e2e-results artifact)_';
+            try {
+              const md = fs.readFileSync('cake-qa/.e2e/summary.md', 'utf8');
+              const lines = md.split('\n').slice(0, 6).join('\n'); // counts + AI/cost line
+              body = `${marker}\n#### QA e2e (report-only lane)\n\n${lines}\n\nArtifact: this run's \`e2e-results\`.`;
+            } catch (e) {
+              body = `${marker}\n#### QA e2e (report-only lane)\n\n_summary.md missing (${e.message}) — see the \`e2e-results\` artifact._`;
+            }
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const prev = comments.find((c) => c.body && c.body.includes(marker));
+            if (prev) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: prev.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

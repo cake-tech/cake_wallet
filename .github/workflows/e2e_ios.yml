@@ -1,0 +1,166 @@
+# Layer-B e2e lane, iOS (QA handoff §6 4-b).
+# Runs on the Mac Studio registered as a self-hosted runner labelled
+# [self-hosted, macOS, cake-qa]. REPORT-ONLY like the Android lane
+# (continue-on-error at job level; never a required check).
+#
+# One e2e job at a time per simulator: the concurrency group is global, so
+# runs on the single studio runner serialise instead of colliding.
+name: E2E (iOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: "e.g. 2/3 (empty = single run)"
+        type: string
+        default: ""
+      build_run:
+        description: "unused today (the lane builds its own simulator .app); kept for symmetry with the Android lane"
+        type: string
+        default: ""
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: e2e-ios
+  cancel-in-progress: false
+
+jobs:
+  e2e-ios:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    # [self-hosted, macOS, cake-qa] — registered via tools/ci/setup_macos_runner.sh.
+    runs-on: [self-hosted, macOS, cake-qa]
+    environment: qa
+    # REPORT-ONLY, permanently until Seth says otherwise.
+    continue-on-error: true
+    timeout-minutes: 180
+    steps:
+      - name: Checkout the app (this repo, PR ref)
+        uses: actions/checkout@v4
+
+      - name: Checkout the QA project (cake-qa, via deploy key)
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Restore flutter sdk
+        id: flutter-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
+      - name: Install Flutter
+        run: |
+          if [[ ! -d "$HOME/flutter/bin" ]]; then
+            git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
+          fi
+          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
+          flutter --version
+
+      - name: Save flutter sdk
+        if: steps.flutter-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ~/flutter
+          key: flutter-sdk-3.41.9-${{ runner.os }}
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Developer/Xcode/DerivedData
+            ~/.agent-device
+          key: ios-derived-${{ github.sha }}
+          restore-keys: ios-derived-
+
+      - name: Build the simulator app (pinned recipe)
+        run: bash cake-qa/tools/ci/ios_sim_build.sh "$GITHUB_WORKSPACE"
+
+      - name: Boot the pinned simulator and install
+        run: |
+          set -euo pipefail
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
+          import json,sys
+          rts=[r for r in json.load(sys.stdin)['runtimes'] if r.get('platform')=='iOS' and r.get('isAvailable',True)]
+          rts.sort(key=lambda r: r['version'])
+          print(rts[-1]['identifier'])")
+          DEVICE_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          import json,sys
+          dts=[d for d in json.load(sys.stdin)['devicetypes'] if 'iPhone' in d['name']]
+          dts.sort(key=lambda d: d['name'])
+          print(dts[-1]['identifier'])")
+          UDID=$(xcrun simctl create qa-e2e "$DEVICE_TYPE" "$RUNTIME" || xcrun simctl get_app_container booted 2>/dev/null || true)
+          [ -n "${UDID:-}" ] || UDID=$(xcrun simctl list devices -j | python3 -c "
+          import json,sys
+          devs=[d for a in json.load(sys.stdin)['devices'].values() for d in a if d['name']=='qa-e2e']
+          print(devs[0]['udid'] if devs else '')")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+
+      - name: Run the no-funds slice
+        working-directory: cake-qa
+        env:
+          GLM_BASE_URL: ${{ secrets.DSPARK_BASE_URL }}
+          GLM_API_KEY: ${{ secrets.DSPARK_API_KEY }}
+          E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
+          E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
+          E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
+          E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
+        run: |
+          set -euo pipefail
+          nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+          sleep 2
+          ARGS=(--target sim --reporter list,junit,markdown)
+          if [ -n "${{ inputs.shard }}" ]; then ARGS+=(--shard "${{ inputs.shard }}"); fi
+          npx e2e run "${ARGS[@]}"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-ios
+          path: |
+            cake-qa/.e2e/junit.xml
+            cake-qa/.e2e/summary.md
+            cake-qa/.e2e/report.json
+            cake-qa/.e2e/artifacts
+          if-no-files-found: warn
+
+      - name: PR comment with counts, cost and cache hit rate
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- qa-e2e-ios -->';
+            let body = `${marker}\n#### QA e2e iOS (report-only lane)\n\n_run produced no summary — see the \`e2e-results-ios\` artifact._`;
+            try {
+              const md = fs.readFileSync('cake-qa/.e2e/summary.md', 'utf8').split('\n').slice(0, 6).join('\n');
+              body = `${marker}\n#### QA e2e iOS (report-only lane)\n\n${md}\n\nArtifact: this run's \`e2e-results-ios\`.`;
+            } catch {}
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const prev = comments.find((c) => c.body && c.body.includes(marker));
+            if (prev) await github.rest.issues.updateComment({ owner, repo, comment_id: prev.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
