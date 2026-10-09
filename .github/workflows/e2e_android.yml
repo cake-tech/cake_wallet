@@ -146,10 +146,9 @@ jobs:
             adb shell settings put global transition_animation_scale 0 || true
             adb shell settings put global animator_duration_scale 0 || true
             adb install -r apk/app-x86_64-release.apk
-            cd cake-qa
-            nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+            nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
-            if [ -n "${{ inputs.shard }}" ]; then npx e2e run --target pixel --reporter list,junit,markdown --shard "${{ inputs.shard }}"; else npx e2e run --target pixel --reporter list,junit,markdown; fi
+            if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && npx e2e run --target pixel --reporter list,junit,markdown --shard "${{ inputs.shard }}"; else cd cake-qa && npx e2e run --target pixel --reporter list,junit,markdown; fi
 
       - name: Upload results
         if: always()
