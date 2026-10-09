@@ -13,8 +13,10 @@ import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cw_core/node_list.dart';
@@ -52,8 +54,9 @@ const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
-const arbitrumDefaultNodeUri = 'arbitrum.nownodes.io';
+const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(
@@ -646,6 +649,15 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "Swaps.XYZ",
             enabled: false,
+          );
+          break;
+        case 72:
+          await createDefaultChartsData();
+          await addWalletNodeList(type: WalletType.robinhood);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.robinhood,
+            currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
           );
           break;
         default:
@@ -1336,6 +1348,12 @@ Future<void> _addXaut0TokenToExistingSolanaWallets() async {
   } catch (e) {
     printV('Error in XAUT0 migration: $e');
   }
+}
+
+Future<void> createDefaultChartsData() async {
+  await ChartsAsset(asset: CryptoCurrency.btc, isFavorite: true).insert();
+  await ChartsAsset(asset: CryptoCurrency.xmr, isFavorite: false).insert();
+  await ChartsAsset(asset: CryptoCurrency.eth, isFavorite: false).insert();
 }
 
 Future<void> _addTbbTokenToExistingSolanaWallets() async {

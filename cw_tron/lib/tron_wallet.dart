@@ -431,8 +431,21 @@ abstract class TronWalletBase
     ]);
   }
 
+  Future<bool> checkIfScanProviderIsEnabled() async {
+    try {
+      return (await SharedPreferences.getInstance()).getBool("use_trongrid") ?? true;
+    } catch (e) {
+      printV("Could not read the TronGrid preference: $e");
+      return false;
+    }
+  }
+
   @override
   Future<Map<String, TronTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return transactionHistory.transactions;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTransactions(address);
@@ -499,6 +512,10 @@ abstract class TronWalletBase
   }
 
   Future<void> fetchTrc20ExcludedTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTrc20ExcludedTransactions(address);
@@ -703,8 +720,6 @@ abstract class TronWalletBase
       fetchTransactions();
       fetchTrc20ExcludedTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 

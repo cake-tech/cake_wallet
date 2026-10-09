@@ -441,7 +441,9 @@ class Libwallet {
   }
 
   Future<String> syncStatus(String walletName) async {
-    if (_closed) throw StateError('Closed');
+    if (_closed) {
+      return "closed";
+    }
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
     _activeRequests[id] = completer;

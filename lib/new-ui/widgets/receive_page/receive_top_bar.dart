@@ -13,6 +13,7 @@ class ModalTopBar extends StatelessWidget {
       this.leadingIcon,
       this.trailingIcon,
       this.padding,
+      this.bottomText,
       this.leadingWidget,
       this.trailingWidget,
       this.leadingSemanticLabel,
@@ -27,6 +28,7 @@ class ModalTopBar extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final String? bottomText;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
@@ -50,32 +52,44 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
     return Padding(
       padding: padding ?? EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           Positioned(
-            top: 6,
+            top: hasBottomText ? -4 : 6,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Semantics(
+                Column(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: Semantics(
                     key: ValueKey(title),
-                    header: title.isNotEmpty,
-                    // Android reads the heading from headingLevel since the
+                        header: title.isNotEmpty,
+                        // Android reads the heading from headingLevel since the
                     // Flutter 3.41 engine; header: alone only covers iOS.
                     headingLevel: title.isNotEmpty ? 1 : null,
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                        style: TextStyle(
+                            fontSize: hasBottomText ? 16 : 18, fontWeight: FontWeight.w600),
+                      ),
+                      ),
                     ),
+                    if (hasBottomText)
+                      Text(
+                        bottomText!,
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    ],
                   ),
-                ),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(subtitle!,
                       style: Theme.of(context)

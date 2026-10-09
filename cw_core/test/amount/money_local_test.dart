@@ -23,6 +23,10 @@ void main() {
       expect(_btcGrouping.toLocalStringWithPrecision(locale: "de_DE"), "1.234,5");
     });
 
+    test("formats as English when intl has no number data for the locale (yo)", () {
+      expect(_btcGrouping.toLocalStringWithPrecision(locale: "yo"), "1,234.5");
+    });
+
     test("base unit renders integer sats with grouping", () {
       expect(
         _btc012.toLocalStringWithPrecision(useBaseUnit: true, locale: "en_US"),

@@ -1,18 +1,18 @@
 [
   {
-    "title": "Trezor natively for Bitcoin",
-    "description": "Pair your device and sign Bitcoin transactions right in the app"
+    "title": "Robinhood Chain",
+    "description": "Create Robinhood Chain wallets to send, receive and swap, with USDG and more tokens built in"
   },
   {
-    "title": "Solana and NFTs Improvements",
-    "description": "Send your Solana NFTs, keep imported ones saved, and see at a glance which ones this wallet holds"
+    "title": "Price Charts",
+    "description": "A new Charts tab to keep an eye on the prices of your assets"
   },
   {
-    "title": "Monero sync improvements",
-    "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
+    "title": "Bitcoin Accounts & Faster Sync",
+    "description": "Split your Bitcoin wallet into multiple accounts, and get up to date faster while history loads in the background"
   },
   {
-    "title": "Bug fixes",
-    "description": "Contact syncing, node selection, Cake Pay sign-in and more, all squashed"
+    "title": "Bug fixes & improvements",
+    "description": "Lightning amounts in sats, more Tor nodes, Monero core update, smoother Bitcoin wallets and more"
   }
 ]

@@ -204,4 +204,7 @@ class SPLToken extends CryptoCurrency {
 
   @override
   int get hashCode => mintAddress.hashCode;
+
+  @override
+  String get apiString => "sol.$mintAddress";
 }
