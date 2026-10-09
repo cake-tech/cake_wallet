@@ -12,6 +12,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import "package:cw_core/token_icon_refresh.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
@@ -75,7 +76,7 @@ class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
 abstract class EVMChainWalletBase
     extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, TokenIconRefresh<Erc20Token> {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
@@ -211,6 +212,8 @@ abstract class EVMChainWalletBase
     // Reload ERC20 tokens for the new chain
     await initErc20Tokens();
 
+    unawaited(refreshTokenIcons(erc20Currencies));
+
     // Reload transaction history from the new chain's file
     await transactionHistory.init();
 
@@ -230,7 +233,7 @@ abstract class EVMChainWalletBase
         enabled: existingToken?.enabled ?? token.enabled,
         walletName: walletInfo.name,
         chainId: selectedChainId,
-      );
+      )..networkIconUrl = existingToken?.networkIconUrl;
 
       await newToken.save();
       _upsertCachedToken(newToken);
@@ -320,6 +323,7 @@ abstract class EVMChainWalletBase
       enabled: token.enabled,
       tag: token.tag ?? EVMChainUtils.getDefaultTokenTag(selectedChainId),
       iconPath: iconPath,
+      networkIconUrl: token.networkIconUrl,
       isPotentialScam: token.isPotentialScam,
       walletName: walletInfo.name,
       chainId: selectedChainId,
@@ -387,6 +391,8 @@ abstract class EVMChainWalletBase
 
     // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
     await _checkForExistingScamTokens();
+
+    unawaited(refreshTokenIcons(erc20Currencies));
 
     switch (walletInfo.hardwareWalletType) {
       case HardwareWalletType.ledger:
@@ -524,6 +530,7 @@ abstract class EVMChainWalletBase
       if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
+        token.networkIconUrl = null;
         await token.save();
         continue;
       }
@@ -546,6 +553,50 @@ abstract class EVMChainWalletBase
     }
 
     await prefs.setBool(_scamCheckDoneKey, true);
+  }
+
+  @override
+  Future<bool> isTokenIconRefreshDisabled() async {
+    final prefs = await sharedPrefs.future;
+    return prefs.getBool("disable_token_image_refresh") ?? false;
+  }
+
+  @override
+  Future<String?> fetchTokenIconUrl(Erc20Token token) async {
+    final chainId = token.chainId;
+    if (chainId == null) {
+      return null;
+    }
+
+    final chainName = EVMChainUtils.getMoralisChainName(chainId);
+    if (chainName == null) {
+      return null;
+    }
+
+    final fetchedToken = await _client.getErc20TokenFromMoralis(token.contractAddress, chainName);
+    return fetchedToken?.iconPath;
+  }
+
+  @override
+  Future<void> saveTokenIconUrl(Erc20Token token, String iconUrl) async {
+    final chainId = token.chainId;
+    if (chainId == null) {
+      return;
+    }
+
+    final updatedRows = await Erc20Token.updateNetworkIconUrl(
+      walletInfo.name,
+      chainId,
+      token.contractAddress,
+      iconUrl,
+    );
+
+    final cachedToken = _findCachedToken(token.contractAddress);
+    if (updatedRows == 0 || cachedToken == null || cachedToken.chainId != chainId) {
+      return;
+    }
+
+    cachedToken.networkIconUrl = iconUrl;
   }
 
   Future<MoralisDiscoveryResult> discoverTokensFromMoralis() async {

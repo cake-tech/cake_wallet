@@ -14,6 +14,7 @@ class NewSendAmountInput extends StatefulWidget {
     required this.hasPicker,
     required this.onPickerClicked,
     required this.currencyIconPath,
+    this.currencyNetworkImageUrl,
     required this.amountController,
     super.key,
     this.validator,
@@ -21,6 +22,7 @@ class NewSendAmountInput extends StatefulWidget {
 
   final String currency;
   final String currencyIconPath;
+  final String? currencyNetworkImageUrl;
   final bool hasPicker;
   final int maxDecimals;
   final VoidCallback onPickerClicked;
@@ -152,6 +154,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                   if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
                                     TokenImageWidget(
                                       imageUrl: widget.currencyIconPath,
+                                      networkImageUrl: widget.currencyNetworkImageUrl,
                                       size: 24,
                                     ),
                                   Text(widget.currency),

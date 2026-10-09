@@ -7,6 +7,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/node.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
@@ -502,6 +503,34 @@ class TronClient {
         decimal: decimal.toInt(),
       );
     } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> fetchTrc20IconUrl(String contractAddress) async {
+    try {
+      final uri = Uri.https(
+        "apilist.tronscanapi.com",
+        "/api/token_trc20",
+        {"contract": contractAddress, "showAll": "1"},
+      );
+
+      final response = await client.get(uri).timeout(const Duration(seconds: 15));
+
+      if (response.statusCode != 200) {
+        return null;
+      }
+
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final tokens = decodedResponse["trc20_tokens"] as List<dynamic>?;
+
+      if (tokens == null || tokens.isEmpty) {
+        return null;
+      }
+
+      return (tokens.first as Map<String, dynamic>)["icon_url"] as String?;
+    } catch (e) {
+      printV("Error fetching trc20 icon url: $e");
       return null;
     }
   }

@@ -39,6 +39,21 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   @override
   final String? iconPath;
 
+  String? get networkIconUrl => null;
+
+  bool get hasPlaceholderIcon {
+    if (networkIconUrl != null) {
+      return false;
+    }
+
+    if (iconPath == null || iconPath!.isEmpty) {
+      return true;
+    }
+
+    return iconPath!.startsWith("assets/") &&
+        !iconPath!.startsWith("assets/new-ui/crypto_full_icons/");
+  }
+
   @override
   final int decimals;
 

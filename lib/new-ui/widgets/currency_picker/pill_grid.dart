@@ -1,5 +1,4 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -74,6 +73,7 @@ class _PillCard extends StatelessWidget {
           children: [
             TokenImageWidget(
               imageUrl: currency.iconPath ?? '',
+              networkImageUrl: currency.networkIconUrl,
               size: 24,
             ),
             const SizedBox(width: 8),
