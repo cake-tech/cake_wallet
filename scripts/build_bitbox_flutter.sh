@@ -12,6 +12,11 @@ git reset --hard
 git checkout 5a6e6dd388ef64003f86094af80d5453518b601d
 git reset --hard
 
+if [[ "$1" == "clone-only" ]];
+then
+    exit 0
+fi
+
 bash ./build_bindings.sh --dont-install
 
 FILE=api.aar
