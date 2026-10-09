@@ -89,9 +89,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       (item) => TrocadorCoin.fromJson(item as Map<String, dynamic>),
     );
 
-    if (responseJSON.isEmpty) {
-      throw Exception("No data");
-    }
 
     final coinJson = responseJSON.first;
 

@@ -10,6 +10,7 @@ import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/package_info.dart";
+import "package:collection/collection.dart" show IterableDoubleExtension;
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -149,22 +150,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, List<XOSwapRate> rates) {
-    double minLimit = double.infinity;
-    double maxLimit = 0;
-
-    for (final rate in rates) {
-      final double currentMin = rate.min.value;
-      final double currentMax = rate.max.value;
-      if (currentMin < minLimit) {
-        minLimit = currentMin;
-      }
-      if (currentMax > maxLimit) {
-        maxLimit = currentMax;
-      }
-    }
-    return ExchangeLimits(min: Money.trySafeParse(minLimit, from), max: Money.trySafeParse(maxLimit, from));
-  }
+  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, List<XOSwapRate> rates) => ExchangeLimits(
+        min: Money.trySafeParse(rates.map((rate) => rate.min.value).min, from),
+        max: Money.trySafeParse(rates.map((rate) => rate.max.value).max, from),
+      );
 
 
   @override
