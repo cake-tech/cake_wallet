@@ -568,7 +568,7 @@ Future<void> setup({
                 (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
   });
 
-  getIt.registerLazySingleton<PriceStore>(() => PriceStore());
+  getIt.registerLazySingleton<PriceStore>(() => PriceStore(settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<ChartsBloc>(
           () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));

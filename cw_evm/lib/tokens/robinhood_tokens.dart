@@ -12,6 +12,7 @@ class RobinhoodTokens {
         decimal: 6,
         enabled: true,
         iconPath: "assets/images/usdg_icon.png",
+        groups: const {CurrencyGroups.stablecoin},
       ),
       Erc20Token(
         name: "Ethena USDe",
@@ -19,6 +20,7 @@ class RobinhoodTokens {
         contractAddress: "0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34",
         decimal: 18,
         enabled: true,
+        groups: const {CurrencyGroups.stablecoin},
       ),
       Erc20Token(
         name: "WETH",

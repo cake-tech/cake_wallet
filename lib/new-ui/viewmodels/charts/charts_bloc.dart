@@ -3,6 +3,7 @@ import "dart:async";
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/model/charts/charts_asset.dart";
 import "package:cake_wallet/new-ui/model/charts/price_data.dart";
@@ -13,7 +14,6 @@ import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart
 import "package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/foundation.dart";
 
@@ -30,15 +30,21 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
     on<CurrencyPinned>(_onCurrencyPinned, transformer: sequential());
     on<PageRefreshed>(_onPageRefreshed, transformer: sequential());
     on<PageLoadStarted>(_onPageLoadStarted, transformer: restartable());
-    on<Init>(_init);
+    on<Init>(_init, transformer: sequential());
   }
 
   final PriceStore priceStore;
   final AppStore appStore;
 
   Future<void> _init(Init event, Emitter<ChartsState> emit) async {
-    if (state is! ChartsInitial) {
+
+    if(appStore.settingsStore.fiatApiMode == FiatApiMode.disabled) {
+      emit(const ChartsDisabled());
       return;
+    }
+
+    if (state is! ChartsInitial) {
+      emit(const ChartsInitial());
     }
 
     final assets = await ChartsAsset.get();

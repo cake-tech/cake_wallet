@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Safer sends",
+    "description": "Payments that would be split into several transactions are now stopped before sending"
+  },
+  {
+    "title": "Price Charts",
+    "description": "A new Charts tab to keep an eye on prices"
+  },
+  {
+    "title": "Bug fixes & improvements",
+    "description": "New Cake Tor node, restore height filled in on Rescan, and more"
+  }
+]

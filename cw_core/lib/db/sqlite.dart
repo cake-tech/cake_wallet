@@ -306,7 +306,6 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
-    await _createDeprecatedWalletSeedTable(db);
     await _createCoinControlTables(db);
 
     },
@@ -617,16 +616,4 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
-}
-
-
-Future<void> _createDeprecatedWalletSeedTable(Database db) async {
-  await db.execute("""
-CREATE TABLE DeprecatedWalletSeeds (
-walletInfoId INTEGER PRIMARY KEY,
-seed TEXT NOT NULL,
-passphrase TEXT NOT NULL,
-FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-""");
 }
