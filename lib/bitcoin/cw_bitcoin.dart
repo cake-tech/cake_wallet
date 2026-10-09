@@ -217,17 +217,24 @@ class CWBitcoin extends Bitcoin {
       }
 
       final p2shAddr = sk.getPublic().toP2pkhAddress();
+      final feeRate = getFeeRate(
+        wallet,
+        wallet.type == WalletType.litecoin
+            ? priority as LitecoinTransactionPriority
+            : priority as BitcoinTransactionPriority,
+      );
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
-        getFeeRate(
-          wallet,
-          wallet.type == WalletType.litecoin
-              ? priority as LitecoinTransactionPriority
-              : priority as BitcoinTransactionPriority,
-        ),
+        feeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
+      // A PIVX exchange (EXM) destination is one byte over this P2PKH dummy;
+      // hold back that byte's fee so the quoted maximum still pays.
+      // A Sapling sweep (no UTXOs) already prices the EXM-sized output.
+      if (wallet.type == WalletType.pivx && estimatedTx.utxos.isNotEmpty) {
+        return estimatedTx.amount - Money.fromInt(feeRate, wallet.currency);
+      }
       return estimatedTx.amount;
     } catch (_) {
       return Money.zero(wallet.currency);
@@ -265,6 +272,9 @@ class CWBitcoin extends Bitcoin {
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
           return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.sapling:
+          return false; // pivx shielded notes are not UTXOs
+        case UnspentCoinType.transparent:
         case UnspentCoinType.lightning:
         case UnspentCoinType.any:
           return true;

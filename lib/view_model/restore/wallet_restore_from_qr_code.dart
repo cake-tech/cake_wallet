@@ -60,6 +60,9 @@ class WalletRestoreFromQRCode {
     'zcash': WalletType.zcash,
     'zcash-wallet': WalletType.zcash,
     'zcash_wallet': WalletType.zcash,
+    'pivx': WalletType.pivx,
+    'pivx-wallet': WalletType.pivx,
+    'pivx_wallet': WalletType.pivx,
   };
 
   static WalletType? _extractWalletType(String code) {

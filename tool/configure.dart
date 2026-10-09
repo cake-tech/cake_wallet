@@ -12,6 +12,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const evmOutputPath = 'lib/evm/evm.dart';
 const zcashOutputPath = 'lib/zcash/zcash.dart';
+const pivxOutputPath = 'lib/pivx/pivx.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -32,6 +33,7 @@ Future<void> main(List<String> args) async {
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
+  final hasPivx = args.contains('${prefix}pivx');
   final hasBase = args.contains('${prefix}base');
   final hasArbitrum = args.contains('${prefix}arbitrum');
   final hasBsc = args.contains('${prefix}bsc');
@@ -53,6 +55,7 @@ Future<void> main(List<String> args) async {
   await generateDogecoin(hasDogecoin);
   await generateEVM(hasEVM);
   await generateZcash(hasZcash);
+  await generatePivx(hasPivx);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -69,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasPivx: hasPivx,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
@@ -89,6 +93,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasPivx: hasPivx,
     hasBase: hasBase,
     hasArbitrum: hasArbitrum,
     hasBsc: hasBsc,
@@ -1393,6 +1398,83 @@ abstract class DogeCoin {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generatePivx(bool hasImplementation) async {
+  final outputFile = File(pivxOutputPath);
+  const pivxCommonHeaders = """
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const pivxCWHeaders = """
+import 'package:cw_pivx/cw_pivx.dart';
+""";
+  const pivxCwPart = "part 'cw_pivx.dart';";
+  const pivxContent = """
+abstract class Pivx {
+  WalletService createPivxWalletService(
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+
+  WalletCredentials createPivxNewWalletCredentials(
+      {required String name,
+      WalletInfo? walletInfo,
+      String? password,
+      String? passphrase,
+      String? mnemonic});
+
+  WalletCredentials createPivxRestoreWalletFromSeedCredentials(
+      {required String name,
+      required String mnemonic,
+      required String password,
+      String? passphrase,
+      int? height});
+
+  TransactionPriority deserializePivxTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+
+  TransactionPriority getPivxTransactionPrioritySlow();
+
+  int getHeightByDate({required DateTime date});
+
+  ReceivePageOption getSelectedAddressType(Object wallet);
+
+  bool isPivxReceivePageOption(ReceivePageOption option);
+
+  dynamic getOptionToType(ReceivePageOption option);
+
+  Future<void> setAddressType(Object wallet, dynamic option);
+
+  Future<int> estimatedSendFee(Object wallet, TransactionPriority priority, int amount,
+      {required String toAddress, required UnspentCoinType source, bool sendAll = false});
+
+  Future<int> spendableAmount(Object wallet, UnspentCoinType source, String toAddress);
+}
+""";
+
+  const pivxEmptyDefinition = 'Pivx? pivx;\n';
+  const pivxCWDefinition = 'Pivx? pivx = CWPivx();\n';
+
+  final output = '$pivxCommonHeaders\n' +
+      (hasImplementation ? '$pivxCWHeaders\n' : '\n') +
+      (hasImplementation ? '$pivxCwPart\n\n' : '\n') +
+      (hasImplementation ? pivxCWDefinition : pivxEmptyDefinition) +
+      '\n' +
+      pivxContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateEVM(bool hasImplementation) async {
   final outputFile = File(evmOutputPath);
   const evmCommonHeaders = """
@@ -1851,6 +1933,7 @@ Future<void> generatePubspec({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasPivx,
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
@@ -1920,6 +2003,10 @@ Future<void> generatePubspec({
   cw_zcash:
       path: ./cw_zcash
   """;
+  const cwPivx = """
+  cw_pivx:
+      path: ./cw_pivx
+  """;
 
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -1986,6 +2073,10 @@ Future<void> generatePubspec({
     output += '\n$cwZcash';
   }
 
+  if (hasPivx) {
+    output += '\n$cwPivx';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -2012,6 +2103,7 @@ Future<void> generateWalletTypes({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasPivx,
   required bool hasBase,
   required bool hasArbitrum,
   required bool hasBsc,
@@ -2066,6 +2158,10 @@ Future<void> generateWalletTypes({
 
   if (hasBitcoinCash) {
     outputContent += '\tWalletType.bitcoinCash,\n';
+  }
+
+  if (hasPivx) {
+    outputContent += '\tWalletType.pivx,\n';
   }
 
   if (hasBitcoin) {

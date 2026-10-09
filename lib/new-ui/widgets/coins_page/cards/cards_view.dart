@@ -161,7 +161,7 @@ class _CardsViewState extends State<CardsView> {
 
               late final String walletBalance;
               late final String walletFiatBalance;
-              if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
+              if (widget.dashboardViewModel.showsCombinedPrivateBalance) {
                 if (widget.dashboardViewModel.balanceViewModel.displayMode ==
                     BalanceDisplayMode.hiddenBalance) {
                   walletBalance = '●●●●●●';
