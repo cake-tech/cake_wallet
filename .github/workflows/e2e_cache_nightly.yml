@@ -88,8 +88,9 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
           disable-animations: false
+          # the action's shell is /usr/bin/sh (dash) — no bashisms.
           script: |
-            set -euo pipefail
+            set -eu
             for i in $(seq 1 60); do
               adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
               sleep 10

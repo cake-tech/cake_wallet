@@ -137,8 +137,10 @@ jobs:
           # (adb exit 224). The script settles first and sets the three
           # animation scales itself.
           disable-animations: false
+          # NOTE: the action runs `script:` under /usr/bin/sh (dash) — bashisms
+          # (`set -o pipefail`, arrays) fail instantly with "Illegal option".
           script: |
-            set -euo pipefail
+            set -eu
             for i in $(seq 1 60); do
               adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
               sleep 10
@@ -151,9 +153,11 @@ jobs:
             nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
             SHARD="${{ inputs.shard }}"
-            ARGS=(--target pixel --reporter list,junit,markdown)
-            if [ -n "$SHARD" ]; then ARGS+=(--shard "$SHARD"); fi
-            npx e2e run "${ARGS[@]}"
+            if [ -n "$SHARD" ]; then
+              npx e2e run --target pixel --reporter list,junit,markdown --shard "$SHARD"
+            else
+              npx e2e run --target pixel --reporter list,junit,markdown
+            fi
 
       - name: Upload results
         if: always()
