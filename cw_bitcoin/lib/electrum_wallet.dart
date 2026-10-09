@@ -32,6 +32,8 @@ import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/address_generation_wallet.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -39,6 +41,7 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -63,7 +66,7 @@ class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, AddressGenerationWallet {
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -2060,6 +2063,30 @@ abstract class ElectrumWalletBase
     final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
 
     return feeAmountWithFeeRate(feeRate, inputsCount, _outputsCount);
+  }
+
+  @override
+  Future<String> generateNewAddress(
+    ReceivePageOption type, {
+    String label = "",
+    bool setAsActive = false,
+  }) async {
+    final record = walletAddresses.generateNewAddress(
+      label: label,
+      type: walletAddresses.typeFor(type),
+    );
+    await Future.delayed(Duration.zero);
+    if (setAsActive) {
+      walletAddresses.address = record.address;
+    }
+    await save();
+    return record.address;
+  }
+
+  @override
+  Future<void> setAddressLabel(AddressEntry entry, String label) async {
+    walletAddresses.updateAddress(entry.address, label);
+    await save();
   }
 
   @override

@@ -73,6 +73,7 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
             ModalTopBar(
               title: "",
               trailingIcon: const Icon(Icons.close),
+              trailingSemanticLabel: S.of(context).close,
               onTrailingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 32),

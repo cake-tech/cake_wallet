@@ -1,5 +1,9 @@
 import 'package:cw_core/account.dart';
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/payment_uris.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -166,4 +170,28 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   PaymentURI getPaymentUri(String amount) => MoneroURI(address: address, amount: amount);
+
+  @override
+  int get currentAccountIndex => account?.id ?? 0;
+
+  @override
+  Future<String?> loadAccountLabel() async => account?.label;
+
+  @override
+  List<AddressGroup> addressListFor(ReceivePageOption type) => [
+        AddressGroup(
+          entries: subaddressList.subaddresses
+              .map(
+                (subaddress) => AddressEntry(
+                  id: subaddress.id,
+                  address: subaddress.address,
+                  label: subaddress.label,
+                  txCount: subaddress.txCount,
+                  balance: Money.tryParse(subaddress.balance ?? "", CryptoCurrency.xmr),
+                  isHidden: hiddenAddresses.contains(subaddress.address),
+                ),
+              )
+              .toList(),
+        ),
+      ];
 }

@@ -151,4 +151,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get canSignMessages => walletInfo.hardwareWalletType == null || walletInfo.isHardwareWallet;
 
   bool receiveOptionAvailable(ReceivePageOption option) => true;
+
+  List<ReceivePageOption> get addressTypeOptions =>
+      walletAddresses.receivePageOptions.where(receiveOptionAvailable).toList();
 }

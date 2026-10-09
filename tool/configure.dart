@@ -155,7 +155,6 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -170,27 +169,6 @@ import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-
-class ElectrumSubAddress {
-  ElectrumSubAddress({
-    required this.id,
-    required this.name,
-    required this.address,
-    required this.txCount,
-    required this.balance,
-    required this.isChange,
-    this.derivationPath,
-    this.isLegacyDerivation = false
-  });
-  final int id;
-  final String name;
-  final String address;
-  final int txCount;
-  final int balance;
-  final bool isChange;
-  final String? derivationPath;
-  final bool isLegacyDerivation;
-}
 
 abstract class Bitcoin {
   TransactionPriority getMediumTransactionPriority();
@@ -215,17 +193,12 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
   int getFeeRate(Object wallet, TransactionPriority priority);
-  Future<void> generateNewAddress(Object wallet, String label);
-  Future<void> updateAddress(Object wallet,String address, String label);
   Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
 
   String getAddress(Object wallet);
-  List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
-  List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet);
 
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
-  List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
@@ -246,17 +219,12 @@ abstract class Bitcoin {
   Future<List<DerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
-  Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   ReceivePageOption getBitcoinLightningReceivePageOption();
   ReceivePageOption getBitcoinSegwitPageOption();
   ReceivePageOption getLitecoinMwebReceivePageOption();
   bool isPayjoinAvailable(Object wallet);
-  bool hasSelectedSilentPayments(Object wallet);
-  bool hasSelectedLightning(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
-  BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
   Future<void> setScanningActive(Object wallet, bool active);
@@ -507,9 +475,6 @@ abstract class MoneroSubaddressList {
   Future<void> update(Object wallet, {required int accountIndex});
   void refresh(Object wallet, {required int accountIndex});
   Future<List<Subaddress>> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
-  Future<void> setLabelSubaddress(Object wallet,
-      {required int accountIndex, required int addressIndex, required String label});
 }
 
 abstract class MoneroAccountList {
@@ -1272,7 +1237,6 @@ Future<void> generateDecred(bool hasImplementation) async {
   final outputFile = File(decredOutputPath);
   const decredCommonHeaders = """
 import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
@@ -1308,10 +1272,6 @@ abstract class Decred {
   TransactionPriority deserializeDecredTransactionPriority(int raw);
 
   Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
-
-  List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
-  Future<void> updateAddress(Object wallet, String address, String label);
-  Future<void> generateNewAddress(Object wallet, String label);
 
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
@@ -1798,18 +1758,11 @@ abstract class Zcash {
   double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount});
   String formatterZcashAmountToString({required int amount});
 
-  List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
-
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getZcashTransactionPriorityAutomatic();
   TransactionPriority deserializeZcashTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   ReceivePageOption getSelectedAddressType(Object wallet);
-  dynamic getZcashAddressType(ReceivePageOption option);
-  bool hasSelectedTransparentAddress(Object wallet);
-  bool isRotatingAddressOption(ReceivePageOption option);
-  Future<void> setAddressType(Object wallet, dynamic option);
-  dynamic getOptionToType(ReceivePageOption option);
   void unlockDatabase(String password);
   Future<int> getHeightByDate(DateTime date);
   bool showMissingFundsCard(WalletBase wallet);
