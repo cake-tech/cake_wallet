@@ -159,17 +159,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                             ? fiatAmountController
                                             : amountController,
                                         onChanged: (value) {
-                                          if (value.isNotEmpty) {
-                                            if (state is SwapStateWithInputs) {
-                                              final amount = Money.tryParse(value, inputCurrency);
-                                              if(amount != null) {
-                                                widget.bloc.add(
-                                                  widget.isReceiverCard
-                                                      ? PayoutAmountChanged(amount)
-                                                      : DepositAmountChanged(amount),
-                                                );
-                                              }
-
+                                          if (state is SwapStateWithInputs) {
+                                            final amount = value.isEmpty
+                                                ? Money.zero(inputCurrency)
+                                                : Money.tryParse(value, inputCurrency);
+                                            if(amount != null) {
+                                              widget.bloc.add(
+                                                widget.isReceiverCard
+                                                    ? PayoutAmountChanged(amount)
+                                                    : DepositAmountChanged(amount),
+                                              );
                                             }
                                           }
                                         },
