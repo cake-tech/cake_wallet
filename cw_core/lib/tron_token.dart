@@ -166,6 +166,18 @@ class TronToken extends CryptoCurrency {
         whereArgs: [walletName, contractAddress],
       );
 
+  static Future<int> updateNetworkIconUrl(
+    String walletName,
+    String contractAddress,
+    String networkIconUrl,
+  ) =>
+      db!.update(
+        tableName,
+        {"networkIconUrl": networkIconUrl},
+        where: "walletName = ? AND contractAddress = ? AND isPotentialScam = 0",
+        whereArgs: [walletName, contractAddress],
+      );
+
   static Future<int> deleteAllForWallet(String walletName) =>
       db!.delete(tableName, where: "walletName = ?", whereArgs: [walletName]);
 

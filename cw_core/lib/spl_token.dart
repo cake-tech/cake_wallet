@@ -188,6 +188,18 @@ class SPLToken extends CryptoCurrency {
         whereArgs: [walletName, mintAddress],
       );
 
+  static Future<int> updateNetworkIconUrl(
+    String walletName,
+    String mintAddress,
+    String networkIconUrl,
+  ) =>
+      db!.update(
+        tableName,
+        {"networkIconUrl": networkIconUrl},
+        where: "walletName = ? AND mintAddress = ? AND isPotentialScam = 0",
+        whereArgs: [walletName, mintAddress],
+      );
+
   static Future<int> deleteAllForWallet(String walletName) =>
       db!.delete(tableName, where: "walletName = ?", whereArgs: [walletName]);
 

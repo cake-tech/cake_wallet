@@ -11,6 +11,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import "package:cw_core/token_icon_refresh.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import "package:cw_core/utils/print_verbose.dart";
@@ -39,7 +40,7 @@ class TronWallet = TronWalletBase with _$TronWallet;
 
 abstract class TronWalletBase
     extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, TokenIconRefresh<TronToken> {
   TronWalletBase({
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
@@ -62,11 +63,7 @@ abstract class TronWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
-
-    _sharedPrefs.complete(SharedPreferences.getInstance());
   }
-
-  final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   final String? _mnemonic;
   final String? _hexPrivateKey;
@@ -195,7 +192,7 @@ abstract class TronWalletBase
       _upsertCachedToken(newToken);
     }
 
-    _refreshTokenIcons();
+    unawaited(refreshTokenIcons(_tronTokens));
   }
 
   Future<void> initTronTokens() async {
@@ -215,54 +212,27 @@ abstract class TronWalletBase
     _tronTokens.add(token);
   }
 
-  bool _iconRefreshInFlight = false;
+  @override
+  Future<bool> isTokenIconRefreshDisabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("disable_token_image_refresh") ?? false;
+  }
 
-  Future<void> _refreshTokenIcons() async {
-    if (_iconRefreshInFlight) {
+  @override
+  Future<String?> fetchTokenIconUrl(TronToken token) =>
+      _client.fetchTrc20IconUrl(token.contractAddress);
+
+  @override
+  Future<void> saveTokenIconUrl(TronToken token, String iconUrl) async {
+    final updatedRows =
+        await TronToken.updateNetworkIconUrl(walletInfo.name, token.contractAddress, iconUrl);
+
+    final cachedToken = _findCachedToken(token.contractAddress);
+    if (updatedRows == 0 || cachedToken == null) {
       return;
     }
 
-    _iconRefreshInFlight = true;
-
-    try {
-      final prefs = await _sharedPrefs.future;
-
-      if (prefs.getBool("disable_token_image_refresh") ?? false) {
-        return;
-      }
-
-      final tokens = _tronTokens.toList()
-        ..sort((a, b) => (b.enabled ? 1 : 0).compareTo(a.enabled ? 1 : 0));
-
-      for (final token in tokens) {
-        if (token.isPotentialScam || !token.hasPlaceholderIcon) {
-          continue;
-        }
-
-        try {
-          final logoUrl = await _client.fetchTrc20IconUrl(token.contractAddress);
-
-          if (logoUrl == null || !logoUrl.startsWith("http")) {
-            continue;
-          }
-
-          final exists = await TronToken.getByContract(walletInfo.name, token.contractAddress);
-
-          if (exists == null) {
-            continue;
-          }
-
-          token.networkIconUrl = logoUrl;
-          await token.save();
-        } catch (e) {
-          printV("Failed to fetch icon url for ${token.symbol}: $e");
-        }
-      }
-    } catch (e) {
-      printV("Token icon refresh failed: $e");
-    } finally {
-      _iconRefreshInFlight = false;
-    }
+    cachedToken.networkIconUrl = iconUrl;
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';

@@ -8,6 +8,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import "package:cw_core/token_icon_refresh.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
@@ -39,7 +40,7 @@ class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
 abstract class SolanaWalletBase
     extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, TokenIconRefresh<SPLToken> {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
@@ -175,60 +176,27 @@ abstract class SolanaWalletBase
     await prefs.setBool(_scamCheckDoneKey, true);
   }
 
-  bool _iconRefreshInFlight = false;
+  @override
+  Future<bool> isTokenIconRefreshDisabled() async {
+    final prefs = await _sharedPrefs.future;
+    return prefs.getBool("disable_token_image_refresh") ?? false;
+  }
 
-  Future<void> _refreshTokenIcons() async {
-    if (_iconRefreshInFlight) {
+  @override
+  Future<String?> fetchTokenIconUrl(SPLToken token) async =>
+      (await _client.getTokenInfo(token.mintAddress))?.iconPath;
+
+  @override
+  Future<void> saveTokenIconUrl(SPLToken token, String iconUrl) async {
+    final updatedRows =
+        await SPLToken.updateNetworkIconUrl(walletInfo.name, token.mintAddress, iconUrl);
+
+    final cachedToken = _findCachedToken(token.mintAddress);
+    if (updatedRows == 0 || cachedToken == null) {
       return;
     }
 
-    _iconRefreshInFlight = true;
-
-    try {
-      final prefs = await _sharedPrefs.future;
-
-      if (prefs.getBool("disable_token_image_refresh") ?? false) {
-        return;
-      }
-
-      final tokens = _splTokens.toList()
-        ..sort((a, b) => (b.enabled ? 1 : 0).compareTo(a.enabled ? 1 : 0));
-
-      for (final token in tokens) {
-        if (token.isPotentialScam || !token.hasPlaceholderIcon) {
-          continue;
-        }
-
-        try {
-          final fetched = await _client.getTokenInfo(token.mintAddress);
-
-          final logoUrl = fetched?.iconPath;
-
-          if (logoUrl == null || !logoUrl.startsWith("http")) {
-            continue;
-          }
-
-          final exists = await SPLToken.getByMint(walletInfo.name, token.mintAddress);
-
-          if (exists == null) {
-            continue;
-          }
-
-          if (token.isPotentialScam) {
-            continue;
-          }
-
-          token.networkIconUrl = logoUrl;
-          await token.save();
-        } catch (e) {
-          printV("Failed to fetch icon url for ${token.symbol}: $e");
-        }
-      }
-    } catch (e) {
-      printV("Token icon refresh failed: $e");
-    } finally {
-      _iconRefreshInFlight = false;
-    }
+    cachedToken.networkIconUrl = iconUrl;
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -860,7 +828,7 @@ abstract class SolanaWalletBase
       _upsertCachedToken(newToken);
     }
 
-    _refreshTokenIcons();
+    unawaited(refreshTokenIcons(_splTokens));
   }
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {

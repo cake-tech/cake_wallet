@@ -60,11 +60,6 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
     return networkUrl;
   }
 
-  String? get _fallbackImagePath =>
-      _displayUrl != widget.imageUrl && widget.imageUrl.startsWith("assets/")
-          ? widget.imageUrl
-          : null;
-
   @override
   void initState() {
     super.initState();
@@ -156,17 +151,31 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final displayUrl = _displayUrl;
+
+    final bundledImage = displayUrl != widget.imageUrl && widget.imageUrl.startsWith("assets/")
+        ? CakeImageWidget(
+            imageUrl: widget.imageUrl,
+            width: widget.size,
+            height: widget.size,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorWidget: widget.errorWidget,
+            semanticsLabel: widget.semanticsLabel,
+          )
+        : null;
+
     final image = SizedBox(
       width: widget.size,
       height: widget.size,
       child: CakeImageWidget(
-        imageUrl: _displayUrl,
-        fallbackImagePath: _fallbackImagePath,
+        imageUrl: displayUrl,
         width: widget.size,
         height: widget.size,
         fit: BoxFit.cover,
         filterQuality: FilterQuality.high,
-        errorWidget: widget.errorWidget,
+        loadingWidget: bundledImage,
+        errorWidget: bundledImage ?? widget.errorWidget,
         semanticsLabel: widget.semanticsLabel,
       ),
     );
