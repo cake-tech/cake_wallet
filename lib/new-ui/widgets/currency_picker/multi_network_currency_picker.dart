@@ -101,7 +101,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   void _selectCurrency(CryptoCurrency currency) {
     widget.args.onSelected(currency);
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(currency);
   }
 
   void _onStablecoinPillTapped(CryptoCurrency tapped) {

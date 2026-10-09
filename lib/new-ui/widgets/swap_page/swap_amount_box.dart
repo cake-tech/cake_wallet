@@ -720,16 +720,23 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     }
     final isLoadedWallet = wallet.name == widget.exchangeViewModel.wallet.name &&
         wallet.type == widget.exchangeViewModel.wallet.type;
-    final address = isLoadedWallet
-        ? widget.exchangeViewModel.wallet.walletAddresses.addressForExchange
-        : wallet.address;
-    widget.exchangeViewModel.depositAddress = address;
-    addressController.text = _normalizeAddressFormat(address);
-    if (isLoadedWallet) {
+    if (!isLoadedWallet) {
+      widget.walletSwitcherViewModel.selectWallet(wallet);
+      await widget.walletSwitcherViewModel.switchToSelectedWallet();
+    }
+
+    if (!mounted) {
       return;
     }
-    widget.walletSwitcherViewModel.selectWallet(wallet);
-    await widget.walletSwitcherViewModel.switchToSelectedWallet();
+
+    final canSendDeposit = widget.exchangeViewModel.useSameWalletAddress(
+      widget.exchangeViewModel.depositCurrency,
+    );
+    final address =
+        canSendDeposit ? widget.exchangeViewModel.wallet.walletAddresses.addressForExchange : "";
+    widget.exchangeViewModel.isSendFromExternal = !canSendDeposit;
+    widget.exchangeViewModel.depositAddress = address;
+    addressController.text = _normalizeAddressFormat(address);
   }
 
   void askForRefundAddress() async {
