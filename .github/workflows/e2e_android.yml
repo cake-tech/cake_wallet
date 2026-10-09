@@ -137,14 +137,11 @@ jobs:
           # (adb exit 224). The script settles first and sets the three
           # animation scales itself.
           disable-animations: false
-          # NOTE: the action runs `script:` under /usr/bin/sh (dash) — bashisms
-          # (`set -o pipefail`, arrays) fail instantly with "Illegal option".
+          # NOTE: the action's parseScript() runs EACH LINE as its own
+          # `/usr/bin/sh -c` (dash): no bashisms, no multi-line constructs,
+          # and `set -eu` on its own line has no effect on the others.
           script: |
-            set -eu
-            for i in $(seq 1 60); do
-              adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
-              sleep 10
-            done
+            i=0; until adb shell settings get global window_animation_scale >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 60 ]; then break; fi; sleep 10; done
             adb shell settings put global window_animation_scale 0 || true
             adb shell settings put global transition_animation_scale 0 || true
             adb shell settings put global animator_duration_scale 0 || true
@@ -152,12 +149,7 @@ jobs:
             cd cake-qa
             nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
-            SHARD="${{ inputs.shard }}"
-            if [ -n "$SHARD" ]; then
-              npx e2e run --target pixel --reporter list,junit,markdown --shard "$SHARD"
-            else
-              npx e2e run --target pixel --reporter list,junit,markdown
-            fi
+            if [ -n "${{ inputs.shard }}" ]; then npx e2e run --target pixel --reporter list,junit,markdown --shard "${{ inputs.shard }}"; else npx e2e run --target pixel --reporter list,junit,markdown; fi
 
       - name: Upload results
         if: always()

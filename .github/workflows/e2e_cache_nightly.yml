@@ -88,13 +88,10 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
           disable-animations: false
-          # the action's shell is /usr/bin/sh (dash) — no bashisms.
+          # parseScript(): one sh -c (dash) per line — no bashisms, no loops
+          # spanning lines, no reliance on `set -eu` persisting.
           script: |
-            set -eu
-            for i in $(seq 1 60); do
-              adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
-              sleep 10
-            done
+            i=0; until adb shell settings get global window_animation_scale >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 60 ]; then break; fi; sleep 10; done
             adb shell settings put global window_animation_scale 0 || true
             adb shell settings put global transition_animation_scale 0 || true
             adb shell settings put global animator_duration_scale 0 || true
