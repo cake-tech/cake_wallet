@@ -331,7 +331,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name,
               privateKey: options['private_key'] as String,
               password: password,
-              height: height);
+              height: height,
+              accountIndex: restoredWallet?.accountIndex ?? 0,
+              hardwareWalletType: hardwareWalletType);
         default:
           break;
       }

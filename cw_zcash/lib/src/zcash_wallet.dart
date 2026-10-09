@@ -68,6 +68,8 @@ abstract class ZcashWalletBase
 
   int accountId;
 
+  bool get isQrSigner => hardwareWalletType == HardwareWalletType.cupcake;
+
   bool get canRotateTransparentAddress => isSoftwareWallet;
 
   bool get canUseLegacyShielded => isSoftwareWallet;
@@ -82,6 +84,8 @@ abstract class ZcashWalletBase
     }
     return true;
   }
+
+  Future<void> Function(String ur)? onCommitAirgapUr;
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
@@ -423,6 +427,7 @@ abstract class ZcashWalletBase
               for (final wallet in walletsByAccountId.values) {
                 unawaited(wallet.updateBalance());
                 unawaited(wallet.updateTransactions());
+                if (!wallet.canRotateTransparentAddress) continue;
                 unawaited(
                   ZcashTaddressRotation.updateCache(mainAccountId: wallet.accountId)
                       .catchError((final e) {
@@ -1181,15 +1186,19 @@ abstract class ZcashWalletBase
 
   Future<void> init() async {
     try {
-      await ZcashTaddressRotation.init();
+      if (canRotateTransparentAddress) {
+        await ZcashTaddressRotation.init();
+      }
       await walletAddresses.init();
 
       await updateBalance();
       await updateTransactions();
-      unawaited(
-        ZcashTaddressRotation.updateCache(mainAccountId: accountId)
-            .catchError((final e) => printV("rotation cache refresh: $e")),
-      );
+      if (canRotateTransparentAddress) {
+        unawaited(
+          ZcashTaddressRotation.updateCache(mainAccountId: accountId)
+              .catchError((final e) => printV("rotation cache refresh: $e")),
+        );
+      }
       await _initKeys();
     } catch (e) {
       printV("Wallet init error: $e");
@@ -1451,7 +1460,7 @@ abstract class ZcashWalletBase
     try {
       await _updateIronwoodActive();
 
-      if (!isHardwareWallet) {
+      if (!isHardwareWallet && !isQrSigner) {
         if (runAutoShield) {
           await _autoShield();
         }
@@ -1593,6 +1602,27 @@ abstract class ZcashWalletBase
     }
 
     final zcashSecretExtendedKeyRegex = RegExp(r'^secret-extended-key-main1[a-z0-9]+$');
+    if (keys.startsWith('uview')) {
+      final height = (credentials.height ?? 0) > 0
+          ? credentials.height!
+          : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+      final accountId = await newAccount(
+        name: credentials.name,
+        height: height,
+        seed: keys,
+        passphrase: "",
+        hw: 0,
+        aIndex: fromKeysCredentials.accountIndex,
+      );
+      await saveAccountId(credentials.name, accountId);
+      final wallet = await open(
+        name: credentials.name,
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
+      );
+      await wallet.init();
+      return wallet;
+    }
     if (!zcashSecretExtendedKeyRegex.hasMatch(keys)) {
       throw BadKeysException('Key is not in secret-extended-key-main1 format');
     }
