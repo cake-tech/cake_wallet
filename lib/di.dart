@@ -1029,7 +1029,8 @@ Future<void> setup({
   );
 
   getIt.registerFactory(
-      () => ConnectionSyncViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
+      () => ConnectionSyncViewModel(
+          getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, getIt.get<AppStore>()));
 
   getIt.registerFactory(() => ConnectionSyncPage(getIt.get<ConnectionSyncViewModel>()));
 

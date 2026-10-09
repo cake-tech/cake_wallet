@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/wallet_connect/utils/dapp_icon.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -190,9 +191,8 @@ class WalletConnectConnectionsView extends StatelessWidget {
                                 keyValue: pairing.topic,
                                 label: metadata.name,
                                 subtitle: metadata.url,
-                                iconPath: metadata.icons.isNotEmpty
-                                    ? metadata.icons.first
-                                    : 'assets/new-ui/walletconnect_icon.svg',
+                                iconPath: wcDappIconUrl(metadata) ??
+                                    'assets/new-ui/walletconnect_icon.svg',
                                 onTap: () => _openPairingDetails(context, pairing),
                                 leadingIconSize: 36,
                                 leadingIconErrorWidget: CakeImageWidget(

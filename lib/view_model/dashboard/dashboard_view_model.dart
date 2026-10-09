@@ -1565,6 +1565,7 @@ abstract class DashboardViewModelBase with Store {
     }
     settingsStore.currentBuiltinTor = value;
     if (value) {
+      appStore.disconnectWalletConnect();
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
@@ -1574,6 +1575,7 @@ abstract class DashboardViewModelBase with Store {
         }
         await wallet.connectToNode(
             node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
+        appStore.reconnectWalletConnect();
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
@@ -1585,6 +1587,7 @@ abstract class DashboardViewModelBase with Store {
         }
         await wallet.connectToNode(
             node: appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId));
+        appStore.reconnectWalletConnect();
       }));
     }
   }
