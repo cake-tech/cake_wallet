@@ -160,9 +160,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        lightningWallet?.close();
         lightningWallet = null;
       }
     });
