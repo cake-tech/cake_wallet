@@ -115,16 +115,15 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       throw Exception(error ?? "rejected the quote: ${response.body}");
     }
 
-    final rate = responseBody.data?.price;
+    final payout = responseBody.data?.price;
 
-    if(rate == null) {
-      throw Exception("rate is null\n${response.body}");
+    if(payout == null) {
+      throw Exception("payout is null\n${response.body}");
     }
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate(
-          base: from.currency, quote: Money.parse(rate.toStringAsFixed(to.decimals), to)),
+      rate: ExchangeRate.fromAmounts(from, Money.parse(payout.toStringAsFixed(to.decimals), to)),
       limits: await fetchLimits(
         from: from.currency as CryptoCurrency,
         to: to,
