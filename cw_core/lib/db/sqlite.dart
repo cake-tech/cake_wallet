@@ -193,9 +193,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
-      if(oldVersion <= 14) {
-        await _createDeprecatedWalletSeedTable(db);
-      }
 
       if (oldVersion <= 15) {
         await _createCoinControlTables(db);
