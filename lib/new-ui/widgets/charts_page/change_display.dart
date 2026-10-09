@@ -15,7 +15,7 @@ class ChangeDisplay extends StatelessWidget {
         children: [
           Text(
             "${changeData.direction.symbol}${ticker} ${changeData.amount.toStringWithPrecision(fractionalDigits: 2)}",
-            style: TextStyle(fontSize: 16, color: changeData.direction.color),
+            style: TextStyle(fontSize: 16, color: changeData.direction.colorOf(context)),
           ),
           ChangePill(changePercentage: changeData.percentage, direction: changeData.direction)
         ],
