@@ -98,7 +98,7 @@ jobs:
             adb install -r apk/app-x86_64-release.apk
             nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
-            adb kill-server && adb start-server
+            adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
             CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel --reporter list,junit,markdown
 
       - name: Upload results
