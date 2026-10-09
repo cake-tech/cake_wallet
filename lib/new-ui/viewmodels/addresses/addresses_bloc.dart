@@ -46,9 +46,13 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState>
 
   WalletType get walletType => wallet.type;
 
-  String? get accountLabel => wallet.walletAddresses.accountLabel;
+  bool get hasNativeAccounts => wallet.hasNativeAccounts;
 
-  bool get hasAccounts => accountLabel != null;
+  bool get showsAccountHeader => wallet.walletInfo.isMultiAccountsEnabled == true;
+
+  String? _accountLabel;
+
+  String? get accountLabel => _accountLabel;
 
   CardDesign? _accountCardDesign;
 
@@ -62,12 +66,12 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState>
 
   bool get showAddManualAddresses =>
       canGenerateAddresses &&
-      (!addressService.isAutoGenerateSubaddressEnabled(wallet, addressType) || hasAccounts);
+      (!addressService.isAutoGenerateSubaddressEnabled(wallet, addressType) || hasNativeAccounts);
 
   Future<void> _init(Init event, Emitter<AddressesState> emit) async {
     emit(const AddressesLoading());
-    if (hasAccounts) {
-      await _loadAccountCardDesign();
+    if (showsAccountHeader) {
+      await _loadAccountHeader();
     }
     try {
       emit(
@@ -84,9 +88,19 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState>
     }
   }
 
-  Future<void> _loadAccountCardDesign() async {
+  Future<void> _loadAccountHeader() async {
     try {
-      final settings = await BalanceCardStyleSettings.get(wallet.walletInfo.internalId, 0);
+      _accountLabel = await wallet.walletAddresses.loadAccountLabel();
+    } catch (e) {
+      printV("AddressesBloc account label load failed: $e");
+    }
+
+    try {
+      final walletInfoId = wallet.walletInfo.internalId;
+      final accountIndex = wallet.walletAddresses.currentAccountIndex;
+      // Account 0 can still hold its style under the wallet-wide -1 index from before accounts.
+      final settings = await BalanceCardStyleSettings.get(walletInfoId, accountIndex) ??
+          (accountIndex == 0 ? await BalanceCardStyleSettings.get(walletInfoId, -1) : null);
       _accountCardDesign = CardDesign.fromStyleSettings(settings, wallet.currency);
     } catch (e) {
       printV("AddressesBloc card design load failed: $e");

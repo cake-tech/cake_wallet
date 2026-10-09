@@ -101,7 +101,9 @@ abstract class WalletAddresses {
 
   bool get canHideAddresses => true;
 
-  String? get accountLabel => null;
+  int get currentAccountIndex => 0;
+
+  Future<String?> loadAccountLabel() async => null;
 
   PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) =>
       getPaymentUri(amount);

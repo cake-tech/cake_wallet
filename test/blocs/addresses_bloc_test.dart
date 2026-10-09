@@ -8,6 +8,7 @@ import "package:cw_core/address_generation_wallet.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/wallet_addresses.dart";
 import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
@@ -19,6 +20,8 @@ class _MockWallet extends Mock implements WalletBase {}
 class _MockGeneratingWallet extends Mock implements WalletBase, AddressGenerationWallet {}
 
 class _MockWalletAddresses extends Mock implements WalletAddresses {}
+
+class _MockWalletInfo extends Mock implements WalletInfo {}
 
 class _Option implements ReceivePageOption {
   const _Option(this.value);
@@ -81,12 +84,19 @@ void main() {
     bool isAutoGenerateSubaddressEnabled = false,
     bool canHide = true,
     bool canGenerate = true,
+    bool? isMultiAccountsEnabled,
+    bool hasNativeAccounts = false,
     String? accountLabel,
   }) {
     final WalletBase mockWallet = canGenerate ? _MockGeneratingWallet() : _MockWallet();
+    final walletInfo = _MockWalletInfo();
+    when(() => walletInfo.isMultiAccountsEnabled).thenReturn(isMultiAccountsEnabled);
+    when(() => walletInfo.internalId).thenReturn(7);
     when(() => mockWallet.type).thenReturn(walletType);
     when(() => mockWallet.name).thenReturn("wallet-a");
     when(() => mockWallet.walletAddresses).thenReturn(walletAddresses);
+    when(() => mockWallet.walletInfo).thenReturn(walletInfo);
+    when(() => mockWallet.hasNativeAccounts).thenReturn(hasNativeAccounts);
     wallet = mockWallet;
 
     when(() => walletAddresses.defaultAddressType).thenReturn(_defaultType);
@@ -97,7 +107,8 @@ void main() {
     when(walletAddresses.saveAddressesInBox).thenAnswer((_) async {});
     when(() => addressService.isAutoGenerateSubaddressEnabled(any(), any()))
         .thenReturn(isAutoGenerateSubaddressEnabled);
-    when(() => walletAddresses.accountLabel).thenReturn(accountLabel);
+    when(walletAddresses.loadAccountLabel).thenAnswer((_) async => accountLabel);
+    when(() => walletAddresses.currentAccountIndex).thenReturn(0);
   }
 
   setUp(() {
@@ -193,17 +204,42 @@ void main() {
       bloc.close();
     });
 
-    test("hasAccounts follows the wallet's account label", () {
-      wireDefaults(accountLabel: "Primary account");
-      final withAccounts = buildBloc();
-      expect(withAccounts.hasAccounts, isTrue);
-      expect(withAccounts.accountLabel, "Primary account");
-      withAccounts.close();
+    test("account header carries the current account label when multi-accounts is on", () async {
+      wireDefaults(isMultiAccountsEnabled: true, accountLabel: "Savings account");
+      final bloc = buildBloc();
+      await waitForLoaded(bloc);
+      expect(bloc.showsAccountHeader, isTrue);
+      expect(bloc.accountLabel, "Savings account");
+      await bloc.close();
+    });
+
+    test("account header stays hidden when multi-accounts is off or unset", () async {
+      wireDefaults(isMultiAccountsEnabled: false, accountLabel: "Savings account");
+      final off = buildBloc();
+      await waitForLoaded(off);
+      expect(off.showsAccountHeader, isFalse);
+      expect(off.accountLabel, isNull);
+      await off.close();
+
+      wireDefaults(isMultiAccountsEnabled: null, accountLabel: "Savings account");
+      final unset = buildBloc();
+      await waitForLoaded(unset);
+      expect(unset.showsAccountHeader, isFalse);
+      expect(unset.accountLabel, isNull);
+      verifyNever(walletAddresses.loadAccountLabel);
+      await unset.close();
+    });
+
+    test("hasNativeAccounts follows the wallet", () {
+      wireDefaults(hasNativeAccounts: true);
+      final native = buildBloc();
+      expect(native.hasNativeAccounts, isTrue);
+      native.close();
 
       wireDefaults();
-      final withoutAccounts = buildBloc();
-      expect(withoutAccounts.hasAccounts, isFalse);
-      withoutAccounts.close();
+      final plain = buildBloc();
+      expect(plain.hasNativeAccounts, isFalse);
+      plain.close();
     });
 
     test("showAddManualAddresses needs generation and auto-generate off", () {
@@ -223,10 +259,21 @@ void main() {
       noGeneration.close();
     });
 
-    test("showAddManualAddresses stays on for account wallets with auto-generate on", () {
-      wireDefaults(accountLabel: "Primary account", isAutoGenerateSubaddressEnabled: true);
+    test("showAddManualAddresses stays on for native account wallets with auto-generate on", () {
+      wireDefaults(hasNativeAccounts: true, isAutoGenerateSubaddressEnabled: true);
       final bloc = buildBloc();
       expect(bloc.showAddManualAddresses, isTrue);
+      bloc.close();
+    });
+
+    test("multi-accounts alone does not turn on manual addresses with auto-generate on", () {
+      wireDefaults(
+        isMultiAccountsEnabled: true,
+        accountLabel: "Savings account",
+        isAutoGenerateSubaddressEnabled: true,
+      );
+      final bloc = buildBloc();
+      expect(bloc.showAddManualAddresses, isFalse);
       bloc.close();
     });
   });

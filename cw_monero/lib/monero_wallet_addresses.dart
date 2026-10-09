@@ -172,7 +172,10 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   PaymentURI getPaymentUri(String amount) => MoneroURI(address: address, amount: amount);
 
   @override
-  String? get accountLabel => account?.label;
+  int get currentAccountIndex => account?.id ?? 0;
+
+  @override
+  Future<String?> loadAccountLabel() async => account?.label;
 
   @override
   List<AddressGroup> addressListFor(ReceivePageOption type) => [

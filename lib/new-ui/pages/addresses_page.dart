@@ -242,7 +242,7 @@ class _GroupSection extends StatelessWidget {
                 isFirst: isFirstGroup && index == 0 && listStartsAtFirstRow,
                 isLast: index == group.entries.length - 1,
                 walletType: bloc.walletType,
-                hasReceived: bloc.hasAccounts,
+                hasReceived: bloc.hasNativeAccounts,
                 canSetLabel: bloc.canGenerateAddresses,
                 canHide: bloc.canHide,
                 isPicker: isPicker,
