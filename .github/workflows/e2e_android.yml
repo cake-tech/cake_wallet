@@ -71,11 +71,32 @@ jobs:
           RUN_ID="${{ inputs.build_run }}"
           if [ -z "$RUN_ID" ]; then
             SHA="${{ github.event.pull_request.head.sha || github.sha }}"
-            for id in $(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[].id'); do
-              if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
-                RUN_ID=$id
-                break
+            # The e2e lane starts in parallel with pr_test_build — WAIT for a
+            # run that owns the artifact instead of racing it (learned on
+            # PR #3700's first attempt). Give up after an hour, or immediately
+            # if every run for this SHA finished without the artifact.
+            DEADLINE=$(( $(date +%s) + 3600 ))
+            while :; do
+              RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[] | "\(.id) \(.status) \(.conclusion // "running")"')
+              ALL_FINISHED=1
+              while read -r id status conclusion; do
+                [ -z "$id" ] && continue
+                [ "$status" = "completed" ] || ALL_FINISHED=0
+                if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+                  RUN_ID=$id
+                  break
+                fi
+              done <<< "$RUNS"
+              [ -n "$RUN_ID" ] && break
+              if [ "$ALL_FINISHED" = "1" ] && [ -n "$RUNS" ]; then
+                echo "::error::pr_test_build for ${SHA} finished without an 'android apk' artifact (no dev fallback, per handoff)"
+                exit 1
               fi
+              if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+                echo "::error::timed out waiting for the pr_test_build artifact for ${SHA}"
+                exit 1
+              fi
+              sleep 30
             done
           fi
           if [ -z "$RUN_ID" ]; then
