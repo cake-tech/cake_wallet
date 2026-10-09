@@ -279,8 +279,9 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               if (widget.action == L2Actions.deposit) {
                                 await _handleChangeWallet(items[_selectedWalletIndex]);
                               } else {
-                                if (items[_selectedWalletIndex].name !=
-                                    widget.sendViewModel.wallet.name) {
+                                if (addressController.text.isNotEmpty ||
+                                    items[_selectedWalletIndex].name !=
+                                        widget.sendViewModel.wallet.name) {
                                   widget.sendViewModel.outputs.first.address =
                                       addressController.text.isNotEmpty
                                           ? addressController.text
