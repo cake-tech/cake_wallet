@@ -127,11 +127,21 @@ jobs:
           arch: x86_64
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
-          # The handoff pins animations off for this lane (the Dart-binding
-          # funds lane leaves them on deliberately — that is a different lane).
-          disable-animations: true
+          # The handoff pins animations off, but NOT via the action's own
+          # step: after a slow boot (764s observed) its `settings put` dies
+          # with "Broken pipe" and the action tears the emulator down
+          # (adb exit 224). The script settles first and sets the three
+          # animation scales itself.
+          disable-animations: false
           script: |
             set -euo pipefail
+            for i in $(seq 1 60); do
+              adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
+              sleep 10
+            done
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
             adb install -r apk/app-x86_64-release.apk
             cd cake-qa
             nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &

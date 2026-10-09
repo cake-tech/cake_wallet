@@ -83,9 +83,16 @@ jobs:
           arch: x86_64
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
-          disable-animations: true
+          disable-animations: false
           script: |
             set -euo pipefail
+            for i in $(seq 1 60); do
+              adb shell settings get global window_animation_scale >/dev/null 2>&1 && break
+              sleep 10
+            done
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
             adb install -r apk/app-x86_64-release.apk
             cd cake-qa
             nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
