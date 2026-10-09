@@ -196,23 +196,75 @@ final class SwapStateCreationError extends SwapStateCreating implements SwapFail
   final Object error;
 }
 
-abstract class SwapStateWithTrade extends SwapState {
-  const SwapStateWithTrade({required this.source, required this.trade});
+abstract class SwapStateWithTrade extends SwapStateWithInputs {
+  const SwapStateWithTrade({
+    required this.source,
+    required this.trade,
+    required this.depositFiatAmount,
+    required this.payoutFiatAmount,
+    required this.isFixedRate,
+  });
 
   final Trade trade;
+
+  final Money depositFiatAmount;
+
+  final Money payoutFiatAmount;
+
+  @override
   final SwapSource source;
+
+  @override
+  final bool isFixedRate;
+
+  @override
+  SwapAmount get depositAmount =>
+      SwapAmount(cryptoAmount: trade.depositAmount, fiatAmount: depositFiatAmount);
+
+  @override
+  SwapAmount get payoutAmount =>
+      SwapAmount(cryptoAmount: trade.payoutAmount, fiatAmount: payoutFiatAmount);
+
+  @override
+  SwapAddress get payoutAddress => ExternalSwapAddress(trade.payoutAddress);
+
+  @override
+  String get memo => trade.toAddressExtraId ?? "";
+
+  @override
+  List<ExchangeProviderDescription> get usableProviders => [trade.provider];
+
+  @override
+  bool get canInitiateSwap => false;
 }
 
 final class SwapGeneratingTransaction extends SwapStateWithTrade {
-  const SwapGeneratingTransaction({required super.trade, required super.source});
+  const SwapGeneratingTransaction({
+    required super.trade,
+    required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
+  });
 
-  SwapTransactionGenerationError toError(Object error) =>
-      SwapTransactionGenerationError(error: error, trade: trade, source: source);
+  SwapTransactionGenerationError toError(Object error) => SwapTransactionGenerationError(
+    error: error,
+    trade: trade,
+    source: source,
+    depositFiatAmount: depositFiatAmount,
+    payoutFiatAmount: payoutFiatAmount,
+    isFixedRate: isFixedRate,
+  );
 }
 
 final class SwapAwaitingExternalSend extends SwapStateWithTrade {
-  const SwapAwaitingExternalSend({required super.trade, required this.source})
-    : super(source: source);
+  const SwapAwaitingExternalSend({
+    required super.trade,
+    required this.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
+  }) : super(source: source);
 
   @override
   final ExternalSwapSource source;
@@ -223,6 +275,9 @@ abstract class SwapStateWithTransaction extends SwapStateWithTrade {
     required super.trade,
     required this.transaction,
     required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
   });
 
   final PendingTransaction transaction;
@@ -232,11 +287,21 @@ abstract class SwapStateWithTransaction extends SwapStateWithTrade {
     trade: trade,
     transaction: transaction,
     source: source,
+    depositFiatAmount: depositFiatAmount,
+    payoutFiatAmount: payoutFiatAmount,
+    isFixedRate: isFixedRate,
   );
 }
 
 final class SwapAwaitingSend extends SwapStateWithTransaction {
-  const SwapAwaitingSend({required super.trade, required super.transaction, required super.source});
+  const SwapAwaitingSend({
+    required super.trade,
+    required super.transaction,
+    required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
+  });
 }
 
 final class SwapTransactionGenerationError extends SwapGeneratingTransaction
@@ -245,6 +310,9 @@ final class SwapTransactionGenerationError extends SwapGeneratingTransaction
     required this.error,
     required super.trade,
     required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
   });
 
   @override
@@ -257,13 +325,23 @@ final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
     required super.trade,
     required super.transaction,
     required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
   });
 
   final HardwareWalletType type;
 }
 
 final class SwapSending extends SwapStateWithTransaction {
-  const SwapSending({required super.trade, required super.transaction, required super.source});
+  const SwapSending({
+    required super.trade,
+    required super.transaction,
+    required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
+  });
 }
 
 final class SwapTransactionCommitted extends SwapStateWithTransaction {
@@ -271,6 +349,9 @@ final class SwapTransactionCommitted extends SwapStateWithTransaction {
     required super.trade,
     required super.transaction,
     required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
   });
 }
 
@@ -281,6 +362,9 @@ final class SwapTransactionCommitError extends SwapStateWithTransaction
     required super.trade,
     required super.transaction,
     required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.isFixedRate,
   });
 
   @override

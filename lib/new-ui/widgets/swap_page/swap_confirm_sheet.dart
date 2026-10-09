@@ -4,7 +4,6 @@ import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
@@ -16,7 +15,6 @@ import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart"
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
-import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
@@ -88,37 +86,15 @@ class SwapTransactionDetails extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
     bloc: bloc,
   builder: (context, state) {
-    final Money depositAmount;
-    final Money payoutAmount;
-    final ExchangeProviderDescription provider;
-    final String sourceString;
-    final bool isExternal;
-    final String tradeId;
-    final String payoutAddress;
-    if(state is SwapStateWithInputs) {
-      depositAmount = state.depositAmount.cryptoAmount;
-      payoutAmount = state.payoutAmount.cryptoAmount;
-      if(state is SwapInputState && bloc.rateCubit.state is RatesLoaded) {
-        provider = (bloc.rateCubit.state as RatesLoaded).rates.max.provider;
-      } else {
-        provider = state.usableProviders.first;
-      }
-      sourceString = state.source.displayName;
-      isExternal = state.source is ExternalSwapSource;
-      tradeId = "...";
-      payoutAddress = state.payoutAddress?.address ?? "";
-    } else if(state is SwapStateWithTrade) {
-      depositAmount = state.trade.depositAmount;
-      payoutAmount = state.trade.payoutAmount;
-      provider =state.trade.provider;
-      sourceString = state.source.displayName;
-      isExternal = state.source is ExternalSwapSource;
-      tradeId = state.trade.id;
-      payoutAddress = state.trade.payoutAddress;
-    } else {
+    if (state is! SwapStateWithInputs) {
       throw StateError("this widget shouldn't be openable at this point! what happened?");
     }
 
+    final provider = switch ((state, bloc.rateCubit.state)) {
+      (SwapInputState(), RatesLoaded(:final rates)) => rates.max.provider,
+      _ => state.usableProviders.first,
+    };
+    final tradeId = state is SwapStateWithTrade ? state.trade.id : "...";
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -126,8 +102,8 @@ class SwapTransactionDetails extends StatelessWidget {
         ModalTopBar(
           title: "",
           leadingWidget: SwapModalHeader(
-              fromIconPath: depositAmount.currency.iconPath ?? "",
-              toIconPath: payoutAmount.currency.iconPath ?? ""),
+              fromIconPath: state.depositAmount.currency.iconPath ?? "",
+              toIconPath: state.payoutAmount.currency.iconPath ?? ""),
           trailingIcon: const Icon(Icons.close),
           trailingSemanticLabel: S.of(context).close,
           onTrailingPressed: Navigator.of(context).maybePop,
@@ -145,10 +121,10 @@ class SwapTransactionDetails extends StatelessWidget {
                       ListItemRegularRow(
                         showArrow: false,
                         keyValue: "send value",
-                        label: depositAmount.currency.fullName ?? "",
-                        iconPath: depositAmount.currency.iconPath ?? "",
-                        badgeIconPath: _resolveChainBadgePath(depositAmount.currency as CryptoCurrency),
-                        trailingText: depositAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
+                        label: state.depositAmount.currency.fullName ?? "",
+                        iconPath: state.depositAmount.currency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(state.depositAmount.currency),
+                        trailingText: state.depositAmount.cryptoAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
                       if (state is SwapStateWithTransaction)
                         ListItemRegularRow(
@@ -160,17 +136,17 @@ class SwapTransactionDetails extends StatelessWidget {
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
-                          trailingText: sourceString,
+                          trailingText: state.source.displayName,
                           showArrow: false)
                     ],
                     S.of(context).receive: [
                       ListItemRegularRow(
                         showArrow: false,
                         keyValue: "receive value",
-                        label: payoutAmount.currency.fullName ?? "",
-                        iconPath: payoutAmount.currency.iconPath ?? "",
-                        badgeIconPath: _resolveChainBadgePath(payoutAmount.currency as CryptoCurrency),
-                        trailingText: payoutAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
+                        label: state.payoutAmount.currency.fullName ?? "",
+                        iconPath: state.payoutAmount.currency.iconPath ?? "",
+                        badgeIconPath: _resolveChainBadgePath(state.payoutAmount.currency),
+                        trailingText: state.payoutAmount.cryptoAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
                       ListItemRegularRow(
                           keyValue: "receiver",
@@ -178,12 +154,12 @@ class SwapTransactionDetails extends StatelessWidget {
                           showArrow: false,
                           trailingText:
                           middleTruncate(
-                              payoutAddress, 8, 8)),
+                              state.payoutAddress?.address ?? "", 8, 8)),
                       if (state is SwapStateWithTrade && (state.trade.toAddressExtraId ?? "").isNotEmpty)
                         ListItemRegularRow(
                           keyValue: "receive memo",
                           showArrow: false,
-                          label: (payoutAmount.currency as CryptoCurrency).memoLabelType ==
+                          label: state.payoutAmount.currency.memoLabelType ==
                                   MemoLabelType.destinationTag
                               ? S.of(context).destination_tag
                               : S.of(context).memo,

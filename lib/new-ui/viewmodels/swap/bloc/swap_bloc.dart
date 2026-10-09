@@ -124,7 +124,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<void> _reloadRates() async {
-    if (state case final SwapStateWithInputs s) {
+    if (state case final SwapStateWithInputs s when s is! SwapStateWithTrade) {
       await rateCubit.fetchRates(
         s.usableProviders,
         from: s.isFixedRate ? s.payoutAmount.cryptoAmount : s.depositAmount.cryptoAmount,
@@ -621,7 +621,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
     final rates = (rateCubit.state as RatesLoaded).rates.toList();
 
-    if (state case final SwapStateWithInputs s) {
+    if (state case final SwapStateWithInputs s when s is! SwapStateWithTrade) {
       final req = TradeRequest(
         refundAddress: await _addressResolver.resolveRefundAddress(
             s.source, s.depositAmount.currency),
@@ -652,15 +652,43 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
+      final depositFiatAmount =
+          (await _amountFactory.getSwapAmount(trade.depositAmount, trade.depositCurrency)).fiatAmount;
+      final payoutFiatAmount =
+          (await _amountFactory.getSwapAmount(trade.payoutAmount, trade.payoutCurrency)).fiatAmount;
+
       if (s.source case final ExternalSwapSource source) {
-        emit(SwapAwaitingExternalSend(trade: trade, source: source));
+        emit(
+          SwapAwaitingExternalSend(
+            trade: trade,
+            source: source,
+            depositFiatAmount: depositFiatAmount,
+            payoutFiatAmount: payoutFiatAmount,
+            isFixedRate: s.isFixedRate,
+          ),
+        );
       } else if (s.source case final InternalSwapSource source) {
-        final generatingState = SwapGeneratingTransaction(trade: trade, source: source);
+        final generatingState = SwapGeneratingTransaction(
+          trade: trade,
+          source: source,
+          depositFiatAmount: depositFiatAmount,
+          payoutFiatAmount: payoutFiatAmount,
+          isFixedRate: s.isFixedRate,
+        );
         emit(generatingState);
 
         try {
           final tx = await _createSwapTransaction(trade, s.isSwapAll);
-          emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
+          emit(
+            SwapAwaitingSend(
+              trade: trade,
+              transaction: tx,
+              source: source,
+              depositFiatAmount: depositFiatAmount,
+              payoutFiatAmount: payoutFiatAmount,
+              isFixedRate: s.isFixedRate,
+            ),
+          );
         } catch (e) {
           emit(generatingState.toError(e));
         }
@@ -693,11 +721,27 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
     if (state case final SwapStateWithTransaction s) {
-      emit(SwapSending(trade: s.trade, transaction: s.transaction, source: s.source));
+      emit(
+        SwapSending(
+          trade: s.trade,
+          transaction: s.transaction,
+          source: s.source,
+          depositFiatAmount: s.depositFiatAmount,
+          payoutFiatAmount: s.payoutFiatAmount,
+          isFixedRate: s.isFixedRate,
+        ),
+      );
       try {
         await _transactionService.commitTransaction(s.transaction);
         emit(
-          SwapTransactionCommitted(trade: s.trade, transaction: s.transaction, source: s.source),
+          SwapTransactionCommitted(
+            trade: s.trade,
+            transaction: s.transaction,
+            source: s.source,
+            depositFiatAmount: s.depositFiatAmount,
+            payoutFiatAmount: s.payoutFiatAmount,
+            isFixedRate: s.isFixedRate,
+          ),
         );
         await _hideSwapAddress(s.trade, s.source);
       } catch (e) {
