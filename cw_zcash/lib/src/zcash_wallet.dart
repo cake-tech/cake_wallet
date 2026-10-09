@@ -68,6 +68,8 @@ abstract class ZcashWalletBase
 
   int accountId;
 
+  bool get isQrSigner => hardwareWalletType == HardwareWalletType.cupcake;
+
   bool get canRotateTransparentAddress => isSoftwareWallet;
 
   bool get canUseLegacyShielded => isSoftwareWallet;
@@ -82,6 +84,8 @@ abstract class ZcashWalletBase
     }
     return true;
   }
+
+  Future<void> Function(String ur)? onCommitAirgapUr;
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
@@ -110,9 +114,6 @@ abstract class ZcashWalletBase
 
   // zkool's migrate::MIN_SD.
   static const int _ironwoodMigrateMinNote = 500000;
-
-  static int _minSweepThreshold({required final bool ironwood}) =>
-      ironwood ? _ironwoodMigrateMinNote : _autoShieldMinSweep;
 
   Money _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
@@ -419,6 +420,7 @@ abstract class ZcashWalletBase
               for (final wallet in walletsByAccountId.values) {
                 unawaited(wallet.updateBalance());
                 unawaited(wallet.updateTransactions());
+                if (!wallet.canRotateTransparentAddress) continue;
                 unawaited(
                   ZcashTaddressRotation.updateCache(mainAccountId: wallet.accountId)
                       .catchError((final e) {
@@ -1177,15 +1179,19 @@ abstract class ZcashWalletBase
 
   Future<void> init() async {
     try {
-      await ZcashTaddressRotation.init();
+      if (canRotateTransparentAddress) {
+        await ZcashTaddressRotation.init();
+      }
       await walletAddresses.init();
 
       await updateBalance();
       await updateTransactions();
-      unawaited(
-        ZcashTaddressRotation.updateCache(mainAccountId: accountId)
-            .catchError((final e) => printV("rotation cache refresh: $e")),
-      );
+      if (canRotateTransparentAddress) {
+        unawaited(
+          ZcashTaddressRotation.updateCache(mainAccountId: accountId)
+              .catchError((final e) => printV("rotation cache refresh: $e")),
+        );
+      }
       await _initKeys();
     } catch (e) {
       printV("Wallet init error: $e");
@@ -1298,7 +1304,7 @@ abstract class ZcashWalletBase
         final sweepable = await _sweepableTotal(coin, accountId);
         final ironwood = await zkool_network.isIronwoodActive(c: coin);
 
-        if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
+        if (sweepable <= BigInt.from(_autoShieldMinSweep)) {
           return null;
         }
         return zkool_pay.prepare(
@@ -1457,7 +1463,7 @@ abstract class ZcashWalletBase
     try {
       await _updateIronwoodActive();
 
-      if (!isHardwareWallet) {
+      if (!isHardwareWallet && !isQrSigner) {
         if (runAutoShield) {
           await _autoShield();
         }
@@ -1481,19 +1487,18 @@ abstract class ZcashWalletBase
       final ironwood = bal.field0.length > 3 ? bal.field0[3] : BigInt.zero;
 
       // After NU6.3, Orchard notes are migrated to Ironwood - show them as unconfirmed.
-      // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
+      // Transparent/sapling uses the shield floor; orchard uses zkool's migrate minimum.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
       if (ironwoodActive == true && orchard > BigInt.zero) {
-        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
-            ? BigInt.zero
-            : sweepable;
+        final sweepableUnavailable =
+            sweepable <= BigInt.from(_autoShieldMinSweep) ? BigInt.zero : sweepable;
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
-        final minSweep = _minSweepThreshold(ironwood: ironwoodActive);
         availableAmount = orchard + ironwood;
-        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
+        unavailableAmount =
+            sweepable <= BigInt.from(_autoShieldMinSweep) ? BigInt.zero : sweepable;
       }
 
       final notShowSweepable = _lastAutoShieldAt?.isAfter(
@@ -1599,6 +1604,27 @@ abstract class ZcashWalletBase
     }
 
     final zcashSecretExtendedKeyRegex = RegExp(r'^secret-extended-key-main1[a-z0-9]+$');
+    if (keys.startsWith('uview')) {
+      final height = (credentials.height ?? 0) > 0
+          ? credentials.height!
+          : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+      final accountId = await newAccount(
+        name: credentials.name,
+        height: height,
+        seed: keys,
+        passphrase: "",
+        hw: 0,
+        aIndex: fromKeysCredentials.accountIndex,
+      );
+      await saveAccountId(credentials.name, accountId);
+      final wallet = await open(
+        name: credentials.name,
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
+      );
+      await wallet.init();
+      return wallet;
+    }
     if (!zcashSecretExtendedKeyRegex.hasMatch(keys)) {
       throw BadKeysException('Key is not in secret-extended-key-main1 format');
     }

@@ -75,8 +75,45 @@ class PendingZcashTransaction with PendingTransaction {
   }
 
   @override
-  Future<Map<String, String>> commitUR() => throw UnimplementedError('UR not supported for Zcash');
+  Future<Map<String, String>> commitUR() async {
+    zcashWallet.onCommitAirgapUr = _commitScannedUr;
+    return {'Cupcake': encodeZcashPcztUr(txPlan.pczt).join('\n')};
+  }
+
+  Future<void> _commitScannedUr(String raw) async {
+    final parts = raw.split(RegExp(r'\s+')).where((part) => part.startsWith('ur:')).toList();
+    var signed = txPlan.copyWith(pczt: decodeZcashPcztUr(parts));
+    await ZcashWalletBase.runWithCoin(
+      accountId: zcashWallet.accountId,
+      func: (coin) async {
+        try {
+          await zkool_pay.extractTransaction(package: signed);
+        } on Exception {
+          signed = await zkool_pay.finalizeSignedPczt(package: signed);
+        }
+        final result = await zkool_pay.broadcast(
+          package: signed,
+          account: zcashWallet.accountId,
+          c: coin,
+        );
+        printV("result: $result");
+        final txId = ZcashWalletService.normalizeTxId(result);
+        if (txId.length != 64) {
+          throw TransactionCommitFailed(errorMessage: result);
+        }
+        _txId = txId;
+        if (isShieldingTx) {
+          await ZcashWalletService.addShieldedTx(txId);
+        } else {
+          zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        }
+      },
+    );
+    await zcashWallet.updateTransactions();
+    await zcashWallet.updateBalance(
+        runAutoShield: !isShieldingTx, runIronwoodMigrate: !isShieldingTx);
+  }
 
   @override
-  bool shouldCommitUR() => false;
+  bool shouldCommitUR() => zcashWallet.isQrSigner;
 }

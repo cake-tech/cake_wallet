@@ -1,4 +1,6 @@
 import "package:cake_wallet/di.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cake_wallet/routes.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_manual_shield_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
@@ -22,6 +24,33 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
   });
 
   final DashboardViewModel dashboardViewModel;
+
+  Future<void> _shield(BuildContext context) async {
+    final wallet = dashboardViewModel.wallet;
+    if (wallet.isHardwareWallet) {
+      final hwVM = getIt<HardwareWalletViewModel>(param1: wallet.hardwareWalletType);
+      final connectionEnsured = await hwVM.ensureDeviceConnection(context, wallet);
+      if (!connectionEnsured) {
+        return;
+      }
+      final pendingTx = await zcash!.createShieldingTransaction(wallet);
+      if (pendingTx == null) {
+        throw TransactionGenerationException(S.of(context).shield_amount_below_minimum);
+      }
+      await pendingTx.commit();
+      return;
+    }
+
+    final pendingTx = await zcash!.createShieldingTransaction(wallet);
+    if (pendingTx == null) {
+      throw TransactionGenerationException(S.of(context).shield_amount_below_minimum);
+    }
+    final urstr = await pendingTx.commitUR();
+    if (!context.mounted) {
+      return;
+    }
+    await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +78,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                         onTap: () {
                           final modal = ZcashManualShieldModal(
                             balance: balance.toStringWithSymbol(),
-                            onShield: () async {
-                              if (dashboardViewModel.wallet.hardwareWalletType != null) {
-                                final hwVM = getIt<HardwareWalletViewModel>(
-                                    param1: dashboardViewModel.wallet.hardwareWalletType,
-                                );
-                                final connectionEnsured = await hwVM.ensureDeviceConnection(context, dashboardViewModel.wallet);
-                                if (connectionEnsured) {
-                                  final pendingTx = await zcash!.createShieldingTransaction(dashboardViewModel.wallet);
-                                  await pendingTx?.commit();
-                                }
-                              }
-                            },
+                            onShield: () => _shield(context),
                           );
                           showMaterialModalBottomSheet(
                               backgroundColor: Colors.transparent,

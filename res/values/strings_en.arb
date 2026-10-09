@@ -1212,6 +1212,7 @@
   "share_this_node": "Share this node",
   "shared_seed_wallet_groups": "Shared Seed Wallet Groups",
   "shared_seed_wallets": "Shared Seed Wallets",
+  "shield_amount_below_minimum": "The unshielded amount is below the minimum that can be shielded.",
   "shield_device_funds": "Shield Device Funds",
   "shield_funds": "Shield Funds",
   "shield_them_to_use_device": "Shield them to use this device",
