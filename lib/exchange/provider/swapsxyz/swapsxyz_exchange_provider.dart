@@ -95,9 +95,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   final Map<int, List<TokenPathInfo>> _tokensCache = {};
 
   @override
-  String get title => "Swaps.XYZ";
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

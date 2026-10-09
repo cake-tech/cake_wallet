@@ -80,9 +80,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   ];
 
   @override
-  String get title => "XOSwap";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override

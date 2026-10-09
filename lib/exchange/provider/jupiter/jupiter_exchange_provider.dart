@@ -67,9 +67,6 @@ class JupiterExchangeProvider extends ExchangeProvider
   static const _nativeSolMint = "So11111111111111111111111111111111111111112";
 
   @override
-  String get title => "Jupiter";
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

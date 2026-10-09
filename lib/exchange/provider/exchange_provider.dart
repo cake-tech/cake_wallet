@@ -15,9 +15,9 @@ abstract class ExchangeProvider {
 
   final ProxyWrapper proxyWrapper;
 
-  String get title;
-
   ExchangeProviderDescription get description;
+
+  String get title => description.title;
 
   bool get supportsFixedRate;
 

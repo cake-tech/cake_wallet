@@ -27,9 +27,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   static const _affiliateId = secrets.letsExchangeAffiliateId;
 
   @override
-  String get title => "LetsExchange";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override

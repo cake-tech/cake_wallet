@@ -43,9 +43,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _affiliateKey = secrets.chainflipApiKey;
 
   @override
-  String get title => "Chainflip";
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

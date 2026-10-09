@@ -27,9 +27,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static const order = "/api/swap/order";
 
   @override
-  String get title => "SwapTrade";
-
-  @override
   bool get supportsFixedRate => false;
 
   @override

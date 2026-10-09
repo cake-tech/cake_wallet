@@ -25,9 +25,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
   static const ratePath = "/api/v2/rate";
 
   @override
-  String get title => "Exolix";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override

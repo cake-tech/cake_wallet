@@ -76,9 +76,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static final _supportedTokensList = <NearIntentsToken>[];
 
   @override
-  String get title => "Near Intents";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override

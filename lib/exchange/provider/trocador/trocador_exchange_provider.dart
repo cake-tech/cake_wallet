@@ -62,9 +62,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
 
   @override
-  String get title => "Trocador";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override

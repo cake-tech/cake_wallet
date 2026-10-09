@@ -37,9 +37,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String _lastUsedRateId;
 
   @override
-  String get title => "ChangeNOW";
-
-  @override
   bool get supportsFixedRate => true;
 
   @override
