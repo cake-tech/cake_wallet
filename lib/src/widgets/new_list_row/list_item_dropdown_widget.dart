@@ -10,6 +10,7 @@ class ListItemDropdownWidget extends StatelessWidget {
     required this.onTap,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -18,6 +19,7 @@ class ListItemDropdownWidget extends StatelessWidget {
   final VoidCallback onTap;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   BorderRadius get radius => BorderRadius.vertical(
         top: Radius.circular(isFirstInSection ? 16 : 0),
@@ -27,6 +29,7 @@ class ListItemDropdownWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      testId: testId,
       isFirstInSection: isFirstInSection,
       isLastInSection: isLastInSection,
       onTap: onTap,

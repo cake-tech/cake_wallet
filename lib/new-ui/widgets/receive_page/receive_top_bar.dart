@@ -18,7 +18,8 @@ class ModalTopBar extends StatelessWidget {
       this.trailingWidget,
       this.titleLeadingWidget,
       this.leadingSemanticLabel,
-      this.trailingSemanticLabel}) {
+      this.trailingSemanticLabel,
+      this.testId}) {
     if (leadingIcon != null && leadingWidget != null) {
       throw Exception("Cannot have both leadingIcon and leadingWidget");
     }
@@ -49,12 +50,14 @@ class ModalTopBar extends StatelessWidget {
   /// non-empty) whenever a [trailingIcon] is supplied. Must be localized by
   /// the caller.
   final String? trailingSemanticLabel;
+  final String? testId;
 
   static const buttonSize = 36.0;
 
   @override
   Widget build(BuildContext context) {
     final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
+    final baseTestId = testId ?? "modal_top_bar";
     final titleContent = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -62,6 +65,8 @@ class ModalTopBar extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           child: Semantics(
             key: ValueKey(title),
+            container: title.isNotEmpty,
+            identifier: title.isNotEmpty ? "${baseTestId}_title_key" : null,
             header: title.isNotEmpty,
             // Android reads the heading from headingLevel since the
             // Flutter 3.41 engine; header: alone only covers iOS.
@@ -136,6 +141,7 @@ class ModalTopBar extends StatelessWidget {
                         onPressed: onLeadingPressed,
                         icon: leadingIcon!,
                         semanticLabel: leadingSemanticLabel,
+                        testId: "${baseTestId}_leading_key",
                         iconColor: Theme.of(context).colorScheme.onSurfaceVariant)
                     : leadingWidget!
               else
@@ -150,6 +156,7 @@ class ModalTopBar extends StatelessWidget {
                           onPressed: onTrailingPressed,
                           icon: trailingIcon!,
                           semanticLabel: trailingSemanticLabel,
+                          testId: "${baseTestId}_trailing_key",
                         )
                       : trailingWidget!,
                 )

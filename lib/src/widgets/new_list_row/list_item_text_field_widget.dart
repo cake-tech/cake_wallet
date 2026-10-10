@@ -13,6 +13,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
     this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -24,6 +25,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
@@ -33,6 +35,7 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+        testId: widget.testId,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         height: 50,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class AlertCloseButton extends StatelessWidget {
@@ -7,6 +8,7 @@ class AlertCloseButton extends StatelessWidget {
     this.bottom,
     this.onTap,
     this.isPositioned = true,
+    this.testId,
     super.key,
   });
 
@@ -15,6 +17,7 @@ class AlertCloseButton extends StatelessWidget {
   final Image? image;
   final double? bottom;
   final bool isPositioned;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +25,7 @@ class AlertCloseButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap ?? () => Navigator.of(context).pop(),
         child: Semantics(
+          identifier: testId ?? TestId.fromKey(key),
           label: S.of(context).close,
           button: true,
           enabled: true,

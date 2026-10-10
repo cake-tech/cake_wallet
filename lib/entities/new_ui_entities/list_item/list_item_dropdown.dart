@@ -5,6 +5,7 @@ class ListItemDropdown extends ListItem {
   const ListItemDropdown({
     required super.keyValue,
     required super.label,
+    super.testId,
     this.trailingText,
     required this.onTap,
   });

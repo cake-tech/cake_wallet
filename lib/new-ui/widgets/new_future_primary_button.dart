@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
 
@@ -11,6 +12,7 @@ class NewFuturePrimaryButton extends StatefulWidget {
     this.borderColor = Colors.transparent,
     this.disabled = false,
     this.image,
+    this.testId,
     super.key,
   });
 
@@ -21,6 +23,7 @@ class NewFuturePrimaryButton extends StatefulWidget {
   final Color textColor;
   final Color borderColor;
   final String text;
+  final String? testId;
 
   @override
   State<StatefulWidget> createState() => _NewFuturePrimaryButtonState();
@@ -53,5 +56,6 @@ class _NewFuturePrimaryButtonState extends State<NewFuturePrimaryButton> {
         isLoading: isLoading,
         borderColor: widget.borderColor,
         disabled: widget.disabled,
+        testId: widget.testId ?? TestId.fromKey(widget.key),
       );
 }
