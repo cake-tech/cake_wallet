@@ -22,6 +22,8 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
+import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
+import "package:cake_wallet/core/everstake/everstake_service.dart";
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -72,6 +74,7 @@ import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
@@ -582,6 +585,17 @@ Future<void> setup({
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactoryParam<EthereumStakingBloc, String, void>(
+    (source, _) => EthereumStakingBloc(
+      wallet: getIt.get<AppStore>().wallet!,
+      settingsStore: getIt.get<SettingsStore>(),
+      evm: evm!,
+      service: EverstakeService(),
+      validator: EverstakeEthereumTransactionValidator(),
+      source: source,
+    ),
+  );
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
