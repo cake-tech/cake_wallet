@@ -1,0 +1,245 @@
+# Layer-B e2e lane (QA handoff §6 4-a).
+#
+# REPORT-ONLY — permanently until Seth says otherwise: `continue-on-error: true`
+# at job level, never a required check. It tests the SAME run's pr_test_build
+# "android apk" artifact (no rebuild, no dev fallback) and the QA project from
+# cake-qa (deploy key), with the no-funds slice in read-only cache (the runner
+# is CI, so e2e defaults to `cache: read-only` and never records).
+name: E2E (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs_on:
+        description: "runner label: ubuntu-latest (hosted KVM) or a self-hosted label"
+        type: string
+        default: ubuntu-latest
+      build_run:
+        description: "pr_test_build run id whose 'android apk' artifact to test (empty = auto-resolve from the head SHA)"
+        type: string
+        default: ""
+      shard:
+        description: "e.g. 2/3 (empty = single run)"
+        type: string
+        default: ""
+      qa_ref:
+        description: "cake-qa git ref to test (empty = that repo's default branch). Used by the broken-label acceptance run."
+        type: string
+        default: ""
+      suite:
+        description: "test file/glob to run (empty = the no-funds slice)"
+        type: string
+        default: ""
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  # the resolve job's auto-retry runs `gh run rerun --failed`; without this the
+  # 403 was swallowed by `|| true` and the retry silently never happened.
+  actions: write
+
+concurrency:
+  group: e2e-android-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    # The artifact wait lives in its OWN job: pr_test_build runs the app build
+    # AND integration tests (~90min), and keeping the wait in the suite job
+    # blew GitHub's 4h job cap before the suite even started.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
+    # REPORT-ONLY (a red step must not block; never a required check).
+    continue-on-error: true
+    timeout-minutes: 215
+    outputs:
+      run_id: ${{ steps.resolve.outputs.run_id }}
+    steps:
+      - name: Resolve and download the build artifact
+        id: resolve
+        # Criterion = OWNING an "android apk" artifact; the run's conclusion can
+        # be failure after the upload (learned on the 6.5.0 RC). No dev fallback.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="${{ inputs.build_run }}"
+          if [ -z "$RUN_ID" ]; then
+            SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+            RERUN_TRIED=0
+            # The e2e lane starts in parallel with pr_test_build — WAIT for a
+            # run that owns the artifact instead of racing it (learned on
+            # PR #3700's first attempt). Give up after an hour, or immediately
+            # if every run for this SHA finished without the artifact.
+            DEADLINE=$(( $(date +%s) + 11400 ))  # builds observed 60-190min; job timeout is 210min
+            while :; do
+              RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[] | "\(.id) \(.status) \(.conclusion // "running")"')
+              ALL_FINISHED=1
+              while read -r id status conclusion; do
+                [ -z "$id" ] && continue
+                [ "$status" = "completed" ] || ALL_FINISHED=0
+                if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+                  RUN_ID=$id
+                  break
+                fi
+              done <<< "$RUNS"
+              [ -n "$RUN_ID" ] && break
+              if [ "$ALL_FINISHED" = "1" ] && [ -n "$RUNS" ]; then
+                if [ "$RERUN_TRIED" -eq 0 ]; then
+                  NEWEST=$(echo "$RUNS" | head -n 1 | awk '{print $1}')
+                  echo "::warning::pr_test_build for ${SHA} has no android-apk artifact — retrying its failed jobs once (observed flake: gradle packageRelease/IncrementalSplitterRunnable)"
+                  gh run rerun "$NEWEST" --failed -R "${{ github.repository }}" || true
+                  RERUN_TRIED=1
+                else
+                  echo "::error::pr_test_build for ${SHA} finished without an 'android apk' artifact even after one retry (no dev fallback, per handoff)"
+                  exit 1
+                fi
+              fi
+              if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+                echo "::error::timed out waiting for the pr_test_build artifact for ${SHA}"
+                exit 1
+              fi
+              sleep 30
+            done
+          fi
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::no pr_test_build run with an 'android apk' artifact for this ref (no dev fallback, per handoff)"
+            exit 1
+          fi
+          echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
+          gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
+          test -f apk/app-x86_64-release.apk || { echo "::error::app-x86_64-release.apk missing from artifact"; exit 1; }
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+
+      - name: Hand the APK to the suite job
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-apk
+          path: apk/
+          if-no-files-found: error
+
+  e2e:
+    needs: resolve
+    # Suite only when resolve handed us an artifact (its run_id output).
+    if: >-
+      needs.resolve.outputs.run_id != '' &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false)
+    runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
+    environment: qa
+    # REPORT-ONLY, permanently until Seth says otherwise.
+    continue-on-error: true
+    timeout-minutes: 210
+    steps:
+      - name: Checkout the QA project (cake-qa, via deploy key)
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          ref: ${{ inputs.qa_ref || 'main' }}
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Download the build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-apk
+          path: apk
+
+      # Hosted runners need the udev rule or the action falls back to
+      # -accel off (software emulation): 12-minute boots and the adb daemon
+      # wedging under CPU load (three CI failures: 'Daemon request timed out').
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
+      - name: Boot the emulator and run the no-funds slice
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GLM_BASE_URL: ${{ secrets.DSPARK_BASE_URL }}
+          GLM_API_KEY: ${{ secrets.DSPARK_API_KEY }}
+          E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
+          E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
+          E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
+          E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          # hosted runners booted in 764s once and blew the 600s default on
+          # the next run; 20min removes the flake, 4 cores shorten the boot.
+          emulator-boot-timeout: 1200
+          cores: 4
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -no-snapshot-save
+          # The handoff pins animations off, but NOT via the action's own
+          # step: after a slow boot (764s observed) its `settings put` dies
+          # with "Broken pipe" and the action tears the emulator down
+          # (adb exit 224). The script settles first and sets the three
+          # animation scales itself.
+          disable-animations: false
+          # NOTE: the action's parseScript() runs EACH LINE as its own
+          # `/usr/bin/sh -c` (dash): no bashisms, no multi-line constructs,
+          # and `set -eu` on its own line has no effect on the others.
+          script: |
+            i=0; until adb shell settings get global window_animation_scale >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 60 ]; then break; fi; sleep 10; done
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
+            adb install -r apk/app-x86_64-release.apk
+            nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+            sleep 2
+            adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
+            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown; fi
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: |
+            cake-qa/.e2e/junit.xml
+            cake-qa/.e2e/summary.md
+            cake-qa/.e2e/report.json
+            cake-qa/.e2e/artifacts
+          if-no-files-found: warn
+
+      - name: PR comment with counts, cost and cache hit rate
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- qa-e2e-android -->';
+            let body = '_the run produced no summary (see the e2e-results artifact)_';
+            try {
+              const md = fs.readFileSync('cake-qa/.e2e/summary.md', 'utf8');
+              const lines = md.split('\n').slice(0, 6).join('\n'); // counts + AI/cost line
+              body = `${marker}\n#### QA e2e (report-only lane)\n\n${lines}\n\nArtifact: this run's \`e2e-results\`.`;
+            } catch (e) {
+              body = `${marker}\n#### QA e2e (report-only lane)\n\n_summary.md missing (${e.message}) — see the \`e2e-results\` artifact._`;
+            }
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const prev = comments.find((c) => c.body && c.body.includes(marker));
+            if (prev) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: prev.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
