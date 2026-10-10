@@ -1,32 +1,35 @@
-import 'dart:async';
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:bitbox_flutter/bitbox_flutter.dart' as sdk;
-import 'package:mobx/mobx.dart';
+import "package:bitbox_flutter/bitbox_flutter.dart" as sdk;
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
+import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
+import "package:cake_wallet/wallet_type_utils.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/root_dir.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
 
-part 'bitbox_view_model.g.dart';
+part "bitbox_view_model.g.dart";
 
 class BitboxViewModel = BitboxViewModelBase with _$BitboxViewModel;
 
 abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
-  late final sdk.BitboxManager bitboxManager;
-
   BitboxViewModelBase() {
     if (!Platform.isIOS && !isMoneroOnly) {
       bitboxManager = sdk.BitboxManager();
     }
   }
+
+  late final sdk.BitboxManager bitboxManager;
+
+  BitboxHardwareWalletDevice? _connectedDevice;
+  Timer? _isConnectedTimer;
 
   @override
   HardwareWalletType get hardwareWalletType => HardwareWalletType.bitbox;
@@ -40,7 +43,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool isConnecting = false;
 
   @override
-  bool get hasBluetooth => Platform.isIOS && false; // TODO: remove when we enable bluetooth
+  bool get hasBluetooth => Platform.isIOS && false; // TODO(Konsti): remove when we enable bluetooth
 
   @override
   Future<void> updateBleState() async {}
@@ -50,7 +53,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
 
   @override
   Future<List<HardwareWalletDevice>> getAllUsbDevices() => bitboxManager.devices
-      .then((devices) => devices.map((d) => BitboxHardwareWalletDevice(d)).toList());
+      .then((devices) => devices.map(BitboxHardwareWalletDevice.new).toList());
 
   @override
   Future<void> stopScanning() async {}
@@ -58,30 +61,50 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   @override
   @action
   Future<bool> connectDevice(HardwareWalletDevice device, WalletType type) async {
-    if (!(device is BitboxHardwareWalletDevice)) return false;
-    if (isConnecting) return false;
+    if (device is! BitboxHardwareWalletDevice) {
+      return false;
+    }
+    if (isConnecting) {
+      return false;
+    }
     isConnecting = true;
 
     try {
       final appDocDir = await getAppDir();
 
       await bitboxManager.connect(device.device);
-      printV("Got Connection", file: '${appDocDir.path}/error.txt');
+      printV("Got Connection", file: "${appDocDir.path}/error.txt");
       await bitboxManager.initBitBox();
-      printV("Bitbox initialized!", file: '${appDocDir.path}/error.txt');
+      printV("Bitbox initialized!", file: "${appDocDir.path}/error.txt");
       await bitboxManager.channelHashVerify();
-      printV("Bitbox channel-hash verified!", file: '${appDocDir.path}/error.txt');
+      printV("Bitbox channel-hash verified!", file: "${appDocDir.path}/error.txt");
+
+      _connectedDevice = device;
+      _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
       isConnecting = false;
       return true;
     } catch (e) {
       printV(e);
     }
     isConnecting = false;
+    _connectedDevice = null;
+    _isConnectedTimer?.cancel();
+    _isConnectedTimer = null;
     return false;
   }
 
   @override
-  bool isConnected(WalletType type) => false;
+  bool isConnected(WalletType type) => _connectedDevice != null;
+
+  Future<void> _isStillConnected() async {
+    final devices = await getAllUsbDevices();
+
+    if (!devices.any((d) => d.name == _connectedDevice?.name)) {
+      _connectedDevice = null;
+      _isConnectedTimer?.cancel();
+      _isConnectedTimer = null;
+    }
+  }
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
@@ -99,17 +122,17 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  Future<void> initWallet(WalletBase wallet) async {
+  Future<void> initWallet(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!
-            .setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+            .setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
-        return evm!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
+        return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type} for bitbox');
+        throw Exception("Unexpected wallet type: ${wallet.type} for bitbox");
     }
   }
 }

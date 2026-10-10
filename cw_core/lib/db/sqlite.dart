@@ -66,7 +66,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 16,
+    version: 15,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -194,9 +194,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _migrateBitcoinCardStylesForAccounts(db);
       }
       if(oldVersion <= 14) {
-        await _createDeprecatedWalletSeedTable(db);
-      }
-      if (oldVersion <= 15) {
         await _addColumnIfNotExists(
           db,
           table: "BalanceCardStyleSettings",
@@ -311,8 +308,6 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
-    await _createDeprecatedWalletSeedTable(db);
-
     },
   );
 }
@@ -602,16 +597,4 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
-}
-
-
-Future<void> _createDeprecatedWalletSeedTable(Database db) async {
-  await db.execute("""
-CREATE TABLE DeprecatedWalletSeeds (
-walletInfoId INTEGER PRIMARY KEY,
-seed TEXT NOT NULL,
-passphrase TEXT NOT NULL,
-FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-""");
 }
