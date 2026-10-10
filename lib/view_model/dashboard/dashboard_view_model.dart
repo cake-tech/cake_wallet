@@ -150,7 +150,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -180,7 +180,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -373,7 +373,7 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           appStore: appStore,
-          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${_historyKeyIndex++}_key'),
         ),
       ),
     );
@@ -563,7 +563,7 @@ abstract class DashboardViewModelBase with Store {
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
                 appStore: appStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${_historyKeyIndex++}_key'),
               ))
           .toList();
 
@@ -778,6 +778,8 @@ abstract class DashboardViewModelBase with Store {
 
     return formattedItemsList(_items);
   }
+
+  int _historyKeyIndex = 0;
 
   static const shortHistoryLength = 3;
 
@@ -1532,7 +1534,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -1552,7 +1554,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );

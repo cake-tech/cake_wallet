@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:cake_wallet/src/widgets/picker.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
@@ -84,6 +85,14 @@ abstract class BaseRobot {
 
     await tester.tap(finder.first, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 300));
+  }
+
+  Future<int> pickerIndexWhere(bool Function(dynamic item) test) async {
+    final picker = find.byWidgetPredicate((widget) => widget is Picker);
+
+    await pumpUntilFound(picker);
+
+    return tester.widget<Picker<dynamic>>(picker.last).items.indexWhere(test);
   }
 
   Future<void> tapWhenVisible(
