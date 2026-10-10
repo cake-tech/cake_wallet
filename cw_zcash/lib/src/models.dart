@@ -1,3 +1,4 @@
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:cw_core/wallet_credentials.dart';
 
 class ZcashNewWalletCredentials extends WalletCredentials {
@@ -40,8 +41,24 @@ class ZcashFromKeysWalletCredentials extends WalletCredentials {
     final String? password,
     required final int? height,
     required this.privateKey,
+    this.accountIndex = 0,
     this.network = 0,
+    super.hardwareWalletType,
   }) : super(name: name, password: password, height: height);
   final String? privateKey;
+  final int accountIndex;
+  int network;
+}
+
+class ZcashRestoreWalletFromHardware extends WalletCredentials {
+  ZcashRestoreWalletFromHardware({
+    required super.name,
+    required super.height,
+    required this.hardwareWalletService,
+    this.accountIndex = 0,
+    this.network = 0,
+  });
+  final HardwareWalletService hardwareWalletService;
+  final int accountIndex;
   int network;
 }

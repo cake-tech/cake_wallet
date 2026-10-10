@@ -62,7 +62,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       return DeviceConnectionType.supportedConnectionTypes(
         WalletType.monero,
         HardwareWalletType.trezor,
-        Platform.isIOS,
+        isIOS: Platform.isIOS,
       ).isNotEmpty;
     }
 

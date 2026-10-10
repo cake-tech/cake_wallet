@@ -355,6 +355,10 @@ class ZcashTaddressRotation {
   }
 
   static Future<void> createAndSweepTAddressesForAccount(final int cId) async {
+    final wallet = ZcashWalletBase.walletsByAccountId[cId];
+    if (wallet != null && !wallet.canRotateTransparentAddress) {
+      return;
+    }
     if (!_isWalletSynced(cId)) {
       printV("rotation sweep waiting for wallet sync (account $cId)");
       return;
@@ -440,7 +444,6 @@ class ZcashTaddressRotation {
             srcPools: 1,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -590,7 +593,7 @@ class ZcashTaddressRotation {
         pools: 1,
         useInternal: true,
         internal: false,
-        ledger: false,
+        hw: 0,
       ),
       c: c,
     );
