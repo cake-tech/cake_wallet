@@ -14,9 +14,10 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/pathForWallet.dart';
+import "package:cw_core/resource_manager.dart";
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
-    TransactionType extends TransactionInfo> {
+    TransactionType extends TransactionInfo> implements Resource<WalletKey> {
   WalletBase(this.walletInfo, this.derivationInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -38,6 +39,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   String get id => walletInfo.id;
 
   String get name => walletInfo.name;
+
+  @override
+  WalletKey get key => walletInfo.key;
 
   //String get address;
 
@@ -107,6 +111,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<void> rescan({required int height});
 
   Future<void> close({bool shouldCleanup = false});
+
+  @override
+  Future<void> dispose() => close();
 
   Future<void> changePassword(String password);
 

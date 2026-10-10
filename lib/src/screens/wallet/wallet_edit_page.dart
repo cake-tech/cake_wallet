@@ -145,7 +145,22 @@ class WalletEditPage extends BasePage {
                                     Navigator.of(context).pop();
                                     walletEditViewModel.resetState();
                                   }
-                                } catch (e) {}
+                                } catch (e) {
+                                  // the most common exception will be if a runWithWallet call is still running when user tries to rename/delete the wallet
+                                  // with usual uses of that function shouldn't be too common unless there's a serious bug
+                                  // once we add something like omnichain sync we could consider a mechanism to kill running runWithWallet calls
+                                  if (context.mounted) {
+                                    await showPopUp<void>(
+                                      context: context,
+                                      builder: (_) => AlertWithOneAction(
+                                        alertTitle: S.of(context).error,
+                                        alertContent: e.toString(),
+                                        buttonText: S.of(context).ok,
+                                        buttonAction: () => Navigator.of(context).pop(),
+                                      ),
+                                    );
+                                  }
+                                }
                               }
                             }
                           },

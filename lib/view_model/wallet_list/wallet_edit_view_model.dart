@@ -1,9 +1,8 @@
-import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_service.dart';
+import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 
 part 'wallet_edit_view_model.g.dart';
@@ -21,7 +20,7 @@ class WalletEditDeletePending extends WalletEditViewModelState {}
 abstract class WalletEditViewModelBase with Store {
   WalletEditViewModelBase(
     this._walletListViewModel,
-    this._walletLoadingService,
+    this._walletPoolService,
     this._walletManager,
   )   : state = WalletEditViewModelInitialState(),
         newName = '';
@@ -33,7 +32,7 @@ abstract class WalletEditViewModelBase with Store {
   String newName;
 
   final WalletListViewModel _walletListViewModel;
-  final WalletLoadingService _walletLoadingService;
+  final WalletPoolService _walletPoolService;
   final WalletManager _walletManager;
 
   @action
@@ -45,17 +44,21 @@ abstract class WalletEditViewModelBase with Store {
   }) async {
     state = WalletEditRenamePending();
 
-    if (isWalletGroup) {
-      await _walletManager.updateWalletGroups();
+    try {
+      if (isWalletGroup) {
+        await _walletManager.updateWalletGroups();
 
-      _walletManager.setGroupName(walletGroupKey!, newName);
-    } else {
-      await _walletLoadingService.renameWallet(
-        walletItem.type,
-        walletItem.name,
-        newName,
-        password: password,
-      );
+        _walletManager.setGroupName(walletGroupKey!, newName);
+      } else {
+        await _walletPoolService.rename(
+          WalletKey(walletItem.name, walletItem.type),
+          newName,
+          password: password,
+        );
+      }
+    } catch (_) {
+      resetState();
+      rethrow;
     }
 
     _walletListViewModel.updateList();
@@ -64,9 +67,12 @@ abstract class WalletEditViewModelBase with Store {
   @action
   Future<void> remove(WalletListItem wallet) async {
     state = WalletEditDeletePending();
-    final walletService = getIt.get<WalletService>(param1: wallet.type);
-    await walletService.remove(wallet.name);
-    resetState();
+
+    try {
+      await _walletPoolService.remove(WalletKey(wallet.name, wallet.type));
+    } finally {
+      resetState();
+    }
     _walletListViewModel.updateList();
   }
 

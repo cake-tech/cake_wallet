@@ -54,6 +54,7 @@ import 'package:cake_wallet/new-ui/pages/wallet_accounts_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
+import "package:cake_wallet/src/screens/dev/run_with_wallet_playground_page.dart";
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
@@ -938,6 +939,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devQRTools:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevQRToolsPage>(),
+      );
+
+    case Routes.devRunWithWalletPlayground:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevRunWithWalletPlaygroundPage>(),
       );
 
     case Routes.devNetworkRequests:

@@ -58,107 +58,118 @@ class WalletLoadingService {
     }
   }
 
+  Future<WalletBase> open(WalletType type, String name,
+      {String? password, bool isBackground = false}) async {
+    if (!isBackground) {
+      await sharedPreferences.setString(
+          PreferencesKey.backgroundSyncLastTrigger(name), DateTime.now().toIso8601String());
+    }
+    final walletService = walletServiceFactory.call(type);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+    final wallet = await walletService.openWallet(name, walletPassword);
+
+    if (type == WalletType.monero) {
+      await updateMoneroWalletPassword(wallet);
+    }
+
+    return wallet;
+  }
+
   Future<WalletBase> load(WalletType type, String name,
       {String? password, bool isBackground = false}) async {
     try {
-      if (!isBackground) {
-        await sharedPreferences.setString(
-            PreferencesKey.backgroundSyncLastTrigger(name), DateTime.now().toIso8601String());
-      }
-      final walletService = walletServiceFactory.call(type);
-      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
-      final wallet = await walletService.openWallet(name, walletPassword);
-
-      if (type == WalletType.monero) {
-        await updateMoneroWalletPassword(wallet);
-      }
-
-      return wallet;
+      return await open(type, name, password: password, isBackground: isBackground);
     } catch (error, stack) {
-      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
-
-      if (error is WalletDeprecationException) {
-        if (navigatorKey.currentContext != null) {
-          showModalBottomSheet(
-              context: navigatorKey.currentContext!,
-              builder: (context) => WalletDeprecationPopup(
-                    type: type,
-                    seed: error.seed,
-                  ));
-        }
-      } else {
-        await ExceptionHandler.resetLastPopupDate();
-        final isLedgerError = await ExceptionHandler.isLedgerError(error);
-        if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
-        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
-      }
-
-      // try fetching the seeds of the corrupted wallet to show it to the user
-      try {
-        corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
-      } catch (e) {
-        corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
-      }
-
-      // try opening another wallet that is not corrupted to give user access to the app
-      WalletBase? wallet;
-      for (var walletInfo in await WalletInfo.getAll()) {
-        try {
-          final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
-          wallet = await walletService.openWallet(walletInfo.name, walletPassword);
-
-          if (walletInfo.type == WalletType.monero) {
-            await updateMoneroWalletPassword(wallet);
-          }
-
-          await sharedPreferences.setString(PreferencesKey.currentWalletName, wallet.name);
-          await sharedPreferences.setInt(
-              PreferencesKey.currentWalletType, serializeToInt(wallet.type));
-
-          // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
-          authenticatedErrorStreamController.add(corruptedWalletsSeeds);
-        } catch (e) {
-          printV(e);
-          // save seeds and show corrupted wallets' seeds to the user
-          try {
-            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
-            if (!corruptedWalletsSeeds.contains(seeds)) {
-              corruptedWalletsSeeds += seeds;
-            }
-          } catch (e) {
-            corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
-          }
-        }
-      }
-
-      // if all user's wallets are corrupted throw exception
-      final msg = error.toString() + "\n" + corruptedWalletsSeeds;
-      if (navigatorKey.currentContext != null) {
-        await showPopUp<void>(
-            context: navigatorKey.currentContext!,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                alertTitle: "Corrupted seeds",
-                alertContent: S.of(context).corrupted_seed_notice,
-                leftButtonText: S.of(context).cancel,
-                rightButtonText: S.of(context).show_seed,
-                actionLeftButton: () {
-                  if (context.mounted && Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                  }
-                },
-                actionRightButton: () => showSeedsPopup(context, msg),
-              );
-            });
-      } else {
-        throw msg;
-      }
-      if (wallet == null) {
-        throw Exception("Wallet is null");
-      }
-      return wallet;
+      return recover(type, name, error, stack);
     }
+  }
+
+  Future<WalletBase> recover(WalletType type, String name, Object error, StackTrace stack) async {
+    String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
+
+    if (error is WalletDeprecationException) {
+      if (navigatorKey.currentContext != null) {
+        showModalBottomSheet(
+            context: navigatorKey.currentContext!,
+            builder: (context) => WalletDeprecationPopup(
+                  type: type,
+                  seed: error.seed,
+                ));
+      }
+    } else {
+      await ExceptionHandler.resetLastPopupDate();
+      final isLedgerError = await ExceptionHandler.isLedgerError(error);
+      if (isLedgerError || await requireHardwareWalletConnection(type, name)) {
+        Error.throwWithStackTrace(error, stack);
+      }
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+    }
+
+    // try fetching the seeds of the corrupted wallet to show it to the user
+    try {
+      corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
+    } catch (e) {
+      corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
+    }
+
+    // try opening another wallet that is not corrupted to give user access to the app
+    WalletBase? wallet;
+    for (var walletInfo in await WalletInfo.getAll()) {
+      try {
+        final walletService = walletServiceFactory.call(walletInfo.type);
+        final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
+        wallet = await walletService.openWallet(walletInfo.name, walletPassword);
+
+        if (walletInfo.type == WalletType.monero) {
+          await updateMoneroWalletPassword(wallet);
+        }
+
+        await sharedPreferences.setString(PreferencesKey.currentWalletName, wallet.name);
+        await sharedPreferences.setInt(
+            PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
+        // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
+        authenticatedErrorStreamController.add(corruptedWalletsSeeds);
+      } catch (e) {
+        printV(e);
+        // save seeds and show corrupted wallets' seeds to the user
+        try {
+          final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
+          if (!corruptedWalletsSeeds.contains(seeds)) {
+            corruptedWalletsSeeds += seeds;
+          }
+        } catch (e) {
+          corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
+        }
+      }
+    }
+
+    // if all user's wallets are corrupted throw exception
+    final msg = error.toString() + "\n" + corruptedWalletsSeeds;
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+          context: navigatorKey.currentContext!,
+          builder: (BuildContext context) {
+            return AlertWithTwoActions(
+              alertTitle: "Corrupted seeds",
+              alertContent: S.of(context).corrupted_seed_notice,
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).show_seed,
+              actionLeftButton: () {
+                if (context.mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+              actionRightButton: () => showSeedsPopup(context, msg),
+            );
+          });
+    } else {
+      throw msg;
+    }
+    if (wallet == null) {
+      throw Exception("Wallet is null");
+    }
+    return wallet;
   }
 
   Future<void> showSeedsPopup(BuildContext context, String message) async {

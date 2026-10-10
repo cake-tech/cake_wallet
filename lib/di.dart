@@ -66,7 +66,7 @@ import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
-import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
@@ -98,6 +98,7 @@ import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
+import "package:cake_wallet/src/screens/dev/run_with_wallet_playground_page.dart";
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
@@ -425,6 +426,12 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
+  getIt.registerSingleton<WalletPoolService>(WalletPoolService(
+      pool: WalletPool(
+          loader: (key) => getIt.get<WalletLoadingService>().open(key.type, key.name)),
+      appStore: getIt.get<AppStore>(),
+      walletLoadingService: getIt.get<WalletLoadingService>()));
+
   getIt.registerFactoryParam<WalletNewVM, NewWalletArguments, void>(
       (newWalletArgs, _) => WalletNewVM(
             getIt.get<AppStore>(),
@@ -483,7 +490,8 @@ Future<void> setup({
         getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
     final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
 
-    return WalletUnlockLoadableViewModel(getIt.get<AppStore>(), getIt.get<WalletLoadingService>(),
+    return WalletUnlockLoadableViewModel(
+        getIt.get<WalletPoolService>(), getIt.get<WalletLoadingService>(),
         walletName: args.walletName ?? currentWalletName,
         walletType: args.walletType ?? currentWalletType);
   });
@@ -589,7 +597,7 @@ Future<void> setup({
         sharedPreferences: getIt.get<SharedPreferences>(),
         settingsStore: getIt.get<SettingsStore>(),
         authenticationStore: getIt.get<AuthenticationStore>(),
-        appStore: getIt.get<AppStore>(),
+        walletPoolService: getIt.get<WalletPoolService>(),
         resetService: getIt.get<ResetService>(),
         walletList: walletList),
   );
@@ -837,6 +845,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<WalletPoolService>(),
       ),
     );
   } else {
@@ -847,6 +856,7 @@ Future<void> setup({
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
         getIt.get<WalletManager>(),
+        getIt.get<WalletPoolService>(),
       ),
     );
   }
@@ -861,7 +871,7 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
       walletListViewModel,
-      getIt.get<WalletLoadingService>(),
+      getIt.get<WalletPoolService>(),
       getIt.get<WalletManager>(),
     ),
   );
@@ -1217,20 +1227,13 @@ Future<void> setup({
         appStore: getIt.get<AppStore>(),
       ));
 
-  getIt.registerFactory(() => WalletSwitchService(
-        walletLoadingService: getIt.get<WalletLoadingService>(),
-        appStore: getIt.get<AppStore>(),
-      ));
-
   getIt.registerFactory(() => AnyPayService(
         appStore: getIt.get<AppStore>(),
-        walletSwitchService: getIt.get<WalletSwitchService>(),
+        walletPoolService: getIt.get<WalletPoolService>(),
       ));
 
-  getIt.registerFactory(() => WalletSwitcherViewModel(
-        appStore: getIt.get<AppStore>(),
-        walletLoadingService: getIt.get<WalletLoadingService>(),
-      ));
+  getIt.registerFactory(
+      () => WalletSwitcherViewModel(walletPoolService: getIt.get<WalletPoolService>()));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
@@ -1612,6 +1615,9 @@ Future<void> setup({
   getIt.registerFactory(() => DevNetworkRequests());
 
   getIt.registerFactory(() => DevQRToolsPage());
+
+  getIt.registerFactory(
+      () => DevRunWithWalletPlaygroundPage(getIt.get<WalletPoolService>()));
 
   getIt.registerFactory(() => ExchangeProviderLogsViewModel());
   getIt.registerFactory(
