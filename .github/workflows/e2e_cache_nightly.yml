@@ -66,6 +66,16 @@ jobs:
           gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
           test -f apk/app-x86_64-release.apk
 
+      # Hosted runners need the udev rule or the action falls back to
+      # -accel off (software emulation): 12-minute boots and the adb daemon
+      # wedging under CPU load (three CI failures: 'Daemon request timed out').
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
       - name: Boot the emulator and record the cache (read-write)
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -86,7 +96,7 @@ jobs:
           emulator-boot-timeout: 1200
           cores: 4
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -no-snapshot-save
           disable-animations: false
           # parseScript(): one sh -c (dash) per line — no bashisms, no loops
           # spanning lines, no reliance on `set -eu` persisting.
