@@ -32,6 +32,9 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  # the resolve job's auto-retry runs `gh run rerun --failed`; without this the
+  # 403 was swallowed by `|| true` and the retry silently never happened.
+  actions: write
 
 concurrency:
   group: e2e-android-${{ github.event.pull_request.number || github.ref }}
