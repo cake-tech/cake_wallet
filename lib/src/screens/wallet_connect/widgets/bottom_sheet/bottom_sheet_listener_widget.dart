@@ -21,6 +21,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   void initState() {
     super.initState();
     widget.bottomSheetService.currentSheet.addListener(_showBottomSheet);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showBottomSheet());
   }
 
   @override
