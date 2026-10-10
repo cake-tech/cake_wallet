@@ -1,8 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
-import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -188,27 +186,9 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
   Future<void> _onContinuePressed() async {
     setState(() => _state = _KeyImageSyncState.syncing);
 
-    if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-      await Navigator.of(context).pushNamed(
-        Routes.connectDevices,
-        arguments: ConnectDevicePageParams(
-          walletType: widget.wallet.type,
-          hardwareWalletType: widget.wallet.walletInfo.hardwareWalletType!,
-          onConnectDevice: (_, __) {
-            widget.trezorConnectVM.initWallet(widget.wallet);
-            Navigator.of(context).pop();
-          },
-          isReconnect: false,
-        ),
-      );
-
-      // Recheck to handle tap-backs
-      if (!widget.trezorConnectVM.isConnected(widget.wallet.type)) {
-        setState(() => _state = _KeyImageSyncState.initial);
-        return;
-      }
-    } else {
-      await widget.trezorConnectVM.initWallet(widget.wallet);
+    if (!(await widget.trezorConnectVM.ensureDeviceConnection(context, widget.wallet))) {
+      setState(() => _state = _KeyImageSyncState.initial);
+      return;
     }
 
     final result = await widget.trezorConnectVM.syncKeyImages(widget.wallet);

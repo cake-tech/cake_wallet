@@ -1,4 +1,5 @@
 import 'dart:async';
+import "dart:convert";
 import 'dart:io';
 import 'dart:math';
 
@@ -19,6 +20,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
+import "package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart";
 import 'package:cw_zcash/src/util/crc32.dart';
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
@@ -72,9 +74,11 @@ abstract class ZcashWalletBase
     _pendingOutgoingAmounts[ZcashWalletService.normalizeTxId(txId)] = amount.amount;
   }
 
+  ZcashHardwareWalletService? hardwareWalletService;
+
   @override
   @observable
-  SyncStatus syncStatus = NotConnectedSyncStatus();
+  SyncStatus syncStatus = const NotConnectedSyncStatus();
 
   @override
   ObservableMap<CryptoCurrency, ZcashBalance> balance = ObservableMap.of({
@@ -140,9 +144,7 @@ abstract class ZcashWalletBase
   static bool isNodeWorking = true;
 
   @override
-  Future<bool> checkNodeHealth() {
-    return Future.value(isNodeWorking);
-  }
+  Future<bool> checkNodeHealth() => Future.value(isNodeWorking);
 
   @override
   Future<void> close({final bool shouldCleanup = false}) async {
@@ -207,13 +209,9 @@ abstract class ZcashWalletBase
 
   int _syncCheckpointHeight = 0;
 
-  bool get isSyncing {
-    return _isSyncing;
-  }
+  bool get isSyncing => _isSyncing;
 
-  set isSyncing(final bool value) {
-    _isSyncing = value;
-  }
+  set isSyncing(final bool value) => _isSyncing = value;
 
   bool _isSyncing = false;
 
@@ -480,7 +478,7 @@ abstract class ZcashWalletBase
     // pools parameter: bitmask for which pools to use for sending
     // 1=Transparent, 2=Sapling, 4=Orchard, 8=Ironwood
     try {
-      return await runWithCoin(
+      final (txPlan, txFee) = await runWithCoin(
         accountId: accountId,
         func: (coin) async {
           final ironwood = await zkool_network.isIronwoodActive(c: coin);
@@ -490,19 +488,46 @@ abstract class ZcashWalletBase
               srcPools: ironwood ? 8 : 4,
               recipientPaysFee: receipientPaysFee,
               smartTransparent: false,
-              mode: 0,
             ),
             c: coin,
           );
           final txFee = _feeFromTxPlan(txPlan, creds.priority, tryReduceFeeAmount, coin: coin);
-          return PendingZcashTransaction(
+          return (txPlan, txFee);
+        },
+      );
+
+      final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
+      final totalAmount = isAll ? availableBalance - txFee : credentials.outputs.map((
+          final output) => output.cryptoAmount).reduce((final a, final b) => a + b);
+
+
+      if (isHardwareWallet) {
+        final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
+
+        final signedTxBytes = await runWithCoin(
+            accountId: accountId,
+            func: (coin) => hardwareWalletService!.withCoin(coin).signTransaction(
+                transaction: base64Encode(unsignedTx),
+              )
+        );
+        final signedTx = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
+
+        return PendingZcashTransaction(
             zcashWallet: this as ZcashWallet,
-            credentials: creds,
+            amount: totalAmount,
             txPlan: txPlan,
             fee: txFee,
             availableBalance: availableBalance,
-          );
-        },
+            signedTxPackage: signedTx
+        );
+      }
+
+      return PendingZcashTransaction(
+        zcashWallet: this as ZcashWallet,
+        amount: totalAmount,
+        txPlan: txPlan,
+        fee: txFee,
+        availableBalance: availableBalance,
       );
     } catch (e) {
       if (tryReduceFeeAmount != 0) rethrow;
@@ -999,38 +1024,15 @@ abstract class ZcashWalletBase
 
   static int zashiAnnouncedBlockHeight = 2419420;
 
-  Future<int?> getBirthHeight() async => runWithCoin(
+  Future<int?> getBirthHeight() async =>
+      runWithCoin(
         accountId: accountId,
-        func: (final coin) async => (await zkool_account.listAccounts(c: coin))
+        func: (coin) async =>
+        (await zkool_account.listAccounts(c: coin))
             .where((final a) => a.id == accountId)
             .firstOrNull
             ?.birth,
       );
-
-  Future<dynamic> _getAddressesForAccount(final int id) async {
-    return runWithCoin(
-      accountId: id,
-      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
-    );
-  }
-
-  bool _addressesMatch(final dynamic old, final dynamic new_) {
-    return old.ua == new_.ua &&
-        old.oaddr == new_.oaddr &&
-        old.saddr == new_.saddr &&
-        old.taddr == new_.taddr;
-  }
-
-  Future<void> _switchToAccount(final int newAccountId, final int height) async {
-    walletsByAccountId.remove(accountId);
-    accountId = newAccountId;
-    walletsByAccountId[newAccountId] = this;
-    walletAddresses.accountId = newAccountId;
-    c = await c.setAccount(account: newAccountId);
-    lastKnownRestoreHeight = height;
-    await walletAddresses.init();
-    await _initKeys();
-  }
 
   @override
   @action
@@ -1183,7 +1185,7 @@ abstract class ZcashWalletBase
   String? passphrase = "";
 
   @override
-  Future<String> signMessage(final String message, {final String? address = null}) {
+  Future<String> signMessage(final String message, {final String? address}) {
     throw UnimplementedError();
   }
 
@@ -1206,17 +1208,21 @@ abstract class ZcashWalletBase
     }
   }
 
-  static Mutex warpSyncMutex = Mutex();
-
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
+
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
+
+  bool _autorunNotReady(DateTime? lastExecution) =>
+      syncStatus is! SyncedSyncStatus || (lastExecution != null &&
+          lastExecution.isAfter(DateTime.now().subtract(const Duration(seconds: 75))));
+
   Future<void> _autoShield() async {
-    if (_lastAutoShieldAt != null &&
-        _lastAutoShieldAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+    if (_autorunNotReady(_lastAutoShieldAt)) {
       return;
     }
+
     try {
       await autoShieldMutex.acquire();
       await _$autoShield();
@@ -1264,11 +1270,8 @@ abstract class ZcashWalletBase
 
   bool hasOrchardMigratableBalance() => _orchardMigratable;
 
-  Future<void> _$autoShield() async {
-    if (syncStatus is! SyncedSyncStatus) {
-      return;
-    }
-    final txId = await runWithCoin(
+  Future<PendingTransaction?> createShieldingTransaction() async {
+    final txPlan = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
         final sweepable = await _sweepableTotal(coin);
@@ -1277,7 +1280,7 @@ abstract class ZcashWalletBase
         if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
           return null;
         }
-        final txPlan = await zkool_pay.prepare(
+        return zkool_pay.prepare(
           recipients: [
             zkool_paydart.Recipient(
               assetBase: zecBase,
@@ -1286,41 +1289,64 @@ abstract class ZcashWalletBase
               pools: ironwood ? ironwoodPoolMask : null,
             ),
           ],
-          options: zkool_pay.PaymentOptions(
+          options: const zkool_pay.PaymentOptions(
             srcPools: 3,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
-          c: coin,
-        );
-
-        final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
-        final txBytes = await zkool_pay.extractTransaction(package: signTx);
-        final currentHeight = await zkool_network.getCurrentHeight(c: coin);
-        return await zkool_pay.broadcastTransaction(
-          height: currentHeight,
-          txBytes: txBytes,
           c: coin,
         );
       },
     );
-    if (txId == null) {
-      return;
+
+    if (txPlan == null) {
+      return null;
     }
 
-    await ZcashWalletService.addShieldedTx(txId);
-    _lastAutoShieldAt = DateTime.now();
-    printV("shielded: $txId");
-    await updateTransactions();
-    await _refreshBalance(runAutoShield: false, runIronwoodMigrate: false);
+    zkool_pay.PcztPackage? signedTxPackage;
+    if (isHardwareWallet) {
+      final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
+
+      final signedTxBytes = await runWithCoin(
+          accountId: accountId,
+          func: (coin) =>
+              hardwareWalletService!.withCoin(coin).signTransaction(
+                transaction: base64Encode(unsignedTx),
+              )
+      );
+
+      signedTxPackage = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
+    }
+
+    final zcashBalance = balance[CryptoCurrency.zec];
+    final availableBalance = zcashBalance?.available ?? Money.zero(currency);
+    final sweepableBigInt = await runWithCoin(accountId: accountId, func: _sweepableTotal);
+    final sweepable = Money(sweepableBigInt, currency);
+
+    return PendingZcashTransaction(
+      zcashWallet: this as ZcashWallet,
+      amount: sweepable,
+      txPlan: txPlan,
+      fee: Money.zero(currency),
+      availableBalance: availableBalance,
+      signedTxPackage: signedTxPackage,
+      isShieldingTx: true,
+    );
+  }
+
+  Future<void> _$autoShield() async {
+    final shieldTx = await createShieldingTransaction();
+    if (shieldTx != null) {
+      await shieldTx.commit();
+      _lastAutoShieldAt = DateTime.now();
+    }
   }
 
   Future<void> _ironwoodMigrate() async {
-    if (_lastIronwoodMigrateAt != null &&
-        _lastIronwoodMigrateAt!.isAfter(DateTime.now().subtract(const Duration(seconds: 75)))) {
+    if (_autorunNotReady(_lastIronwoodMigrateAt)) {
       return;
     }
+
     try {
       await ironwoodMigrateMutex.acquire();
       await _$ironwoodMigrate();
@@ -1333,9 +1359,6 @@ abstract class ZcashWalletBase
   }
 
   Future<void> _$ironwoodMigrate() async {
-    if (syncStatus is! SyncedSyncStatus) {
-      return;
-    }
     final event = await runWithCoin(
       accountId: accountId,
       func: (coin) async {
@@ -1409,11 +1432,15 @@ abstract class ZcashWalletBase
   }) async {
     try {
       await _updateIronwoodActive();
-      if (runAutoShield) {
-        await _autoShield();
-      }
-      if (runIronwoodMigrate) {
-        await _ironwoodMigrate();
+
+      if (!isHardwareWallet) {
+        if (runAutoShield) {
+          await _autoShield();
+        }
+
+        if (runIronwoodMigrate) {
+          await _ironwoodMigrate();
+        }
       }
 
       final (bal, sweepable, migratableOrchard) = await runWithCoin(
@@ -1440,7 +1467,7 @@ abstract class ZcashWalletBase
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
-        final minSweep = _minSweepThreshold(ironwood: ironwoodActive == true);
+        final minSweep = _minSweepThreshold(ironwood: ironwoodActive);
         availableAmount = orchard + ironwood;
         unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
       }
@@ -1462,9 +1489,8 @@ abstract class ZcashWalletBase
 
   @override
   @action
-  Future<void> updateBalance() async {
-    await _refreshBalance(runAutoShield: true);
-  }
+  Future<void> updateBalance({bool runAutoShield = true, bool runIronwoodMigrate = true}) =>
+      _refreshBalance(runAutoShield: runAutoShield, runIronwoodMigrate: runIronwoodMigrate);
 
   @override
   Future<bool> verifyMessage(
@@ -1565,6 +1591,49 @@ abstract class ZcashWalletBase
     );
     await wallet.init();
     printV("height: ${credentials.height}");
+    return wallet;
+  }
+
+  static Future<ZcashWallet> restoreFromHardwareWallet(ZcashRestoreWalletFromHardware credentials) async {
+    final network = networkForCredentials(credentials);
+    await $init(network: network);
+    credentials.walletInfo?.network = network.value;
+
+    final service = credentials.hardwareWalletService;
+    if (service is! ZcashHardwareWalletService) {
+      throw Exception("A Ledger connection is required to restore a Zcash hardware wallet");
+    }
+
+    final accounts = await service
+        .withCoin(zkool_coin.Coin(defaultCoin: network.networkIndex))
+        .getAvailableAccounts(index: credentials.accountIndex, limit: 1);
+    final ufvk = accounts.firstOrNull?.xpub;
+    if (ufvk == null || ufvk.isEmpty) {
+      throw Exception("The Ledger did not return a viewing key");
+    }
+
+    final height = (credentials.height ?? 0) > 0
+        ? credentials.height!
+        : (network == ZcashNetwork.mainnet ? 419200 : 280000);
+
+    final accountId = await newAccount(
+      name: credentials.name,
+      height: height,
+      seed: ufvk,
+      passphrase: "",
+      hw: 2,
+      aIndex: credentials.accountIndex,
+    );
+    await saveAccountId(credentials.name, accountId);
+    final wallet = await open(
+      name: credentials.name,
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+    );
+
+    wallet.hardwareWalletService = service;
+    await wallet.init();
+    printV("ledger account $accountId paired from height $height");
     return wallet;
   }
 
@@ -1706,11 +1775,14 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
-  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+  static Future<void> ensureRustLib() async {
     if (!_rustInitialized) {
       await zkool_frb.RustLib.init();
       _rustInitialized = true;
     }
+  }
+  static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
+    await ensureRustLib();
     if (_initialized && _activeNetwork == network) {
       return;
     }
@@ -1749,24 +1821,24 @@ abstract class ZcashWalletBase
     required final int height,
     required final String seed,
     required final String passphrase,
-  }) async {
-    final id = await zkool_account.newAccount(
-      na: zkool_account.NewAccount(
-        name: name,
-        restore: true,
-        passphrase: passphrase,
-        key: seed,
-        aindex: 0,
-        birth: height,
-        folder: '',
-        useInternal: true,
-        internal: false,
-        ledger: false,
-      ),
-      c: c,
-    );
-    return id;
-  }
+    final int hw = 0,
+    final int aIndex = 0,
+  }) =>
+      zkool_account.newAccount(
+        na: zkool_account.NewAccount(
+          name: name,
+          restore: true,
+          passphrase: passphrase,
+          key: seed,
+          aindex: aIndex,
+          birth: height,
+          folder: '',
+          useInternal: true,
+          internal: false,
+          hw: hw,
+        ),
+        c: c,
+      );
 
   static final runWithCoinMutex = Mutex();
   static int runWithCoinCount = 0;
@@ -1789,7 +1861,7 @@ abstract class ZcashWalletBase
     newC = await newC.openDatabase(dbFilepath: c.dbFilepath);
     newC = await newC.setAccount(account: accountId);
     newC = await newC.setLwd(serverType: c.serverType, url: c.url);
-    newC = await newC.setUseTor(useTor: c.useTor);
+    newC = await newC.setTransport(transport: c.transport).setProxy(proxy: c.proxy);
 
     runWithCoinCount++;
     printV("run with coin: $runWithCoinCount");
