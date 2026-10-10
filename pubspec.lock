@@ -1221,11 +1221,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3"
-      resolved-ref: "9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3"
+      ref: "7280c3a17152be21be8bb2e172610dd8888049d2"
+      resolved-ref: "7280c3a17152be21be8bb2e172610dd8888049d2"
       url: "https://github.com/taljacobson/flutter_mailer"
     source: git
-    version: "3.0.0"
+    version: "3.0.2"
   flutter_mobx:
     dependency: "direct main"
     description:
