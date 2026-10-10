@@ -143,6 +143,16 @@ jobs:
           name: e2e-apk
           path: apk
 
+      # Hosted runners need the udev rule or the action falls back to
+      # -accel off (software emulation): 12-minute boots and the adb daemon
+      # wedging under CPU load (three CI failures: 'Daemon request timed out').
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
       - name: Boot the emulator and run the no-funds slice
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -161,7 +171,7 @@ jobs:
           emulator-boot-timeout: 1200
           cores: 4
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot-save -read-only
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -no-snapshot-save
           # The handoff pins animations off, but NOT via the action's own
           # step: after a slow boot (764s observed) its `settings put` dies
           # with "Broken pipe" and the action tears the emulator down
