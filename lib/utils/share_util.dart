@@ -10,13 +10,15 @@ class ShareUtil {
     );
   }
 
-  static Future<void> shareFile({
+  static Future<ShareResult> shareFile({
     required String filePath,
     required String fileName,
     required BuildContext context,
-  }) async {
+    String? subject,
+    String? text,
+  }) {
     const _mimeType = 'application/*';
-    await Share.shareXFiles(
+    return Share.shareXFiles(
       <XFile>[
         XFile(
           filePath,
@@ -24,6 +26,8 @@ class ShareUtil {
           mimeType: _mimeType,
         )
       ],
+      subject: subject,
+      text: text,
       sharePositionOrigin: _sharePosition(context),
     );
   }

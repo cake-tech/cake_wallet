@@ -424,6 +424,8 @@ abstract class MoneroWalletDetails {
 abstract class Monero {
   MoneroAccountList getAccountList(Object wallet);
 
+  Money getAccountFullBalance(int accountIndex);
+
   MoneroSubaddressList getSubaddressList(Object wallet);
 
   TransactionHistoryBase getTransactionHistory(Object wallet);
@@ -627,6 +629,8 @@ abstract class WowneroWalletDetails {
 
 abstract class Wownero {
   WowneroAccountList getAccountList(Object wallet);
+
+  Money getAccountFullBalance(int accountIndex);
 
   WowneroSubaddressList getSubaddressList(Object wallet);
 
