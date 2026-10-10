@@ -1,4 +1,6 @@
 import "package:cake_wallet/utils/payment_request.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -118,6 +120,35 @@ void main() {
         final paymentRequest = PaymentRequest("addr", "", "", "ethereum", null);
 
         expect(paymentRequest.resolveTokenAmount(usdt), null);
+      });
+    });
+
+    group("Lightning", () {
+      const invoice =
+          "lnbc10u1p5exfgvpp5n3s9dsw9ddax5c3h8437ya7y4g582uyufyna626yr9vqdfjrhwzqdqqcqzzsxqrrsssp5mmkyp5h35fpaxm4063f3kc7d4nmgd4gd8fv8086wxd784m76kmpq9qxpqysgqye9r0vahpjy9l2je6vakxzk3cjnsyx76r29c4amkz4cmapq5tqt5l7rl0emkd003jjvz2d8jqrw6wc4cduvapuyeseh7a855l82wutcpeq30kg";
+      const lnurl =
+          "LNURL1DP68GURN8GHJ7V33D45K7TNNWPSKXEF00FSHQCN00QHKZURF9AMRZTMVDE6HYMP0FPH8Q42NVF5Y2DNSDEV8SKJZVD54QUP4X44R7URFDC7NZVSFF8MG6";
+
+      test("strips the scheme from a prefixed bolt11 invoice", () {
+        final paymentRequest = PaymentRequest.fromString("lightning:$invoice");
+
+        expect(paymentRequest.address, invoice);
+        expect(paymentRequest.amount, Money.fromInt(1000, CryptoCurrency.btcln).toString());
+      });
+
+      test("strips an upper-case scheme from a bolt11 invoice", () {
+        final paymentRequest = PaymentRequest.fromString("lightning:$invoice".toUpperCase());
+
+        expect(paymentRequest.address, invoice.toUpperCase());
+        expect(paymentRequest.amount, Money.fromInt(1000, CryptoCurrency.btcln).toString());
+      });
+
+      test("strips an upper-case scheme from an LNURL", () {
+        final paymentRequest = PaymentRequest.fromString("LIGHTNING:$lnurl");
+
+        expect(paymentRequest.address, lnurl);
+        expect(paymentRequest.amount, "");
+        expect(paymentRequest.scheme, "lightning");
       });
     });
   });

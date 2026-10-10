@@ -88,6 +88,13 @@ void main() {
       expect(getBolt11Amount(invoice), Money.fromInt(1000, CryptoCurrency.btcln));
     });
 
+    test("should get the amount from an upper-case prefixed invoice", () {
+      final invoice =
+          "LIGHTNING:LNBC10U1P5EXFGVPP5N3S9DSW9DDAX5C3H8437YA7Y4G582UYUFYNA626YR9VQDFJRHWZQDQQCQZZSXQRRSSSP5MMKYP5H35FPAXM4063F3KC7D4NMGD4GD8FV8086WXD784M76KMPQ9QXPQYSGQYE9R0VAHPJY9L2JE6VAKXZK3CJNSYX76R29C4AMKZ4CMAPQ5TQT5L7RL0EMKD003JJVZ2D8JQRW6WC4CDUVAPUYESEH7A855L82WUTCPEQ30KG";
+      expect(isBolt11ZeroInvoice(invoice), false);
+      expect(getBolt11Amount(invoice), Money.fromInt(1000, CryptoCurrency.btcln));
+    });
+
     test("should get the amount 1 SAT encoded as nanobitcoin", () {
       final invoice =
           "lnbc10n1p5exazppp5szh273r6nzvwydzsdlg0ws0vhxwnc6nqtqt4sjt0vu6x6l8t5csqdqqcqzzsxqrrsssp5nkup6uht7xlfqaj8lxpe5kx0ejum9p4pvv3nlnndr9ykzge3393s9qxpqysgqufh05a7qs0ezeckvmh7tjkr9ngng96nq274twg20z45ysp7afpdrttm2ky73cpjwpjqsmtzzd79w6lyvszgmkanwn8mj0jcfunrwv3qprg3z3j";

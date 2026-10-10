@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
 import "package:cake_wallet/core/anypay/anypay_parser.dart";
 import "package:cake_wallet/core/anypay/anypay_resolver.dart";
@@ -12,6 +13,7 @@ import "package:cake_wallet/utils/payment_request.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/lnurl.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -27,10 +29,11 @@ class AnyPayService {
   final WalletSwitchService walletSwitchService;
   final AnyPayResolver resolver;
 
-  Future<AnyPayEvaluation> evaluateRawInput(String input) => _evaluate(AnyPayParser.fromRaw(input));
+  Future<AnyPayEvaluation> evaluateRawInput(String input) async =>
+      _evaluate(await _withLnurlAmount(AnyPayParser.fromRaw(input)));
 
-  Future<AnyPayEvaluation> evaluatePaymentRequest(PaymentRequest request) =>
-      _evaluate(AnyPayParser.fromPaymentRequest(request));
+  Future<AnyPayEvaluation> evaluatePaymentRequest(PaymentRequest request) async =>
+      _evaluate(await _withLnurlAmount(AnyPayParser.fromPaymentRequest(request)));
 
   Future<AnyPayEvaluation> evaluateForEvmChain(AnyPayRequest request, int chainId) => _evaluate(
         AnyPayRequest(
@@ -56,6 +59,30 @@ class AnyPayService {
         request: request,
         decision: const AnyPayApplyToCurrentWallet(),
       );
+    }
+  }
+
+  Future<AnyPayRequest> _withLnurlAmount(AnyPayRequest request) async {
+    if (request.amount.isNotEmpty ||
+        !RegExp(AddressValidator.lnurlMatcher, caseSensitive: false).hasMatch(request.address)) {
+      return request;
+    }
+
+    try {
+      final amount = await LNURL.getPayRequestAmount(request.address);
+      if (amount == null) {
+        return request;
+      }
+
+      return AnyPayRequest(
+        rawInput: request.rawInput,
+        paymentRequest: request.paymentRequest.copyWith(amount: amount.toString()),
+        detection: request.detection,
+        chainBinding: request.chainBinding,
+      );
+    } catch (e) {
+      printV("lnurl amount lookup failed: $e");
+      return request;
     }
   }
 
