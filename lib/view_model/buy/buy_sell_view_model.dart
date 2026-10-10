@@ -443,7 +443,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       for (var methods in result) {
         for (var method in methods) {
           final alreadyExists = tempPaymentMethods.any((m) {
-            return m.paymentMethodType == method.paymentMethodType;
+            if (m.paymentMethodType != method.paymentMethodType) return false;
+            if (method.paymentMethodType != PaymentType.unknown) return true;
+            return m.customTitle == method.customTitle;
           });
 
           if (!alreadyExists) {

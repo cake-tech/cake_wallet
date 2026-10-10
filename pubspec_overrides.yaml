@@ -539,7 +539,7 @@ dependency_overrides:
   flutter_mailer:
     git:
       url: https://github.com/taljacobson/flutter_mailer
-      ref: 9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3
+      ref: 7280c3a17152be21be8bb2e172610dd8888049d2
   flutter_mobx:
     git:
       url: https://github.com/mobxjs/mobx.dart

@@ -9,6 +9,7 @@ import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_v
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import "package:cw_core/balance_card_layout.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -110,7 +111,8 @@ abstract class DashboardViewModelBase with Store {
     showDecredInfoCard = wallet.type == WalletType.decred &&
         (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
-    isMultiAccountsEnabled = wallet.walletInfo.isMultiAccountsEnabled == true;
+    isMultiAccountsEnabled =
+        wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
@@ -426,72 +428,86 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  List<int> get cardAccountIndices {
+    if (wallet.type == WalletType.monero) {
+      return monero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
+    }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getAccountList(wallet).accounts.map((account) => account.id).toList();
+    }
+    if (wallet.type == WalletType.bitcoin) {
+      final accounts = accountListViewModel?.accounts;
+      return [
+        if (accounts == null || accounts.isEmpty) 0 else ...accounts.map((account) => account.id),
+        -2,
+      ];
+    }
+    return const [-1];
+  }
+
   @action
   Future<void> loadCardDesigns() async {
-    final walletCardStyleSettings =
-        await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
-    final btcAccounts =
-        wallet.type == WalletType.bitcoin ? await wallet.walletInfo.getAccounts() : null;
-    final lightningCardIndex = btcAccounts?.length;
+    if (wallet.type == WalletType.bitcoin) {
+      await accountListViewModel?.reload();
+    }
+    final accountIndices = cardAccountIndices;
+    final settings = await BalanceCardStyleSettings.getAll(wallet.walletInfo.internalId);
+    if (wallet.type != WalletType.bitcoin && accountIndices.contains(0) &&
+        !settings.any((setting) => setting.accountIndex == 0)) {
+      final primarySettings = settings.where((setting) => setting.accountIndex == -1)
+          .firstOrNull?.copyWith(accountIndex: 0);
+      if (primarySettings != null) {
+        await primarySettings.insert();
+        settings.add(primarySettings);
+      }
+    }
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accountIndices.where((index) => index != -2).toList(),
+      settings: settings,
+    );
 
-    int numAccounts = 1;
+    cardDesigns
+      ..clear()
+      ..addAll(accountIndices.map((accountIndex) => CardDesign.fromStyleSettings(
+            settings.where((setting) => setting.accountIndex == accountIndex).firstOrNull,
+            accountIndex == -2 ? CryptoCurrency.btcln : wallet.currency,
+          )));
+    cardOrder = {
+      for (int position = 0; position < layout.visible.length; position++)
+        position: layout.visible[position],
+    }.asObservable();
+
+    if (layout.needsRepair) {
+      await BalanceCardStyleSettings.setVisibleOrder(wallet.walletInfo.internalId, layout.orders);
+    }
+    if (isMultiAccountsEnabled && !lightningMode && layout.visible.isNotEmpty &&
+        !layout.visible.contains(accountListViewModel?.selectedAccount?.id)) {
+      final visibleAccount = accountListViewModel?.accounts
+          .where((account) => account.id == layout.visible.last).firstOrNull;
+      if (visibleAccount != null) {
+        await accountListViewModel!.select(visibleAccount);
+      }
+    }
+  }
+
+  int get currentCardAccountIndex {
     if (wallet.type == WalletType.monero) {
-      numAccounts = monero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.wownero) {
-      numAccounts = wow.wownero!.getAccountList(wallet).accounts.length;
-    } else if (wallet.type == WalletType.bitcoin) {
-      numAccounts = btcAccounts!.length + 1; // adding 1 for the lightning account
+      return monero!.getCurrentAccount(wallet).id;
     }
-
-    final usesAccountIndices = wallet.type == WalletType.bitcoin || balanceViewModel.hasAccounts;
-
-    cardDesigns.clear();
-    final newOrder = <int, int>{};
-
-    final orderableCount = (wallet.type == WalletType.bitcoin) ? numAccounts - 1 : numAccounts;
-
-    for (int i = 0; i < numAccounts; i++) {
-      late final int index;
-      final isLightning = wallet.type == WalletType.bitcoin && i == lightningCardIndex;
-      if (isLightning) {
-        index = -2;
-      } else if (usesAccountIndices) {
-        index = i;
-      } else {
-        index = -1;
-      }
-
-      final setting = walletCardStyleSettings.where((e) => e.accountIndex == index).firstOrNull ??
-          (index == 0 && wallet.type != WalletType.bitcoin
-              ? walletCardStyleSettings.where((e) => e.accountIndex == -1).firstOrNull
-              : null);
-
-      final curr = isLightning ? CryptoCurrency.btcln : wallet.currency;
-
-      cardDesigns.add(CardDesign.fromStyleSettings(setting, curr));
-
-      if (isLightning) {
-        continue;
-      }
-
-      if (setting?.cardOrder != null &&
-          setting!.cardOrder >= 0 &&
-          setting.cardOrder < orderableCount) {
-        newOrder[setting.cardOrder] = i;
-      }
+    if (wallet.type == WalletType.wownero) {
+      return wow.wownero!.getCurrentAccount(wallet).id;
     }
-
-    // making sure ALL accounts have numbers, even the ones that existed before this feature was a thing
-    for (int i = 0; i < orderableCount; i++) {
-      if (!newOrder.containsValue(i)) {
-        int free = 0;
-        while (newOrder.containsKey(free)) {
-          free++;
-        }
-        newOrder[free] = i;
-      }
+    if (wallet.type == WalletType.bitcoin) {
+      return lightningMode ? -2 : wallet.walletInfo.currentAccountIndex;
     }
-    cardOrder = newOrder.asObservable();
+    return -1;
+  }
+
+  CardDesign get currentCardDesign {
+    final designIndex = cardAccountIndices.indexOf(currentCardAccountIndex);
+    return cardDesigns.isEmpty || designIndex >= cardDesigns.length
+        ? CardDesign.fromStyleSettings(null, wallet.currency)
+        : cardDesigns[designIndex == -1 ? 0 : designIndex];
   }
 
   void _transactionDisposerCallback(int _) async {
@@ -925,7 +941,9 @@ abstract class DashboardViewModelBase with Store {
   List<AccountListItem> get visibleAccounts {
     final all = accountListViewModel?.accounts;
     if (all == null || all.isEmpty) return const <AccountListItem>[];
-    if (isMultiAccountsEnabled) return all.toList(growable: false);
+    if (isMultiAccountsEnabled) {
+      return all.where((account) => cardOrder.containsValue(account.id)).toList(growable: false);
+    }
     final primary = all.where((a) => a.id == 0).firstOrNull ?? all.first;
     return <AccountListItem>[primary];
   }
@@ -1353,7 +1371,13 @@ abstract class DashboardViewModelBase with Store {
 
     // Lightning belongs to the primary account only
     if (lightningMode) {
-      unawaited(_selectPrimaryAccount());
+      unawaited(_selectPrimaryAccount().then((_) async {
+        if (!lightningMode && isMultiAccountsEnabled) {
+          await loadCardDesigns();
+        }
+      }));
+    } else {
+      unawaited(loadCardDesigns());
     }
   }
 
@@ -1382,7 +1406,8 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    isMultiAccountsEnabled = wallet.walletInfo.isMultiAccountsEnabled == true;
+    isMultiAccountsEnabled =
+        wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
 
     _onAccountChangeReaction?.reaction.dispose();
     _onAccountChangeReaction = null;
