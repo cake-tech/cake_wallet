@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/address_formatter.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -10,7 +11,7 @@ class ReceiveAddressWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return TestId.merge("receive_page_address_key", child: Padding(
       key: const ValueKey("receive_page_address_key"),
       padding: const EdgeInsets.symmetric(horizontal: 50.0),
       child: Observer(
@@ -25,6 +26,6 @@ class ReceiveAddressWidget extends StatelessWidget {
               fontFamily: "IBM Plex Mono"),
         ),
       ),
-    );
+    ));
   }
 }

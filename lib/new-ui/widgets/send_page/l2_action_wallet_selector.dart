@@ -86,6 +86,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
+          testId: "l2_action_wallet_selector_top_bar",
           title: widget.action == L2Actions.deposit
               ? "${S.of(context).send_from}..."
               : "${S.of(context).receive_to}...",

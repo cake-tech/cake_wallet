@@ -56,6 +56,7 @@ class ReceiveQrCode extends StatelessWidget {
         // rather than each becoming a separate focus stop.
         MergeSemantics(
           child: Semantics(
+            identifier: "receive_page_qr_code_key",
             hint: largeQrMode ? S.of(context).qr_close_fullscreen : S.of(context).qr_fullscreen,
             button: true,
             enabled: true,

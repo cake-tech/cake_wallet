@@ -64,6 +64,7 @@ class _ReceiveLabelModalState extends State<ReceiveLabelModal> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalTopBar(
+                    testId: "receive_label_modal_top_bar",
                     title: S.of(context).label_address,
                     leadingIcon: Icon(Icons.close),
                     leadingSemanticLabel: S.of(context).close,

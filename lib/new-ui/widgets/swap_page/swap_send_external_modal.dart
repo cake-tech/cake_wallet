@@ -65,6 +65,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
+                testId: "swap_send_external_modal_top_bar",
                 title: "",
                 leadingWidget: SwapModalHeader(
                     fromIconPath: widget.from.iconPath ?? "", toIconPath: widget.to.iconPath ?? ""),

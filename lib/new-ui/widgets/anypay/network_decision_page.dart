@@ -42,6 +42,7 @@ class NetworkDecisionPage extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "network_decision_page_top_bar",
               title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

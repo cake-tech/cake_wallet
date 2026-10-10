@@ -4,6 +4,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -88,6 +89,7 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       children: [
                         MergeSemantics(
                           child: Semantics(
+                            identifier: TestId.fromKey(widget.key),
                             label: _fieldSemanticsLabel(context),
                             child: TextField(
                               focusNode: widget.focusNode,

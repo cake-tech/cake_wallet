@@ -2,6 +2,7 @@ import "package:cake_wallet/new-ui/pages/home_page.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/sync_bar.dart";
+import "package:cake_wallet/view_model/dashboard/transaction_list_item.dart";
 import "package:cw_core/sync_status.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -130,8 +131,10 @@ class HomePageRobot extends BaseRobot {
   String firstTransactionIdInAllView() {
     final tile = tester.widgetList<HistoryTile>(_allViewTiles).first;
     final key = tile.key! as ValueKey<String>;
+    final index = key.value.substring("history_modal_transaction_".length, key.value.length - "_key".length);
+    final items = tester.widget<NewHomePage>(find.byType(NewHomePage).first).dashboardViewModel.items;
 
-    return key.value.substring("home_page_transaction_".length, key.value.length - "_key".length);
+    return (items[int.parse(index)] as TransactionListItem).transaction.id;
   }
 
   Future<void> openFirstTransactionDetails() async {

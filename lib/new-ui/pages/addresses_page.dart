@@ -130,6 +130,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         spacing: 12.0,
         children: [
           ModalTopBar(
+              testId: "addresses_page_top_bar",
               title: widget.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses,
               leadingIcon: Icon(Icons.arrow_back),
               leadingSemanticLabel: S.of(context).seed_alert_back,

@@ -54,6 +54,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return ModalPageWrapper(
       topBar: ModalTopBar(
+        testId: "about_page_top_bar",
         title: S.of(context).about,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
         leadingSemanticLabel: S.of(context).seed_alert_back,

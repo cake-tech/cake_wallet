@@ -90,6 +90,7 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<HardwareWalletProce
                 child: Column(
                   children: [
                     ModalTopBar(
+                      testId: "proceed_on_device_sheet_top_bar",
                       title: "",
                       leadingWidget: AnimatedSwitcher(
                         layoutBuilder: (currentChild, previousChildren) => Stack(
