@@ -61,6 +61,7 @@ jobs:
           RUN_ID="${{ inputs.build_run }}"
           if [ -z "$RUN_ID" ]; then
             SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+            RERUN_TRIED=0
             # The e2e lane starts in parallel with pr_test_build — WAIT for a
             # run that owns the artifact instead of racing it (learned on
             # PR #3700's first attempt). Give up after an hour, or immediately
@@ -79,8 +80,15 @@ jobs:
               done <<< "$RUNS"
               [ -n "$RUN_ID" ] && break
               if [ "$ALL_FINISHED" = "1" ] && [ -n "$RUNS" ]; then
-                echo "::error::pr_test_build for ${SHA} finished without an 'android apk' artifact (no dev fallback, per handoff)"
-                exit 1
+                if [ "$RERUN_TRIED" -eq 0 ]; then
+                  NEWEST=$(echo "$RUNS" | head -n 1 | awk '{print $1}')
+                  echo "::warning::pr_test_build for ${SHA} has no android-apk artifact — retrying its failed jobs once (observed flake: gradle packageRelease/IncrementalSplitterRunnable)"
+                  gh run rerun "$NEWEST" --failed -R "${{ github.repository }}" || true
+                  RERUN_TRIED=1
+                else
+                  echo "::error::pr_test_build for ${SHA} finished without an 'android apk' artifact even after one retry (no dev fallback, per handoff)"
+                  exit 1
+                fi
               fi
               if [ "$(date +%s)" -ge "$DEADLINE" ]; then
                 echo "::error::timed out waiting for the pr_test_build artifact for ${SHA}"
