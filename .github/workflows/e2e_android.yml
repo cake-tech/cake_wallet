@@ -46,7 +46,7 @@ jobs:
     runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
     # REPORT-ONLY (a red step must not block; never a required check).
     continue-on-error: true
-    timeout-minutes: 210
+    timeout-minutes: 215
     outputs:
       run_id: ${{ steps.resolve.outputs.run_id }}
     steps:
@@ -65,7 +65,7 @@ jobs:
             # run that owns the artifact instead of racing it (learned on
             # PR #3700's first attempt). Give up after an hour, or immediately
             # if every run for this SHA finished without the artifact.
-            DEADLINE=$(( $(date +%s) + 5400 ))  # pr_test_build runs app build + integration tests (>60min observed)
+            DEADLINE=$(( $(date +%s) + 11400 ))  # builds observed 60-190min; job timeout is 210min
             while :; do
               RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[] | "\(.id) \(.status) \(.conclusion // "running")"')
               ALL_FINISHED=1
@@ -108,7 +108,10 @@ jobs:
 
   e2e:
     needs: resolve
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    # Suite only when resolve handed us an artifact (its run_id output).
+    if: >-
+      needs.resolve.outputs.run_id != '' &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false)
     runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
     environment: qa
     # REPORT-ONLY, permanently until Seth says otherwise.
