@@ -38,35 +38,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e:
-    # Internal PRs only (forks have no pr_test_build artifact for us to test).
+  resolve:
+    # The artifact wait lives in its OWN job: pr_test_build runs the app build
+    # AND integration tests (~90min), and keeping the wait in the suite job
+    # blew GitHub's 4h job cap before the suite even started.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
     runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
-    environment: qa
-    # REPORT-ONLY, permanently until Seth says otherwise.
+    # REPORT-ONLY (a red step must not block; never a required check).
     continue-on-error: true
-    timeout-minutes: 240
+    timeout-minutes: 210
+    outputs:
+      run_id: ${{ steps.resolve.outputs.run_id }}
     steps:
-      - name: Checkout the QA project (cake-qa, via deploy key)
-        uses: actions/checkout@v4
-        with:
-          repository: cake-tech/cake-qa
-          ref: ${{ inputs.qa_ref || 'main' }}
-          path: cake-qa
-          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
-
-      - name: Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "26"
-          cache: npm
-          cache-dependency-path: cake-qa/package-lock.json
-
-      - name: Install the QA project
-        working-directory: cake-qa
-        run: npm ci
-
       - name: Resolve and download the build artifact
+        id: resolve
         # Criterion = OWNING an "android apk" artifact; the run's conclusion can
         # be failure after the upload (learned on the 6.5.0 RC). No dev fallback.
         env:
@@ -111,6 +96,49 @@ jobs:
           echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
           gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
           test -f apk/app-x86_64-release.apk || { echo "::error::app-x86_64-release.apk missing from artifact"; exit 1; }
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+
+      - name: Hand the APK to the suite job
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-apk
+          path: apk/
+          if-no-files-found: error
+
+  e2e:
+    needs: resolve
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
+    runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
+    environment: qa
+    # REPORT-ONLY, permanently until Seth says otherwise.
+    continue-on-error: true
+    timeout-minutes: 210
+    steps:
+      - name: Checkout the QA project (cake-qa, via deploy key)
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          ref: ${{ inputs.qa_ref || 'main' }}
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Download the build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-apk
+          path: apk
 
       - name: Boot the emulator and run the no-funds slice
         uses: reactivecircus/android-emulator-runner@v2
