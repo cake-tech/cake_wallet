@@ -60,6 +60,7 @@ class EverstakeEthereumWithdrawQueue {
 }
 
 class EverstakeEthereumTransaction {
+  // The API rounds value through a JavaScript number; retain the exact requested ETH value.
   EverstakeEthereumTransaction.fromJson(Map<String, dynamic> json, {required this.value})
       : from = json["from"] as String,
         to = json["to"] as String,
