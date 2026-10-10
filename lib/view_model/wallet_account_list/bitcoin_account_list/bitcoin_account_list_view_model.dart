@@ -99,10 +99,7 @@ abstract class BitcoinAccountListViewModelBase with Store implements WalletAccou
     });
   }
 
-  Money _fullBalance(int accountIndex) {
-    final balance = bitcoin!.balanceForAccount(_wallet, accountIndex);
-    return balance.available + balance.unavailable;
-  }
+  Money _fullBalance(int accountIndex) => bitcoin!.balanceForAccount(_wallet, accountIndex);
 
   @override
   @action
