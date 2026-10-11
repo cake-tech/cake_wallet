@@ -132,6 +132,7 @@ class SecretKey {
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
     SecretKey('tronNowNodesApiKey', () => ''),
+    SecretKey("tronScanApiKey", () => ""),
   ];
 
   static final bitcoinSecrets = [
