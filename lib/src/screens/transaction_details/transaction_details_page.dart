@@ -112,6 +112,27 @@ class TransactionDetailsPage extends BasePage {
               );
             }
 
+            if (transactionDetailsViewModel.canRebroadcast) {
+              return Padding(
+                padding: const EdgeInsets.all(24),
+                child: SelectButton(
+                  text: "Rebroadcast",
+                  onTap: () async {
+                    try {
+                      await transactionDetailsViewModel.rebroadcast();
+                      if (!context.mounted) return;
+                      showBar<void>(
+                          context, "Transaction rebroadcast to the connected node");
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      showBar<void>(context, "Unable to rebroadcast: ${e.toString()}",
+                          duration: const Duration(seconds: 4));
+                    }
+                  },
+                ),
+              );
+            }
+
             return const SizedBox();
           },
         ),
