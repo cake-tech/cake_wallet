@@ -33,7 +33,7 @@ class NostrAddressProvider extends AddressLookupProvider {
       final profile = await NostrProfileHandler.queryProfile(query);
       if (profile == null) return [];
 
-      final data = await NostrProfileHandler.processRelays(profile, query);
+      final data = await NostrProfileHandler.processRelays(profile);
       if (data == null) return [];
 
       final result = <CryptoCurrency, String>{};
