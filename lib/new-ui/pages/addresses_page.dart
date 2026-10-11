@@ -2,6 +2,7 @@ import "dart:ui";
 
 import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
@@ -68,6 +69,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
   late final TextEditingController _searchController;
 
   CardDesign? design;
+  ReactionDisposer? _cardDesignsDisposer;
 
   void updateItems() {
     setState(() {
@@ -85,18 +87,30 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         setState(() {});
       });
 
+    loadCardDesign();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((_) {
-        final index = widget.dashboardViewModel.accountListViewModel?.selectedAccount?.id ?? 0;
-        final designs = widget.dashboardViewModel.cardDesigns;
-        return (index >= 0 && index < designs.length) ? designs[index] : null;
-      }, (value) {
+      if (!mounted) return;
+      _cardDesignsDisposer = reaction((_) => widget.dashboardViewModel.currentCardDesign, (value) {
         if (!mounted) return;
         setState(() {
-          design = value;
+          design = widget.dashboardViewModel.currentCardDesign;
         });
       });
     });
+  }
+
+  Future<void> loadCardDesign() async {
+    await widget.dashboardViewModel.loadCardDesigns();
+    if (!mounted) return;
+    setState(() {
+      design = widget.dashboardViewModel.currentCardDesign;
+    });
+  }
+
+  @override
+  void dispose() {
+    _cardDesignsDisposer?.call();
+    super.dispose();
   }
 
   @override

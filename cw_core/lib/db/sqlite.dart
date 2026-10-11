@@ -196,6 +196,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       if(oldVersion <= 14) {
         await _addColumnIfNotExists(
           db,
+          table: "BalanceCardStyleSettings",
+          column: "hidden",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if (oldVersion <= 15) {
+        await _addColumnIfNotExists(
+          db,
           table: "WalletInfo",
           column: "isReady",
           definition: "INTEGER NOT NULL DEFAULT 1",
@@ -303,6 +311,7 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
@@ -329,7 +338,7 @@ CREATE TABLE PriceData (
   timestamp INTEGER NOT NULL,
   price TEXT NOT NULL,
   PRIMARY KEY (fromCurrency, toCurrency, timestamp)
-);        
+);
 """);
   await db.execute("""
 CREATE TABLE ChartsAssets (

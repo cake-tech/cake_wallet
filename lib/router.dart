@@ -143,7 +143,6 @@ import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_grou
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -886,9 +885,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletAccountsPage:
       final dashboardViewModel = settings.arguments as DashboardViewModel;
-      return handleRouteWithPlatformAwareness(
-            (_) => getIt.get<WalletAccountsPage>(param1: dashboardViewModel),
-      );
+      final page = getIt.get<WalletAccountsPage>(param1: dashboardViewModel);
+      return handleRouteWithPlatformAwareness((_) => page);
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));
