@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
+import 'package:cake_wallet/core/backup_archive_path.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
@@ -317,13 +318,14 @@ class BackupServiceV3 extends $BackupService {
         }
       }
       printV("restoring: $filename");
+      final path = resolveSafeArchivePath(appDir.path, filename);
       if (file.isFile) {
-        final output = File('${appDir.path}/' + filename)..createSync(recursive: true);
+        final output = File(path)..createSync(recursive: true);
         final outputStream = OutputFileStream(output.path);
         file.writeContent(outputStream);
         outputStream.flush();
       } else {
-        final dir = Directory('${appDir.path}/' + filename);
+        final dir = Directory(path);
         if (!dir.existsSync()) {
           dir.createSync(recursive: true);
         }
