@@ -103,16 +103,17 @@ jobs:
           rts=[r for r in json.load(sys.stdin)['runtimes'] if r.get('platform')=='iOS' and r.get('isAvailable',True)]
           rts.sort(key=lambda r: r['version'])
           print(rts[-1]['identifier'])")
-          DEVICE_TYPE=$(xcrun simctl list devicetypes -j | python3 -c "
+          DEVICE_TYPE=$(xcrun simctl list runtimes -j | python3 -c "
           import json,sys
-          dts=[d for d in json.load(sys.stdin)['devicetypes'] if 'iPhone' in d['name']]
-          dts.sort(key=lambda d: d['name'])
-          print(dts[-1]['identifier'])")
-          UDID=$(xcrun simctl create qa-e2e "$DEVICE_TYPE" "$RUNTIME" || xcrun simctl get_app_container booted 2>/dev/null || true)
-          [ -n "${UDID:-}" ] || UDID=$(xcrun simctl list devices -j | python3 -c "
+          rt=[r for r in json.load(sys.stdin)['runtimes'] if r['identifier']=='$RUNTIME'][0]
+          print([d for d in rt['supportedDeviceTypes'] if d.get('productFamily')=='iPhone'][0]['identifier'])")
+          for OLD in $(xcrun simctl list devices -j | python3 -c "
           import json,sys
-          devs=[d for a in json.load(sys.stdin)['devices'].values() for d in a if d['name']=='qa-e2e']
-          print(devs[0]['udid'] if devs else '')")
+          print(' '.join(d['udid'] for a in json.load(sys.stdin)['devices'].values() for d in a if d['name']=='qa-e2e'))"); do
+            xcrun simctl shutdown "$OLD" 2>/dev/null || true
+            xcrun simctl delete "$OLD"
+          done
+          UDID=$(xcrun simctl create qa-e2e "$DEVICE_TYPE" "$RUNTIME")
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
           xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
@@ -126,6 +127,7 @@ jobs:
           E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
+          CW_IOS_DEVICE: qa-e2e
         run: |
           set -euo pipefail
           nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
@@ -133,6 +135,13 @@ jobs:
           ARGS=(--target sim --reporter list,junit,markdown)
           if [ -n "${{ inputs.shard }}" ]; then ARGS+=(--shard "${{ inputs.shard }}"); fi
           npx e2e run "${ARGS[@]}"
+
+      - name: Shut down and delete the simulator
+        if: always()
+        run: |
+          [ -n "${UDID:-}" ] || exit 0
+          xcrun simctl shutdown "$UDID" || true
+          xcrun simctl delete "$UDID" || true
 
       - name: Upload results
         if: always()
