@@ -33,7 +33,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       File(await pathForWalletOf(walletInfo)).existsSync();
 
   Future<void> remove(WalletInfo walletInfo) async {
-    final dir = Directory(await pathForWalletDirOf(walletInfo));
+    final dir = Directory(await walletDirPathOf(walletInfo));
 
     if (dir.existsSync()) {
       await dir.delete(recursive: true);
