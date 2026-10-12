@@ -1,6 +1,5 @@
 import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/change_display.dart";
-import "package:cake_wallet/new-ui/widgets/charts_page/chart_price_format.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/chart_view.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/coin_header.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/price_header.dart";
@@ -64,7 +63,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                         ),
                       ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
                       ChartViewPriceHeader(
-                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toChartPriceString() ?? "...",
+                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
                         ticker: s.fiatTicker,
                         highlight: _viewedPrice != null,
                       ),
@@ -109,9 +108,15 @@ class _ChartHeaderState extends State<ChartHeader> {
                                     return;
                                   }
 
-                                  final newY = response?.lineBarSpots?.firstOrNull?.y;
-                                  final newPrice =
-                                      newY == null ? null : newY.toStringAsFixed(chartPriceDecimals(newY));
+                                  final spotIndex = response?.lineBarSpots?.firstOrNull?.spotIndex;
+                                  final newPrice = spotIndex == null
+                                      ? null
+                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote
+                                          .toStringWithPrecision(
+                                            fractionalDigits: 2,
+                                            trimZeros: false,
+                                            meaningfulDecimals: 2,
+                                          );
                                   final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
                                       response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,
