@@ -6,6 +6,7 @@ import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart
 import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/chart_modal.dart";
+import "package:cake_wallet/new-ui/widgets/charts_page/chart_price_format.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_footer.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart";
@@ -41,7 +42,7 @@ class ChartsAssetGrid extends StatelessWidget {
                 return ChartsAssetCard(
                   bloc: bloc,
                   currency: curr,
-                  price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
+                  price: state.priceFor(curr)?.toChartPriceString() ?? "...",
                   ticker: state.fiatTicker,
                   changeData: state is ChartsLoaded ? state.changeDataFor(curr) : null,
                   favorite: curr == state.pinnedCurrency,
@@ -79,7 +80,7 @@ class ChartsAssetCard extends StatelessWidget {
       if (priceDouble > 10000) {
         return priceDouble.toStringAsFixed(0);
       } else {
-        return priceDouble.toStringAsFixed(2);
+        return priceDouble.toStringAsFixed(chartPriceDecimals(priceDouble));
       }
     } catch (_) {
       return price;
