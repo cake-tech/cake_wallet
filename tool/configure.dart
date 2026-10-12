@@ -308,7 +308,7 @@ abstract class Bitcoin {
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
   Future<Account> getCurrentAccount(Object wallet);
-  Balance balanceForAccount(Object wallet, int accountIndex);
+  Money balanceForAccount(Object wallet, int accountIndex);
   Map<int, Object> accountBalancesSnapshot(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);
   List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
@@ -423,6 +423,8 @@ abstract class MoneroWalletDetails {
 
 abstract class Monero {
   MoneroAccountList getAccountList(Object wallet);
+
+  Money getAccountFullBalance(int accountIndex);
 
   MoneroSubaddressList getSubaddressList(Object wallet);
 
@@ -627,6 +629,8 @@ abstract class WowneroWalletDetails {
 
 abstract class Wownero {
   WowneroAccountList getAccountList(Object wallet);
+
+  Money getAccountFullBalance(int accountIndex);
 
   WowneroSubaddressList getSubaddressList(Object wallet);
 
@@ -2088,9 +2092,9 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.nano,\n';
   }
 
-  // if (hasDecred) {
-  //   outputContent += '\tWalletType.decred,\n';
-  // }
+  if (hasDecred) {
+    outputContent += '\tWalletType.decred,\n';
+  }
 
   // if (hasZano) {
   //   outputContent += '\tWalletType.zano,\n';
