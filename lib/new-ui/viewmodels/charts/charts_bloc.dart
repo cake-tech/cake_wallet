@@ -15,7 +15,6 @@ import "package:cake_wallet/new-ui/model/charts/util/price_data_sort_criteria.da
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:flutter/foundation.dart";
 
 part "charts_event.dart";
@@ -78,8 +77,9 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final currencies = s.currencies.toList();
       final range = s.range;
       for (final curr in currencies) {
+        // cache keys are tag-less, so load with what the cache hands back (usdterc20 -> usdt)
         data[curr] = await priceStore.getPrices(
-            appStore.settingsStore.fiatCurrency, _cachedCurrency(curr), range);
+            appStore.settingsStore.fiatCurrency, currencyFromApiString(curr.apiString), range);
       }
       emit(
         ChartsLoaded(
@@ -91,16 +91,6 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       );
     } else {
       throw Exception("attempted price load without currency data");
-    }
-  }
-
-  // cached prices are keyed by the tag-less apiString, so load with the currency the cache
-  // hands back to keep api and cached rows on the same currency (e.g. usdterc20 -> usdt)
-  static Currency _cachedCurrency(CryptoCurrency curr) {
-    try {
-      return currencyFromApiString(curr.apiString);
-    } catch (_) {
-      return curr;
     }
   }
 
