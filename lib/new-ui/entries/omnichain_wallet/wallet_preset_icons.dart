@@ -1,4 +1,3 @@
-
 class WalletPresetIconDefinition {
   const WalletPresetIconDefinition({
     required this.value,
@@ -11,85 +10,91 @@ class WalletPresetIconDefinition {
   final String label;
 }
 
-
 class WalletPresetIcons {
   const WalletPresetIcons._();
 
+  static const defaultValue = "wallet";
+
   static const List<WalletPresetIconDefinition> all = [
     WalletPresetIconDefinition(
-      value: 'heart',
-      assetPath: 'assets/new-ui/favorite_icon.svg',
-      label: 'Heart',
+      value: defaultValue,
+      assetPath: "assets/new-ui/wallets.svg",
+      label: "Wallet",
     ),
     WalletPresetIconDefinition(
-      value: 'flower',
-      assetPath: 'assets/new-ui/wallet_icons/flower.svg',
-      label: 'Flower',
+      value: "heart",
+      assetPath: "assets/new-ui/wallet_icons/favorite_icon.svg",
+      label: "Heart",
     ),
     WalletPresetIconDefinition(
-      value: 'star',
-      assetPath: 'assets/new-ui/wallet_icons/star.svg',
-      label: 'Star',
+      value: "flower",
+      assetPath: "assets/new-ui/wallet_icons/flower.svg",
+      label: "Flower",
     ),
     WalletPresetIconDefinition(
-      value: 'cart',
-      assetPath: 'assets/new-ui/wallet_icons/cart.svg',
-      label: 'Cart',
+      value: "star",
+      assetPath: "assets/new-ui/wallet_icons/star.svg",
+      label: "Star",
     ),
     WalletPresetIconDefinition(
-      value: 'chess',
-      assetPath: 'assets/new-ui/wallet_icons/chess.svg',
-      label: 'Chess',
+      value: "cart",
+      assetPath: "assets/new-ui/wallet_icons/cart.svg",
+      label: "Cart",
     ),
     WalletPresetIconDefinition(
-      value: 'paraglider',
-      assetPath: 'assets/new-ui/wallet_icons/paraglider.svg',
-      label: 'Paraglider',
+      value: "chess",
+      assetPath: "assets/new-ui/wallet_icons/chess.svg",
+      label: "Chess",
     ),
     WalletPresetIconDefinition(
-      value: 'tshirt',
-      assetPath: 'assets/new-ui/wallet_icons/tshirt.svg',
-      label: 'T-Shirt',
+      value: "parasol",
+      assetPath: "assets/new-ui/wallet_icons/parasol.svg",
+      label: "Parasol",
     ),
     WalletPresetIconDefinition(
-      value: 'piggy_bank',
-      assetPath: 'assets/new-ui/wallet_icons/piggy_bank.svg',
-      label: 'Piggy Bank',
+      value: "tshirt",
+      assetPath: "assets/new-ui/wallet_icons/tshirt.svg",
+      label: "T-Shirt",
     ),
     WalletPresetIconDefinition(
-      value: 'bank',
-      assetPath: 'assets/new-ui/wallet_icons/bank.svg',
-      label: 'Bank',
+      value: "piggy_bank",
+      assetPath: "assets/new-ui/wallet_icons/piggy_bank.svg",
+      label: "Piggy Bank",
     ),
     WalletPresetIconDefinition(
-      value: 'dice',
-      assetPath: 'assets/new-ui/wallet_icons/dice.svg',
-      label: 'Dice',
+      value: "bank",
+      assetPath: "assets/new-ui/wallet_icons/bank.svg",
+      label: "Bank",
     ),
     WalletPresetIconDefinition(
-      value: 'motorcycle',
-      assetPath: 'assets/new-ui/wallet_icons/motorcycle.svg',
-      label: 'Motorcycle',
+      value: "planet",
+      assetPath: "assets/new-ui/wallet_icons/planet.svg",
+      label: "Planet",
     ),
     WalletPresetIconDefinition(
-      value: 'paper_plane',
-      assetPath: 'assets/new-ui/wallet_icons/paper_plane.svg',
-      label: 'Paper Plane',
+      value: "motorcycle",
+      assetPath: "assets/new-ui/wallet_icons/motorcycle.svg",
+      label: "Motorcycle",
     ),
     WalletPresetIconDefinition(
-      value: 'infinity',
-      assetPath: 'assets/new-ui/wallet_icons/infinity.svg',
-      label: 'Infinity',
+      value: "plane",
+      assetPath: "assets/new-ui/wallet_icons/plane.svg",
+      label: "Plane",
     ),
     WalletPresetIconDefinition(
-      value: 'shield',
-      assetPath: 'assets/new-ui/wallet_icons/shield.svg',
-      label: 'Shield',
+      value: "mask",
+      assetPath: "assets/new-ui/wallet_icons/mask.svg",
+      label: "Mask",
     ),
     WalletPresetIconDefinition(
-      value: 'music_notes',
-      assetPath: 'assets/new-ui/wallet_icons/music_notes.svg',
-      label: 'Music Notes',
+      value: "shield",
+      assetPath: "assets/new-ui/wallet_icons/shield.svg",
+      label: "Shield",
+    ),
+    WalletPresetIconDefinition(
+      value: "music_notes",
+      assetPath: "assets/new-ui/wallet_icons/music_notes.svg",
+      label: "Music Notes",
     ),
   ];
 
@@ -100,4 +105,3 @@ class WalletPresetIcons {
     return null;
   }
 }
-

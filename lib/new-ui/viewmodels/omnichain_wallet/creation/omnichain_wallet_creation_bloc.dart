@@ -88,7 +88,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
               colorIndex: 0,
               backgroundEnabled: false,
             )
-          : null,
+          : WalletIcon.defaultIcon,
     ));
   }
 

@@ -113,6 +113,7 @@ class NewListSections extends StatelessWidget {
         leadingIconSize: item.leadingIconSize,
         badgeIconSize: item.badgeIconSize,
         iconColor: item.iconColor,
+        isEnabled: item.isEnabled,
       );
     }
 

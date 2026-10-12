@@ -1,5 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_icon_preview_circle_widget.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/select_background_color_widget.dart";
 import "package:cw_core/card_design.dart";
@@ -102,10 +103,17 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
             onTrailingPressed: () => _onDone(colorIndex),
           ),
           const SizedBox(height: 24),
-          _EmojiPreview(
-            emoji: _selectedEmoji,
-            background: _isBackgroundEnabled ? colors[colorIndex] : null,
+          WalletIconPreviewCircle(
             size: _previewSize,
+            background: _isBackgroundEnabled ? colors[colorIndex] : null,
+            icon: _selectedEmoji.isEmpty
+                ? null
+                : WalletIcon(
+                    type: WalletIconType.emoji,
+                    value: _selectedEmoji,
+                    colorIndex: colorIndex,
+                    backgroundEnabled: _isBackgroundEnabled,
+                  ),
           ),
           const SizedBox(height: 20),
           Padding(
@@ -186,28 +194,6 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
 }
 
 Color _pickerBackground(ColorScheme scheme) => scheme.primary;
-
-class _EmojiPreview extends StatelessWidget {
-  const _EmojiPreview({required this.emoji, required this.background, required this.size});
-
-  final String emoji;
-  final Gradient? background;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) => AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: background,
-          border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2),
-        ),
-        child: Text(emoji, style: TextStyle(fontSize: size * 0.48)),
-      );
-}
 
 class _EmojiSearchPill extends StatelessWidget {
   const _EmojiSearchPill({required this.leading, required this.child, this.onTap});
@@ -332,7 +318,6 @@ class _EmojiSearchViewState extends SearchViewState<_EmojiSearchView> {
               const SizedBox(height: 12),
               SizedBox(
                 height: emojiBoxSize * 4,
-                // 4 visible rows, scrolls beyond; fits with the keyboard open
                 child: results.isEmpty
                     ? Center(
                         child: Text(

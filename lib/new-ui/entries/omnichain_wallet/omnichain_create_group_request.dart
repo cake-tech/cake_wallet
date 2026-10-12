@@ -1,6 +1,6 @@
-import 'package:cake_wallet/zcash/zcash_network_type.dart';
-import 'package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/zcash/zcash_network_type.dart";
+import "package:cw_core/wallet_type.dart";
 
 class OmniChainCreateGroupRequest {
   OmniChainCreateGroupRequest({

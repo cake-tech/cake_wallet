@@ -18,6 +18,13 @@ class WalletIcon {
   final int colorIndex;
   final bool backgroundEnabled;
 
+  static const defaultIcon = WalletIcon(
+    type: WalletIconType.preset,
+    value: "wallet",
+    colorIndex: 0,
+    backgroundEnabled: false,
+  );
+
   WalletIcon copyWith({
     WalletIconType? type,
     String? value,

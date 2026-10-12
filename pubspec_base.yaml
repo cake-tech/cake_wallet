@@ -318,6 +318,7 @@ flutter:
     - assets/new-ui/address_sources/
     - assets/new-ui/buy_payment_methods/
     - assets/new-ui/charts_sort_criteria/
+    - assets/new-ui/wallet_icons/
 
   fonts:
     - family: Wix Madefor Text

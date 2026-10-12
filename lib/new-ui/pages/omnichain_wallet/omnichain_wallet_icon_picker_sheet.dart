@@ -1,51 +1,37 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_preset_icons.dart";
-import 'package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart';
-import 'package:cake_wallet/new-ui/widgets/floating_blur_wrapper.dart';
-import 'package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/new-ui/widgets/select_background_color_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/omnichain_wallet_emoji_picker_sheet.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/wallet_icon_preview_circle_widget.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/select_background_color_widget.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
-class _SelectableIcon {
-  const _SelectableIcon({
-    required this.type,
-    required this.value,
-    required this.assetPath,
-    required this.label,
-  });
-
-  final WalletIconType type;
-  final String value;
-  final String assetPath;
-  final String label;
-}
+// TODO(serhii): localize strings
+const _titleText = "Select Icon";
+const _doneText = "Done";
+const _cryptoSectionTitle = "Cryptocurrencies";
+const _presetSectionTitle = "Icons";
 
 class OmniChainSelectIconSheet extends StatefulWidget {
   const OmniChainSelectIconSheet({
-    super.key,
     required this.cryptoTypes,
+    super.key,
     this.initial,
   });
 
-  /// The wallet's own selected networks — these are what populate the
-  /// "Cryptocurrencies" grid. Deliberately scoped to this wallet's own
-  /// networks rather than every currency the app supports, since picking an
-  /// unrelated coin's logo as your wallet's icon wouldn't make much sense.
   final List<WalletType> cryptoTypes;
   final WalletIcon? initial;
 
   static Future<WalletIcon?> show(
-      BuildContext context, {
-        required List<WalletType> cryptoTypes,
-        WalletIcon? initial,
-      }) =>
+    BuildContext context, {
+    required List<WalletType> cryptoTypes,
+    WalletIcon? initial,
+  }) =>
       showCupertinoModalBottomSheet<WalletIcon>(
         context: context,
         barrierColor: Colors.black.withAlpha(85),
@@ -54,84 +40,55 @@ class OmniChainSelectIconSheet extends StatefulWidget {
         ),
       );
 
-  static final _presetIcons = WalletPresetIcons.all
-      .map((preset) => _SelectableIcon(
-            type: WalletIconType.preset,
-            value: preset.value,
-            assetPath: preset.assetPath,
-            label: preset.label,
-          ))
-      .toList();
-
   @override
   State<OmniChainSelectIconSheet> createState() => _OmniChainSelectIconSheetState();
 }
 
 class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
+  static const _previewSize = 100.0;
+  static const _sheetHeightFactor = 0.85;
+
+  late final List<_SelectableIcon> _cryptoOptions;
+  late final List<_SelectableIcon> _presetOptions;
+
+  _SelectableIcon? _selected;
   late int _selectedColorIndex;
   late bool _isBackgroundEnabled;
-  WalletIconType? _selectedType;
-  String? _selectedValue;
-
-  final TextEditingController _searchController = TextEditingController();
-  String _query = '';
 
   @override
   void initState() {
     super.initState();
 
+    _cryptoOptions = widget.cryptoTypes.map(_SelectableIcon.crypto).toList(growable: false);
+    _presetOptions = WalletPresetIcons.all.map(_SelectableIcon.preset).toList(growable: false);
+
     final initial = widget.initial;
     _selectedColorIndex = initial?.colorIndex ?? 0;
-    _isBackgroundEnabled = initial?.backgroundEnabled ?? true;
+    _isBackgroundEnabled = initial?.backgroundEnabled ?? false;
+    _selected = initial == null ? null : _findOption(initial.type, initial.value);
+  }
 
-    if (initial != null &&
-        (initial.type == WalletIconType.crypto || initial.type == WalletIconType.preset)) {
-      _selectedType = initial.type;
-      _selectedValue = initial.value;
+  _SelectableIcon? _findOption(WalletIconType type, String value) {
+    for (final option in [..._cryptoOptions, ..._presetOptions]) {
+      if (option.matches(type, value)) return option;
     }
-
-    _searchController.addListener(() {
-      setState(() => _query = _searchController.text.trim().toLowerCase());
-    });
+    return null;
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  void _select(_SelectableIcon option) => setState(() => _selected = option);
 
-  List<_SelectableIcon> get _cryptoOptions => widget.cryptoTypes
-      .map((type) => _SelectableIcon(
-    type: WalletIconType.crypto,
-    value: type.name,
-    assetPath: getCryptoCurrencyIconForWalletListItem(type),
-    label: walletTypeToDisplayName(type),
-  ))
-      .where((option) => _query.isEmpty || option.label.toLowerCase().contains(_query))
-      .toList();
-
-  List<_SelectableIcon> get _presetOptions => OmniChainSelectIconSheet._presetIcons
-      .where((option) => _query.isEmpty || option.label.toLowerCase().contains(_query))
-      .toList();
-
-  bool get _canConfirm => _selectedType != null && _selectedValue != null;
-
-  void _select(_SelectableIcon option) {
-    setState(() {
-      _selectedType = option.type;
-      _selectedValue = option.value;
-    });
-  }
-
-  void _confirm() {
-    if (!_canConfirm) return;
+  void _onDone(int colorIndex) {
+    final selected = _selected;
+    if (selected == null) {
+      Navigator.of(context).pop();
+      return;
+    }
 
     Navigator.of(context).pop(
       WalletIcon(
-        type: _selectedType!,
-        value: _selectedValue!,
-        colorIndex: _selectedColorIndex,
+        type: selected.type,
+        value: selected.value,
+        colorIndex: colorIndex,
         backgroundEnabled: _isBackgroundEnabled,
       ),
     );
@@ -141,32 +98,37 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
   Widget build(BuildContext context) {
     final colors = OmniChainWalletEmojiPickerSheet.backgroundColors(context);
     final colorIndex = _selectedColorIndex.clamp(0, colors.length - 1);
-
-    final theme = Theme.of(context);
-    final previewIcon = _canConfirm
-        ? WalletIcon(
-      type: _selectedType!,
-      value: _selectedValue!,
-      colorIndex: colorIndex,
-      backgroundEnabled: _isBackgroundEnabled,
-    )
-        : null;
+    final selected = _selected;
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SizedBox(
-        height: MediaQuery.sizeOf(context).height * 0.85,
+        height: MediaQuery.sizeOf(context).height * _sheetHeightFactor,
         child: Column(
           children: [
             ModalTopBar(
-              title: "Select Icon",
+              title: _titleText,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () => Navigator.of(context).pop(),
+              trailingIcon: const Icon(Icons.check),
+              trailingSemanticLabel: _doneText,
+              onTrailingPressed: () => _onDone(colorIndex),
             ),
-            const SizedBox(height: 16),
-            Center(child: WalletIconAvatar(icon: previewIcon)),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+            WalletIconPreviewCircle(
+              size: _previewSize,
+              background: _isBackgroundEnabled ? colors[colorIndex] : null,
+              icon: selected == null
+                  ? null
+                  : WalletIcon(
+                      type: selected.type,
+                      value: selected.value,
+                      colorIndex: colorIndex,
+                      backgroundEnabled: _isBackgroundEnabled,
+                    ),
+            ),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SelectBackgroundColorWidget(
@@ -179,49 +141,28 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
               ),
             ),
             Expanded(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 96),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _IconSelectionGrid(
-                          title: "Cryptocurrencies",
-                          options: _cryptoOptions,
-                          selectedValue:
-                          _selectedType == WalletIconType.crypto ? _selectedValue : null,
-                          onSelected: _select,
-                        ),
-                        const SizedBox(height: 24),
-                        _IconSelectionGrid(
-                          title: "Icons",
-                          options: _presetOptions,
-                          selectedValue:
-                          _selectedType == WalletIconType.preset ? _selectedValue : null,
-                          onSelected: _select,
-                        ),
-                      ],
+              child: SingleChildScrollView(
+                padding:
+                    EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.viewPaddingOf(context).bottom),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _IconSelectionSection(
+                      title: _cryptoSectionTitle,
+                      options: _cryptoOptions,
+                      selected: selected,
+                      onSelected: _select,
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SafeArea(
-                      top: false,
-                      child: FloatingBlurWrapper(
-                        child: PrimaryButton(
-                          key: const ValueKey("omnichain_icon_picker_apply_button_key"),
-                          onPressed: _confirm,
-                          text: "Apply",
-                          color: theme.colorScheme.primary,
-                          textColor: theme.colorScheme.onPrimary,
-                          isDisabled: !_canConfirm,
-                        ),
-                      ),
+                    if (_cryptoOptions.isNotEmpty && _presetOptions.isNotEmpty)
+                      const SizedBox(height: 24),
+                    _IconSelectionSection(
+                      title: _presetSectionTitle,
+                      options: _presetOptions,
+                      selected: selected,
+                      onSelected: _select,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -231,23 +172,59 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
   }
 }
 
-class _IconSelectionGrid extends StatelessWidget {
-  const _IconSelectionGrid({
+class _SelectableIcon {
+  const _SelectableIcon({
+    required this.type,
+    required this.value,
+    required this.assetPath,
+    required this.label,
+  });
+
+  factory _SelectableIcon.crypto(WalletType walletType) => _SelectableIcon(
+        type: WalletIconType.crypto,
+        value: walletType.name,
+        assetPath: getCryptoCurrencyIconForWalletListItem(walletType),
+        label: walletTypeToDisplayName(walletType),
+      );
+
+  factory _SelectableIcon.preset(WalletPresetIconDefinition preset) => _SelectableIcon(
+        type: WalletIconType.preset,
+        value: preset.value,
+        assetPath: preset.assetPath,
+        label: preset.label,
+      );
+
+  final WalletIconType type;
+  final String value;
+  final String assetPath;
+  final String label;
+
+
+  bool matches(WalletIconType otherType, String otherValue) =>
+      type == otherType && value == otherValue;
+}
+
+class _IconSelectionSection extends StatelessWidget {
+  const _IconSelectionSection({
     required this.title,
     required this.options,
-    required this.selectedValue,
+    required this.selected,
     required this.onSelected,
   });
 
+  static const _spacing = 12.0;
+
   final String title;
   final List<_SelectableIcon> options;
-  final String? selectedValue;
+  final _SelectableIcon? selected;
   final ValueChanged<_SelectableIcon> onSelected;
 
   @override
   Widget build(BuildContext context) {
     if (options.isEmpty) return const SizedBox.shrink();
+
     final theme = Theme.of(context);
+    final current = selected;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,36 +233,60 @@ class _IconSelectionGrid extends StatelessWidget {
           title,
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: _spacing),
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: options.map((option) {
-            final isSelected = option.value == selectedValue;
-
-            return Material(
-              color: theme.colorScheme.surfaceContainerHigh,
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
+          spacing: _spacing,
+          runSpacing: _spacing,
+          children: [
+            for (final option in options)
+              _IconOption(
+                option: option,
+                isSelected: current != null && option.matches(current.type, current.value),
                 onTap: () => onSelected(option),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: isSelected
-                        ? Border.all(color: theme.colorScheme.primary, width: 2)
-                        : null,
-                  ),
-                  child: CakeImageWidget(imageUrl: option.assetPath),
-                ),
               ),
-            );
-          }).toList(),
+          ],
         ),
       ],
+    );
+  }
+}
+
+class _IconOption extends StatelessWidget {
+  const _IconOption({required this.option, required this.isSelected, required this.onTap});
+
+  static const _size = 48.0;
+  static const _padding = 10.0;
+
+  final _SelectableIcon option;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: option.label,
+      child: Material(
+        color: scheme.surfaceContainerHigh,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            width: _size,
+            height: _size,
+            padding: const EdgeInsets.all(_padding),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: isSelected ? Border.all(color: scheme.primary, width: 2) : null,
+            ),
+            child: CakeImageWidget(imageUrl: option.assetPath),
+          ),
+        ),
+      ),
     );
   }
 }

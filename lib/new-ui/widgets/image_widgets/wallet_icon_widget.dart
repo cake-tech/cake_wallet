@@ -32,13 +32,13 @@ class WalletIconAvatar extends StatelessWidget {
         color: backgroundEnabled ? null : Colors.transparent,
       ),
       alignment: Alignment.center,
-      child: _WalletIconContent(icon: icon, size: contentSize),
+      child: WalletIconContent(icon: icon, size: contentSize),
     );
   }
 }
 
-class _WalletIconContent extends StatelessWidget {
-  const _WalletIconContent({required this.icon, required this.size});
+class WalletIconContent extends StatelessWidget {
+  const WalletIconContent({required this.icon, required this.size, super.key});
 
   final WalletIcon? icon;
   final double size;
@@ -46,12 +46,11 @@ class _WalletIconContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icon = this.icon;
-    if (icon == null) return const SizedBox.shrink();
+    if (icon == null || icon.value.isEmpty) return const SizedBox.shrink();
 
     switch (icon.type) {
       case WalletIconType.emoji:
-        if (icon.value.isEmpty) return const SizedBox.shrink();
-        return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
+        return Text(icon.value, style: TextStyle(fontSize: size * 0.85, height: 1));
       case WalletIconType.image:
         return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
       case WalletIconType.preset:
@@ -60,7 +59,7 @@ class _WalletIconContent extends StatelessWidget {
       case WalletIconType.crypto:
         final walletType = WalletType.values.asNameMap()[icon.value];
         final assetPath =
-            walletType != null ? getCryptoCurrencyIconForWalletListItem(walletType) : icon.value;
+        walletType != null ? getCryptoCurrencyIconForWalletListItem(walletType) : icon.value;
         return CakeImageWidget(imageUrl: assetPath, width: size, height: size);
     }
   }

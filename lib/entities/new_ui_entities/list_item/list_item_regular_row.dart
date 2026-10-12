@@ -25,6 +25,7 @@ class ListItemRegularRow extends ListItem {
     this.iconColor,
     this.secondaryLabel,
     this.subtitleColor,
+    this.isEnabled = true,
   });
 
   final String? subtitle;
@@ -47,4 +48,5 @@ class ListItemRegularRow extends ListItem {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final bool isEnabled;
 }
