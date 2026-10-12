@@ -19,7 +19,6 @@ class TopBar extends StatefulWidget {
     required this.dashboardViewModel,
     required this.onSettingsButtonPress,
     required this.openChainSelection,
-    required this.lightningMode,
     required this.onLightningSwitchPress,
     super.key,
   });
@@ -29,7 +28,6 @@ class TopBar extends StatefulWidget {
   final VoidCallback onSettingsButtonPress;
   final VoidCallback openChainSelection;
   final DashboardViewModel dashboardViewModel;
-  final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
 
   @override

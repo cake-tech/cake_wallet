@@ -11,9 +11,10 @@ import "package:cw_core/wallet_type.dart";
 
 class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState> {
   OmniChainWalletBloc({
-    required this.allWalletTypes,
+    required Set<WalletType> allWalletTypes,
     required this.creationService,
-  }) : super(WalletCreationChainSelection(allWalletTypes: allWalletTypes)) {
+  })  : allWalletTypes = Set.unmodifiable(allWalletTypes),
+        super(WalletCreationChainSelection(allWalletTypes: Set.unmodifiable(allWalletTypes))) {
     on<OmniChainWalletTypeToggled>(_onWalletTypeToggled);
     on<OmniChainWalletTypesDeselected>(_onWalletTypesDeselected);
     on<OmniChainWalletTypesSelected>(_onWalletTypesSelected);
@@ -40,8 +41,7 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     final current = state;
     if (current is! WalletCreationChainSelection) return;
 
-    final updatedSelectedTypes = current.selectedTypes;
-
+    final updatedSelectedTypes = {...current.selectedTypes};
     if (event.isSelected) {
       updatedSelectedTypes.add(event.type);
     } else {
@@ -63,12 +63,11 @@ class OmniChainWalletBloc extends Bloc<OmniChainWalletEvent, WalletCreationState
     emit(current.copyWith(selectedTypes: <WalletType>{}));
   }
 
-  void _onWalletTypesSelected(
-      OmniChainWalletTypesSelected event, Emitter<WalletCreationState> emit) {
+  void _onWalletTypesSelected(OmniChainWalletTypesSelected event, Emitter<WalletCreationState> emit) {
     final current = state;
     if (current is! WalletCreationChainSelection) return;
 
-    emit(current.copyWith(selectedTypes: current.allWalletTypes));
+    emit(current.copyWith(selectedTypes: {...allWalletTypes}));
   }
 
   void _onChainSelectionConfirmed(

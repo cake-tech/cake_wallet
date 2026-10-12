@@ -8,11 +8,17 @@ import "package:flutter/foundation.dart" as foundation;
 import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
+// TODO(serhii): localize strings
+const _titleText = "Select Icon";
+const _doneText = "Done";
+const _searchHintText = "Search Emoji";
+const _noRecentsText = "No recents";
+const _noResultsText = "No emoji found";
+
+const _pickerHeight = 500.0;
+
 class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
-  const OmniChainWalletEmojiPickerSheet({
-    super.key,
-    this.initial,
-  });
+  const OmniChainWalletEmojiPickerSheet({super.key, this.initial});
 
   final WalletIcon? initial;
 
@@ -24,10 +30,7 @@ class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
     ];
   }
 
-  static Future<WalletIcon?> show(
-    BuildContext context, {
-    WalletIcon? initial,
-  }) =>
+  static Future<WalletIcon?> show(BuildContext context, {WalletIcon? initial}) =>
       showCupertinoModalBottomSheet<WalletIcon>(
         context: context,
         barrierColor: Colors.black.withAlpha(85),
@@ -41,10 +44,10 @@ class OmniChainWalletEmojiPickerSheet extends StatefulWidget {
 }
 
 class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPickerSheet> {
-  static const _defaultIcon = "";
-  static const _pickerHeight = 500.0;
+  static const _pickerRadius = Radius.circular(24);
+  static const _previewSize = 100.0;
 
-  late String _selectedIcon;
+  late String _selectedEmoji;
   late int _selectedColorIndex;
   late bool _isBackgroundEnabled;
 
@@ -53,54 +56,26 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
     super.initState();
 
     final initial = widget.initial;
-    _selectedIcon = (initial?.type == WalletIconType.emoji ? initial?.value : null) ?? _defaultIcon;
+    _selectedEmoji = initial?.type == WalletIconType.emoji ? initial!.value : "";
     _selectedColorIndex = initial?.colorIndex ?? 0;
     _isBackgroundEnabled = initial?.backgroundEnabled ?? false;
   }
 
-  void _onEmojiSelected(Category? category, Emoji emoji) {
-    setState(() => _selectedIcon = emoji.emoji);
-  }
+  void _onEmojiSelected(Category? category, Emoji emoji) =>
+      setState(() => _selectedEmoji = emoji.emoji);
 
-  Widget _buildEmojiPicker(ThemeData theme) {
-    final scheme = theme.colorScheme;
-    final pickerBackground = scheme.surfaceContainerHigh;
+  void _onDone(int colorIndex) {
+    if (_selectedEmoji.isEmpty) {
+      Navigator.of(context).pop();
+      return;
+    }
 
-    return EmojiPicker(
-      onEmojiSelected: _onEmojiSelected,
-      config: Config(
-        height: _pickerHeight,
-        checkPlatformCompatibility: true,
-        viewOrderConfig: const ViewOrderConfig(
-          top: EmojiPickerItem.searchBar,
-          middle: EmojiPickerItem.emojiView,
-          bottom: EmojiPickerItem.categoryBar,
-        ),
-        emojiViewConfig: EmojiViewConfig(
-          columns: 8,
-          emojiSizeMax: 28 * (foundation.defaultTargetPlatform == TargetPlatform.iOS ? 1.20 : 1.0),
-          backgroundColor: pickerBackground,
-          noRecents: Text(
-            "No recents",
-            style: TextStyle(fontSize: 20, color: scheme.onSurfaceVariant),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        categoryViewConfig: CategoryViewConfig(
-          initCategory: Category.SMILEYS,
-          backgroundColor: pickerBackground,
-          indicatorColor: scheme.primary,
-          iconColor: scheme.onSurfaceVariant,
-          iconColorSelected: scheme.primary,
-        ),
-        searchViewConfig: SearchViewConfig(
-          backgroundColor: pickerBackground,
-          buttonIconColor: scheme.onSurfaceVariant,
-          hintText: "Search Emoji",
-        ),
-        skinToneConfig: SkinToneConfig(
-          dialogBackgroundColor: scheme.surfaceContainerHighest,
-        ),
+    Navigator.of(context).pop(
+      WalletIcon(
+        type: WalletIconType.emoji,
+        value: _selectedEmoji,
+        colorIndex: colorIndex,
+        backgroundEnabled: _isBackgroundEnabled,
       ),
     );
   }
@@ -108,6 +83,7 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final colors = OmniChainWalletEmojiPickerSheet.backgroundColors(context);
     final colorIndex = _selectedColorIndex.clamp(0, colors.length - 1);
 
@@ -117,34 +93,19 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
-            title: "Select Icon",
+            title: _titleText,
             leadingIcon: const Icon(Icons.arrow_back_ios_new),
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context).pop(),
             trailingIcon: const Icon(Icons.check),
-            trailingSemanticLabel: "Done",
-            onTrailingPressed: () => Navigator.of(context).pop(
-              WalletIcon(
-                type: WalletIconType.emoji,
-                value: _selectedIcon,
-                colorIndex: colorIndex,
-                backgroundEnabled: _isBackgroundEnabled,
-              ),
-            ),
+            trailingSemanticLabel: _doneText,
+            onTrailingPressed: () => _onDone(colorIndex),
           ),
           const SizedBox(height: 24),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: _isBackgroundEnabled ? colors[colorIndex] : null,
-              color: _isBackgroundEnabled ? null : Colors.transparent,
-              border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2),
-            ),
-            alignment: Alignment.center,
-            child: Text(_selectedIcon, style: const TextStyle(fontSize: 48)),
+          _EmojiPreview(
+            emoji: _selectedEmoji,
+            background: _isBackgroundEnabled ? colors[colorIndex] : null,
+            size: _previewSize,
           ),
           const SizedBox(height: 20),
           Padding(
@@ -160,11 +121,241 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
           ),
           const SizedBox(height: 20),
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: _buildEmojiPicker(theme),
+            borderRadius: const BorderRadius.vertical(top: _pickerRadius),
+            child: ColoredBox(
+              color: _pickerBackground(scheme),
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.only(bottom: 16),
+                child: _buildEmojiPicker(theme),
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmojiPicker(ThemeData theme) {
+    final scheme = theme.colorScheme;
+    final background = _pickerBackground(scheme);
+    final iconColor = scheme.onPrimary.withAlpha(150);
+    final isIOS = foundation.defaultTargetPlatform == TargetPlatform.iOS;
+
+    return EmojiPicker(
+      onEmojiSelected: _onEmojiSelected,
+      config: Config(
+        height: _pickerHeight,
+        checkPlatformCompatibility: true,
+        viewOrderConfig: const ViewOrderConfig(
+          top: EmojiPickerItem.searchBar,
+          middle: EmojiPickerItem.emojiView,
+          bottom: EmojiPickerItem.categoryBar,
+        ),
+        emojiViewConfig: EmojiViewConfig(
+          columns: 8,
+          emojiSizeMax: 28 * (isIOS ? 1.2 : 1.0),
+          backgroundColor: background,
+          noRecents: Text(
+            _noRecentsText,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(color: iconColor),
+          ),
+        ),
+        categoryViewConfig: CategoryViewConfig(
+          initCategory: Category.SMILEYS,
+          backgroundColor: background,
+          indicatorColor: scheme.onPrimary,
+          dividerColor: Colors.transparent,
+          iconColor: iconColor,
+          iconColorSelected: scheme.onPrimary,
+        ),
+        bottomActionBarConfig: BottomActionBarConfig(
+          customBottomActionBar: (_, __, showSearchView) =>
+              _EmojiSearchBarButton(onTap: showSearchView),
+        ),
+        searchViewConfig: const SearchViewConfig(
+          customSearchView: _EmojiSearchView.new,
+        ),
+        skinToneConfig: SkinToneConfig(
+          dialogBackgroundColor: scheme.surfaceContainerHighest,
+        ),
+      ),
+    );
+  }
+}
+
+Color _pickerBackground(ColorScheme scheme) => scheme.primary;
+
+class _EmojiPreview extends StatelessWidget {
+  const _EmojiPreview({required this.emoji, required this.background, required this.size});
+
+  final String emoji;
+  final Gradient? background;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: background,
+          border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2),
+        ),
+        child: Text(emoji, style: TextStyle(fontSize: size * 0.48)),
+      );
+}
+
+class _EmojiSearchPill extends StatelessWidget {
+  const _EmojiSearchPill({required this.leading, required this.child, this.onTap});
+
+  final Widget leading;
+  final Widget child;
+  final VoidCallback? onTap;
+
+  static const height = 50.0;
+  static const outerPadding = EdgeInsets.fromLTRB(16, 16, 16, 8);
+
+  static TextStyle? textStyle(ThemeData theme) =>
+      theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary);
+
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: height,
+            child: Row(
+              children: [
+                const SizedBox(width: 14),
+                leading,
+                const SizedBox(width: 8),
+                Expanded(child: child),
+                const SizedBox(width: 14),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+class _EmojiSearchBarButton extends StatelessWidget {
+  const _EmojiSearchBarButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Container(
+      color: _pickerBackground(scheme),
+      padding: _EmojiSearchPill.outerPadding,
+      child: Semantics(
+        button: true,
+        label: _searchHintText,
+        child: _EmojiSearchPill(
+          onTap: onTap,
+          leading: Icon(Icons.search, color: scheme.onPrimary),
+          child: Text(_searchHintText, style: _EmojiSearchPill.textStyle(theme)),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmojiSearchView extends SearchView {
+  const _EmojiSearchView(super.config, super.state, super.showEmojiView);
+
+  @override
+  _EmojiSearchViewState createState() => _EmojiSearchViewState();
+}
+
+class _EmojiSearchViewState extends SearchViewState<_EmojiSearchView> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final textStyle = _EmojiSearchPill.textStyle(theme);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gridWidth = constraints.maxWidth - _EmojiSearchPill.outerPadding.horizontal;
+        final emojiSize = widget.config.emojiViewConfig.getEmojiSize(gridWidth);
+        final emojiBoxSize = widget.config.emojiViewConfig.getEmojiBoxSize(gridWidth);
+
+        return Container(
+          height: _pickerHeight,
+          color: _pickerBackground(scheme),
+          padding: _EmojiSearchPill.outerPadding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _EmojiSearchPill(
+                leading: IconButton(
+                  onPressed: widget.showEmojiView,
+                  icon: Icon(Icons.close, color: scheme.onPrimary),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: TextField(
+                  focusNode: focusNode,
+                  onChanged: onTextInputChanged,
+                  style: textStyle,
+                  cursorColor: scheme.onPrimary,
+                  textInputAction: TextInputAction.search,
+                  decoration: InputDecoration(
+                    hintText: _searchHintText,
+                    hintStyle: textStyle?.copyWith(color: scheme.onPrimary.withAlpha(180)),
+                    filled: false,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    isCollapsed: true,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: emojiBoxSize * 4,
+                // 4 visible rows, scrolls beyond; fits with the keyboard open
+                child: results.isEmpty
+                    ? Center(
+                        child: Text(
+                          _noResultsText,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(color: scheme.onPrimary.withAlpha(150)),
+                        ),
+                      )
+                    : GridView.builder(
+                        padding: EdgeInsets.zero,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: widget.config.emojiViewConfig.columns,
+                          mainAxisExtent: emojiBoxSize,
+                        ),
+                        itemCount: results.length,
+                        itemBuilder: (context, i) =>
+                            buildEmoji(results[i], emojiSize, emojiBoxSize),
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
