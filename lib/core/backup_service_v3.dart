@@ -316,14 +316,18 @@ class BackupServiceV3 extends $BackupService {
           continue outer;
         }
       }
+      final outPath = $BackupService.safeExtractPath(appDir.path, file);
+      if (outPath == null) {
+        throw Exception("unsafe backup entry: $filename, please contact support");
+      }
       printV("restoring: $filename");
       if (file.isFile) {
-        final output = File('${appDir.path}/' + filename)..createSync(recursive: true);
+        final output = File(outPath)..createSync(recursive: true);
         final outputStream = OutputFileStream(output.path);
         file.writeContent(outputStream);
         outputStream.flush();
       } else {
-        final dir = Directory('${appDir.path}/' + filename);
+        final dir = Directory(outPath);
         if (!dir.existsSync()) {
           dir.createSync(recursive: true);
         }
