@@ -77,7 +77,6 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final currencies = s.currencies.toList();
       final range = s.range;
       for (final curr in currencies) {
-        // cache keys are tag-less, so load with what the cache hands back (usdterc20 -> usdt)
         data[curr] = await priceStore.getPrices(
             appStore.settingsStore.fiatCurrency, currencyFromApiString(curr.apiString), range);
       }
