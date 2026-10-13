@@ -1743,7 +1743,6 @@ abstract class DashboardViewModelBase with Store {
 
   static const walletTypesToBeRemoved = [
     WalletType.zano,
-    WalletType.decred,
   ];
 
   Future<bool> shouldShowRemovalPopup() async {
