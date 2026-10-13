@@ -1339,6 +1339,7 @@
   "synchronizing": "Synchronizing",
   "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more.",
   "syncing_wallet_alert_title": "Your wallet is syncing",
+  "tap_card_to_show_details": "Tap card to show details",
   "tap_to_copy": "Tap to copy",
   "template": "Template",
   "template_name": "Template Name",

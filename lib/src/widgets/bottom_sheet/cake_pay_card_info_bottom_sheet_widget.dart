@@ -139,7 +139,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
           )
         else
           Text(
-            'Tap card to show details',
+            S.of(context).tap_card_to_show_details,
             style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
           ),
         Padding(
