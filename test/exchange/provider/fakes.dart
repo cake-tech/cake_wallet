@@ -17,7 +17,8 @@ class FakeSettingsStore implements SettingsStore {
   );
 }
 
-/// Stands in for the solana plugin, which Jupiter asks for spl token mints.
+/// Stands in for the solana plugin, which Jupiter asks for spl token mints and for how its
+/// swaps went on chain.
 class FakeSolana implements Solana {
   FakeSolana();
 
@@ -26,6 +27,12 @@ class FakeSolana implements Solana {
   "${CryptoCurrency.usdcsol.title}.${CryptoCurrency.usdcsol.tag}":
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 };
+
+  /// What the node says about every signature.
+  bool? transactionResult;
+
+  /// The signatures the node was asked about.
+  final List<String> lookedUp = [];
 
   @override
   String getTokenAddress(CryptoCurrency asset) {
@@ -36,6 +43,12 @@ class FakeSolana implements Solana {
     }
 
     return mint;
+  }
+
+  @override
+  Future<bool?> getTransactionResult(String signature) async {
+    lookedUp.add(signature);
+    return transactionResult;
   }
 
   @override

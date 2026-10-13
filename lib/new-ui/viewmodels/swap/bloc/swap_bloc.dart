@@ -5,6 +5,7 @@ import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
+import "package:cake_wallet/core/trade_monitor.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
@@ -50,6 +51,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     required FeesHelper feesHelper, required TradeCreator creator, required SwapAddressResolver addressResolver,
     required AddressResolverService addressResolverService,
     required TransactionService transactionService,
+    required TradeMonitor tradeMonitor,
     required WalletSwitchService walletSwitchService,
     required this.rateCubit,
     required this.currencyStore,
@@ -62,6 +64,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         _addressResolver = addressResolver,
        _addressResolverService = addressResolverService,
        _transactionService = transactionService,
+       _tradeMonitor = tradeMonitor,
        _walletSwitchService = walletSwitchService,
        _amountFactory = amountFactory,
        _registry = registry,
@@ -97,6 +100,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   WalletBase get wallet => _appStore.wallet!;
   final AddressResolverService _addressResolverService;
   final TransactionService _transactionService;
+  final TradeMonitor _tradeMonitor;
   final WalletSwitchService _walletSwitchService;
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
@@ -733,6 +737,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       );
       try {
         await _transactionService.commitTransaction(s.transaction);
+        unawaited(
+          _tradeMonitor.recordDeposit(
+            s.trade.id,
+            s.transaction.evmTxHashFromRawHex ?? s.transaction.id,
+          ),
+        );
         emit(
           SwapTransactionCommitted(
             trade: s.trade,

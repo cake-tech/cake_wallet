@@ -350,6 +350,16 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<bool?> getTransactionResult(String signature) {
+    final client = SolanaWalletClient();
+    if (!client.connect(getIt.get<SettingsStore>().getCurrentNode(WalletType.solana))) {
+      throw Exception("Failed to connect to the Solana node");
+    }
+
+    return client.getTransactionResult(signature);
+  }
+
+  @override
   Future<void> updateTokenBalances(
     WalletBase wallet, {
     List<String>? tokenMints,

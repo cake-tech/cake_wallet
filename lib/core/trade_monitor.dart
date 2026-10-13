@@ -88,12 +88,36 @@ class TradeMonitor {
       if (_tradeTimers.containsKey(trade.id)) {
         continue;
       } else {
-        _startTradeMonitoring(trade, provider!);
+        _startTradeMonitoring(trade.id, provider!);
       }
     }
 
     // After going through the list of available trades, we cancel the timers in the tradesToCancel list
     _cancelMultipleTradeTimers(tradesToCancel);
+  }
+
+  Future<void> recordDeposit(String tradeId, String txId) async {
+    if (txId.isEmpty) {
+      return;
+    }
+
+    try {
+      final trade = await Trade.getByTradeId(tradeId);
+      if (trade == null) {
+        return;
+      }
+
+      await trade.copyWith(txId: txId).save();
+
+      final provider = _getProviderByDescription(trade.provider);
+      if (provider == null || !_isTradeMonitoringPermitted() || _isBlockedByTor(provider)) {
+        return;
+      }
+
+      await _checkTradeStatus(tradeId, provider, force: true);
+    } catch (e) {
+      printV("Error recording deposit $txId for $tradeId: $e");
+    }
   }
 
   bool _isTradeMonitoringPermitted() {
@@ -138,8 +162,7 @@ class TradeMonitor {
       return true;
     }
 
-    if (appStore.settingsStore.exchangeStatus == ExchangeApiMode.torOnly &&
-        !provider.supportsOnionAddress) {
+    if (_isBlockedByTor(provider)) {
       printV('Skipping ${provider.description}, no TOR support');
       return true;
     }
@@ -147,47 +170,57 @@ class TradeMonitor {
     return false;
   }
 
-  void _startTradeMonitoring(Trade trade, ExchangeProvider provider) {
+  bool _isBlockedByTor(ExchangeProvider provider) =>
+      appStore.settingsStore.exchangeStatus == ExchangeApiMode.torOnly &&
+      !provider.supportsOnionAddress;
+
+  void _startTradeMonitoring(String tradeId, ExchangeProvider provider) {
     final timer = Timer.periodic(
       Duration(minutes: _tradeCheckIntervalMinutes),
-      (_) => _checkTradeStatus(trade, provider),
+      (_) => _checkTradeStatus(tradeId, provider),
     );
 
-    _checkTradeStatus(trade, provider);
+    _checkTradeStatus(tradeId, provider);
 
-    _tradeTimers[trade.id] = timer;
+    _tradeTimers[tradeId] = timer;
   }
 
-  Future<void> _checkTradeStatus(Trade trade, ExchangeProvider provider) async {
-    final lastUpdatedAtFromPrefs = preferences.getString('trade_${trade.id}_updated_at');
+  Future<void> _checkTradeStatus(String tradeId, ExchangeProvider provider, {bool force = false}) async {
+    final lastUpdatedAtFromPrefs = preferences.getString('trade_${tradeId}_updated_at');
 
-    if (lastUpdatedAtFromPrefs != null) {
+    if (!force && lastUpdatedAtFromPrefs != null) {
       final lastUpdatedAtDateTime = DateTime.parse(lastUpdatedAtFromPrefs);
       final timeSinceLastUpdate = DateTime.now().difference(lastUpdatedAtDateTime).inMinutes;
 
       if (timeSinceLastUpdate < _tradeCheckIntervalMinutes) {
         printV(
-          'Skipping trade ${trade.id} status update check because it was updated less than ${_tradeCheckIntervalMinutes} minutes ago ($timeSinceLastUpdate minutes ago)',
+          "Skipping trade ${tradeId} status update check because it was updated less than ${_tradeCheckIntervalMinutes} minutes ago ($timeSinceLastUpdate minutes ago)",
         );
         return;
       }
     }
 
     try {
+      final trade = await Trade.getByTradeId(tradeId);
+      if (trade == null) {
+        _cancelSingleTradeTimer(tradeId);
+        return;
+      }
+
       final updated = await provider.updateTrade(trade);
-      printV('Trade ${trade.id} updated: ${trade.state}');
+      printV('Trade ${tradeId} updated: ${updated.state}');
       await updated.save();
 
-      await preferences.setString('trade_${trade.id}_updated_at', DateTime.now().toIso8601String());
-      printV('Trade ${trade.id} updated at: ${DateTime.now().toIso8601String()}');
+      await preferences.setString('trade_${tradeId}_updated_at', DateTime.now().toIso8601String());
+      printV('Trade ${tradeId} updated at: ${DateTime.now().toIso8601String()}');
 
       // If the updated trade is in a final state, we cancel the timer
       if (_isFinalState(updated.state)) {
-        printV('Trade ${trade.id} is in final state');
-        _cancelSingleTradeTimer(trade.id);
+        printV('Trade ${tradeId} is in final state');
+        _cancelSingleTradeTimer(tradeId);
       }
     } catch (e) {
-      printV('Error fetching status for ${trade.id}: $e');
+      printV('Error fetching status for ${tradeId}: $e');
     }
   }
 

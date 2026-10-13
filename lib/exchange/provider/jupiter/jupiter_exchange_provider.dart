@@ -189,27 +189,30 @@ class JupiterExchangeProvider extends ExchangeProvider
     mapError: (e) => Exception("Failed to execute swap: ${e.message}"),
   );
 
+  // the order's transaction carries a recent blockhash, so it can't land once that expires
+  // (~150 slots). an order that still has no signature by then was never executed
+  static const _orderTtl = Duration(minutes: 5);
+
   @override
-  Future<Trade> updateTrade(Trade trade) {
-    // Jupiter Ultra Swap API doesn't track trades by our trade ID
-    //
-    // Status tracking options:
-    // 1. Use /execute endpoint with requestId + signedTransaction (requires storing signed tx)
-    // 2. Check on-chain via transaction signature (txId) after transaction is sent
-    //
-    // Current implementation: We track status on-chain via transaction signature
-    // The txId field in Trade is set after the transaction is sent and can be
-    // used to check transaction status via Solana RPC.
-    //
-    // Note: To use /execute endpoint for status polling, we would need to:
-    // - Store the signed transaction (not currently stored)
-    // - Use requestId from routerValue
-    // - Poll /ultra/v1/execute with both signedTransaction and requestId
-    //
-    // For now, throw exception to indicate status must be checked on-chain
-    throw Exception(
-      "Jupiter trade status must be checked on-chain using transaction signature (txId). "
-      "After transaction is sent, txId will contain the signature for status checking.",
+  Future<Trade> updateTrade(Trade trade) async {
+    final txId = trade.txId;
+
+    if (txId == null || txId.isEmpty) {
+      final createdAt = trade.createdAt;
+      final isStale = createdAt == null || DateTime.now().difference(createdAt) > _orderTtl;
+      return isStale ? trade.copyWith(state: TradeState.expired) : trade;
+    }
+
+    if (trade.state == TradeState.completed || trade.state == TradeState.failed) {
+      return trade;
+    }
+
+    return trade.copyWith(
+      state: switch (await solana!.getTransactionResult(txId)) {
+        true => TradeState.completed,
+        false => TradeState.failed,
+        null => TradeState.processing,
+      },
     );
   }
 

@@ -557,6 +557,7 @@ Future<void> setup({
         creator: getIt.get<TradeCreator>(),
         addressResolverService: getIt.get<AddressResolverService>(),
         transactionService: getIt.get<TransactionService>(),
+        tradeMonitor: getIt.get<TradeMonitor>(),
         walletSwitchService: getIt.get<WalletSwitchService>(),
         currencyStore: getIt.get<SwapCurrencyStore>(),
         rateCubit: getIt.get<RateCubit>(),

@@ -944,6 +944,8 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cw_solana/solana_client.dart' show SolanaWalletClient;
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -1018,6 +1020,8 @@ abstract class Solana {
     Duration initialDelay = const Duration(seconds: 1),
     int maxRetries = 5,
   });
+
+  Future<bool?> getTransactionResult(String signature);
 
   // Updates balances for specific tokens by mint addresses
   // Also updates native SOL balance
