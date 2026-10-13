@@ -12,6 +12,13 @@ class NewSettingsPageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(SettingsMainPage));
   }
 
+  // Wallet-specific rows (nodes, accounts, coin control, ...) live on WalletSettingsPage,
+  // which is opened from the wallet type row at the top of the main settings page
+  Future<void> openWalletSettings() async {
+    await tapByKey("wallet_type_settings");
+    await pumpUntilFound(find.byType(WalletSettingsPage));
+  }
+
   Future<void> openRow(String route) async {
     await scrollUntilRowVisible(route);
     await tapByKey(route);
