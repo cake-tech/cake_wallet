@@ -380,7 +380,7 @@ Future<void> setup({
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
-  getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
+  getIt.registerSingleton<FiatConversionStore>(FiatConversionStore(getIt.get<SettingsStore>()));
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());

@@ -64,9 +64,15 @@ class ExchangeProviderRegistry {
       final providerSettings = json.decode(_sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
       as Map<String, dynamic>;
 
-      return _providers.keys.where((item)=>providerSettings[item.title] != false).toList();
+      return allProviders.where((item)=>providerSettings[item.title] != false).toList();
     }
 
 
-  List<ExchangeProviderDescription> get allProviders => _providers.keys.toList();
+  List<ExchangeProviderDescription> get allProviders => _providers.keys
+      .where(
+        (item) =>
+            _settingsStore.exchangeStatus != ExchangeApiMode.torOnly ||
+            _providers[item]!.supportsOnionAddress,
+      )
+      .toList();
 }

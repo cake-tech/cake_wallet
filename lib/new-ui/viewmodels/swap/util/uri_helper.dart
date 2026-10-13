@@ -3,8 +3,6 @@
 import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
-import "package:cw_core/spl_token.dart";
-import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_type.dart";
 
 class SwapUriHelper {
@@ -30,9 +28,21 @@ class SwapUriHelper {
       case WalletType.robinhood:
         return _createERC681URI(currency, address, amount);
       case WalletType.solana:
-        return SolanaURI(amount: amount, address: address, contractAddress: currency is SPLToken ? currency.mintAddress : null);
+        if (currency == CryptoCurrency.sol) {
+          return SolanaURI(amount: amount, address: address);
+        }
+        return switch (TokenUtilities.findSolanaTokenMint(currency)) {
+          final mint? => SolanaURI(amount: amount, address: address, contractAddress: mint),
+          null => ExternalAddressURI(address: address, amount: amount),
+        };
       case WalletType.tron:
-        return TronURI(amount: amount, address: address, contractAddress: currency is TronToken ? currency.contractAddress : null);
+        if (currency == CryptoCurrency.trx) {
+          return TronURI(amount: amount, address: address);
+        }
+        return switch (TokenUtilities.findTronTokenContract(currency)) {
+          final contract? => TronURI(amount: amount, address: address, contractAddress: contract),
+          null => ExternalAddressURI(address: address, amount: amount),
+        };
       case WalletType.monero:
         return MoneroURI(address: address, amount: amount);
       case WalletType.wownero:
@@ -66,15 +76,19 @@ class SwapUriHelper {
         contractAddress: null,
       );
     } else {
-      final erc20Token = TokenUtilities.findErc20TokenForSwap(currency)!;
+      final erc20Token = TokenUtilities.findErc20TokenForSwap(currency);
 
-        return ERC681URI(
-          chainId: chainId,
-          address: address,
-          amount: amount,
-          tokenDecimals: erc20Token.decimal,
-          contractAddress: erc20Token.contractAddress,
-        );
+      if (erc20Token == null) {
+        return ExternalAddressURI(address: address, amount: amount);
+      }
+
+      return ERC681URI(
+        chainId: chainId,
+        address: address,
+        amount: amount,
+        tokenDecimals: erc20Token.decimal,
+        contractAddress: erc20Token.contractAddress,
+      );
     }
   }
 }

@@ -149,7 +149,6 @@ class ProviderScenario {
     toAddressExtraId: toAddressExtraId,
   );
 
-  /// The locally stored trade `updateTrade` refreshes; only the id and currencies matter.
   Trade knownTrade(String id) => Trade(
     id: id,
     provider: build().provider.description,

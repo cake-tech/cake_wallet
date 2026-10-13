@@ -121,19 +121,20 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       isFixedRateMode: isFixedRate,
       originAsset: originToken.assetId,
       destinationAsset: destinationToken.assetId,
-      amount: from.amount,
+      amount: _toChainUnits(from, originToken),
       depositMode: depositMode,
       refundTo: dummyAddrFrom,
       recipient: dummyAddrTo,
     );
 
     final quote = quoteResp.quote;
-    final amountIn = quote.amountIn;
-    final amountOut = quote.amountOut;
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(Money(amountIn, from.currency), Money(amountOut, to)),
+      rate: ExchangeRate.fromAmounts(
+        _fromChainUnits(quote.amountIn, from.currency as CryptoCurrency, originToken),
+        _fromChainUnits(quote.amountOut, to, destinationToken),
+      ),
       limits: ExchangeLimits(),
     );
   }
@@ -149,8 +150,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
 
     final rawAmountStr = request.isFixedRate
-        ? request.payoutAmount.amount
-        : request.depositAmount.amount;
+        ? _toChainUnits(request.payoutAmount, destinationToken)
+        : _toChainUnits(request.depositAmount, originToken);
 
     final NearIntentsDepositMode depositMode =
         _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;
@@ -318,4 +319,14 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }
 
   DateTime _buildDeadline() => DateTime.now().toUtc().add(const Duration(hours: 2));
+
+  static BigInt _toChainUnits(Money amount, NearIntentsToken token) {
+    final shift = token.decimals - amount.decimals;
+    return shift >= 0
+        ? amount.amount * BigInt.from(10).pow(shift)
+        : amount.amount ~/ BigInt.from(10).pow(-shift);
+  }
+
+  static Money _fromChainUnits(BigInt amount, CryptoCurrency currency, NearIntentsToken token) =>
+      Money(amount, currency, token.decimals).copyWith(currency: currency);
 }

@@ -2351,7 +2351,6 @@ abstract class SettingsStoreBase with Store {
   static Map<String, bool> _savedTrocadorProviderStates(SharedPreferences sharedPreferences) {
     final serializedData = sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
 
-    // before the states were saved as one map, each provider had its own key
     if (serializedData == null) {
       return {
         for (final provider in TrocadorExchangeProvider.availableProviders)

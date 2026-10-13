@@ -196,6 +196,39 @@ final class SwapStateCreationError extends SwapStateCreating implements SwapFail
   final Object error;
 }
 
+final class SwapInitiationError extends SwapStateWithInputs implements SwapFailureState {
+  const SwapInitiationError({required this.inputs, required this.error});
+
+  final SwapInputState inputs;
+
+  @override
+  final Object error;
+
+  @override
+  SwapAmount get depositAmount => inputs.depositAmount;
+
+  @override
+  SwapAmount get payoutAmount => inputs.payoutAmount;
+
+  @override
+  SwapSource get source => inputs.source;
+
+  @override
+  SwapAddress? get payoutAddress => inputs.payoutAddress;
+
+  @override
+  bool get isFixedRate => inputs.isFixedRate;
+
+  @override
+  String get memo => inputs.memo;
+
+  @override
+  List<ExchangeProviderDescription> get usableProviders => inputs.usableProviders;
+
+  @override
+  bool get canInitiateSwap => false;
+}
+
 abstract class SwapStateWithTrade extends SwapStateWithInputs {
   const SwapStateWithTrade({
     required this.source,

@@ -2,6 +2,7 @@ import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -9,6 +10,8 @@ import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/new-ui/widgets/hardware_wallet/connect_hardware_wallet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
@@ -29,6 +32,7 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/sync_status.dart";
@@ -226,9 +230,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       formKey.currentState!.validate()) {
                                     widget.authService.authenticateAction(
                                       context,
-                                      conditionToDetermineIfToUse2FA: false,
-                                      onAuthSuccess: (value) {
-                                        if (value) {
+                                      conditionToDetermineIfToUse2FA: _requiresTotp,
+                                      onAuthSuccess: (value) async {
+                                        if (value && await _connectHardwareWallet()) {
                                           widget.bloc.add(SwapInitiated());
                                         }
                                       },
@@ -281,6 +285,31 @@ class _NewSwapPageState extends State<NewSwapPage> {
     }
   }
 
+
+  bool get _requiresTotp => switch (widget.bloc.state) {
+    SwapStateWithInputs(payoutAddress: InternalWalletSwapAddress()) =>
+      widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets,
+    _ => widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets,
+  };
+
+  Future<bool> _connectHardwareWallet() async {
+    final wallet = widget.bloc.wallet;
+    final isSentFromWallet = switch (widget.bloc.state) {
+      SwapStateWithInputs(:final source) => source is InternalSwapSource,
+      _ => false,
+    };
+
+    if (!wallet.isHardwareWallet || !isSentFromWallet) {
+      return true;
+    }
+
+    return mounted &&
+        await connectHardwareWallet(
+          context,
+          wallet,
+          getIt<HardwareWalletViewModel>(param1: wallet.hardwareWalletType!),
+        );
+  }
 
   Future<void> _showConfirmSheet() async {
     final page = SwapConfirmSheet(bloc: widget.bloc);
