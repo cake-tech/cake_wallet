@@ -66,7 +66,6 @@ class CakeFeaturesPage extends StatelessWidget {
     );
   }
 
-
   Widget _buildNewUi(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,6 +124,14 @@ class CakeFeaturesPage extends StatelessWidget {
           title: "NanoGPT",
           subTitle: S.of(context).nanogpt_subtitle,
           image: 'assets/images/nanogpt.png',
+        ),
+        AppsWidget(
+          isWide: true,
+          isLink: true,
+          onTap: () => _launchUrl("btcmap.org"),
+          title: "BTC Map",
+          subTitle: "Find places to spend sats wherever you are",
+          image: 'assets/images/btcmap.png',
         ),
         Observer(builder: (_) {
           if (dashboardViewModel.type == WalletType.ethereum) {
