@@ -1046,6 +1046,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'secret': scrt,
     'stellar': xlm,
     'avalanche': avaxc,
+    'avax': avaxc,
     'binance': bnb,
     'tether': usdt,
     'usdcoin': usdc,

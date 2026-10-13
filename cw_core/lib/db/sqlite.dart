@@ -201,7 +201,12 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _migrateBitcoinCardStylesForAccounts(db);
       }
       if(oldVersion <= 14) {
-        await _createDeprecatedWalletSeedTable(db);
+        await _addColumnIfNotExists(
+          db,
+          table: "BalanceCardStyleSettings",
+          column: "hidden",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
       }
       if(oldVersion <= 15) {
         await migrateTradeTableToNewSchema(db);
@@ -299,6 +304,7 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
@@ -312,8 +318,6 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
-    await _createDeprecatedWalletSeedTable(db);
-
     },
   );
 }
@@ -326,7 +330,7 @@ CREATE TABLE PriceData (
   timestamp INTEGER NOT NULL,
   price TEXT NOT NULL,
   PRIMARY KEY (fromCurrency, toCurrency, timestamp)
-);        
+);
 """);
   await db.execute("""
 CREATE TABLE ChartsAssets (
@@ -569,16 +573,4 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
-}
-
-
-Future<void> _createDeprecatedWalletSeedTable(Database db) async {
-  await db.execute("""
-CREATE TABLE DeprecatedWalletSeeds (
-walletInfoId INTEGER PRIMARY KEY,
-seed TEXT NOT NULL,
-passphrase TEXT NOT NULL,
-FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-""");
 }

@@ -9,9 +9,11 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     required this.fullName,
     required this.emoji,
     this.decimals = 2,
+    this.isoCountryCode,
   }) : super(title: symbol, raw: symbol);
 
   final String countryCode;
+  final String? isoCountryCode;
 
   @override
   final String fullName;
@@ -24,6 +26,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   @override
   final String symbol;
+
+  String get apiCountryCode => isoCountryCode ?? countryCode.toUpperCase();
 
   final String emoji;
 
@@ -86,8 +90,13 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "BGN", countryCode: "bgr", fullName: "Bulgarian Lev", emoji: "🇧🇬");
   static const brl =
       FiatCurrency(symbol: "BRL", countryCode: "bra", fullName: "Brazilian Real", emoji: "🇧🇷");
-  static const cad =
-      FiatCurrency(symbol: "CAD", countryCode: "cad", fullName: "Canadian Dollar", emoji: "🇨🇦");
+  static const cad = FiatCurrency(
+    symbol: "CAD",
+    countryCode: "cad",
+    fullName: "Canadian Dollar",
+    emoji: "🇨🇦",
+    isoCountryCode: "CAN",
+  );
   static const chf =
       FiatCurrency(symbol: "CHF", countryCode: "che", fullName: "Swiss Franc", emoji: "🇨🇭");
   static const clp =
@@ -96,14 +105,24 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
       FiatCurrency(symbol: "CNY", countryCode: "chn", fullName: "Chinese Yuan", emoji: "🇨🇳");
   static const cop =
       FiatCurrency(symbol: "COP", countryCode: "col", fullName: "Colombian Peso", emoji: "🇨🇴");
-  static const czk =
-      FiatCurrency(symbol: "CZK", countryCode: "czk", fullName: "Czech Koruna", emoji: "🇨🇿");
+  static const czk = FiatCurrency(
+    symbol: "CZK",
+    countryCode: "czk",
+    fullName: "Czech Koruna",
+    emoji: "🇨🇿",
+    isoCountryCode: "CZE",
+  );
   static const dkk =
       FiatCurrency(symbol: "DKK", countryCode: "dnk", fullName: "Danish Krone", emoji: "🇩🇰");
   static const egp =
       FiatCurrency(symbol: "EGP", countryCode: "egy", fullName: "Egyptian Pound", emoji: "🇪🇬");
-  static const eur =
-      FiatCurrency(symbol: "EUR", countryCode: "eur", fullName: "Euro", emoji: "🇪🇺");
+  static const eur = FiatCurrency(
+    symbol: "EUR",
+    countryCode: "eur",
+    fullName: "Euro",
+    emoji: "🇪🇺",
+    isoCountryCode: "DEU",
+  );
   static const gbp =
       FiatCurrency(symbol: "GBP", countryCode: "gbr", fullName: "Pound Sterling", emoji: "🇬🇧");
   static const ghs =
@@ -184,8 +203,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     fullName: "Thai Baht",
     emoji: "🇹🇭",
   );
-  static const twd =
-      FiatCurrency(symbol: "TWD", countryCode: "twn", fullName: "New Thaiwan Dollar", emoji: "🇹🇼");
+  static const twd = FiatCurrency(
+      symbol: "TWD", countryCode: "twn", fullName: "New Thaiwan Dollar", emoji: "🇹🇼");
   static const uah =
       FiatCurrency(symbol: "UAH", countryCode: "ukr", fullName: "Ukrainian Hryvnia", emoji: "🇺🇦");
   static const usd = FiatCurrency(
@@ -211,6 +230,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     countryCode: "saf",
     fullName: "South African Rand",
     emoji: "🇿🇦",
+    isoCountryCode: "ZAF",
   );
   static const tur =
       FiatCurrency(symbol: "TRY", countryCode: "tur", fullName: "Turkish Lira", emoji: "🇹🇷");
@@ -272,6 +292,8 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   };
 
   static FiatCurrency deserialize({required String raw}) => _all[raw] ?? FiatCurrency.usd;
+
+  static FiatCurrency? tryDeserialize({required String raw}) => _all[raw];
 
   @override
   bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;

@@ -331,6 +331,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   PendingTransaction? pendingTransaction;
 
+  // Bumped when a preparation is dismissed or replaced.
+  //
+  // Finished call sets pendingTransaction only if it matches this value to
+  // its own value.
+  int _sendPreparationId = 0;
+
   String? get pendingTransactionAdditionalCostNotice {
     final additionalCost = pendingTransaction?.additionalCost;
 
@@ -433,16 +439,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasCoinControl =>
-      [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.decred,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin
-      ].contains(wallet.type) &&
-      coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet.hasCoinControl && coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
@@ -591,6 +588,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<void> dismissTransaction() async {
+    _sendPreparationId++;
+    _ledgerTxStateTimer?.cancel();
+    _ledgerTxStateTimer = null;
     state = InitialExecutionState();
     if (ocpRequest != null) {
       clearOutputs();
@@ -681,19 +681,36 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction() async {
+    final preparationId = ++_sendPreparationId;
+    _ledgerTxStateTimer?.cancel();
+    _ledgerTxStateTimer = null;
     pendingTransaction = null;
+    Timer? preparationTimer;
+
+    bool replaced() {
+      if (preparationId == _sendPreparationId) {
+        return false;
+      }
+      preparationTimer?.cancel();
+      return true;
+    }
 
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) {
         if (walletType == WalletType.monero) {
-          _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+          preparationTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+            if (preparationId != _sendPreparationId) {
+              timer.cancel();
+              return;
+            }
             if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
               timer.cancel();
               state = IsDeviceSigningResponseState();
             }
           });
+          _ledgerTxStateTimer = preparationTimer;
         } else {
           state = IsAwaitingDeviceResponseState();
         }
@@ -712,7 +729,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      pendingTransaction = await wallet.createTransaction(_credentials());
+      final prepared = await wallet.createTransaction(_credentials(provider));
+      if (replaced()) {
+        return null;
+      }
+      pendingTransaction = prepared;
+
 
 
 
@@ -727,6 +749,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
+      if (replaced()) {
+        return null;
+      }
       _ledgerTxStateTimer?.cancel();
       // if (e is LedgerException) {
       //   final errorCode = e.errorCode.toRadixString(16);

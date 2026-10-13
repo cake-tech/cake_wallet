@@ -229,7 +229,17 @@ class WalletEditPage extends BasePage {
   Future<void> hideProgressText() async {
     try {
       await Future.delayed(Duration(milliseconds: 250));
-      await _progressBar?.dismiss();
+
+      final bar = _progressBar;
+      final barRoute = bar?.flushbarRoute;
+
+      if (bar != null && barRoute != null && barRoute.isActive) {
+        if (bar.isShowing()) {
+          await bar.dismiss();
+        } else {
+          barRoute.navigator?.removeRoute(barRoute);
+        }
+      }
     } catch (e) {
       printV(e);
     }
