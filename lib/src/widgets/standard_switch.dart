@@ -6,11 +6,18 @@ class StandardSwitch extends StatefulWidget {
     required this.value,
     required this.onTapped,
     this.backgroundColor,
+    this.isLoading = false,
   });
 
   final bool value;
   final Color? backgroundColor;
   final VoidCallback onTapped;
+
+  /// Shows a small spinner in the knob instead of the plain circle, and stops responding to taps
+  /// - for a switch backed by a slow, non-instant action (e.g. a network round-trip) rather than
+  /// a plain local setting flip, so it reads as "working on it" instead of unresponsive.
+  final bool isLoading;
+
   @override
   StandardSwitchState createState() => StandardSwitchState();
 }
@@ -21,7 +28,7 @@ class StandardSwitchState extends State<StandardSwitch> {
     return Semantics(
       toggled: widget.value,
       child: GestureDetector(
-        onTap: widget.onTapped,
+        onTap: widget.isLoading ? null : widget.onTapped,
         child: AnimatedContainer(
           padding: EdgeInsets.only(left: 2.0, right: 2.0),
           alignment: widget.value ? Alignment.centerRight : Alignment.centerLeft,
@@ -43,6 +50,17 @@ class StandardSwitchState extends State<StandardSwitch> {
                   : context.currentTheme.customColors.toggleKnobStateColor,
               shape: BoxShape.circle,
             ),
+            child: widget.isLoading
+                ? Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: widget.value
+                          ? Theme.of(context).colorScheme.primary
+                          : context.currentTheme.customColors.toggleColorOffState,
+                    ),
+                  )
+                : null,
           ),
         ),
       ),

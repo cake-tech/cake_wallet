@@ -112,9 +112,15 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                       ),
                                       ExcludeSemantics(
                                         child: RotatedBox(
-                                            quarterTurns: 2,
-                                            child: CakeImageWidget(
-                                                imageUrl: "assets/new-ui/dropdown_arrow.svg")),
+                                          quarterTurns: 2,
+                                          child: CakeImageWidget(
+                                            imageUrl: "assets/new-ui/dropdown_arrow.svg",
+                                            colorFilter: ColorFilter.mode(
+                                              Theme.of(context).colorScheme.primary,
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
                                       )
                                     ],
                                   ),
@@ -162,8 +168,8 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                   ),
                                   inputFormatters: [
                                     DecimalInputFormatter(
-                                      maxDecimals:
-                                          widget.walletAddressListViewModel.selectedCurrencyDecimals,
+                                      maxDecimals: widget
+                                          .walletAddressListViewModel.selectedCurrencyDecimals,
                                     ),
                                   ],
                                   decoration: InputDecoration(
@@ -183,8 +189,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                     filled: true,
                                     fillColor: Colors.transparent,
                                   ),
-                                  style:
-                                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                                 ),
                               ),
                             ),

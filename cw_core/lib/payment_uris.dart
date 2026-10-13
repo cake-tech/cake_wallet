@@ -466,3 +466,18 @@ class LightningPaymentRequest extends PaymentURI {
   @override
   String toString() => bolt11Invoice ?? "lightning:$lnURL";
 }
+
+class SparkPaymentRequest extends PaymentURI {
+  SparkPaymentRequest({
+    required this.sparkInvoice,
+    // An invoice can already include an amount encoded in it but here we also need the amount
+    // to be split from the invoice into its own string itself
+    required this.sparkInvoiceAmount,
+  }) : super(address: sparkInvoice, amount: sparkInvoiceAmount);
+
+  final String sparkInvoice;
+  final String sparkInvoiceAmount;
+
+  @override
+  String toString() => sparkInvoice;
+}

@@ -1,12 +1,36 @@
 import "package:cake_wallet/view_model/dashboard/action_list_item.dart";
 import "package:cake_wallet/view_model/dashboard/date_section_item.dart";
+import "package:cake_wallet/view_model/dashboard/pending_conversion_list_item.dart";
+import "package:cake_wallet/view_model/dashboard/transaction_list_item.dart";
+import "package:cake_wallet/entities/conversion_status.dart";
 import "package:flutter/foundation.dart";
 
 enum _DateBucket { recent, last7Days, last30Days, byMonth }
 
-List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
+bool _isPending(ActionListItem item) {
+  if (item is PendingConversionListItem) return true;
+  if (item is TransactionListItem) {
+    return item.transaction.isPending ||
+        ConversionStatusUtils.fromAdditionalInfo(item.transaction.additionalInfo) ==
+            ConversionStatus.pending;
+  }
+  return false;
+}
+
+/// Pending rows first under their own header, whatever their date, then everything else
+/// newest-first under date headers.
+List<ActionListItem> formattedItemsList(List<ActionListItem> allItems) {
   final formattedList = <ActionListItem>[];
-  items.sort((a, b) => b.date.compareTo(a.date));
+  allItems.sort((a, b) => b.date.compareTo(a.date));
+
+  final pending = allItems.where(_isPending).toList();
+  if (pending.isNotEmpty) {
+    formattedList.add(
+      PendingTransactionItem(pending.first.date, key: const ValueKey("pending_section_item_key")),
+    );
+    formattedList.addAll(pending);
+  }
+  final items = allItems.where((item) => !_isPending(item));
 
   final now = DateTime.now();
   final todayTreshold = DateTime(now.year, now.month, now.day);

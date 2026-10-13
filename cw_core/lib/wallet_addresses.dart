@@ -1,3 +1,4 @@
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -95,5 +96,9 @@ abstract class WalletAddresses {
 
   /// Get a [PaymentURI] for the current [address] asynchronously
   /// this can be used if a payment requires a api call beforehand
-  Future<PaymentURI> getPaymentRequestUri(String amount) async => getPaymentUri(amount);
+  ///
+  /// [tokenCurrency] is used by wallets that can receive more than one asset (e.g. a Spark
+  /// token on a Bitcoin/Lightning wallet) to request a payment in that specific asset.
+  Future<PaymentURI> getPaymentRequestUri(String amount, {CryptoCurrency? tokenCurrency}) async =>
+      getPaymentUri(amount);
 }
