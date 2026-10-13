@@ -34,7 +34,7 @@ class UnspentCoinsDetailsPage extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                 color: Theme.of(context).colorScheme.surface,
               ),
-              child: Column(
+              child: SafeArea(child:Column(
                 children: [
                   ModalTopBar(
                     title: S.of(context).unspent_coins_details_title,
@@ -79,7 +79,7 @@ class UnspentCoinsDetailsPage extends StatelessWidget {
                             ),
                   ),
                 ],
-              ),
+              )),
             ),
           );
         },
