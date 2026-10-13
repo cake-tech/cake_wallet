@@ -1609,5 +1609,5 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Uri coinControlUrl(String txId) => Uri.https("litecoin.earlyordies.com", "/tx/${txId}");
+  Uri coinControlUrl(String txId) => Uri.https("blockchair.com", "litecoin/transaction/${txId}");
 }
