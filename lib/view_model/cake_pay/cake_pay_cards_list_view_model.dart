@@ -227,9 +227,18 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @action
   Future<void> checkAuth() async {
+    final wasLogged = isUserAuthenticated;
     final logged = await cakePayService.isLogged();
     username = logged ? await cakePayService.getUserEmail() : null;
     authFuture = ObservableFuture.value(logged);
+
+    // Cards are only fetched while logged in, so (re)load them when the session changes.
+    if (logged && wasLogged == false) {
+      await getUserCards();
+    } else if (!logged && wasLogged == true) {
+      userCards = [];
+      userCardState = UserCakePayCardsStateInitial();
+    }
   }
 
   @action

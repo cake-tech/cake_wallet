@@ -42,7 +42,8 @@ class CakePayUserCard {
       return null;
     }
 
-    return matching[unitIndex < matching.length ? unitIndex : 0];
+    // Never reuse another unit's code: without a voucher for this unit there is nothing to show.
+    return unitIndex < matching.length ? matching[unitIndex] : null;
   }
 
   /// Expands the orders returned by the API into one entry per purchased unit. Orders without a

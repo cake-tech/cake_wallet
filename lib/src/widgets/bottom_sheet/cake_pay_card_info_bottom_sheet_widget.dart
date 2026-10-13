@@ -123,11 +123,25 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
               ],
             ),
           ),
-        Container(),
-        Text(
-          'Tap card to show details',
-          style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
+        if (contentImage == null)
+          // Without an image there is nothing to flip, so show the codes directly.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: AspectRatio(
+              aspectRatio: 1.6,
+              child: _buildBarcodeSide(
+                context,
+                cardNumber: cardNumber,
+                cardNumberLabel: cardNumberLabel,
+                pin: pin,
+              ),
+            ),
+          )
+        else
+          Text(
+            'Tap card to show details',
+            style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
