@@ -101,7 +101,7 @@ void main() {
         expect(tx.createdAt, DateTime.parse(raw["created_at"] as String));
         expect(
           tx.expiredAt,
-          DateTime.fromMillisecondsSinceEpoch((raw["expired_at"] as int) * 1000),
+          DateTime.fromMillisecondsSinceEpoch((raw["expired_at"] as int) * 1000, isUtc: true),
           reason: "expired_at is unix seconds on a transaction",
         );
         expect(tx.amlErrorSignals, isEmpty);
@@ -160,7 +160,7 @@ void main() {
       final json = const LetsExchangeInfoRequest(
         from: "BTC",
         to: "XMR",
-        amount: "1",
+        amount: 1,
         affiliateId: "affiliate",
         float: true,
       ).toJson();
@@ -168,7 +168,7 @@ void main() {
       expect(json, {
         "from": "BTC",
         "to": "XMR",
-        "amount": "1",
+        "amount": 1,
         "affiliate_id": "affiliate",
         "float": true,
       });
@@ -180,7 +180,7 @@ void main() {
         to: "USDC",
         networkFrom: "ERC20",
         networkTo: "ERC20",
-        amount: "150",
+        amount: 150,
         affiliateId: "affiliate",
         float: false,
       ).toJson();

@@ -12,7 +12,7 @@ class SwapTradeMockProxyWrapper extends MockProxyWrapper {
   @override
   MockResponse? route(MockRequest request) => switch ((request.method, request.path)) {
     ("GET", "/api/swap/get-coins") => const MockResponse(swapTradeCoins),
-    ("POST", "/api/swap/get-rate") => const MockResponse(swapTradeRate),
+    ("POST", "/api/swap/get-price") => const MockResponse(swapTradePrice),
     ("POST", "/api/swap/create-order") => const MockResponse(swapTradeCreateOrder),
     ("POST", "/api/swap/order") => (request.body ?? "").contains(swapTradeTradeId)
         ? const MockResponse(swapTradeOrder)
@@ -34,7 +34,6 @@ ProviderScenario swapTradeScenario() => ProviderScenario(
   isFixedRate: false,
   expectedLimitsMin: Money.parse("0.001", CryptoCurrency.btc),
   expectedLimitsMax: Money.parse("20", CryptoCurrency.btc),
-  // SwapTrade quotes a unit price directly rather than an output for an input
   expectedRateQuote: Money.parse("250", CryptoCurrency.xmr),
   expectedRateLimitsMin: Money.parse("0.001", CryptoCurrency.btc),
   expectedRateLimitsMax: Money.parse("20", CryptoCurrency.btc),

@@ -74,28 +74,28 @@ void main() {
   });
 
   group("SwapTradeRateResponse", () {
-    test("parses get_rate", () {
-      final raw = fixtureMap("swaptrade", "get_rate");
+    test("parses get_price", () {
+      final raw = fixtureMap("swaptrade", "get_price");
       final response = SwapTradeRateResponse.fromJson(raw);
-      final rawRate = raw["data"] as Map<String, dynamic>;
+      final rawPrice = raw["data"] as Map<String, dynamic>;
 
       expect(response.success, isTrue);
       expect(response.status, raw["status"]);
       expect(response.msg, raw["msg"]);
       expect(response.errors, isNull);
-      expect(response.data, isNotNull);
-      expect(response.data!.price, double.parse(rawRate["price"].toString()));
-      expect(response.data!.symbol, rawRate["symbol"]);
+      expect(response.data!.price, rawPrice["data"]);
+      expect(response.data!.symbol, isNull);
     });
 
-    test("an unsupported pair answers 200 with a NaN price", () {
-      final raw = fixtureMap("swaptrade", "get_rate_unknown_pair");
-      final response = SwapTradeRateResponse.fromJson(raw);
+    test("a rejected quote answers 200 with success false and the reason in errors", () {
+      for (final name in ["get_price_below_min", "get_price_invalid_coin"]) {
+        final raw = fixtureMap("swaptrade", name);
+        final response = SwapTradeRateResponse.fromJson(raw);
 
-      expect(response.success, isTrue, reason: "swaptrade reports this as a success");
-      expect(response.data!.price.isNaN, isTrue);
-      expect(response.data!.price > 0, isFalse, reason: "which is what the provider relies on");
-      expect(response.data!.symbol, raw["data"]["symbol"]);
+        expect(response.success, isFalse, reason: name);
+        expect(response.data, isNull, reason: name);
+        expect(response.errors!.single.msg, (raw["errors"] as List).single["msg"], reason: name);
+      }
     });
   });
 

@@ -303,6 +303,9 @@ void main() {
         "refunded": SwapsXyzTxStatusValue.refunded,
         "expired": SwapsXyzTxStatusValue.expired,
         "failed": SwapsXyzTxStatusValue.failed,
+        "processing": SwapsXyzTxStatusValue.procesing,
+        "cancelled": SwapsXyzTxStatusValue.cancelled,
+        "error": SwapsXyzTxStatusValue.error,
       };
 
       wire.forEach((raw, expected) {
@@ -336,7 +339,13 @@ void main() {
       expect(SwapsXyzTxStatusValue.refunded.toState, TradeState.refunded);
       expect(SwapsXyzTxStatusValue.expired.toState, TradeState.expired);
       expect(SwapsXyzTxStatusValue.failed.toState, TradeState.failed);
-      expect(SwapsXyzTxStatusValue.unknown.toState, TradeState.notFound);
+      expect(SwapsXyzTxStatusValue.procesing.toState, TradeState.pending);
+      expect(SwapsXyzTxStatusValue.cancelled.toState, TradeState.failed);
+      expect(SwapsXyzTxStatusValue.error.toState, TradeState.failed);
+    });
+
+    test("a status swaps.xyz adds later keeps the trade pending instead of dropping it", () {
+      expect(SwapsXyzTxStatusValue.unknown.toState, TradeState.pending);
     });
 
     test("a refunded swap does not read as still pending", () {

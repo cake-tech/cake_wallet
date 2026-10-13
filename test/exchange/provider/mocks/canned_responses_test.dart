@@ -14,6 +14,7 @@ import "package:cake_wallet/exchange/provider/xoswap/xoswap_api_schema.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -34,15 +35,15 @@ void main() {
     test("the range body gives 0.001 - 20 btc", () {
       final range = ChangeNowRangeResponse.fromJson(_map(changeNowRange));
 
-      expect(Money.parse(range.minAmount, CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
-      expect(Money.parse(range.maxAmount, CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
+      expect(range.minAmount!.toMoney(CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
+      expect(range.maxAmount!.toMoney(CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
     });
 
     test("2 btc for 500 xmr prices one btc at 250 xmr", () {
       final estimate = ChangeNowEstimatedAmountResponse.fromJson(_map(changeNowEstimatedAmount));
       final rate = ExchangeRate.fromAmounts(
-        Money.parse(estimate.fromAmount, CryptoCurrency.btc),
-        Money.parse(estimate.toAmount, CryptoCurrency.xmr),
+        estimate.fromAmount.toMoney(CryptoCurrency.btc),
+        estimate.toAmount.toMoney(CryptoCurrency.xmr),
       );
 
       expect(rate.quote, Money.parse("250", CryptoCurrency.xmr));
@@ -60,8 +61,8 @@ void main() {
       final transaction = ChangeNowTransactionResponse.fromJson(_map(changeNowById));
 
       expect(transaction.status, TradeState.confirming);
-      expect(Money.parse(transaction.amountFrom, CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
-      expect(Money.parse(transaction.amountTo, CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
+      expect(transaction.amountFrom!.toMoney(CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
+      expect(transaction.amountTo!.toMoney(CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
       expect(transaction.payoutHash, "cn-payout-hash");
       expect(transaction.validUntil, DateTime.parse(changeNowValidUntil));
     });
@@ -76,8 +77,8 @@ void main() {
       for (final body in [exolixUnitRate, exolixRate]) {
         final rate = ExolixRateResponse.fromJson(_map(body));
 
-        expect(Money.parse(rate.minAmount, CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
-        expect(Money.parse(rate.maxAmount, CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
+        expect(rate.minAmount!.toMoney(CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
+        expect(rate.maxAmount!.toMoney(CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
       }
     });
 
@@ -86,8 +87,8 @@ void main() {
 
       expect(
         ExchangeRate.fromAmounts(
-          Money.parse(rate.fromAmount, CryptoCurrency.btc),
-          Money.parse(rate.toAmount, CryptoCurrency.xmr),
+          rate.fromAmount.toMoney(CryptoCurrency.btc),
+          rate.toAmount.toMoney(CryptoCurrency.xmr),
         ).quote,
         Money.parse("250", CryptoCurrency.xmr),
       );
@@ -101,8 +102,8 @@ void main() {
       expect(transaction.coinFrom.coinCode, "BTC");
       expect(transaction.coinFrom.network, "BTC");
       expect(transaction.coinTo.coinCode, "XMR");
-      expect(Money.parse(transaction.amount, CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
-      expect(Money.parse(transaction.amountTo, CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
+      expect(transaction.amount.toMoney(CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
+      expect(transaction.amountTo!.toMoney(CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
       expect(transaction.depositAddress, exolixDepositAddress);
       expect(transaction.hashOut.hash, "exolix-hash-out");
     });
@@ -129,9 +130,9 @@ void main() {
       expect(exchange.deposit.symbol, "btc");
       expect(exchange.deposit.network, "mainnet");
       expect(exchange.deposit.address, stealthExDepositAddress);
-      expect(Money.parse(exchange.deposit.amount, CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
+      expect(exchange.deposit.amount.toMoney(CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
       expect(exchange.withdrawal.symbol, "xmr");
-      expect(Money.parse(exchange.withdrawal.amount, CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
+      expect(exchange.withdrawal.amount.toMoney(CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
       expect(exchange.createdAt, DateTime.parse(stealthExCreatedAt));
       expect(exchange.expiresAt, isNull);
     });
@@ -182,7 +183,7 @@ void main() {
       expect(transaction.createdAt, DateTime.parse(letsExchangeCreatedAt));
       expect(
         transaction.expiredAt,
-        DateTime.fromMillisecondsSinceEpoch(letsExchangeExpiredAtSeconds * 1000),
+        DateTime.fromMillisecondsSinceEpoch(letsExchangeExpiredAtSeconds * 1000, isUtc: true),
       );
     });
   });
@@ -194,8 +195,8 @@ void main() {
           .toList();
 
       expect(coins, hasLength(1));
-      expect(Money.tryParse(coins.first.minimum, CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
-      expect(Money.tryParse(coins.first.maximum, CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
+      expect(Money.trySafeParse(coins.first.minimum, CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
+      expect(Money.trySafeParse(coins.first.maximum, CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
     });
 
     test("the rate body quotes 2 btc for 500 xmr through two sub-providers", () {
@@ -237,16 +238,22 @@ void main() {
       final btc = coins.data!.firstWhere((coin) => coin.id == "BTC");
 
       expect(coins.success, isTrue);
-      expect(Money.tryParse(btc.min, CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
-      expect(Money.tryParse(btc.max, CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
+      expect(btc.min?.tryToMoney(CryptoCurrency.btc), Money.parse("0.001", CryptoCurrency.btc));
+      expect(btc.max?.tryToMoney(CryptoCurrency.btc), Money.parse("20", CryptoCurrency.btc));
       expect(btc.network, ["BTC"]);
     });
 
-    test("the rate body is a unit price, not an output amount", () {
-      final rate = SwapTradeRateResponse.fromJson(_map(swapTradeRate));
+    test("the price body is the output for the amount sent, not a unit price", () {
+      final price = SwapTradeRateResponse.fromJson(_map(swapTradePrice));
 
-      expect(rate.data!.symbol, "BTCXMR");
-      expect(Money.parse(rate.data!.price, CryptoCurrency.xmr), Money.parse("250", CryptoCurrency.xmr));
+      expect(price.data!.price.toMoney(CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
+      expect(
+        ExchangeRate.fromAmounts(
+          Money.parse("2", CryptoCurrency.btc),
+          price.data!.price.toMoney(CryptoCurrency.xmr),
+        ).quote,
+        Money.parse("250", CryptoCurrency.xmr),
+      );
     });
 
     test("the create body only answers with the id, address and output amount", () {
@@ -256,7 +263,7 @@ void main() {
       expect(created.data!.orderId, swapTradeTradeId);
       expect(created.data!.serverAddress, swapTradeServerAddress);
       expect(
-        Money.parse(created.data!.amountReceive, CryptoCurrency.xmr),
+        created.data!.amountReceive!.toMoney(CryptoCurrency.xmr),
         Money.parse("500", CryptoCurrency.xmr),
       );
     });
@@ -268,9 +275,9 @@ void main() {
       expect(order.data!.status, TradeState.exchanging);
       expect(order.data!.coinSend, "BTC");
       expect(order.data!.coinReceive, "XMR");
-      expect(Money.parse(order.data!.amountSend, CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
+      expect(order.data!.amountSend!.toMoney(CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
       expect(
-        Money.parse(order.data!.amountReceive, CryptoCurrency.xmr),
+        order.data!.amountReceive!.toMoney(CryptoCurrency.xmr),
         Money.parse("500", CryptoCurrency.xmr),
       );
       expect(order.data!.memo, "st-memo");
@@ -321,8 +328,8 @@ void main() {
       expect(order.pairId, "BTC_XMR");
       expect(order.status, TradeState.processing);
       // both amounts arrive as strings on this endpoint and as numbers on the rates one
-      expect(Money.parse(order.amount.value, CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
-      expect(Money.parse(order.toAmount!.value, CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
+      expect(order.amount.value.toMoney(CryptoCurrency.btc), Money.parse("2", CryptoCurrency.btc));
+      expect(order.toAmount!.value.toMoney(CryptoCurrency.xmr), Money.parse("500", CryptoCurrency.xmr));
       expect(order.payInAddress, xoSwapPayInAddress);
       expect(order.fromAddress, refundAddress);
       expect(order.toAddress, payoutAddress);
@@ -460,14 +467,14 @@ void main() {
       expect(paths.paths.single.tokens.isAll, isTrue);
       expect(paths.paths.single.supportsExactAmountIn, isTrue);
       expect(paths.paths.single.supportsExactAmountOut, isFalse);
-      expect(Money.tryParse(limits.minAmount, CryptoCurrency.eth), Money.parse("0.01", CryptoCurrency.eth));
-      expect(Money.tryParse(limits.maxAmount, CryptoCurrency.eth), Money.parse("100", CryptoCurrency.eth));
+      expect(Money.trySafeParse(limits.minAmount, CryptoCurrency.eth), Money.parse("0.01", CryptoCurrency.eth));
+      expect(Money.trySafeParse(limits.maxAmount, CryptoCurrency.eth), Money.parse("100", CryptoCurrency.eth));
     });
 
     test("the quote prices one eth at 2000 usdt, matching its own amounts", () {
       final quote = SwapsXyzQuote.fromJson(_map(swapsXyzQuote));
 
-      expect(Money.parse(quote.exchangeRate, CryptoCurrency.usdterc20), Money.parse("2000", CryptoCurrency.usdterc20));
+      expect(quote.exchangeRate.toMoney(CryptoCurrency.usdterc20), Money.parse("2000", CryptoCurrency.usdterc20));
       expect(Money(quote.amountIn.amount, CryptoCurrency.eth), Money.parse("2", CryptoCurrency.eth));
       expect(
         Money(quote.amountOut.amount, CryptoCurrency.usdterc20),

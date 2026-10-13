@@ -267,17 +267,30 @@ List<Fixture> _trocador() => [
 
 List<Fixture> _swapTrade() => [
       Fixture("swaptrade", "get_coins", (_) => _get("https://api.swaptrade.io/api/swap/get-coins")),
-      Fixture("swaptrade", "get_rate", (_) => _postJson("https://api.swaptrade.io/api/swap/get-rate", {
+      Fixture("swaptrade", "get_price", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
           "coin_send": "BTC",
+          "coin_send_network": "BTC",
           "coin_receive": "XMR",
-          "amount": "0.01",
-          "ref": "cake",
+          "coin_receive_network": "XMR",
+          "amount_send": "2",
+          "markup": 0,
         })),
-      // an unsupported pair answers 200 with price "NaN"
-      Fixture("swaptrade", "get_rate_unknown_pair", (_) => _postJson("https://api.swaptrade.io/api/swap/get-rate", {
-          "coin_send": "NOPECOIN",
+      // a rejected quote answers 200 with success false and the reason in errors
+      Fixture("swaptrade", "get_price_below_min", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
+          "coin_send": "BTC",
+          "coin_send_network": "BTC",
           "coin_receive": "XMR",
-          "amount": "0.01",
+          "coin_receive_network": "XMR",
+          "amount_send": "0.0001",
+          "markup": 0,
+        })),
+      Fixture("swaptrade", "get_price_invalid_coin", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
+          "coin_send": "NOPECOIN",
+          "coin_send_network": "NOPE",
+          "coin_receive": "XMR",
+          "coin_receive_network": "XMR",
+          "amount_send": "2",
+          "markup": 0,
         })),
       // empty body, for the {success: false, errors: [...]} envelope. swaptrade answers 200 and
       // puts the real status in the body, so this one does expect a 2xx

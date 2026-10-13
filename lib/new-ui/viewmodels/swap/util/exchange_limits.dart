@@ -20,8 +20,8 @@ class ExchangeLimits {
       throw ArgumentError("cannot check limit for different currency");
     }
 
-    final isAboveMin = min == null || amount > min!;
-    final isBelowMax = max == null || amount < max!;
+    final isAboveMin = min == null || amount >= min!;
+    final isBelowMax = max == null || amount <= max!;
 
     return isAboveMin && isBelowMax;
   }

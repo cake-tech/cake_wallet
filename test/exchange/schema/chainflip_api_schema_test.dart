@@ -159,7 +159,8 @@ void main() {
       const converter = ChainflipCurrencyConverter();
 
       expect(response.id, raw["id"]);
-      expect(status.state, TradeState.waiting);
+      expect(status.state, ChainflipSwapState.waiting);
+      expect(status.state.toState, TradeState.waiting);
       expect(converter.toJson(status.sourceAsset), rawStatus["sourceAsset"]);
       expect(converter.toJson(status.destinationAsset), rawStatus["destinationAsset"]);
       expect(status.destinationAddress, rawStatus["destinationAddress"]);
@@ -248,29 +249,25 @@ void main() {
     });
   });
 
-  group("ChainflipTradeStateConverter", () {
-    const converter = ChainflipTradeStateConverter();
-
+  group("ChainflipSwapState", () {
     test("maps every state chainflip reports", () {
-      expect(converter.fromJson("waiting"), TradeState.waiting);
-      expect(converter.fromJson("receiving"), TradeState.processing);
-      expect(converter.fromJson("swapping"), TradeState.processing);
-      expect(converter.fromJson("sending"), TradeState.processing);
-      expect(converter.fromJson("sent"), TradeState.processing);
-      expect(converter.fromJson("completed"), TradeState.success);
-      expect(converter.fromJson("failed"), TradeState.failed);
+      expect(ChainflipSwapState.waiting.toState, TradeState.waiting);
+      expect(ChainflipSwapState.receiving.toState, TradeState.processing);
+      expect(ChainflipSwapState.swapping.toState, TradeState.processing);
+      expect(ChainflipSwapState.sending.toState, TradeState.processing);
+      expect(ChainflipSwapState.sent.toState, TradeState.processing);
+      expect(ChainflipSwapState.completed.toState, TradeState.success);
+      expect(ChainflipSwapState.failed.toState, TradeState.failed);
     });
 
-    test("an unrecognised state becomes not found", () {
-      expect(converter.fromJson("something new"), TradeState.notFound);
-    });
+    test("an unrecognised state parses as unknown and reads as not found", () {
+      final raw = fixtureMap("chainflip", "status_by_deposit_channel");
+      (raw["status"] as Map<String, dynamic>)["state"] = "something new";
 
-    test("writes the states it knows back", () {
-      expect(converter.toJson(TradeState.waiting), "waiting");
-      expect(converter.toJson(TradeState.processing), "processing");
-      expect(converter.toJson(TradeState.success), "completed");
-      expect(converter.toJson(TradeState.failed), "failed");
-      expect(converter.toJson(TradeState.expired), "unknown");
+      final status = ChainflipStatusResponse.fromJson(raw).status;
+
+      expect(status.state, ChainflipSwapState.unknown);
+      expect(status.state.toState, TradeState.notFound);
     });
   });
 
@@ -310,7 +307,7 @@ void main() {
       expect(json["destinationAsset"], "usdt.eth");
       expect(json["destinationAddress"], "0xpayout");
       expect(json["refundAddress"], "0xrefund");
-      expect(json["retryDurationInBlocks"], 100);
+      expect(json["retryDurationInBlocks"], "100");
       expect(json.containsKey("boostFee"), isFalse);
       expect(json.containsKey("numberOfChunks"), isFalse);
     });
@@ -324,9 +321,9 @@ void main() {
       ).toJson();
 
       expect(json["apiKey"], "key");
-      expect(json["issuedBlock"], 14138313);
+      expect(json["issuedBlock"], "14138313");
       expect(json["network"], "Ethereum");
-      expect(json["channelId"], 13128);
+      expect(json["channelId"], "13128");
     });
   });
 }

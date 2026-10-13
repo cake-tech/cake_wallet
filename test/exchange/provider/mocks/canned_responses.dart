@@ -171,8 +171,8 @@ const swapTradeCoins = '{"success":true,"status":200,"msg":"Fetch Coins successf
     '{"id":"XMR","name":"Monero","network":"XMR","price":"256","min":"0.1","max":"5000",'
     '"memo":false,"enabled":true}]}';
 
-const swapTradeRate = '{"success":true,"status":200,"msg":"Fetch Full Rate successfully !",'
-    '"data":{"price":"250","symbol":"BTCXMR"}}';
+const swapTradePrice = '{"success":true,"status":200,"msg":"Get price successful !",'
+    '"data":{"data":500}}';
 
 const swapTradeCreateOrder = '{"success":true,"status":200,'
     '"msg":"Create Order successfully !","data":{"order_id":"$swapTradeTradeId",'
