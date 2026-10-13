@@ -128,7 +128,7 @@ class CakeFeaturesPage extends StatelessWidget {
         AppsWidget(
           isWide: true,
           isLink: true,
-          onTap: () => _launchUrl("btcmap.org"),
+          onTap: () => _launchUrl("btcmap.org/apps"),
           title: "BTC Map",
           subTitle: "Find places to spend sats wherever you are",
           image: 'assets/images/btcmap.png',
@@ -161,7 +161,7 @@ class CakeFeaturesPage extends StatelessWidget {
 
   void _launchUrl(String url) {
     try {
-      launchUrl(Uri.https(url), mode: LaunchMode.externalApplication);
+      launchUrl(Uri.parse("https://$url"), mode: LaunchMode.externalApplication);
     } catch (e) {
       printV(e);
     }
