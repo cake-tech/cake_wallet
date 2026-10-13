@@ -278,7 +278,15 @@ class PayjoinManager {
             // inProgress and retries on the next resume.
             writePayjoinLog(
                 "[WARNING] Sender($pjUri) retry broadcast failed: $e");
-            await _wallet.electrumClient.getTransactionHex(hash: txId);
+            final txHex =
+                await _wallet.electrumClient.getTransactionHex(hash: txId);
+            if (txHex.isEmpty) {
+              // getTransactionHex returns '' (never throws) when the tx is
+              // unknown to the server — the broadcast genuinely failed, so
+              // fall through to the outer catch to keep the session
+              // inProgress and retry on the next resume.
+              throw Exception('tx $txId not found on chain');
+            }
             writePayjoinLog(
                 "Sender($pjUri) tx $txId already on chain — marking complete");
           }
