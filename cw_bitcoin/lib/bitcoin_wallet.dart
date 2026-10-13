@@ -191,6 +191,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                 seedBytes: seedBytes,
                 cachedAddress: cachedLightningAddress,
               );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
@@ -198,6 +199,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         // own Stable Balance conversions.
         lightningWallet?.close();
         lightningWallet = null;
+        walletAddresses.lightningWallet = null;
       }
     });
 
@@ -659,7 +661,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   /// A stored transaction predates either the conversion from/to ticker tags, or `paymentHash`
   /// Once re-fetched, a transaction always carries both, so this naturally stops re-triggering.
   bool _isStaleConversionTag(ElectrumTransactionInfo tx) =>
-      tx.additionalInfo["paymentHash"] == null ||
+      // Token payments and Spark deposits never carry a paymentHash.
+      (tx.additionalInfo["paymentHash"] == null &&
+          tx.additionalInfo["tokenIdentifier"] == null &&
+          tx.additionalInfo["isSparkDeposit"] != true) ||
       (tx.additionalInfo["conversionStatus"] != null &&
           tx.additionalInfo["conversionToTicker"] == null);
 
@@ -715,9 +720,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     await transactionHistory.save();
   }
 
-  /// [incrementalOnly] skips the stale-tag full refetch - token payments and Spark deposits never
-  /// carry a paymentHash, so [_isStaleConversionTag] matches them forever and a per-sync caller
-  /// would otherwise reload the whole history on every SDK sync.
+  /// [incrementalOnly] skips the stale-tag full refetch, so a per-sync caller doesn't reload the
+  /// whole history on every SDK sync.
   void _fetchLightningTransactions({bool incrementalOnly = false}) {
     if (lightningWallet != null) {
       final lightningTxs = transactionHistory.transactions.values

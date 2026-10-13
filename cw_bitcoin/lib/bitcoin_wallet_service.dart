@@ -114,6 +114,16 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    if (currentName == newName) {
+      return;
+    }
+
+    await super.rename(currentName, password, newName);
+    await SparkToken.renameWallet(currentName, newName);
+  }
+
+  @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());

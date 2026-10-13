@@ -920,11 +920,12 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<CryptoCurrency?> getSparkToken(WalletBase wallet, String tokenIdentifier) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    if (!bitcoinWallet.hasLightningSupport) {
+    final lightningWallet = bitcoinWallet.lightningWallet;
+    if (lightningWallet == null) {
       return null;
     }
 
-    final metadata = await bitcoinWallet.lightningWallet!.getTokensMetadata([tokenIdentifier]);
+    final metadata = await lightningWallet.getTokensMetadata([tokenIdentifier]);
     if (metadata.isEmpty) {
       return null;
     }
@@ -941,7 +942,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<String?> getSparkInvoice(Object wallet, CryptoCurrency token, BigInt? amount) async {
     final electrumWallet = wallet as ElectrumWallet;
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       return electrumWallet.lightningWallet!.getSparkInvoice(
         tokenIdentifier: token is SparkToken ? token.tokenIdentifier : null,
         amount: amount,
@@ -984,7 +985,7 @@ class CWBitcoin extends Bitcoin {
   Future<String?> getActiveStableBalanceLabel(Object wallet) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       return electrumWallet.lightningWallet!.getActiveStableBalanceLabel();
     }
 
@@ -1004,7 +1005,11 @@ class CWBitcoin extends Bitcoin {
   }) async {
     final bitcoinWallet = wallet as BitcoinWallet;
     final token = amount.currency is SparkToken ? amount.currency as SparkToken : null;
-    final quote = await bitcoinWallet.lightningWallet!.quoteSend(
+    final lightningWallet = bitcoinWallet.lightningWallet;
+    if (lightningWallet == null) {
+      throw StateError('Lightning is not available for this wallet');
+    }
+    final quote = await lightningWallet.quoteSend(
       address,
       amount.amount,
       tokenIdentifier: token?.tokenIdentifier,
@@ -1058,7 +1063,7 @@ class CWBitcoin extends Bitcoin {
   Future<void> setStableBalanceActive(Object wallet, String? label) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       await electrumWallet.lightningWallet!.setStableBalanceActive(label);
     }
   }
@@ -1105,7 +1110,7 @@ class CWBitcoin extends Bitcoin {
   Future<bool> refundPendingConversions(Object wallet) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       final response = await electrumWallet.lightningWallet!.refundPendingConversions();
       return response.refunded > 0;
     }
@@ -1120,7 +1125,7 @@ class CWBitcoin extends Bitcoin {
   ) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
 
       if (tokenIdentifier == null) {
@@ -1145,7 +1150,7 @@ class CWBitcoin extends Bitcoin {
   }) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
 
       if (tokenIdentifier == null) {
@@ -1170,7 +1175,7 @@ class CWBitcoin extends Bitcoin {
   ) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
 
       if (tokenIdentifier == null) {
@@ -1195,7 +1200,7 @@ class CWBitcoin extends Bitcoin {
   }) async {
     final electrumWallet = wallet as ElectrumWallet;
 
-    if (electrumWallet is BitcoinWallet && electrumWallet.hasLightningSupport) {
+    if (electrumWallet is BitcoinWallet && electrumWallet.lightningWallet != null) {
       final tokenIdentifier = token is SparkToken ? token.tokenIdentifier : null;
 
       if (tokenIdentifier == null) {

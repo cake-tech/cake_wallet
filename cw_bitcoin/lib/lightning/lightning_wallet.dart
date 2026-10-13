@@ -458,7 +458,9 @@ class LightningWallet {
       final inputType = await sdk.parse(input: input);
       return (inputType is InputType_Bolt11Invoice) ||
           (inputType is InputType_LightningAddress) ||
-          (inputType is InputType_LnurlPay);
+          (inputType is InputType_LnurlPay) ||
+          (inputType is InputType_SparkAddress) ||
+          (inputType is InputType_SparkInvoice);
     } catch (_) {
       return false;
     }
