@@ -77,7 +77,8 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final currencies = s.currencies.toList();
       final range = s.range;
       for (final curr in currencies) {
-        data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, range);
+        data[curr] = await priceStore.getPrices(
+            appStore.settingsStore.fiatCurrency, currencyFromApiString(curr.apiString), range);
       }
       emit(
         ChartsLoaded(
