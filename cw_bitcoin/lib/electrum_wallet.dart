@@ -594,6 +594,11 @@ abstract class ElectrumWalletBase
   @observable
   bool silentPaymentsScanningActive = false;
 
+  /// Set by the wallet service for a new wallet, or a seed restore with no scan-from height;
+  /// consumed by the first sync and defaults the restore height to the chain tip as the
+  /// current wallet birthday
+  bool isNewlyCreated = false;
+
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
@@ -616,10 +621,6 @@ abstract class ElectrumWalletBase
       syncStatus = AttemptingScanSyncStatus();
 
       final tip = await getUpdatedChainTip();
-
-      if (walletInfo.restoreHeight == 0) {
-        await walletInfo.updateRestoreHeight(tip);
-      }
 
       if (tip == walletInfo.restoreHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
@@ -4385,8 +4386,14 @@ abstract class ElectrumWalletBase
 
     currentChainTip = await getUpdatedChainTip();
 
-    if ((currentChainTip == null || currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
-      await walletInfo.updateRestoreHeight(currentChainTip!);
+    // Only a wallet whose birthday is "now" gets the tip. Opened wallets and user-requested
+    // rescans from 0 must keep their height.
+    if (isNewlyCreated) {
+      isNewlyCreated = false;
+
+      if ((currentChainTip ?? 0) > 0 && walletInfo.restoreHeight == 0) {
+        await walletInfo.updateRestoreHeight(currentChainTip!);
+      }
     }
 
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();

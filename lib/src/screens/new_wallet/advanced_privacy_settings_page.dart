@@ -354,19 +354,21 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               }),
             if (widget.isFromRestore && widget.privacySettingsViewModel.type == WalletType.bitcoin)
               Builder(builder: (_) {
-                final val = alwaysScanSilentPaymentsValue ?? false;
+                final currentValue = alwaysScanSilentPaymentsValue ?? false;
+
                 return Column(
                   children: [
                     SettingsSwitcherCell(
                         title: S.current.silent_payments_always_scan,
-                        value: val,
+                        value: currentValue,
                         onValueChange: (_, __) {
                           setState(() {
-                            alwaysScanSilentPaymentsValue = !val;
+                            alwaysScanSilentPaymentsValue = !currentValue;
                           });
+
                           widget.toggleAlwaysScanSilentPayments.call(alwaysScanSilentPaymentsValue);
                         }),
-                    if (val)
+                    if (currentValue)
                       Padding(
                         padding: const EdgeInsets.only(left: 24, right: 24),
                         child: BlockchainHeightWidget(

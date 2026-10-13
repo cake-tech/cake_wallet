@@ -69,6 +69,8 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
+    wallet.isNewlyCreated = true;
+
     await wallet.save();
     await wallet.init();
 
@@ -206,6 +208,7 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       alwaysScan: credentials.alwaysScan,
     );
+    wallet.isNewlyCreated = (credentials.height ?? 0) == 0;
     await wallet.save();
     await wallet.init();
     return wallet;

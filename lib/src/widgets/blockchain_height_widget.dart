@@ -136,6 +136,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               ))
             ],
           ),
+          // Some screens may not have the doSingleScan functionality i.e. the restore flow
+          // which only allows setting a restore height and begin scanning from it.
           if (widget.isSilentPaymentsScan && widget.toggleSingleScan != null)
             Padding(
               padding: EdgeInsets.only(top: 24),
