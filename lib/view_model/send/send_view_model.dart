@@ -729,7 +729,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      final prepared = await wallet.createTransaction(_credentials(provider));
+      final prepared = await wallet.createTransaction(_credentials());
       if (replaced()) {
         return null;
       }
