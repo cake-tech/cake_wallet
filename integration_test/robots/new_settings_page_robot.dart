@@ -28,6 +28,12 @@ class NewSettingsPageRobot extends BaseRobot {
     final rowFinder = find.byKey(ValueKey(route));
 
     if (tester.any(rowFinder)) {
+      // A row just below the fold is built but its center is clipped, so the tap would miss
+      if (!tester.any(rowFinder.hitTestable())) {
+        await tester.ensureVisible(rowFinder.first);
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+
       return;
     }
 
