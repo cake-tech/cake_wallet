@@ -1,3 +1,4 @@
+import "package:cake_wallet/entities/contact_base.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_wallet_list_service.dart";
@@ -31,6 +32,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
   Map<String, List<WalletInfoAddressInfo>> accounts = {};
   final addressController = TextEditingController();
   bool textEntered = false;
+  ContactBase? _contact;
 
   bool _itemsLoaded = false;
 
@@ -188,6 +190,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                               child: NewSendAddressInput(
                                 addressController: addressController,
                                 selectedCurrency: s.payoutAmount.currency,
+                                onSelectedContact: (contact) => _contact = contact,
                                 onEditingComplete: () {},
                                 bottomPadding: true,
                               ),
@@ -202,7 +205,11 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                   SizedBox(width: textEntered ? 8 : 0),
                                   GestureDetector(
                                     onTap: () {
-                                      widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(addressController.text)));
+                                      widget.bloc.add(PayoutAddressChanged(switch (_contact) {
+                                        final contact? when contact.address == addressController.text =>
+                                          ContactSwapAddress(contact),
+                                        _ => ExternalSwapAddress(addressController.text),
+                                      }));
                                       Navigator.of(context).pop();
                                     },
                                     child: AnimatedContainer(

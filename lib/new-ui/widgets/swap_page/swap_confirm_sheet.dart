@@ -4,6 +4,7 @@ import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
@@ -131,8 +132,9 @@ class SwapTransactionDetails extends StatelessWidget {
                             showArrow: false,
                             keyValue: "fee",
                             label: S.of(context).fee,
-                            trailingText:
-                                "${state.transaction.feeFormatted}"),
+                            trailingText: state.feeFiatAmount.isZero
+                                ? state.transaction.feeFormatted
+                                : "${state.transaction.feeFormatted} (${state.feeFiatAmount.toStringWithSymbol(fractionalDigits: 2, trimZeros: false)})"),
                       ListItemRegularRow(
                           keyValue: "sender",
                           label: S.of(context).from,
@@ -152,9 +154,11 @@ class SwapTransactionDetails extends StatelessWidget {
                           keyValue: "receiver",
                           label: S.of(context).to,
                           showArrow: false,
-                          trailingText:
-                          middleTruncate(
-                              state.payoutAddress?.address ?? "", 8, 8)),
+                          trailingText: switch (state.payoutAddress) {
+                            final ExternalSwapAddress address => middleTruncate(address.address, 8, 8),
+                            final address? => address.displayName,
+                            null => "",
+                          }),
                       if (state is SwapStateWithTrade && (state.trade.toAddressExtraId ?? "").isNotEmpty)
                         ListItemRegularRow(
                           keyValue: "receive memo",

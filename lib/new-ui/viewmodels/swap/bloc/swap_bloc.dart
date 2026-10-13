@@ -721,6 +721,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         request: req,
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
+        payoutAddress: s.payoutAddress!,
       );
 
       emit(creatingState);
@@ -748,6 +749,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
             source: source,
             depositFiatAmount: depositFiatAmount,
             payoutFiatAmount: payoutFiatAmount,
+            payoutAddress: s.payoutAddress!,
             isFixedRate: s.isFixedRate,
           ),
         );
@@ -757,19 +759,24 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           source: source,
           depositFiatAmount: depositFiatAmount,
           payoutFiatAmount: payoutFiatAmount,
+          payoutAddress: s.payoutAddress!,
           isFixedRate: s.isFixedRate,
         );
         emit(generatingState);
 
         try {
           final tx = await _createSwapTransaction(trade, s.isSwapAll);
+          final feeFiatAmount =
+              (await _amountFactory.getSwapAmount(tx.fee, tx.fee.currency as CryptoCurrency)).fiatAmount;
           emit(
             SwapAwaitingSend(
               trade: trade,
               transaction: tx,
+              feeFiatAmount: feeFiatAmount,
               source: source,
               depositFiatAmount: depositFiatAmount,
               payoutFiatAmount: payoutFiatAmount,
+              payoutAddress: s.payoutAddress!,
               isFixedRate: s.isFixedRate,
             ),
           );
@@ -811,9 +818,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         SwapSending(
           trade: s.trade,
           transaction: s.transaction,
+          feeFiatAmount: s.feeFiatAmount,
           source: s.source,
           depositFiatAmount: s.depositFiatAmount,
           payoutFiatAmount: s.payoutFiatAmount,
+          payoutAddress: s.payoutAddress,
           isFixedRate: s.isFixedRate,
         ),
       );
@@ -832,9 +841,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         SwapTransactionCommitted(
           trade: trade,
           transaction: s.transaction,
+          feeFiatAmount: s.feeFiatAmount,
           source: s.source,
           depositFiatAmount: s.depositFiatAmount,
           payoutFiatAmount: s.payoutFiatAmount,
+          payoutAddress: s.payoutAddress,
           isFixedRate: s.isFixedRate,
         ),
       );

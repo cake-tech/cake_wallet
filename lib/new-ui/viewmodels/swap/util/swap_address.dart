@@ -1,5 +1,5 @@
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
-import "package:cake_wallet/entities/contact.dart";
+import "package:cake_wallet/entities/contact_base.dart";
 import "package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_info.dart";
@@ -59,4 +59,16 @@ class InternalAccountSwapAddress extends SwapAddress {
 
   @override
   String get displayName => "${walletName} → ${accountName}";
+}
+
+class ContactSwapAddress extends SwapAddress {
+  const ContactSwapAddress(this.contact);
+
+  final ContactBase contact;
+
+  @override
+  String get address => contact.address;
+
+  @override
+  String get displayName => contact.name;
 }

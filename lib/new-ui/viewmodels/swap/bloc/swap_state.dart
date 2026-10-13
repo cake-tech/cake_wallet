@@ -131,6 +131,7 @@ final class SwapStateCreating extends SwapStateWithInputs {
     required this.request,
     required this.depositAmount,
     required this.payoutAmount,
+    required this.payoutAddress,
   });
 
   final TradeRequest request;
@@ -147,7 +148,7 @@ final class SwapStateCreating extends SwapStateWithInputs {
   final SwapSource source;
 
   @override
-  SwapAddress get payoutAddress => ExternalSwapAddress(request.payoutAddress);
+  final SwapAddress payoutAddress;
 
   @override
   bool get isFixedRate => request.isFixedRate;
@@ -164,12 +165,14 @@ final class SwapStateCreating extends SwapStateWithInputs {
     SwapSource? source,
     SwapAmount? depositAmount,
     SwapAmount? payoutAmount,
+    SwapAddress? payoutAddress,
   }) => SwapStateCreating(
     selectedProvider: selectedProvider ?? this.selectedProvider,
     request: request ?? this.request,
     source: source ?? this.source,
     depositAmount: depositAmount ?? this.depositAmount,
     payoutAmount: payoutAmount ?? this.payoutAmount,
+    payoutAddress: payoutAddress ?? this.payoutAddress,
   );
 
   SwapStateCreationError toError(Object error) => SwapStateCreationError(
@@ -178,6 +181,7 @@ final class SwapStateCreating extends SwapStateWithInputs {
     source: source,
     depositAmount: depositAmount,
     payoutAmount: payoutAmount,
+    payoutAddress: payoutAddress,
     error: error,
   );
 }
@@ -189,6 +193,7 @@ final class SwapStateCreationError extends SwapStateCreating implements SwapFail
     required super.request,
     required super.depositAmount,
     required super.payoutAmount,
+    required super.payoutAddress,
     required this.error,
   });
 
@@ -235,6 +240,7 @@ abstract class SwapStateWithTrade extends SwapStateWithInputs {
     required this.trade,
     required this.depositFiatAmount,
     required this.payoutFiatAmount,
+    required this.payoutAddress,
     required this.isFixedRate,
   });
 
@@ -259,7 +265,7 @@ abstract class SwapStateWithTrade extends SwapStateWithInputs {
       SwapAmount(cryptoAmount: trade.payoutAmount, fiatAmount: payoutFiatAmount);
 
   @override
-  SwapAddress get payoutAddress => ExternalSwapAddress(trade.payoutAddress);
+  final SwapAddress payoutAddress;
 
   @override
   String get memo => trade.toAddressExtraId ?? "";
@@ -277,6 +283,7 @@ final class SwapGeneratingTransaction extends SwapStateWithTrade {
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 
@@ -286,6 +293,7 @@ final class SwapGeneratingTransaction extends SwapStateWithTrade {
     source: source,
     depositFiatAmount: depositFiatAmount,
     payoutFiatAmount: payoutFiatAmount,
+    payoutAddress: payoutAddress,
     isFixedRate: isFixedRate,
   );
 }
@@ -296,6 +304,7 @@ final class SwapAwaitingExternalSend extends SwapStateWithTrade {
     required this.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   }) : super(source: source);
 
@@ -307,21 +316,27 @@ abstract class SwapStateWithTransaction extends SwapStateWithTrade {
   const SwapStateWithTransaction({
     required super.trade,
     required this.transaction,
+    required this.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 
   final PendingTransaction transaction;
 
+  final Money feeFiatAmount;
+
   SwapTransactionCommitError toError(Object error) => SwapTransactionCommitError(
     error: error,
     trade: trade,
     transaction: transaction,
+    feeFiatAmount: feeFiatAmount,
     source: source,
     depositFiatAmount: depositFiatAmount,
     payoutFiatAmount: payoutFiatAmount,
+    payoutAddress: payoutAddress,
     isFixedRate: isFixedRate,
   );
 }
@@ -330,9 +345,11 @@ final class SwapAwaitingSend extends SwapStateWithTransaction {
   const SwapAwaitingSend({
     required super.trade,
     required super.transaction,
+    required super.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 }
@@ -345,6 +362,7 @@ final class SwapTransactionGenerationError extends SwapGeneratingTransaction
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 
@@ -357,9 +375,11 @@ final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
     required this.type,
     required super.trade,
     required super.transaction,
+    required super.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 
@@ -370,9 +390,11 @@ final class SwapSending extends SwapStateWithTransaction {
   const SwapSending({
     required super.trade,
     required super.transaction,
+    required super.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 }
@@ -381,9 +403,11 @@ final class SwapTransactionCommitted extends SwapStateWithTransaction {
   const SwapTransactionCommitted({
     required super.trade,
     required super.transaction,
+    required super.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 }
@@ -394,9 +418,11 @@ final class SwapTransactionCommitError extends SwapStateWithTransaction
     required this.error,
     required super.trade,
     required super.transaction,
+    required super.feeFiatAmount,
     required super.source,
     required super.depositFiatAmount,
     required super.payoutFiatAmount,
+    required super.payoutAddress,
     required super.isFixedRate,
   });
 
