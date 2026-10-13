@@ -66,7 +66,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return 'https://ordinals.com/tx/${txId}';
       case WalletType.litecoin:
-        return 'https://litecoin.earlyordies.com/tx/${txId}';
+        return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
         return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.dogecoin:

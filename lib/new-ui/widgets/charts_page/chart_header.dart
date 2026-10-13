@@ -15,7 +15,7 @@ import "package:intl/intl.dart";
 
 class ChartHeader extends StatefulWidget {
   const ChartHeader({
-    super.key,
+    required this.bloc, super.key,
     required this.currency,
     required this.chartHeight,
     required this.chartPadding,
@@ -28,6 +28,7 @@ class ChartHeader extends StatefulWidget {
   final double chartPadding;
   final bool centered;
   final bool favorite;
+  final ChartsBloc bloc;
 
   @override
   State<ChartHeader> createState() => _ChartHeaderState();
@@ -39,6 +40,7 @@ class _ChartHeaderState extends State<ChartHeader> {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
+        bloc: widget.bloc,
         builder: (context, state) {
           if (state case final ChartsStateWithData s) {
             return Column(
@@ -149,7 +151,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                     ChartRangeSelector(
                       selectedRange: s.range,
                       onRangeSelected: (range) =>
-                          context.read<ChartsBloc>().add(RangeChanged(newRange: range)),
+                          widget.bloc.add(RangeChanged(newRange: range)),
                     ),
                   ],
                 ),
