@@ -29,6 +29,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/money.dart";
@@ -656,6 +657,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
+      if (_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
+        await _creator.persistTrade(trade);
+      }
+
       final depositFiatAmount =
           (await _amountFactory.getSwapAmount(trade.depositAmount, trade.depositCurrency)).fiatAmount;
       final payoutFiatAmount =
@@ -737,27 +742,49 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       );
       try {
         await _transactionService.commitTransaction(s.transaction);
-        unawaited(
-          _tradeMonitor.recordDeposit(
-            s.trade.id,
-            s.transaction.evmTxHashFromRawHex ?? s.transaction.id,
-          ),
-        );
-        emit(
-          SwapTransactionCommitted(
-            trade: s.trade,
-            transaction: s.transaction,
-            source: s.source,
-            depositFiatAmount: s.depositFiatAmount,
-            payoutFiatAmount: s.payoutFiatAmount,
-            isFixedRate: s.isFixedRate,
-          ),
-        );
-        await _hideSwapAddress(s.trade, s.source);
       } catch (e) {
         emit(s.toError(e));
+        return;
       }
+
+      final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
+      final trade = await _registerTransaction(s.trade, txHash);
+      unawaited(_tradeMonitor.recordDeposit(trade.id, txHash));
+
+      emit(
+        SwapTransactionCommitted(
+          trade: trade,
+          transaction: s.transaction,
+          source: s.source,
+          depositFiatAmount: s.depositFiatAmount,
+          payoutFiatAmount: s.payoutFiatAmount,
+          isFixedRate: s.isFixedRate,
+        ),
+      );
+      await _hideSwapAddress(trade, s.source);
     }
+  }
+
+  Future<Trade> _registerTransaction(Trade trade, String txHash) async {
+    if (_registry.getProvider(trade.provider) case final TransactionRegistrationExchangeProvider p) {
+      var registered = trade;
+      try {
+        registered = await p.registerTransaction(trade, txHash);
+      } catch (e, st) {
+        ExchangeProviderLogger.logError(
+          provider: trade.provider,
+          error: e,
+          stackTrace: st,
+          function: "registerTransaction",
+          requestData: {"txHash": txHash},
+        );
+      }
+
+      await _creator.persistTrade(registered);
+      return registered;
+    }
+
+    return trade;
   }
 
   Future<void> _hideSwapAddress(Trade trade, SwapSource source) async {

@@ -42,6 +42,6 @@ abstract interface class TransactionCreationExchangeProvider {
   Future<PendingTransaction> createTransaction(WalletBase wallet, Trade trade);
 }
 
-abstract interface class TransactionCommitExchangeProvider {
-  Future<void> commitTransaction(PendingTransaction tx);
+abstract interface class TransactionRegistrationExchangeProvider {
+  Future<Trade> registerTransaction(Trade trade, String txHash);
 }

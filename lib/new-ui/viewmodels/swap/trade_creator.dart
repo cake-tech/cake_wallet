@@ -19,18 +19,17 @@ class TradeCreator {
   final AppStore _appStore;
 
   Future<Trade?> createTrade(List<ProviderRate> rates, TradeRequest req) async {
-    Trade? trade;
     for (final rate in rates) {
       final provider = _registry.getProvider(rate.provider);
 
       try {
-        trade = await provider.createTrade(request: req);
+        final trade = await provider.createTrade(request: req);
         ExchangeProviderLogger.logSuccess(
           provider: provider.description,
           function: "createTrade",
           requestData: {"req": req},
         );
-        break;
+        return trade;
       } catch (e, st) {
         ExchangeProviderLogger.logError(
           provider: provider.description,
@@ -41,23 +40,19 @@ class TradeCreator {
         );
         printV("failed to create trade at ${provider.description.title}: $e");
       }
-
-      if(trade == null) {
-        continue;
-      }
-
-      try {
-        await trade
-            .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
-            .save();
-      } catch(e, st) {
-        printV("trade save failed! this should NOT happen!\n$e\n$st");
-      }
-
-
     }
 
-    return trade;
+    return null;
+  }
+
+  Future<void> persistTrade(Trade trade) async {
+    try {
+      await trade
+          .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
+          .save();
+    } catch (e, st) {
+      printV("trade save failed! this should NOT happen!\n$e\n$st");
+    }
   }
 
   int _currentAccountIndex() {

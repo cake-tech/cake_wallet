@@ -62,7 +62,7 @@ class SwapsXyzTrade extends RoutableTrade {
 }
 
 class SwapsXyzExchangeProvider extends ExchangeProvider
-    implements TransactionCreationExchangeProvider {
+    implements TransactionCreationExchangeProvider, TransactionRegistrationExchangeProvider {
   SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
     : _settingsStore = settingsStore;
 
@@ -384,27 +384,34 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
   }
 
-  /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  Future<bool> registerAltVmTx({
-    required String txId,
-    required String txHash,
-    required int chainId,
-    required SwapsXyzVmId vmId,
-  }) async {
-    try {
-      final response = await _api.send(
-        SwapsXyzTxRegistrationRequest(
-          txId: txId,
-          txHash: txHash,
-          vmId: vmId.toJson(),
-          chainId: chainId,
-        ),
-      );
-      return response.firstOrNull?.success ?? false;
-    } catch (e) {
-      printV("registerAltVmTx error: $e");
-      return false;
+  /// Alt-vm routes are only picked up once their source tx is registered with Swaps.xyz.
+  @override
+  Future<Trade> registerTransaction(Trade trade, String txHash) async {
+    trade as SwapsXyzTrade;
+
+    if (!trade.needToRegister) {
+      return trade;
     }
+
+    final chainId = int.tryParse(trade.router ?? "");
+    if (chainId == null || chainId <= 0) {
+      throw Exception("Can't register $txHash, invalid chain id ${trade.router}");
+    }
+
+    final response = await _api.send(
+      SwapsXyzTxRegistrationRequest(
+        txId: trade.id,
+        txHash: txHash,
+        vmId: trade.vmId.toJson(),
+        chainId: chainId,
+      ),
+    );
+
+    if (response.firstOrNull?.success != true) {
+      throw Exception("Swaps.xyz didn't accept the registration of $txHash");
+    }
+
+    return trade;
   }
 
   @override
@@ -835,46 +842,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
     printV("[Swaps.xyz sending flow] Allowance check timed out.");
     return false;
-  }
-
-  Future<void> registerSwapsXyzTransaction(Trade trade, PendingTransaction pendingTransaction) async {
-    trade as SwapsXyzTrade;
-      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
-      final needToRegister = trade.needToRegister;
-      if (!needToRegister) {
-        return;
-      }
-
-      final vmId = trade.vmId;
-
-      final txHash = pendingTransaction.evmTxHashFromRawHex ?? pendingTransaction.id;
-
-      if (txHash.isEmpty) {
-        printV("SwapsXyz: transaction register: skipped (txHash empty)");
-        return;
-      }
-
-      final chainId = int.tryParse(trade.router ?? "") ?? 0;
-      if (chainId <= 0) {
-        printV("SwapsXyz: transaction register: skipped (invalid chainId)");
-        return;
-      }
-
-      printV(
-          "SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId");
-
-      final registered = await registerAltVmTx(
-        txId: trade.id,
-        txHash: txHash,
-        chainId: chainId,
-        vmId: vmId,
-      );
-
-      if (!registered) {
-        printV("SwapsXyz: transaction register: failed");
-      } else {
-        printV("SwapsXyz: transaction register: success");
-      }
   }
 }
 

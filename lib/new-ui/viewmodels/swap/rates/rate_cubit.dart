@@ -37,7 +37,11 @@ class RateCubit extends Cubit<RateState> {
     }
 
     bool supportedForSwap(ExchangeProviderDescription provider) =>
-        !isExternalSend || _registry.getProvider(provider) is! TransactionCreationExchangeProvider;
+        switch (_registry.getProvider(provider)) {
+          TransactionCreationExchangeProvider() ||
+          TransactionRegistrationExchangeProvider() => !isExternalSend,
+          _ => true,
+        };
 
     final futures = providers
         .where(supportedForSwap)
