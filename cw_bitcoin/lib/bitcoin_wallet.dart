@@ -158,9 +158,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        lightningWallet?.close();
         lightningWallet = null;
       }
     });
@@ -420,7 +422,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
 
   @override
-  bool get hasLightningSupport => lightningWallet?.sdk != null;
+  bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
 
   Future<bool> get isPayjoinAvailable async =>
       (await spendableCoins()).isNotEmpty;
@@ -720,7 +722,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if (option == BitcoinReceivePageOption.lightning) {
       // Lightning is tied to the primary account only
-      return !isExtraAccount && hasLightningSupport;
+      return !isExtraAccount && hasLightningSupport && isLightningInitialized;
     }
 
     if (option == BitcoinReceivePageOption.silent_payments) {
