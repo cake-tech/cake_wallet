@@ -128,9 +128,6 @@ Map<String, ElectrumTransactionInfo> _buildElectrumTransactionInfosSync(
       );
       info.id = entry.key;
       info.accountIndex = owner;
-      // Compared against the full wallet address set when checking staleness,
-      // so record that size rather than the per-account subset's.
-      info.additionalInfo['addressSetSizeKey'] = addresses.length;
       result[entry.key] = info;
     } catch (_) {}
   }

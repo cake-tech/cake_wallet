@@ -170,14 +170,18 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final ownershipFromInputData =
           isInputOwnedByWitnessOrScriptSig(input, witness, addresses, network);
       final inputConfirmedOwnedByInputData = ownershipFromInputData ?? false;
-      if (ownershipFromInputData == null) {
-        txHasAnyUnknownInput = true;
-      }
 
       // Input tx not yet fetched to check the spent output against - fall back to
       // whatever the local scriptSig/witness check above could tell us.
       if (inputTransaction == null || input.txIndex >= inputTransaction.outputs.length) {
         unresolvedInputTxids.add(input.txId);
+
+        // Only still ambiguous while the prevout is missing; once fetched,
+        // the spent output's address settles ownership.
+        if (ownershipFromInputData == null) {
+          txHasAnyUnknownInput = true;
+        }
+
         if (inputConfirmedOwnedByInputData) {
           ownedInputCount++;
           direction = TransactionDirection.outgoing;
@@ -326,8 +330,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     // may still turn out to be ours, so they must be resolved too.
     final hasOwnedInputs = ownedInputCount > 0;
     final everyOwnedInputResolved = ownedInputs.length == ownedInputCount;
-    final noUnknownInputsPending =
-        !txHasAnyUnknownInput || alreadyFetchedInputCount == totalInputCount;
+    final noUnknownInputsPending = !txHasAnyUnknownInput;
     final allOwnedInputsResolved =
         hasOwnedInputs && everyOwnedInputResolved && noUnknownInputsPending;
 

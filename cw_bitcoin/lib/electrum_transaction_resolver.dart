@@ -554,7 +554,13 @@ class ElectrumTransactionResolver {
     }
 
     final recordedSize = tx.additionalInfo["addressSetSizeKey"] as int?;
-    if (recordedSize != null && recordedSize >= _wallet.addressesSet.length) {
+    // Classified against its owning account's addresses when it has one, so
+    // compare with that account's current set rather than the whole wallet's.
+    final accountIndex = tx.accountIndex;
+    final currentSize = accountIndex != null
+        ? (_wallet.addressesSetByAccount[accountIndex]?.length ?? 0)
+        : _wallet.addressesSet.length;
+    if (recordedSize != null && recordedSize >= currentSize) {
       return tx;
     }
 
