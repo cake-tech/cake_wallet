@@ -1,6 +1,7 @@
 // spec reference: https://1click.chaindefuser.com/docs/v0/openapi.yaml
 
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "near_intents_api_schema.g.dart";
@@ -88,6 +89,21 @@ class NearIntentsErrorResponse {
 }
 
 
+class NearIntentsTokensRequest extends ApiRequest<List<NearIntentsToken>> {
+  const NearIntentsTokensRequest();
+
+  @override
+  String path() => "/v0/tokens";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  List<NearIntentsToken> decode(Object json) => (json as List<dynamic>)
+      .map((item) => NearIntentsToken.fromJson(item as Map<String, dynamic>))
+      .toList();
+}
+
 @JsonSerializable(createToJson: false)
 class NearIntentsToken {
   const NearIntentsToken({
@@ -158,7 +174,7 @@ class NearIntentsRebate {
 }
 
 @JsonSerializable(explicitToJson: true)
-class NearIntentsQuoteRequest {
+class NearIntentsQuoteRequest extends ApiRequest<NearIntentsQuoteResponse> {
   const NearIntentsQuoteRequest({
     required this.dry,
     required this.swapType,
@@ -184,7 +200,7 @@ class NearIntentsQuoteRequest {
     this.quoteWaitingTimeMs,
     this.appFees,
     this.insured,
-  });
+  }) : super.post();
 
   factory NearIntentsQuoteRequest.fromJson(Map<String, dynamic> json) =>
       _$NearIntentsQuoteRequestFromJson(json);
@@ -244,7 +260,15 @@ class NearIntentsQuoteRequest {
   @JsonKey(name: "insured", includeIfNull: false)
   final bool? insured;
 
+  @override
+  String path() => "/v0/quote";
+
+  @override
   Map<String, dynamic> toJson() => _$NearIntentsQuoteRequestToJson(this);
+
+  @override
+  NearIntentsQuoteResponse decode(Object json) =>
+      NearIntentsQuoteResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -451,6 +475,24 @@ class NearIntentsSwapDetails {
   final BigInt? withdrawFee;
   @JsonKey(name: "referral")
   final String? referral;
+}
+
+@JsonSerializable(createFactory: false)
+class NearIntentsStatusRequest extends ApiRequest<NearIntentsStatusResponse> {
+  const NearIntentsStatusRequest({required this.depositAddress});
+
+  @JsonKey(name: "depositAddress")
+  final String depositAddress;
+
+  @override
+  String path() => "/v0/status";
+
+  @override
+  Map<String, dynamic> toJson() => _$NearIntentsStatusRequestToJson(this);
+
+  @override
+  NearIntentsStatusResponse decode(Object json) =>
+      NearIntentsStatusResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)

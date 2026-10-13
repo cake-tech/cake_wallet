@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -9,6 +7,7 @@ import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_api_schema.dart"
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
@@ -21,7 +20,6 @@ import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
-import "package:json_annotation/json_annotation.dart";
 
 class SwapsXyzTrade extends RoutableTrade {
   SwapsXyzTrade({
@@ -82,14 +80,13 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   static const _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = "api-v2.swaps.xyz";
-  static const _getChainList = "api/getChainList";
-  static const _getPaths = "api/getPaths";
-  static const _getQuotePaths = "api/getQuote";
-  static const _getAction = "api/getAction";
-  static const _registerTxs = "api/registerTxs";
-  static const _getStatus = "api/getStatus";
 
-  static final _headers = {"x-api-key": _apiKey};
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseUrl,
+    headers: {"x-api-key": _apiKey},
+    errorMessage: SwapsXyzErrorResponse.messageOf,
+  );
 
   static final _supportedChainList = <SwapsXyzChain>[];
   final Map<int, List<TokenPathInfo>> _tokensCache = {};
@@ -122,20 +119,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final srcToken = _getTokenAddress(currency: fromToUse, chain: srcChain);
     final dstToken = _getTokenAddress(currency: toToUse, chain: dstChain);
 
-    final params = SwapsXyzPathsRequest(
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
+    final body = await _api.send(
+      SwapsXyzPathsRequest(
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+      ),
     );
-
-    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
-      throw Exception("Unexpected http status: ${res.statusCode}");
-    }
-
-    final body = SwapsXyzPathsResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
 
     if (body.paths.isEmpty) {
       throw Exception("No paths for ${fromToUse.title} -> ${toToUse.title}");
@@ -191,22 +182,19 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required int dstChainId,
     required String dstToken,
   }) async {
-    final params = SwapsXyzPathsRequest(
-      srcChainId: srcChainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChainId.toString(),
-      dstToken: dstToken,
-    );
-
-    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
+    try {
+      final response = await _api.send(
+        SwapsXyzPathsRequest(
+          srcChainId: srcChainId.toString(),
+          srcToken: srcToken,
+          dstChainId: dstChainId.toString(),
+          dstToken: dstToken,
+        ),
+      );
+      return response.paths.firstOrNull;
+    } on ProviderHttpException {
       return null;
     }
-
-    return SwapsXyzPathsResponse.fromJson(
-      json.decode(res.body) as Map<String, dynamic>,
-    ).paths.firstOrNull;
   }
 
   @override
@@ -259,23 +247,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       }
     }
 
-    final params = SwapsXyzQuoteRequest(
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
-      amount: from.amount.toString(),
-      swapDirection: .exactAmountIn,
+    final data = await _api.send(
+      SwapsXyzQuoteRequest(
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+        amount: from.amount.toString(),
+        swapDirection: .exactAmountIn,
+      ),
     );
-
-    final uri = Uri.https(_baseUrl, _getQuotePaths, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (response.statusCode != 200) {
-      throw Exception("fetchRate failed: ${response.body}");
-    }
-
-    final data = SwapsXyzQuote.fromJson(json.decode(response.body) as Map<String, dynamic>);
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
@@ -319,27 +300,20 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         ? request.payoutAmount
         : request.depositAmount;
 
-    final params = SwapsXyzActionRequest(
-      actionType: .swapAction,
-      sender: sender,
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
-      slippage: "300",
-      swapDirection: request.isFixedRate ? .exactAmountOut : .exactAmountIn,
-      amount: amount.amount.toString(),
-      recipient: recipient,
+    final data = await _api.send(
+      SwapsXyzActionRequest(
+        actionType: .swapAction,
+        sender: sender,
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+        slippage: "300",
+        swapDirection: request.isFixedRate ? .exactAmountOut : .exactAmountIn,
+        amount: amount.amount.toString(),
+        recipient: recipient,
+      ),
     );
-
-    final uri = Uri.https(_baseUrl, _getAction, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (res.statusCode != 200) {
-      throw Exception("getAction failed: ${res.statusCode} ${res.body}");
-    }
-
-    final data = SwapsXyzActionResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
 
     final txId = data.txId;
 
@@ -418,27 +392,15 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     required SwapsXyzVmId vmId,
   }) async {
     try {
-      final uri = Uri.https(_baseUrl, _registerTxs);
-      final payload = {"txId": txId, "vmId": vmId.toJson(), "txHash": txHash, "chainId": chainId};
-
-      final res = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: {..._headers, "content-type": "application/json"},
-        body: jsonEncode(payload),
+      final response = await _api.send(
+        SwapsXyzTxRegistrationRequest(
+          txId: txId,
+          txHash: txHash,
+          vmId: vmId.toJson(),
+          chainId: chainId,
+        ),
       );
-
-      if (res.statusCode != 200) {
-        printV("registerTxs failed: ${res.statusCode} ${res.body}");
-        return false;
-      }
-      final List<dynamic> body = json.decode(res.body) as List<dynamic>;
-      if (body.isEmpty) {
-        return false;
-      }
-
-      final isSuccess = (body[0] as Map<String, dynamic>)["success"] as bool? ?? false;
-
-      return isSuccess;
+      return response.firstOrNull?.success ?? false;
     } catch (e) {
       printV("registerAltVmTx error: $e");
       return false;
@@ -447,20 +409,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final uri = Uri.https(_baseUrl, _getStatus, {"txId": trade.id});
-    final resp = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (resp.statusCode != 200) {
-      throw Exception("getStatus failed: ${resp.statusCode} ${resp.body}");
-    }
-
-    final SwapsXyzTxDetails data;
-    try {
-      data = SwapsXyzTxDetails.fromJson(json.decode(resp.body) as Map<String, dynamic>);
-    } on CheckedFromJsonException {
-      final error = SwapsXyzError.fromJson(json.decode(resp.body) as Map<String, dynamic>);
-      throw Exception(error);
-    }
+    final data = await _api.send(SwapsXyzStatusRequest(txId: trade.id));
 
     final status = data.status.toState;
     final refundAddress = data.sender.toString();
@@ -507,16 +456,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       return _supportedChainList;
     }
     try {
-      final uri = Uri.https(_baseUrl, _getChainList);
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-      if (response.statusCode != 200) {
-        return [];
-      }
-
-      final data = json.decode(response.body) as List<dynamic>;
+      final data = await _api.send(const SwapsXyzChainListRequest());
       _supportedChainList
         ..clear()
-        ..addAll(data.map((e) => SwapsXyzChain.fromJson(e as Map<String, dynamic>)));
+        ..addAll(data);
       return _supportedChainList;
     } catch (e) {
       printV(e);
@@ -552,24 +495,17 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({required int srcChainId}) async {
-    final params = SwapsXyzPathsRequest(
-      srcChainId: srcChainId.toString(),
-      // Native placeholder
-      srcToken: "0x0000000000000000000000000000000000000000",
-    );
-
-    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
-      printV("getPaths failed: ${res.statusCode} ${res.body}");
-      return;
-    }
-
     final SwapsXyzPathsResponse body;
     try {
-      body = SwapsXyzPathsResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
+      body = await _api.send(
+        SwapsXyzPathsRequest(
+          srcChainId: srcChainId.toString(),
+          // Native placeholder
+          srcToken: "0x0000000000000000000000000000000000000000",
+        ),
+      );
     } catch (e) {
-      printV("getPaths parse error: $e");
+      printV("getPaths failed: $e");
       return;
     }
 

@@ -148,6 +148,18 @@ class ProviderScenario {
     isFixedRate: isFixedRate,
     toAddressExtraId: toAddressExtraId,
   );
+
+  /// The locally stored trade `updateTrade` refreshes; only the id and currencies matter.
+  Trade knownTrade(String id) => Trade(
+    id: id,
+    provider: build().provider.description,
+    state: TradeState.created,
+    depositAmount: depositAmount,
+    payoutAmount: payoutAmount,
+    fundingAddress: "",
+    payoutAddress: "",
+    refundAddress: "",
+  );
 }
 
 Matcher _closeToNow({Duration tolerance = const Duration(minutes: 1)}) =>
@@ -321,13 +333,13 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       if (expectedFoundTrade == null) {
         test("is not supported", () {
           expect(
-            () => provider.findTradeById(id: scenario.tradeId),
+            () => provider.updateTrade(scenario.knownTrade(scenario.tradeId)),
             throwsA(scenario.findTradeByIdThrows ?? isA<Exception>()),
           );
         });
       } else {
         test("rebuilds the trade from the api's answer", () async {
-          final trade = await provider.findTradeById(id: scenario.tradeId);
+          final trade = await provider.updateTrade(scenario.knownTrade(scenario.tradeId));
 
           _expectTrade(trade, expectedFoundTrade, provider);
         });
@@ -338,7 +350,7 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       if (unknownTradeIdThrows != null) {
         test("throws for a trade the exchange has never heard of", () {
           expect(
-            () => provider.findTradeById(id: scenario.unknownTradeId),
+            () => provider.updateTrade(scenario.knownTrade(scenario.unknownTradeId)),
             throwsA(unknownTradeIdThrows),
           );
         });

@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
@@ -7,6 +5,7 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/list_extension.dart";
@@ -35,12 +34,14 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   ];
 
   static const _baseURL = "chainflip-broker.io";
-  static const _assetsPath = "/assets";
-  static const _quotePath = "/quotes-native";
-  static const _swapPath = "/swap";
-  static const _txInfoPath = "/status-by-deposit-channel";
   static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseURL,
+    errorMessage: (json) => (json["detail"] ?? json["title"])?.toString(),
+  );
 
   @override
   bool get supportsFixedRate => false;
@@ -58,7 +59,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       throw Exception("No rates found for $from to $to");
     }
 
-    final assetsResponse = ChainflipAssetsResponse.fromJson(await _getAssets());
+    final assetsResponse = await _api.send(const ChainflipAssetsRequest());
 
     final asset = assetsResponse.assets.firstWhere((item) => item.id == from);
     final minAmount = Money(asset.minimalAmountNative, from);
@@ -88,7 +89,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       commissionBps: _affiliateBps,
     );
 
-    final bestQuote = await _getSwapQuote(quoteParams);
+    final bestQuote = (await _api.send(quoteParams)).quotes.max;
 
     return ProviderRate(
       provider: description,
@@ -113,7 +114,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       commissionBps: _affiliateBps,
     );
 
-    final quote = await _getSwapQuote(quoteParams);
+    final quote = (await _api.send(quoteParams)).quotes.max;
     final estimatedPrice = quote.estimatedPrice;
     final minimumPrice = estimatedPrice * (100 - maxSlippage) / 100;
 
@@ -130,7 +131,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       chunkIntervalBlocks: quote.chunkIntervalBlocks,
     );
 
-    final swapResponse = await _openDepositChannel(swapParams);
+    final swapResponse = await _api.send(swapParams);
 
     return Trade(
       id: "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}",
@@ -158,11 +159,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         channelId: int.parse(channelParts[2]),
       );
 
-      final statusResponse = await _getStatus(statusParams);
-
-      if (statusResponse == null) {
-        throw Exception("Trade not found for id: ${trade.id}");
-      }
+      final statusResponse = await _api.send(
+        statusParams,
+        mapError: (e) => switch (e.statusCode) {
+          404 => Exception("Trade not found for id: ${trade.id}"),
+          _ => null,
+        },
+      );
 
       return trade.copyWith(
         state: statusResponse.status.state.toState,
@@ -172,58 +175,5 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         payoutAddress: statusResponse.status.destinationAddress,
       );
 
-  }
-
-  Future<Map<String, dynamic>> _getAssets() => _getRequest(_assetsPath, {});
-
-  Future<ChainflipSwapResponse> _openDepositChannel(ChainflipSwapRequest params) async =>
-      ChainflipSwapResponse.fromJson(await _getRequest(_swapPath, params.toJson()));
-
-  Future<Map<String, dynamic>> _getRequest(String path, Map<String, dynamic> params) async {
-    final uri = Uri.https(_baseURL, path, params);
-
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if ((response.statusCode != 200) || (response.body.contains("error"))) {
-      throw Exception(
-        "Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}",
-      );
-    }
-
-    return json.decode(response.body) as Map<String, dynamic>;
-  }
-
-  Future<ChainflipQuote> _getSwapQuote(ChainflipFetchQuotesRequest params) async {
-    final uri = Uri.https(_baseURL, _quotePath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if(response.statusCode < 200 || response.statusCode > 299) {
-      throw Exception("status code: ${response.statusCode}\n${response.body}");
-    }
-
-    final quotes = ChainflipFetchQuotesResponse.fromJson(
-      jsonDecode(response.body) as List<dynamic>,
-    );
-    return quotes.quotes.max;
-  }
-
-  Future<ChainflipStatusResponse?> _getStatus(ChainflipStatusRequest params) async {
-    final uri = Uri.https(_baseURL, _txInfoPath, params.toJson());
-
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if (response.statusCode == 404) {
-      return null;
-    }
-
-    if ((response.statusCode != 200) || (response.body.contains("error"))) {
-      throw Exception(
-        "Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}",
-      );
-    }
-
-    return ChainflipStatusResponse.fromJson(
-      await json.decode(response.body) as Map<String, dynamic>,
-    );
   }
 }

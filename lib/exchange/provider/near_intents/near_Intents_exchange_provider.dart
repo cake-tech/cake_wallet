@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
@@ -8,6 +6,7 @@ import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_sche
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
@@ -19,10 +18,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   static const apiKey = secrets.nearIntentsBearerToken;
   static const _baseUrl = "1click.chaindefuser.com";
-  static const _versionPath = "/v0";
-  static const _tokenPath = "/tokens";
-  static const _quotePath = "/quote";
-  static const _statusPath = "/status";
 
   static const _slippageTolerance = 100; // 1%
   static final _appFeesNearIntents = secrets.nearIntentsAppFee.toString();
@@ -67,11 +62,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return kNearDummyAddresses[key] ?? "";
   }
 
-  static final Map<String, String> _headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-    "Authorization": apiKey,
-  };
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseUrl,
+    headers: {"Accept": "application/json", "Authorization": apiKey},
+    errorMessage: (json) => json["message"]?.toString(),
+  );
 
   static final _supportedTokensList = <NearIntentsToken>[];
 
@@ -189,18 +185,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade)  async {
-    final param = {"depositAddress": trade.id};
-    final uri = Uri.https(_baseUrl, "$_versionPath$_statusPath", param);
-
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (response.statusCode != 200) {
-      throw Exception("Near Intents fetch trade failed: ${response.statusCode} ${response.body}");
-    }
-
-    final data = NearIntentsStatusResponse.fromJson(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
+    final data = await _api.send(NearIntentsStatusRequest(depositAddress: trade.id));
 
     final quoteResponse = data.quoteResponse;
     final quoteRequest = quoteResponse.quoteRequest;
@@ -227,16 +212,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       return _supportedTokensList;
     }
 
-    final uri = Uri.https(_baseUrl, "$_versionPath$_tokenPath");
-
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (response.statusCode != 200) {
-      throw Exception("response code: ${response.statusCode}");
-    }
-
-    final data = (json.decode(response.body) as List<dynamic>).map(
-      (item) => NearIntentsToken.fromJson(item as Map<String, dynamic>),
-    );
+    final data = await _api.send(const NearIntentsTokensRequest());
     _supportedTokensList
       ..clear()
       ..addAll(data);
@@ -260,7 +236,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     DateTime? deadline,
     String? referral,
     int? quoteWaitingTimeMs,
-  }) async {
+  }) {
     final NearIntentsSwapType swapType = isFixedRateMode ? .exactOutput : .exactInput;
     final appFees = [
       NearIntentsAppFee(
@@ -269,9 +245,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       ),
     ];
 
-    final uri = Uri.https(_baseUrl, "$_versionPath$_quotePath");
-
-    final payload = NearIntentsQuoteRequest(
+    return _api.send(NearIntentsQuoteRequest(
       dry: dry,
       swapType: swapType,
       slippageTolerance: _slippageTolerance,
@@ -293,21 +267,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       referral: referral,
       quoteWaitingTimeMs: quoteWaitingTimeMs,
       appFees: appFees,
-    );
-
-    final response = await proxyWrapper.post(
-      clearnetUri: uri,
-      headers: _headers,
-      body: jsonEncode(payload.toJson()),
-    );
-
-    if (response.statusCode != 201) {
-      throw Exception(
-        "Quote request failed with status: ${response.statusCode} ${response.body}",
-      );
-    }
-
-    return NearIntentsQuoteResponse.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    ));
   }
 
   String _normalizeTagToNearBlockchain(String tag) => switch (tag) {

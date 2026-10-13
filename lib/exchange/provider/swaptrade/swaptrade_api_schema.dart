@@ -2,6 +2,7 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "swaptrade_api_schema.g.dart";
@@ -125,6 +126,20 @@ class SwapTradeCoin {
   final int? erc;
 }
 
+class SwapTradeCoinsRequest extends ApiRequest<SwapTradeCoinsResponse> {
+  const SwapTradeCoinsRequest();
+
+  @override
+  String path() => "/api/swap/get-coins";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  SwapTradeCoinsResponse decode(Object json) =>
+      SwapTradeCoinsResponse.fromJson(json as Map<String, dynamic>);
+}
+
 @JsonSerializable(createToJson: false)
 class SwapTradeCoinsResponse {
   const SwapTradeCoinsResponse({required this.success, this.status, this.msg, this.data, this.errors});
@@ -170,8 +185,9 @@ class SwapTradeGetRateRequest {
 }
 
 @JsonSerializable()
-class SwapTradeGetPriceRequest {
-  SwapTradeGetPriceRequest({required this.coinSend, required this.coinSendNetwork, required this.coinReceive, required this.coinReceiveNetwork, required this.amountSend, required this.markup});
+class SwapTradeGetPriceRequest extends ApiRequest<SwapTradeRateResponse> {
+  SwapTradeGetPriceRequest({required this.coinSend, required this.coinSendNetwork, required this.coinReceive, required this.coinReceiveNetwork, required this.amountSend, required this.markup})
+    : super.post();
 
 
   @JsonKey(name: "coin_send")
@@ -187,7 +203,15 @@ class SwapTradeGetPriceRequest {
   @JsonKey(name: "markup")
   final double markup;
 
+  @override
+  String path() => "/api/swap/get-price";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapTradeGetPriceRequestToJson(this);
+
+  @override
+  SwapTradeRateResponse decode(Object json) =>
+      SwapTradeRateResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -225,7 +249,7 @@ class SwapTradeRateResponse {
 
 
 @JsonSerializable()
-class SwapTradeCreateOrderRequest {
+class SwapTradeCreateOrderRequest extends ApiRequest<SwapTradeCreateOrderResponse> {
   const SwapTradeCreateOrderRequest({
     required this.coinSend,
     required this.coinSendNetwork,
@@ -236,7 +260,7 @@ class SwapTradeCreateOrderRequest {
     this.refundAddress,
     this.ref,
     this.markup,
-  });
+  }) : super.post();
 
   @JsonKey(name: "coin_send")
   final String coinSend;
@@ -260,7 +284,15 @@ class SwapTradeCreateOrderRequest {
   @JsonKey(name: "markup", includeIfNull: false)
   final double? markup;
 
+  @override
+  String path() => "/api/swap/create-order";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapTradeCreateOrderRequestToJson(this);
+
+  @override
+  SwapTradeCreateOrderResponse decode(Object json) =>
+      SwapTradeCreateOrderResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -310,13 +342,21 @@ class SwapTradeCreateOrderResponse {
 
 
 @JsonSerializable()
-class SwapTradeOrderRequest {
-  const SwapTradeOrderRequest({required this.orderId});
+class SwapTradeOrderRequest extends ApiRequest<SwapTradeOrderResponse> {
+  const SwapTradeOrderRequest({required this.orderId}) : super.post();
 
   @JsonKey(name: "order_id")
   final String orderId;
 
+  @override
+  String path() => "/api/swap/order";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapTradeOrderRequestToJson(this);
+
+  @override
+  SwapTradeOrderResponse decode(Object json) =>
+      SwapTradeOrderResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)

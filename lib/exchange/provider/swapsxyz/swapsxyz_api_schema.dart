@@ -2,6 +2,7 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "swapsxyz_api_schema.g.dart";
@@ -167,12 +168,32 @@ class SwapsXyzErrorResponse {
   factory SwapsXyzErrorResponse.fromJson(Map<String, dynamic> json) =>
       _$SwapsXyzErrorResponseFromJson(json);
 
+  static String? messageOf(Map<String, dynamic> json) => switch (json["error"]) {
+    {"message": final Object message} => message.toString(),
+    _ => null,
+  };
+
   @JsonKey(name: "success")
   final bool success;
   @JsonKey(name: "error")
   final SwapsXyzError? error;
 }
 
+
+class SwapsXyzChainListRequest extends ApiRequest<List<SwapsXyzChain>> {
+  const SwapsXyzChainListRequest();
+
+  @override
+  String path() => "/api/getChainList";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  List<SwapsXyzChain> decode(Object json) => (json as List<dynamic>)
+      .map((item) => SwapsXyzChain.fromJson(item as Map<String, dynamic>))
+      .toList();
+}
 
 @JsonSerializable(createToJson: false)
 class SwapsXyzChain {
@@ -340,7 +361,7 @@ class SwapsXyzChainPath {
 /// query for GET /api/getPaths. leave dstChainId and dstToken off to get every path out of the
 /// source token
 @JsonSerializable()
-class SwapsXyzPathsRequest {
+class SwapsXyzPathsRequest extends ApiRequest<SwapsXyzPathsResponse> {
   const SwapsXyzPathsRequest({
     required this.srcChainId,
     required this.srcToken,
@@ -364,7 +385,15 @@ class SwapsXyzPathsRequest {
   @JsonKey(name: "excludeDexIds", includeIfNull: false)
   final List<String>? excludeDexIds;
 
+  @override
+  String path() => "/api/getPaths";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapsXyzPathsRequestToJson(this);
+
+  @override
+  SwapsXyzPathsResponse decode(Object json) =>
+      SwapsXyzPathsResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -394,7 +423,7 @@ class SwapsXyzPathsResponse {
 /// query for GET /api/getQuote. undocumented like the response, so there may be more params it
 /// accepts - these are the ones we send
 @JsonSerializable()
-class SwapsXyzQuoteRequest {
+class SwapsXyzQuoteRequest extends ApiRequest<SwapsXyzQuote> {
   const SwapsXyzQuoteRequest({
     required this.srcChainId,
     required this.srcToken,
@@ -419,7 +448,14 @@ class SwapsXyzQuoteRequest {
   @JsonKey(name: "swapDirection", includeIfNull: false)
   final SwapsXyzSwapDirection? swapDirection;
 
+  @override
+  String path() => "/api/getQuote";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapsXyzQuoteRequestToJson(this);
+
+  @override
+  SwapsXyzQuote decode(Object json) => SwapsXyzQuote.fromJson(json as Map<String, dynamic>);
 }
 
 // getQuote is undocumented, this is based on curled response
@@ -482,7 +518,7 @@ class SwapsXyzQuote {
 
 @JsonSerializable()
 @StringBoolConverter()
-class SwapsXyzActionRequest {
+class SwapsXyzActionRequest extends ApiRequest<SwapsXyzActionResponse> {
   const SwapsXyzActionRequest({
     required this.actionType,
     required this.sender,
@@ -562,7 +598,15 @@ class SwapsXyzActionRequest {
   @JsonKey(name: "gasless", includeIfNull: false)
   final bool? gasless;
 
+  @override
+  String path() => "/api/getAction";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapsXyzActionRequestToJson(this);
+
+  @override
+  SwapsXyzActionResponse decode(Object json) =>
+      SwapsXyzActionResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -718,13 +762,13 @@ class SwapsXyzActionResponse {
 
 
 @JsonSerializable()
-class SwapsXyzTxRegistrationRequest {
+class SwapsXyzTxRegistrationRequest extends ApiRequest<List<SwapsXyzValidatedTxId>> {
   const SwapsXyzTxRegistrationRequest({
     required this.txId,
     this.txHash,
     this.vmId,
     this.chainId,
-  });
+  }) : super.post();
 
   @JsonKey(name: "txId")
   final String txId;
@@ -736,7 +780,16 @@ class SwapsXyzTxRegistrationRequest {
   @JsonKey(name: "chainId", includeIfNull: false)
   final int? chainId;
 
+  @override
+  String path() => "/api/registerTxs";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapsXyzTxRegistrationRequestToJson(this);
+
+  @override
+  List<SwapsXyzValidatedTxId> decode(Object json) => (json as List<dynamic>)
+      .map((item) => SwapsXyzValidatedTxId.fromJson(item as Map<String, dynamic>))
+      .toList();
 }
 
 @JsonSerializable(createToJson: false)
@@ -756,7 +809,7 @@ class SwapsXyzValidatedTxId {
 /// query for GET /api/getStatus. all three are optional in the spec: look up by txId, or by
 /// txHash plus the chainId it was sent on
 @JsonSerializable()
-class SwapsXyzStatusRequest {
+class SwapsXyzStatusRequest extends ApiRequest<SwapsXyzTxDetails> {
   const SwapsXyzStatusRequest({this.txId, this.txHash, this.chainId});
 
   @JsonKey(name: "txId", includeIfNull: false)
@@ -766,7 +819,20 @@ class SwapsXyzStatusRequest {
   @JsonKey(name: "chainId", includeIfNull: false)
   final String? chainId;
 
+  @override
+  String path() => "/api/getStatus";
+
+  @override
   Map<String, dynamic> toJson() => _$SwapsXyzStatusRequestToJson(this);
+
+  @override
+  SwapsXyzTxDetails decode(Object json) {
+    final map = json as Map<String, dynamic>;
+    if (map["success"] == false) {
+      throw Exception(SwapsXyzErrorResponse.messageOf(map) ?? "getStatus failed: $map");
+    }
+    return SwapsXyzTxDetails.fromJson(map);
+  }
 }
 
 @JsonSerializable(createToJson: false)

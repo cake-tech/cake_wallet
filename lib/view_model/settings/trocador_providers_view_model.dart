@@ -28,7 +28,9 @@ abstract class TrocadorProvidersViewModelBase with Store {
         ObservableFuture(trocadorExchangeProvider.fetchProviders().then((providers) {
       var providerNames = providers.map((e) => e.name).toList();
 
-      providerRatings = {for (var provider in providers) provider.name: provider.rating};
+      providerRatings = {
+        for (var provider in providers) provider.name: provider.rating?.label ?? "N/A",
+      };
 
       return _settingsStore
           .updateAllTrocadorProviderStates(providerNames)

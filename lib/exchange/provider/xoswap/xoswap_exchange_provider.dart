@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
@@ -7,6 +5,7 @@ import "package:cake_wallet/exchange/provider/xoswap/xoswap_api_schema.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/package_info.dart";
@@ -30,13 +29,15 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   static const _apiAuthority = "exchange.exodus.io";
-  static const _apiPath = "/v3";
-  static const _pairsPath = "/pairs";
-  static const _ratePath = "/rates";
-  static const _orders = "/orders";
-  static const _assets = "/assets";
 
-  static final _headers = {"Content-Type": "application/json", "App-Name": "cake-labs"};
+  static final _headers = {"App-Name": "cake-labs"};
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _apiAuthority,
+    headers: _headers,
+    errorMessage: (json) => (json["message"] ?? json["error"])?.toString(),
+  );
 
   final _networks = <String, String>{
     "POL": "matic",
@@ -96,20 +97,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         return null;
       }
 
-      final uri = Uri.https(_apiAuthority, _apiPath + _assets,
-          XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title).toJson());
-
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        throw Exception("Failed to fetch assets for ${currency.title} on ${currency.tag}");
-      }
-
-      final decoded = jsonDecode(response.body);
-      if (decoded is! List) {
-        throw const FormatException("Unexpected response for`mat");
-      }
-      final assets = decoded.map((e) => XOSwapAsset.fromJson(e as Map<String,dynamic>)).toList();
+      final assets = await _api.send(
+        XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title),
+      );
 
       final asset = assets.firstWhereOrNull(
         (asset) => removeNonAlphanumeric(asset.symbol.toString()) == currency.title,
@@ -135,15 +125,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (curFrom == null || curTo == null) {
         return [];
       }
-      final pairId = "${curFrom}_$curTo";
-      final uri = Uri.https(_apiAuthority, "$_apiPath$_pairsPath/$pairId$_ratePath");
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        printV("xoswap rates for $pairId: ${response.statusCode} ${response.body}");
-        return [];
-      }
-      return (json.decode(response.body) as List<dynamic>).map((item)=>XOSwapRate.fromJson(item as Map<String, dynamic>)).toList();
+      return await _api.send(XOSwapPairRatesRequest(pairId: "${curFrom}_$curTo"));
     } catch (e) {
       printV(e.toString());
       return [];
@@ -221,8 +203,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({
     required TradeRequest request,
   }) async {
-      final uri = Uri.https(_apiAuthority, "$_apiPath$_orders");
-
       final curFrom = await _getAssets(request.depositCurrency);
       final curTo = await _getAssets(request.payoutCurrency);
 
@@ -232,26 +212,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = "${curFrom}_$curTo";
 
-      final payload = XOSwapCreateOrderRequest(pairId: pairId,
+      final responseData = await _api.send(XOSwapCreateOrderRequest(pairId: pairId,
           fromAmount: request.depositAmount.toString(),
           fromAddress: request.refundAddress,
           toAmount: request.payoutAmount.toString(),
           toAddress: request.payoutAddress,
           toAddressTag: request.toAddressExtraId
-      );
-
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: _headers,
-        body: json.encode(payload),
-      );
-
-      if (response.statusCode != 201) {
-        final error = XOSwapErrorResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
-
-        throw Exception(error);
-      }
-      final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      ));
 
 
       return Trade(
@@ -271,18 +238,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final uri = Uri.https(_apiAuthority, "$_apiPath$_orders/${trade.id}");
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (response.statusCode != 200) {
-      final error = XOSwapErrorResponse.fromJson(
-          json.decode(response.body) as Map<String, dynamic>);
-      if (error.code == "NOT_FOUND") {
-        throw Exception("Trade not found");
-      }
-      throw Exception(error);
-    }
-    final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseData = await _api.send(
+      XOSwapOrderRequest(id: trade.id),
+      mapError: (e) => switch (e.json) {
+        {"code": "NOT_FOUND"} => Exception("Trade not found"),
+        _ => null,
+      },
+    );
 
 
     return trade.copyWith(

@@ -1,4 +1,3 @@
-import "dart:convert";
 import "dart:io";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
@@ -9,6 +8,7 @@ import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/store/settings_store.dart";
@@ -27,14 +27,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       ? secrets.changeNowMoneroApiKey
       : secrets.changeNowCakeWalletApiKey;
   static const apiAuthority = "api.changenow.io";
-  static const createTradePath = "/v2/exchange";
-  static const findTradeByIdPath = "/v2/exchange/by-id";
-  static const estimatedAmountPath = "/v2/exchange/estimated-amount";
-  static const rangePath = "/v2/exchange/range";
   static const apiHeaderKey = "x-changenow-api-key";
 
   final SettingsStore _settingsStore;
   String _lastUsedRateId;
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: apiAuthority,
+    headers: {apiHeaderKey: apiKey},
+    errorMessage: (json) => json["message"]?.toString(),
+  );
 
   @override
   bool get supportsFixedRate => true;
@@ -52,29 +55,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception("Only Bridged USDC (USDC.e) is allowed in ChangeNow");
     }
 
-    final headers = {apiHeaderKey: apiKey};
-    final params = ChangeNowRangeRequest(
-      fromCurrency: _normalizeCurrency(from),
-      toCurrency: _normalizeCurrency(to),
-      fromNetwork: _networkFor(from),
-      toNetwork: _networkFor(to),
-      flow: isFixedRateMode ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
-    );
-    final uri = Uri.https(apiAuthority, rangePath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
-
-    if (response.statusCode == 400) {
-      throw Exception(
-        ChangeNowErrorResponse.fromJson(json.decode(response.body) as Map<String, dynamic>),
-      );
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
-    }
-
-    final responseData = ChangeNowRangeResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
+    final responseData = await _api.send(
+      ChangeNowRangeRequest(
+        fromCurrency: _normalizeCurrency(from),
+        toCurrency: _normalizeCurrency(to),
+        fromNetwork: _networkFor(from),
+        toNetwork: _networkFor(to),
+        flow: isFixedRateMode ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
+      ),
     );
     if (responseData.maxAmount == 0) {
       return ExchangeLimits();
@@ -95,27 +83,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       throw Exception("cannot fetch rate with zero amount");
     }
 
-    final headers = {apiHeaderKey: apiKey};
-
-    final params = ChangeNowEstimatedAmountRequest(
-      fromCurrency: _normalizeCurrency(from.currency as CryptoCurrency),
-      toCurrency: _normalizeCurrency(to),
-      fromAmount: isFixedRate ? null : from.toString(),
-      toAmount:  isFixedRate ? from.toString() : null,
-      fromNetwork: _networkFor(from.currency as CryptoCurrency),
-      toNetwork: _networkFor(to),
-      flow: isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
-      type: ChangeNowExchangeType.direct,
-    );
-
-    final uri = Uri.https(apiAuthority, estimatedAmountPath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
-    if(response.statusCode < 200 || response.statusCode > 299) {
-      throw Exception("status code: ${response.statusCode}\n${response.body}");
-    }
-
-    final responseData = ChangeNowEstimatedAmountResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
+    final responseData = await _api.send(
+      ChangeNowEstimatedAmountRequest(
+        fromCurrency: _normalizeCurrency(from.currency as CryptoCurrency),
+        toCurrency: _normalizeCurrency(to),
+        fromAmount: isFixedRate ? null : from.toString(),
+        toAmount:  isFixedRate ? from.toString() : null,
+        fromNetwork: _networkFor(from.currency as CryptoCurrency),
+        toNetwork: _networkFor(to),
+        flow: isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
+        type: ChangeNowExchangeType.direct,
+      ),
     );
 
     if (responseData.rateId?.isNotEmpty ?? false) {
@@ -146,7 +124,6 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       distribution: distributionPath,
       version: formattedAppVersion,
     );
-    final headers = {apiHeaderKey: apiKey, "Content-Type": "application/json"};
 
     if (request.isFixedRate) {
       // since we schedule to calculate the rate every 5 seconds we need to ensure that
@@ -157,7 +134,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         isFixedRate: request.isFixedRate,
       );
     }
-    final params = ChangeNowCreateExchangeRequest(
+    final responseJSON = await _api.send(ChangeNowCreateExchangeRequest(
       fromCurrency: _normalizeCurrency(request.depositCurrency),
       toCurrency: _normalizeCurrency(request.payoutCurrency),
       fromNetwork: _networkFor(request.depositCurrency),
@@ -171,27 +148,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       type: ChangeNowExchangeType.direct,
       payload: payload,
       rateId: _lastUsedRateId,
-    );
-
-    final uri = Uri.https(apiAuthority, createTradePath);
-    final response = await proxyWrapper.post(
-      clearnetUri: uri,
-      headers: headers,
-      body: json.encode(params.toJson()),
-    );
-
-    if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      throw Exception(ChangeNowErrorResponse.fromJson(responseJSON).message);
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
-    }
-
-    final responseJSON = ChangeNowCreateExchangeResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
-    );
+    ));
 
     return Trade(
       id: responseJSON.id,
@@ -210,28 +167,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final headers = {apiHeaderKey: apiKey};
-    final params = ChangeNowByIdRequest(id: trade.id);
-    final uri = Uri.https(apiAuthority, findTradeByIdPath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: headers);
-
-    if (response.statusCode == 404) {
-      throw TradeNotFoundException(trade.id, provider: description);
-    }
-
-    if (response.statusCode == 400) {
-      final responseJSON = ChangeNowErrorResponse.fromJson(
-        json.decode(response.body) as Map<String, dynamic>,
-      );
-      throw TradeNotFoundException(trade.id, provider: description, description: responseJSON.message);
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
-    }
-
-    final responseJSON = ChangeNowTransactionResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
+    final responseJSON = await _api.send(
+      ChangeNowByIdRequest(id: trade.id),
+      mapError: (e) => switch (e.statusCode) {
+        404 => TradeNotFoundException(trade.id, provider: description),
+        400 => TradeNotFoundException(trade.id, provider: description, description: e.message),
+        _ => null,
+      },
     );
 
     return trade.copyWith(

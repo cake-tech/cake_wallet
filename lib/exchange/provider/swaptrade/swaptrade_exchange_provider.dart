@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
@@ -7,8 +5,10 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_api_schema.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
+import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
@@ -21,10 +21,15 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static final markup = double.tryParse(secrets.swapTradeExchangeMarkup) ?? 0;
 
   static const apiAuthority = "api.swaptrade.io";
-  static const getPrice = "api/swap/get-price";
-  static const getCoins = "/api/swap/get-coins";
-  static const createOrder = "/api/swap/create-order";
-  static const order = "/api/swap/order";
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: apiAuthority,
+    errorMessage: (json) => switch (json["errors"]) {
+      [{"msg": final Object msg}, ...] => msg.toString(),
+      _ => json["msg"]?.toString(),
+    },
+  );
 
   @override
   bool get supportsFixedRate => false;
@@ -32,24 +37,13 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
-  static const _headers = <String, String>{"Content-Type": "application/json"};
-
   @override
   Future<ExchangeLimits> fetchLimits({
     required CryptoCurrency from,
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final uri = Uri.https(apiAuthority, getCoins);
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
-    }
-
-    final responseJSON = SwapTradeCoinsResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
-    );
+    final responseJSON = await _api.send(const SwapTradeCoinsRequest());
 
     final coinsInfo = responseJSON.data;
 
@@ -80,39 +74,26 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       throw Exception("lightning not supported");
     }
 
-    final body = SwapTradeGetPriceRequest(
-      coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
-      coinSendNetwork: _networkFor(from.currency as CryptoCurrency),
-      coinReceiveNetwork: _networkFor(to),
-      coinReceive: _normalizeCurrency(to),
-      amountSend: from.toString(),
-      markup: markup,
-    );
-
-    final uri = Uri.https(apiAuthority, getPrice);
-    final response = await proxyWrapper.post(
-      clearnetUri: uri,
-      body: json.encode(body),
-      headers: _headers,
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}\n${response.body}");
-    }
-
-    final responseBody = SwapTradeRateResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
+    final responseBody = await _api.send(
+      SwapTradeGetPriceRequest(
+        coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
+        coinSendNetwork: _networkFor(from.currency as CryptoCurrency),
+        coinReceiveNetwork: _networkFor(to),
+        coinReceive: _normalizeCurrency(to),
+        amountSend: from.toString(),
+        markup: markup,
+      ),
     );
 
     if (responseBody.success == false) {
       final error = responseBody.errors?.firstOrNull?.msg;
-      throw Exception(error ?? "rejected the quote: ${response.body}");
+      throw Exception(error ?? "rejected the quote: ${responseBody.msg}");
     }
 
     final payout = responseBody.data?.price;
 
     if(payout == null) {
-      throw Exception("payout is null\n${response.body}");
+      throw Exception("payout is null: ${responseBody.msg}");
     }
 
     return ProviderRate(
@@ -128,37 +109,27 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final body = SwapTradeCreateOrderRequest(
-      coinSend: _normalizeCurrency(request.depositCurrency),
-      coinSendNetwork: _networkFor(request.depositCurrency),
-      coinReceive: _normalizeCurrency(request.payoutCurrency),
-      coinReceiveNetwork: _networkFor(request.payoutCurrency),
-      amountSend: request.depositAmount.toString(),
-      recipient: request.payoutAddress,
-      markup: markup,
-      ref: "cake",
-      refundAddress: request.refundAddress,
+    final responseBody = await _api.send(
+      SwapTradeCreateOrderRequest(
+        coinSend: _normalizeCurrency(request.depositCurrency),
+        coinSendNetwork: _networkFor(request.depositCurrency),
+        coinReceive: _normalizeCurrency(request.payoutCurrency),
+        coinReceiveNetwork: _networkFor(request.payoutCurrency),
+        amountSend: request.depositAmount.toString(),
+        recipient: request.payoutAddress,
+        markup: markup,
+        ref: "cake",
+        refundAddress: request.refundAddress,
+      ),
+      mapError: (e) => switch (e.statusCode) {
+        400 => TradeNotCreatedException(description, description: e.message),
+        _ => null,
+      },
     );
 
-    final uri = Uri.https(apiAuthority, createOrder);
-    final response = await proxyWrapper.post(
-      clearnetUri: uri,
-      body: json.encode(body),
-      headers: _headers,
-    );
-
-    final responseBody = SwapTradeCreateOrderResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
-    );
-
-    if (response.statusCode == 400 || responseBody.success == false) {
-      final errorsList = responseBody.errors ?? [];
-      final error = errorsList.firstOrNull?.msg ?? responseBody.toString();
+    if (responseBody.success == false) {
+      final error = responseBody.errors?.firstOrNull?.msg ?? responseBody.msg ?? "";
       throw TradeNotCreatedException(description, description: error);
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
     }
 
     final responseData = responseBody.data;
@@ -178,26 +149,17 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final body = SwapTradeOrderRequest(orderId: trade.id);
-
-    final uri = Uri.https(apiAuthority, order);
-    final response = await proxyWrapper.post(
-      clearnetUri: uri,
-      body: json.encode(body),
-      headers: _headers,
+    final responseBody = await _api.send(
+      SwapTradeOrderRequest(orderId: trade.id),
+      mapError: (e) => switch (e.statusCode) {
+        400 => TradeNotFoundException(trade.id, provider: description, description: e.message),
+        _ => null,
+      },
     );
 
-    final responseBody = SwapTradeOrderResponse.fromJson(
-      json.decode(response.body) as Map<String, dynamic>,
-    );
-
-    if (response.statusCode == 400 || responseBody.success == false) {
-      final error = responseBody.errors?.firstOrNull?.msg.toString();
-      throw TradeNotCreatedException(description, description: error ?? "");
-    }
-
-    if (response.statusCode != 200) {
-      throw Exception("Unexpected http status: ${response.statusCode}");
+    if (responseBody.success == false) {
+      final error = responseBody.errors?.firstOrNull?.msg ?? responseBody.msg ?? "";
+      throw TradeNotFoundException(trade.id, provider: description, description: error);
     }
 
     final responseData = responseBody.data!;

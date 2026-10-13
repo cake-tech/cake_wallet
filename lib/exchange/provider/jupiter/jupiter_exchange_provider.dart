@@ -1,5 +1,3 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
@@ -8,6 +6,7 @@ import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/solana/solana.dart";
@@ -57,11 +56,16 @@ class JupiterExchangeProvider extends ExchangeProvider
       currency == CryptoCurrency.sol || currency.tag == "SOL";
 
   static const _baseUrl = "api.jup.ag";
-  static const _orderPath = "/ultra/v1/order";
-  static const _executePath = "/ultra/v1/execute";
   static const _referralFee = secrets.jupiterReferralFeeBps;
   static const _referralAccount = secrets.jupiterReferralAccount;
   static final _hasReferral = _referralFee.isNotEmpty && _referralAccount.isNotEmpty;
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseUrl,
+    headers: {"x-api-key": secrets.jupiterApiKey},
+    errorMessage: (json) => json["error"]?.toString(),
+  );
 
   // Wrapped SOL address (native SOL)
   static const _nativeSolMint = "So11111111111111111111111111111111111111112";
@@ -104,11 +108,6 @@ class JupiterExchangeProvider extends ExchangeProvider
     }
   }
 
-  static const Map<String, String> _headers = {
-    "x-api-key": secrets.jupiterApiKey,
-    "Content-Type": "application/json",
-  };
-
   @override
   Future<ProviderRate> fetchRate({
     required Money from,
@@ -122,20 +121,9 @@ class JupiterExchangeProvider extends ExchangeProvider
     final inputMint = _getTokenMint(from.currency as CryptoCurrency);
     final outputMint = _getTokenMint(to);
 
-    final params = JupiterOrderRequest(
-      inputMint: inputMint,
-      outputMint: outputMint,
-      amount: from.amount,
+    final orderData = await _api.send(
+      JupiterOrderRequest(inputMint: inputMint, outputMint: outputMint, amount: from.amount),
     );
-    final uri = Uri.https(_baseUrl, _orderPath, params.toJson());
-
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (response.statusCode != 200) {
-      throw Exception("status code: ${response.statusCode}\n${response.body}");
-    }
-
-    final orderData = JupiterOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
     final outAmount = orderData.outAmount;
 
     return ProviderRate(
@@ -157,29 +145,17 @@ class JupiterExchangeProvider extends ExchangeProvider
 
     final isInternalTransfer = request.refundAddress == request.payoutAddress;
 
-    final orderParams = JupiterOrderRequest(
-      inputMint: inputMint,
-      outputMint: outputMint,
-      amount: request.depositAmount.amount,
-      taker: request.refundAddress,
-      receiver: isInternalTransfer ? null : request.payoutAddress,
-      referralFee: _hasReferral ? _referralFee : null,
-      referralAccount: _hasReferral ? _referralAccount : null,
-    );
-
-    final orderUri = Uri.https(_baseUrl, _orderPath, orderParams.toJson());
-
-    final orderResponse = await proxyWrapper.get(clearnetUri: orderUri, headers: _headers);
-
-    if (orderResponse.statusCode != 200) {
-      throw TradeNotCreatedException(
-        description,
-        description: "status code: ${orderResponse.statusCode} ${orderResponse.body}",
-      );
-    }
-
-    final orderData = JupiterOrder.fromJson(
-      json.decode(orderResponse.body) as Map<String, dynamic>,
+    final orderData = await _api.send(
+      JupiterOrderRequest(
+        inputMint: inputMint,
+        outputMint: outputMint,
+        amount: request.depositAmount.amount,
+        taker: request.refundAddress,
+        receiver: isInternalTransfer ? null : request.payoutAddress,
+        referralFee: _hasReferral ? _referralFee : null,
+        referralAccount: _hasReferral ? _referralAccount : null,
+      ),
+      mapError: (e) => TradeNotCreatedException(description, description: e.message),
     );
 
     if (orderData.errorCode != null || orderData.errorMessage != null) {
@@ -208,39 +184,10 @@ class JupiterExchangeProvider extends ExchangeProvider
   Future<JupiterExecuteResponse> executeSwap({
     required String signedTransaction,
     required String requestId,
-  }) async {
-      final executeUri = Uri.https(_baseUrl, _executePath);
-
-      final params = JupiterExecuteRequest(
-        signedTransaction: signedTransaction,
-        requestId: requestId,
-      );
-
-      final response = await proxyWrapper.post(
-        clearnetUri: executeUri,
-        headers: _headers,
-        body: json.encode(params.toJson()),
-      );
-
-      if (response.statusCode != 200) {
-        final errorBody = response.body;
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: "executeSwap",
-          error: Exception("Failed to execute swap: ${response.statusCode} $errorBody"),
-          stackTrace: StackTrace.current,
-          requestData: {
-            "requestId": requestId,
-            "hasSignedTransaction": signedTransaction.isNotEmpty,
-          },
-        );
-        throw Exception("Failed to execute swap: ${response.statusCode} $errorBody");
-      }
-
-      final executeData = json.decode(response.body) as Map<String, dynamic>;
-
-      return JupiterExecuteResponse.fromJson(executeData);
-  }
+  }) => _api.send(
+    JupiterExecuteRequest(signedTransaction: signedTransaction, requestId: requestId),
+    mapError: (e) => Exception("Failed to execute swap: ${e.message}"),
+  );
 
   @override
   Future<Trade> updateTrade(Trade trade) {
