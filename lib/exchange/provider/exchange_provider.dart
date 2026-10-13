@@ -39,7 +39,7 @@ abstract class ExchangeProvider {
 
 
 abstract interface class TransactionCreationExchangeProvider {
-  Future<PendingTransaction> createTransaction(WalletBase wallet, Trade trade);
+  Future<PendingTransaction?> createTransaction(WalletBase wallet, Trade trade);
 }
 
 abstract interface class TransactionRegistrationExchangeProvider {

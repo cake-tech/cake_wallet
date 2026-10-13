@@ -622,14 +622,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       (s.startsWith("0x") && s.length >= 10) ? s.substring(0, 10) : "";
 
   @override
-  Future<PendingTransaction> createTransaction(WalletBase wallet, Trade trade) async {
+  Future<PendingTransaction?> createTransaction(WalletBase wallet, Trade trade) async {
     trade as SwapsXyzTrade;
 
     final routerTo = trade.fundingAddress;
     final routerData = trade.routerData;
 
-    if (routerData == "0x") {
-      throw Exception("invalid router data");
+    if (!isEVMCompatibleChain(wallet.type) || routerData.isEmpty || routerData == "0x") {
+      return null;
     }
 
     final tokenContract = trade.sourceTokenAddress.toLowerCase();

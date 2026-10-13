@@ -707,25 +707,27 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   Future<PendingTransaction> _createSwapTransaction(Trade trade, bool isSendAll) async {
     if (_registry.getProvider(trade.provider) case final TransactionCreationExchangeProvider p) {
-      return  p.createTransaction(_appStore.wallet!, trade);
-    } else {
-      final curr = trade.depositAmount.currency as CryptoCurrency;
-      // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
-      final output = Output(
-        _appStore.wallet!,
-        _appStore,
-        getIt.get<FiatConversionStore>(),
-            () => curr,
-      );
-      if(!isSendAll) {
-        output.setCryptoAmount(trade.depositAmount.toString());
-      } else {
-        output.setSendAll(
-            (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+      if (await p.createTransaction(_appStore.wallet!, trade) case final transaction?) {
+        return transaction;
       }
-      output.address = trade.fundingAddress;
-      return _transactionService.createTransaction([output]);
     }
+
+    final curr = trade.depositAmount.currency as CryptoCurrency;
+    // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
+    final output = Output(
+      _appStore.wallet!,
+      _appStore,
+      getIt.get<FiatConversionStore>(),
+          () => curr,
+    );
+    if(!isSendAll) {
+      output.setCryptoAmount(trade.depositAmount.toString());
+    } else {
+      output.setSendAll(
+          (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+    }
+    output.address = trade.fundingAddress;
+    return _transactionService.createTransaction([output]);
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
