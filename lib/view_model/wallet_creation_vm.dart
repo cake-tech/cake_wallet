@@ -2,8 +2,10 @@ import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/wallet_creation_service.dart";
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_group_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/nano/nano.dart";
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/restore/restore_wallet.dart";
@@ -28,7 +30,7 @@ abstract class WalletCreationVMBase with Store {
   WalletCreationVMBase(this._appStore, this.walletCreationService, this.seedSettingsViewModel,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
-        name = '';
+        name = "";
 
   @observable
   bool _useTestnet = false;
@@ -40,6 +42,8 @@ abstract class WalletCreationVMBase with Store {
 
   int get zcashNetwork => _zcashNetwork;
 
+  /// Name typed by the user. Since wallets are now named after their network,
+  /// this is the *group* name, not the wallet name.
   @observable
   String name;
 
@@ -60,11 +64,13 @@ abstract class WalletCreationVMBase with Store {
   final AppStore _appStore;
   final SeedSettingsViewModel seedSettingsViewModel;
 
+  WalletGroupService get _walletGroupService => getIt.get<WalletGroupService>();
+
   bool isPolyseed(String seed) =>
       [WalletType.monero, WalletType.wownero].contains(type) &&
           (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
-  Future<bool> nameExists(String name) => walletCreationService.exists(name);
+  Future<bool> nameExists(String name) => _walletGroupService.isGroupNameTaken(name);
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
@@ -142,6 +148,16 @@ abstract class WalletCreationVMBase with Store {
         await WalletInfo.delete(placeholder);
       }
 
+      final existingGroupId = (placeholderRealGroupId?.isNotEmpty ?? false)
+          ? placeholderRealGroupId
+          : ((groupId?.isNotEmpty ?? false) ? groupId : null);
+      final shouldCreateGroup = !isGroupCreationDeferred && existingGroupId == null;
+      final groupName = name.trim().isNotEmpty ? name.trim() : walletTypeToDisplayName(type);
+
+      if (shouldCreateGroup && await _walletGroupService.isGroupNameTaken(groupName)) {
+        throw Exception(S.current.wallet_name_exists);
+      }
+
       final walletId = reservedId ?? const Uuid().v4();
 
       final credentials = getCredentials(options);
@@ -153,7 +169,7 @@ abstract class WalletCreationVMBase with Store {
       final diId = await di!.save();
       credentials.derivationInfo = di;
 
-      credentials.walletInfo = WalletInfo.external(
+      final walletInfo = WalletInfo.external(
         id: walletId,
         name: walletTypeToDisplayName(type),
         type: type,
@@ -169,26 +185,47 @@ abstract class WalletCreationVMBase with Store {
         hardwareWalletType: credentials.hardwareWalletType,
       );
 
-      printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
+      walletInfo
+        ..dirPath = await pathForWalletDirOf(walletInfo)
+        ..path = await pathForWalletOf(walletInfo);
+      credentials.walletInfo = walletInfo;
+
+      printV("derivationInfo: ${(await walletInfo.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
+      walletInfo.isNonSeedWallet = isRecovery ? wallet.seed == null : false;
 
-
-      final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
-      credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-
-
-      if (placeholderRealGroupId != null && placeholderRealGroupId.isNotEmpty) {
-        credentials.walletInfo!.groupId = placeholderRealGroupId;
+      if (existingGroupId != null) {
+        walletInfo.groupId = existingGroupId;
       }
 
       if (keepSortOrder != null) {
-        credentials.walletInfo!.sortOrder = keepSortOrder;
+        walletInfo.sortOrder = keepSortOrder;
       }
-      credentials.walletInfo!.address = wallet.walletAddresses.address;
-      await credentials.walletInfo!.save();
+      walletInfo.address = wallet.walletAddresses.address;
+      await walletInfo.save();
+
+      if (shouldCreateGroup) {
+        final newGroupId = const Uuid().v4();
+        await _walletGroupService.createWalletGroup(
+          newGroupId,
+          name: groupName,
+          icon: WalletIcon(
+            type: WalletIconType.crypto,
+            value: type.name,
+            colorIndex: 0,
+            backgroundEnabled: false,
+          ),
+        );
+        await _walletGroupService.setGroupIdForWalletInfo(walletInfo, newGroupId);
+      }
+
       await wallet.save();
-      await _appStore.changeCurrentWallet(wallet);
+      await _walletGroupService.updateWalletGroups();
+
+      if (makeCurrent) {
+        await _appStore.changeCurrentWallet(wallet);
+      }
 
       if (!isGroupCreationDeferred) {
         _appStore.authenticationStore.allowedCreate();

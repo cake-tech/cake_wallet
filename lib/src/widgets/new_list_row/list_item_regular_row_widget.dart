@@ -32,6 +32,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.badgeIconSize,
       this.iconColor,
       this.isEnabled = true,
+      this.leadingWidget,
       this.secondaryLabel,});
 
   final String keyValue;
@@ -58,6 +59,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final Widget? leadingWidget;
   final bool isEnabled;
 
   static const _disabledOpacity = 0.38;
@@ -83,16 +85,17 @@ class ListItemRegularRowWidget extends StatelessWidget {
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,
             builder: (context, textStyle, labelStyle) {
-              final leadingIcon = iconPath != null
-                  ? CakeImageWidget(
-                      imageUrl: iconPath!,
-                      width: leadingIconSize ?? 24,
-                      height: leadingIconSize ?? 24,
-                      errorWidget: leadingIconErrorWidget,
-                      colorFilter:
-                          iconColor == null ? null : ColorFilter.mode(iconColor!, BlendMode.srcIn),
-                    )
-                  : null;
+              final leadingIcon = leadingWidget ??
+                  (iconPath != null
+                      ? CakeImageWidget(
+                    imageUrl: iconPath,
+                    width: leadingIconSize ?? 24,
+                    height: leadingIconSize ?? 24,
+                    errorWidget: leadingIconErrorWidget,
+                    colorFilter:
+                    iconColor == null ? null : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                  )
+                      : null);
 
               final imageWidget = badgeIconPath != null
                   ? Stack(
@@ -161,10 +164,10 @@ class ListItemRegularRowWidget extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (iconPath != null)
+                                if (leadingIcon != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 12.0),
-                                    child: imageWidget ?? SizedBox(),
+                                    padding: const EdgeInsets.only(right: 12),
+                                    child: imageWidget ?? leadingIcon,
                                   ),
                                 Flexible(
                                   child: Column(

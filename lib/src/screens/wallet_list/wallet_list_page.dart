@@ -125,6 +125,10 @@ class WalletListBody extends StatefulWidget {
 }
 
 class WalletListBodyState extends State<WalletListBody> {
+
+  static const _actionsHeight = 240.0;
+  static const _actionsBottomMargin = 24.0;
+
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -182,6 +186,26 @@ class WalletListBodyState extends State<WalletListBody> {
                                     readyWallets.any((wallet) => wallet.isCurrent);
                             widget.walletListViewModel.updateTileState(index, isExpanded);
 
+                            if (readyWallets.length == 1) {
+                              final item = readyWallets.single;
+
+                              return Padding(
+                                key: ValueKey("group_wallets_single_row_${group.groupKey}"),
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ListItemRegularRowWidget(
+                                  keyValue: "${group.groupKey}_${item.name}",
+                                  label: groupName,
+                                  leadingWidget: _groupLeading(group),
+                                  showArrow: false,
+                                  isFirstInSection: true,
+                                  isLastInSection: true,
+                                  leadingAccessory: item.isCurrent,
+                                  onTap: item.isCurrent ? null : () => _loadWallet(item),
+                                  trailingWidget: _groupActions(group),
+                                ),
+                              );
+                            }
+
                             return Padding(
                               key:
                                   ValueKey("group_wallets_expansion_tile_widget_${group.groupKey}"),
@@ -189,9 +213,7 @@ class WalletListBodyState extends State<WalletListBody> {
                               child: ListItemExpansionTileWidget(
                                 keyValue: "group_wallets_expansion_tile_widget_$index",
                                 label: groupName,
-                                leadingWidget: group.icon != null
-                                    ? WalletIconAvatar(icon: group.icon, size: 32, contentSize: 24)
-                                    : const SizedBox(width: 32, height: 32),
+                                leadingWidget: _groupLeading(group),
                                 isExpanded: isExpanded,
                                 onExpansionChanged: (value) {
                                   widget.walletListViewModel.updateTileState(index, value);
@@ -199,49 +221,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 },
                                 isFirstInSection: true,
                                 isLastInSection: true,
-                                trailingWidget: Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () => Navigator.of(context).pushNamed(
-                                        Routes.walletEdit,
-                                        arguments: group.groupKey,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(right: 8.0),
-                                        child: CakeImageWidget(
-                                          imageUrl: "assets/new-ui/pencil.svg",
-                                          width: 24,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                    if (!widget.walletListViewModel
-                                        .groupContainsCurrentWallet(group)) ...[
-                                      const SizedBox(width: 16),
-                                      InkWell(
-                                        key: ValueKey(
-                                            "wallet_list_page_delete_group_button_${group.groupKey}"),
-                                        onTap: () => _removeGroup(group),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(right: 8.0),
-                                          child: CakeImageWidget(
-                                            imageUrl: "assets/new-ui/trash-icon.svg",
-                                            width: 18,
-                                            color: Theme.of(context).colorScheme.error,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      isExpanded
-                                          ? Icons.keyboard_arrow_up
-                                          : Icons.keyboard_arrow_down,
-                                      size: 24,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ],
-                                ),
+                                trailingWidget: _groupActions(group),
                                 children: List<Widget>.generate(readyWallets.length, (childIndex) {
                                   final item = readyWallets[childIndex];
                                   final isLastChild = childIndex == readyWallets.length - 1;
@@ -262,7 +242,9 @@ class WalletListBodyState extends State<WalletListBody> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(
+                      height: _actionsHeight + _actionsBottomMargin + MediaQuery.viewPaddingOf(context).bottom,
+                    ),
                   ],
                 ),
               ),
@@ -288,10 +270,10 @@ class WalletListBodyState extends State<WalletListBody> {
                     ),
                   ),
                   Container(
-                    height: 240,
+                    height: _actionsHeight,
                     width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.only(bottom: 24),
-                    padding: EdgeInsets.only(left: 16, right: 16),
+                    margin: const EdgeInsets.only(bottom: _actionsBottomMargin),
+                    padding: const EdgeInsets.only(left: 16, right: 16),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -383,6 +365,47 @@ class WalletListBodyState extends State<WalletListBody> {
           ),
         );
       });
+
+  Widget _groupActions(WalletGroup group, {Widget? trailing}) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () => Navigator.of(context).pushNamed(Routes.walletEdit, arguments: group.groupKey),
+          child: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: CakeImageWidget(
+              imageUrl: "assets/new-ui/pencil.svg",
+              width: 24,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        if (!widget.walletListViewModel.groupContainsCurrentWallet(group)) ...[
+          const SizedBox(width: 16),
+          InkWell(
+            key: ValueKey("wallet_list_page_delete_group_button_${group.groupKey}"),
+            onTap: () => _removeGroup(group),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: CakeImageWidget(
+                imageUrl: "assets/new-ui/trash-icon.svg",
+                width: 18,
+                color: scheme.error,
+              ),
+            ),
+          ),
+        ],
+        if (trailing != null) ...[const SizedBox(width: 8), trailing],
+      ],
+    );
+  }
+
+  Widget _groupLeading(WalletGroup group) => group.icon != null
+      ? WalletIconAvatar(icon: group.icon, size: 32, contentSize: 24)
+      : const SizedBox(width: 32, height: 32);
 
   Future<void> _loadWallet(WalletListItem wallet) async {
     if (_loadingWallet) {
