@@ -659,6 +659,22 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       final requiredAmount =
           BigInt.tryParse(trade.sourceTokenAmountRaw.replaceAll("n", "")) ?? BigInt.zero;
 
+      Future<PendingTransaction> buildSwap() {
+        printV("[Swaps.xyz sending flow] Building swap transaction");
+        return evm!.createRawCallDataTransaction(
+          wallet,
+          routerTo,
+          routerData,
+          Money(routerValueWei, wallet.currency),
+          priority,
+          sourceTokenAddress: tokenContract,
+          sourceTokenAmount: requiredAmount,
+          useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
+              ? _settingsStore.useBlinkProtection
+              : false,
+        );
+      }
+
       final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
           ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
           : false;
@@ -667,56 +683,30 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         "[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.depositAmount.serialized} with amount $requiredAmount",
       );
 
-      if (needsApproval) {
-        // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
-        final isUSDTMainnet =
-            wallet.chainId == 1 &&
-            tokenContract.toLowerCase() == "0xdac17f958d2ee523a2206206994597c13d831ec7";
+      if (!needsApproval) {
+        return buildSwap();
+      }
 
-        if (isUSDTMainnet) {
-          final currentAllowance = await evm!.getAllowance(wallet, tokenContract, routerTo);
+      // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
+      final isUSDTMainnet =
+          wallet.chainId == 1 &&
+          tokenContract.toLowerCase() == "0xdac17f958d2ee523a2206206994597c13d831ec7";
+      final currentAllowance =
+          isUSDTMainnet ? await evm!.getAllowance(wallet, tokenContract, routerTo) : null;
+      final needsReset = currentAllowance != null && currentAllowance > BigInt.zero;
 
-          if (currentAllowance != null && currentAllowance > BigInt.zero) {
-            printV(
-              "[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.",
-            );
+      if (needsReset) {
+        printV(
+          "[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.",
+        );
+      }
 
-            final resetTx = await buildApprovalNeeded(
-              wallet: wallet,
-              spender: routerTo,
-              tokenContract: tokenContract,
-              requiredAmount: BigInt.zero,
-              // Approve 0
-              sourceTokenDecimals: trade.sourceTokenDecimals,
-              priority: priority,
-            );
-
-            if (resetTx != null) {
-              await resetTx.commit();
-
-              final resetConfirmed = await _waitForApprovalUpdate(
-                wallet: wallet,
-                tokenContract: tokenContract,
-                spender: routerTo,
-                requiredAmount: BigInt.zero,
-                // Wait until it equals 0
-                waitForExactMatch: true,
-              );
-
-              if (!resetConfirmed) {
-                throw Exception("Failed to reset USDT allowance. Please try again.");
-              }
-              printV("[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.");
-            }
-          }
-        }
-
-        // Standard Approval Flow
+      Future<PendingTransaction> buildApproval(BigInt amount) async {
         final approvalTx = await buildApprovalNeeded(
           wallet: wallet,
           spender: routerTo,
           tokenContract: tokenContract,
-          requiredAmount: requiredAmount,
+          requiredAmount: amount,
           sourceTokenDecimals: trade.sourceTokenDecimals,
           priority: priority,
         );
@@ -724,42 +714,46 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         if (approvalTx == null) {
           throw Exception("Failed to build approval transaction");
         }
+        return approvalTx;
+      }
 
+      Future<void> sendApproval(PendingTransaction approvalTx, BigInt amount) async {
         printV(
-          "[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized}",
+          "[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized} with amount $amount",
         );
         await approvalTx.commit();
 
-        // Wait for the approval to be mined on-chain
+        final isReset = amount == BigInt.zero;
         final isApproved = await _waitForApprovalUpdate(
           wallet: wallet,
           tokenContract: tokenContract,
           spender: routerTo,
-          requiredAmount: requiredAmount,
+          requiredAmount: amount,
+          waitForExactMatch: isReset,
         );
 
         if (!isApproved) {
-          throw Exception("Approval transaction failed or timed out on-chain. Try again.");
+          throw Exception(
+            isReset
+                ? "Failed to reset USDT allowance. Please try again."
+                : "Approval transaction failed or timed out on-chain. Try again.",
+          );
         }
-        printV(
-          "[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.",
-        );
+        printV("[Swaps.xyz sending flow] Approval to $amount confirmed on-chain.");
       }
 
-      // Construct Final Swap Transaction
-      printV("[Swaps.xyz sending flow] Building swap transaction");
-      return evm!.createRawCallDataTransaction(
-        wallet,
-        routerTo,
-        routerData,
-        Money(routerValueWei, wallet.currency),
-        priority,
-        sourceTokenAddress: tokenContract,
-        sourceTokenAmount: requiredAmount,
-        useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
-            ? _settingsStore.useBlinkProtection
-            : false,
-      );
+      final firstApproval = await buildApproval(needsReset ? BigInt.zero : requiredAmount);
+
+      return _ApproveThenSwapTransaction(firstApproval, () async {
+        await sendApproval(firstApproval, needsReset ? BigInt.zero : requiredAmount);
+        if (needsReset) {
+          await sendApproval(await buildApproval(requiredAmount), requiredAmount);
+        }
+
+        final swapTx = await buildSwap();
+        await swapTx.commit();
+        return swapTx;
+      });
     }
 
     throw Exception("invalid selector");
@@ -843,6 +837,46 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     printV("[Swaps.xyz sending flow] Allowance check timed out.");
     return false;
   }
+}
+
+class _ApproveThenSwapTransaction with PendingTransaction {
+  _ApproveThenSwapTransaction(this._firstApproval, this._send);
+
+  final PendingTransaction _firstApproval;
+  final Future<PendingTransaction> Function() _send;
+  PendingTransaction? _swap;
+
+  PendingTransaction get _current => _swap ?? _firstApproval;
+
+  @override
+  String get id => _current.id;
+
+  @override
+  Money get amount => _current.amount;
+
+  @override
+  Money get fee => _current.fee;
+
+  @override
+  String get amountFormatted => _current.amountFormatted;
+
+  @override
+  String get feeFormatted => _current.feeFormatted;
+
+  @override
+  String get feeFormattedValue => _current.feeFormattedValue;
+
+  @override
+  String get hex => _current.hex;
+
+  @override
+  String? get evmTxHashFromRawHex => _current.evmTxHashFromRawHex;
+
+  @override
+  Future<void> commit() async => _swap = await _send();
+
+  @override
+  Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }
 
 class TokenPathInfo {

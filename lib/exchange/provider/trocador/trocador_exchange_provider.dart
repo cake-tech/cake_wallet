@@ -144,6 +144,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       tickerTo: _normalizeCurrency(request.payoutCurrency),
       networkTo: _networkFor(request.payoutCurrency),
       address: request.payoutAddress,
+      refundMemo: "0",
       provider: provider,
       fixed: request.isFixedRate,
       payment: request.isFixedRate,
