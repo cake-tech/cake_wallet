@@ -270,11 +270,7 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
 
     group("fetchRate", () {
       test("quotes the price of one whole unit", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.provider, provider.description);
         expect(rate.rate.base, scenario.from);
@@ -282,21 +278,13 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       });
 
       test("converts the deposit amount with the quoted rate", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.rate.convert(scenario.depositAmount), scenario.payoutAmount);
       });
 
       test("carries the pair's limits", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.limits.min, scenario.expectedRateLimitsMin, reason: "min");
         expect(rate.limits.max, scenario.expectedRateLimitsMax, reason: "max");

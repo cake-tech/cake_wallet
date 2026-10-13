@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
@@ -22,6 +23,10 @@ class TradeRequest {
   CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
 
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
+
+  RateRequest get rateRequest => isFixedRate
+      ? FixedRateRequest(depositCurrency: depositCurrency, payoutAmount: payoutAmount)
+      : FloatingRateRequest(depositAmount: depositAmount, payoutCurrency: payoutCurrency);
 
   Map<String, dynamic> toJson() => {
       "refundAddress": refundAddress,

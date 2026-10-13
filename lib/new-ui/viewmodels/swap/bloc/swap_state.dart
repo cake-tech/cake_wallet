@@ -36,6 +36,10 @@ abstract class SwapStateWithInputs extends SwapState {
 
   List<ExchangeProviderDescription> get usableProviders;
 
+  RateRequest get rateRequest => isFixedRate
+      ? FixedRateRequest(depositCurrency: depositAmount.currency, payoutAmount: payoutAmount.cryptoAmount)
+      : FloatingRateRequest(depositAmount: depositAmount.cryptoAmount, payoutCurrency: payoutAmount.currency);
+
   @override
   bool get canInitiateSwap {
     if (source case final ExternalSwapSource s) {

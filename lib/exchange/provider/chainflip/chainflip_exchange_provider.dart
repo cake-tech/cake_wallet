@@ -2,6 +2,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
@@ -72,20 +73,20 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
-    if (!_supported.contains(from.currency) || !_supported.contains(to)) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
+    if (!_supported.contains(request.depositCurrency) || !_supported.contains(request.payoutCurrency)) {
       throw Exception("unsupported");
     }
 
     final quoteParams = ChainflipFetchQuotesRequest(
       apiKey: _affiliateKey,
-      sourceAsset: from.currency as CryptoCurrency,
-      destinationAsset: to,
-      amount: from.amount,
+      sourceAsset: request.depositCurrency,
+      destinationAsset: request.payoutCurrency,
+      amount: request.depositAmount.amount,
       commissionBps: _affiliateBps,
     );
 
@@ -93,11 +94,14 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money(bestQuote.egressAmountNative, to)),
+      rate: ExchangeRate.fromAmounts(
+        request.depositAmount,
+        Money(bestQuote.egressAmountNative, request.payoutCurrency),
+      ),
       limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: false,
       ),
     );
   }

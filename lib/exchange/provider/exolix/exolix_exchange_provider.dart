@@ -5,6 +5,7 @@ import "package:cake_wallet/core/lightning_invoice_service.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -93,18 +94,18 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
     final params = ExolixRateRequest(
-      coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(from.currency as CryptoCurrency)),
-      coinTo: _normalizeCurrency(to),
-      networkFrom: _networkFor(from.currency as CryptoCurrency),
-      networkTo: _networkFor(to),
-      rateType: isFixedRate ? ExolixRateType.fixed : ExolixRateType.float,
-      amount: from.toString(),
+      coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(request.depositCurrency)),
+      coinTo: _normalizeCurrency(request.payoutCurrency),
+      networkFrom: _networkFor(request.depositCurrency),
+      networkTo: _networkFor(request.payoutCurrency),
+      rateType: ExolixRateType.float,
+      amount: request.depositAmount.toString(),
       apiToken: apiKey,
     );
 
@@ -124,12 +125,12 @@ class ExolixExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(responseData.fromAmount, from.currency),
-        Money.safeParse(responseData.toAmount, to),
+        Money.safeParse(responseData.fromAmount, request.depositCurrency),
+        Money.safeParse(responseData.toAmount, request.payoutCurrency),
       ),
       limits: ExchangeLimits(
-        min: Money.safeParse(responseData.minAmount, from.currency),
-        max: Money.safeParse(responseData.maxAmount, from.currency),
+        min: Money.safeParse(responseData.minAmount, request.depositCurrency),
+        max: Money.safeParse(responseData.maxAmount, request.depositCurrency),
       ),
     );
   }

@@ -3,6 +3,7 @@ import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
@@ -97,34 +98,30 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
     final tokens = await _getSupportedTokens();
-    final originToken = currencyToNearAssetId(from.currency as CryptoCurrency, tokens);
-    final destinationToken = currencyToNearAssetId(to, tokens);
+    final originToken = currencyToNearAssetId(request.depositCurrency, tokens);
+    final destinationToken = currencyToNearAssetId(request.payoutCurrency, tokens);
 
     if (originToken == null || destinationToken == null) {
       throw Exception("fetchRate: Unsupported currency pair");
     }
 
-    final dummyAddrFrom = getNearDummyAddress(from.currency as CryptoCurrency);
-    final dummyAddrTo = getNearDummyAddress(to);
-
     final NearIntentsDepositMode depositMode =
-        _memoRequiredCurrencies.contains(from.currency as CryptoCurrency) ? .memo : .simple;
+        _memoRequiredCurrencies.contains(request.depositCurrency) ? .memo : .simple;
 
     final quoteResp = await getSwapQuote(
       dry: true,
-      isFixedRateMode: isFixedRate,
+      isFixedRateMode: request is FixedRateRequest,
       originAsset: originToken.assetId,
       destinationAsset: destinationToken.assetId,
-      amount: _toChainUnits(from, originToken),
+      amount: switch (request) {
+        FloatingRateRequest(:final depositAmount) => _toChainUnits(depositAmount, originToken),
+        FixedRateRequest(:final payoutAmount) => _toChainUnits(payoutAmount, destinationToken),
+      },
       depositMode: depositMode,
-      refundTo: dummyAddrFrom,
-      recipient: dummyAddrTo,
+      refundTo: getNearDummyAddress(request.depositCurrency),
+      recipient: getNearDummyAddress(request.payoutCurrency),
     );
 
     final quote = quoteResp.quote;
@@ -132,8 +129,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        _fromChainUnits(quote.amountIn, from.currency as CryptoCurrency, originToken),
-        _fromChainUnits(quote.amountOut, to, destinationToken),
+        _fromChainUnits(quote.amountIn, request.depositCurrency, originToken),
+        _fromChainUnits(quote.amountOut, request.payoutCurrency, destinationToken),
       ),
       limits: ExchangeLimits(),
     );

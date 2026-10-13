@@ -2,6 +2,7 @@ import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/xoswap/xoswap_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -12,6 +13,7 @@ import "package:cake_wallet/utils/package_info.dart";
 import "package:collection/collection.dart" show IterableDoubleExtension;
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
@@ -153,50 +155,55 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate(
-      {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
-    final rates = await getRatesForPair(from: from.currency as CryptoCurrency, to: to);
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    final rates = await getRatesForPair(from: request.depositCurrency, to: request.payoutCurrency);
     if (rates.isEmpty) {
       throw Exception("no rate from xoswap");
     }
 
-    final amount = double.parse(from.toString());
-    double result;
-    if (!isFixedRate) {
-      double bestOutput = 0;
-      for (final rate in rates) {
-        final double minVal = rate.min.value;
-        final double maxVal = rate.max.value;
-        if (amount >= minVal && amount <= maxVal) {
-          final double rateMultiplier = rate.amount.value;
-          final double minerFee = rate.minerFee.value;
-          final double outputAmount = (amount * rateMultiplier) - minerFee;
-          if (outputAmount > bestOutput) {
-            bestOutput = outputAmount;
-          }
-        }
-      }
-      result = bestOutput > 0 ? (bestOutput / amount) : 0;
-    } else {
-      double bestInput = double.infinity;
-      for (final rate in rates) {
-        final double rateMultiplier = rate.amount.value;
-        final double minerFee = rate.minerFee.value;
-        final double minVal = rate.min.value;
-        final double maxVal = rate.max.value;
-        final double requiredSend = (amount + minerFee) / rateMultiplier;
-        if (requiredSend >= minVal && requiredSend <= maxVal) {
-          if (requiredSend < bestInput) {
-            bestInput = requiredSend;
-          }
-        }
-      }
-      result = bestInput < double.infinity ? amount / bestInput : 0;
-    }
+    return ProviderRate(
+      provider: description,
+      rate: switch (request) {
+        FloatingRateRequest(:final depositAmount) => ExchangeRate.fromAmounts(
+          depositAmount,
+          _bestPayout(rates, depositAmount).toMoney(request.payoutCurrency),
+        ),
+        FixedRateRequest(:final payoutAmount) => ExchangeRate.fromAmounts(
+          _bestDeposit(rates, payoutAmount).toMoney(request.depositCurrency),
+          payoutAmount,
+        ),
+      },
+      limits: _exchangeLimitsFromRateList(request.depositCurrency, rates),
+    );
+  }
 
-    return ProviderRate(provider: description,
-        rate: ExchangeRate(base: from.currency, quote: Money.safeParse(result, to)),
-        limits: _exchangeLimitsFromRateList(from.currency as CryptoCurrency, rates));
+  double _bestPayout(List<XOSwapRate> rates, Money depositAmount) {
+    final deposit = double.parse(depositAmount.toString());
+    final payouts = [
+      for (final rate in rates)
+        if (deposit >= rate.min.value && deposit <= rate.max.value)
+          deposit * rate.amount.value - rate.minerFee.value,
+    ].where((payout) => payout > 0);
+
+    if (payouts.isEmpty) {
+      throw Exception("no xoswap rate accepts a deposit of $depositAmount");
+    }
+    return payouts.max;
+  }
+
+  double _bestDeposit(List<XOSwapRate> rates, Money payoutAmount) {
+    final payout = double.parse(payoutAmount.toString());
+    final deposits = [
+      for (final rate in rates)
+        if ((payout + rate.minerFee.value) / rate.amount.value case final deposit
+            when deposit >= rate.min.value && deposit <= rate.max.value)
+          deposit,
+    ];
+
+    if (deposits.isEmpty) {
+      throw Exception("no xoswap rate can pay out $payoutAmount");
+    }
+    return deposits.min;
   }
 
   @override

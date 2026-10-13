@@ -4,6 +4,7 @@ import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
@@ -198,20 +199,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
-    if (_notSupportedAsSourceToken.contains(from.currency as CryptoCurrency)) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (_notSupportedAsSourceToken.contains(request.depositCurrency)) {
       throw Exception(
-        "fetchRate: source token ${from.currency.symbol} is not supported as source token",
+        "fetchRate: source token ${request.depositCurrency.symbol} is not supported as source token",
       );
     }
 
-    if(_notSupportedAsSourceToken.contains(to)) {
+    if(_notSupportedAsSourceToken.contains(request.payoutCurrency)) {
       throw Exception(
-        "fetchRate: source token ${to.symbol} is not supported as destination token",
+        "fetchRate: source token ${request.payoutCurrency.symbol} is not supported as destination token",
       );
     }
 
@@ -220,20 +217,20 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       throw Exception("chains.isEmpty");
     }
 
-    final srcChain = _findChainByCurrency(from.currency as CryptoCurrency, chains);
-    final dstChain = _findChainByCurrency(to, chains);
+    final srcChain = _findChainByCurrency(request.depositCurrency, chains);
+    final dstChain = _findChainByCurrency(request.payoutCurrency, chains);
 
     await _ensureTokensCached(
       fromChain: srcChain,
       toChain: dstChain,
-      from: from.currency as CryptoCurrency,
-      to: to,
+      from: request.depositCurrency,
+      to: request.payoutCurrency,
     );
 
-    final srcToken = _getTokenAddress(currency: from.currency as CryptoCurrency, chain: srcChain);
-    final dstToken = _getTokenAddress(currency: to, chain: dstChain);
+    final srcToken = _getTokenAddress(currency: request.depositCurrency, chain: srcChain);
+    final dstToken = _getTokenAddress(currency: request.payoutCurrency, chain: dstChain);
 
-    if (isFixedRate) {
+    if (request is FixedRateRequest) {
       final path = await _pickPath(
         srcChainId: srcChain.chainId,
         srcToken: srcToken,
@@ -242,7 +239,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       );
       if (path == null || !path.supportsExactAmountOut) {
         throw Exception(
-          "fetchRate: route does not support exact-amount-out for ${from.currency.symbol} -> ${to.title}",
+          "fetchRate: route does not support exact-amount-out for ${request.depositCurrency.symbol} -> ${request.payoutCurrency.title}",
         );
       }
     }
@@ -253,20 +250,23 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         srcToken: srcToken,
         dstChainId: dstChain.chainId.toString(),
         dstToken: dstToken,
-        amount: from.amount.toString(),
-        swapDirection: .exactAmountIn,
+        amount: request.amount.amount.toString(),
+        swapDirection: switch (request) {
+          FloatingRateRequest() => .exactAmountIn,
+          FixedRateRequest() => .exactAmountOut,
+        },
       ),
     );
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money(data.amountIn.amount, from.currency),
-        Money(data.amountOut.amount, to),
+        Money(data.amountIn.amount, request.depositCurrency),
+        Money(data.amountOut.amount, request.payoutCurrency),
       ),
       limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: request is FixedRateRequest,
       ),
     );
   }

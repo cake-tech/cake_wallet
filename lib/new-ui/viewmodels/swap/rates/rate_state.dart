@@ -3,27 +3,35 @@ part of "rate_cubit.dart";
 @immutable
 sealed class RateState {
 
-  const RateState(this.from, this.to);
+  const RateState();
 
-  final Currency? from;
-  final Currency? to;
+  RateRequest? get request;
 
 }
 
 final class RatesNotLoaded extends RateState {
-  const RatesNotLoaded(super.from, super.to);
+  const RatesNotLoaded(this.request);
+
+  @override
+  final RateRequest? request;
 }
 
 final class RatesLoading extends RateState {
-  const RatesLoading(super.from, super.to);
+  const RatesLoading(this.request);
+
+  @override
+  final RateRequest request;
 }
 
 final class RatesLoaded extends RateState {
-  RatesLoaded(super.from, super.to, this.rates) {
+  RatesLoaded(this.request, this.rates) {
     if(rates.isEmpty) {
       throw ArgumentError("cannot create RatesLoaded with no rates, please use RatesLoadFailed or RatesNotFound instead");
     }
   }
+
+  @override
+  final RateRequest request;
 
   final List<ProviderRate> rates;
 
@@ -44,5 +52,8 @@ final class RatesLoaded extends RateState {
   }}
 
 final class RatesNotFound extends RateState {
-  const RatesNotFound(super.from, super.to);
+  const RatesNotFound(this.request);
+
+  @override
+  final RateRequest request;
 }

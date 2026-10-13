@@ -4,6 +4,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -16,6 +17,7 @@ import "package:cake_wallet/utils/distribution_info.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
@@ -74,25 +76,27 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
-    if (from.isZero) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request.amount.isZero) {
       throw Exception("cannot fetch rate with zero amount");
     }
 
+    final (fromAmount, toAmount) = switch (request) {
+      FloatingRateRequest(:final depositAmount) => (depositAmount.toString(), null),
+      FixedRateRequest(:final payoutAmount) => (null, payoutAmount.toString()),
+    };
+
     final responseData = await _api.send(
       ChangeNowEstimatedAmountRequest(
-        fromCurrency: _normalizeCurrency(from.currency as CryptoCurrency),
-        toCurrency: _normalizeCurrency(to),
-        fromAmount: isFixedRate ? null : from.toString(),
-        toAmount:  isFixedRate ? from.toString() : null,
-        fromNetwork: _networkFor(from.currency as CryptoCurrency),
-        toNetwork: _networkFor(to),
-        flow: isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
-        type: ChangeNowExchangeType.direct,
+        fromCurrency: _normalizeCurrency(request.depositCurrency),
+        toCurrency: _normalizeCurrency(request.payoutCurrency),
+        fromAmount: fromAmount,
+        toAmount: toAmount,
+        fromNetwork: _networkFor(request.depositCurrency),
+        toNetwork: _networkFor(request.payoutCurrency),
+        flow: request is FixedRateRequest ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
+        type: request is FixedRateRequest ? ChangeNowExchangeType.reverse : ChangeNowExchangeType.direct,
+        useRateId: request is FixedRateRequest ? "true" : null,
       ),
     );
 
@@ -103,13 +107,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(responseData.fromAmount, from.currency),
-        Money.safeParse(responseData.toAmount, to),
+        responseData.fromAmount.toMoney(request.depositCurrency),
+        responseData.toAmount.toMoney(request.payoutCurrency),
       ),
       limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: request is FixedRateRequest,
       ),
     );
   }
@@ -128,26 +132,22 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (request.isFixedRate) {
       // since we schedule to calculate the rate every 5 seconds we need to ensure that
       // we have the latest rate id with the given inputs before creating the trade
-      await fetchRate(
-        from: request.depositAmount,
-        to: request.payoutCurrency,
-        isFixedRate: request.isFixedRate,
-      );
+      await fetchRate(request.rateRequest);
     }
     final responseJSON = await _api.send(ChangeNowCreateExchangeRequest(
       fromCurrency: _normalizeCurrency(request.depositCurrency),
       toCurrency: _normalizeCurrency(request.payoutCurrency),
       fromNetwork: _networkFor(request.depositCurrency),
       toNetwork: _networkFor(request.payoutCurrency),
-      fromAmount: request.depositAmount.toString(),
-      toAmount: request.payoutAmount.toString(),
+      fromAmount: request.isFixedRate ? null : request.depositAmount.toString(),
+      toAmount: request.isFixedRate ? request.payoutAmount.toString() : null,
       address: request.payoutAddress,
       refundAddress: request.refundAddress,
       extraId: request.toAddressExtraId,
       flow: request.isFixedRate ? ChangeNowFlow.fixedRate : ChangeNowFlow.standard,
-      type: ChangeNowExchangeType.direct,
+      type: request.isFixedRate ? ChangeNowExchangeType.reverse : ChangeNowExchangeType.direct,
       payload: payload,
-      rateId: _lastUsedRateId,
+      rateId: request.isFixedRate ? _lastUsedRateId : null,
     ));
 
     return Trade(
@@ -159,8 +159,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       createdAt: DateTime.now(),
       state: TradeState.created,
       toAddressExtraId: request.toAddressExtraId,
-      depositAmount: request.depositAmount,
-      payoutAmount: request.payoutAmount,
+      depositAmount: responseJSON.fromAmount.toMoney(request.depositCurrency),
+      payoutAmount: responseJSON.toAmount.toMoney(request.payoutCurrency),
       payoutAddress: request.payoutAddress,
     );
   }

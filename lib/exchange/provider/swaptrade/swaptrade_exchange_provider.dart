@@ -3,6 +3,7 @@ import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_not_found_exception.dart";
@@ -62,25 +63,22 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
-    if (isFixedRate) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
       throw Exception("fixed rate unsupported");
     }
-    if (from.currency == CryptoCurrency.btcln || to == CryptoCurrency.btcln) {
+    if (request.depositCurrency == CryptoCurrency.btcln ||
+        request.payoutCurrency == CryptoCurrency.btcln) {
       throw Exception("lightning not supported");
     }
 
     final responseBody = await _api.send(
       SwapTradeGetPriceRequest(
-        coinSend: _normalizeCurrency(from.currency as CryptoCurrency),
-        coinSendNetwork: _networkFor(from.currency as CryptoCurrency),
-        coinReceiveNetwork: _networkFor(to),
-        coinReceive: _normalizeCurrency(to),
-        amountSend: from.toString(),
+        coinSend: _normalizeCurrency(request.depositCurrency),
+        coinSendNetwork: _networkFor(request.depositCurrency),
+        coinReceiveNetwork: _networkFor(request.payoutCurrency),
+        coinReceive: _normalizeCurrency(request.payoutCurrency),
+        amountSend: request.depositAmount.toString(),
         markup: markup,
       ),
     );
@@ -98,11 +96,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money.parse(payout.toStringAsFixed(to.decimals), to)),
+      rate: ExchangeRate.fromAmounts(
+        request.depositAmount,
+        Money.parse(payout.toStringAsFixed(request.payoutCurrency.decimals), request.payoutCurrency),
+      ),
       limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: false,
       ),
     );
   }

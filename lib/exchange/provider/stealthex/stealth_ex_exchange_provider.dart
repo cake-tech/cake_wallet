@@ -4,6 +4,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/stealthex/stealthex_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -60,13 +61,16 @@ class StealthExExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate(
-      {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
     final response = await getEstimatedExchangeAmount(
-      from: from.currency as CryptoCurrency,
-      to: to,
-      amount: double.parse(from.toString()),
-      isFixedRateMode: isFixedRate,
+      from: request.depositCurrency,
+      to: request.payoutCurrency,
+      amount: double.parse(request.depositAmount.toString()),
+      isFixedRateMode: false,
     );
 
     if (response.estimatedAmount <= 0.0) {
@@ -74,9 +78,10 @@ class StealthExExchangeProvider extends ExchangeProvider {
     }
 
     return ProviderRate(provider: description,
-        rate: ExchangeRate.fromAmounts(from, Money.safeParse(response.estimatedAmount, to)),
+        rate: ExchangeRate.fromAmounts(
+            request.depositAmount, Money.safeParse(response.estimatedAmount, request.payoutCurrency)),
         limits: await fetchLimits(
-            from: from.currency as CryptoCurrency, to: to, isFixedRateMode: isFixedRate));
+            from: request.depositCurrency, to: request.payoutCurrency, isFixedRateMode: false));
   }
 
   @override

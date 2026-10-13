@@ -11,6 +11,7 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -131,29 +132,21 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   Future<void> _reloadRates() async {
     if (state case final SwapStateWithInputs s when s is! SwapStateWithTrade) {
-      await rateCubit.fetchRates(
-        s.usableProviders,
-        from: s.isFixedRate ? s.payoutAmount.cryptoAmount : s.depositAmount.cryptoAmount,
-        to: s.isFixedRate ? s.depositAmount.currency : s.payoutAmount.currency,
-        isFixedRate: s.isFixedRate,
-        isExternalSend: s.isExternalSend,
-      );
+      await rateCubit.fetchRates(s.usableProviders, s.rateRequest, isExternalSend: s.isExternalSend);
     }
   }
 
   ExchangeRate? _bestRate(SwapInputState s) => switch (rateCubit.state) {
     final RatesLoaded rs
-        when {rs.from, rs.to}.containsAll({s.depositAmount.currency, s.payoutAmount.currency}) =>
+        when {rs.request.depositCurrency, rs.request.payoutCurrency}
+            .containsAll({s.depositAmount.currency, s.payoutAmount.currency}) =>
       rs.rates.max.rate,
     _ => null,
   };
 
   bool _ratesAreCurrent() {
     if (state case final SwapInputState s) {
-      final (from, to) = s.isFixedRate
-          ? (s.payoutAmount.currency, s.depositAmount.currency)
-          : (s.depositAmount.currency, s.payoutAmount.currency);
-      return rateCubit.state.from == from && rateCubit.state.to == to;
+      return rateCubit.state.request?.isSameQuery(s.rateRequest) ?? false;
     }
     return true;
   }

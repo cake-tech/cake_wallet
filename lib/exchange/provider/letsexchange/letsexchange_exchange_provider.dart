@@ -4,6 +4,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
@@ -57,29 +58,32 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
     final params = LetsExchangeInfoRequest(
-      float: !isFixedRate,
-      from: from.currency.symbol,
-      to: to.title,
-      networkFrom: _getNetworkType(from.currency as CryptoCurrency),
-      networkTo: _getNetworkType(to),
-      amount: double.parse(from.toString()),
+      float: true,
+      from: request.depositCurrency.symbol,
+      to: request.payoutCurrency.title,
+      networkFrom: _getNetworkType(request.depositCurrency),
+      networkTo: _getNetworkType(request.payoutCurrency),
+      amount: double.parse(request.depositAmount.toString()),
       affiliateId: _affiliateId,
     );
 
-    final responseData = await _getInfo(params, isFixedRate);
+    final responseData = await _getInfo(params, false);
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money.safeParse(responseData.amount, to)),
+      rate: ExchangeRate.fromAmounts(
+        request.depositAmount,
+        Money.safeParse(responseData.amount, request.payoutCurrency),
+      ),
       limits: ExchangeLimits(
-        min: Money.safeParse(responseData.minAmount, from.currency),
-        max: Money.safeParse(responseData.maxAmount, from.currency),
+        min: Money.safeParse(responseData.minAmount, request.depositCurrency),
+        max: Money.safeParse(responseData.maxAmount, request.depositCurrency),
       ),
     );
   }

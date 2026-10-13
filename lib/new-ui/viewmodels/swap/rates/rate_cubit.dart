@@ -1,13 +1,12 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:meta/meta.dart";
 
@@ -16,24 +15,22 @@ part "rate_state.dart";
 class RateCubit extends Cubit<RateState> {
   RateCubit({required ExchangeProviderRegistry registry})
       : _registry = registry,
-        super(const RatesNotLoaded(null, null));
+        super(const RatesNotLoaded(null));
 
   final ExchangeProviderRegistry _registry;
 
   Future<void> fetchRates(
-      List<ExchangeProviderDescription> providers, {
-        required Money from,
-        required CryptoCurrency to,
-        required bool isFixedRate,
+      List<ExchangeProviderDescription> providers,
+      RateRequest request, {
         required bool isExternalSend,
       }) async {
-    if(from.isZero) {
-      emit(RatesNotLoaded(from.currency, to));
+    if(request.amount.isZero) {
+      emit(RatesNotLoaded(request));
       return;
     }
 
-    if (state is! RatesLoaded || from.currency != state.from || to != state.to) {
-      emit(RatesLoading(from.currency, to));
+    if (state is! RatesLoaded || !(state.request?.isSameQuery(request) ?? false)) {
+      emit(RatesLoading(request));
     }
 
     bool supportedForSwap(ExchangeProviderDescription provider) =>
@@ -49,7 +46,7 @@ class RateCubit extends Cubit<RateState> {
           try {
             final rate = await _registry
                 .getProvider(provider)
-                .fetchRate(from: from, to: to, isFixedRate: isFixedRate)
+                .fetchRate(request)
                 .timeout(const Duration(seconds: 7));
 
             if(rate.rate.quote.isZero) {
@@ -57,11 +54,7 @@ class RateCubit extends Cubit<RateState> {
             }
             ExchangeProviderLogger.logSuccess(function: "fetchRate",
                 provider: provider,
-                requestData: {
-                  "from": from.serialized,
-                  "to": to.serialized,
-                  "isFixedRate": isFixedRate
-                });
+                requestData: request.toJson());
             return rate;
 
           } catch (e, st) {
@@ -69,11 +62,7 @@ class RateCubit extends Cubit<RateState> {
                 provider: provider,
                 error: e,
                 stackTrace: st,
-                requestData: {
-                  "from": from.serialized,
-                  "to": to.serialized,
-                  "isFixedRate": isFixedRate
-                });
+                requestData: request.toJson());
             printV("failed to fetch rate from ${provider.title}: $e\n$st");
             return null;
           }
@@ -84,11 +73,11 @@ class RateCubit extends Cubit<RateState> {
     final List<ProviderRate> rates = results.whereType<ProviderRate>().toList();
 
     if (rates.isEmpty) {
-      emit(RatesNotFound(from.currency, to));
+      emit(RatesNotFound(request));
       return;
     }
 
     rates.sort((a, b) => b.compareTo(a));
-    emit(RatesLoaded(from.currency, to, rates));
+    emit(RatesLoaded(request, rates));
   }
 }

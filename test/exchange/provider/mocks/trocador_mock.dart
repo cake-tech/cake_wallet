@@ -1,4 +1,5 @@
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -42,9 +43,10 @@ ProviderScenario trocadorScenario() => ProviderScenario(
   // Trocador is a meta-exchange: createTrade has to name a sub-provider, and the only place
   // that list gets filled in is fetchRate. without a rate first it throws on an empty list.
   warmUp: (provider) => provider.fetchRate(
-    from: Money.parse("2", CryptoCurrency.btc),
-    to: CryptoCurrency.xmr,
-    isFixedRate: false,
+    FloatingRateRequest(
+      depositAmount: Money.parse("2", CryptoCurrency.btc),
+      payoutCurrency: CryptoCurrency.xmr,
+    ),
   ),
   expectedCreatedTrade: ExpectedTrade(
     id: trocadorTradeId,

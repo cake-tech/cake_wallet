@@ -2,6 +2,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
@@ -91,42 +92,26 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
-    final rate = await _getRate(
-      from: from.currency as CryptoCurrency,
-      to: to,
-      amount: from,
-      isFixedRate: isFixedRate,
-    );
-
-
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    final rate = await _getRate(request);
 
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(rate.amountFrom, from.currency),
-        Money.safeParse(rate.amountTo, to),
+        Money.safeParse(rate.amountFrom, request.depositCurrency),
+        Money.safeParse(rate.amountTo, request.payoutCurrency),
       ),
       limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: request is FixedRateRequest,
       ),
     );
   }
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final rate = await _getRate(
-      from: request.depositCurrency,
-      to: request.payoutCurrency,
-      amount: request.isFixedRate ? request.payoutAmount : request.depositAmount,
-      isFixedRate: request.isFixedRate,
-    );
+    final rate = await _getRate(request.rateRequest);
 
     final provider = rate.quotes!.quotes!
         .where((quote) => providerStates[quote.provider] != false)
@@ -180,20 +165,20 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     );
   }
 
-  Future<TrocadorRate> _getRate({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-    required Money amount,
-    required bool isFixedRate,
-  }) async {
+  Future<TrocadorRate> _getRate(RateRequest request) async {
+    final (amountFrom, amountTo) = switch (request) {
+      FloatingRateRequest(:final depositAmount) => (depositAmount.toString(), null),
+      FixedRateRequest(:final payoutAmount) => (null, payoutAmount.toString()),
+    };
+
     final rate = await _api.send(TrocadorNewRateRequest(
-      tickerFrom: _normalizeCurrency(from),
-      networkFrom: _networkFor(from),
-      tickerTo: _normalizeCurrency(to),
-      networkTo: _networkFor(to),
-      amountFrom: isFixedRate ? null : amount.toString(),
-      amountTo: isFixedRate ? amount.toString() : null,
-      payment: isFixedRate,
+      tickerFrom: _normalizeCurrency(request.depositCurrency),
+      networkFrom: _networkFor(request.depositCurrency),
+      tickerTo: _normalizeCurrency(request.payoutCurrency),
+      networkTo: _networkFor(request.payoutCurrency),
+      amountFrom: amountFrom,
+      amountTo: amountTo,
+      payment: request is FixedRateRequest,
       minKycrating: .c,
       markup: markup,
     ));

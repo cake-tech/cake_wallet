@@ -2,6 +2,7 @@ import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -109,26 +110,33 @@ class JupiterExchangeProvider extends ExchangeProvider
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
     // must support both
-    if (!_isSolanaCurrency(from.currency as CryptoCurrency) || !_isSolanaCurrency(to)) {
+    if (!_isSolanaCurrency(request.depositCurrency) || !_isSolanaCurrency(request.payoutCurrency)) {
       throw Exception("unsupported");
     }
-    final inputMint = _getTokenMint(from.currency as CryptoCurrency);
-    final outputMint = _getTokenMint(to);
+    final inputMint = _getTokenMint(request.depositCurrency);
+    final outputMint = _getTokenMint(request.payoutCurrency);
 
     final orderData = await _api.send(
-      JupiterOrderRequest(inputMint: inputMint, outputMint: outputMint, amount: from.amount),
+      JupiterOrderRequest(
+        inputMint: inputMint,
+        outputMint: outputMint,
+        amount: request.depositAmount.amount,
+      ),
     );
     final outAmount = orderData.outAmount;
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money(outAmount, to)),
+      rate: ExchangeRate.fromAmounts(
+        request.depositAmount,
+        Money(outAmount, request.payoutCurrency),
+      ),
       limits: ExchangeLimits(),
     );
   }
