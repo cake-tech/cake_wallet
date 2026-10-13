@@ -86,7 +86,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
         ? _lightningSendCurrency(wallet, balanceViewModel)
         : wallet.currency;
-    hasMultipleTokens = isEVMWallet ||
+    hasMultipleTokens =
+        isEVMWallet ||
         [WalletType.solana, WalletType.tron, WalletType.zano].contains(wallet.type) ||
         TokenUtilities.walletHasEnabledSparkTokens(wallet);
 
@@ -107,10 +108,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   /// (rather than an instance one) so the constructor's initializer list can call it before the
   /// object exists.
   static CryptoCurrency _lightningSendCurrency(
-          WalletBase wallet, BalanceViewModel balanceViewModel) =>
-      balanceViewModel.stableBalanceActive
-          ? (TokenUtilities.stableBalanceTokenFor(wallet) ?? CryptoCurrency.btcln)
-          : CryptoCurrency.btcln;
+    WalletBase wallet,
+    BalanceViewModel balanceViewModel,
+  ) => balanceViewModel.stableBalanceActive
+      ? (TokenUtilities.stableBalanceTokenFor(wallet) ?? CryptoCurrency.btcln)
+      : CryptoCurrency.btcln;
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
 
@@ -125,41 +127,44 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.unspentCoinsListViewModel,
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
-  })  : state = InitialExecutionState(),
-        currencies = _appStore.wallet!.balance.keys.toList(),
-        selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
-            ? _lightningSendCurrency(_appStore.wallet!, balanceViewModel)
-            : _appStore.wallet!.currency,
-        hasMultipleTokens = isEVMCompatibleChain(_appStore.wallet!.type) ||
-            [WalletType.solana, WalletType.tron, WalletType.zano]
-                .contains(_appStore.wallet!.type) ||
-            TokenUtilities.walletHasEnabledSparkTokens(_appStore.wallet!),
-        selectedChainId = _appStore.wallet!.chainId,
-        outputs = ObservableList<Output>(),
-        fiatFromSettings = _appStore.settingsStore.fiatCurrency,
-        fiatCurrencies = FiatCurrency.all,
-        super(appStore: _appStore) {
+  }) : state = InitialExecutionState(),
+       currencies = _appStore.wallet!.balance.keys.toList(),
+       selectedCryptoCurrency = coinTypeToSpendFrom == UnspentCoinType.lightning
+           ? _lightningSendCurrency(_appStore.wallet!, balanceViewModel)
+           : _appStore.wallet!.currency,
+       hasMultipleTokens =
+           isEVMCompatibleChain(_appStore.wallet!.type) ||
+           [WalletType.solana, WalletType.tron, WalletType.zano].contains(_appStore.wallet!.type) ||
+           TokenUtilities.walletHasEnabledSparkTokens(_appStore.wallet!),
+       selectedChainId = _appStore.wallet!.chainId,
+       outputs = ObservableList<Output>(),
+       fiatFromSettings = _appStore.settingsStore.fiatCurrency,
+       fiatCurrencies = FiatCurrency.all,
+       super(appStore: _appStore) {
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
     unspentCoinsListViewModel.initialSetup();
     // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
-    reaction((_) {
-      if (isEVMCompatibleChain(wallet.type)) {
-        // Access currency which depends on selectedChainId, so MobX tracks the change
-        return wallet.currency;
-      }
-      return null;
-    }, (_) async {
-      // When chain changes, update currencies and selected currency
-      final selectionAtChainChange = selectedCryptoCurrency;
-      await Future.delayed(const Duration(milliseconds: 100));
-      currencies = wallet.balance.keys.toList();
-      if (selectedCryptoCurrency == selectionAtChainChange) {
-        selectedCryptoCurrency = wallet.currency;
-      }
-      updateSendingBalance();
-    });
+    reaction(
+      (_) {
+        if (isEVMCompatibleChain(wallet.type)) {
+          // Access currency which depends on selectedChainId, so MobX tracks the change
+          return wallet.currency;
+        }
+        return null;
+      },
+      (_) async {
+        // When chain changes, update currencies and selected currency
+        final selectionAtChainChange = selectedCryptoCurrency;
+        await Future.delayed(const Duration(milliseconds: 100));
+        currencies = wallet.balance.keys.toList();
+        if (selectedCryptoCurrency == selectionAtChainChange) {
+          selectedCryptoCurrency = wallet.currency;
+        }
+        updateSendingBalance();
+      },
+    );
   }
 
   // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
@@ -262,14 +267,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       final pricedCurrency = bitcoin?.getLightningSendConversion(pendingTransaction!) != null
           ? CryptoCurrency.btcln
           : selectedCryptoCurrency;
-      final selectedCurrency =
-          pricedCurrency == CryptoCurrency.btcln ? CryptoCurrency.btc : pricedCurrency;
-      var currency = _fiatConversationStore.prices.keys
-          .firstWhere((k) => k.titleAndTagEqual(selectedCurrency));
+      final selectedCurrency = pricedCurrency == CryptoCurrency.btcln
+          ? CryptoCurrency.btc
+          : pricedCurrency;
+      var currency = _fiatConversationStore.prices.keys.firstWhere(
+        (k) => k.titleAndTagEqual(selectedCurrency),
+      );
 
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency],
-          cryptoAmount: pendingTransaction!.amountFormatted);
+        price: _fiatConversationStore.prices[currency],
+        cryptoAmount: pendingTransaction!.amountFormatted,
+      );
       return fiat;
     } catch (_) {
       return '0.00';
@@ -279,9 +287,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String calculateTransactionFiatAmount(String amountValue) {
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[_fiatConversationStore.prices.keys
-              .firstWhere((k) => k.titleAndTagEqual(selectedCryptoCurrency))],
-          cryptoAmount: amountValue);
+        price:
+            _fiatConversationStore.prices[_fiatConversationStore.prices.keys.firstWhere(
+              (k) => k.titleAndTagEqual(selectedCryptoCurrency),
+            )],
+        cryptoAmount: amountValue,
+      );
       return fiat;
     } catch (_) {
       return '0.00';
@@ -333,29 +344,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   CryptoCurrency get currency =>
       selectedCryptoCurrency == CryptoCurrency.btcln ||
           (bitcoin?.isSparkToken(selectedCryptoCurrency) ?? false)
-          ? selectedCryptoCurrency
-          : wallet.currency;
+      ? selectedCryptoCurrency
+      : wallet.currency;
 
   String get currencySymbol => _appStore.amountParsingProxy.getCryptoSymbol(currency);
 
   Validator<String> amountValidator(Output output) => AmountValidator(
-        currency: wallet.currency,
-        amountParsingProxy: _appStore.amountParsingProxy,
-        minValue: isSendToSilentPayments(output)
-            ?
-            //  TODO: get from server
-            // bitcoin!.silentPaymentsMinAmount
-            '0.00001'
-            : null,
-      );
+    currency: wallet.currency,
+    amountParsingProxy: _appStore.amountParsingProxy,
+    minValue: isSendToSilentPayments(output)
+        ?
+          //  TODO: get from server
+          // bitcoin!.silentPaymentsMinAmount
+          '0.00001'
+        : null,
+  );
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
   Validator<String> get addressValidator => AddressValidator(
-        type: selectedCryptoCurrency,
-        isTestnet: wallet.isTestnet,
-        network: wallet.walletInfo.network,
-      );
+    type: selectedCryptoCurrency,
+    isTestnet: wallet.isTestnet,
+    network: wallet.walletInfo.network,
+  );
 
   Validator<String> get textValidator => TextValidator();
 
@@ -396,8 +407,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (balanceForCurrency == null) {
       return _appStore.amountParsingProxy.asDisplayString(Money.zero(selectedCryptoCurrency));
     }
-    return _appStore.amountParsingProxy
-        .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
+    return _appStore.amountParsingProxy.asDisplayString(
+      wallet.balance[selectedCryptoCurrency]!.available,
+    );
   }
 
   @action
@@ -424,18 +436,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
-        if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
+        if (selectedCryptoCurrency == CryptoCurrency.btcln ||
+            (bitcoin?.isSparkToken(selectedCryptoCurrency) ?? false)) {
+          return balance;
+        }
+
         return _appStore.amountParsingProxy.getDisplayCryptoString(
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
+          await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+          walletTypeToCryptoCurrency(walletType),
+        );
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
-        final sendingBalance =
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
+        final sendingBalance = await unspentCoinsListViewModel.getSendingBalance(
+          coinTypeToSpendFrom,
+        );
         return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
       default:
         return balance;
@@ -469,7 +487,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return sp.hasMatch(address);
   }
 
-
   @computed
   bool get hasCoinControl =>
       wallet.hasCoinControl && coinTypeToSpendFrom != UnspentCoinType.lightning;
@@ -479,11 +496,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get isElectrumWallet => [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin
-      ].contains(wallet.type);
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.dogecoin,
+  ].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -581,8 +598,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.zcash) {
       // zcash has a txHash getter, but the pendingTransaction id contains quotation marks for whatever reason?
       final txIdNoQuotes = pendingTransaction?.id.replaceAll("\"", "");
-      return wallet.transactionHistory.transactions.values
-          .firstWhereOrNull((item) => item.txHash == txIdNoQuotes);
+      return wallet.transactionHistory.transactions.values.firstWhereOrNull(
+        (item) => item.txHash == txIdNoQuotes,
+      );
     }
     return wallet.transactionHistory.transactions[pendingTransaction?.id];
   }
@@ -677,8 +695,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       outputs.first.address = paymentRequest.address;
       outputs.first.parsedAddress = ParsedAddress(
-          parsedAddressByCurrencyMap: {currency: paymentRequest.address},
-          handle: ocpRequest!.receiverName);
+        parsedAddressByCurrencyMap: {currency: paymentRequest.address},
+        handle: ocpRequest!.receiverName,
+      );
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -795,18 +814,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             if (selector == swapAndExecuteSig) {
               final requiredAmount =
                   BigInt.tryParse((trade.sourceTokenAmountRaw ?? '0').replaceAll('n', '')) ??
-                      BigInt.zero;
+                  BigInt.zero;
 
               final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
                   ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
                   : false;
 
               printV(
-                  '[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.from?.title} ${trade.from?.tag ?? ''} with amount $requiredAmount');
+                '[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.from?.title} ${trade.from?.tag ?? ''} with amount $requiredAmount',
+              );
 
               if (needsApproval) {
                 // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
-                final isUSDTMainnet = selectedChainId == 1 &&
+                final isUSDTMainnet =
+                    selectedChainId == 1 &&
                     tokenContract.toLowerCase() == '0xdac17f958d2ee523a2206206994597c13d831ec7';
 
                 if (isUSDTMainnet) {
@@ -814,15 +835,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
                   if (currentAllowance != null && currentAllowance > BigInt.zero) {
                     printV(
-                        '[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.');
+                      '[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.',
+                    );
 
                     final resetTx = await buildApprovalNeeded(
-                        spender: routerTo,
-                        tokenContract: tokenContract,
-                        requiredAmount: BigInt.zero,
-                        // Approve 0
-                        sourceTokenDecimals: trade.sourceTokenDecimals,
-                        priority: priority);
+                      spender: routerTo,
+                      tokenContract: tokenContract,
+                      requiredAmount: BigInt.zero,
+                      // Approve 0
+                      sourceTokenDecimals: trade.sourceTokenDecimals,
+                      priority: priority,
+                    );
 
                     if (resetTx != null) {
                       await resetTx.commit();
@@ -842,18 +865,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                         return null;
                       }
                       printV(
-                          '[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.');
+                        '[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.',
+                      );
                     }
                   }
                 }
 
                 // Standard Approval Flow
                 final approvalTx = await buildApprovalNeeded(
-                    spender: routerTo,
-                    tokenContract: tokenContract,
-                    requiredAmount: requiredAmount,
-                    sourceTokenDecimals: trade.sourceTokenDecimals,
-                    priority: priority);
+                  spender: routerTo,
+                  tokenContract: tokenContract,
+                  requiredAmount: requiredAmount,
+                  sourceTokenDecimals: trade.sourceTokenDecimals,
+                  priority: priority,
+                );
 
                 if (replaced()) {
                   return null;
@@ -867,7 +892,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
                 try {
                   printV(
-                      '[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.from?.title} ${trade.from?.tag ?? ''} ');
+                    '[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.from?.title} ${trade.from?.tag ?? ''} ',
+                  );
                   await approvalTx.commit();
 
                   // Wait for the approval to be mined on-chain
@@ -882,11 +908,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
                   if (!isApproved) {
                     state = FailureState(
-                        'Approval transaction failed or timed out on-chain. Try again.');
+                      'Approval transaction failed or timed out on-chain. Try again.',
+                    );
                     return null;
                   }
                   printV(
-                      '[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.');
+                    '[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.',
+                  );
                 } catch (e, s) {
                   printV('[Swaps.xyz sending flow] Approval transaction error: $e\n$s');
                   if (replaced()) {
@@ -928,7 +956,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               return null;
             }
             state = FailureState(
-                'Failed to create Swaps.xyz transaction - ${translateErrorMessage(e, wallet.type, wallet.currency)}');
+              'Failed to create Swaps.xyz transaction - ${translateErrorMessage(e, wallet.type, wallet.currency)}',
+            );
             return null;
           }
         }
@@ -948,11 +977,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             final fee = actualFee > 0 ? actualFee : 0.0005;
 
             final fromCurrency = trade.from ?? CryptoCurrency.sol;
-            final amount = Money.tryParse(
-                  trade.amount.sanitized(),
-                  fromCurrency,
-                  strictParsing: false,
-                ) ??
+            final amount =
+                Money.tryParse(trade.amount.sanitized(), fromCurrency, strictParsing: false) ??
                 Money.zero(fromCurrency);
 
             final prepared = await solana!.signAndPrepareJupiterSwapTransaction(
@@ -983,7 +1009,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (!isSendAll) {
         final estimateTxAmount = outputs.fold<BigInt>(
-            BigInt.zero, (acc, output) => acc + output.cryptoAmountMoney.amount);
+          BigInt.zero,
+          (acc, output) => acc + output.cryptoAmountMoney.amount,
+        );
         if (estimateTxAmount <= BigInt.zero) {
           throw Exception('Amount must be greater than 0');
         }
@@ -1013,7 +1041,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           if (provider is NearIntentsExchangeProvider) {
             if (txAmountDouble != tradeAmountDouble) {
               throw Exception(
-                  'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
+                'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble',
+              );
             }
           }
         }
@@ -1068,10 +1097,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (!isSufficient) {
         state = AwaitingConfirmationState(
-            title: S.current.confirm_fee_deduction,
-            message: S.current.confirm_fee_deduction_content,
-            onConfirm: () async => await _executeReplaceByFee(tx, newFee),
-            onCancel: () => state = FailureState('Insufficient change for fee'));
+          title: S.current.confirm_fee_deduction,
+          message: S.current.confirm_fee_deduction_content,
+          onConfirm: () async => await _executeReplaceByFee(tx, newFee),
+          onCancel: () => state = FailureState('Insufficient change for fee'),
+        );
       } else {
         await _executeReplaceByFee(tx, newFee);
       }
@@ -1185,18 +1215,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               }
 
               if (tokenMints.isNotEmpty) {
-                solana!.updateTokenBalances(
-                  wallet,
-                  tokenMints: tokenMints,
-                );
+                solana!.updateTokenBalances(wallet, tokenMints: tokenMints);
 
                 // Retry after a bit more time to ensure balance is updated
                 Future.delayed(Duration(seconds: 2), () async {
                   try {
-                    await solana!.updateTokenBalances(
-                      wallet,
-                      tokenMints: tokenMints,
-                    );
+                    await solana!.updateTokenBalances(wallet, tokenMints: tokenMints);
                   } catch (e) {
                     printV('Error retrying balance update: $e');
                   }
@@ -1214,8 +1238,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       // Immediate transaction update for EVM chains, Tron, and Nano
       if (isEVMWallet ||
-          [WalletType.bitcoin, WalletType.solana, WalletType.tron, WalletType.nano]
-              .contains(walletType)) {
+          [
+            WalletType.bitcoin,
+            WalletType.solana,
+            WalletType.tron,
+            WalletType.nano,
+          ].contains(walletType)) {
         Future.delayed(Duration(seconds: 4), () async {
           try {
             await Future.wait([
@@ -1232,54 +1260,64 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // it is required because evm, solana and tron don't actually save the transaction info when you send something.
       // instead, they rely on the tx to eventually get fetched at sync time, which can take a while
       if (isEVMWallet) {
-        final selectedToken = evm!.getERC20Currencies(wallet).firstWhereOrNull(
+        final selectedToken = evm!
+            .getERC20Currencies(wallet)
+            .firstWhereOrNull(
               (token) => token.title.toUpperCase() == selectedCryptoCurrency.title.toUpperCase(),
             );
-        wallet.transactionHistory.addOne(evm!.getTransactionInfo(
-          id: pendingTransaction!.evmTxHashFromRawHex!,
-          height: 0,
-          amount: outputs.first.cryptoAmountMoney,
-          fee: pendingTransaction!.fee,
-          tokenSymbol: selectedCryptoCurrency.title,
-          direction: TransactionDirection.outgoing,
-          isPending: true,
-          date: DateTime.now(),
-          confirmations: 0,
-          chainId: wallet.chainId ?? 0,
-          contractAddress: selectedToken?.contractAddress,
-        ));
+        wallet.transactionHistory.addOne(
+          evm!.getTransactionInfo(
+            id: pendingTransaction!.evmTxHashFromRawHex!,
+            height: 0,
+            amount: outputs.first.cryptoAmountMoney,
+            fee: pendingTransaction!.fee,
+            tokenSymbol: selectedCryptoCurrency.title,
+            direction: TransactionDirection.outgoing,
+            isPending: true,
+            date: DateTime.now(),
+            confirmations: 0,
+            chainId: wallet.chainId ?? 0,
+            contractAddress: selectedToken?.contractAddress,
+          ),
+        );
       }
 
       if (walletType == WalletType.solana) {
-        wallet.transactionHistory.addOne(solana!.getTransactionInfo(
-          id: pendingTransaction!.id,
-          blockTime: DateTime.now(),
-          to: "",
-          from: "",
-          direction: TransactionDirection.outgoing,
-          amount: pendingTransaction!.amount,
-          isPending: true,
-          fee: pendingTransaction!.fee,
-        ));
+        wallet.transactionHistory.addOne(
+          solana!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            to: "",
+            from: "",
+            direction: TransactionDirection.outgoing,
+            amount: pendingTransaction!.amount,
+            isPending: true,
+            fee: pendingTransaction!.fee,
+          ),
+        );
       }
 
       if (walletType == WalletType.tron) {
-        wallet.transactionHistory.addOne(tron!.getTransactionInfo(
-          id: pendingTransaction!.id,
-          blockTime: DateTime.now(),
-          direction: TransactionDirection.outgoing,
-          amount: outputs.first.cryptoAmountMoney,
-          isPending: true,
-          fee: outputs.first.estimatedFee,
-        ));
+        wallet.transactionHistory.addOne(
+          tron!.getTransactionInfo(
+            id: pendingTransaction!.id,
+            blockTime: DateTime.now(),
+            direction: TransactionDirection.outgoing,
+            amount: outputs.first.cryptoAmountMoney,
+            isPending: true,
+            fee: outputs.first.estimatedFee,
+          ),
+        );
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
         _addTransactionDescription();
       }
       final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
-          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
+      await sharedPreferences.setString(
+        PreferencesKey.backgroundSyncLastTrigger(wallet.name),
+        DateTime.now().add(Duration(minutes: 1)).toIso8601String(),
+      );
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
 
@@ -1293,7 +1331,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> _updateSolanaTrade({required String signature, required bool isSuccess}) async {
     if (_currentTrade == null ||
         _currentProvider?.title != 'Jupiter' ||
-        walletType != WalletType.solana) return;
+        walletType != WalletType.solana)
+      return;
 
     _currentTrade!.txId = signature;
 
@@ -1331,17 +1370,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
     _settingsStore.shouldSaveRecipientAddress
-        ? await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            recipientAddress: address,
-            transactionNote: note,
-            transactionKey: tx?.additionalInfo["key"] as String?,
-          ))
-        : await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            transactionNote: note,
-            transactionKey: tx?.additionalInfo["key"] as String?,
-          ));
+        ? await transactionDescriptionBox.add(
+            TransactionDescription(
+              id: descriptionKey,
+              recipientAddress: address,
+              transactionNote: note,
+              transactionKey: tx?.additionalInfo["key"] as String?,
+            ),
+          )
+        : await transactionDescriptionBox.add(
+            TransactionDescription(
+              id: descriptionKey,
+              transactionNote: note,
+              transactionKey: tx?.additionalInfo["key"] as String?,
+            ),
+          );
   }
 
   Object _credentials([ExchangeProvider? provider]) {
@@ -1382,12 +1425,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         );
 
       case WalletType.monero:
-        return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return monero!.createMoneroTransactionCreationCredentials(
+          outputs: outputs,
+          priority: priority!,
+        );
 
       case WalletType.wownero:
-        return wownero!
-            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return wownero!.createWowneroTransactionCreationCredentials(
+          outputs: outputs,
+          priority: priority!,
+        );
 
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -1406,13 +1453,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.nano:
         return nano!.createNanoTransactionCredentials(outputs);
       case WalletType.solana:
-        return solana!
-            .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+        return solana!.createSolanaTransactionCredentials(
+          outputs,
+          currency: selectedCryptoCurrency,
+        );
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.zano:
         return zano!.createZanoTransactionCredentials(
-            outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
+          outputs: outputs,
+          priority: priority!,
+          currency: selectedCryptoCurrency,
+        );
       case WalletType.decred:
         this.coinTypeToSpendFrom = UnspentCoinType.any;
         return decred!.createDecredTransactionCredentials(outputs, priority!);
@@ -1441,8 +1493,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void setSelectedCryptoCurrency(String cryptoCurrency) {
     try {
-      selectedCryptoCurrency = wallet.balance.keys
-          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+      selectedCryptoCurrency = wallet.balance.keys.firstWhere(
+        (e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase(),
+      );
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
@@ -1451,17 +1504,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasMemos => [WalletType.zcash].contains(wallet.type);
 
-  final Map<WalletType, int> _maxMemoLengths = {
-    WalletType.zcash: 512,
-  };
+  final Map<WalletType, int> _maxMemoLengths = {WalletType.zcash: 512};
 
   @computed
   int get maxMemoLength => _maxMemoLengths[wallet.type] ?? 9999999;
 
   ContactRecord? newContactAddress() {
-    final Set<String> contactAddresses =
-        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+    final Set<String> contactAddresses = Set.from(
+      contactListViewModel.contacts.map((contact) => contact.address),
+    )..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
 
     for (final output in outputs) {
       final address = output.isParsedAddress
@@ -1473,11 +1524,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           selectedCryptoCurrency.raw != -1) {
         return ContactRecord(
           contactListViewModel.contactSource,
-          Contact(
-            name: '',
-            address: address,
-            type: selectedCryptoCurrency,
-          ),
+          Contact(name: '', address: address, type: selectedCryptoCurrency),
         );
       }
     }
@@ -1499,7 +1546,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     const int maxAttempts = 30; // ~60 seconds
 
     printV(
-        '[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)');
+      '[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)',
+    );
 
     while (attempts < maxAttempts) {
       try {
@@ -1507,7 +1555,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         if (currentAllowance != null) {
           printV(
-              '[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount');
+            '[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount',
+          );
 
           if (waitForExactMatch) {
             // For Reset (Target 0): We need it to be exactly 0 (or less, though it can't be negative)
@@ -1544,33 +1593,30 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     int? sourceTokenDecimals,
   }) async {
     final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
-          (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
-          orElse: () => Erc20Token(
-            name: '',
-            symbol: '',
-            contractAddress: tokenContract,
-            decimal: sourceTokenDecimals ?? 18,
-            enabled: true,
-          ),
-        );
+      (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
+      orElse: () => Erc20Token(
+        name: '',
+        symbol: '',
+        contractAddress: tokenContract,
+        decimal: sourceTokenDecimals ?? 18,
+        enabled: true,
+      ),
+    );
 
     return await evm!.createTokenApproval(
       wallet,
       Money(requiredAmount, erc20Token),
       spender,
       priority,
-      useBlinkProtection:
-          canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
+      useBlinkProtection: canSupportBlinkProtection(selectedChainId)
+          ? _settingsStore.useBlinkProtection
+          : false,
     );
   }
 
   // End EVM helper functions
 
-  String translateErrorMessage(
-    Object error,
-    WalletType walletType,
-    CryptoCurrency currency,
-  ) {
+  String translateErrorMessage(Object error, WalletType walletType, CryptoCurrency currency) {
     String errorMessage = error.toString();
 
     if (walletType == WalletType.solana) {
@@ -1590,8 +1636,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // 5000 lamport used here is the constant for sending a transaction on solana
           int lamportsPerSol = 1000000000;
 
-          solValueNeeded =
-              lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
+          solValueNeeded = lamportsNeeded != null
+              ? ((lamportsNeeded + 5000) / lamportsPerSol)
+              : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
           return S.current.insufficient_lamport_for_tx;
@@ -1661,9 +1708,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         final parsedErrorMessageResult =
             EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
-          errorMessage,
-          _fiatConversationStore.prices[currency] ?? 0.0,
-        );
+              errorMessage,
+              _fiatConversationStore.prices[currency] ?? 0.0,
+            );
 
         // Handle generic insufficient funds error (no specific values available)
         if (parsedErrorMessageResult.error == 'generic_insufficient_funds') {
@@ -1701,8 +1748,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (error is TransactionWrongBalanceException) {
       if (error.amount != null)
-        return S.current
-            .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+        return S.current.tx_wrong_balance_with_amount_exception(
+          currency.toString(),
+          error.amount.toString(),
+        );
 
       return S.current.tx_wrong_balance_exception(currency.toString());
     }
@@ -1802,7 +1851,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       printV(
-          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+        'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId',
+      );
 
       final registered = await SwapsXyzExchangeProvider.registerAltVmTx(
         txId: trade.id,
@@ -1828,8 +1878,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String? payjoinUri;
 
   @action
-  Future<void> fetchTokenForContractAddress(String contractAddress,
-      {WalletType? walletType}) async {
+  Future<void> fetchTokenForContractAddress(
+    String contractAddress, {
+    WalletType? walletType,
+  }) async {
     final token = await TokenUtilities.findTokenByAddress(
       walletType: walletType ?? wallet.type,
       address: contractAddress,

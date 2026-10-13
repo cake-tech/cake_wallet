@@ -348,6 +348,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     } else {
       stableBalanceThresholdSats = previousThresholdSats;
       stableBalanceMaxSlippageBps = previousMaxSlippageBps;
+
+      // The failed reconnect already closed the old session - bring it back with the restored
+      // settings so Lightning / Stable Balance don't stay down until the wallet is reopened.
+      if (await lightningWallet!.init(path)) {
+        await subscribeForUpdates();
+      }
     }
 
     return success;
@@ -898,7 +904,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         ? credentials.outputs.first.extractedAddress!
         : credentials.outputs.first.address;
 
-    final sparkToken = credentials.currency as SparkToken?;
+    final currency = credentials.currency;
+    final sparkToken = currency is SparkToken ? currency : null;
+
+    if (sparkToken != null && !isLightningInitialized) {
+      throw Exception("Lightning wallet is not available - cannot send ${sparkToken.title}");
+    }
+
     final isLNCompatible = await lightningWallet?.isCompatible(lnAddr) ?? false;
 
     if (SparkSendRouting.shouldRouteToLightning(
