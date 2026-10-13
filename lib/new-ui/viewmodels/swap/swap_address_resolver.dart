@@ -67,6 +67,17 @@ class SwapAddressResolver {
       }
     }
 
+    if (wi.type == .zcash && curr == CryptoCurrency.zec) {
+      if (wi.internalId == _appStore.wallet!.walletInfo.internalId) {
+        return _appStore.wallet!.walletAddresses.addressForExchange;
+      }
+
+      return (await wi.getAddresses()).entries
+              .firstWhereOrNull((e) => e.value == "transparent")
+              ?.key ??
+          wi.address;
+    }
+
     return wi.address;
   }
 
