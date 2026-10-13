@@ -418,6 +418,7 @@ class ElectrumTransactionResolver {
     final walletType = _wallet.walletInfo.type;
     final walletNetwork = _wallet.network;
     final ownAddresses = _wallet.addressesSet;
+    final ownAddressesByAccount = _wallet.addressesSetByAccount;
 
     Future<ElectrumTransactionInfo> buildTransactionAndAddToHistory() async {
       final ins = targetOriginal.inputs.map((v) => parsedInputTxById[v.txId]).toList();
@@ -433,7 +434,7 @@ class ElectrumTransactionResolver {
       // derivations for a large tx, redone on every batch, can never pin
       // the UI isolate.
       final infosByHash = await buildElectrumTransactionInfosInIsolate(
-        ({txId: bundle}, walletType, walletNetwork, ownAddresses, {txId: height}),
+        ({txId: bundle}, walletType, walletNetwork, ownAddresses, ownAddressesByAccount, {txId: height}),
       );
       final info = infosByHash[txId];
       if (info == null) {

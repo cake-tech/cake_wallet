@@ -56,6 +56,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(
@@ -652,6 +653,12 @@ Future<void> defaultSettingsMigration(
           break;
         case 72:
           await createDefaultChartsData();
+          await addWalletNodeList(type: WalletType.robinhood);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.robinhood,
+            currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
           break;
         default:
           break;

@@ -39,6 +39,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return b.length == 34 && b[0] == 88 && b[1] == 32;
   }
 
+  int? accountIndex;
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
@@ -56,6 +57,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     bool isReplaced = false,
     required DateTime date,
     required int confirmations,
+    this.accountIndex,
     String? to,
     this.unspents,
     this.isReceivedSilentPayment = false,
@@ -380,6 +382,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       isPending: data['isPending'] as bool,
       isReplaced: data['isReplaced'] as bool? ?? false,
       confirmations: data['confirmations'] as int,
+      accountIndex: data['accountIndex'] as int?,
       inputAddresses:
           inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
       outputAddresses:
@@ -431,6 +434,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         confirmations: info.confirmations,
+        accountIndex: accountIndex,
         additionalInfo: additionalInfo);
   }
 
@@ -444,6 +448,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isPending'] = isPending;
     m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
+    m['accountIndex'] = accountIndex;
     m['fee'] = fee?.amount.toInt();
     m['to'] = to;
     m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
@@ -455,6 +460,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses, additionalInfo: $additionalInfo)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, accountIndex: $accountIndex, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses, additionalInfo: $additionalInfo)';
   }
 }
