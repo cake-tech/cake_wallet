@@ -848,7 +848,10 @@ class LightningWallet {
     int? completionTimeoutSecs,
   }) async {
     final request = PrepareSendPaymentRequest(
-      paymentRequest: PaymentRequest.input(input: await getSparkInvoice()),
+      // A token-bound invoice: the SDK rejects a [tokenIdentifier] on a plain (non-token)
+      // invoice with "Token identifier can't be provided for this payment request".
+      paymentRequest:
+          PaymentRequest.input(input: await getSparkInvoice(tokenIdentifier: tokenIdentifier)),
       amount: tokenAmount,
       tokenIdentifier: tokenIdentifier,
       conversionOptions: ConversionOptions(
