@@ -434,7 +434,14 @@ class ElectrumTransactionResolver {
       // derivations for a large tx, redone on every batch, can never pin
       // the UI isolate.
       final infosByHash = await buildElectrumTransactionInfosInIsolate(
-        ({txId: bundle}, walletType, walletNetwork, ownAddresses, ownAddressesByAccount, {txId: height}),
+        (
+          {txId: bundle},
+          walletType,
+          walletNetwork,
+          ownAddresses,
+          ownAddressesByAccount,
+          {txId: height}
+        ),
       );
       final info = infosByHash[txId];
       if (info == null) {
@@ -450,6 +457,9 @@ class ElectrumTransactionResolver {
         info.from = existingTxInfo.from;
         info.unspents = existingTxInfo.unspents;
         info.isReceivedSilentPayment = existingTxInfo.isReceivedSilentPayment;
+        // Parents may not be resolved yet, so the isolate can fail to find the
+        // owning account; don't drop one found earlier.
+        info.accountIndex ??= existingTxInfo.accountIndex;
       }
 
       _wallet.transactionHistory.addOne(info);
@@ -761,6 +771,16 @@ class ElectrumTransactionResolver {
           continue;
         }
 
+        // Settled now (e.g. a refreshIfStale retry succeeded), so the sync may
+        // recheck it again when a newly discovered address makes it stale.
+        _unsettledTxIds.remove(tx.id);
+
+        // A non-forced refetch has no parent inputs, so it can't compute a
+        // fee; keep the one already known.
+        if (refetched.fee == null && tx.fee != null) {
+          refetched.fee = tx.fee;
+        }
+
         final changed = refetched.direction != tx.direction ||
             refetched.amount != tx.amount ||
             refetched.fee != tx.fee ||
@@ -783,6 +803,7 @@ class ElectrumTransactionResolver {
         refetched.from = tx.from;
         refetched.unspents = tx.unspents;
         refetched.isReceivedSilentPayment = tx.isReceivedSilentPayment;
+        refetched.accountIndex ??= tx.accountIndex;
 
         _wallet.transactionHistory.addOne(refetched);
         updated = true;

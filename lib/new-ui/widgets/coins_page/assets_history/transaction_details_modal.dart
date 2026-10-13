@@ -94,7 +94,17 @@ class _TransactionDetailsHeader extends StatelessWidget {
   final TransactionDetailsViewModel transactionDetailsViewModel;
 
   @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) => Observer(
+        builder: (context) {
+          // transactionInfo isn't observable; reading the resolution
+          // observables is what rebuilds the title/fiat amount once
+          // background resolution updates direction or amount.
+          final _ = transactionDetailsViewModel.isFetchingFee;
+          return _buildContent(context);
+        },
+      );
+
+  Widget _buildContent(BuildContext context) => Column(
         children: [
           TokenImageWidget(
             imageUrl: transactionDetailsViewModel.transactionAsset.iconPath ?? "",
@@ -508,6 +518,7 @@ class _TransactionDetailsActionsSection extends StatelessWidget {
     transactionDetailsViewModel.ensureFeeResolutionWatched();
     showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       // Matches the heightFactor cap this transaction

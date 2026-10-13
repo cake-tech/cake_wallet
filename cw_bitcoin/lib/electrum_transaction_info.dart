@@ -318,10 +318,19 @@ class ElectrumTransactionInfo extends TransactionInfo {
     // Full self-ownership send (no foreign inputs at all) - the co-spend
     // formula's dependency on "this wallet's own inputs" covers every input.
     final allInputsOwned = ownedInputCount == totalInputCount;
+
     // Partial-ownership send, but every owned input has already been
     // resolved - the formula's dependency on this wallet's own inputs is
     // fully satisfied regardless of any still-unresolved foreign inputs.
-    final allOwnedInputsResolved = ownedInputCount > 0 && ownedInputs.length == ownedInputCount;
+    // Inputs whose ownership can't be derived locally (e.g. P2TR key-path)
+    // may still turn out to be ours, so they must be resolved too.
+    final hasOwnedInputs = ownedInputCount > 0;
+    final everyOwnedInputResolved = ownedInputs.length == ownedInputCount;
+    final noUnknownInputsPending =
+        !txHasAnyUnknownInput || alreadyFetchedInputCount == totalInputCount;
+    final allOwnedInputsResolved =
+        hasOwnedInputs && everyOwnedInputResolved && noUnknownInputsPending;
+
     // Unlike inputsOwnershipFullyResolved, the display amount can be exact
     // without every foreign input resolving - each case above depends only
     // on this wallet's own inputs. Lets isAmountPending
@@ -355,7 +364,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         'isWalletDisplayAmountExact': isWalletDisplayAmountExact,
         'totalInputCount': totalInputCount,
         // Size of the wallet address set this was classified against; see
-        // ElectrumTransactionResolver.needsAddressRecheck.
+        // ElectrumTransactionResolver.needsAddressRecheck. Overwritten by the
+        // caller when [addresses] is only a per-account subset.
         'addressSetSizeKey': addresses.length,
       },
       confirmations: bundle.confirmations,

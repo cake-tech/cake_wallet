@@ -54,7 +54,6 @@ class HistorySection extends StatelessWidget {
           builder: (_) {
             final localeName = Localizations.localeOf(context).toString();
             final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
-            final balanceDisplayMode = dashboardViewModel.balanceDisplayMode;
 
             return (items.isEmpty)
                 ? SliverPadding(
@@ -76,7 +75,7 @@ class HistorySection extends StatelessWidget {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         childCount: items.length,
-                        (context, index) {
+                        (context, index) => Observer(builder: (_) {
                           final prevItem = index == 0 ? null : items[index - 1];
                           final topPadding = index == 0 ? 0.0 : 18.0;
                           final item = items[index];
@@ -146,13 +145,14 @@ class HistorySection extends StatelessWidget {
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
-                                amount: balanceDisplayMode == BalanceDisplayMode.hiddenBalance
+                                amount: dashboardViewModel.balanceDisplayMode ==
+                                        BalanceDisplayMode.hiddenBalance
                                     ? "---"
                                     : trade.amountFormatted(),
-                                receiveAmount:
-                                    balanceDisplayMode == BalanceDisplayMode.hiddenBalance
-                                        ? "---"
-                                        : trade.receiveAmountFormatted(),
+                                receiveAmount: dashboardViewModel.balanceDisplayMode ==
+                                        BalanceDisplayMode.hiddenBalance
+                                    ? "---"
+                                    : trade.receiveAmountFormatted(),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
@@ -227,7 +227,7 @@ class HistorySection extends StatelessWidget {
                                     bottomSeparator: !roundedBottom));
                           } else
                             return Text(item.runtimeType.toString());
-                        },
+                        }),
                       ),
                     ),
                   );
