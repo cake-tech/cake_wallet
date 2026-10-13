@@ -4,7 +4,6 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import "package:cake_wallet/core/auth_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
-import "package:cake_wallet/new-ui/pages/account_customizer.dart";
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
@@ -52,6 +51,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/new-ui/pages/wallet_accounts_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
@@ -131,7 +131,6 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
-import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -139,7 +138,6 @@ import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -618,13 +616,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?);
       return CupertinoPageRoute<void>(builder: (_) => page);
 
-    case Routes.accountCustomizer:
-      return handleRouteWithPlatformAwareness(
-        (_) => getIt.get<AccountCustomizer>(
-          param1: settings.arguments! as DashboardViewModel,
-        ),
-      );
-
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<ContactListPage>(),
@@ -858,6 +849,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.manageNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: false));
+
+    case Routes.walletAccountsPage:
+      final dashboardViewModel = settings.arguments as DashboardViewModel;
+      final page = getIt.get<WalletAccountsPage>(param1: dashboardViewModel);
+      return handleRouteWithPlatformAwareness((_) => page);
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

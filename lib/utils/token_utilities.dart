@@ -16,7 +16,6 @@ import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 
 class TokenUtilities {
   static bool walletHasEnabledSparkTokens(WalletBase wallet) =>
@@ -208,13 +207,14 @@ class TokenUtilities {
   }
 
   static int _getDefaultChainId(WalletType walletType) => switch (walletType) {
-        WalletType.ethereum => 1,
-        WalletType.polygon => 137,
-        WalletType.base => 8453,
-        WalletType.arbitrum => 42161,
-        WalletType.bsc => 56,
-        _ => 1,
-      };
+      WalletType.ethereum => 1,
+      WalletType.polygon => 137,
+      WalletType.base => 8453,
+      WalletType.arbitrum => 42161,
+      WalletType.bsc => 56,
+      WalletType.robinhood => 4663,
+      _ => 1,
+    };
 
   static Future<int?> findEvmChainIdForContract(
     String contractAddress, {
@@ -319,7 +319,12 @@ class TokenUtilities {
     // Only check EVM registry for currencies that might be EVM-related
     final isPotentialEVM = isNativeToken(currency) ||
         (tag != null &&
-            (tag == "ETH" || tag == "POL" || tag == "BASE" || tag == "ARB" || tag == "BSC"));
+            (tag == "ETH" ||
+                tag == "POL" ||
+                tag == "BASE" ||
+                tag == "ARB" ||
+                tag == "BSC" ||
+                tag == "ROB"));
 
     if (isPotentialEVM) {
       // Try by tag first if available (e.g., 'POL', 'BASE', 'ARB')

@@ -1,7 +1,9 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/card_design.dart";
+import "package:flutter/material.dart";
 
 class BalanceCardAction {
   final String label;
@@ -22,7 +24,7 @@ class BalanceCard extends StatelessWidget {
     this.borderRadius = 20,
     this.selected = false,
     this.accountName = "",
-    this.accountBalance = "",
+    this.accountBalance,
     this.balance = "",
     this.fiatBalance = "",
     this.assetName = "",
@@ -40,7 +42,7 @@ class BalanceCard extends StatelessWidget {
   final double width;
   final double borderRadius;
   final Gradient? gradient;
-  final String accountBalance;
+  final Money? accountBalance;
   final String accountName;
   final String balance;
   final String fiatBalance;
@@ -77,7 +79,7 @@ class BalanceCard extends StatelessWidget {
 
     final leadText = fiatFirst ? S.of(context).wallet_balance : accountName;
 
-    final bool showText = accountBalance.isNotEmpty ||
+    final bool showText = accountBalance != null ||
         leadText.isNotEmpty ||
         balance.isNotEmpty ||
         fiatBalance.isNotEmpty ||
@@ -117,7 +119,7 @@ class BalanceCard extends StatelessWidget {
                     ),
                   )
                 : const SizedBox.shrink(
-                    key: ValueKey('svgFullOff'),
+                    key: ValueKey("svgFullOff"),
                   ),
           ),
           Padding(
@@ -132,7 +134,7 @@ class BalanceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (leadText.isNotEmpty || accountBalance.isNotEmpty)
+                      if (leadText.isNotEmpty || accountBalance != null)
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -168,8 +170,10 @@ class BalanceCard extends StatelessWidget {
                               // readers, so drop it while it is invisible.
                               child: ExcludeSemantics(
                                 excluding: selected,
-                                child: Text(
+                                child: MoneyText.optional(
                                   accountBalance,
+                                  fractionalDigits: accountBalance?.decimals ?? 8,
+                                  showSymbol: false,
                                   style: TextStyle(color: design.colors.textColor, fontSize: 14),
                                 ),
                               ),
@@ -205,7 +209,13 @@ class BalanceCard extends StatelessWidget {
                                       fontSize: 28,
                                       fontWeight: FontWeight.w500,
                                       letterSpacing: -0.4),
-                                  child: Text(fiatFirst ? fiatBalance : balance),
+                                  child: !fiatFirst && balance.isEmpty
+                                      ? MoneyText.optional(
+                                          accountBalance,
+                                          fractionalDigits: accountBalance?.decimals ?? 8,
+                                          showSymbol: false,
+                                        )
+                                      : Text(fiatFirst ? fiatBalance : balance),
                                 ),
                                 AnimatedDefaultTextStyle(
                                   duration: designSwitchDuration,
@@ -230,10 +240,12 @@ class BalanceCard extends StatelessWidget {
                         child: AnimatedSwitcher(
                           duration: designSwitchDuration,
                           layoutBuilder: (currentChild, previousChildren) {
+                            final currentKey = currentChild?.key;
                             return Stack(
                               alignment: Alignment.centerLeft,
                               children: <Widget>[
-                                ...previousChildren,
+                                for (final child in previousChildren)
+                                  if (child.key != currentKey) child,
                                 if (currentChild != null) currentChild,
                               ],
                             );

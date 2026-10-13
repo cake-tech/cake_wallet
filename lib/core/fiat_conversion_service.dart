@@ -26,12 +26,16 @@ class FiatConversionService {
 
     final Currency from = isSparkStable ? FiatCurrency.usd : resolved;
 
-    return double.parse((await PriceApiClient.getLatestPrice(
-          LatestPriceRequest(from: from, to: fiat),
-          torOnly: torOnly,
-        ))
-            ?.quote
-            .toString() ??
-        "0");
+    try {
+      return double.parse((await PriceApiClient.getLatestPrice(
+            LatestPriceRequest(from: from, to: fiat),
+            torOnly: torOnly,
+          ))
+              ?.quote
+              .toString() ??
+          "0");
+    } catch (e) {
+      return 0.0;
+    }
   }
 }
