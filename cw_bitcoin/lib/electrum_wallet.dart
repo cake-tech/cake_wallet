@@ -4382,19 +4382,17 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _setInitialHeight() async {
-    if (_chainTipUpdateSubject != null) return;
+    if (_chainTipUpdateSubject != null) {
+      // The first tip fetch may have failed; keep retrying until the birthday is recorded.
+      if (isNewlyCreated) {
+        await _applyNewWalletBirthday(await getUpdatedChainTip());
+      }
+
+      return;
+    }
 
     currentChainTip = await getUpdatedChainTip();
-
-    // Only a wallet whose birthday is "now" gets the tip. Opened wallets and user-requested
-    // rescans from 0 must keep their height.
-    if (isNewlyCreated) {
-      isNewlyCreated = false;
-
-      if ((currentChainTip ?? 0) > 0 && walletInfo.restoreHeight == 0) {
-        await walletInfo.updateRestoreHeight(currentChainTip!);
-      }
-    }
+    await _applyNewWalletBirthday(currentChainTip);
 
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
@@ -4409,6 +4407,21 @@ abstract class ElectrumWalletBase
         }
       }
     });
+  }
+
+  /// Only a wallet whose birthday is "now" gets the tip. Opened wallets and user-requested
+  /// rescans from 0 must keep their height. The flag is cleared only once a valid tip is known.
+  Future<void> _applyNewWalletBirthday(int? tip) async {
+    if (!isNewlyCreated || (tip ?? 0) <= 0) {
+      return;
+    }
+
+    isNewlyCreated = false;
+    currentChainTip = tip;
+
+    if (walletInfo.restoreHeight == 0) {
+      await walletInfo.updateRestoreHeight(tip!);
+    }
   }
 
   static String _hardenedDerivationPath(String derivationPath) =>
