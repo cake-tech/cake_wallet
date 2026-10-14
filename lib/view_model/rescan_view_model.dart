@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -57,6 +59,14 @@ abstract class RescanViewModelBase with Store {
   // Whether the currently-connected node has negotiated the v2 protocol.
   bool get supportsParallelScanning =>
       wallet.type == WalletType.bitcoin && bitcoin!.negotiatedScanProtocolVersion(wallet) >= 2;
+
+  Future<int?> get savedRestoreHeight async => switch (wallet.type) {
+        WalletType.monero => wallet.walletInfo.restoreHeight != 0
+            ? wallet.walletInfo.restoreHeight
+            : monero!.getRestoreHeight(wallet),
+        WalletType.zcash => await zcash!.getBirthHeight(wallet),
+        _ => null,
+      };
 
   Future<bool> get isBitcoinMempoolAPIEnabled async =>
       wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);

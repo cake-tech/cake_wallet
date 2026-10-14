@@ -206,6 +206,9 @@ abstract class ConnectionSyncViewModelBase with Store {
   bool get useBaseScan => _settingsStore.useBaseScan;
 
   @computed
+  bool get useRobinhoodScan => _settingsStore.useRobinhoodScan;
+
+  @computed
   bool get useArbiScan => _settingsStore.useArbiScan;
 
   @computed
@@ -222,6 +225,9 @@ abstract class ConnectionSyncViewModelBase with Store {
 
   @computed
   bool get canUseBaseScan => _wallet.chainId == 8453;
+
+  @computed
+  bool get canUseRobinhoodScan => _wallet.chainId == 4663;
 
   @computed
   bool get canUseArbiScan => _wallet.chainId == 42161;
@@ -268,6 +274,12 @@ abstract class ConnectionSyncViewModelBase with Store {
   @action
   void setUseBaseScan(bool value) {
     _settingsStore.useBaseScan = value;
+    evm!.updateScanProviderUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseRobinhoodScan(bool value) {
+    _settingsStore.useRobinhoodScan = value;
     evm!.updateScanProviderUsageState(_wallet, value);
   }
 

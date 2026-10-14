@@ -112,6 +112,7 @@ class ZanoWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
+    await ZanoWalletApi.closeCachedWallet(await pathForWallet(name: wallet, type: getType()));
     final path = await pathForWalletDir(name: wallet, type: getType());
     final file = Directory(path);
     final isExist = file.existsSync();

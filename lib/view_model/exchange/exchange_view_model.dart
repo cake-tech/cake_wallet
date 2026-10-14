@@ -48,7 +48,6 @@ import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -96,7 +95,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   ExchangeViewModelBase(
     this._appStore,
-    this._exchangeTemplateStore,
     this.tradesStore,
     this.sharedPreferences,
     this.contactListViewModel,
@@ -296,7 +294,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       isElectrumWallet;
 
   bool _useTorOnly;
-  final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
 
@@ -306,8 +303,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        LetsExchangeExchangeProvider(),
-        StealthExExchangeProvider(),
+        // LetsExchangeExchangeProvider(),
+        // StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         SwapsXyzExchangeProvider(),
         JupiterExchangeProvider(),
@@ -422,8 +419,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   SyncStatus get status => wallet.syncStatus;
 
-  @computed
-  ObservableList<ExchangeTemplate> get templates => _exchangeTemplateStore.templates;
 
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
@@ -1052,6 +1047,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    // Ignore repeated taps while a trade is already being created
+    if (tradeState is TradeIsCreating) return;
+
+    // Set synchronously, before the first await, so the swap button shows its
+    // loading state and further taps are ignored right away
+    tradeState = TradeIsCreating();
+
+    try {
+      await _createTrade();
+    } finally {
+      // Never leave the swap button stuck in its loading state
+      // (e.g. if an unexpected exception is thrown)
+      if (tradeState is TradeIsCreating) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.none_of_selected_providers_can_exchange);
+      }
+    }
+  }
+
+  Future<void> _createTrade() async {
     final depositAmountValue = _depositAmount ?? Money.zero(depositCurrency);
     final receiveAmountValue = _receiveAmount ?? Money.zero(receiveCurrency);
 
@@ -1340,7 +1356,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ///
       /// this is because the limitation of the SplayTreeMap that
       /// you can't modify it while iterating through it
-      Future.delayed(Duration(milliseconds: 200), createTrade);
+      await Future<void>.delayed(Duration(milliseconds: 200));
+      await _createTrade();
     }
   }
 
@@ -1469,30 +1486,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _depositAmount = tmpAmount;
   }
 
-  void updateTemplate() => _exchangeTemplateStore.update();
-
-  void addTemplate(
-          {required String amount,
-          required String depositCurrency,
-          required String receiveCurrency,
-          required String provider,
-          required String depositAddress,
-          required String receiveAddress,
-          required String depositCurrencyTitle,
-          required String receiveCurrencyTitle}) =>
-      _exchangeTemplateStore.addTemplate(
-          amount: amount,
-          depositCurrency: depositCurrency,
-          receiveCurrency: receiveCurrency,
-          provider: provider,
-          depositAddress: depositAddress,
-          receiveAddress: receiveAddress,
-          depositCurrencyTitle: depositCurrencyTitle,
-          receiveCurrencyTitle: receiveCurrencyTitle);
-
-  void removeTemplate({required ExchangeTemplate template}) =>
-      _exchangeTemplateStore.remove(template: template);
-
   void _onPairChange({bool clearBoth = false}) {
     if (clearBoth) {
       _depositAmount = null;
@@ -1574,6 +1567,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bsc:
         depositCurrency = CryptoCurrency.bnb;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.robinhood:
+        depositCurrency = CryptoCurrency.robEth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.solana:

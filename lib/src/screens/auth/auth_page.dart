@@ -116,9 +116,9 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android
     await Future<void>.delayed(Duration(milliseconds: 50));
-    await _authBar?.dismiss();
+    await _removeBar(_authBar);
     await Future<void>.delayed(Duration(milliseconds: 50));
-    await _progressBar?.dismiss();
+    await _removeBar(_progressBar);
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
       Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
@@ -151,6 +151,21 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
                 widget.authViewModel.pinLength, false, _pinCodeKey)),
       ),
     );
+  }
+
+  Future<void> _removeBar(Flushbar<void>? bar) async {
+    final barRoute = bar?.flushbarRoute;
+
+    if (bar == null || barRoute == null || !barRoute.isActive) {
+      return;
+    }
+
+    if (bar.isShowing()) {
+      await bar.dismiss();
+      return;
+    }
+
+    barRoute.navigator?.removeRoute(barRoute);
   }
 
   void dismissFlushBar(Flushbar<dynamic>? bar) {

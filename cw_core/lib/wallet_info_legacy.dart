@@ -271,6 +271,7 @@ class WalletInfo extends HiveObject {
         hashedWalletIdentifier,
         isNonSeedWallet,
         0,
+        0,
         addressPageType,
         false,
         true,

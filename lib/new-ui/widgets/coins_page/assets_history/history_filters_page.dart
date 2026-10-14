@@ -20,101 +20,105 @@ class HistoryFiltersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          ModalTopBar(
-            title: S.of(context).filters,
-            leadingIcon: Icon(Icons.arrow_back_ios_new),
-            leadingSemanticLabel: S.of(context).seed_alert_back,
-            onLeadingPressed: Navigator.of(context).pop,
-          ),
-          Expanded(
-              child: SingleChildScrollView(
-            controller: ModalScrollController.of(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              child: Observer(
-                builder: (_) => Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: SelectDeselectAllBar(
-                            title: S.of(context).type,
-                            onSelected: dashboardViewModel.changeAllFilterItems),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          children: [
+            ModalTopBar(
+              title: S.of(context).filters,
+              leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
+            Expanded(
+                child: SingleChildScrollView(
+              controller: ModalScrollController.of(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Observer(
+                  builder: (_) => Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: SelectDeselectAllBar(
+                              title: S.of(context).type,
+                              onSelected: dashboardViewModel.changeAllFilterItems),
+                        ),
                       ),
-                    ),
-                    NewListSections(
-                      sections: {
-                        "": dashboardViewModel.filterItems.map((item) {
-                          if (item is SwapFilterItem) {
-                            final String subtitle;
-                            final Color subtitleColor;
-                            if (dashboardViewModel.tradeFilterStore.displayAllTrades) {
-                              subtitle = S.of(context).manage_providers;
-                              subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
-                            } else if (dashboardViewModel.tradeFilterStore.enabledProvidersCount ==
-                                0) {
-                              subtitle = S.of(context).no_providers_selected;
-                              subtitleColor = Color(0xFFFFB84E);
-                            } else {
-                              subtitle = "${item.enabledProviders()} ${S.of(context).providers}";
-                              subtitleColor = Theme.of(context).colorScheme.primary;
+                      NewListSections(
+                        sections: {
+                          "": dashboardViewModel.filterItems.map((item) {
+                            if (item is SwapFilterItem) {
+                              final String subtitle;
+                              final Color subtitleColor;
+                              if (dashboardViewModel.tradeFilterStore.displayAllTrades) {
+                                subtitle = S.of(context).manage_providers;
+                                subtitleColor = Theme.of(context).colorScheme.onSurfaceVariant;
+                              } else if (dashboardViewModel
+                                      .tradeFilterStore.enabledProvidersCount ==
+                                  0) {
+                                subtitle = S.of(context).no_providers_selected;
+                                subtitleColor = Color(0xFFFFB84E);
+                              } else {
+                                subtitle = "${item.enabledProviders()} ${S.of(context).providers}";
+                                subtitleColor = Theme.of(context).colorScheme.primary;
+                              }
+
+                              return ListItemCheckbox(
+                                  onTap: () {
+                                    Navigator.of(context).push(CupertinoPageRoute(
+                                        builder: (context) => HistorySwapProvidersPage(
+                                            dashboardViewModel: dashboardViewModel)));
+                                  },
+                                  keyValue: item.caption,
+                                  label: S.of(context).swap,
+                                  value: item.value(),
+                                  onChanged: (val) {
+                                    if ((val &&
+                                            dashboardViewModel
+                                                    .tradeFilterStore.enabledProvidersCount ==
+                                                0) ||
+                                        (!val &&
+                                            dashboardViewModel
+                                                    .tradeFilterStore.enabledProvidersCount >
+                                                0)) {
+                                      dashboardViewModel.tradeFilterStore
+                                          .toggleDisplayExchange(ExchangeProviderDescription.all);
+                                    }
+                                  },
+                                  subtitle: subtitle,
+                                  subtitleColor: subtitleColor,
+                                  showArrow: true);
                             }
 
                             return ListItemCheckbox(
-                                onTap: () {
-                                  Navigator.of(context).push(CupertinoPageRoute(
-                                      builder: (context) => HistorySwapProvidersPage(
-                                          dashboardViewModel: dashboardViewModel)));
-                                },
                                 keyValue: item.caption,
-                                label: S.of(context).swap,
+                                label: item.caption,
                                 value: item.value(),
-                                onChanged: (val) {
-                                  if ((val &&
-                                          dashboardViewModel
-                                                  .tradeFilterStore.enabledProvidersCount ==
-                                              0) ||
-                                      (!val &&
-                                          dashboardViewModel
-                                                  .tradeFilterStore.enabledProvidersCount >
-                                              0)) {
-                                    dashboardViewModel.tradeFilterStore
-                                        .toggleDisplayExchange(ExchangeProviderDescription.all);
-                                  }
-                                },
-                                subtitle: subtitle,
-                                subtitleColor: subtitleColor,
-                                showArrow: true);
-                          }
-
-                          return ListItemCheckbox(
-                              keyValue: item.caption,
-                              label: item.caption,
-                              value: item.value(),
-                              onChanged: (val) => item.onChanged());
-                        }).toList()
-                      },
-                    ),
-                  ],
+                                onChanged: (val) => item.onChanged());
+                          }).toList()
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )),
-          SafeArea(
-              child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: NewPrimaryButton(
-                onPressed: () => dashboardViewModel.changeAllFilterItems(true),
-                text: S.of(context).reset_filters,
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                textColor: Theme.of(context).colorScheme.primary),
-          ))
-        ],
+            )),
+            SafeArea(
+                child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: NewPrimaryButton(
+                  onPressed: () => dashboardViewModel.changeAllFilterItems(true),
+                  text: S.of(context).reset_filters,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.primary),
+            ))
+          ],
+        ),
       ),
     );
   }

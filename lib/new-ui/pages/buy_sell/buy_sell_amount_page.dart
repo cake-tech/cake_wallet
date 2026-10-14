@@ -27,6 +27,13 @@ import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 
+class NewBuySellParams {
+  NewBuySellParams({required this.mode, this.initialCurrency});
+
+  final BuySellPageMode mode;
+  final CryptoCurrency? initialCurrency;
+}
+
 class NewBuySellAmountPage extends StatefulWidget {
   const NewBuySellAmountPage({required this.buySellViewModel, super.key});
 

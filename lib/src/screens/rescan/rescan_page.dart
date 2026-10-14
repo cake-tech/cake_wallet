@@ -26,6 +26,16 @@ class _RescanPageState extends State<RescanPage> {
   final TextEditingController _heightController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    widget._rescanViewModel.savedRestoreHeight.then((height) {
+      if (mounted && (height ?? 0) > 0 && _heightController.text.isEmpty) {
+        _heightController.text = '$height';
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget child;
     if (widget._rescanViewModel.wallet.type != WalletType.decred) {

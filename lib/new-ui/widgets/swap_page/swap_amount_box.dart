@@ -211,6 +211,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                               widget.exchangeViewModel.receiveAmount.isNotEmpty &&
                                               widget.exchangeViewModel.depositAmount.isEmpty;
                                           return TextField(
+                                            key: ValueKey(widget.isReceiverCard
+                                                ? "swap_page_receive_amount_field_key"
+                                                : "swap_page_deposit_amount_field_key"),
                                             keyboardType: TextInputType.numberWithOptions(
                                               signed: false,
                                               decimal: !widget.useBaseUnit,
@@ -260,6 +263,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               ),
                             ),
                             GestureDetector(
+                              key: ValueKey(widget.isReceiverCard
+                                  ? "swap_amount_box_receive_currency_button_key"
+                                  : "swap_amount_box_deposit_currency_button_key"),
                               onTap: _presentCurrencyPicker,
                               child: Container(
                                 decoration: BoxDecoration(
@@ -488,7 +494,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => widget.onPushPasteButton?.call(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).paste,
                           ),
                           ModernButton.svg(
@@ -496,7 +502,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => _presentQRScanner(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).scan,
                           ),
                         ],

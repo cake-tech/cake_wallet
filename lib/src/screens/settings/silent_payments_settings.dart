@@ -33,14 +33,6 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                   padding: EdgeInsets.only(top: 10),
                   child: Column(
                     children: [
-                      if (!FeatureFlag.hasNewUi)
-                        SettingsSwitcherCell(
-                          title: S.current.silent_payments_display_card,
-                          value: _silentPaymentsSettingsViewModel.silentPaymentsCardDisplay,
-                          onValueChange: (_, bool value) {
-                            _silentPaymentsSettingsViewModel.setSilentPaymentsCardDisplay(value);
-                          },
-                        ),
                       SettingsSwitcherCell(
                         title: S.current.silent_payments_always_scan,
                         value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
