@@ -440,7 +440,6 @@ class ZcashTaddressRotation {
             srcPools: 1,
             recipientPaysFee: true,
             smartTransparent: false,
-            mode: 0,
           ),
           c: coin,
         );
@@ -590,7 +589,7 @@ class ZcashTaddressRotation {
         pools: 1,
         useInternal: true,
         internal: false,
-        ledger: false,
+        hw: 0,
       ),
       c: c,
     );

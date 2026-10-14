@@ -1574,5 +1574,15 @@
   "zcash_network_upgrade": "Atualização da rede Zcash",
   "zcash_network_upgrade_desc_1": "Zcash passou por uma atualização de rede chamada Ironwood que requer migração de fundos antes que possam ser gastos. Esta migração é automática, preserva a privacidade e começa assim que você abre sua carteira Zcash.",
   "zcash_network_upgrade_desc_2": "Quando a migração terminar, o seu Saldo Disponível voltará ao normal e você poderá continuar a enviar e receber Zcash normalmente.",
-  "zcash_network_upgrade_desc_3": "Aguarde a sincronização da sua carteira Zcash e deixe o aplicativo aberto até a migração terminar, o que pode levar alguns minutos dependendo do saldo."
+  "zcash_network_upgrade_desc_3": "Aguarde a sincronização da sua carteira Zcash e deixe o aplicativo aberto até a migração terminar, o que pode levar alguns minutos dependendo do saldo.",
+  "shield_device_funds": "Blindar fundos do dispositivo",
+  "wallet_holds_unshielded_zec": "Esta carteira contém o seguinte valor em ZEC ${unshielded}",
+  "unshielded": "não blindados",
+  "why_is_shielding_needed": "Por que a blindagem é necessária?",
+  "unshielded_funds_transparent_desc": "Fundos não blindados são transparentes, podendo comprometer sua privacidade",
+  "shielded_only_sends_desc": "A Cake Wallet permite apenas envios de Zcash blindados para proteger sua privacidade. Para enviar fundos deste dispositivo de hardware, você precisará blindá-los.",
+  "do_you_want_to_proceed": "Você quer prosseguir?",
+  "shield_funds": "Blindar fundos",
+  "unshielded_funds_detected": "Fundos não blindados detectados",
+  "shield_them_to_use_device": "Blinde-os para usar este dispositivo"
 }

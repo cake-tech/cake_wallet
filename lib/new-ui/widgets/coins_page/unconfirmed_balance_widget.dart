@@ -1,9 +1,15 @@
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/zcash_manual_shield_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/zcash/zcash.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:flutter/cupertino.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -24,6 +30,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
       final show = dashboardViewModel.balanceViewModel
           .hasAdditionalBalance(dashboardViewModel.wallet.currency);
       final isIronwoodMigration = dashboardViewModel.isMigratingToIronwood;
+      final requiresManualShield = dashboardViewModel.requiresManualShield;
 
       return AnimatedSize(
         duration: const Duration(milliseconds: 300),
@@ -36,12 +43,38 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                   Observer(builder: (context) {
                     final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
 
+                    if (requiresManualShield) {
+                      return ZcashManualShieldingRow(
+                        onTap: () {
+                          final modal = ZcashManualShieldModal(
+                            balance: balance.toStringWithSymbol(),
+                            onShield: () async {
+                              if (dashboardViewModel.wallet.hardwareWalletType != null) {
+                                final hwVM = getIt<HardwareWalletViewModel>(
+                                    param1: dashboardViewModel.wallet.hardwareWalletType,
+                                );
+                                final connectionEnsured = await hwVM.ensureDeviceConnection(context, dashboardViewModel.wallet);
+                                if (connectionEnsured) {
+                                  final pendingTx = await zcash!.createShieldingTransaction(dashboardViewModel.wallet);
+                                  await pendingTx?.commit();
+                                }
+                              }
+                            },
+                          );
+                          showMaterialModalBottomSheet(
+                              backgroundColor: Colors.transparent,
+                              context: context,
+                              builder: (context) => modal);
+                        },
+                      );
+                    }
+
                     return Container(
                       width: MediaQuery.of(context).size.width * 0.87,
                       height: 48,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Material(
                         color: Colors.transparent,
@@ -49,18 +82,20 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                           onTap: () {
                             final modal = isIronwoodMigration
                                 ? ZcashMigrationModal(
-                                    hasContinue: false, balance: "${balance} ${currency.symbol}")
+                                    hasContinue: false,
+                                    balance: balance.toStringWithSymbol(),
+                                  )
                                 : UnconfirmedBalanceModal(
                                     balance: balance.toStringWithSymbol(),
-                              currencyIconPath: currency.iconPath ?? "",
-                            );
+                                    currencyIconPath: currency.iconPath ?? "",
+                                  );
                             showMaterialModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
                                 builder: (context) => modal);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -76,30 +111,34 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                                             )
                                           : CircularProgressIndicator(
                                               strokeWidth: 2,
-                                        backgroundColor:
-                                            Theme.of(context).colorScheme.primary.withAlpha(50),
-                                        color: Theme.of(context).colorScheme.primary,
-                                        value: dashboardViewModel.confirmationProgress,
-                                      ),
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withAlpha(50),
+                                              color: Theme.of(context).colorScheme.primary,
+                                              value: dashboardViewModel.confirmationProgress,
+                                            ),
                                     ),
                                     Row(
                                       spacing: 4,
                                       children: [
-                                        Text(
-                                          "$balance ${currency.title}",
+                                        MoneyText(
+                                          balance,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.primary,
                                           ),
                                         ),
-                                        Text(isIronwoodMigration ? S.of(context).migrating_to_ironwood : S.of(context).confirming),
+                                        Text(isIronwoodMigration
+                                            ? S.of(context).migrating_to_ironwood
+                                            : S.of(context).confirming),
                                       ],
-                                    )
+                                    ),
                                   ],
                                 ),
                                 Icon(
                                   Icons.chevron_right,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -113,6 +152,67 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
       );
     });
   }
+}
+
+class ZcashManualShieldingRow extends StatelessWidget {
+  const ZcashManualShieldingRow({required this.onTap, super.key});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: MediaQuery.of(context).size.width * 0.87,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Row(
+                spacing: 12,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 24,
+                    color: context.customColors.warningOutlineColor,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 2,
+                      children: [
+                        Text(
+                          S.of(context).unshielded_funds_detected,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          S.of(context).shield_them_to_use_device,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class UnconfirmedBalanceModal extends StatelessWidget {
@@ -183,4 +283,3 @@ class UnconfirmedBalanceModal extends StatelessWidget {
     );
   }
 }
-

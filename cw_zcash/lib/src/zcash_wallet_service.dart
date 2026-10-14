@@ -19,7 +19,7 @@ class ZcashWalletService
           ZcashNewWalletCredentials,
           ZcashFromSeedWalletCredentials,
           ZcashFromKeysWalletCredentials,
-          ZcashNewWalletCredentials
+          ZcashRestoreWalletFromHardware
         > {
   ZcashWalletService();
 
@@ -165,15 +165,13 @@ class ZcashWalletService
   Future<ZcashWallet> restoreFromKeys(
     final ZcashFromKeysWalletCredentials credentials, {
     final bool? isTestnet,
-  }) async {
-    return ZcashWalletBase.restoreKeys(credentials);
-  }
+  }) => ZcashWalletBase.restoreKeys(credentials);
 
   @override
   Future<ZcashWallet> restoreFromSeed(
     final ZcashFromSeedWalletCredentials credentials, {
     final bool? isTestnet,
-  }) async {
+  }) {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
       throw Exception("Seed is missing");
     }
@@ -186,9 +184,6 @@ class ZcashWalletService
   }
 
   @override
-  Future<ZcashWallet> restoreFromHardwareWallet(final ZcashNewWalletCredentials credentials) {
-    throw UnimplementedError(
-      "Restoring a Zcash wallet from a hardware wallet is not yet supported!",
-    );
-  }
+  Future<ZcashWallet> restoreFromHardwareWallet(final ZcashRestoreWalletFromHardware credentials) =>
+      ZcashWalletBase.restoreFromHardwareWallet(credentials);
 }
