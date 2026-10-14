@@ -28,6 +28,8 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/electrum_transaction_isolate.dart';
+import 'package:cw_bitcoin/electrum_transaction_resolver.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -106,6 +108,7 @@ abstract class ElectrumWalletBase
       password: password,
       encryptionFileUtils: encryptionFileUtils,
     );
+    _transactionResolver = ElectrumTransactionResolver(this);
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
@@ -312,6 +315,8 @@ abstract class ElectrumWalletBase
 
   final EncryptionFileUtils encryptionFileUtils;
 
+  late final ElectrumTransactionResolver _transactionResolver;
+
   @override
   final String? passphrase;
 
@@ -339,7 +344,7 @@ abstract class ElectrumWalletBase
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accounts = await walletInfo.getAccounts();
     final current = accounts.firstWhere(
-          (account) => account.accountIndex == currentAccountIndex,
+      (account) => account.accountIndex == currentAccountIndex,
       orElse: () => accounts.first,
     );
 
@@ -356,7 +361,7 @@ abstract class ElectrumWalletBase
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
     // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
     final supportedTypes =
-    accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
+        accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
@@ -440,38 +445,6 @@ abstract class ElectrumWalletBase
     return result;
   }
 
-  int? _accountForTransaction(
-      ElectrumTransactionBundle bundle,
-      Map<int, Set<String>> addressesByAccount,
-      ) {
-    if (type != WalletType.bitcoin) return null;
-
-    int? accountForAddress(String address) {
-      for (final entry in addressesByAccount.entries) {
-        if (entry.value.contains(address)) return entry.key;
-      }
-      return null;
-    }
-
-    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-      final inputTransaction = bundle.ins[i];
-      if (inputTransaction == null) continue;
-
-      final outTransaction =
-      inputTransaction.outputs[bundle.originalTransaction.inputs[i].txIndex];
-      final account =
-      accountForAddress(addressFromOutputScript(outTransaction.scriptPubKey, network));
-      if (account != null) return account;
-    }
-
-    for (final out in bundle.originalTransaction.outputs) {
-      final account = accountForAddress(addressFromOutputScript(out.scriptPubKey, network));
-      if (account != null) return account;
-    }
-
-    return null;
-  }
-
   Set<String> get addressesSet => walletAddresses.allAddresses
       .where((element) => element.type != SegwitAddresType.mweb)
       .map((addr) => addr.address)
@@ -494,7 +467,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
-
     final isNewAccount = !walletAddresses.accountIndexes.contains(accountIndex);
     if (isNewAccount) {
       walletAddresses.accountIndexes.add(accountIndex);
@@ -530,7 +502,8 @@ abstract class ElectrumWalletBase
         if (isNewAccount && !_isSyncing) {
           final histories = <String, ElectrumTransactionInfo>{};
 
-          final typesToFetch = accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
+          final typesToFetch =
+              accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
           // Explicit for clarity — fetchTransactionsForAddressTypeBatch already skips types
           // with no addresses for this account, so this doesn't change RPC calls, just intent.
 
@@ -558,8 +531,8 @@ abstract class ElectrumWalletBase
 
   bool get isInitialBitcoinAccountsSync =>
       hasAccountsSupport &&
-          walletInfo.isMultiAccountsEnabled == true &&
-          (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
+      walletInfo.isMultiAccountsEnabled == true &&
+      (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override
   String? get seed => _mnemonic;
@@ -585,9 +558,9 @@ abstract class ElectrumWalletBase
   @override
   bool get hasAccountsSupport =>
       type == WalletType.bitcoin &&
-          isSoftwareWallet &&
-          _masterHD != null && // xpub / watch-only: can't derive other (hardened) accounts
-          derivationInfo.derivationType != DerivationType.electrum;
+      isSoftwareWallet &&
+      _masterHD != null && // xpub / watch-only: can't derive other (hardened) accounts
+      derivationInfo.derivationType != DerivationType.electrum;
 
   @observable
   bool nodeSupportsSilentPayments = true;
@@ -673,8 +646,7 @@ abstract class ElectrumWalletBase
     String? publicKey;
 
     // `keys` is wallet-level metadata
-    final hd =
-        mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
+    final hd = mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
 
     try {
       wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
@@ -1205,8 +1177,7 @@ abstract class ElectrumWalletBase
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
         target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
         inputCosts: [
-          for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+          for (final u in availableInputs) estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
         ],
         window: networkDustAmount.toInt(),
       );
@@ -1505,7 +1476,8 @@ abstract class ElectrumWalletBase
     final changeDerivationPath = "${_hardenedDerivationPath(changeBaseDerivationPath)}"
         "/${changeAddress.isHidden ? "1" : "0"}"
         "/${changeAddress.index}";
-    final changeHd = _hdForAddressRecord(record: changeAddress).childKey(Bip32KeyIndex(changeAddress.index));
+    final changeHd =
+        _hdForAddressRecord(record: changeAddress).childKey(Bip32KeyIndex(changeAddress.index));
     final changePubKeyHex = changeHd.publicKey.toHex();
 
     utxoDetails.publicKeys[address.pubKeyHash()] =
@@ -2095,6 +2067,7 @@ abstract class ElectrumWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    _transactionResolver.stop();
     _missingHistoryQueue.clear();
     _unresolvedAccountRetryCount.clear();
     try {
@@ -2108,7 +2081,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> updateAllUnspents() async {
-
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
@@ -2434,8 +2406,8 @@ abstract class ElectrumWalletBase
     final persisted = balance[currency];
     final seeded = newBalances[currentAccountIndex];
     if (persisted != null && seeded != null) {
-      final seededIsZero = seeded.confirmed == Money.zero(currency) &&
-          seeded.unconfirmed == Money.zero(currency);
+      final seededIsZero =
+          seeded.confirmed == Money.zero(currency) && seeded.unconfirmed == Money.zero(currency);
       final persistedIsNonZero = persisted.confirmed != Money.zero(currency) ||
           persisted.unconfirmed != Money.zero(currency);
       if (seededIsZero && persistedIsNonZero) {
@@ -2451,7 +2423,7 @@ abstract class ElectrumWalletBase
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
-      final bundle = await getTransactionExpanded(hash: tx.txHash);
+      final bundle = await getTransactionExpanded(hash: tx.txHash, forceResolveInputs: false);
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2461,7 +2433,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
-    final bundle = await getTransactionExpanded(hash: txId);
+    final bundle = await getTransactionExpanded(hash: txId, forceResolveInputs: true);
     final outputs = bundle.originalTransaction.outputs;
 
     final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
@@ -2502,7 +2474,7 @@ abstract class ElectrumWalletBase
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
-      final bundle = await getTransactionExpanded(hash: hash);
+      final bundle = await getTransactionExpanded(hash: hash, forceResolveInputs: true);
 
       final utxos = <UtxoWithAddress>[];
       final outputs = <BitcoinOutput>[];
@@ -2731,24 +2703,27 @@ abstract class ElectrumWalletBase
         feeRate: newFee.toString(),
         isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
-        transactionHistory.transactions.values.forEach((tx) {
-          if (tx.id == hash) {
-            tx.isReplaced = true;
-            tx.isPending = false;
-            transactionHistory.addOne(tx);
-          }
+          transactionHistory.transactions.values.forEach((tx) {
+            if (tx.id == hash) {
+              tx.isReplaced = true;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+            }
+          });
+          transactionHistory.addOne(transaction);
+          await updateAllUnspents();
+          await updateBalance();
         });
-        transactionHistory.addOne(transaction);
-        await updateAllUnspents();
-        await updateBalance();
-      });
     } catch (e) {
       throw e;
     }
   }
 
-  Future<ElectrumTransactionBundle> getTransactionExpanded(
-      {required String hash, int? height}) async {
+  Future<ElectrumTransactionBundle> getTransactionExpanded({
+    required String hash,
+    int? height,
+    bool forceResolveInputs = false,
+  }) async {
     String transactionHex;
     int? time;
     int? confirmations;
@@ -2792,6 +2767,10 @@ abstract class ElectrumWalletBase
       confirmations = verboseTransaction['confirmations'] as int?;
     }
 
+    if (transactionHex.isNotEmpty) {
+      _transactionResolver.cacheRawTxHex(hash, transactionHex);
+    }
+
     if (height != null) {
       if (time == null && height > 0) {
         time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
@@ -2809,21 +2788,49 @@ abstract class ElectrumWalletBase
     final original = BtcTransaction.fromRaw(transactionHex);
     final ins = <BtcTransaction?>[];
 
-    for (final vin in original.inputs) {
+    // The normal sync fetch (forceResolveInputs == false) never resolves
+    // parent txs, regardless of whether ownership can be confirmed from
+    // this tx's own scriptSig/witness data - fee/ownership resolution is
+    // deferred to the background resolution pass (forceResolveInputs ==
+    // true), which resolves every input unconditionally.
+    Future<BtcTransaction?> fetchParent(String parentTxId) async {
+      final cachedHex = _transactionResolver.cachedRawTxHex(parentTxId);
+      if (cachedHex != null) {
+        return BtcTransaction.fromRaw(cachedHex);
+      }
+
       try {
-        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+        final verboseTransaction = await electrumClient.getTransactionVerbose(hash: parentTxId);
 
         final String inputTransactionHex;
 
         if (verboseTransaction.isEmpty) {
-          inputTransactionHex = await electrumClient.getTransactionHex(hash: vin.txId);
+          inputTransactionHex = await electrumClient.getTransactionHex(hash: parentTxId);
         } else {
           inputTransactionHex = verboseTransaction['hex'] as String;
         }
 
-        ins.add(inputTransactionHex.isEmpty ? null : BtcTransaction.fromRaw(inputTransactionHex));
+        if (inputTransactionHex.isEmpty) {
+          return null;
+        }
+        _transactionResolver.cacheRawTxHex(parentTxId, inputTransactionHex);
+        return BtcTransaction.fromRaw(inputTransactionHex);
       } catch (_) {
-        ins.add(null);
+        return null;
+      }
+    }
+
+    if (!forceResolveInputs) {
+      ins.addAll(List<BtcTransaction?>.filled(original.inputs.length, null));
+
+      // Exception: MWEB HogEx detection needs the first parent. Only txs with
+      // the HogEx shape pay for this one extra fetch.
+      if (ElectrumTransactionInfo.isHogExCandidate(original)) {
+        ins[0] = await fetchParent(original.inputs.first.txId);
+      }
+    } else {
+      for (final vin in original.inputs) {
+        ins.add(await fetchParent(vin.txId));
       }
     }
 
@@ -2835,30 +2842,54 @@ abstract class ElectrumWalletBase
     );
   }
 
-  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
-      {required String hash, int? height, bool? retryOnFailure}) async {
+  Future<ElectrumTransactionInfo?> fetchTransactionInfo({
+    required String hash,
+    int? height,
+    bool? retryOnFailure,
+    bool forceResolveInputs = false,
+  }) async {
     try {
-      final bundle = await getTransactionExpanded(hash: hash, height: height);
-      final addressesByAccount = addressesSetByAccount;
-      final owner = _accountForTransaction(bundle, addressesByAccount);
-
-      final info = ElectrumTransactionInfo.fromElectrumBundle(
-        bundle,
-        walletInfo.type,
-        network,
-        addresses: owner != null ? addressesByAccount[owner]! : addressesSet,
+      final bundle = await getTransactionExpanded(
+        hash: hash,
         height: height,
+        forceResolveInputs: forceResolveInputs,
       );
-      info.accountIndex = owner;
-      return info;
+      // Captured as locals so the closure below doesn't reference `this` -
+      // the wallet isn't Isolate-transferable (sockets, timers).
+      final type = walletInfo.type;
+      final net = network;
+      final addresses = addressesSet;
+      final addressesByAccount = addressesSetByAccount;
+      final infosByHash = await buildElectrumTransactionInfosInIsolate(
+        ({hash: bundle}, type, net, addresses, addressesByAccount, {hash: height}),
+      );
+      return infosByHash[hash];
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
         await Future.delayed(const Duration(seconds: 2));
-        return fetchTransactionInfo(hash: hash, height: height);
+        return fetchTransactionInfo(
+          hash: hash,
+          height: height,
+          forceResolveInputs: forceResolveInputs,
+        );
       }
       return null;
     }
   }
+
+  /// Watches a single transaction's resolution for the transaction details
+  /// page - see [ElectrumTransactionResolver.watchTransactionResolution].
+  Future<ElectrumTransactionInfo?> watchTransactionResolution(
+    String txId, {
+    void Function(int resolved, int total)? onProgress,
+  }) =>
+      _transactionResolver.watchTransactionResolution(txId, onProgress: onProgress);
+
+  /// Brings one transaction up to date right now - ahead of the sync-wide
+  /// recheck and resolution queue - for the transaction details page. Returns
+  /// the live record, or null if the transaction isn't in the history.
+  Future<ElectrumTransactionInfo?> refreshTransactionIfStale(String txId) =>
+      _transactionResolver.refreshIfStale(txId);
 
   bool isMine(Script script) {
     final derivedAddress = addressFromOutputScript(script, network);
@@ -2923,19 +2954,17 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressType(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      BitcoinAddressType type, {
-        int? accountIndex,
-      }) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+    BitcoinAddressType type, {
+    int? accountIndex,
+  }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
         .toList();
 
-
     final branchCache = <String, List<BitcoinAddressRecord>>{};
-    List<BitcoinAddressRecord> branchFor(BitcoinAddressRecord record) =>
-        branchCache.putIfAbsent(
+    List<BitcoinAddressRecord> branchFor(BitcoinAddressRecord record) => branchCache.putIfAbsent(
           '${record.accountIndex}:${record.isHidden}:${record.isLegacyDerivation}',
           () => getAddressBranchByType(
             type: type,
@@ -2949,48 +2978,46 @@ abstract class ElectrumWalletBase
         .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
-    await Future.wait(addressesByType.map((addressRecord) async {
-      final result = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
+    await Future.wait(
+      addressesByType.map((addressRecord) async {
+        final result = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
 
-      if (result.hasHistory) {
-        historiesWithDetails.addAll(result.transactions);
+        if (result.hasHistory) {
+          historiesWithDetails.addAll(result.transactions);
 
-        final matchedAddresses = branchFor(addressRecord);
-        final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
-            matchedAddresses.length -
-                (addressRecord.isHidden
-                    ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-                    : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
+          final matchedAddresses = branchFor(addressRecord);
+          final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
+              matchedAddresses.length -
+                  (addressRecord.isHidden
+                      ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
+                      : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
 
-        if (isUsedAddressAboveGap) {
-
-          // Discover new addresses for the same address type until the gap limit is respected
-          await walletAddresses.discoverAddresses(
-            matchedAddresses,
-            addressRecord.isHidden,
-                (address) async {
-              await subscribeForUpdates();
-              return _fetchAddressHistory(address, await getCurrentChainTip())
-                  .then((result) => result.hasHistory ? address.address : null);
-            },
-            type: type,
-            isLegacyDerivation: addressRecord.isLegacyDerivation,
-            accountIndex: addressRecord.accountIndex,
-          );
-
+          if (isUsedAddressAboveGap) {
+            // Discover new addresses for the same address type until the gap limit is respected
+            await walletAddresses.discoverAddresses(
+              matchedAddresses,
+              addressRecord.isHidden,
+              (address) async {
+                await subscribeForUpdates();
+                return _fetchAddressHistory(address, await getCurrentChainTip())
+                    .then((result) => result.hasHistory ? address.address : null);
+              },
+              type: type,
+              isLegacyDerivation: addressRecord.isLegacyDerivation,
+              accountIndex: addressRecord.accountIndex,
+            );
+          }
         }
-      }
-    }),);
+      }),
+    );
   }
 
   Future<AddressHistoryResult> _fetchAddressHistory(
-      BitcoinAddressRecord addressRecord, int? currentHeight) =>
+          BitcoinAddressRecord addressRecord, int? currentHeight) =>
       _fetchAddressHistories([addressRecord], currentHeight, addressHistoryChunkSize);
 
   Future<AddressHistoryResult> _fetchAddressHistories(
-      List<BitcoinAddressRecord> addressRecords,
-      int? currentHeight,
-      int historyChunkSize) async {
+      List<BitcoinAddressRecord> addressRecords, int? currentHeight, int historyChunkSize) async {
     final scan = await _scanAddressHistories(addressRecords, historyChunkSize);
 
     final split = await _markUsedAndSplitHistory(scan, addressRecords, currentHeight);
@@ -3007,7 +3034,7 @@ abstract class ElectrumWalletBase
       _missingHistoryQueue.putIfAbsent(txid, () => item);
     }
   }
-  
+
   Future<void> resolveQueuedTransactionDetails() {
     final inProgress = _resolveMissingHistoryFuture;
     if (inProgress != null) return inProgress;
@@ -3082,7 +3109,6 @@ abstract class ElectrumWalletBase
 
   Future<AddressHistoryResult> _markUsedAndSplitHistory(AddressHistoryScan scan,
       List<BitcoinAddressRecord> addressRecords, int? currentHeight) async {
-
     String lastTxId = '';
     bool didUpdateHistory = false;
 
@@ -3143,6 +3169,7 @@ abstract class ElectrumWalletBase
               !hasExhaustedAccountRetries;
 
           if (storedTx != null && !needsAccount) {
+            _transactionResolver.flagIfStale(storedTx, addressRecord.address);
             if (height > 0) {
               final oldHeight = storedTx.height;
               final oldConfs = storedTx.confirmations;
@@ -3312,8 +3339,8 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchBitcoinTransactionsForInitialRestore(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      ) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+  ) async {
     int accountIndex = 0;
 
     while (accountIndex < maxProbAccounts) {
@@ -3356,7 +3383,7 @@ abstract class ElectrumWalletBase
       if (!accountHasHistory) {
         final persistedAccounts = await walletInfo.getAccounts();
         final isUserAccount =
-        persistedAccounts.any((account) => account.accountIndex == accountIndex);
+            persistedAccounts.any((account) => account.accountIndex == accountIndex);
 
         if (isAccountProbe && !isUserAccount) {
           walletAddresses.accountIndexes.remove(accountIndex);
@@ -3381,10 +3408,10 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressTypeBatch(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      BitcoinAddressType type, {
-        int? accountIndex,
-      }) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+    BitcoinAddressType type, {
+    int? accountIndex,
+  }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
@@ -3417,7 +3444,6 @@ abstract class ElectrumWalletBase
     }
   }
 
-
   Future<void> fetchTransactionsForAddressesBranchBatch(
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
     BitcoinAddressType type,
@@ -3436,7 +3462,7 @@ abstract class ElectrumWalletBase
       items: currentBranch,
       chunkSize: addressHistoryChunkSize,
       processChunk: (chunk) async =>
-      (await _fetchAddressHistories(chunk, tip, addressHistoryChunkSize)).transactions,
+          (await _fetchAddressHistories(chunk, tip, addressHistoryChunkSize)).transactions,
     );
 
     if (initialHistory.isNotEmpty) {
@@ -3447,34 +3473,43 @@ abstract class ElectrumWalletBase
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final highestUsedIndex = _highestUsedIndex(currentBranch);
-    final shouldDiscover =
-        highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
+    // Repeats until a pass finds nothing new; one pass per sync would reach only
+    // a single chunk beyond the first gap, delaying those addresses a full sync.
+    //
+    // Terminates: each pass adds >= `gap` addresses, so the branch always grows,
+    // and we only continue while its end is within gapLimit of the highest used
+    // address. With no new used address that fails after two passes; a used one
+    // needs real server history (finite). A failed fetch leaves it unused.
+    while (true) {
+      final highestUsedIndex = _highestUsedIndex(currentBranch);
+      final shouldDiscover =
+          highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
 
-    if (!shouldDiscover) return;
+      if (!shouldDiscover) return;
 
-    final newAddresses = await walletAddresses.discoverAddressesBatch(
-      currentBranch,
-      isHidden,
-          (newAddresses) async {
-        final newHistory =
-        await _fetchAddressHistories(newAddresses, tip, discoveryHistoryChunkSize);
+      final newAddresses = await walletAddresses.discoverAddressesBatch(
+        currentBranch,
+        isHidden,
+        (newAddresses) async {
+          final newHistory =
+              await _fetchAddressHistories(newAddresses, tip, discoveryHistoryChunkSize);
 
-        if (newHistory.transactions.isNotEmpty) {
-          historiesWithDetails.addAll(newHistory.transactions);
-        }
+          if (newHistory.transactions.isNotEmpty) {
+            historiesWithDetails.addAll(newHistory.transactions);
+          }
 
-        return newAddresses
-            .where((addressRecord) => addressRecord.isUsed)
-            .map((addressRecord) => addressRecord.address)
-            .toSet();
-      },
-      type: type,
-      isLegacyDerivation: isLegacyDerivation,
-      accountIndex: accountIndex,
-    );
+          return newAddresses
+              .where((addressRecord) => addressRecord.isUsed)
+              .map((addressRecord) => addressRecord.address)
+              .toSet();
+        },
+        type: type,
+        isLegacyDerivation: isLegacyDerivation,
+        accountIndex: accountIndex,
+      );
 
-    if (newAddresses.isNotEmpty) {
+      if (newAddresses.isEmpty) return;
+
       currentBranch.addAll(newAddresses);
 
       if (isHidden) {
@@ -3492,10 +3527,10 @@ abstract class ElectrumWalletBase
   }) =>
       walletAddresses.allAddresses
           .where((addr) =>
-      addr.type == type &&
-          (accountIndex == null || addr.accountIndex == accountIndex) &&
-          addr.isHidden == hidden &&
-          addr.isLegacyDerivation == legacy)
+              addr.type == type &&
+              (accountIndex == null || addr.accountIndex == accountIndex) &&
+              addr.isHidden == hidden &&
+              addr.isLegacyDerivation == legacy)
           .toList()
         ..sort((a, b) => a.index.compareTo(b.index));
 
@@ -3506,19 +3541,23 @@ abstract class ElectrumWalletBase
     return -1;
   }
 
-  Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(List<String> hashes) {
-    return electrumClient.getBatchTransactionVerbose(
-      hashes,
-      timeout: transactionBatchTimeoutMs,
-    );
-  }
+  Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(
+    List<String> hashes, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) =>
+      electrumClient.getBatchTransactionVerbose(
+        hashes,
+        timeout: timeoutMs,
+      );
 
-  Future<Map<String, String?>> _getTransactionHexBatch(List<String> hashes) {
-    return electrumClient.getBatchTransactionHex(
-      hashes,
-      timeout: transactionBatchTimeoutMs,
-    );
-  }
+  Future<Map<String, String?>> _getTransactionHexBatch(
+    List<String> hashes, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) =>
+      electrumClient.getBatchTransactionHex(
+        hashes,
+        timeout: timeoutMs,
+      );
 
   Future<Map<String, List<Map<String, dynamic>>>> _getHistoryBatch(List<String> scriptHashes) {
     return electrumClient.getBatchHistory(
@@ -3546,6 +3585,7 @@ abstract class ElectrumWalletBase
     Map<String, int?>? heightsByHash,
     bool retryOnFailure = false,
     Duration retryDelay = const Duration(seconds: 2),
+    bool forceResolveInputs = false,
   }) async {
     final result = <String, ElectrumTransactionInfo?>{};
     final uniqueHashes = hashes.map((h) => h.trim()).where((h) => h.isNotEmpty).toSet().toList();
@@ -3556,6 +3596,7 @@ abstract class ElectrumWalletBase
       txIds: uniqueHashes,
       result: result,
       heightsByHash: heightsByHash,
+      forceResolveInputs: forceResolveInputs,
     );
 
     if (retryOnFailure) {
@@ -3568,6 +3609,7 @@ abstract class ElectrumWalletBase
           txIds: failedHashes,
           result: result,
           heightsByHash: heightsByHash,
+          forceResolveInputs: forceResolveInputs,
         );
       }
     }
@@ -3579,69 +3621,102 @@ abstract class ElectrumWalletBase
     required List<String> txIds,
     required Map<String, ElectrumTransactionInfo?> result,
     required Map<String, int?>? heightsByHash,
+    bool forceResolveInputs = false,
   }) async {
     final addressesByAccount = addressesSetByAccount;
 
     for (var i = 0; i < txIds.length; i += transactionChunkSize) {
       final end =
-      (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
+          (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
       final chunk = txIds.sublist(i, end);
 
       final bundlesByHash = await getTransactionExpandedBatch(
         hashes: chunk,
         heightsByHash: heightsByHash,
+        forceResolveInputs: forceResolveInputs,
+      );
+
+      // Captured as locals so the closure below doesn't reference `this` -
+      // the wallet isn't Isolate-transferable.
+      final walletType = walletInfo.type;
+      final walletNetwork = network;
+      final ownAddresses = addressesSet;
+      final ownAddressesByAccount = addressesByAccount;
+      final infosByHash = await buildElectrumTransactionInfosInIsolate(
+        (
+          bundlesByHash,
+          walletType,
+          walletNetwork,
+          ownAddresses,
+          ownAddressesByAccount,
+          heightsByHash
+        ),
       );
 
       for (final txId in chunk) {
-        try {
-          final bundle = bundlesByHash[txId];
-          if (bundle == null) {
-            result[txId] = null;
-            continue;
-          }
-
-          final owner = _accountForTransaction(bundle, addressesByAccount);
-
-          final info = ElectrumTransactionInfo.fromElectrumBundle(
-            bundle,
-            walletInfo.type,
-            network,
-            addresses: owner != null ? addressesByAccount[owner]! : addressesSet,
-            height: heightsByHash?[txId],
-          );
-          info.id = txId;
-          info.accountIndex = owner;
-          result[txId] = info;
-        } catch (_) {
-          result[txId] = null;
+        final info = infosByHash[txId];
+        if (info == null) {
+          printV('_processTransactionInfoBatch: no info produced for txid=$txId');
         }
+        result[txId] = info;
       }
     }
   }
 
-  Future<Map<String, ElectrumTransactionBundle>> getTransactionExpandedBatch(
-      {required List<String> hashes, Map<String, int?>? heightsByHash}) async {
+  /// Input-resolution chunk size for [getTransactionExpandedBatch] - smaller
+  /// than [transactionChunkSize] so one slow/failing txid only costs its own
+  /// chunk, not the whole group.
+  static const int _inputResolutionChunkSize = 25;
+
+  Future<Map<String, ElectrumTransactionBundle>> getTransactionExpandedBatch({
+    required List<String> hashes,
+    Map<String, int?>? heightsByHash,
+    bool forceResolveInputs = false,
+  }) async {
     final bundles = <String, ElectrumTransactionBundle>{};
     if (hashes.isEmpty) return bundles;
 
-    final verboseByHash = await _fetchTransactionVerboseBatch(hashes);
+    final verboseByHash = await fetchTransactionVerboseBatch(hashes);
+    _transactionResolver.cacheVerboseHexes(verboseByHash);
 
-    final originalByHash = _parseTransactions(verboseByHash);
+    final originalByHash = await parseTransactions(verboseByHash);
 
-    final inputTxIdsByHash = _collectInputTxIdsByHash(originalByHash);
+    final inputTxIdsByHash =
+        _collectInputTxIdsByHash(originalByHash, forceResolveInputs: forceResolveInputs);
 
     final allInputTxids = <String>{};
     for (final txids in inputTxIdsByHash.values) {
       allInputTxids.addAll(txids);
     }
 
-    final inputTxIds = allInputTxids.toList(growable: false);
+    // Skip parents already cached; parseTransactions still runs in a
+    // background Isolate since parsing many cached inputs can pin the UI
+    // isolate just as easily as the uncached case below.
+    final cachedHexByTxid = <String, Map<String, dynamic>>{};
+    final uncachedInputTxids = <String>[];
+    for (final txid in allInputTxids) {
+      final cachedHex = _transactionResolver.cachedRawTxHex(txid);
+      if (cachedHex != null) {
+        cachedHexByTxid[txid] = {'hex': cachedHex};
+      } else {
+        uncachedInputTxids.add(txid);
+      }
+    }
+    final parsedInputTxById = await parseTransactions(cachedHexByTxid);
 
-    final inputVerboseByTxId = inputTxIds.isEmpty
-        ? <String, Map<String, dynamic>>{}
-        : await _fetchTransactionVerboseBatch(inputTxIds);
+    // Fetched in groups so cacheVerboseHexes checkpoints progress per
+    // group - if a later group times out, earlier groups' fetches are
+    // still cached and don't need re-fetching next time.
+    for (var i = 0; i < uncachedInputTxids.length; i += _inputResolutionChunkSize) {
+      final end = (i + _inputResolutionChunkSize < uncachedInputTxids.length)
+          ? i + _inputResolutionChunkSize
+          : uncachedInputTxids.length;
+      final chunk = uncachedInputTxids.sublist(i, end);
 
-    final parsedInputTxById = _parseTransactions(inputVerboseByTxId);
+      final inputVerboseByTxId = await fetchTransactionVerboseBatch(chunk);
+      _transactionResolver.cacheVerboseHexes(inputVerboseByTxId);
+      parsedInputTxById.addAll(await parseTransactions(inputVerboseByTxId));
+    }
 
     return _buildTransactionBundlesBatch(
       unique: hashes,
@@ -3654,13 +3729,15 @@ abstract class ElectrumWalletBase
     );
   }
 
-  Future<Map<String, Map<String, dynamic>>> _fetchTransactionVerboseBatch(
-      List<String> txIds) async {
+  Future<Map<String, Map<String, dynamic>>> fetchTransactionVerboseBatch(
+    List<String> txIds, {
+    int timeoutMs = transactionBatchTimeoutMs,
+  }) async {
     final verboseTransactionByHash =
         await _processChunksToMap<String, String, Map<String, dynamic>>(
       items: txIds,
       chunkSize: transactionChunkSize,
-      processChunk: _getTransactionVerboseBatch,
+      processChunk: (chunk) => _getTransactionVerboseBatch(chunk, timeoutMs: timeoutMs),
     );
 
     final emptyHex = <String>[];
@@ -3674,7 +3751,7 @@ abstract class ElectrumWalletBase
     final hexByHash = await _processChunksToMap<String, String, String?>(
       items: emptyHex,
       chunkSize: transactionChunkSize,
-      processChunk: _getTransactionHexBatch,
+      processChunk: (chunk) => _getTransactionHexBatch(chunk, timeoutMs: timeoutMs),
     );
 
     for (final txId in txIds) {
@@ -3693,31 +3770,25 @@ abstract class ElectrumWalletBase
     return verboseTransactionByHash;
   }
 
-  Map<String, BtcTransaction> _parseTransactions(
-    Map<String, Map<String, dynamic>> verboseByHash,
-  ) {
-    final result = <String, BtcTransaction>{};
-
-    for (final entry in verboseByHash.entries) {
-      final hex = entry.value['hex'] as String?;
-      if (hex == null || hex.isEmpty) continue;
-
-      try {
-        result[entry.key] = BtcTransaction.fromRaw(hex);
-      } catch (_) {}
-    }
-
-    return result;
-  }
-
   Map<String, List<String>> _collectInputTxIdsByHash(
-    Map<String, BtcTransaction> originalByHash,
-  ) {
+    Map<String, BtcTransaction> originalByHash, {
+    bool forceResolveInputs = false,
+  }) {
     final inputTxIdsByHash = <String, List<String>>{};
 
     for (final entry in originalByHash.entries) {
       final txId = entry.key;
       final original = entry.value;
+
+      // The normal sync fetch never resolves parent txs - deferred to the
+      // background resolution pass - except the first parent of a HogEx
+      // candidate, which HogEx detection needs.
+      if (!forceResolveInputs) {
+        inputTxIdsByHash[txId] = ElectrumTransactionInfo.isHogExCandidate(original)
+            ? [original.inputs.first.txId]
+            : const <String>[];
+        continue;
+      }
 
       final inputTxIds = <String>[];
       for (final vin in original.inputs) {
@@ -3778,8 +3849,12 @@ abstract class ElectrumWalletBase
 
       final inputTxids = inputTxidsByHash[txid] ?? const <String>[];
 
+      // Index-aligned with original.inputs; inputs whose parent wasn't
+      // requested stay null.
+      final requestedParents = inputTxids.toSet();
       final ins = <BtcTransaction?>[
-        for (final inputTxid in inputTxids) parsedInputTxById[inputTxid],
+        for (final vin in original.inputs)
+          requestedParents.contains(vin.txId) ? parsedInputTxById[vin.txId] : null,
       ];
 
       bundles[txid] = ElectrumTransactionBundle(
@@ -3903,6 +3978,20 @@ abstract class ElectrumWalletBase
 
       await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
+      _isTransactionUpdating = false;
+
+      // Both are background finalization passes that must never block sync -
+      // dispatched independently so a slow/stuck recheck can't delay the
+      // resolution pass (which actually resolves the fee) from starting.
+      unawaited(
+        _transactionResolver.recheckStaleTransactions().catchError((e, stacktrace) {
+          printV(stacktrace);
+          printV(e);
+        }),
+      );
+      // Synchronous: just ensures the resolution loop is running - its own
+      // work handles errors per-candidate and never throws here.
+      _transactionResolver.resolvePending();
     } catch (e, stacktrace) {
       printV(stacktrace);
       printV(e);
@@ -4152,7 +4241,6 @@ abstract class ElectrumWalletBase
         .toSet();
 
     return all.where((tx) {
-
       if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
       if (tx.isReceivedSilentPayment) return accountIndex == 0;
 
@@ -4498,7 +4586,17 @@ abstract class ElectrumWalletBase
       tx.inputAddresses = inputAddresses;
       tx.outputAddresses = outputAddresses;
 
-      transactionHistory.addOne(tx);
+      // [tx] can be an older instance than the one in the history (background
+      // resolution replaces entries), so never put it back over a different
+      // stored instance - that would roll back its ownership/fee data.
+      final stored = transactionHistory.transactions[tx.id];
+
+      if (stored == null || identical(stored, tx)) {
+        transactionHistory.addOne(tx);
+      } else if (stored.inputAddresses?.isEmpty ?? true) {
+        stored.inputAddresses = inputAddresses;
+        stored.outputAddresses = outputAddresses;
+      }
     }
   }
 

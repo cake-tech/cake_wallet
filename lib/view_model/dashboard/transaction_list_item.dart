@@ -43,8 +43,13 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.solana ||
       balanceViewModel.wallet.type == WalletType.tron;
 
+  bool get isAmountPending => transaction.isAmountPending;
+
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
+    if (isAmountPending) {
+      return S.current.loading_three_dots;
+    }
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       return _appStore.amountParsingProxy
           .asDisplayStringWithSymbol(transaction.amount)
@@ -55,7 +60,6 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
-
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
     }
@@ -186,6 +190,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedFiatAmount {
+    if (isAmountPending) {
+      return S.current.loading_three_dots;
+    }
+
     var amount = '';
 
     switch (balanceViewModel.wallet.type) {
