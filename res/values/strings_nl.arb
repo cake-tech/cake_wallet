@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Geblokkeerd voor ",
   "auth_store_banned_minutes": " minuten",
   "auth_store_incorrect_password": "Onjuiste PIN",
+  "auth_store_pin_unreadable": "Je opgeslagen PIN kon niet worden gelezen. Sluit de app en open deze opnieuw.",
   "authenticated": "Geauthenticeerd",
   "authentication": "Authenticatie",
   "auto_connect": "Automatisch verbinden",

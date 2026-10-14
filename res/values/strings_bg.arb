@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Забранен за ",
   "auth_store_banned_minutes": " минути",
   "auth_store_incorrect_password": "Грешен ПИН",
+  "auth_store_pin_unreadable": "Запазеният ПИН не може да бъде прочетен. Моля, затворете приложението и го отворете отново.",
   "authenticated": "Удостоверено",
   "authentication": "Удостоверяване",
   "auto_connect": "Автоматично свързване",

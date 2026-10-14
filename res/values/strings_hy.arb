@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Արգելափակված է՝ ",
   "auth_store_banned_minutes": " րոպե",
   "auth_store_incorrect_password": "Սխալ PIN կոդ",
+  "auth_store_pin_unreadable": "Չհաջողվեց կարդալ ձեր պահպանված PIN կոդը։ Խնդրում ենք փակել հավելվածը և նորից բացել այն։",
   "authenticated": "Նույնականացված",
   "authentication": "Նույնականացում",
   "auto_connect": "Ավտոմատ միացում",

@@ -90,6 +90,7 @@
   "auth_store_banned_for": "封禁 ",
   "auth_store_banned_minutes": " 分钟",
   "auth_store_incorrect_password": "PIN 码错误",
+  "auth_store_pin_unreadable": "无法读取已保存的 PIN 码。请关闭应用程序后重新打开。",
   "authenticated": "已验证",
   "authentication": "身份验证",
   "auto_connect": "自动连接",

@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Zabranjen na ",
   "auth_store_banned_minutes": " minuta",
   "auth_store_incorrect_password": "Pogrešan PIN",
+  "auth_store_pin_unreadable": "Spremljeni PIN nije moguće pročitati. Zatvorite aplikaciju i ponovno je otvorite.",
   "authenticated": "Autentificirano",
   "authentication": "Autentifikacija",
   "auto_connect": "Automatsko povezivanje",

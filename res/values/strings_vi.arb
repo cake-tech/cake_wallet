@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Bị cấm trong ",
   "auth_store_banned_minutes": " phút",
   "auth_store_incorrect_password": "Sai mã PIN",
+  "auth_store_pin_unreadable": "Không thể đọc mã PIN đã lưu của bạn. Vui lòng đóng và mở lại ứng dụng.",
   "authenticated": "Đã xác thực",
   "authentication": "Xác thực",
   "auto_connect": "Tự động kết nối",

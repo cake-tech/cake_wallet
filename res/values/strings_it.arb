@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Bloccato per ",
   "auth_store_banned_minutes": " minuti",
   "auth_store_incorrect_password": "PIN errato",
+  "auth_store_pin_unreadable": "Impossibile leggere il PIN salvato. Chiudi e riapri l'app.",
   "authenticated": "Autenticato",
   "authentication": "Autenticazione",
   "auto_connect": "Connessione automatica",

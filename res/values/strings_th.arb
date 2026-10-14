@@ -90,6 +90,7 @@
   "auth_store_banned_for": "ถูกแบนเป็นเวลา ",
   "auth_store_banned_minutes": " นาที",
   "auth_store_incorrect_password": "PIN ไม่ถูกต้อง",
+  "auth_store_pin_unreadable": "ไม่สามารถอ่าน PIN ที่บันทึกไว้ได้ โปรดปิดแอปแล้วเปิดใหม่",
   "authenticated": "ยืนยันตัวตนแล้ว",
   "authentication": "การยืนยันตัวตน",
   "auto_connect": "เชื่อมต่ออัตโนมัติ",

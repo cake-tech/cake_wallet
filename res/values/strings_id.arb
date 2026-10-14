@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Diblokir selama ",
   "auth_store_banned_minutes": " menit",
   "auth_store_incorrect_password": "PIN salah",
+  "auth_store_pin_unreadable": "PIN tersimpan Anda tidak dapat dibaca. Silakan tutup dan buka kembali aplikasi.",
   "authenticated": "Terautentikasi",
   "authentication": "Autentikasi",
   "auto_connect": "Sambungkan otomatis",

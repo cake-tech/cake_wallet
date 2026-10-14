@@ -90,6 +90,7 @@
   "auth_store_banned_for": "के लिए प्रतिबंधित ",
   "auth_store_banned_minutes": " मिनट",
   "auth_store_incorrect_password": "गलत पिन",
+  "auth_store_pin_unreadable": "आपका सहेजा गया पिन पढ़ा नहीं जा सका। कृपया ऐप बंद करके दोबारा खोलें।",
   "authenticated": "प्रमाणित",
   "authentication": "प्रमाणीकरण",
   "auto_connect": "ऑटो कनेक्ट",

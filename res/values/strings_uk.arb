@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Заблоковано на ",
   "auth_store_banned_minutes": " хвилин",
   "auth_store_incorrect_password": "Неправильний PIN",
+  "auth_store_pin_unreadable": "Не вдалося прочитати збережений PIN. Закрийте застосунок і відкрийте його знову.",
   "authenticated": "Автентифіковано",
   "authentication": "Автентифікація",
   "auto_connect": "Автоматичне підключення",

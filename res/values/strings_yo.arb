@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Ti fòfin de fún ",
   "auth_store_banned_minutes": " ìṣẹ́jú",
   "auth_store_incorrect_password": "PIN tí kò tọ́",
+  "auth_store_pin_unreadable": "A kò lè ka PIN rẹ tí a fi pamọ́. Jọ̀wọ́ pa ohun èlò náà, kí o sì tún ṣí i.",
   "authenticated": "Ti jẹ́rìí sí",
   "authentication": "Ìmúdájú ẹni",
   "auto_connect": "Asopọmọra laifọwọyi",

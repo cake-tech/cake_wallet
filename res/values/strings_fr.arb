@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Banni pendant ",
   "auth_store_banned_minutes": " minutes",
   "auth_store_incorrect_password": "Code PIN incorrect",
+  "auth_store_pin_unreadable": "Impossible de lire votre code PIN enregistré. Veuillez fermer puis rouvrir l'application.",
   "authenticated": "Authentifié",
   "authentication": "Authentification",
   "auto_connect": "Connexion automatique",
