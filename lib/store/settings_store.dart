@@ -34,7 +34,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -125,6 +125,7 @@ abstract class SettingsStoreBase with Store {
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
       required List<int> initialEvmHiddenChainIds,
+      required Map<String, bool> initialTrocadorProviderStates,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -227,6 +228,7 @@ abstract class SettingsStoreBase with Store {
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
         evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
+        trocadorProviderStates = ObservableMap.of(initialTrocadorProviderStates),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -965,7 +967,7 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   @observable
-  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+  ObservableMap<String, bool> trocadorProviderStates;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -1370,6 +1372,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
     final evmHiddenChainIds =
         evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
+    final trocadorProviderStates = _savedTrocadorProviderStates(sharedPreferences);
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1765,6 +1768,7 @@ abstract class SettingsStoreBase with Store {
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
       initialEvmHiddenChainIds: evmHiddenChainIds,
+      initialTrocadorProviderStates: trocadorProviderStates,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -2018,6 +2022,9 @@ abstract class SettingsStoreBase with Store {
     evmHiddenChainIds
       ..clear()
       ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
+    trocadorProviderStates
+      ..clear()
+      ..addAll(_savedTrocadorProviderStates(sharedPreferences));
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -2337,34 +2344,14 @@ abstract class SettingsStoreBase with Store {
 
   @action
   Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) async {
-    final jsonKey = PreferencesKey.trocadorProviderStatesKey;
-    String? serializedData = await _sharedPreferences.getString(jsonKey);
+    final newStates = {
+      for (final provider in availableProviders) provider: trocadorProviderStates[provider] ?? true,
+    };
 
-    if (serializedData == null) {
-      final Map<String, bool> migratedStates = {};
-      for (final provider in TrocadorExchangeProvider.availableProviders) {
-        final oldState = _sharedPreferences.getBool(provider) ?? true;
-        migratedStates[provider] = oldState;
-      }
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(migratedStates);
-
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    } else {
-      final decodedMap = json.decode(serializedData) as Map<String, dynamic>;
-      final oldMap = decodedMap.map((k, v) => MapEntry(k, v == true));
-
-      final Map<String, bool> newStates = {
-        for (final provider in availableProviders) provider: oldMap[provider] ?? true
-      };
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(newStates);
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    }
+    trocadorProviderStates
+      ..clear()
+      ..addAll(newStates);
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
   @action
@@ -2376,6 +2363,20 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  static Map<String, bool> _savedTrocadorProviderStates(SharedPreferences sharedPreferences) {
+    final serializedData = sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
+
+    if (serializedData == null) {
+      return {
+        for (final provider in TrocadorExchangeProvider.availableProviders)
+          provider: sharedPreferences.getBool(provider) ?? true,
+      };
+    }
+
+    return (json.decode(serializedData) as Map<String, dynamic>)
+        .map((provider, state) => MapEntry(provider, state == true));
   }
 
   static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {

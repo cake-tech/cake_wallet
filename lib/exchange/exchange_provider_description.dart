@@ -6,12 +6,16 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       required int raw,
       required this.image,
       this.horizontalLogo = false,
+      this.supportsSwapAll = true,
+      this.supportsMemoOrDestinationTag = true,
       required this.isCentralized})
       : super(title: title, raw: raw);
 
   final bool horizontalLogo;
   final String image;
   final bool isCentralized;
+  final bool supportsSwapAll;
+  final bool supportsMemoOrDestinationTag;
 
   static const xmrto = ExchangeProviderDescription(
       title: 'XMR.TO',
@@ -59,6 +63,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       title: 'SwapTrade',
       raw: 9,
       image: 'assets/new-ui/trade_providers/swaptrade.svg',
+      supportsMemoOrDestinationTag: false,
       isCentralized: true);
   static const letsExchange = ExchangeProviderDescription(
       title: 'LetsExchange',
@@ -74,6 +79,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       title: 'Chainflip',
       raw: 12,
       image: 'assets/new-ui/trade_providers/chainflip.svg',
+      supportsMemoOrDestinationTag: false,
       isCentralized: false);
   static const xoSwap = ExchangeProviderDescription(
       title: 'XOSwap',
@@ -84,16 +90,21 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       title: 'Swaps.XYZ',
       raw: 14,
       image: 'assets/new-ui/trade_providers/swaps_xyz.svg',
+      supportsMemoOrDestinationTag: false,
+      supportsSwapAll: false,
       isCentralized: true);
   static const nearIntents = ExchangeProviderDescription(
       title: 'Near Intents',
       raw: 15,
       image: 'assets/new-ui/trade_providers/near-intents.svg',
+      supportsMemoOrDestinationTag: false,
+      supportsSwapAll: false,
       isCentralized: false);
   static const jupiter = ExchangeProviderDescription(
       title: 'Jupiter',
       raw: 16,
       image: 'assets/new-ui/trade_providers/jupiter.svg',
+      supportsMemoOrDestinationTag: false,
       isCentralized: false);
 
   static ExchangeProviderDescription deserialize({required int raw}) {

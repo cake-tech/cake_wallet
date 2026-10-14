@@ -36,7 +36,15 @@ class Money implements Comparable<Money> {
     return Money(amount, currency, decimals);
   }
 
-  /// Parse the [source] and turn it into [Money] if possible trimming trailing 0s
+  factory Money.safeParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.parse(source.toString())
+        : parseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
+
+    return Money(amount, currency);
+  }
+
+  /// Parse the [source] and turn it into [Money] if possible
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
@@ -313,4 +321,6 @@ class Money implements Comparable<Money> {
 
   /// new [Money] with absolute value of this instance
   Money abs() => copyWith(amount: amount.abs());
+
+  String get serialized => "${currency.serialized}:${amount.toString()}";
 }
