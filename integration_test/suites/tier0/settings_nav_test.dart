@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/pages/about_page.dart";
+import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/settings/connection_sync_page.dart";
 import "package:cake_wallet/src/screens/settings/display_settings_page.dart";
@@ -25,8 +26,11 @@ void main() {
     final homePageRobot = HomePageRobot(tester);
     final settingsRobot = NewSettingsPageRobot(tester);
 
-    final rowsUnderTest = <String, Type>{
+    final walletSettingsRowsUnderTest = <String, Type>{
       Routes.manageNodes: ManageNodesPage,
+    };
+
+    final rowsUnderTest = <String, Type>{
       Routes.privacyPage: PrivacyPage,
       Routes.otherSettingsPage: OtherSettingsPage,
       Routes.connectionSync: ConnectionSyncPage,
@@ -44,6 +48,20 @@ void main() {
 
     await homePageRobot.openSettingsSheet();
     await settingsRobot.isDisplayed();
+
+    for (final entry in walletSettingsRowsUnderTest.entries) {
+      tester.printToConsole("Opening wallet settings row ${entry.key}");
+
+      await settingsRobot.openWalletSettings();
+      await settingsRobot.openRow(entry.key);
+      await settingsRobot.confirmLeafPageDisplayed(entry.value);
+
+      await settingsRobot.goBack();
+      await settingsRobot.confirmLeafPageDisplayed(WalletSettingsPage);
+
+      await settingsRobot.goBack();
+      await settingsRobot.isDisplayed();
+    }
 
     for (final entry in rowsUnderTest.entries) {
       tester.printToConsole("Opening settings row ${entry.key}");
