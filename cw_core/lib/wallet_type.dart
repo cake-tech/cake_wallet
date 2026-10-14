@@ -43,6 +43,8 @@ const evmWalletTypes = [
   WalletType.robinhood
 ];
 
+const hasAccountsWalletTypes = [WalletType.monero, WalletType.wownero, WalletType.bitcoin];
+
 // @HiveType(typeId: WALLET_TYPE_TYPE_ID)
 enum WalletType {
   // @HiveField(0)
@@ -248,6 +250,10 @@ String walletTypeToString(WalletType type) {
     case WalletType.none:
       return '';
   }
+}
+
+String walletTypeToDescription(WalletType type) {
+  return switch (type) { WalletType.bitcoin => 'Mainnet + Lightning', _ => '' };
 }
 
 String walletTypeToDisplayName(WalletType type) => switch (type) {

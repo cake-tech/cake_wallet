@@ -8,6 +8,8 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/managing/omnichain_change_network_page.dart";
+import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cw_core/sync_status.dart";
@@ -159,6 +161,20 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                   if (mounted) setState(() {});
                                 });
                               },
+                              openChainSelection: () {
+                                CupertinoScaffold.showCupertinoModalBottomSheet(
+                                  context: context,
+                                  barrierColor: Colors.black.withAlpha(85),
+                                  builder: (context) => FractionallySizedBox(
+                                    child: Material(
+                                      child: OmniChainChangeNetworkPage(
+                                        omniChainWalletCreationService:
+                                            getIt.get<OmniChainWalletCreationService>(),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             Column(
                               children: [
@@ -218,12 +234,14 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 ),
                               ],
                             ),
-                            if (AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) &&
+                            if (AccountsPromo.supportsWallet(
+                                    widget.dashboardViewModel.wallet.type) &&
                                 widget.dashboardViewModel.accountListViewModel != null &&
                                 !_lightningMode)
                               AccountsPromo(
                                 settingsStore: widget.dashboardViewModel.settingsStore,
-                                walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
+                                walletName:
+                                    walletTypeToString(widget.dashboardViewModel.wallet.type),
                                 onTap: _openAccountsFromPromo,
                               ),
                             Column(
@@ -322,7 +340,8 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   Future<void> _openAccountsFromPromo() async {
     if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
-        widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
+        widget.dashboardViewModel.accountListViewModel == null ||
+        !_checkReadyToManage()) return;
 
     await AccountEducationPage(
       settingsStore: widget.dashboardViewModel.settingsStore,

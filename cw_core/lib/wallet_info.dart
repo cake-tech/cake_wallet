@@ -47,6 +47,27 @@ enum HardwareWalletType {
   trezor;
 }
 
+extension HardwareIconExtension on HardwareWalletType {
+  String? get iconPath {
+    switch (this) {
+      case null:
+        return null;
+      case HardwareWalletType.bitbox:
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
+      case HardwareWalletType.ledger:
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
+      case HardwareWalletType.trezor:
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_5.svg";
+      case HardwareWalletType.cupcake:
+        return "assets/images/cupcake.svg";
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        return "assets/images/hardware_wallet/device_qr.svg";
+    }
+  }
+}
+
 enum WalletInfoAddressType {
   used,
   hidden,
@@ -389,32 +410,34 @@ class DerivationInfo {
 
 class WalletInfo {
   WalletInfo(
-      this.internalId,
-      this.id,
-      this.name,
-      this.type,
-      this.isRecovery,
-      this.restoreHeight,
-      this.timestamp,
-      this.dirPath,
-      this.path,
-      this.address,
-      this.yatEid,
-      this.yatLastUsedAddressRaw,
-      this.showIntroCakePayCard,
-      this.derivationInfoId,
-      this.hardwareWalletType,
-      this.parentAddress,
-      this.hashedWalletIdentifier,
-      this.isNonSeedWallet,
-      this.sortOrder,
-      this.currentAccountIndex,
-      this.addressPageType,
-      this.receiveInfoboxDismissed,
-      this.showCombinedBalance,
-      this.favoriteTokenAddress,
-      this.showSeedBackupReminder)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.internalId,
+    this.id,
+    this.name,
+    this.type,
+    this.isRecovery,
+    this.restoreHeight,
+    this.timestamp,
+    this.dirPath,
+    this.path,
+    this.address,
+    this.yatEid,
+    this.yatLastUsedAddressRaw,
+    this.showIntroCakePayCard,
+    this.derivationInfoId,
+    this.hardwareWalletType,
+    this.parentAddress,
+    this.hashedWalletIdentifier,
+    this.isNonSeedWallet,
+    this.sortOrder,
+    this.currentAccountIndex,
+    this.addressPageType,
+    this.receiveInfoboxDismissed,
+    this.showCombinedBalance,
+    this.favoriteTokenAddress,
+    this.showSeedBackupReminder,
+    this.groupId,
+  )   : isReady = true,
+        _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -439,6 +462,8 @@ class WalletInfo {
     bool? receiveInfoboxDismissed,
     bool? showCombinedBalance,
     String? favoriteTokenAddress,
+    String? groupId,
+    bool? isReady,
   }) {
     final wi = WalletInfo(
       0,
@@ -466,7 +491,9 @@ class WalletInfo {
       showCombinedBalance ?? true,
       favoriteTokenAddress?.isNotEmpty == true ? favoriteTokenAddress : null,
       false,
+      groupId,
     );
+    wi.isReady = isReady ?? true;
 
     if (type == WalletType.bitcoin) {
       wi.isMultiAccountsEnabled = false;
@@ -497,6 +524,8 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  bool isReady;
+  String? groupId;
   bool showSeedBackupReminder;
 
   Future<Map<String, String>> getAddresses() async {
@@ -652,7 +681,6 @@ class WalletInfo {
   String? network;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
-
   int derivationInfoId;
   DerivationInfo? _derivationInfo;
 
@@ -741,6 +769,8 @@ class WalletInfo {
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
             isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
+        "isReady": isReady ? 1 : 0,
+        "groupId": groupId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -771,8 +801,10 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
-        json["showSeedBackupReminder"] == 1);
+        json["showSeedBackupReminder"] == 1,
+        json['groupId'] as String?);
     info.network = json['network'] as String?;
+    info.isReady = (json['isReady'] as int? ?? 1) == 1;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
     info.isMultiAccountsEnabled =
@@ -814,6 +846,14 @@ class WalletInfo {
 
   static Future<WalletInfo?> get(String name, WalletType type) async {
     final list = await selectList('name = ? AND type = ?', [name, type.index]);
+    if (list.isEmpty) {
+      return null;
+    }
+    return list[0];
+  }
+
+  static Future<WalletInfo?> getById(String id) async {
+    final list = await selectList('id = ?', [id]);
     if (list.isEmpty) {
       return null;
     }

@@ -11,13 +11,20 @@ const duressPinCodePassword = "DURESS_PIN_CODE_PASSWORD";
 String generateStoreKeyFor({
   required SecretStoreKey key,
   String walletName = "",
+  String? walletId,
 }) {
   var _key = "";
 
   switch (key) {
     case SecretStoreKey.moneroWalletPassword:
       {
-        _key = moneroWalletPassword + "_" + walletName.toUpperCase();
+        assert(
+          walletId == null || walletName.isEmpty,
+          "pass only one of walletId or walletName, not both",
+        );
+        _key = walletId != null
+            ? moneroWalletPassword + "_" + walletId
+            : moneroWalletPassword + "_" + walletName.toUpperCase();
       }
       break;
 

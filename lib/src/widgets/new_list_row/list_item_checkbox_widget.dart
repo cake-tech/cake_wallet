@@ -17,6 +17,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.isLastInSection = false,
     this.subtitle,
     this.iconPath,
+    this.labelIconPath,
     this.showArrow = false,
   });
 
@@ -24,6 +25,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final String label;
   final String? subtitle;
   final String? iconPath;
+  final String? labelIconPath;
   final bool showArrow;
   final bool value;
   final Color? subtitleColor;
@@ -73,6 +75,15 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
                         Row(
                           children: [
                             Flexible(child: Text(widget.label)),
+                            if (widget.labelIconPath != null)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: CakeImageWidget(
+                                    imageUrl: widget.labelIconPath!,
+                                    height: 16,
+                                    width: 16,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
                             if (widget.showArrow)
                               Icon(
                                 Icons.chevron_right,

@@ -1,4 +1,4 @@
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/wallet_type.dart";
 
 bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {

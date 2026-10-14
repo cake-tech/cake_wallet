@@ -2067,7 +2067,7 @@ abstract class ElectrumWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo))) {
       await saveKeysFile(_password, encryptionFileUtils);
       saveKeysFile(_password, encryptionFileUtils, true);
     }

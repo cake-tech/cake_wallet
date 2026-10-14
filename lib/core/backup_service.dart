@@ -289,7 +289,7 @@ class $BackupService {
         return {
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'password': await keyService.getWalletPasswordForWallet(walletInfo),
           'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       } catch (e) {

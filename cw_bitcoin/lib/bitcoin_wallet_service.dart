@@ -76,15 +76,8 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<BitcoinWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
+  Future<BitcoinWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
     try {
       final wallet = await BitcoinWalletBase.open(
         password: password,
@@ -95,10 +88,10 @@ class BitcoinWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await BitcoinWalletBase.open(
         password: password,
         name: name,
@@ -113,19 +106,13 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
-
+  Future<void> remove(WalletInfo walletInfo) async {
     final unspentCoinsToDelete = unspentCoinsInfoSource.values
         .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
         .toList();
-
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    await super.remove(walletInfo);
 
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);
