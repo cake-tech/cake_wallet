@@ -166,6 +166,12 @@ class CWZcash extends Zcash {
     final zcashWallet = wallet as ZcashWallet;
     final addresses = zcashWallet.walletAddresses as ZcashWalletAddresses;
     final type = ZcashReceivePageOption.typeFromString(addresses.walletInfo.addressPageType ?? "");
+    if (type == ZcashAddressType.transparentRotated && !zcashWallet.canRotateTransparentAddress) {
+      return ZcashReceivePageOption.transparent;
+    }
+    if (type == ZcashAddressType.shieldedSapling && !zcashWallet.canUseLegacyShielded) {
+      return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
+    }
     if (type == ZcashAddressType.shieldedOrchard) {
       return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
     }

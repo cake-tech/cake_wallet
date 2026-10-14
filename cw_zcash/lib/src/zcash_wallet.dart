@@ -10,6 +10,7 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -64,6 +65,21 @@ abstract class ZcashWalletBase
   }
 
   int accountId;
+
+  bool get canRotateTransparentAddress => isSoftwareWallet;
+
+  bool get canUseLegacyShielded => hardwareWalletType == null;
+
+  @override
+  bool receiveOptionAvailable(ReceivePageOption option) {
+    if (option == ZcashReceivePageOption.transparentRotated) {
+      return canRotateTransparentAddress;
+    }
+    if (option == ZcashReceivePageOption.shieldedSapling) {
+      return canUseLegacyShielded;
+    }
+    return true;
+  }
 
   final Map<String, BigInt> _pendingOutgoingAmounts = {};
 
