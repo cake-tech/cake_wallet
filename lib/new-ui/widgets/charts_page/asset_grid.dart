@@ -161,7 +161,7 @@ class ChartsAssetCard extends StatelessWidget {
                                     width: 8,
                                     height: 8,
                                     colorFilter: ColorFilter.mode(
-                                        changeData!.direction.color, BlendMode.srcIn,),
+                                        changeData!.direction.colorOf(context), BlendMode.srcIn,),
                                   ),
                                 ),
                               Text(

@@ -35,7 +35,7 @@ class PriceChart extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               spots: chartPoints,
-              gradient: LinearGradient(colors: [direction.color.withAlpha(25), direction.color]),
+              gradient: LinearGradient(colors: [direction.colorOf(context).withAlpha(25), direction.colorOf(context)]),
               barWidth: 1.5,
               isStrokeCapRound: true,
               dotData: const FlDotData(show: false),
@@ -51,7 +51,7 @@ class PriceChart extends StatelessWidget {
                   (index) => TouchedSpotIndicatorData(
                     FlLine(
                       strokeWidth: 1,
-                      color: direction.color.withAlpha(80),
+                      color: direction.colorOf(context).withAlpha(80),
                       dashArray: [4, 4],
                     ),
                     const FlDotData(),
