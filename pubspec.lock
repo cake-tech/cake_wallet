@@ -2050,8 +2050,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "impls/monero.dart"
-      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
-      resolved-ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
+      ref: "33671871de3d51696b66ffb3bd94f744e26974f6"
+      resolved-ref: "33671871de3d51696b66ffb3bd94f744e26974f6"
       url: "https://github.com/mrcyjanek/monero_c.git"
     source: git
     version: "0.0.0"
@@ -2626,9 +2626,11 @@ packages:
   rlz:
     dependency: "direct overridden"
     description:
-      path: "../zkool2/rust_builder"
-      relative: true
-    source: path
+      path: rust_builder
+      ref: ec5f72e3d8b700a8014cf7c3ce4de2896e24620b
+      resolved-ref: ec5f72e3d8b700a8014cf7c3ce4de2896e24620b
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
     version: "0.0.1"
   rxdart:
     dependency: "direct main"
@@ -3482,9 +3484,11 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "../zkool2"
-      relative: true
-    source: path
+      path: "."
+      ref: ec5f72e3d8b700a8014cf7c3ce4de2896e24620b
+      resolved-ref: ec5f72e3d8b700a8014cf7c3ce4de2896e24620b
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
     version: "6.31.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
