@@ -109,7 +109,6 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    // Probably not needed as init will be called right after creating the wallet.
     _prepareHdForAccount(currentAccountIndex, currency);
   }
 
@@ -354,6 +353,8 @@ abstract class ElectrumWalletBase
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
+    if (mainHdByTypeAndAccount.containsKey(accountIndex)) return;
+
     // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
     final supportedTypes =
     accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
@@ -365,13 +366,15 @@ abstract class ElectrumWalletBase
 
     if (canDeriveFromSeed && !isElectrumDerivation) {
       final coinType = _coinTypeFor(currency);
+      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
 
       for (final type in supportedTypes) {
-        final purpose = _purposeForType(type);
-        final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
+        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
+        final accountHd = accountHdByPath[accountPath] ??=
+            _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
 
-        mainMap[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
-        sideMap[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
+        mainMap[type] = accountHd.childKey(Bip32KeyIndex(0));
+        sideMap[type] = accountHd.childKey(Bip32KeyIndex(1));
       }
     } else {
       // case for Electrum derivation or when we don't have seed but only xpub (view only wallet)
@@ -720,17 +723,26 @@ abstract class ElectrumWalletBase
   static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
+    final sw = Stopwatch()..start();
     final accountIndexes = await loadAccountIndexes();
+    print("[init] ${sw.elapsedMilliseconds}");
 
     for (final accountIndex in accountIndexes) {
       _prepareHdForAccount(accountIndex, currency);
     }
+    print("[init] ${sw.elapsedMilliseconds}");
+
 
     await walletAddresses.init(accountIndexes: accountIndexes);
+    print("[init] ${sw.elapsedMilliseconds}");
     await transactionHistory.init();
+    print("[init] ${sw.elapsedMilliseconds}");
     await cleanUpDuplicateUnspentCoins();
+    print("[init] ${sw.elapsedMilliseconds}");
     _seedAccountBalancesFromAddressRecords();
+    print("[init] ${sw.elapsedMilliseconds}");
     await save();
+    print("[init] ${sw.elapsedMilliseconds}");
 
     _autoSaveTimer =
         Timer.periodic(Duration(minutes: _autoSaveInterval), (_) async => await save());

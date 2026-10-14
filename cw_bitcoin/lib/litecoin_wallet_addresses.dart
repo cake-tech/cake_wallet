@@ -57,11 +57,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
 
-  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
-      ? hex.decode(scanSecretOverride!)
-      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+  late final List<int> scanSecret =
+      (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+          ? hex.decode(scanSecretOverride!)
+          : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ??
+              List.filled(32, 0);
 
-  List<int> get spendPubkey =>
+  late final List<int> spendPubkey =
       (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
           ? hex.decode(spendPubkeyOverride!)
           : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ??
