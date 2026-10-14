@@ -723,26 +723,18 @@ abstract class ElectrumWalletBase
   static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
-    final sw = Stopwatch()..start();
     final accountIndexes = await loadAccountIndexes();
-    print("[init] ${sw.elapsedMilliseconds}");
 
     for (final accountIndex in accountIndexes) {
       _prepareHdForAccount(accountIndex, currency);
     }
-    print("[init] ${sw.elapsedMilliseconds}");
 
 
     await walletAddresses.init(accountIndexes: accountIndexes);
-    print("[init] ${sw.elapsedMilliseconds}");
     await transactionHistory.init();
-    print("[init] ${sw.elapsedMilliseconds}");
     await cleanUpDuplicateUnspentCoins();
-    print("[init] ${sw.elapsedMilliseconds}");
     _seedAccountBalancesFromAddressRecords();
-    print("[init] ${sw.elapsedMilliseconds}");
     await save();
-    print("[init] ${sw.elapsedMilliseconds}");
 
     _autoSaveTimer =
         Timer.periodic(Duration(minutes: _autoSaveInterval), (_) async => await save());
