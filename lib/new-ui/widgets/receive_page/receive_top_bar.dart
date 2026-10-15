@@ -21,10 +21,10 @@ class ModalTopBar extends StatelessWidget {
       this.trailingSemanticLabel,
       this.testId}) {
     if (leadingIcon != null && leadingWidget != null) {
-      throw Exception("Cannot have both leadingIcon and leadingWidget");
+      throw ArgumentError("Cannot have both leadingIcon and leadingWidget");
     }
     if (trailingIcon != null && trailingWidget != null) {
-      throw Exception("Cannot have both trailingIcon and trailingWidget");
+      throw ArgumentError("Cannot have both trailingIcon and trailingWidget");
     }
   }
 
