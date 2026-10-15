@@ -36,6 +36,14 @@ class ElectrumBalance extends Balance {
   @override
   Money frozen;
 
+  ElectrumBalance copyWith({Money? frozen}) => ElectrumBalance(
+        confirmed: confirmed,
+        unconfirmed: unconfirmed,
+        frozen: frozen ?? this.frozen,
+        secondConfirmed: secondConfirmed,
+        secondUnconfirmed: secondUnconfirmed,
+      );
+
   ElectrumBalance copy() => ElectrumBalance(
         confirmed: confirmed,
         unconfirmed: unconfirmed,

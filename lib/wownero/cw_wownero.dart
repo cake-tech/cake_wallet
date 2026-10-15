@@ -333,8 +333,7 @@ class CWWownero extends Wownero {
   }
 
   @override
-  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      WowneroWalletService(unspentCoinSource);
+  WalletService createWowneroWalletService() => WowneroWalletService();
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -354,17 +353,7 @@ class CWWownero extends Wownero {
     return {'id': ptx.id, 'hex': ptx.hex, 'key': ptx.txKey};
   }
 
-  @override
-  List<Unspent> getUnspents(Object wallet) {
-    final wowneroWallet = wallet as WowneroWallet;
-    return wowneroWallet.unspentCoins;
-  }
 
-  @override
-  Future<void> updateUnspents(Object wallet) async {
-    final wowneroWallet = wallet as WowneroWallet;
-    await wowneroWallet.updateUnspent();
-  }
 
   @override
   Future<int> getCurrentHeight() async {
@@ -389,7 +378,7 @@ class CWWownero extends Wownero {
     final wallets = await WalletInfo.selectList('type = ?', [WalletType.wownero.index]);
     final unspentCoinsInfo = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     for (final w in wallets) {
-      final walletService = WowneroWalletService(unspentCoinsInfo);
+      final walletService = WowneroWalletService();
       final flutterSecureStorage = secureStorageShared;
       final keyService = KeyService(flutterSecureStorage);
       final password = await keyService.getWalletPassword(walletName: w.name);

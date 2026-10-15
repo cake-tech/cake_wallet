@@ -37,7 +37,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -59,7 +59,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
@@ -85,7 +84,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           password: password,
           walletInfo: walletInfo,
           derivationInfo: derivationInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
           network: networkParam == null
               ? BitcoinNetwork.mainnet
               : networkParam == BitcoinNetwork.mainnet
@@ -183,7 +181,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
@@ -219,7 +216,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
@@ -238,7 +234,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   static Future<BitcoinWallet> open({
     required String name,
     required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Box<PayjoinSession> payjoinBox,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
@@ -322,7 +317,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       passphrase: passphrase,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialSilentAddresses: snp?.silentAddresses,
       initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
@@ -430,9 +424,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
 
-  bool get isPayjoinAvailable => unspentCoinsInfo.values
-      .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
-      .isNotEmpty;
+  Future<bool> get isPayjoinAvailable async =>
+      (await spendableCoins()).isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
     required List<BitcoinOutput> outputs,
@@ -606,7 +599,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     final originalPsbt =
-        await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+        await signPsbt(base64.encode(transaction.asPsbtV0()), await getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
       final sender =
@@ -617,10 +610,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) =>
-      unspentCoinsForCurrentAccount
-          .where(
-              (e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
+  Future<List<UtxoWithPrivateKey>> getUtxoWithPrivateKeys({bool confirmedOnly = false}) async =>
+      (await spendableCoins())
+          .cast<BitcoinUnspent>()
+          .where((e) => !confirmedOnly || (e.confirmations ?? 0) > 0)
           .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
           .toList();
 
@@ -747,4 +740,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return true;
   }
+
+  @override
+  Uri coinControlUrl(String txId) => Uri.https("ordinals.com", "/tx/${txId}");
 }

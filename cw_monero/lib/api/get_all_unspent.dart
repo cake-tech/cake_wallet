@@ -15,12 +15,11 @@ Map<String, Map<String, dynamic>> getAllUnspent() {
       ret[subaddr.toString()] = {};
     }
 
-    final unspent = MoneroUnspent.fromUnspent(
+    final unspent = MoneroUnspent(
       address: coin.address(),
       hash: coin.hash(),
       keyImage: coin.keyImage(),
       value: coin.amount(),
-      isFrozen: coin.frozen(),
       isUnlocked: coin.unlocked(),
       isSpent: coin.spent(),
     );
