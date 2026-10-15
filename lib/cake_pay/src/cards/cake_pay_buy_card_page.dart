@@ -579,7 +579,10 @@ class CakePayBuyCardPage extends BasePage {
         // wait a bit to avoid showing the loading dialog if transaction is failed
         await Future.delayed(const Duration(milliseconds: 300));
         final currentState = _sendViewModel.state;
-        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+
+        // Anything but still executing (success, failure, a committed simulation) means the
+        // loading sheet is no longer needed, and nothing would dismiss it afterwards.
+        if (currentState is! IsExecutingState) {
           return;
         }
 

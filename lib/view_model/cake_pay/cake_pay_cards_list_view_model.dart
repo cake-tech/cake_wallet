@@ -209,12 +209,46 @@ abstract class CakePayCardsListViewModelBase with Store {
   /// made elsewhere (another device, the web) show up. Call it only while the cards are visible.
   void startUserCardsPolling() {
     _userCardsTimer?.cancel();
-    _userCardsTimer = Timer.periodic(_userCardsPollInterval, (_) => refreshUserCards());
+    _userCardsTimer = Timer.periodic(_userCardsPollInterval, (_) => _pollUserCards());
   }
 
   void stopUserCardsPolling() {
     _userCardsTimer?.cancel();
     _userCardsTimer = null;
+  }
+
+  Future<void> _pollUserCards() async {
+    final isLoaded = userCardState is UserCakePayCardsStateSuccess ||
+        userCardState is UserCakePayCardsStateNoCards;
+
+    if (!isLoaded) {
+      return refreshUserCards();
+    }
+
+    if (_isRefreshingUserCards) {
+      return;
+    }
+
+    _isRefreshingUserCards = true;
+
+    try {
+      final knownOrderIds = userCards.map((card) => card.orderId).toSet();
+
+      final latestUserCards = await cakePayService.getLatestUserCards();
+      final hasNewCards = latestUserCards.any((card) => !knownOrderIds.contains(card.orderId));
+
+      // There is a purchase we don't have yet, call the full fetch (every page)
+      if (hasNewCards) {
+        await getUserCards(showLoading: false);
+      }
+    } on CakePayUnauthorizedException catch (e) {
+      printV(e);
+      await checkAuth();
+    } catch (e) {
+      printV(e);
+    } finally {
+      _isRefreshingUserCards = false;
+    }
   }
 
   /// Silently re-fetches the user's cards, skipping if a refresh is already in flight.

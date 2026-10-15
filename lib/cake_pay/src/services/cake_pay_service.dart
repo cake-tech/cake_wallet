@@ -136,6 +136,12 @@ class CakePayService {
         return CakePayUserCard.fromOrders(orders);
       });
 
+  /// Only the newest page of purchased cards.
+  Future<List<CakePayUserCard>> getLatestUserCards() => _withUserToken((token) async {
+        final result = await cakePayApi.getMyOrders(token: token, page: 1);
+        return CakePayUserCard.fromOrders(result.orders);
+      });
+
   /// Run the VPN/location checks and reveal the codes of a purchased order.
   Future<CakePayRedemption> redeem({required String redemptionToken}) => _withUserToken(
         (token) => cakePayApi.getRedemption(redemptionToken: redemptionToken, token: token),
