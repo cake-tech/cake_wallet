@@ -107,11 +107,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode != 200) {
+      if (responseBody['success'] != true) {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'fetchRate',
-          error: Exception('Unexpected http status: ${response.statusCode}'),
+          error: Exception(_errorMessage(responseBody)),
           stackTrace: StackTrace.current,
           requestData: {
             'from': from.title,
@@ -123,7 +123,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw Exception(_errorMessage(responseBody));
       }
 
       final data = responseBody['data'] as Map<String, dynamic>;
@@ -214,11 +214,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode == 400 || responseBody["success"] == false) {
-        final List<dynamic> errorsList = responseBody['errors'] as List? ?? [];
-        final error = errorsList.isNotEmpty
-            ? (errorsList[0]['msg'] as String?) ?? responseBody.toString()
-            : responseBody.toString();
+      if (responseBody['success'] != true) {
+        final error = _errorMessage(responseBody);
 
         ExchangeProviderLogger.logError(
           provider: description,
@@ -240,28 +237,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         );
 
         throw TradeNotCreatedException(description, description: error);
-      }
-
-      if (response.statusCode != 200) {
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'createTrade',
-          error: Exception('Unexpected http status: ${response.statusCode}'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': request.fromCurrency.title,
-            'to': request.toCurrency.title,
-            'fromAmount': request.fromAmount,
-            'toAmount': request.toAmount,
-            'toAddress': request.toAddress,
-            'refundAddress': request.refundAddress,
-            'isFixedRateMode': isFixedRateMode,
-            'isSendAll': isSendAll,
-            'body': body,
-            'url': uri.toString(),
-          },
-        );
-        throw Exception('Unexpected http status: ${response.statusCode}');
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
@@ -343,13 +318,10 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode == 400 || responseBody["success"] == false) {
-        final error = responseBody['errors'][0]['msg'] as String;
+      if (responseBody['success'] != true) {
+        final error = _errorMessage(responseBody);
         throw TradeNotCreatedException(description, description: error);
       }
-
-      if (response.statusCode != 200)
-        throw Exception('Unexpected http status: ${response.statusCode}');
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
@@ -359,12 +331,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
-      final state = TradeState.deserialize(raw: status);
+      final state = _tradeState(status);
       final response_id = responseData['order_id'] as String;
       final expectedSendAmount = responseData['amount_send'] as String;
       final expectedReceiveAmount = responseData['amount_receive'] as String;
       final memo = responseData['memo'] as String?;
       final createdAt = responseData['created_at'] as String?;
+      final refundAddress = responseData['refund_address'] as String?;
+      final payoutTx = responseData['outgoing_tx'] as String?;
 
       return Trade(
         id: response_id,
@@ -378,6 +352,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
+        refundAddress: refundAddress == '' ? null : refundAddress,
+        isRefund: status == '12',
+        outputTransaction: payoutTx == '' ? null : payoutTx,
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
@@ -400,7 +377,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: Uri.https(apiAuthority, getCoins));
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     if (responseJSON['success'] != true) {
-      throw Exception('get-coins failed: ${responseJSON['msg']}');
+      throw Exception(_errorMessage(responseJSON));
     }
 
     final coins = (responseJSON['data'] as List).cast<Map<String, dynamic>>();
@@ -422,4 +399,27 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final supported = _coinNetworks![_normalizeCurrency(currency)] ?? const <String>[];
     return supported.contains(network) ? network : null;
   }
+
+  String _errorMessage(Map<String, dynamic> responseBody) {
+    final errors = responseBody['errors'];
+    if (errors is List && errors.isNotEmpty) {
+      return errors[0]['msg'].toString();
+    }
+    
+    return (responseBody['msg'] ?? responseBody['message'] ?? responseBody).toString();
+  }
+
+  TradeState _tradeState(String status) => switch (status) {
+        '1' => TradeState.waitingPayment,
+        '2' => TradeState.confirming,
+        '3' || '13' => TradeState.processing,
+        '4' || '5' => TradeState.exchanging,
+        '6' || '7' => TradeState.sending,
+        '8' => TradeState.completed,
+        '9' => TradeState.expired,
+        '10' => TradeState.underpaid,
+        '11' => TradeState.pending,
+        '12' => TradeState.refunded,
+        _ => TradeState.deserialize(raw: status),
+      };
 }
