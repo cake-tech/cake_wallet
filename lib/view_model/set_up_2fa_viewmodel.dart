@@ -299,9 +299,7 @@ abstract class Setup2FAViewModelBase with Store {
       VerboseControlSettings.exchangesToInternalWallets
     ],
     Cake2FAPresetsOptions.strict: [
-      VerboseControlSettings.addingContacts,
-      VerboseControlSettings.sendsToNonContacts,
-      VerboseControlSettings.creatingNewWallets,
+      VerboseControlSettings.accessWallet,
       VerboseControlSettings.securityAndBackupSettings,
     ],
     Cake2FAPresetsOptions.custom: [],

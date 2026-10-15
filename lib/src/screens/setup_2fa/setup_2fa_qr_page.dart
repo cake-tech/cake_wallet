@@ -23,8 +23,6 @@ class Setup2FAQRPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final qrSize = MediaQuery.of(context).size.width * 0.786;
-    final padding = 16.0;
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16, width: 16, color: Theme.of(context).colorScheme.onSurface);
     final cake2FAHowToUseUrl = Uri.parse(
@@ -46,17 +44,18 @@ class Setup2FAQRPage extends BasePage {
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child: AspectRatio(
               aspectRatio: 1.0,
-                child: Container(
-                    child: QrImage(
-                      size: qrSize - padding * 2,
-                      embeddedImagePath: "assets/new-ui/settings_row_icons/security.svg",
-                      data: setup2FAViewModel.totpVersionOneLink,
-                      version: qr.QrVersions.auto,
-                      foregroundColor: Theme.of(context).colorScheme.onSurface,
-                      backgroundColor: Colors.transparent,
-                    ),),
+              child: LayoutBuilder(
+                builder: (context, constraints) => QrImage(
+                  size: constraints.biggest.shortestSide,
+                  embeddedImagePath: "assets/new-ui/settings_row_icons/security.svg",
+                  data: setup2FAViewModel.totpVersionOneLink,
+                  version: qr.QrVersions.auto,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  backgroundColor: Colors.transparent,
+                ),
               ),
             ),
+          ),
           SizedBox(height: 26),
           Text(
             S.current.add_secret_code,
