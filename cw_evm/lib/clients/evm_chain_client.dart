@@ -192,7 +192,7 @@ class EVMChainClient {
       } else if (nodeHost.endsWith(".g.alchemy.com") &&
           (pathSegments.isEmpty || (pathSegments.length == 1 && pathSegments.first == "v2"))) {
         isModifiedNodeUri = true;
-        String alchemyApiKey = secrets.alchemyApiKey;
+        String alchemyApiKey = "";
 
         if (alchemyApiKey.isEmpty) {
           printV("Alchemy API key is empty, cannot connect to ${node.uriRaw}");
