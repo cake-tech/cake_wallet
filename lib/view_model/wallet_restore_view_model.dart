@@ -151,9 +151,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: derivationInfo!.derivationType!,
             derivationPath: derivationInfo.derivationPath!,
             height: silentPaymentsScanHeight,
-            // Guard against silently scanning from genesis: only honor the "always scan"
-            // toggle when a scan-from height was actually provided (Advanced Settings).
-            alwaysScan: silentPaymentsScanHeight > 0,
+            alwaysScan: alwaysScanSilentPayments,
           );
 
         case WalletType.litecoin:
