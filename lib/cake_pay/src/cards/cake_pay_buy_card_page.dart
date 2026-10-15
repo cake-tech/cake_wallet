@@ -88,10 +88,9 @@ class CakePayBuyCardPage extends BasePage {
       textAlign: TextAlign.center,
       maxLines: 2,
       style: TextStyle(
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold,
-        color: titleColor(context),
-      ),
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          color: titleColor(context)),
     );
   }
 
@@ -684,6 +683,9 @@ class CakePayBuyCardPage extends BasePage {
         });
       }
 
+      // In simulation mode show the simulated API response in a dialog and skip the normal
+      // post-purchase flow below (there is no purchase and no sending coins when just hitting
+      // to simulate a payment)
       if (state is TransactionCommitted && cakePayBuyCardViewModel.isSimulating) {
         final simulatedResponse = cakePayBuyCardViewModel.simulatedResponse;
         cakePayBuyCardViewModel.isSimulatingFlow = false;
@@ -704,6 +706,7 @@ class CakePayBuyCardPage extends BasePage {
             ),
           );
         });
+
         return;
       }
 

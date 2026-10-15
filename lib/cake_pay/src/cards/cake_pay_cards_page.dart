@@ -169,10 +169,9 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
             Expanded(
               child: TabViewWrapper(
                   labelStyle: TextStyle(
-                    color: titleColor,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      color: titleColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600),
                   unselectedLabelStyle: TextStyle(
                       color: titleColor?.withAlpha(150) ?? Colors.white70,
                       fontSize: 20,
@@ -262,21 +261,51 @@ class _MyCardsTab extends StatefulWidget {
   State<_MyCardsTab> createState() => _MyCardsTabState();
 }
 
-class _MyCardsTabState extends State<_MyCardsTab> {
+class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
   late final TextEditingController _searchController;
+
+  CakePayCardsListViewModel get _viewModel => widget.cardsListViewModel;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _searchController = TextEditingController(
       text: widget.cardsListViewModel.searchMyCardsString,
     );
+
+    _startRefreshing();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _viewModel.stopUserCardsPolling();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _startRefreshing();
+      case AppLifecycleState.paused:
+        _viewModel.stopUserCardsPolling();
+      default:
+        break;
+    }
+  }
+
+  /// This tab is only built while it is on screen, so refresh whenever it appears or the app
+  /// returns to the foreground, and keep polling until it goes away.
+  void _startRefreshing() {
+    // Skip if already refreshing
+    if (_viewModel.userCardState is! UserCakePayCardsStateFetching) {
+      _viewModel.refreshUserCards();
+    }
+
+    _viewModel.startUserCardsPolling();
   }
 
   @override
@@ -361,6 +390,7 @@ Future<void> _redeemAndShowCard(
   CakePayUserCard card,
 ) async {
   final state = await viewModel.redeem(card);
+
   if (!context.mounted) {
     return;
   }
@@ -522,7 +552,6 @@ class _ShopTabState extends State<_ShopTab> {
                           arguments: [vendor],
                         );
                         await viewModel.checkAuth();
-                        await viewModel.getUserCards(showLoading: false);
                       },
                     );
                   },

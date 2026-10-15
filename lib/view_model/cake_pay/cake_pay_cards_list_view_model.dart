@@ -190,7 +190,44 @@ abstract class CakePayCardsListViewModelBase with Store {
       await checkAuth();
     } catch (e) {
       printV(e);
-      userCardState = UserCakePayCardsStateFailure(error: e.toString());
+
+      // A silent refresh that happened in the background must not wipe out the cards the user can
+      // already see in the page, with an error out of nowhere. but if they visit this page again
+      // and it fails again then they'll see the failure message
+      if (showLoading || userCards.isEmpty) {
+        userCardState = UserCakePayCardsStateFailure(error: e.toString());
+      }
+    }
+  }
+
+  static const _userCardsPollInterval = Duration(seconds: 5);
+
+  Timer? _userCardsTimer;
+  bool _isRefreshingUserCards = false;
+
+  /// Refreshes the user's cards in the background every [_userCardsPollInterval], so purchases
+  /// made elsewhere (another device, the web) show up. Call it only while the cards are visible.
+  void startUserCardsPolling() {
+    _userCardsTimer?.cancel();
+    _userCardsTimer = Timer.periodic(_userCardsPollInterval, (_) => refreshUserCards());
+  }
+
+  void stopUserCardsPolling() {
+    _userCardsTimer?.cancel();
+    _userCardsTimer = null;
+  }
+
+  /// Silently re-fetches the user's cards, skipping if a refresh is already in flight.
+  Future<void> refreshUserCards() async {
+    if (_isRefreshingUserCards) {
+      return;
+    }
+
+    _isRefreshingUserCards = true;
+    try {
+      await getUserCards(showLoading: false);
+    } finally {
+      _isRefreshingUserCards = false;
     }
   }
 
