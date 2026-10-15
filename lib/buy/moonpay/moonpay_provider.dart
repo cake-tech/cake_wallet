@@ -6,6 +6,7 @@ import "package:cake_wallet/buy/buy_exception.dart";
 import "package:cake_wallet/buy/buy_provider.dart";
 import "package:cake_wallet/buy/buy_provider_description.dart";
 import "package:cake_wallet/buy/buy_quote.dart";
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import "package:cake_wallet/buy/moonpay/moonpay_payment_methods.dart";
 import "package:cake_wallet/buy/pairs_utils.dart";
 import "package:cake_wallet/buy/payment_method.dart";
