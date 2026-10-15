@@ -189,7 +189,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           if (mounted) {
             setState(() {
               _requestAuth = value;
-              if (!value) _setInactive(false);
+              if (!value && WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+                _setInactive(false);
+              }
             });
           }
         });
