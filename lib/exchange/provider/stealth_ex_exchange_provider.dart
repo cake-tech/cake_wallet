@@ -28,7 +28,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   String get title => 'StealthEX';
 
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => false;
 
   @override
   bool get isEnabled => true;
@@ -40,7 +40,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   ExchangeProviderDescription get description => ExchangeProviderDescription.stealthEx;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
+  Future<bool> checkIsAvailable() async => false;
 
   @override
   Future<Limits?> fetchLimits(

@@ -4,11 +4,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 
 class WalletInfoBar extends StatelessWidget {
-  const WalletInfoBar({
-    required this.name,
-    required this.hardwareWalletType,
-    super.key,
-  });
+  const WalletInfoBar({required this.name, required this.hardwareWalletType, super.key});
 
   final String name;
   final HardwareWalletType? hardwareWalletType;
@@ -22,6 +18,8 @@ class WalletInfoBar extends StatelessWidget {
       label: semanticsLabel,
       child: ExcludeSemantics(
         child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -33,7 +31,7 @@ class WalletInfoBar extends StatelessWidget {
               child: hardwareWalletIcon == null
                   ? const SizedBox.shrink(key: ValueKey("empty"))
                   : Padding(
-                      padding: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.only(right: 8),
                       child: CakeImageWidget(
                         imageUrl: hardwareWalletIcon!,
                         key: const ValueKey("hardware_wallet_icon"),

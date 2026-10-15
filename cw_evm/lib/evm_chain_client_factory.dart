@@ -2,6 +2,7 @@ import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_evm/clients/arbitrum_client.dart';
 import 'package:cw_evm/clients/base_client.dart';
 import 'package:cw_evm/clients/bsc_client.dart';
+import "package:cw_evm/clients/robinhood_client.dart";
 import 'package:cw_evm/clients/ethereum_client.dart';
 import 'package:cw_evm/clients/polygon_client.dart';
 import 'package:cw_evm/clients/evm_chain_client.dart';
@@ -33,6 +34,8 @@ class EVMChainClientFactory {
         return ArbitrumClient();
       case 56:
         return BSCClient();
+      case 4663:
+        return RobinhoodClient();
       default:
         return EVMChainClient(chainId: chainId);
     }

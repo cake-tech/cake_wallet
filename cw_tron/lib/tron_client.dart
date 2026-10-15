@@ -28,6 +28,8 @@ class TronClient {
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
+  static const _historyRequestTimeout = Duration(seconds: 30);
+
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
@@ -44,7 +46,7 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&
@@ -77,7 +79,7 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&

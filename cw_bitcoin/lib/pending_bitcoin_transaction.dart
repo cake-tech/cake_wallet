@@ -21,6 +21,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
     this._tx,
     this.type, {
+    required this.accountIndex,
     required this.electrumClient,
     required this.amount,
     required this.fee,
@@ -40,6 +41,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final WalletType type;
   final BtcTransaction _tx;
+  final int? accountIndex;
   final ElectrumClient electrumClient;
   final String feeRate;
   final BasedUtxoNetwork? network;
@@ -182,6 +184,7 @@ class PendingBitcoinTransaction with PendingTransaction {
         isPending: true,
         isReplaced: false,
         confirmations: 0,
+        accountIndex: accountIndex,
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
         fee: fee,

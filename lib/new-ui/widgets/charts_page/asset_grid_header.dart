@@ -12,13 +12,15 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 class ChartsAssetGridHeader extends StatelessWidget {
   const ChartsAssetGridHeader({
-    super.key,
+    required this.bloc, super.key,
   });
+
+  final ChartsBloc bloc;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
+    bloc: bloc,
         builder: (context, state) {
-          final bloc = context.read<ChartsBloc>();
 
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

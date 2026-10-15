@@ -357,6 +357,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return 'cchain';
       case 'ARB':
         return 'arbitrum';
+      case "ROB":
+        return "hood";
       default:
         return tag.toLowerCase();
     }
@@ -367,6 +369,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'POLY' => 'MATIC',
       'AVAXC' => 'CCHAIN',
       'ARBITRUM' => 'ARB',
+      "HOOD" => "ROB",
       _ => network,
     };
   }
