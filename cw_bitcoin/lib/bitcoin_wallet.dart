@@ -318,7 +318,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    return BitcoinWallet(
+    final wallet = BitcoinWallet(
       mnemonic: mnemonic,
       xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
       password: password,
@@ -342,6 +342,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
     );
+
+    wallet.birthdayPending = snp?.birthdayPending ?? false;
+
+    return wallet;
   }
 
   @override

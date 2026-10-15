@@ -596,10 +596,10 @@ abstract class ElectrumWalletBase
   @observable
   bool silentPaymentsScanningActive = false;
 
-  /// Set by the wallet service for a new wallet, or a seed restore with no scan-from height;
-  /// consumed by the first sync and defaults the restore height to the chain tip as the
-  /// current wallet birthday
-  bool isNewlyCreated = false;
+  /// Set by the wallet service for a new wallet, or a seed restore with no restoreHeight
+  /// so if restoreHeight is defaulted to 0 the wallet birthday is pending, if it was
+  /// already 0, the wallet info snapshot defaults it to not pending birthday (pre-existing)
+  bool birthdayPending = false;
 
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
@@ -954,6 +954,12 @@ abstract class ElectrumWalletBase
         silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
 
+        // The birthday could not be recorded (no valid tip yet): scanning now would start
+        // from genesis. The chain-tip subscription applies it and triggers the scan later.
+        if (birthdayPending) {
+          silentPaymentsScanningActive = false;
+        }
+
         final now = DateTime.now();
         final shouldForceRescan = _lastSilentPaymentsScan == null ||
             now.difference(_lastSilentPaymentsScan!) >= _silentPaymentsScanDelay;
@@ -986,7 +992,7 @@ abstract class ElectrumWalletBase
       await updateAllUnspents();
       await updateBalance();
 
-      if (alwaysScan == true) {
+      if (alwaysScan == true && !birthdayPending) {
         setSilentPaymentsScanning(true);
       } else if (syncStatus is LostConnectionSyncStatus) {
         _syncBenchmarkStartTime = null;
@@ -2016,6 +2022,7 @@ abstract class ElectrumWalletBase
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
+        'birthdayPending': birthdayPending,
         'useLightning': useLightning,
         'cachedLightningAddress': walletAddresses.lightningAddress
       });
@@ -4386,7 +4393,7 @@ abstract class ElectrumWalletBase
   Future<void> _setInitialHeight() async {
     if (_chainTipUpdateSubject != null) {
       // The first tip fetch may have failed; keep retrying until the birthday is recorded.
-      if (isNewlyCreated) {
+      if (birthdayPending) {
         await _applyNewWalletBirthday(await getUpdatedChainTip());
       }
 
@@ -4404,7 +4411,13 @@ abstract class ElectrumWalletBase
       if (height != null) {
         currentChainTip = height;
 
-        if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
+        final wasPending = birthdayPending;
+        await _applyNewWalletBirthday(height);
+
+        if (wasPending && !birthdayPending && alwaysScan == true) {
+          silentPaymentsScanningActive = true;
+          _setListeners(walletInfo.restoreHeight, chainTipParam: height);
+        } else if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
           _setListeners(walletInfo.restoreHeight);
         }
       }
@@ -4414,16 +4427,18 @@ abstract class ElectrumWalletBase
   /// Only a wallet whose birthday is "now" gets the tip. Opened wallets and user-requested
   /// rescans from 0 must keep their height. The flag is cleared only once a valid tip is known.
   Future<void> _applyNewWalletBirthday(int? tip) async {
-    if (!isNewlyCreated || (tip ?? 0) <= 0) {
+    if (!birthdayPending || (tip ?? 0) <= 0) {
       return;
     }
 
-    isNewlyCreated = false;
+    birthdayPending = false;
     currentChainTip = tip;
 
     if (walletInfo.restoreHeight == 0) {
       await walletInfo.updateRestoreHeight(tip!);
     }
+
+    await save();
   }
 
   static String _hardenedDerivationPath(String derivationPath) =>

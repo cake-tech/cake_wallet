@@ -24,8 +24,22 @@ void printV(
       logFile.createSync(recursive: true);
     } else if (logFile.lengthSync() > _maxLogFileBytes) {
       // keep a single previous generation so the log can't grow without bound
-      logFile.renameSync("$file.1");
-      logFile.createSync();
+      try {
+        final backup = File("$file.1");
+
+        if (backup.existsSync()) {
+          backup.deleteSync();
+        }
+
+        logFile.renameSync(backup.path);
+      } catch (_) {
+        // rotation must never make logging throw; fall back to truncating
+        logFile.writeAsStringSync("");
+      }
+
+      if (!logFile.existsSync()) {
+        logFile.createSync();
+      }
     }
     logFile.writeAsStringSync("$logLine\n", mode: FileMode.append, flush: true);
   }
