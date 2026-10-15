@@ -171,7 +171,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
 
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
-          setState(() => _setInactive(true));
+          setState(() {
+            _requestAuth = false;
+            _setInactive(true);
+          });
         }
 
         if (widget.appStore.wallet?.type == WalletType.bitcoin) {
@@ -182,14 +185,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         break;
       case AppLifecycleState.resumed:
-
-        // Reset inactive state when app resumes
-        if (_isInactive) setState(() => _setInactive(false));
-
         widget.authService.requireAuth().then((value) {
           if (mounted) {
             setState(() {
               _requestAuth = value;
+              if (!value) _setInactive(false);
             });
           }
         });
