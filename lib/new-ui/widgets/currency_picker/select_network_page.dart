@@ -33,6 +33,7 @@ class SelectNetworkPage extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "select_network_page_top_bar",
               title: S.of(context).select_network_title,
               leadingIcon: const Icon(Icons.arrow_back),
               leadingSemanticLabel: S.of(context).seed_alert_back,

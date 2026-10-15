@@ -33,6 +33,7 @@ class BuySellConfirmationPage extends StatelessWidget {
           child: Column(
             children: [
               ModalTopBar(
+                testId: "buy_sell_confirmation_page_top_bar",
                 title: _pageTitle,
                 leadingIcon: const Icon(Icons.arrow_back_ios_new),
                 onLeadingPressed: Navigator.of(context).pop,

@@ -34,6 +34,7 @@ class ProviderOptionsPage extends StatelessWidget {
         return Column(
           children: [
             ModalTopBar(
+              testId: "provider_options_page_top_bar",
               title: S.of(context).swap_providers,
               onLeadingPressed: Navigator.of(context).pop,
               leadingIcon: Icon(Icons.arrow_back_ios_new),

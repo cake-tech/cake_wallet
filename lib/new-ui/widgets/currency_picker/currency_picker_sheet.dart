@@ -41,6 +41,7 @@ class CurrencyPickerSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               ModalTopBar(
+                testId: "currency_picker_sheet_top_bar",
                 title: S.of(context).select_asset,
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,

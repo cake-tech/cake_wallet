@@ -53,6 +53,7 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
         child: Column(
           children: [
             ModalTopBar(
+              testId: "bridge_receive_address_input_page_top_bar",
               title: 'Input Receive Address',
               leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
               leadingSemanticLabel: S.of(context).seed_alert_back,

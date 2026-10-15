@@ -34,6 +34,7 @@ class ScanPageNetworkList extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
+            testId: "network_list_top_bar",
             title: S.of(context).compatible_services,
             leadingIcon: Icon(Icons.arrow_back_ios_new),
             leadingSemanticLabel: S.of(context).seed_alert_back,

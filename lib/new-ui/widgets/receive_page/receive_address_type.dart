@@ -46,6 +46,7 @@ class ReceiveAddressTypeDisplay extends StatelessWidget {
         // row is exposed and the chevron is treated as decoration.
         return MergeSemantics(
           child: Semantics(
+            identifier: "receive_page_address_type_button_key",
             button: true,
             label: S.of(context).address_type,
             child: GestureDetector(

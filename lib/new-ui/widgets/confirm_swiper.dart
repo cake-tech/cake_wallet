@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ConfirmSwiper extends StatefulWidget {
@@ -43,6 +44,7 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
   Widget build(BuildContext context) {
     if (MediaQuery.of(context).accessibleNavigation) {
       return NewPrimaryButton(
+        testId: TestId.fromKey(widget.key),
         onPressed: widget.onConfirmed,
         text: widget.accessibleNavigationModeButtonText ?? widget.swiperText,
         color: Theme.of(context).colorScheme.primary,
@@ -124,6 +126,7 @@ class _ConfirmSwiperState extends State<ConfirmSwiper> {
         // semantics action is exposed here; a screen reader gets the button
         // variant above instead.
         return Semantics(
+          identifier: TestId.fromKey(widget.key),
           container: true,
           excludeSemantics: true,
           label: widget.swiperText,

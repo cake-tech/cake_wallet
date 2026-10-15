@@ -79,7 +79,7 @@ class _ChangelogModalState extends State<ChangelogModal> {
           spacing: 12,
           children: [
             SizedBox(),
-            ModalTopBar(title: S.of(context).whats_new),
+            ModalTopBar(title: S.of(context).whats_new, testId: "changelog_modal_top_bar"),
             SizedBox(),
             Flexible(
               child: SingleChildScrollView(

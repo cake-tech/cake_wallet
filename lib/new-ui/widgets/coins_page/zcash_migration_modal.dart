@@ -23,6 +23,7 @@ class ZcashMigrationModal extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "zcash_migration_modal_top_bar",
               title: S.of(context).zcash_network_upgrade,
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: Navigator.of(context).pop,
