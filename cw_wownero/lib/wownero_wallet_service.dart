@@ -232,7 +232,7 @@ class WowneroWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: wallet);
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -241,7 +241,7 @@ class WowneroWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw WalletNotFoundException();
+      throw WalletNotFoundException(name: currentName);
     }
     final currentWallet = WowneroWallet(
         walletInfo: currentWalletInfo,
