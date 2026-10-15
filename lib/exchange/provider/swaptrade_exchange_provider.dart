@@ -325,9 +325,13 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
-      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+      final fromNetwork = responseData['coin_send_network_name'] as String?;
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency,
+          tag: fromNetwork == fromCurrency ? null : fromNetwork);
       final toCurrency = responseData['coin_receive'] as String;
-      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
+      final toNetwork = responseData['coin_receive_network_name'] as String?;
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency,
+          tag: toNetwork == toCurrency ? null : toNetwork);
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
@@ -405,7 +409,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     if (errors is List && errors.isNotEmpty) {
       return errors[0]['msg'].toString();
     }
-    
     return (responseBody['msg'] ?? responseBody['message'] ?? responseBody).toString();
   }
 
