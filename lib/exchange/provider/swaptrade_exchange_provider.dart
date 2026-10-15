@@ -19,6 +19,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
   static final markup = secrets.swapTradeExchangeMarkup;
 
+  static Map<String, List<String>>? _coinNetworks;
+
   static const apiAuthority = 'api.swaptrade.io';
   static const getRate = '/api/swap/get-rate';
   static const getCoins = '/api/swap/get-coins';
@@ -54,32 +56,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    if (!_isPairSupported(from, to)) {
-      return null;
-    }
-
     try {
-      final uri = Uri.https(apiAuthority, getCoins);
-      final response = await ProxyWrapper().get(clearnetUri: uri);
-
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode != 200)
-        throw Exception('Unexpected http status: ${response.statusCode}');
-
-      final coinsInfoRaw = responseJSON['data'];
-      final coinsInfo = coinsInfoRaw is List<dynamic> ? coinsInfoRaw : <dynamic>[];
-
-      final normalized = _normalizeCurrency(from);
-      final coin = coinsInfo.cast<Map<String, dynamic>>().firstWhere(
-            (c) => (c['id']?.toString().toUpperCase() ?? '') == normalized,
-            orElse: () => <String, dynamic>{},
-          );
-
-      if (coin.isEmpty) {
-        // Currency not supported by SwapTrade (e.g. USDC, DOGE).
+      final coins = await _fetchCoins();
+      if (!await _isPairSupported(from, to)) {
         return null;
       }
+
+      final normalized = _normalizeCurrency(from);
+      final coin = coins.firstWhere((c) => c['id'].toString().toUpperCase() == normalized);
 
       final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
       final max = double.tryParse(coin['max']?.toString() ?? '') ?? 0.0;
@@ -100,7 +84,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
-      if (!_isPairSupported(from, to)) return 0.0;
+      if (!await _isPairSupported(from, to)) return 0.0;
       if (isFixedRateMode && !supportsFixedRate) {
         return 0.0;
       }
@@ -196,8 +180,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    final sendNetwork = _networkFor(request.fromCurrency);
-    final receiveNetwork = _networkFor(request.toCurrency);
+    final sendNetwork = await _networkFor(request.fromCurrency);
+    final receiveNetwork = await _networkFor(request.toCurrency);
     if (sendNetwork == null || receiveNetwork == null) {
       throw TradeNotCreatedException(
         description,
@@ -412,29 +396,30 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  bool _isPairSupported(CryptoCurrency from, CryptoCurrency to) =>
-      _networkFor(from) != null && _networkFor(to) != null;
+  Future<List<Map<String, dynamic>>> _fetchCoins() async {
+    final response = await ProxyWrapper().get(clearnetUri: Uri.https(apiAuthority, getCoins));
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    if (responseJSON['success'] != true) {
+      throw Exception('get-coins failed: ${responseJSON['msg']}');
+    }
 
-  String? _networkFor(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eth => 'ETH',
-      CryptoCurrency.bnb => 'BNB_BSC',
-      CryptoCurrency.baseEth => 'BASE',
-      CryptoCurrency.robEth => 'ROB',
-      CryptoCurrency.arb => 'ARB',
-      CryptoCurrency.arbEth => 'ARB',
-      CryptoCurrency.usdterc20 => 'USDT_ERC20',
-      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      CryptoCurrency.usdtbsc => 'USDT_BSC',
-      CryptoCurrency.sol => 'SOL',
-      CryptoCurrency.btc => 'BTC',
-      CryptoCurrency.xmr => 'XMR',
-      CryptoCurrency.ltc => 'LTC',
-      CryptoCurrency.ada => 'ADA',
-      CryptoCurrency.bch => 'BCH',
-      CryptoCurrency.zec => 'ZEC',
-      _ => currency.tag?.toUpperCase(),
+    final coins = (responseJSON['data'] as List).cast<Map<String, dynamic>>();
+    _coinNetworks = {
+      for (final coin in coins)
+        coin['id'].toString().toUpperCase(): coin['network'].toString().toUpperCase().split(','),
     };
-    return network;
+    return coins;
+  }
+
+  Future<bool> _isPairSupported(CryptoCurrency from, CryptoCurrency to) async =>
+      await _networkFor(from) != null && await _networkFor(to) != null;
+
+  Future<String?> _networkFor(CryptoCurrency currency) async {
+    if (_coinNetworks == null) {
+      await _fetchCoins();
+    }
+    final network = currency.network.toUpperCase();
+    final supported = _coinNetworks![_normalizeCurrency(currency)] ?? const <String>[];
+    return supported.contains(network) ? network : null;
   }
 }
