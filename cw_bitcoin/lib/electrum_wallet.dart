@@ -5,7 +5,9 @@ import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:path_provider/path_provider.dart';
@@ -185,7 +187,7 @@ abstract class ElectrumWalletBase
       DerivationInfo? derivationInfo,
       HardwareWalletType? hardwareWalletType) {
     if (seedBytes == null && xpub == null) {
-      throw Exception(
+      throw ArgumentError(
           "To create a Wallet you need either a seed or an xpub. This should not happen");
     }
 
@@ -204,7 +206,7 @@ abstract class ElectrumWalletBase
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
         default:
-          throw Exception("Unsupported currency");
+          throw (currency == null ? ArgumentError("no currency") : BadCurrencyException("Unsupported currency",currency!));
       }
     }
 
@@ -1928,7 +1930,7 @@ abstract class ElectrumWalletBase
         }
 
         if (key == null) {
-          throw Exception(error);
+          throw TransactionGenerationException(error);
         }
 
         if (utxo.utxo.isP2tr()) {
@@ -2491,7 +2493,7 @@ abstract class ElectrumWalletBase
         .fold<int>(0, (sum, output) => sum + output.amount.toInt());
 
     if (receiverAmount == 0) {
-      throw Exception("Receiver output not found.");
+      throw RbfException("Receiver output not found.");
     }
 
     final availableInputs =
@@ -2504,7 +2506,7 @@ abstract class ElectrumWalletBase
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
       if (inputTransaction == null) {
-        throw Exception("Missing input transaction for fee calculation");
+        throw RbfException("Missing input transaction for fee calculation");
       }
       final vout = input.txIndex;
       final outTransaction = inputTransaction.outputs[vout];
@@ -2535,7 +2537,7 @@ abstract class ElectrumWalletBase
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
         if (inputTransaction == null) {
-          throw Exception("Missing input transaction for replace-by-fee");
+          throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
         final outTransaction = inputTransaction.outputs[vout];
@@ -2577,7 +2579,7 @@ abstract class ElectrumWalletBase
               memo = utf8.decode(HEX.decode(opReturnData));
               continue;
             } catch (_) {
-              throw Exception('Cannot decode OP_RETURN data');
+              throw RbfException('Cannot decode OP_RETURN data');
             }
           }
         }
@@ -2594,7 +2596,7 @@ abstract class ElectrumWalletBase
       var remainingFee = BigInt.from(newFee - currentFee);
 
       if (remainingFee <= BigInt.zero) {
-        throw Exception("New fee must be higher than the current fee.");
+        throw ArgumentError("New fee must be higher than the current fee.");
       }
 
       // Deduct fee from change outputs first, if possible
@@ -2696,7 +2698,7 @@ abstract class ElectrumWalletBase
 
       // Final check if the remaining fee couldn't be deducted
       if (remainingFee > BigInt.zero) {
-        throw Exception("Not enough funds to cover the fee.");
+        throw RbfException("Not enough funds to cover the fee.");
       }
 
       // Identify all change outputs
@@ -2728,7 +2730,7 @@ abstract class ElectrumWalletBase
         final key =
             privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
         if (key == null) {
-          throw Exception("Cannot find private key");
+          throw WalletKeysException("Cannot find private key");
         }
 
         if (utxo.utxo.isP2tr()) {
@@ -3026,7 +3028,7 @@ abstract class ElectrumWalletBase
       _missingHistoryQueue.putIfAbsent(txid, () => item);
     }
   }
-  
+
   Future<void> resolveQueuedTransactionDetails() {
     final inProgress = _resolveMissingHistoryFuture;
     if (inProgress != null) return inProgress;
@@ -4600,7 +4602,7 @@ abstract class ElectrumWalletBase
         );
 
         if (result == null) {
-          throw Exception('Call mechanism test returned null');
+          throw ElectrumResponseException('Call mechanism test returned null');
         }
 
         SocketHealthLogger().logHealthCheck(
