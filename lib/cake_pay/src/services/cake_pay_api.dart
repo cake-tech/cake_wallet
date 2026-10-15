@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
@@ -42,7 +43,7 @@ class CakePayApi {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw BuySellProviderResponseException('Unexpected http status: ${response.statusCode}');
       }
 
       final bodyJson = json.decode(response.body) as Map<String, dynamic>;
@@ -51,9 +52,9 @@ class CakePayApi {
         return bodyJson['user']['email'] as String;
       }
 
-      throw Exception('Failed to authenticate user with error: $bodyJson');
+      throw BuySellProviderResponseException('Failed to authenticate user with error: $bodyJson');
     } catch (e) {
-      throw Exception('Failed to authenticate user with error: $e');
+      throw BuySellProviderResponseException('Failed to authenticate user with error: $e');
     }
   }
 
@@ -78,13 +79,13 @@ class CakePayApi {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw CakePayResponseException('Unexpected http status: ${response.statusCode}');
     }
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     if (bodyJson.containsKey('error')) {
-      throw Exception(bodyJson['error'] as String);
+      throw CakePayResponseException(bodyJson['error'] as String);
     }
 
     if (bodyJson.containsKey('token')) {
@@ -92,7 +93,7 @@ class CakePayApi {
       final userEmail = bodyJson['user']['email'] as String;
       return CakePayUserCredentials(userEmail, token);
     } else {
-      throw Exception('E-mail verification failed.');
+      throw CakePayResponseException('E-mail verification failed.');
     }
   }
 
@@ -160,7 +161,7 @@ class CakePayApi {
       } on FormatException {}
     }
 
-    throw Exception(message);
+    throw CakePayResponseException(message);
   }
 
   /// Get Order by ID
@@ -181,7 +182,7 @@ class CakePayApi {
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw CakePayResponseException('Unexpected http status: ${response.statusCode}');
     }
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
@@ -287,7 +288,7 @@ class CakePayApi {
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw CakePayResponseException('Unexpected http status: ${response.statusCode}');
     }
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
@@ -312,7 +313,7 @@ class CakePayApi {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw CakePayResponseException('Unexpected http status: ${response.statusCode}');
       }
     } catch (e) {
       printV('Caught exception: $e');
@@ -355,7 +356,7 @@ class CakePayApi {
     var response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception(
+      throw CakePayResponseException(
           'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 

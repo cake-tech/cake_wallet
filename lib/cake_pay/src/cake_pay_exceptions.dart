@@ -1,10 +1,20 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 
 class CakePayUnauthorizedException implements Exception {
   const CakePayUnauthorizedException();
 
-  @override
-  String toString() => 'Cake Pay session is no longer valid, please log in again.';
+class CakePayUnauthorizedException extends CakeException {
+  const CakePayUnauthorizedException()
+      : super("Cake Pay session is no longer valid, please log in again.");
+}
+
+class CakePayResponseException extends ServerResponseException {
+  const CakePayResponseException(super.message);
+}
+
+class CakePayNoDataException extends CakeException {
+  const CakePayNoDataException(super.message);
 }
 
 class CakePayApiException implements Exception {
