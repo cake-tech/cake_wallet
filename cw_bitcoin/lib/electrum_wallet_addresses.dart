@@ -1115,26 +1115,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isLegacyDerivation,
     int accountIndex = 0,
   }) {
-    if (isLegacyDerivation) {
-      if (accountIndex != 0) {
-        throw UnsupportedAddressTypeForAccountException(
-            "Legacy derivation is only supported for the first account");
-      }
-
-      return isHidden ? legacySideHd : legacyMainHd;
-    }
-
-    final account = accounts[accountIndex];
-    if (account == null) {
-      throw UnsupportedAddressTypeForAccountException("Account $accountIndex not found");
-    }
-
-    final hd = account.hd.branch(type, isChange: isHidden);
+    final hd = accounts.hdFor(
+      accountIndex: accountIndex,
+      type: type,
+      isChange: isHidden,
+      isLegacy: isLegacyDerivation,
+    );
     if (hd == null) {
       throw UnsupportedAddressTypeForAccountException(
-          "HD not found for account $accountIndex type $type");
+          "No HD for account $accountIndex, type $type, legacy $isLegacyDerivation");
     }
-
     return hd;
   }
 
