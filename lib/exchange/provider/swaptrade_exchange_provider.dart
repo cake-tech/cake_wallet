@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -111,7 +112,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'fetchRate',
-          error: Exception(_errorMessage(responseBody)),
+          error: ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n${_errorMessage(responseBody)}', response.statusCode),
           stackTrace: StackTrace.current,
           requestData: {
             'from': from.title,
@@ -123,7 +124,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw Exception(_errorMessage(responseBody));
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n${_errorMessage(responseBody)}', response.statusCode);
       }
 
       final data = responseBody['data'] as Map<String, dynamic>;
@@ -236,7 +237,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
           },
         );
 
-        throw TradeNotCreatedException(description, description: error);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n$description: $error', response.statusCode);
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
@@ -320,7 +321,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       if (responseBody['success'] != true) {
         final error = _errorMessage(responseBody);
-        throw TradeNotCreatedException(description, description: error);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n$description: $error', response.statusCode);
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
