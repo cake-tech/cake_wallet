@@ -113,6 +113,11 @@ private func keyWindow() -> UIWindow? {
         .first { $0.isKeyWindow }
 }
 
+override var window: UIWindow? {
+    get { super.window ?? keyWindow() }
+    set { super.window = newValue }
+}
+
 private func makeSecure() {
     guard let window = self.window ?? keyWindow() else { return }
 

@@ -1,0 +1,17 @@
+ARG BASE_IMAGE
+
+FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
+
+COPY scripts/functions.sh /w/scripts/functions.sh
+COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
+COPY scripts/ios/build_monero_all.sh /w/scripts/ios/build_monero_all.sh
+
+ARG COIN
+ARG TARGET
+ENV COIN=$COIN
+ENV TARGET=$TARGET
+RUN /w/scripts/ios/build_monero_all.sh \
+    && ls /w/scripts/monero_c/release/*/${TARGET}/lib${COIN}_wallet2_api_c.dylib
+
+FROM --platform=linux/amd64 alpine
+COPY --from=build /w/scripts/monero_c/release /w/scripts/monero_c/release
