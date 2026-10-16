@@ -31,6 +31,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
           .hasAdditionalBalance(dashboardViewModel.wallet.currency);
       final isIronwoodMigration = dashboardViewModel.isMigratingToIronwood;
       final requiresManualShield = dashboardViewModel.requiresManualShield;
+      final _ = dashboardViewModel.balanceViewModel.balances;
 
       return AnimatedSize(
         duration: const Duration(milliseconds: 300),

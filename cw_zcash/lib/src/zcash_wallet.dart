@@ -1338,6 +1338,7 @@ abstract class ZcashWalletBase
     final availableBalance = zcashBalance?.available ?? Money.zero(currency);
     final sweepableBigInt = await runWithCoin(accountId: accountId, func: _sweepableTotal);
     final sweepable = Money(sweepableBigInt, currency);
+    _lastAutoShieldAt = DateTime.now();
 
     return PendingZcashTransaction(
       zcashWallet: this as ZcashWallet,
@@ -1354,7 +1355,6 @@ abstract class ZcashWalletBase
     final shieldTx = await createShieldingTransaction();
     if (shieldTx != null) {
       await shieldTx.commit();
-      _lastAutoShieldAt = DateTime.now();
     }
   }
 
@@ -1488,12 +1488,14 @@ abstract class ZcashWalletBase
         unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
       }
 
+      final notShowSweepable = _lastAutoShieldAt?.isAfter(
+          DateTime.now().subtract(const Duration(seconds: 75))) == true;
       runInAction(() {
         _orchardMigratable =
             ironwoodActive == true && migratableOrchard > BigInt.zero;
         balance[currency] = ZcashBalance(
           Money(availableAmount, currency),
-          Money(unavailableAmount, currency),
+          notShowSweepable ? Money.zero(currency) : Money(unavailableAmount, currency),
           frozen: Money.zero(currency),
         );
       });
