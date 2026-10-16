@@ -388,7 +388,12 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     final coins = (responseJSON['data'] as List).cast<Map<String, dynamic>>();
     _coinNetworks = {
       for (final coin in coins)
-        coin['id'].toString().toUpperCase(): coin['network'].toString().toUpperCase().split(','),
+        coin['id'].toString().toUpperCase(): coin['network']
+            .toString()
+            .toUpperCase()
+            .split(',')
+            .map((network) => network.trim())
+            .toList(),
     };
     return coins;
   }
