@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -227,7 +227,7 @@ abstract class TronWalletBase
 
     if (privateKey != null) return TronPrivateKey(privateKey);
 
-    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
+    final seed = bip39MnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     // Derive a TRON private key from the seed
     final bip44 = Bip44.fromSeed(seed, Bip44Coins.tron);
