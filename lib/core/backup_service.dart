@@ -14,6 +14,7 @@ import 'package:hive/hive.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:archive/archive_io.dart' hide Mac;
+import 'package:path/path.dart' as p;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
@@ -50,6 +51,13 @@ class $BackupService {
 
   static const currentVersion = _v3;
 
+  static String? safeExtractPath(String baseDir, ArchiveFile file) {
+    if (file.isSymbolicLink || file.name.isEmpty || p.isAbsolute(file.name)) return null;
+    final root = p.normalize(p.absolute(baseDir));
+    final target = p.normalize(p.join(root, file.name));
+    return p.isWithin(root, target) ? target : null;
+  }
+
   static const _v2 = 2;
   static const _v3 = 3;
 
@@ -66,15 +74,18 @@ class $BackupService {
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
     for (var file in zip.files) {
-      final filename = file.name;
+      final outPath = safeExtractPath(appDir.path, file);
+      if (outPath == null) {
+        throw Exception("unsafe backup entry: ${file.name}, please contact support");
+      }
 
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        File(outPath)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        Directory('${appDir.path}/' + filename)..create(recursive: true);
+        Directory(outPath)..create(recursive: true);
       }
     }
     ;
@@ -107,14 +118,18 @@ class $BackupService {
           continue outer;
         }
       }
+      final outPath = safeExtractPath(appDir.path, file);
+      if (outPath == null) {
+        throw Exception("unsafe backup entry: $filename, please contact support");
+      }
       printV("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        File(outPath)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        final dir = Directory('${appDir.path}/' + filename);
+        final dir = Directory(outPath);
         if (!dir.existsSync()) {
           dir.createSync(recursive: true);
         }
