@@ -8,8 +8,10 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -22,13 +24,8 @@ import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
 
-class UnsupportedAddressTypeForAccountException implements Exception {
-  UnsupportedAddressTypeForAccountException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
+class UnsupportedAddressTypeForAccountException extends CakeException {
+  UnsupportedAddressTypeForAccountException(super.message);
 }
 
 abstract class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
@@ -171,7 +168,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final Bip32Slip10Secp256k1 legacyMainHd;
   final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;
-  final LightningWallet? lightningWallet;
+  LightningWallet? lightningWallet;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -522,7 +519,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType is LightningAddressType) {
-      throw Exception("Lightning addresses cannot be rotated");
+      throw ArgumentError("Lightning addresses cannot be rotated");
     }
 
     if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {

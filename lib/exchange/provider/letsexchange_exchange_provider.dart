@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -70,7 +71,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       return Limits(min: min, max: max);
     } catch (e) {
       log(e.toString());
-      throw Exception('Failed to fetch limits');
+      throw ExchangeProviderResponseException('Failed to fetch limits');
     }
   }
 
@@ -218,7 +219,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw Exception('LetsExchange create trade failed: ${response.body}');
+        throw TradeNotCreatedException(description, description: 'LetsExchange create trade failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final id = responseJSON['transaction_id'] as String;
@@ -340,7 +341,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception('LetsExchange fetch trade failed: ${response.body}');
+      throw ExchangeProviderResponseCodeException('LetsExchange fetch trade failed: ${response.body}', response.statusCode);
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -399,11 +400,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('LetsExchange fetch info failed: ${response.body}');
+        throw ExchangeProviderResponseCodeException('LetsExchange fetch info failed: ${response.body}', response.statusCode);
       }
       return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {
-      throw Exception('LetsExchange failed to fetch info ${e.toString()}');
+      throw ExchangeProviderResponseException('LetsExchange failed to fetch info ${e.toString()}');
     }
   }
 

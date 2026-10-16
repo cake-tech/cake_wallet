@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/get_height_by_date_zec.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/node.dart';
@@ -23,6 +24,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_zcash/cw_zcash.dart';
 import "package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart";
 import 'package:cw_zcash/src/util/crc32.dart';
+import "package:cw_zcash/src/util/exceptions.dart";
 import 'package:cw_zcash/src/zcash_mempool.dart';
 import 'package:cw_zcash/src/zcash_taddress_rotation.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
@@ -984,7 +986,7 @@ abstract class ZcashWalletBase
       final s = (await zkool_account.getAccountSeed(account: accountId, c: c));
 
       if (s == null) {
-        throw Exception("seed not found");
+        throw BadMnemonicException("seed not found");
       }
       final seedPhrase = s.mnemonic.split(" ");
       if ([13, 25].contains(seedPhrase.length)) {
@@ -1018,11 +1020,11 @@ abstract class ZcashWalletBase
     }
     final currentWalletDir = Directory(await pathForWalletDir(name: fromName, type: _type));
     if (!currentWalletDir.existsSync()) {
-      throw Exception('Wallet directory not found: $fromName');
+      throw WalletNotFoundException(name: fromName, type: _type);
     }
     final newWalletDirPath = '${await pathForWalletTypeDir(type: _type)}/$toName';
     if (Directory(newWalletDirPath).existsSync()) {
-      throw Exception('Cannot rename wallet: "$toName" already exists');
+      throw BadWalletDataException('Cannot rename wallet: "$toName" already exists');
     }
     await currentWalletDir.rename(newWalletDirPath);
     for (final suffix in const ['', '.v2']) {
@@ -1075,10 +1077,10 @@ abstract class ZcashWalletBase
           final updated =
               accounts.where((final a) => a.id == accountId).firstOrNull;
           if (updated == null) {
-            throw Exception('account $accountId not found after update');
+            throw UpdateException('account $accountId not found after update');
           }
           if (updated.birth != height) {
-            throw Exception(
+            throw UpdateException(
               'birth height did not persist: wanted $height, '
               'database still has ${updated.birth}',
             );
@@ -1561,7 +1563,7 @@ abstract class ZcashWalletBase
     final fromSeedCredentials = credentials as ZcashFromSeedWalletCredentials;
     final String? seed = fromSeedCredentials.seed;
     if (seed == null || seed.isEmpty) {
-      throw Exception('Seed phrase is required for wallet restoration');
+      throw BadMnemonicException('Seed phrase is required for wallet restoration');
     }
 
     final accountId = await restoreZcashWalletFromSeed(
@@ -1587,12 +1589,12 @@ abstract class ZcashWalletBase
     final fromKeysCredentials = credentials as ZcashFromKeysWalletCredentials;
     final String? keys = fromKeysCredentials.privateKey;
     if (keys == null || keys.isEmpty) {
-      throw Exception('Key is required for wallet restoration');
+      throw BadKeysException('Key is required for wallet restoration');
     }
 
     final zcashSecretExtendedKeyRegex = RegExp(r'^secret-extended-key-main1[a-z0-9]+$');
     if (!zcashSecretExtendedKeyRegex.hasMatch(keys)) {
-      throw Exception('Key is not in secret-extended-key-main1 format');
+      throw BadKeysException('Key is not in secret-extended-key-main1 format');
     }
 
     final accountId = await restoreZcashWalletFromSeed(
@@ -1667,7 +1669,7 @@ abstract class ZcashWalletBase
     // }
     final accountId = await getZcashAccountIdForName(name);
     if (accountId == null) {
-      throw Exception("accountId is null");
+      throw ZcashAccountException("accountId is null");
     }
     c = await c.setAccount(account: accountId);
     final wallet = ZcashWallet(
@@ -1816,7 +1818,7 @@ abstract class ZcashWalletBase
     c = await c.openDatabase(dbFilepath: dbFile.path, password: null);
     printV("initWallet: ${dbFile.path}");
     if (_password == null) {
-      throw Exception("Zcash wallet locked! Please contact support");
+      throw WalletLockedException();
     }
     if (!dbFile.existsSync()) {
       //TODO(mrcyjanek): copy-encrypt

@@ -271,6 +271,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -295,7 +296,6 @@ import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
-import "src/screens/settings/widgets/account_creation_modal.dart";
 
 
 final getIt = GetIt.instance;
@@ -390,9 +390,7 @@ Future<void> setup({
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
       case HardwareWalletType.keystone:
-        throw Exception(
-          "This should not have happened, because airgapped Wallets don't need View Models",
-        );
+        throw ArgumentError("This should not have happened, because airgapped Wallets don't need View Models");
     }
   });
 
@@ -561,14 +559,15 @@ Future<void> setup({
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
-  getIt.registerFactoryParam<CardCustomizerBloc, bool, BitcoinAmountDisplayMode?>(
-      (lightningMode, displayMode) {
+  getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
+      (params, _) {
     final wallet = getIt.get<AppStore>().wallet!;
     return CardCustomizerBloc(wallet,
-        lightningMode: lightningMode,
+        canHide: params.canHide,
+        lightningMode: params.lightningMode,
         displaySats: wallet.type == WalletType.bitcoin &&
-            (displayMode == BitcoinAmountDisplayMode.satoshi ||
-                (displayMode == BitcoinAmountDisplayMode.satoshiForLightning && lightningMode)));
+            (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshi ||
+                (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning && params.lightningMode)));
   });
 
   getIt.registerLazySingleton<PriceStore>(() => PriceStore(settingsStore: getIt.get<SettingsStore>()));
@@ -887,8 +886,8 @@ Future<void> setup({
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
       return NanoAccountListViewModel(wallet);
     }
-    throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel');
+    throw BadWalletTypeException(
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
@@ -896,16 +895,16 @@ Future<void> setup({
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet, getIt.get<SettingsStore>());
+      return MoneroAccountListViewModel(wallet);
     }
-    throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
+    throw BadWalletTypeException(
+        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory<BitcoinAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.bitcoin) {
-      return BitcoinAccountListViewModel(wallet, getIt.get<SettingsStore>());
+      return BitcoinAccountListViewModel(wallet);
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Bitcoin AccountListViewModel');
@@ -927,11 +926,29 @@ Future<void> setup({
   });
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
-      (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
-          monero!.getAccountList(getIt.get<AppStore>().wallet!),
-          wownero?.getAccountList(getIt.get<AppStore>().wallet!),
-          wallet: getIt.get<AppStore>().wallet!,
-          accountListItem: account));
+      (AccountListItem? account, _) {
+    final wallet = getIt.get<AppStore>().wallet!;
+
+    if (wallet.type == WalletType.monero) {
+      return MoneroAccountEditOrCreateViewModel(
+        monero!.getAccountList(wallet),
+        null,
+        wallet: wallet,
+        accountListItem: account,
+      );
+    }
+
+    if (wallet.type == WalletType.wownero) {
+      return MoneroAccountEditOrCreateViewModel(
+        null,
+        wownero!.getAccountList(wallet),
+        wallet: wallet,
+        accountListItem: account,
+      );
+    }
+
+    throw StateError("Account creation is unavailable for ${wallet.type}");
+  });
 
   getIt.registerFactory<BitcoinAccountEditOrCreateViewModel>(
         () => BitcoinAccountEditOrCreateViewModel(
@@ -1261,7 +1278,7 @@ Future<void> setup({
       case WalletType.zcash:
         return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
-        throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
+        throw BadWalletTypeException('Unexpected token: ${param1.toString()} for generating of WalletService',param1);
     }
   });
 
