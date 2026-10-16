@@ -346,11 +346,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    printV(bestRateQuote);
     if (bestRateQuote != null) {
       final enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0;
       final amount = enteredAmount / bestRateQuote!.rate;
-      printV(amount);
 
       _cryptoAmount = amount.toString().withMaxDecimals(cryptoCurrency.decimals);
     } else {
@@ -592,7 +590,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         isBuyAction: mode == BuySellPageMode.buy,
         cryptoCurrencyAddress: cryptoCurrencyAddress,
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      printV("launchTrade failed for ${provider.title}: $e\n$stackTrace");
+
       if (e.toString().contains("403")) {
         buySellQuotState = BuySellQuotFailed(errorMessage: "Using Tor is not supported");
       } else {
