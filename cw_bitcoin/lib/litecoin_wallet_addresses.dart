@@ -25,10 +25,7 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByTypeAndAccount,
-    required super.sideHdByTypeAndAccount,
-    required super.accountIndexes,
-    required super.currentAccountIndex,
+    required super.accounts,
     required super.legacyMainHd,
     required super.legacySideHd,
     required super.network,
@@ -68,9 +65,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               List.filled(32, 0);
 
   @override
-  Future<void> init({List<int> accountIndexes = const []}) async {
+  Future<void> init() async {
     if (!isHardwareWallet) await initMwebAddresses();
-    await super.init(accountIndexes: accountIndexes);
+    await super.init();
   }
 
   @computed
