@@ -77,7 +77,8 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final currencies = s.currencies.toList();
       final range = s.range;
       for (final curr in currencies) {
-        data[curr] = await priceStore.getPrices(appStore.settingsStore.fiatCurrency, curr, range);
+        data[curr] = await priceStore.getPrices(
+            appStore.settingsStore.fiatCurrency, currencyFromApiString(curr.apiString), range);
       }
       emit(
         ChartsLoaded(
@@ -88,7 +89,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
         ),
       );
     } else {
-      throw Exception("attempted price load without currency data");
+      throw StateError("attempted price load without currency data");
     }
   }
 
@@ -131,7 +132,7 @@ class ChartsBloc extends Bloc<ChartsEvent, ChartsState> {
       final newCurrencies = s.currencies..remove(event.currency);
 
       if (newCurrencies.isEmpty) {
-        throw Exception(
+        throw StateError(
           "removed the last currency ${kDebugMode ? "- your ui should block this! what did you do?" : ""}",
         );
       }
