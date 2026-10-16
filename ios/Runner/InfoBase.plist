@@ -307,6 +307,26 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
+            <string>pivx</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>pivx</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>pivx-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>pivx-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
             <string>base</string>
             <key>CFBundleURLSchemes</key>
             <array>
