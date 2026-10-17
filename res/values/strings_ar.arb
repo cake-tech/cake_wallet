@@ -90,6 +90,7 @@
   "auth_store_banned_for": "محظور لمدة ",
   "auth_store_banned_minutes": " دقائق",
   "auth_store_incorrect_password": "رمز PIN غير صحيح",
+  "auth_store_pin_unreadable": "تعذّرت قراءة رمز PIN المحفوظ. يُرجى إغلاق التطبيق وإعادة فتحه.",
   "authenticated": "تمت المصادقة",
   "authentication": "المصادقة",
   "auto_connect": "الاتصال التلقائي",

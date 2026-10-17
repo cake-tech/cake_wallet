@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart' show AppStore;
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cw_core/db/sqlite.dart';
+import "package:cw_core/keychain_read_status_native.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -20,7 +21,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-
 import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class AuthService with Store {
@@ -90,7 +90,11 @@ class AuthService with Store {
   Future<bool> authenticate(String pin) async {
     final regularKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedRegularPin = await secureStorage.read(key: regularKey);
-    final decodedRegularPin = decodedPinCode(pin: encodedRegularPin!);
+    if (encodedRegularPin == null) {
+      throw PinCodeUnreadableException(await keychainReadStatusNative(regularKey));
+    }
+
+    final decodedRegularPin = decodedPinCode(pin: encodedRegularPin);
 
     if (decodedRegularPin == pin) {
       return true;
@@ -278,4 +282,19 @@ Future<void> _handleDuressLogin(
   printV('[DURESS] Authentication state set to "uninitialized"');
 
   printV('[DURESS] FULL WIPE COMPLETED');
+}
+
+/// Thrown by [AuthService.authenticate] when secure storage returns no stored PIN.
+class PinCodeUnreadableException implements Exception {
+  PinCodeUnreadableException(this.keychainStatus);
+
+  /// iOS Keychain OSStatus of the same read (e.g. -25300 not found, -25308 locked); null on
+  /// other platforms or when it couldn't be fetched.
+  final int? keychainStatus;
+
+  @override
+  String toString() {
+    final status = keychainStatus == null ? "" : " (Keychain OSStatus: $keychainStatus)";
+    return "PinCodeUnreadableException: secure storage returned no PIN$status";
+  }
 }

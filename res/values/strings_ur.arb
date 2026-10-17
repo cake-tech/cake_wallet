@@ -90,6 +90,7 @@
   "auth_store_banned_for": "کے لیے پابندی",
   "auth_store_banned_minutes": " منٹ",
   "auth_store_incorrect_password": "غلط پن",
+  "auth_store_pin_unreadable": "آپ کا محفوظ کردہ پن پڑھا نہیں جا سکا۔ براہ کرم ایپ بند کر کے دوبارہ کھولیں۔",
   "authenticated": "تصدیق شدہ",
   "authentication": "تصدیق",
   "auto_connect": "خودکار جڑیں۔",

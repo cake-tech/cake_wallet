@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Şu süre için yasaklandınız: ",
   "auth_store_banned_minutes": " dakika",
   "auth_store_incorrect_password": "Yanlış PIN",
+  "auth_store_pin_unreadable": "Kayıtlı PIN'iniz okunamadı. Lütfen uygulamayı kapatıp yeniden açın.",
   "authenticated": "Kimliği doğrulandı",
   "authentication": "Kimlik Doğrulama",
   "auto_connect": "Otomatik bağlan",

@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Забанено на ",
   "auth_store_banned_minutes": " минут",
   "auth_store_incorrect_password": "Неверный PIN",
+  "auth_store_pin_unreadable": "Не удалось прочитать сохранённый PIN. Закройте приложение и откройте его снова.",
   "authenticated": "Аутентифицирован",
   "authentication": "Аутентификация",
   "auto_connect": "Автоподключение",

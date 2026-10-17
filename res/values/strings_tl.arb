@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Naka-ban sa loob ng ",
   "auth_store_banned_minutes": " minuto",
   "auth_store_incorrect_password": "Maling PIN",
+  "auth_store_pin_unreadable": "Hindi mabasa ang iyong naka-save na PIN. Pakisara at muling buksan ang app.",
   "authenticated": "Na-authenticate",
   "authentication": "Pagpapatunay",
   "auto_connect": "Awtomatikong kumonekta",

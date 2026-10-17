@@ -90,6 +90,7 @@
   "auth_store_banned_for": "ممنوع شده برای ",
   "auth_store_banned_minutes": " دقیقه",
   "auth_store_incorrect_password": "پین اشتباه",
+  "auth_store_pin_unreadable": "پین ذخیره‌شده شما خوانده نشد. لطفاً برنامه را ببندید و دوباره باز کنید.",
   "authenticated": "تأیید شد",
   "authentication": "احراز هویت",
   "auto_connect": "اتصال خودکار",

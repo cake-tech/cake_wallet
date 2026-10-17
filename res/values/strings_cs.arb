@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Zablokováno na ",
   "auth_store_banned_minutes": " minut",
   "auth_store_incorrect_password": "Nesprávný PIN",
+  "auth_store_pin_unreadable": "Uložený PIN se nepodařilo načíst. Zavřete prosím aplikaci a znovu ji otevřete.",
   "authenticated": "Ověřeno",
   "authentication": "Ověření",
   "auto_connect": "Automatické připojení",

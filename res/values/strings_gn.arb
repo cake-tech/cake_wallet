@@ -90,6 +90,7 @@
   "auth_store_banned_for": "Ojejoko hag̃ua ",
   "auth_store_banned_minutes": " aravo'i",
   "auth_store_incorrect_password": "PIN hekoíva'ỹ",
+  "auth_store_pin_unreadable": "Ndaikatúi oñemoñe'ẽ nde PIN ñongatupyre. Remboty ha eipe'a jey pe app.",
   "authenticated": "Oñemoañete",
   "authentication": "Jehechajey",
   "auto_connect": "Oñembojoaju ijehegui",

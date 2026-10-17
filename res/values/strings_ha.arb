@@ -90,6 +90,7 @@
   "auth_store_banned_for": "An hana ka na tsawon ",
   "auth_store_banned_minutes": " mintuna",
   "auth_store_incorrect_password": "PIN ba daidai ba",
+  "auth_store_pin_unreadable": "Ba a iya karanta PIN ɗinka da aka ajiye ba. Da fatan za a rufe manhajar sannan a sake buɗe ta.",
   "authenticated": "An tabbatar",
   "authentication": "Tabbatarwa",
   "auto_connect": "Haɗa kai tsaye",
