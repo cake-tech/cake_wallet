@@ -30,7 +30,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.leadingIconSize,
       this.badgeIconSize,
       this.iconColor,
-      this.secondaryLabel});
+      this.secondaryLabel,
+      this.testId});
 
   final String keyValue;
   final String label;
@@ -55,6 +56,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +72,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
         duration: Duration(milliseconds: 150),
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
+            testId: testId,
+            mergeTestId: trailingWidget == null && bottomWidget == null,
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
             onTap: onTap,
             iconPath: iconPath,

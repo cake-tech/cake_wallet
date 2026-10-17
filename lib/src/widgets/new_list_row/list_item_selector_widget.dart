@@ -14,6 +14,7 @@ class ListItemSelectorWidget extends StatelessWidget {
     this.isFirstInSection = false,
     this.isLastInSection = false,
     this.onTap,
+    this.testId,
   });
 
   final String keyValue;
@@ -24,11 +25,13 @@ class ListItemSelectorWidget extends StatelessWidget {
   final bool isFirstInSection;
   final bool isLastInSection;
   final VoidCallback? onTap;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListItemStyleWrapper(
+        testId: testId,
         onTap: onTap,
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
