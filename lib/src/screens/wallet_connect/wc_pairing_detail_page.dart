@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/wallet_connect/utils/dapp_icon.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
@@ -82,7 +83,7 @@ class WCCDetailsWidget extends BasePage {
       return const SizedBox.shrink();
     }
 
-    final iconUrl = metadata.icons.isNotEmpty ? metadata.icons.first : null;
+    final iconUrl = wcDappIconUrl(metadata);
     final walletName = getIt.get<AppStore>().wallet?.name ?? '';
 
     return SafeArea(
