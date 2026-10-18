@@ -1,11 +1,11 @@
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:ens_dart/ens_dart.dart';
-import 'package:web3dart/web3dart.dart';
+import "package:cake_wallet/evm/evm.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:ens_dart/ens_dart.dart";
+import "package:web3dart/web3dart.dart";
 
 class EnsRecord {
   static Future<String> fetchEnsAddress(
@@ -20,36 +20,49 @@ class EnsRecord {
     }
 
     _client ??= Web3Client(
-      'https://ethereum-rpc.publicnode.com',
+      "https://ethereum-rpc.publicnode.com",
       ProxyWrapper().getHttpIOClient(),
     );
 
-    final ens = Ens(client: _client);
+    final registryEns = Ens(client: _client).withName(name);
     final coinType = getEnsCoinType(cur);
 
     if (coinType == null) {
-      printV('Unsupported currency for ENS: $cur');
-      return '';
+      printV("Unsupported currency for ENS: $cur");
+      return "";
     }
 
     try {
-      if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
-        return (await ens.withName(name).getAddress()).hex;
+      // Check if the ENS name has its resolver set. If not, return an empty string.
+      final resolverAddress = await registryEns.getResolverAddress(registryEns.nodeHash);
+
+      if (isZeroAddress(resolverAddress)) {
+        printV("No resolver set for ENS name: $name");
+        return "";
+      }
+
+      final resolverEns = Ens(client: _client,address: resolverAddress).withName(name);
+
+      if (coinType == CoinType.ETH) {
+        return (await resolverEns.getAddress()).hex;
       } else {
-        return await ens.withName(name).getCoinAddress(coinType);
+        return await resolverEns.getCoinAddress(coinType);
       }
     } catch (e) {
       printV(e);
-      return '';
+      return "";
     }
   }
+
+  static bool isZeroAddress(EthereumAddress address) =>
+      address.addressBytes.every((byte) => byte == 0);
 
   static CoinType? getEnsCoinType(CryptoCurrency cur) => switch (cur) {
         CryptoCurrency.xmr => CoinType.XMR,
         CryptoCurrency.btc => CoinType.BTC,
         CryptoCurrency.ltc => CoinType.LTC,
         CryptoCurrency.eth => CoinType.ETH,
-        CryptoCurrency.matic => CoinType.MATIC,
+        CryptoCurrency.maticpoly => CoinType.MATIC,
         _ => null,
       };
 }

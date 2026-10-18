@@ -21,6 +21,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -50,8 +51,9 @@ abstract class OutputBase with Store {
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     autorun((_) {
       final status = _wallet.syncStatus;
-      printV("Sync status changed to $status. Recalculating fees");
-
+      if (status is! SyncedSyncStatus) {
+        return;
+      }
       calculateEstimatedFee();
     });
   }
@@ -187,12 +189,14 @@ abstract class OutputBase with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           final isNative = [
             CryptoCurrency.eth,
             CryptoCurrency.maticpoly,
             CryptoCurrency.baseEth,
             CryptoCurrency.arbEth,
-            CryptoCurrency.bnb
+            CryptoCurrency.bnb,
+            CryptoCurrency.robEth
           ].contains(cryptoCurrencyHandler());
 
           final fee = isNative
@@ -261,6 +265,7 @@ abstract class OutputBase with Store {
   void updateWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
+    estimatedFee = Money.zero(cryptoCurrencyHandler());
   }
 
   @action
@@ -335,10 +340,21 @@ abstract class OutputBase with Store {
           ? CryptoCurrency.btc
           : cryptoCurrencyHandler();
 
+      final price = _fiatConversationStore.prices[cryptoCurrency];
+      if (price == null || !price.isFinite || price <= 0) {
+        printV('_updateCryptoAmount: invalid fiat rate $price for $cryptoCurrency');
+        cryptoAmount = '';
+        return;
+      }
+
       final decimals = min(20, cryptoCurrencyHandler().decimals);
-      final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
-              _fiatConversationStore.prices[cryptoCurrency]!)
-          .toStringAsFixed(decimals);
+      final rawCrypto = double.parse(fiatAmount.replaceAll(',', '.')) / price;
+      if (!rawCrypto.isFinite) {
+        cryptoAmount = '';
+        return;
+      }
+
+      final crypto = rawCrypto.toStringAsFixed(decimals);
 
       if (cryptoAmount != crypto) cryptoAmount = crypto;
     } catch (e) {

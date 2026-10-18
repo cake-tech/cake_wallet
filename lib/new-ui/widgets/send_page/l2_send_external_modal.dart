@@ -73,6 +73,7 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
               ],
             ),
             trailingIcon: Icon(Icons.close),
+            trailingSemanticLabel: S.of(context).close,
             onTrailingPressed: Navigator.of(context).pop,
           ),
           SafeArea(

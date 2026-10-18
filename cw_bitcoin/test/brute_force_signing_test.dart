@@ -476,7 +476,7 @@ void main() {
     //     }
     //   }
     //
-    //   print('Seed type: $foundSeedType, Path: $foundPath, Index: $foundIndex');
+    //   printV('Seed type: $foundSeedType, Path: $foundPath, Index: $foundIndex');
     //
     //   expect(result, isNotNull,
     //       reason: 'Address must be found with either BIP39 or Electrum seed derivation');

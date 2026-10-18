@@ -117,14 +117,24 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<bool?> isTokenVerifiedOnJupiter(WalletBase wallet, String mintAddress) {
+    final solanaWallet = wallet as SolanaWallet;
+    return solanaWallet.isTokenVerifiedOnJupiter(mintAddress);
+  }
+
+  @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     if (transaction.amount.currency.symbol == CryptoCurrency.sol.symbol) {
       return CryptoCurrency.sol;
     }
 
-    return (wallet as SolanaWallet).splTokenCurrencies.firstWhere(
-          (element) => transaction.amount.currency.symbol == element.symbol,
-        );
+    final token = (wallet as SolanaWallet).splTokenBySymbol(transaction.amount.currency.symbol);
+
+    if (token != null) {
+      return token;
+    }
+
+    return transaction.amount.currency as CryptoCurrency;
   }
 
   @override
@@ -197,7 +207,7 @@ class CWSolana extends Solana {
     final solanaProvider = solanaWallet.solanaProvider;
 
     if (solanaProvider == null) {
-      throw Exception('Solana provider not available');
+      throw TransactionGenerationException('Solana provider not available');
     }
 
     final unsignedTransactionBytes = base64.decode(base64Transaction);
@@ -212,11 +222,11 @@ class CWSolana extends Solana {
     Future<String> sendTx() async {
       try {
         if (signedTransactionBase64.isEmpty) {
-          throw Exception('Invalid transaction: transaction is empty');
+          throw TransactionSendingException('Invalid transaction: transaction is empty');
         }
 
         if (requestId.isEmpty) {
-          throw Exception('Invalid requestId: requestId is empty');
+          throw TransactionSendingException('Invalid requestId: requestId is empty');
         }
 
         final jupiterProvider = JupiterExchangeProvider();
@@ -237,7 +247,7 @@ class CWSolana extends Solana {
             if (signature == null ||
                 signature.isEmpty ||
                 signature == '1111111111111111111111111111111111111111111111111111111111111111') {
-              throw Exception(
+              throw ExchangeProviderResponseException(
                 'Invalid transaction signature received from Jupiter. '
                 'Status: $status',
               );
@@ -254,20 +264,22 @@ class CWSolana extends Solana {
                 errorMessage: errorMessage,
               );
             } else {
-              throw Exception(userFriendlyError);
+              throw ExchangeProviderResponseException(userFriendlyError);
             }
           case 'Pending':
           case 'Processing':
-            throw Exception(
+            throw ExchangeProviderResponseException(
               'Jupiter swap is still processing. Please wait and try checking the transaction status.',
             );
           default:
-            throw Exception(
+            throw ExchangeProviderResponseException(
               'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
             );
         }
+      } on JupiterSwapFailedException {
+        rethrow;
       } catch (e) {
-        throw Exception('Failed to execute Jupiter swap: $e');
+        throw TradeNotCreatedException(ExchangeProviderDescription.jupiter, description: 'Failed to execute Jupiter swap: $e');
       }
     }
 
@@ -373,6 +385,40 @@ class CWSolana extends Solana {
   }
 
   @override
+  Future<PendingTransaction> sendNFT(
+    WalletBase wallet, {
+    required String mintAddress,
+    required String destinationAddress,
+    String? name,
+  }) =>
+      (wallet as SolanaWallet).sendNFT(
+        mintAddress: mintAddress,
+        destinationAddress: destinationAddress,
+        name: name,
+      );
+
+  @override
+  Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress) async {
+    final metadata = await (wallet as SolanaWallet).client.getNFTOnChainMetadata(mintAddress);
+
+    if (metadata == null) {
+      return null;
+    }
+
+    return SolanaNFTMetadata(
+      mint: metadata.mint,
+      name: metadata.name,
+      symbol: metadata.symbol,
+      metadataUri: metadata.metadataUri,
+      imageUrl: metadata.imageUrl,
+    );
+  }
+
+  @override
+  Future<Set<String>> getHeldTokenMints(WalletBase wallet) =>
+      (wallet as SolanaWallet).heldTokenMints();
+
+  @override
   Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
     if (wallet is! SolanaWallet) return;
 
@@ -401,7 +447,18 @@ class CWSolana extends Solana {
       }
 
       await Future.wait(tokenChecks);
-    } catch (_) {}
+
+      final discoveredMints = result.newTokens
+          .where((item) => item.token.enabled)
+          .map((item) => item.token.mintAddress)
+          .toList();
+
+      if (discoveredMints.isNotEmpty) {
+        await wallet.updateSPLTokenTransactions(specificMints: discoveredMints);
+      }
+    } catch (e) {
+      printV("Error discovering wallet tokens: ${e.toString()}");
+    }
   }
 
   @override

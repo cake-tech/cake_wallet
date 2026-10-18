@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -17,6 +18,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -33,8 +35,12 @@ abstract class WalletCreationVMBase with Store {
   @observable
   bool _useTestnet = false;
 
+  int _zcashNetwork = ZcashNetworkType.mainnet;
+
   @computed
   bool get useTestnet => _useTestnet;
+
+  int get zcashNetwork => _zcashNetwork;
 
   @observable
   String name;
@@ -86,11 +92,11 @@ abstract class WalletCreationVMBase with Store {
       }
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
-        throw Exception(S.current.wallet_password_is_empty);
+        throw WalletCreationException(S.current.wallet_password_is_empty);
       }
 
       if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
-        throw Exception(S.current.repeated_password_is_incorrect);
+        throw WalletCreationException(S.current.repeated_password_is_incorrect);
       }
 
       await walletCreationService.checkIfExists(name);
@@ -174,6 +180,8 @@ abstract class WalletCreationVMBase with Store {
           );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      case WalletType.decred:
+        return DerivationInfo(derivationType: DerivationType.bip39);
       default:
         return DerivationInfo(derivationType: DerivationType.unknown);
     }
@@ -251,5 +259,9 @@ abstract class WalletCreationVMBase with Store {
   @action
   void toggleUseTestnet(bool? value) {
     _useTestnet = value ?? !_useTestnet;
+  }
+
+  void setZcashNetwork(int network) {
+    _zcashNetwork = network;
   }
 }

@@ -22,14 +22,16 @@ class ReceiveLabelWidget extends StatelessWidget {
             spacing: 8,
             mainAxisSize: MainAxisSize.min,
             children: [
-              ClipRect(
-                  child: CakeImageWidget(
-                imageUrl: "assets/new-ui/label.svg",
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
-              )),
+              ExcludeSemantics(
+                child: ClipRect(
+                    child: CakeImageWidget(
+                  imageUrl: "assets/new-ui/label.svg",
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                )),
+              ),
               Text(name,
                   style: TextStyle(
                       fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),

@@ -1,22 +1,18 @@
 [
   {
-    "title": "MONERO + TREZOR",
-    "description": "Secure your XMR with hardware wallet support!"
+    "title": "Robinhood Chain",
+    "description": "Create Robinhood Chain wallets to send, receive and swap, with USDG and more tokens built in"
   },
   {
-    "title": "NEW WalletConnect UI",
-    "description": "connecting to Web3 dApps made safer and easier"
+    "title": "Price Charts",
+    "description": "A new Charts tab to keep an eye on the prices of your assets"
   },
   {
-    "title": "UI improvements",
-    "description": "Added some fresh UI elements just for you"
+    "title": "Bitcoin Accounts & Faster Sync",
+    "description": "Split your Bitcoin wallet into multiple accounts, and get up to date faster while history loads in the background"
   },
   {
-    "title": "Sync enhancements",
-    "description": "Optimized sync for Bitcoin and Litecoin"
-  },
-  {
-    "title": "Bug fixes",
-    "description": "Squashed more bugs"
+    "title": "Bug fixes & improvements",
+    "description": "Lightning amounts in sats, more Tor nodes, Monero core update, smoother Bitcoin wallets and more"
   }
 ]

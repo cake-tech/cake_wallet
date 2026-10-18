@@ -42,7 +42,7 @@ String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDi
   }
 
   if (syncStatus is SyncedSyncStatus) {
-    return "";
+    return S.current.sync_synced;
   }
 
   if (syncStatus is FailedSyncStatus) {

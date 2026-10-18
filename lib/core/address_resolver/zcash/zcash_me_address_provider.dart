@@ -15,7 +15,7 @@ class ZcashMeAddressProvider extends AddressLookupProvider {
   List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.zec];
 
   @override
-  bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsZcashNames;
+  bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsZcashAddress;
 
   @override
   bool canHandle(String query) {

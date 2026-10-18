@@ -8,10 +8,9 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
-  WowneroTransactionInfo(this.txHash, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations) :
-      id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
+  WowneroTransactionInfo(this.txHash, this.height, this.direction, this.date, this.isPending,
+      this.amount, this.accountIndex, this.addressIndex, this.fee, this.confirmations)
+      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
 
   WowneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_confirm_sheet.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_receive_address_input_page.dart';
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
@@ -42,6 +43,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
             ModalTopBar(
               title: 'Receiving Wallet',
               leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context).pop(),
             ),
             const SizedBox(height: 48),

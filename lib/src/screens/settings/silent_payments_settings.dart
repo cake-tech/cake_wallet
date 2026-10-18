@@ -22,6 +22,7 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
           ModalTopBar(
             title: S.current.silent_payments_settings,
             leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingSemanticLabel: S.current.seed_alert_back,
             onLeadingPressed: Navigator.of(context).pop,
           ),
           Expanded(
@@ -31,14 +32,6 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                   padding: EdgeInsets.only(top: 10),
                   child: Column(
                     children: [
-                      if (!FeatureFlag.hasNewUi)
-                        SettingsSwitcherCell(
-                          title: S.current.silent_payments_display_card,
-                          value: _silentPaymentsSettingsViewModel.silentPaymentsCardDisplay,
-                          onValueChange: (_, bool value) {
-                            _silentPaymentsSettingsViewModel.setSilentPaymentsCardDisplay(value);
-                          },
-                        ),
                       SettingsSwitcherCell(
                         title: S.current.silent_payments_always_scan,
                         value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,

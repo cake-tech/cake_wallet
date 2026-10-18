@@ -17,8 +17,7 @@ class ReplaceWithPrintV extends ResolvedCorrectionProducer {
   );
 
   @override
-  CorrectionApplicability get applicability =>
-      CorrectionApplicability.singleLocation;
+  CorrectionApplicability get applicability => CorrectionApplicability.singleLocation;
 
   @override
   FixKind get fixKind => _fixKind;

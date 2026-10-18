@@ -3,8 +3,15 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 
 class DecredNewWalletCredentials extends WalletCredentials {
-  DecredNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+  DecredNewWalletCredentials(
+      {required String name,
+      String? password,
+      String? passphrase,
+      this.mnemonic,
+      WalletInfo? walletInfo})
+      : super(name: name, password: password, passphrase: passphrase, walletInfo: walletInfo);
+
+  final String? mnemonic;
 }
 
 class DecredRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -12,8 +19,9 @@ class DecredRestoreWalletFromSeedCredentials extends WalletCredentials {
       {required String name,
       required String password,
       required this.mnemonic,
+      String? passphrase,
       WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
+      : super(name: name, password: password, passphrase: passphrase, walletInfo: walletInfo);
 
   final String mnemonic;
 }

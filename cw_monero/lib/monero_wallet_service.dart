@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
@@ -44,10 +45,15 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 }
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
-  MoneroRestoreWalletFromHardwareCredentials(
-      {required String name, required this.hardwareWalletService, int height = 0, String? password})
-      : super(name: name, password: password, height: height);
-  HardwareWalletService hardwareWalletService;
+  MoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required this.hardwareWalletService,
+    int height = 0,
+    String? password,
+    String? passphrase,
+  }) : super(name: name, password: password, height: height, passphrase: passphrase);
+
+  final HardwareWalletService hardwareWalletService;
 }
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -179,7 +185,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw Exception('Wallet not found');
+        throw WalletNotFoundException(name: name, type: getType());
       }
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
@@ -234,7 +240,7 @@ class MoneroWalletService extends WalletService<
 
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
   }
@@ -243,7 +249,7 @@ class MoneroWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException(name: currentName, type: getType());
     }
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
@@ -305,8 +311,10 @@ class MoneroWalletService extends WalletService<
           restoreHeight: credentials.height!,
           deviceName: 'Ledger',
         );
-      } else if (credentials.hardwareWalletService case MoneroTrezorService service) {
-        final watchCredentials = await Trezor(service).getWatchCredentials();
+      } else if (credentials.hardwareWalletService case final MoneroTrezorService service) {
+        final trezor = Trezor(service);
+
+        final watchCredentials = await trezor.getWatchCredentials();
 
         monero_wallet_manager.restoreWalletFromKeys(
           path: path,
@@ -317,6 +325,10 @@ class MoneroWalletService extends WalletService<
           viewKey: watchCredentials.watchKey,
           spendKey: "",
         );
+
+        if (credentials.passphrase != null) {
+          monero_wallet_manager.storePassphrase(path: path, passphrase: credentials.passphrase!);
+        }
       }
 
       final wallet = MoneroWallet(
@@ -545,7 +557,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = await WalletInfo.get(name, getType());
       if (walletInfo == null) {
-        throw Exception('Wallet not found');
+        throw WalletNotFoundException(name: name, type: getType());
       }
       final wallet = MoneroWallet(
         walletInfo: walletInfo,

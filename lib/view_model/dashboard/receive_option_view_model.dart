@@ -18,7 +18,14 @@ abstract class ReceiveOptionViewModelBase with Store {
                     ? ReceivePageOption.testnet
                     : _wallet.type == WalletType.zcash
                         ? zcash!.getSelectedAddressType(_wallet)
-                        : ReceivePageOption.mainnet);
+                        : ReceivePageOption.mainnet) {
+    if (_wallet.type == WalletType.zcash) {
+      reaction<bool>(
+        (_) => zcash!.ironwoodActive(_wallet.walletAddresses),
+        (_) => _syncZcashShieldedLabel(),
+      );
+    }
+  }
 
   final WalletBase _wallet;
 
@@ -27,10 +34,22 @@ abstract class ReceiveOptionViewModelBase with Store {
   @observable
   ReceivePageOption selectedReceiveOption;
 
-  List<ReceivePageOption> get options => _wallet.walletAddresses.receivePageOptions;
+  @computed
+  List<ReceivePageOption> get options =>
+      _wallet.walletAddresses.receivePageOptions.where(_wallet.receiveOptionAvailable).toList();
 
   String get walletTypeString => walletTypeToString(_wallet.type);
 
   @action
   void selectReceiveOption(ReceivePageOption option) => selectedReceiveOption = option;
+
+  @action
+  void _syncZcashShieldedLabel() {
+    for (final option in options) {
+      if (option.value == selectedReceiveOption.value) {
+        selectedReceiveOption = option;
+        return;
+      }
+    }
+  }
 }

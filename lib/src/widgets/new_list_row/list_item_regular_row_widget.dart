@@ -23,22 +23,26 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.foregroundColor,
       this.trailingIconSize,
       this.bottomWidget,
+      this.subtitleColor,
       this.trailingWidget,
       this.copyableText,
       this.leadingIconErrorWidget,
       this.leadingIconSize,
       this.badgeIconSize,
-      this.iconColor});
+      this.iconColor,
+      this.secondaryLabel});
 
   final String keyValue;
   final String label;
   final String? subtitle;
   final String? trailingText;
+  final String? secondaryLabel;
   final String? iconPath;
   final String? badgeIconPath;
   final VoidCallback? onTap;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final Color? subtitleColor;
   final bool showArrow;
   final String? trailingIconPath;
   final Widget? bottomWidget;
@@ -89,16 +93,28 @@ class ListItemRegularRowWidget extends StatelessWidget {
                       children: [
                         leadingIcon!,
                         Positioned(
-                          right: -3,
-                          bottom: -3,
-                          child: CakeImageWidget(
-                            imageUrl: badgeIconPath!,
-                            width: badgeIconSize ?? 10,
-                            height: badgeIconSize ?? 10,
-                            errorWidget: leadingIconErrorWidget,
-                            colorFilter: iconColor == null
-                                ? null
-                                : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                          right: -2,
+                          bottom: -2,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: theme.colorScheme.surfaceContainerHigh,
+                                width: 2,
+                              ),
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            child: CakeImageWidget(
+                              imageUrl: badgeIconPath!,
+                              width: badgeIconSize ?? 12,
+                              height: badgeIconSize ?? 12,
+                              fit: BoxFit.cover,
+                              color: theme.colorScheme.surface,
+                              errorWidget: leadingIconErrorWidget,
+                            ),
                           ),
                         ),
                       ],
@@ -131,14 +147,28 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                           color: Theme.of(context).colorScheme.primary),
                                     )
                                   else
-                                    Text(label,
-                                        style: foregroundColor == null
-                                            ? textStyle
-                                            : textStyle.copyWith(color: foregroundColor)),
+                                    Row(
+                                      spacing: 4,
+                                      children: [
+                                        Text(label,
+                                            style: foregroundColor == null
+                                                ? textStyle
+                                                : textStyle.copyWith(color: foregroundColor)),
+                                        if (secondaryLabel != null)
+                                          Text(
+                                            secondaryLabel!,
+                                            style: textStyle.copyWith(
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant),
+                                          )
+                                      ],
+                                    ),
                                   if (subtitle != null)
                                     Text(
                                       subtitle!,
-                                      style: labelStyle.copyWith(fontSize: 12),
+                                      style: subtitleColor == null
+                                          ? labelStyle.copyWith(fontSize: 12)
+                                          : labelStyle.copyWith(fontSize: 12, color: subtitleColor),
                                     ),
                                 ],
                               ),

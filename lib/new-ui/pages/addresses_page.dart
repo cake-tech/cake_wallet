@@ -2,12 +2,11 @@ import 'dart:ui';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/new-ui/long_press_popup.dart';
+import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_info.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart';
-import 'package:cake_wallet/new-ui/widgets/long_press_menu.dart';
+import 'package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -16,26 +15,36 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+
+class AddressesPageArgs {
+  AddressesPageArgs({required this.showHidden, this.popOnSelection = false});
+
+  final bool showHidden;
+  final bool popOnSelection;
+}
+
+
 class NewAddressesPage extends StatefulWidget {
   const NewAddressesPage(
       {super.key,
       required this.addressListViewModel,
       required this.dashboardViewModel,
-      required this.showHidden});
+      required this.showHidden, required this.popOnSelection});
 
   final WalletAddressListViewModel addressListViewModel;
   final DashboardViewModel dashboardViewModel;
   final bool showHidden;
+  final bool popOnSelection;
 
   @override
   State<NewAddressesPage> createState() => _NewAddressesPageState();
@@ -58,6 +67,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
   late final TextEditingController _searchController;
 
   CardDesign? design;
+  ReactionDisposer? _cardDesignsDisposer;
 
   void updateItems() {
     setState(() {
@@ -75,13 +85,30 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
         setState(() {});
       });
 
+    loadCardDesign();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((context) => widget.dashboardViewModel.cardDesigns.first, (value) {
+      if (!mounted) return;
+      _cardDesignsDisposer = reaction((_) => widget.dashboardViewModel.currentCardDesign, (value) {
+        if (!mounted) return;
         setState(() {
-          design = value;
+          design = widget.dashboardViewModel.currentCardDesign;
         });
       });
     });
+  }
+
+  Future<void> loadCardDesign() async {
+    await widget.dashboardViewModel.loadCardDesigns();
+    if (!mounted) return;
+    setState(() {
+      design = widget.dashboardViewModel.currentCardDesign;
+    });
+  }
+
+  @override
+  void dispose() {
+    _cardDesignsDisposer?.call();
+    super.dispose();
   }
 
   @override
@@ -105,6 +132,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
           ModalTopBar(
               title: widget.showHidden ? S.of(context).hidden_addresses : S.of(context).addresses,
               leadingIcon: Icon(Icons.arrow_back),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
               onTrailingPressed: () {}),
           Expanded(
@@ -118,8 +146,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                         child: Column(
                           spacing: 16,
                           children: [
-                            if (widget.dashboardViewModel.type == WalletType.monero ||
-                                widget.dashboardViewModel.type == WalletType.wownero)
+                            if (widget.dashboardViewModel.isMultiAccountsEnabled)
                               Observer(
                                   builder: (_) => AccountPreviewHeader(
                                         dashboardViewModel: widget.dashboardViewModel,
@@ -131,6 +158,7 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                                   fontSize: 10,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
+                            if(!widget.popOnSelection)
                             ShowHiddenButton()
                           ],
                         ),
@@ -146,11 +174,15 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
                               builder: (_) => AddressRow(
                                 selected:
                                     item.address == widget.addressListViewModel.address.address,
-                                first: widget.showHidden && index == 0,
+                                first: (widget.showHidden || widget.popOnSelection) && index == 0,
                                 last: index == filteredItems.length - 1,
                                 item: item,
                                 onSelect: () {
-                                  widget.addressListViewModel.setAddress(item);
+                                  if(widget.popOnSelection) {
+                                    Navigator.of(context).pop(item.address);
+                                  } else {
+                                    widget.addressListViewModel.setAddress(item);
+                                  }
                                 },
                                 onLabelChanged: updateItems,
                                 onAddressHidden: () async {
@@ -212,24 +244,31 @@ class AddressSearchBox extends StatelessWidget {
                   border: Border.all(
                       color: Theme.of(context).colorScheme.surfaceContainerHighest, width: 1),
                   borderRadius: BorderRadius.circular(99999)),
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: S.of(context).search,
-                  hintStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
+              // The hint names the field only while it is empty, so the label is
+              // supplied once there is text to keep exactly one announcement.
+              child: MergeSemantics(
+                child: Semantics(
+                  label: controller.text.isEmpty ? null : S.of(context).search,
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      hintText: S.of(context).search,
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      prefixIcon: ExcludeSemantics(child: Icon(Icons.search)),
+                      filled: false,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(99999),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(99999),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    ),
                   ),
-                  prefixIcon: Icon(Icons.search),
-                  filled: false,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(99999),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(99999),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
                 ),
               ),
             ),
@@ -247,8 +286,7 @@ class AccountPreviewHeader extends StatelessWidget {
   final CardDesign? design;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: 64,
       width: MediaQuery.of(context).size.width * 0.9,
       decoration: BoxDecoration(
@@ -271,9 +309,7 @@ class AccountPreviewHeader extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      monero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          wownero?.getCurrentAccount(dashboardViewModel.wallet).label ??
-                          "",
+                      dashboardViewModel.accountListViewModel?.selectedAccount?.label ?? '',
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(
@@ -301,7 +337,6 @@ class AccountPreviewHeader extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class AddressRow extends StatelessWidget {
@@ -333,116 +368,139 @@ class AddressRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasLabel = item.name != null && item.name!.isNotEmpty;
+    final hideLabel = item.isHidden ? S.of(context).unhide_address : S.of(context).hide_address;
 
-    return GestureDetector(
-      onTap: onSelect,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: LongPressPopupBuilder(
-          popup: LongPressMenu(
-            items: [
-              LongPressMenuItem(
-                  label: S.of(context).set_label,
-                  iconPath: "assets/new-ui/address_set_label.svg",
-                  onSelected: () async {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    final res = await showPopUp(
-                        context: context,
-                        builder: (context) => getIt.get<AddressLabelInputPopup>(param1: item));
+    Future<void> editLabel() async {
+      final res = await showPopUp(
+          context: context, builder: (context) => getIt.get<AddressLabelInputPopup>(param1: item));
 
-                    if (res != null) {
-                      onLabelChanged();
-                    }
-                  }),
-              LongPressMenuItem(
-                  label: item.isHidden ? S.of(context).unhide_address : S.of(context).hide_address,
-                  iconPath: "assets/new-ui/address_hide.svg",
-                  onSelected: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    onAddressHidden();
-                  },
-                  color: Theme.of(context).colorScheme.error),
-              LongPressMenuItem(
-                  label: 'Info',
-                  iconPath: "assets/images/info_icon.svg",
-                  onSelected: () async {
-                    Navigator.of(context, rootNavigator: true).pop();
-                    await showPopUp(
-                        context: context,
-                        builder: (context) => getIt.get<AddressInfoPopup>(param1: item));
-                  }),
-            ],
-          ),
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 150),
-            decoration: BoxDecoration(
-              color: selected
-                  ? Theme.of(context).colorScheme.surfaceContainerHigh
-                  : Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(first ? 16 : 0),
-                bottom: Radius.circular(last ? 16 : 0),
+      if (res != null) {
+        onLabelChanged();
+      }
+    }
+
+    Future<void> showInfo() async {
+      await showPopUp(
+          context: context, builder: (context) => getIt.get<AddressInfoPopup>(param1: item));
+    }
+
+    // The row is a single control: selection on tap, and the actions that are
+    // otherwise reachable only by long press exposed as custom actions.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
+          CustomSemanticsAction(label: S.of(context).set_label): editLabel,
+          CustomSemanticsAction(label: hideLabel): onAddressHidden,
+          CustomSemanticsAction(label: S.of(context).info): showInfo,
+        },
+        child: GestureDetector(
+          onTap: onSelect,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: LongPressPopupBuilder(
+              popup: LongPressMenu(
+                items: [
+                  LongPressMenuItem(
+                      label: S.of(context).set_label,
+                      iconPath: "assets/new-ui/address_set_label.svg",
+                      onSelected: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        editLabel();
+                      }),
+                  LongPressMenuItem(
+                      label: hideLabel,
+                      iconPath: "assets/new-ui/address_hide.svg",
+                      onSelected: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        onAddressHidden();
+                      },
+                      color: Theme.of(context).colorScheme.error),
+                  LongPressMenuItem(
+                      label: S.of(context).info,
+                      iconPath: "assets/images/info_icon.svg",
+                      onSelected: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        showInfo();
+                      }),
+                ],
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                spacing: 8,
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Row(
-                          spacing: 4,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 150),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                      : Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(first ? 16 : 0),
+                    bottom: Radius.circular(last ? 16 : 0),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    spacing: 8,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
                           children: [
-                            if (hasLabel)
-                              Text(
-                                item.name!,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            Expanded(
-                              child: AddressFormatter.buildSegmentedAddress(
-                                  address: item.address,
-                                  walletType: walletType,
-                                  textAlign: TextAlign.left,
-                                  evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            Row(
+                              spacing: 4,
+                              children: [
+                                if (hasLabel)
+                                  Text(
+                                    item.name!,
+                                    style: TextStyle(
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: hasLabel
-                                            ? Theme.of(context).colorScheme.onSurfaceVariant
-                                            : Theme.of(context).colorScheme.onSurface,
-                                      ),
-                                  shouldTruncate: (hasLabel)),
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                Expanded(
+                                  child: AddressFormatter.buildSegmentedAddress(
+                                      address: item.address,
+                                      walletType: walletType,
+                                      textAlign: TextAlign.left,
+                                      evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: hasLabel
+                                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                                : Theme.of(context).colorScheme.onSurface,
+                                          ),
+                                      shouldTruncate: (hasLabel)),
+                                ),
+                              ],
                             ),
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${S.of(context).transactions}: ${item.txCount}",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                                Text(
+                                    "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                              ],
+                            )
                           ],
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${S.of(context).transactions}: ${item.txCount}",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            ),
-                            Text(
-                                "${hasReceived ? S.of(context).received : S.of(context).balance}: ${item.balance}",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                          ],
-                        )
-                      ],
-                    ),
+                      ),
+                      // The row's selected state carries this information.
+                      if (selected)
+                        ExcludeSemantics(
+                            child: CakeImageWidget(imageUrl: "assets/new-ui/checkmark.svg"))
+                    ],
                   ),
-                  if (selected) CakeImageWidget(imageUrl: "assets/new-ui/checkmark.svg")
-                ],
+                ),
               ),
             ),
           ),
@@ -462,26 +520,34 @@ class ShowHiddenButton extends StatelessWidget {
       child: Column(
         children: [
           Material(
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: true);
-              },
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(S.of(context).show_hidden_addresses),
-                      RotatedBox(
-                          quarterTurns: 1,
-                          child: CakeImageWidget(imageUrl: "assets/new-ui/dropdown_arrow.svg"))
-                    ],
+            child: MergeSemantics(
+              child: Semantics(
+                button: true,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: true);
+                  },
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(S.of(context).show_hidden_addresses),
+                          ExcludeSemantics(
+                            child: RotatedBox(
+                                quarterTurns: 1,
+                                child:
+                                    CakeImageWidget(imageUrl: "assets/new-ui/dropdown_arrow.svg")),
+                          )
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

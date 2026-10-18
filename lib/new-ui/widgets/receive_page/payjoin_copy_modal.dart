@@ -4,6 +4,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 class PayjoinCopyModal extends StatelessWidget {
@@ -25,6 +26,7 @@ class PayjoinCopyModal extends StatelessWidget {
             ModalTopBar(
                 title: S.of(context).select_address_to_copy,
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: Navigator.of(context).pop),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -32,7 +34,7 @@ class PayjoinCopyModal extends StatelessWidget {
                 "": [
                   ListItemRegularRow(
                       keyValue: "btc",
-                      label: "Standard",
+                      label: S.of(context).standard,
                       iconPath: "assets/new-ui/pjmodal_btc.svg",
                       onTap: () {
                         Clipboard.setData(
@@ -41,6 +43,7 @@ class PayjoinCopyModal extends StatelessWidget {
                                   ? BitcoinURI(amount: uri.amount, address: uri.address).toString()
                                   : uri.address),
                         );
+                        _announceCopied(context);
                         Navigator.of(context).pop();
                       }),
                   ListItemRegularRow(
@@ -51,6 +54,7 @@ class PayjoinCopyModal extends StatelessWidget {
                         Clipboard.setData(
                           ClipboardData(text: uri.toString()),
                         );
+                        _announceCopied(context);
                         Navigator.of(context).pop();
                       })
                 ]
@@ -61,5 +65,16 @@ class PayjoinCopyModal extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Copying pops this sheet right away, so no widget survives to carry a
+  // semantics state change: this path still needs a direct announcement. It is
+  // skipped on platforms that deprecate announcements (android, where they
+  // clear TalkBack's speech queue and the system shows its own clipboard
+  // confirmation anyway).
+  void _announceCopied(BuildContext context) {
+    if (!MediaQuery.supportsAnnounceOf(context)) return;
+    SemanticsService.sendAnnouncement(
+        View.of(context), S.of(context).copied, Directionality.of(context));
   }
 }

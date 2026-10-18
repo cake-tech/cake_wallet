@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -99,8 +100,9 @@ class WalletRestorePage extends BasePage {
                   children: [
                     Observer(
                       builder: (context) {
-                        return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                        return walletRestoreViewModel.passphraseAvailable
                             ? StandardCheckbox(
+                                key: const ValueKey("wallet_restore_has_passphrase_checkbox_key"),
                                 captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
                                 value: walletRestoreViewModel.hasPassphrase,
                                 caption: S.of(context).wallet_has_passphrase,
@@ -121,7 +123,9 @@ class WalletRestorePage extends BasePage {
                             'isFromRestore': true,
                             'type': walletRestoreViewModel.type,
                             'useTestnet': walletRestoreViewModel.useTestnet,
-                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
+                            'zcashNetwork': walletRestoreViewModel.zcashNetwork,
+                            'setZcashNetwork': walletRestoreViewModel.setZcashNetwork,
                           },
                         );
                       },
@@ -213,6 +217,10 @@ class WalletRestorePage extends BasePage {
             walletRestoreFromKeysFormKey.currentState!.privateKeyController.text;
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
+        if (walletRestoreViewModel.hasBlockchainHeightSelector) {
+          credentials['height'] =
+              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState?.height;
+        }
       } else {
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
@@ -600,7 +608,13 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     final seedWords = seedPhrase.split(' ');
 
     if (seedWords.length == 14 && walletRestoreViewModel.type == WalletType.wownero) return true;
-    if (seedWords.length == 26 && walletRestoreViewModel.type == WalletType.zano) return true;
+    if (walletRestoreViewModel.type == WalletType.zano) {
+      if (seedWords.length == 26) return true;
+      if ([12, 24].contains(seedWords.length) && zano!.isBip39Seed(seedPhrase.trim())) {
+        return true;
+      }
+      return false;
+    }
 
     if (seedWords.length == 12 && walletRestoreViewModel.type == WalletType.monero) {
       return walletRestoreFromSeedFormKey.currentState?.blockchainHeightKey.currentState
@@ -624,7 +638,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     }
 
     if ((walletRestoreViewModel.type == WalletType.decred) &&
-        seedWords.length != WalletRestoreViewModelBase.decredSeedMnemonicLength) {
+        ![12, 15, 24].contains(seedWords.length)) {
       return false;
     }
 

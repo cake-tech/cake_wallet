@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -47,12 +48,14 @@ abstract class OtherSettingsViewModelBase with Store {
   final SettingsStore _settingsStore;
   final SendViewModel sendViewModel;
 
+  bool get hasSignVerify => _wallet.canSignMessages;
+
   @computed
   TransactionPriority get transactionPriority {
     final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
-      throw Exception('Unexpected type ${walletType.toString()}');
+      throw BadWalletTypeException('Unexpected type ${walletType.toString()}', walletType);
     }
 
     return priority;
@@ -102,6 +105,7 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.solana,
         WalletType.tron,
         WalletType.arbitrum,
+        WalletType.robinhood,
       ].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
@@ -159,6 +163,12 @@ abstract class OtherSettingsViewModelBase with Store {
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
 
+  @computed
+  bool get showCiBuildOverlay => _settingsStore.showCiBuildOverlay;
+
+  @action
+  void setShowCiBuildOverlay(bool value) => _settingsStore.showCiBuildOverlay = value;
+
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
     final customItem = priorities
@@ -172,6 +182,10 @@ abstract class OtherSettingsViewModelBase with Store {
     }
     return null;
   }
+
+  bool get hasPayjoin => _wallet.hasPayjoinSupport;
+
+  bool get hasLightning => _wallet.hasLightningSupport;
 
   Future<File?> getLightningLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);

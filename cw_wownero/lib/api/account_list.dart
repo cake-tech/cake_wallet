@@ -13,7 +13,6 @@ wownero.WalletListener getWlptr() {
   return _wlptr!;
 }
 
-
 wownero.SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;
@@ -69,6 +68,6 @@ Future<void> addAccount({required String label}) async {
 }
 
 Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
-    await store();
+  _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
+  await store();
 }

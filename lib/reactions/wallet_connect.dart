@@ -11,6 +11,7 @@ const List<WalletType> walletConnectCompatibleChains = [
   WalletType.base,
   WalletType.arbitrum,
   WalletType.bsc,
+  WalletType.robinhood,
   WalletType.solana,
 ];
 
@@ -21,6 +22,17 @@ String walletConnectCompatibleChainsLabel() {
   return '$head, and ${names.last}';
 }
 
+String networkDisplayName(WalletType type, int? chainId) {
+  if (evm != null && isEVMCompatibleChain(type)) {
+    final id = chainId ?? evm!.getChainIdByWalletType(type);
+    final info = evm!.getChainInfoByChainId(id);
+    if (info != null) {
+      return info.name;
+    }
+  }
+  return walletTypeToString(type);
+}
+
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
@@ -28,6 +40,7 @@ bool isEVMCompatibleChain(WalletType walletType) {
     case WalletType.base:
     case WalletType.arbitrum:
     case WalletType.bsc:
+    case WalletType.robinhood:
       return true;
     default:
       return false;
@@ -82,6 +95,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
       return EVMChainId.arbitrum.chain();
     case WalletType.bsc:
       return EVMChainId.bsc.chain();
+    case WalletType.robinhood:
+      return EVMChainId.robinhood.chain();
     case WalletType.solana:
       return SolanaChainId.mainnet.chain();
     default:
@@ -96,6 +111,7 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
     case WalletType.base:
     case WalletType.arbitrum:
     case WalletType.bsc:
+    case WalletType.robinhood:
       return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.solana:
       return SolanaSupportedMethods.values.map((e) => e.name).toList();

@@ -49,6 +49,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     final oldTabLength = tabs.length;
     final hasAssetsTab = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled ||
         (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled);
+    final hasAssetsButton = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled;
     final hasNftTab = isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
         chainId: widget.dashboardViewModel.wallet.chainId);
     tabs = [
@@ -58,13 +59,13 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
             ),
-            AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
-                () {
-              Navigator.of(context).pushNamed(
+           hasAssetsButton ? AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
+
+              () {Navigator.of(context).pushNamed(
                 Routes.homeSettings,
                 arguments: widget.dashboardViewModel.balanceViewModel,
               );
-            })),
+            }): null),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(

@@ -2,12 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:math' show min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -46,11 +44,11 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/amount/money_double.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -98,7 +96,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   ExchangeViewModelBase(
     this._appStore,
-    this._exchangeTemplateStore,
     this.tradesStore,
     this.sharedPreferences,
     this.contactListViewModel,
@@ -298,7 +295,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       isElectrumWallet;
 
   bool _useTorOnly;
-  final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
   final SharedPreferences sharedPreferences;
 
@@ -308,8 +304,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        LetsExchangeExchangeProvider(),
-        StealthExExchangeProvider(),
+        // LetsExchangeExchangeProvider(),
+        // StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         SwapsXyzExchangeProvider(),
         JupiterExchangeProvider(),
@@ -416,13 +412,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool tradeStarted = false;
 
   @observable
+  bool noProviderForPair = false;
+
+  @observable
   bool isSendFromExternal = false;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
 
-  @computed
-  ObservableList<ExchangeTemplate> get templates => _exchangeTemplateStore.templates;
 
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
@@ -540,7 +537,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
-      throw Exception('Unexpected type ${wallet.type.toString()}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type.toString()}', wallet.type);
     }
 
     return priority;
@@ -980,6 +977,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bestRate = _sortedAvailableProviders.keys.first;
       bestRateProvider = _sortedAvailableProviders.values.first;
     }
+    noProviderForPair = _sortedAvailableProviders.isEmpty;
   }
 
   @action
@@ -1050,6 +1048,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    // Ignore repeated taps while a trade is already being created
+    if (tradeState is TradeIsCreating) return;
+
+    // Set synchronously, before the first await, so the swap button shows its
+    // loading state and further taps are ignored right away
+    tradeState = TradeIsCreating();
+
+    try {
+      await _createTrade();
+    } finally {
+      // Never leave the swap button stuck in its loading state
+      // (e.g. if an unexpected exception is thrown)
+      if (tradeState is TradeIsCreating) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.none_of_selected_providers_can_exchange);
+      }
+    }
+  }
+
+  Future<void> _createTrade() async {
     final depositAmountValue = _depositAmount ?? Money.zero(depositCurrency);
     final receiveAmountValue = _receiveAmount ?? Money.zero(receiveCurrency);
 
@@ -1182,6 +1201,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           if (segwitAddressOfWallet != null) {
             receiveAddress = segwitAddressOfWallet;
           }
+        }
+      }
+
+      if (receiveCurrency == CryptoCurrency.zec &&
+          selectedAddressBookWallet?.type == WalletType.zcash) {
+        if (wallet.type == WalletType.zcash && wallet.name == selectedAddressBookWallet!.name) {
+          receiveAddress = wallet.walletAddresses.addressForExchange;
+        } else {
+          receiveAddress = (await selectedAddressBookWallet!.getAddresses())
+                  .entries
+                  .firstWhereOrNull((e) => e.value == 'transparent')
+                  ?.key ??
+              receiveAddress;
         }
       }
 
@@ -1325,7 +1357,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ///
       /// this is because the limitation of the SplayTreeMap that
       /// you can't modify it while iterating through it
-      Future.delayed(Duration(milliseconds: 200), createTrade);
+      await Future<void>.delayed(Duration(milliseconds: 200));
+      await _createTrade();
     }
   }
 
@@ -1454,30 +1487,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _depositAmount = tmpAmount;
   }
 
-  void updateTemplate() => _exchangeTemplateStore.update();
-
-  void addTemplate(
-          {required String amount,
-          required String depositCurrency,
-          required String receiveCurrency,
-          required String provider,
-          required String depositAddress,
-          required String receiveAddress,
-          required String depositCurrencyTitle,
-          required String receiveCurrencyTitle}) =>
-      _exchangeTemplateStore.addTemplate(
-          amount: amount,
-          depositCurrency: depositCurrency,
-          receiveCurrency: receiveCurrency,
-          provider: provider,
-          depositAddress: depositAddress,
-          receiveAddress: receiveAddress,
-          depositCurrencyTitle: depositCurrencyTitle,
-          receiveCurrencyTitle: receiveCurrencyTitle);
-
-  void removeTemplate({required ExchangeTemplate template}) =>
-      _exchangeTemplateStore.remove(template: template);
-
   void _onPairChange({bool clearBoth = false}) {
     if (clearBoth) {
       _depositAmount = null;
@@ -1561,6 +1570,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.bnb;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.robinhood:
+        depositCurrency = CryptoCurrency.robEth;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.solana:
         depositCurrency = CryptoCurrency.sol;
         receiveCurrency = CryptoCurrency.xmr;
@@ -1588,24 +1601,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.none:
         break;
     }
-  }
-
-  String? _addressTypeValidation(String refundAddress, String receiveAddress) {
-    final isRefundAddressSP =
-        RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(refundAddress);
-    if (isRefundAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_refund}';
-
-    final isReceiveAddressSP =
-        RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(receiveAddress);
-    if (isReceiveAddressSP) return 'Silent Payment ${S.current.address_not_allowed_as_receive}';
-
-    final isRefundAddressMWEB = RegExp(AddressValidator.mWebAddressPattern).hasMatch(refundAddress);
-    if (isRefundAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_refund}';
-
-    final isReceiveAddressMWEB =
-        RegExp(AddressValidator.mWebAddressPattern).hasMatch(receiveAddress);
-    if (isReceiveAddressMWEB) return 'MWEB ${S.current.address_not_allowed_as_receive}';
-    return null;
   }
 
   void _defineIsReceiveAmountEditable() {

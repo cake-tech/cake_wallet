@@ -34,6 +34,7 @@ class _MwebNodePageState extends State<MwebNodePage> {
         topBar: ModalTopBar(
             title: S.current.litecoin_mweb_settings,
             onLeadingPressed: Navigator.of(context).pop,
+            leadingSemanticLabel: S.current.seed_alert_back,
             leadingIcon: Icon(Icons.arrow_back_ios_new)),
         content: Container(
           child: NewListSections(controllers: {

@@ -23,8 +23,10 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByType,
-    required super.sideHdByType,
+    required super.mainHdByTypeAndAccount,
+    required super.sideHdByTypeAndAccount,
+    required super.accountIndexes,
+    required super.currentAccountIndex,
     required super.legacySideHd,
     required super.legacyMainHd,
     required super.network,
@@ -124,7 +126,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
-      final amountSats = amount.isNotEmpty ? parseFixed(amount, 8) : null;
+      final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;
       final lnUrl = getLnurlOfLightningAddress(address);
       if (amountSats == null) {
         return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
@@ -144,8 +146,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   String get addressForBuy {
     try {
       return super
-          .allAddresses
-          .firstWhere((e) => e.type == SegwitAddresType.p2wpkh && !e.isHidden && !e.isUsed)
+          .ownAddresses
+          .firstWhere((e) =>
+              e.accountIndex == currentAccountIndex &&
+              e.type == SegwitAddresType.p2wpkh &&
+              !e.isHidden &&
+              !e.isUsed)
           .address;
     } catch (_) {
       return super.addressForBuy;

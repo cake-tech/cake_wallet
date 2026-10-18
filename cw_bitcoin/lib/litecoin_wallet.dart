@@ -5,8 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -30,6 +32,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/output_ordering.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -114,8 +117,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: network,
@@ -647,7 +652,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await _utxoStream?.cancel();
     ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
     if (responseStream == null) {
-      throw Exception("failed to get utxos stream!");
+      throw ElectrumResponseException("failed to get utxos stream!");
     }
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
@@ -1025,7 +1030,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool isMweb = spendsMweb || paysToMweb;
 
     if (isMweb && !mwebEnabled) {
-      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      throw ArgumentError("MWEB is not enabled! can't calculate fee without starting the mweb server!");
       // TODO: likely the change address is mweb and just not updated
     }
 
@@ -1219,7 +1224,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
           int confirmations = coin.confirmations ?? 0;
           if (confirmations < 6) {
-            throw Exception(
+            throw TransactionGenerationException(
                 "A transaction input is an MWEB peg-out and has less than 6 confirmations, please try again later.");
           }
         }
@@ -1282,7 +1287,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }
@@ -1318,7 +1323,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -1364,6 +1369,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: 0,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.fromInt(resp.fee.toInt(), currency),
@@ -1383,7 +1389,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }
@@ -1432,8 +1438,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
+    // Without the recovery addresses: this signs with mainHd, which can't hold their keys.
     final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+        ? walletAddresses.allAddressesWithoutRecovery
+            .firstWhere((element) => element.address == address)
+            .index
         : null;
     final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
@@ -1555,7 +1564,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -1567,25 +1576,48 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
     final masterFingerprint =
-        await (hardwareWalletService as BitcoinHardwareWalletService).getMasterFingerprint();
+        await (hardwareWalletService! as BitcoinHardwareWalletService).getMasterFingerprint();
 
     final readyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      readyInputs.add(PSBTReadyUtxoWithAddress(
-        utxo: utxo.utxo,
-        rawTx: rawTx,
-        ownerDetails: utxo.ownerDetails,
-        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint: masterFingerprint,
-        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
-      ));
+      readyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
     }
 
-    final rawHex = await (hardwareWalletService as LitecoinHardwareWalletService)
-        .signLitecoinTransaction(outputs: outputs, inputs: readyInputs, publicKeys: publicKeys);
+    final orderedOutputs =
+    orderOutputs(outputs, outputOrdering).map((o) {
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+        );
+      }
+      return PSBTReadyBitcoinOutput.fromOutput(o);
+    });
+
+    final rawHex =
+        await (hardwareWalletService! as LitecoinHardwareWalletService).signLitecoinTransaction(
+      outputs: orderedOutputs.toList(),
+      inputs: readyInputs,
+      publicKeys: publicKeys,
+    );
 
     return BtcTransaction.fromRaw(rawHex);
   }

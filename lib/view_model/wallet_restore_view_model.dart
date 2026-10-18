@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -54,6 +55,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.decred:
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -83,8 +85,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   late final bool hasSeedLanguageSelector =
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
-  late final bool hasBlockchainHeightSelector =
-      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.zcash].contains(type);
+  late final bool hasBlockchainHeightSelector = [
+    WalletType.monero,
+    WalletType.haven,
+    WalletType.wownero,
+    WalletType.zcash,
+    WalletType.zano,
+  ].contains(type);
 
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
@@ -92,6 +99,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.base,
     WalletType.arbitrum,
     WalletType.bsc,
+    WalletType.robinhood,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -107,6 +115,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   WalletRestoreMode mode;
+
+  @computed
+  bool get passphraseAvailable => mode == WalletRestoreMode.seed;
 
   @observable
   bool hasPassphrase;
@@ -171,6 +182,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
@@ -200,18 +212,21 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             height: height,
           );
         case WalletType.zano:
-          return zano!.createZanoRestoreWalletFromSeedCredentials(
+          final credentials = zano!.createZanoRestoreWalletFromSeedCredentials(
             name: name,
             password: password,
             height: height,
             passphrase: passphrase ?? '',
             mnemonic: seed,
           );
+          credentials.derivationInfo = derivationInfo;
+          return credentials;
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
           );
         case WalletType.zcash:
           return zcash!.createZcashRestoreWalletFromSeedCredentials(
@@ -220,6 +235,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
             height: height,
+            network: zcashNetwork,
           );
         case WalletType.none:
         case WalletType.haven:
@@ -276,6 +292,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromPrivateKey(
             name: name,
             password: password,
@@ -320,7 +337,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
     }
 
-    throw Exception('Unexpected type: ${type.toString()}');
+    throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
   }
 
   Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
@@ -357,6 +374,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           seedKey: seedKey,
           node: node,
         );
+      case WalletType.zano:
+        final mnemonic = (credentials['seed'] as String?)?.trim() ?? '';
+        if (mnemonic.isEmpty) break;
+        if (zano!.isBip39Seed(mnemonic)) {
+          return [
+            DerivationInfo(derivationType: DerivationType.bip39),
+          ];
+        }
+        return [
+          DerivationInfo(derivationType: DerivationType.unknown),
+        ];
       default:
         break;
     }

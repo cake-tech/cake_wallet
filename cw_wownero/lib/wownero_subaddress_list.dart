@@ -56,14 +56,13 @@ abstract class WowneroSubaddressListBase with Store {
       final address = s.address;
       final label = s.label;
       final id = s.addressIndex;
-      final hasDefaultAddressName =
-          label.toLowerCase() == 'Primary account'.toLowerCase() ||
-              label.toLowerCase() == 'Untitled account'.toLowerCase();
+      final hasDefaultAddressName = label.toLowerCase() == 'Primary account'.toLowerCase() ||
+          label.toLowerCase() == 'Untitled account'.toLowerCase();
       final isPrimaryAddress = id == 0 && hasDefaultAddressName;
       return Subaddress(
           id: id,
           address: address,
-          balance: (s.received/1e12).toStringAsFixed(6),
+          balance: (s.received / 1e12).toStringAsFixed(6),
           txCount: s.txCount,
           label: isPrimaryAddress
               ? 'Primary address'
@@ -139,33 +138,27 @@ abstract class WowneroSubaddressListBase with Store {
       }
     }
 
-    return allAddresses
-        .map((s) {
-          final id = s.addressIndex;
-          final address = s.address;
-          final label = s.label;
-          return Subaddress(
-            id: id,
-            address: address,
-            balance: (s.received/1e12).toStringAsFixed(6),
-            txCount: s.txCount,
-            label: id == 0 &&
-                    label.toLowerCase() == 'Primary account'.toLowerCase()
-                ? 'Primary address'
-                : label);
-      })
-        .toList();
+    return allAddresses.map((s) {
+      final id = s.addressIndex;
+      final address = s.address;
+      final label = s.label;
+      return Subaddress(
+          id: id,
+          address: address,
+          balance: (s.received / 1e12).toStringAsFixed(6),
+          txCount: s.txCount,
+          label: id == 0 && label.toLowerCase() == 'Primary account'.toLowerCase()
+              ? 'Primary address'
+              : label);
+    }).toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {
     await subaddress_list.addSubaddress(accountIndex: accountIndex, label: label);
 
-    return subaddress_list
-        .getAllSubaddresses()
-        .where((s) {
-          final address = s.address;
-          return !_usedAddresses.contains(address);
-        })
-        .isNotEmpty;
+    return subaddress_list.getAllSubaddresses().where((s) {
+      final address = s.address;
+      return !_usedAddresses.contains(address);
+    }).isNotEmpty;
   }
 }

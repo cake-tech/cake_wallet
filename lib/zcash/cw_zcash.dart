@@ -7,12 +7,14 @@ class CWZcash extends Zcash {
       WalletInfo? walletInfo,
       String? password,
       String? mnemonic,
-      required String? passphrase}) {
+      required String? passphrase,
+      int network = 0}) {
     return ZcashNewWalletCredentials(
       name: name,
       passphrase: passphrase,
       password: password,
       mnemonic: mnemonic,
+      network: network,
     );
   }
 
@@ -36,9 +38,10 @@ class CWZcash extends Zcash {
       required String mnemonic,
       required String password,
       String? passphrase,
-      required int? height}) {
+      required int? height,
+      int network = 0}) {
     return ZcashFromSeedWalletCredentials(
-        name: name, seed: mnemonic, passphrase: passphrase, password: password, height: height);
+        name: name, seed: mnemonic, passphrase: passphrase, password: password, height: height, network: network);
   }
 
   @override
@@ -117,6 +120,9 @@ class CWZcash extends Zcash {
   }
 
   @override
+  Future<int?> getBirthHeight(Object wallet) => (wallet as ZcashWallet).getBirthHeight();
+
+  @override
   Map<String, String> getKeys(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
     final seed = zcashWallet.seed;
@@ -161,29 +167,29 @@ class CWZcash extends Zcash {
   @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final zcashWallet = wallet as ZcashWallet;
-    final t =
-        (zcashWallet.walletAddresses as ZcashWalletAddresses).walletInfo.addressPageType ?? "";
-    return ZcashReceivePageOption.fromType(ZcashReceivePageOption.typeFromString(t));
+    final addresses = zcashWallet.walletAddresses as ZcashWalletAddresses;
+    final type = ZcashReceivePageOption.typeFromString(addresses.walletInfo.addressPageType ?? "");
+    if (type == ZcashAddressType.shieldedOrchard) {
+      return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
+    }
+    return ZcashReceivePageOption.fromType(type);
   }
 
   bool hasSelectedTransparentAddress(Object wallet) {
     return getSelectedAddressType(wallet) == ZcashReceivePageOption.transparentRotated;
   }
 
+  /// The disposable transparent type is the only Zcash address type that
+  /// rotates. The public transparent address, both shielded types and the
+  /// unified address are all derived from the account and stay the same.
+  @override
+  bool isRotatingAddressOption(ReceivePageOption option) {
+    return option == ZcashReceivePageOption.transparentRotated;
+  }
+
   @override
   dynamic getZcashAddressType(ReceivePageOption option) {
-    switch (option) {
-      case ZcashReceivePageOption.unified:
-        return ZcashAddressType.unifiedType;
-      case ZcashReceivePageOption.transparent:
-        return ZcashAddressType.transparent;
-      case ZcashReceivePageOption.shieldedSapling:
-        return ZcashAddressType.shieldedSapling;
-      case ZcashReceivePageOption.shieldedOrchard:
-        return ZcashAddressType.shieldedOrchard;
-      default:
-        throw Exception("Unknown ReceivePageOption!");
-    }
+    return (option as ZcashReceivePageOption).toType();
   }
 
   @override
@@ -209,15 +215,19 @@ class CWZcash extends Zcash {
   }
 
   @override
-  bool showMissingFundsCard(WalletBase wallet) {
-    final zcashWallet = wallet as ZcashWallet;
-    return zcashWallet.couldBeZashiWallet();
+  bool showMissingFundsCard(WalletBase wallet) => false;
+
+  @override
+  Future<void> rescanInternalChange(WalletBase wallet) async {}
+
+  @override
+  bool ironwoodActive(WalletAddresses walletAddresses) {
+    return (walletAddresses as ZcashWalletAddresses).ironwoodActive;
   }
 
   @override
-  Future<void> rescanInternalChange(WalletBase wallet) {
-    final zcashWallet = wallet as ZcashWallet;
-    return zcashWallet.rescanInternalChange();
+  bool hasOrchardMigratableBalance(WalletBase wallet) {
+    return (wallet as ZcashWallet).hasOrchardMigratableBalance();
   }
 }
 

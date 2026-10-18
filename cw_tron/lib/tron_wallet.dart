@@ -5,15 +5,16 @@ import 'dart:developer';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -29,9 +30,9 @@ import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_addresses.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
+import "package:shared_preferences/shared_preferences.dart";
 
 part 'tron_wallet.g.dart';
 
@@ -62,10 +63,6 @@ abstract class TronWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
-
-    if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
-      CakeHive.registerAdapter(TronTokenAdapter());
-    }
   }
 
   final String? _mnemonic;
@@ -73,7 +70,7 @@ abstract class TronWalletBase
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
-  late final Box<TronToken> tronTokensBox;
+  List<TronToken> _tronTokens = [];
 
   late final TronPrivateKey _tronPrivateKey;
 
@@ -88,6 +85,11 @@ abstract class TronWalletBase
   late final TronClient _client;
 
   Timer? _transactionsUpdateTimer;
+
+  bool _isTimerUpdatingHistory = false;
+
+  /// TRC20 symbol and decimals by contract address; they never change on-chain.
+  final Map<String, CryptoCurrency> _trc20Currencies = {};
 
   @override
   WalletAddresses walletAddresses;
@@ -107,7 +109,7 @@ abstract class TronWalletBase
   late ObservableMap<CryptoCurrency, TronBalance> balance;
 
   Future<void> init() async {
-    await initTronTokensBox();
+    await initTronTokens();
 
     await walletAddresses.init();
     await transactionHistory.init();
@@ -179,25 +181,38 @@ abstract class TronWalletBase
     );
   }
 
-  void addInitialTokens() {
+  Future<void> addInitialTokens() async {
     final initialTronTokens = DefaultTronTokens().initialTronTokens;
 
     for (var token in initialTronTokens) {
-      if (!tronTokensBox.containsKey(token.contractAddress)) {
-        tronTokensBox.put(token.contractAddress, token);
-      } else {
-        // update existing token
-        final existingToken = tronTokensBox.get(token.contractAddress);
-        tronTokensBox.put(
-            token.contractAddress, TronToken.copyWith(token, enabled: existingToken!.enabled));
-      }
+      final existingToken = _findCachedToken(token.contractAddress);
+
+      final newToken = TronToken.copyWith(
+        token,
+        enabled: existingToken?.enabled ?? token.enabled,
+        walletName: walletInfo.name,
+      );
+
+      await newToken.save();
+      _upsertCachedToken(newToken);
     }
   }
 
-  Future<void> initTronTokensBox() async {
-    final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}";
+  Future<void> initTronTokens() async {
+    _tronTokens = await TronToken.getAllForWallet(walletInfo.name);
+  }
 
-    tronTokensBox = await CakeHive.openBox<TronToken>(boxName);
+  TronToken? _findCachedToken(String contractAddress) {
+    for (final token in _tronTokens) {
+      if (token.contractAddress == contractAddress) return token;
+    }
+
+    return null;
+  }
+
+  void _upsertCachedToken(TronToken token) {
+    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
+    _tronTokens.add(token);
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
@@ -240,7 +255,7 @@ abstract class TronWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
+        throw ConnectionException("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
       _getEstimatedFees();
@@ -296,8 +311,14 @@ abstract class TronWalletBase
         return;
       }
       await _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+
+      // History is best-effort: a TronGrid or parsing failure must not fail the sync.
+      try {
+        await fetchTransactions();
+        fetchTrc20ExcludedTransactions();
+      } catch (e) {
+        printV("Failed to fetch the Tron transaction history: $e");
+      }
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -317,7 +338,7 @@ abstract class TronWalletBase
         (currency) =>
             currency.title == tronCredentials.currency.title &&
             currency.tag == tronCredentials.currency.tag,
-        orElse: () => throw Exception(
+        orElse: () => throw TransactionGenerationException(
             'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
@@ -366,8 +387,21 @@ abstract class TronWalletBase
     ]);
   }
 
+  Future<bool> checkIfScanProviderIsEnabled() async {
+    try {
+      return (await SharedPreferences.getInstance()).getBool("use_trongrid") ?? true;
+    } catch (e) {
+      printV("Could not read the TronGrid preference: $e");
+      return false;
+    }
+  }
+
   @override
   Future<Map<String, TronTransactionInfo>> fetchTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return transactionHistory.transactions;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTransactions(address);
@@ -378,52 +412,44 @@ abstract class TronWalletBase
 
     final ownerAddress = TronAddress(_tronAddress);
 
+    // Looked up once per token contract in this update, not once per transaction.
+    final Map<String, CryptoCurrency> trc20Currencies = {};
+
     for (var transactionModel in transactions) {
-      if (transactionModel.isError) {
-        continue;
+      // A transaction that can't be parsed must not drop the rest of the history.
+      try {
+        if (transactionModel.isError) {
+          continue;
+        }
+
+        // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
+        if (transactionModel.contracts?.first.type == "TransferAssetContract") {
+          continue;
+        }
+
+        // Only a TRC20 transfer moves tokens, any other contract call is a TRX transaction.
+        var txCurrency = currency;
+        if (transactionModel.isTrc20TransferCall) {
+          final contractAddress = transactionModel.contractAddress!;
+          txCurrency = trc20Currencies[contractAddress] ??=
+              await _getTrc20Currency(contractAddress, contract, ownerAddress);
+        }
+
+        result[transactionModel.hash] = TronTransactionInfo(
+          id: transactionModel.hash,
+          amount: Money(transactionModel.amount ?? BigInt.zero, txCurrency),
+          direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
+              ? TransactionDirection.outgoing
+              : TransactionDirection.incoming,
+          blockTime: transactionModel.date,
+          fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+          to: transactionModel.to,
+          from: transactionModel.from,
+          isPending: false,
+        );
+      } catch (e) {
+        printV("Skipping Tron transaction ${transactionModel.txID}: $e");
       }
-
-      // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
-      if (transactionModel.contracts?.first.type == "TransferAssetContract") {
-        continue;
-      }
-
-      var txCurrency = currency;
-      if (transactionModel.contractAddress != null) {
-        final tokenAddress = TronAddress(transactionModel.contractAddress!);
-
-        final tokenSymbol = (await _client.getTokenDetail(
-              contract,
-              "symbol",
-              ownerAddress,
-              tokenAddress,
-            ) as String?) ??
-            '';
-
-        final decimals = (await _client.getTokenDetail(
-              contract,
-              "decimals",
-              ownerAddress,
-              tokenAddress,
-            ) as BigInt?)
-                ?.toInt() ??
-            txCurrency.decimals;
-
-        txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
-      }
-
-      result[transactionModel.hash] = TronTransactionInfo(
-        id: transactionModel.hash,
-        amount: Money(transactionModel.amount ?? BigInt.zero, txCurrency),
-        direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
-        blockTime: transactionModel.date,
-        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
-        to: transactionModel.to,
-        from: transactionModel.from,
-        isPending: false,
-      );
     }
 
     transactionHistory.addMany(result);
@@ -433,7 +459,52 @@ abstract class TronWalletBase
     return transactionHistory.transactions;
   }
 
+  Future<CryptoCurrency> _getTrc20Currency(
+    String contractAddress,
+    ContractABI contract,
+    TronAddress ownerAddress,
+  ) async {
+    final cachedCurrency = _trc20Currencies[contractAddress];
+    if (cachedCurrency != null) {
+      return cachedCurrency;
+    }
+
+    final tokenAddress = TronAddress(contractAddress);
+
+    final tokenSymbol = await _client.getTokenDetail(
+      contract,
+      "symbol",
+      ownerAddress,
+      tokenAddress,
+    ) as String?;
+
+    final decimals = (await _client.getTokenDetail(
+      contract,
+      "decimals",
+      ownerAddress,
+      tokenAddress,
+    ) as BigInt?)
+        ?.toInt();
+
+    final txCurrency = CryptoCurrency(
+      name: tokenSymbol ?? "",
+      title: tokenSymbol ?? "",
+      decimals: decimals ?? currency.decimals,
+    );
+
+    // Failed lookups aren't cached, so the next history update retries them.
+    if (tokenSymbol != null && decimals != null) {
+      _trc20Currencies[contractAddress] = txCurrency;
+    }
+
+    return txCurrency;
+  }
+
   Future<void> fetchTrc20ExcludedTransactions() async {
+    if (!await checkIfScanProviderIsEnabled()) {
+      return;
+    }
+
     final address = _tronAddress;
 
     final transactions = await _client.fetchTrc20ExcludedTransactions(address);
@@ -441,22 +512,26 @@ abstract class TronWalletBase
     final Map<String, TronTransactionInfo> result = {};
 
     for (final transactionModel in transactions) {
-      if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
-        continue;
-      }
+      try {
+        if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
+          continue;
+        }
 
-      result[transactionModel.hash] = TronTransactionInfo(
-        id: transactionModel.hash,
-        amount: Money(transactionModel.amount ?? BigInt.zero, transactionModel.currency),
-        direction: transactionModel.from! == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
-        blockTime: transactionModel.date,
-        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
-        to: transactionModel.to,
-        from: transactionModel.from,
-        isPending: false,
-      );
+        result[transactionModel.hash] = TronTransactionInfo(
+          id: transactionModel.hash,
+          amount: Money(transactionModel.amount ?? BigInt.zero, transactionModel.currency),
+          direction: transactionModel.from! == address
+              ? TransactionDirection.outgoing
+              : TransactionDirection.incoming,
+          blockTime: transactionModel.date,
+          fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+          to: transactionModel.to,
+          from: transactionModel.from,
+          isPending: false,
+        );
+      } catch (e) {
+        printV("Skipping Tron TRC20 transaction ${transactionModel.transactionId}: $e");
+      }
     }
 
     transactionHistory.addMany(result);
@@ -516,7 +591,7 @@ abstract class TronWalletBase
   }
 
   Future<void> _fetchTronTokenBalances() async {
-    for (var token in tronTokensBox.values) {
+    for (var token in _tronTokens.toList()) {
       try {
         if (token.enabled) {
           balance[token] = await _client.fetchTronTokenBalances(
@@ -551,7 +626,7 @@ abstract class TronWalletBase
     }
   }
 
-  List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
+  List<TronToken> get tronTokenCurrencies => _tronTokens.toList();
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
@@ -574,9 +649,11 @@ abstract class TronWalletBase
       tag: token.tag ?? "TRX",
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
+      walletName: walletInfo.name,
     );
 
-    await tronTokensBox.put(newToken.contractAddress, newToken);
+    await newToken.save();
+    _upsertCachedToken(newToken);
 
     if (newToken.enabled) {
       balance[newToken] = await _client
@@ -587,9 +664,8 @@ abstract class TronWalletBase
   }
 
   Future<void> deleteTronToken(TronToken token) async {
-    if (tronTokensBox.isOpen) {
-      await tronTokensBox.delete(token.contractAddress);
-    }
+    await TronToken.deleteForWallet(walletInfo.name, token.contractAddress);
+    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
 
     balance.remove(token);
     await _removeTokenTransactionsInHistory(token);
@@ -612,8 +688,21 @@ abstract class TronWalletBase
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
       _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+
+      // A history update can outlast the period; don't stack another one on top of it.
+      if (_isTimerUpdatingHistory) {
+        return;
+      }
+
+      _isTimerUpdatingHistory = true;
+      try {
+        await fetchTransactions();
+        await fetchTrc20ExcludedTransactions();
+      } catch (e) {
+        printV("Failed to update the Tron transaction history: $e");
+      } finally {
+        _isTimerUpdatingHistory = false;
+      }
     });
   }
 
@@ -637,8 +726,6 @@ abstract class TronWalletBase
       fetchTransactions();
       fetchTrc20ExcludedTransactions();
       _setTransactionUpdateTimer();
-    } else {
-      _transactionsUpdateTimer?.cancel();
     }
   }
 

@@ -22,8 +22,7 @@ dependencies:
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
-      ref: main
-      version: 1.0.0
+      ref: b5d86a2a21e1c186cd0baa4df1f3a4f3f9413056
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart
@@ -42,7 +41,7 @@ dependencies:
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
+      ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
   sqflite: ^2.4.1
   sqflite_common_ffi: ^2.3.4+4
   bech32:

@@ -134,7 +134,7 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   @computed
   @override
   MoneroBalance get balance {
-    throw Exception('Unimplemented');
+    throw UnimplementedError();
     // return MoneroBalance();
     //return MoneroBalance(
     //	fullBalance: balance.fullBalance,
@@ -145,6 +145,10 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
 class CWMonero extends Monero {
   @override
   MoneroAccountList getAccountList(Object wallet) => CWMoneroAccountList(wallet);
+
+  @override
+  Money getAccountFullBalance(int accountIndex) =>
+      monero_wallet_api.getFullBalance(accountIndex: accountIndex);
 
   @override
   MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
@@ -236,12 +240,14 @@ class CWMonero extends Monero {
     required String password,
     required int height,
     required HardwareWalletService hardwareWalletService,
+    required String? passphrase,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
         name: name,
         password: password,
         height: height,
         hardwareWalletService: hardwareWalletService,
+        passphrase: passphrase,
       );
 
   @override
@@ -291,6 +297,23 @@ class CWMonero extends Monero {
       'passphrase': keys.passphrase
     };
   }
+
+  @override
+  Future<int> getNodeHeight(Object wallet) => (wallet as MoneroWallet).getNodeHeight();
+
+  @override
+  String getLegacySeed(Object wallet, String langName) =>
+      (wallet as MoneroWallet).seedLegacy(langName);
+
+  @override
+  bool isBackgroundSyncRunning(Object wallet) => (wallet as MoneroWallet).isBackgroundSyncRunning;
+
+  @override
+  Future<void> startBackgroundSync(Object wallet) => (wallet as MoneroWallet).startBackgroundSync();
+
+  @override
+  Future<void> stopBackgroundSync(Object wallet, String password) =>
+      (wallet as MoneroWallet).stopBackgroundSync(password);
 
   @override
   int? getRestoreHeight(Object wallet) {
@@ -419,6 +442,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  bool hasUnknownKeyImages(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.hasUnknownKeyImages();
+  }
+
+  @override
   void monerocCheck() => checkIfMoneroCIsFine();
 
   @override
@@ -432,6 +461,9 @@ class CWMonero extends Monero {
 
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) => gLedger = connection;
+
+  @override
+  bool hasGlobalLedgerConnection() => gLedger != null;
 
   @override
   String? getLastLedgerCommand() => latestLedgerCommand;

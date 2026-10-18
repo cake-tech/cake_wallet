@@ -1,3 +1,6 @@
+import "package:cw_core/utils/ipfs_url.dart";
+import "package:cw_core/utils/nft_text.dart";
+
 class WalletNFTsResponseModel {
   final int? page;
   final int? pageSize;
@@ -40,8 +43,8 @@ class NFTAssetModel {
       tokenAddress: json['token_address'] as String?,
       tokenId: json['token_id'] as String?,
       contractType: json['contract_type'] as String?,
-      name: json['name'] as String?,
-      symbol: json['symbol'] as String?,
+      name: sanitizeNFTText(json["name"] as String?),
+      symbol: sanitizeNFTText(json["symbol"] as String?),
       normalizedMetadata: json['normalized_metadata'] != null
           ? new NormalizedMetadata.fromJson(json['normalized_metadata'] as Map<String, dynamic>)
           : null,
@@ -61,33 +64,11 @@ class NormalizedMetadata {
 
   factory NormalizedMetadata.fromJson(Map<String, dynamic> json) {
     return NormalizedMetadata(
-      name: json['name'] as String?,
-      description: json['description'] as String?,
-      image: json['image'] as String?,
+      name: sanitizeNFTText(json["name"] as String?),
+      description: sanitizeNFTText(json["description"] as String?),
+      image: json["image"] as String?,
     );
   }
 
-  String? get imageUrl {
-    if (image == null) return image;
-
-    if (image!.contains('ipfs.io')) return image;
-
-    if (!image!.contains('ipfs')) return image;
-
-    // IPFS public gateway provided by Cloudflare is https://cloudflare-ipfs.com/ipfs/
-    //
-    // Here is an example of an ipfs image link:
-    //
-    // [ipfs://bafkreia2i2ctfexpovgzfff66wqhbmwwpvqjvozan7ioifzcnq76jharwu]
-
-    //https://ipfs.io/ipfs/QmTRcRXo6cXByjHYHTVxGpag6vpocrG3rxjPC9PxKAArR9/1620.png
-
-    const String ipfsPublicGateway = 'https://cloudflare-ipfs.com/ipfs/';
-
-    final ipfsPath = image?.split('//')[1];
-
-    final imageLink = '$ipfsPublicGateway$ipfsPath';
-
-    return imageLink;
-  }
+  String? get imageUrl => tryNormalizeIpfsUrl(image);
 }

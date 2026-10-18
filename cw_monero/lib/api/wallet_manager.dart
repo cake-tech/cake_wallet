@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
@@ -91,7 +92,7 @@ void createWallet(
 
   int status = newW.status();
   if (status != 0) {
-    throw WalletCreationException(message: newW.errorString());
+    throw WalletCreationException(newW.errorString());
   }
   newW.store(path: path);
   setupBackgroundSync(password, newW);
@@ -101,7 +102,6 @@ void createWallet(
   currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase);
   currentWallet!.store(path: path);
   openedWalletsByPath[path] = currentWallet!;
-  _lastOpenedWallet = path;
 }
 
 bool isWalletExist({required String path}) {
@@ -147,7 +147,11 @@ void restoreWalletFromSeedSync(
   openedWalletsByPath[path] = currentWallet!;
 
   currentWallet!.store(path: path);
-  _lastOpenedWallet = path;
+}
+
+void storePassphrase({required String path, required String passphrase}) {
+  currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase);
+  currentWallet!.store(path: path);
 }
 
 void restoreWalletFromKeys(
@@ -214,8 +218,12 @@ void restoreWalletFromKeys(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
+
   openedWalletsByPath[path] = currentWallet!;
-  _lastOpenedWallet = path;
 }
 
 // English only, because normalization.
@@ -298,6 +306,10 @@ void restoreWalletFromSpendKeySync(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
   currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
 
   storeSync();
@@ -305,10 +317,7 @@ void restoreWalletFromSpendKeySync(
   setupBackgroundSync(password, currentWallet!);
 
   openedWalletsByPath[path] = currentWallet!;
-  _lastOpenedWallet = path;
 }
-
-String _lastOpenedWallet = "";
 
 Future<void> restoreWalletFromHardwareWallet(
     {required String path,
@@ -333,8 +342,10 @@ Future<void> restoreWalletFromHardwareWallet(
   }
 
   currentWallet = newW;
+
+  setRefreshFromBlockHeight(height: restoreHeight);
+
   currentWallet!.store(path: path);
-  _lastOpenedWallet = path;
   openedWalletsByPath[path] = currentWallet!;
 }
 
@@ -346,72 +357,70 @@ Future<void> loadWallet({required String path, required String password, int net
     currentWallet = openedWalletsByPath[path]!;
     return;
   }
-  if (currentWallet == null || path != _lastOpenedWallet) {
-    if (currentWallet != null) {
-      final addr = currentWallet!.ffiAddress();
-      Isolate.run(() {
-        monero.Wallet_store(Pointer.fromAddress(addr));
-      });
-    }
-    txhistory = null;
 
-    /// Get the device type
-    /// 0: Software Wallet
-    /// 1: Ledger
-    /// 2: Trezor
-    var deviceType = 0;
+  if (currentWallet != null) {
+    final addr = currentWallet!.ffiAddress();
+    Isolate.run(() {
+      monero.Wallet_store(Pointer.fromAddress(addr));
+    });
+  }
+  txhistory = null;
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      deviceType = wmPtr.queryWalletDevice(
-        keysFileName: "$path.keys",
-        password: password,
-        kdfRounds: 1,
-      );
-      final status = wmPtr.errorString();
-      if (status != "") {
-        printV("loadWallet:" + status);
-        // This is most likely closeWallet call leaking error. This is fine.
-        if (status.contains("failed to save file")) {
-          printV("loadWallet: error leaked: $status");
-          deviceType = 0;
-        } else {
-          throw WalletOpeningException(message: status);
-        }
+  /// Get the device type
+  /// 0: Software Wallet
+  /// 1: Ledger
+  /// 2: Trezor
+  var deviceType = 0;
+
+  if (Platform.isAndroid || Platform.isIOS) {
+    deviceType = wmPtr.queryWalletDevice(
+      keysFileName: "$path.keys",
+      password: password,
+      kdfRounds: 1,
+    );
+    final status = wmPtr.errorString();
+    if (status != "") {
+      printV("loadWallet:" + status);
+      // This is most likely closeWallet call leaking error. This is fine.
+      if (status.contains("failed to save file")) {
+        printV("loadWallet: error leaked: $status");
+        deviceType = 0;
+      } else {
+        throw WalletOpeningException(message: status);
       }
-    } else {
-      deviceType = 0;
     }
+  } else {
+    deviceType = 0;
+  }
 
     if (deviceType == 1) {
       if (gLedger == null) {
-        throw Exception("Tried to open a ledger wallet with no ledger connected");
-      }
-      enableLedgerExchange(gLedger!);
+       throw HardwareWalletNotConnectedException("Tried to open a ledger wallet with no ledger connected");
     }
-
-    final addr = wmPtr.ffiAddress();
-    final newWptrAddr = await Isolate.run(() {
-      return monero.WalletManager_openWallet(Pointer.fromAddress(addr),
-              path: path, password: password)
-          .address;
-    });
-
-    final newW = MoneroWallet(Pointer.fromAddress(newWptrAddr));
-
-    int status = newW.status();
-    if (status != 0) {
-      final err = newW.errorString();
-      printV("loadWallet:" + err);
-      throw WalletOpeningException(message: err);
-    }
-    if (deviceType == 0) {
-      setupBackgroundSync(password, newW);
-    }
-
-    currentWallet = newW;
-    _lastOpenedWallet = path;
-    openedWalletsByPath[path] = currentWallet!;
+    enableLedgerExchange(gLedger!);
   }
+
+  final addr = wmPtr.ffiAddress();
+  final newWptrAddr = await Isolate.run(() {
+    return monero.WalletManager_openWallet(Pointer.fromAddress(addr),
+            path: path, password: password)
+        .address;
+  });
+
+  final newW = MoneroWallet(Pointer.fromAddress(newWptrAddr));
+
+  int status = newW.status();
+  if (status != 0) {
+    final err = newW.errorString();
+    printV("loadWallet:" + err);
+    throw WalletOpeningException(message: err);
+  }
+  if (deviceType == 0) {
+    setupBackgroundSync(password, newW);
+  }
+
+  currentWallet = newW;
+  openedWalletsByPath[path] = currentWallet!;
 }
 
 void setupBackgroundSync(String password, Wallet2Wallet wallet) {

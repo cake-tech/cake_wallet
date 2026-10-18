@@ -117,6 +117,7 @@ class _FiatCurrencyPickerSheetState extends State<FiatCurrencyPickerSheet> {
             ModalTopBar(
               title: S.of(context).select_fiat_currency_title,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () => Navigator.of(context).maybePop(),
             ),
             Expanded(

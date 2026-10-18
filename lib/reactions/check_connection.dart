@@ -28,20 +28,24 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
 
+      int? chainId;
+      if (isEVMCompatibleChain(wallet.type)) {
+        chainId = evm!.getSelectedChainId(wallet);
+      }
+
+      final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
+
       if (connectivityResult.contains(ConnectivityResult.none)) {
-        wallet.syncStatus = FailedSyncStatus();
-        return;
+        // Still try node even when OS says no network - it might be a LAN node.
+        if (!await node.requestNode()) {
+          wallet.syncStatus = FailedSyncStatus();
+          return;
+        }
       }
 
       if (wallet.type != WalletType.bitcoin &&
           (wallet.syncStatus is LostConnectionSyncStatus ||
               wallet.syncStatus is FailedSyncStatus)) {
-        int? chainId;
-        if (isEVMCompatibleChain(wallet.type)) {
-          chainId = evm!.getSelectedChainId(wallet);
-        }
-
-        final node = settingsStore.getCurrentNode(wallet.type, chainId: chainId);
         final alive = await node.requestNode();
 
         if (alive) {

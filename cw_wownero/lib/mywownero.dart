@@ -31,12 +31,9 @@ String mnemonicDecode(String seed) {
   wlist.removeLast();
 
   for (var i = 0; i < wlist.length; i += 3) {
-    final w1 =
-        tructWords(englistWordSet).indexOf(wlist[i].substring(0, prefixLength));
-    final w2 = tructWords(englistWordSet)
-        .indexOf(wlist[i + 1].substring(0, prefixLength));
-    final w3 = tructWords(englistWordSet)
-        .indexOf(wlist[i + 2].substring(0, prefixLength));
+    final w1 = tructWords(englistWordSet).indexOf(wlist[i].substring(0, prefixLength));
+    final w2 = tructWords(englistWordSet).indexOf(wlist[i + 1].substring(0, prefixLength));
+    final w3 = tructWords(englistWordSet).indexOf(wlist[i + 2].substring(0, prefixLength));
 
     if (w1 == -1 || w2 == -1 || w3 == -1) {
       printV("invalid word in mnemonic");

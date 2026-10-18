@@ -79,7 +79,7 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
-      throw Exception('Key context is null. Should be not happened');
+      throw ArgumentError('Key context is null. Should be not happened');
     }
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
@@ -144,6 +144,7 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
             ModalTopBar(
               title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
+              leadingSemanticLabel: S.current.seed_alert_back,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Expanded(

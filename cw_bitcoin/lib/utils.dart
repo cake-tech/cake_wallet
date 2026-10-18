@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 ECPrivate generateECPrivate({
   required Bip32Slip10Secp256k1 hd,
@@ -62,14 +63,18 @@ String generateAddressForType({
   required BitcoinAddressType type,
   required BasedUtxoNetwork network,
 }) {
-  if (type == P2pkhAddressType.p2pkh)
+  if (type == P2pkhAddressType.p2pkh) {
     return generateP2PKHAddress(hd: hd, index: index, network: network);
-  if (type == SegwitAddresType.p2tr)
+  }
+  if (type == SegwitAddresType.p2tr) {
     return generateP2TRAddress(hd: hd, index: index, network: network);
-  if (type == SegwitAddresType.p2wsh)
+  }
+  if (type == SegwitAddresType.p2wsh) {
     return generateP2WSHAddress(hd: hd, index: index, network: network);
-  if (type == P2shAddressType.p2wpkhInP2sh)
+  }
+  if (type == P2shAddressType.p2wpkhInP2sh) {
     return generateP2SHAddress(hd: hd, index: index, network: network);
+  }
   return generateP2WPKHAddress(hd: hd, index: index, network: network);
 }
 
@@ -87,8 +92,7 @@ ECPrivate? bruteForcePrivkeyForAddress({
     for (int i = 0; i < maxIndex; i++) {
       if (generateAddressForType(hd: hd, index: i, type: targetType, network: network) ==
           targetAddress) {
-        print('Found address at index $i');
-        print(hd.toString());
+        printV("Found address at index $i");
         return generateECPrivate(hd: hd, index: i, network: network);
       }
     }

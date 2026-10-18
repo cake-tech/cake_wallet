@@ -55,13 +55,17 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
-    if (balanceViewModel.wallet.type == WalletType.bitcoin &&
-        transaction.additionalInfo['hasMissingInputTx'] == true) {
-      return 'Transaction has missing data';
-    }
 
-    if (transaction.additionalInfo['autoShield'] == true) {
-      return "Autoshield";
+    if (transaction.additionalInfo['isIronwoodMigration'] == true) {
+      return 'Migration';
+    }
+    if (transaction.additionalInfo['isAutoShield'] == true) {
+      if (transaction.isPending) {
+        final status = formattedStatus;
+        final baseString = S.current.shielding;
+        return status.isNotEmpty ? "$baseString $status" : "$baseString...";
+      }
+      return S.current.shielding;
     }
     if (transaction.isPending) {
       final status = formattedStatus;
@@ -203,6 +207,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(

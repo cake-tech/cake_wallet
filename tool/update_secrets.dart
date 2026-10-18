@@ -12,8 +12,7 @@ Future<void> main(List<String> args) async {
 }
 
 Future<void> updateSecretsConfig(List<String> args) async {
-  final extraInfo =
-      args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
+  final extraInfo = args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
     final parts = arg.split('=');
     final key = normalizeKeyName(parts[0]);
     acc[key] = parts.length > 1 ? parts[1] : 1;
@@ -32,8 +31,7 @@ Future<void> updateSecretsConfig(List<String> args) async {
     return false;
   });
 
-  final fileConfig =
-      json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
+  final fileConfig = json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
   fileConfig.forEach((key, dynamic value) {
     if (secrets[key] == null) {
       secrets[key] = value;

@@ -4,5 +4,6 @@ class WowneroTransactionNoInputsException implements Exception {
   int inputsSize;
 
   @override
-  String toString() => 'Not enough inputs ($inputsSize) selected. Please select more under Coin Control';
+  String toString() =>
+      'Not enough inputs ($inputsSize) selected. Please select more under Coin Control';
 }

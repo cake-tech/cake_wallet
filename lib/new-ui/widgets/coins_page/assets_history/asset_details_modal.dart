@@ -62,6 +62,7 @@ class AssetDetailsModal extends StatelessWidget {
           ModalTopBar(
             title: "",
             trailingIcon: Icon(Icons.close),
+            trailingSemanticLabel: S.of(context).close,
             onTrailingPressed: Navigator.of(context).pop,
             padding: EdgeInsets.only(top: 12, right: 18),
           ),
@@ -356,17 +357,22 @@ class AssetDetailsModalBottomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      spacing: 8,
-      children: [
-        ModernButton.svg(
-          onPressed: onPressed,
-          svgPath: iconPath,
-          size: 60,
-          iconSize: 32,
-        ),
-        Text(title)
-      ],
+    // The caption is the button's accessible name, so it is excluded from the
+    // semantics tree to keep the whole control a single button node.
+    return MergeSemantics(
+      child: Column(
+        spacing: 8,
+        children: [
+          ModernButton.svg(
+            onPressed: onPressed,
+            svgPath: iconPath,
+            size: 60,
+            iconSize: 32,
+            semanticLabel: title,
+          ),
+          ExcludeSemantics(child: Text(title))
+        ],
+      ),
     );
   }
 }

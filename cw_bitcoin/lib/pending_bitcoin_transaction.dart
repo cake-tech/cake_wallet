@@ -21,6 +21,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
     this._tx,
     this.type, {
+    required this.accountIndex,
     required this.electrumClient,
     required this.amount,
     required this.fee,
@@ -31,6 +32,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.hasTaprootInputs = false,
     this.isMweb = false,
     this.utxos = const [],
+    this.derivedOutputs = const [],
     this.publicKeys,
     this.commitOverride,
     this.unsignedPsbt,
@@ -39,6 +41,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final WalletType type;
   final BtcTransaction _tx;
+  final int? accountIndex;
   final ElectrumClient electrumClient;
   final String feeRate;
   final BasedUtxoNetwork? network;
@@ -47,6 +50,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasTaprootInputs;
   final bool isViewOnly;
   List<UtxoWithAddress> utxos;
+
+  final List<BitcoinOutput> derivedOutputs;
+
   bool isMweb;
   String? changeAddressOverride;
   String? idOverride;
@@ -78,6 +84,13 @@ class PendingBitcoinTransaction with PendingTransaction {
   List<TxOutput> get outputs => _tx.outputs;
 
   bool get hasSilentPayment => _tx.hasSilentPayment;
+
+  List<String?> get stealthAddresses => derivedOutputs
+      .where((out) => !out.isChange)
+      .map((out) => out.isSilentPayment
+          ? out.address.toAddress(network ?? BitcoinNetwork.mainnet)
+          : null)
+      .toList();
 
   PendingChange? get change {
     try {
@@ -171,6 +184,7 @@ class PendingBitcoinTransaction with PendingTransaction {
         isPending: true,
         isReplaced: false,
         confirmations: 0,
+        accountIndex: accountIndex,
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
         fee: fee,

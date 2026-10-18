@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -48,8 +49,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
   static const clearNetAuthority = 'api.trocador.app';
-  static const onionApiAuthority = clearNetAuthority;
-  // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
+  static const onionApiAuthority = '65bsisadnxvw4kfz7h7a3jwcyenrhluuj3kd5toslfzxbk5q4m3wy6qd.onion';
   static const markup = secrets.trocadorExchangeMarkup;
   static const newRatePath = '/new_rate';
   static const createTradePath = '/new_trade';
@@ -95,11 +95,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as List<dynamic>;
 
-    if (responseJSON.isEmpty) throw Exception('No data');
+    if (responseJSON.isEmpty) throw ExchangeProviderResponseException('No data');
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
@@ -168,7 +168,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw Exception('No enabled providers found for the selected trade.');
+        throw ExchangeProviderResponseException('No enabled providers found for the selected trade.');
       }
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
@@ -269,7 +269,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
           'params': params,
         },
       );
-      throw Exception('No available provider is enabled');
+      throw ExchangeProviderResponseException('No available provider is enabled');
     }
 
     params['provider'] = _provider.first.toString();
@@ -301,7 +301,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         },
       );
 
-      throw Exception('${error}\n$message');
+      throw ExchangeProviderResponseException('${error}\n$message');
     }
 
     if (response.statusCode != 200) {
@@ -323,7 +323,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
           'url': uri.toString(),
         },
       );
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -403,7 +403,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return ProxyWrapper()
         .get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
       final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first as Map<String, dynamic>;
@@ -465,7 +465,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 

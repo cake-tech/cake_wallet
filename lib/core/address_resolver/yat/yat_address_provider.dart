@@ -20,7 +20,7 @@ class YatAddressProvider extends AddressLookupProvider {
   bool canHandle(String q) => q.hasOnlyEmojis; // Yat handle example: 🐶🐾
 
   @override
-  bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsWellKnown;
+  bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsYatService;
 
   @override
   Future<List<ParsedAddress>> resolve({

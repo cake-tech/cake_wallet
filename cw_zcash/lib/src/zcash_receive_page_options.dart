@@ -19,7 +19,7 @@ class ZcashReceivePageOption implements ReceivePageOption {
       case ZcashAddressType.shieldedSapling:
         return shieldedSapling;
       case ZcashAddressType.shieldedOrchard:
-        return shieldedOrchard;
+        return shieldedOrchard();
       case ZcashAddressType.unifiedType:
         return unified;
     }
@@ -57,13 +57,18 @@ class ZcashReceivePageOption implements ReceivePageOption {
     description: "Sapling",
     iconPath: "assets/new-ui/address-type-picker-icons/zec/sapling.svg",
   );
-  static const shieldedOrchard = ZcashReceivePageOption._(
-    ZcashAddressType.shieldedOrchard,
-    "Shielded",
-    description: "Default (Orchard)",
-    iconPath: "assets/new-ui/address-type-picker-icons/zec/shielded.svg",
-    isCommon: true,
-  );
+  static const _shieldedOrchardIcon =
+      "assets/new-ui/address-type-picker-icons/zec/shielded.svg";
+
+  static ZcashReceivePageOption shieldedOrchard({final bool ironwood = false}) {
+    return ZcashReceivePageOption._(
+      ZcashAddressType.shieldedOrchard,
+      "Shielded",
+      description: ironwood ? "Default (Ironwood)" : "Default (Orchard)",
+      iconPath: _shieldedOrchardIcon,
+      isCommon: true,
+    );
+  }
   static const unified = ZcashReceivePageOption._(
     ZcashAddressType.unifiedType,
     "Unified",
@@ -78,13 +83,15 @@ class ZcashReceivePageOption implements ReceivePageOption {
     return value;
   }
 
-  static const all = [
-    ZcashReceivePageOption.shieldedOrchard,
-    ZcashReceivePageOption.shieldedSapling,
-    ZcashReceivePageOption.unified,
-    ZcashReceivePageOption.transparentRotated,
-    ZcashReceivePageOption.transparent,
-  ];
+  static List<ZcashReceivePageOption> allOptionsFor({final bool ironwood = false}) => [
+        shieldedOrchard(ironwood: ironwood),
+        shieldedSapling,
+        unified,
+        transparentRotated,
+        transparent,
+      ];
+
+  static List<ZcashReceivePageOption> get allOptions => allOptionsFor();
 
   ZcashAddressType toType() {
     return type;

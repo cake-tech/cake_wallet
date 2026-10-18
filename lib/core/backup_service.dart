@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -18,11 +19,28 @@ import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cw_core/erc20_token_legacy.dart' show performErc20TokenHiveMigration;
+import 'package:cw_core/spl_token_legacy.dart' show performSplTokenHiveMigration;
+import 'package:cw_core/tron_token_legacy.dart' show performTronTokenHiveMigration;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
+
+
+class BackupServiceException extends CakeException {
+  const BackupServiceException(super.message);
+}
+
+class UnknownBackupVersionException extends BackupServiceException {
+  const UnknownBackupVersionException() : super("unknown backup version");
+}
+
+class InvalidBackupException extends BackupServiceException {
+  const InvalidBackupException(super.message);
+}
+
 
 class $BackupService {
   $BackupService(
@@ -113,6 +131,10 @@ class $BackupService {
   Future<void> verifyWallets() async {
     await performHiveMigration(); // for backups made before sqlite migration
     await performTradeHiveMigration(_secureStorage);
+    await performErc20TokenHiveMigration();
+    await performSplTokenHiveMigration();
+    await performTronTokenHiveMigration();
+
     correctWallets = (await WalletInfo.getAll())
         .where((info) => availableWalletTypes.contains(info.type))
         .toList();

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -213,7 +214,7 @@ class ElectrumClient {
       }
 
       if (throwOnError) {
-        throw Exception('Invalid response format for getBalance');
+        throw ElectrumResponseException('Invalid response format for getBalance');
       }
 
       return <String, dynamic>{};
@@ -579,14 +580,29 @@ class ElectrumClient {
         return [];
       });
 
+  // Floor at 0 so unavailable/-1 estimates never become negative rates;
+  // cap at 2000 sat/vB per CW-1597.
+  static const int _maxFeeRate = 2000;
+
+  static int _sanitizeFeeRate(double feeRate) {
+    final rate = (stringDoubleToBitcoinAmount(feeRate.toString()) / 1000).round();
+    if (rate < 0) {
+      return 0;
+    }
+    if (rate > _maxFeeRate) {
+      return _maxFeeRate;
+    }
+    return rate;
+  }
+
   Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
     try {
-      final topDoubleString = await estimatefee(p: 1);
-      final middleDoubleString = await estimatefee(p: 5);
-      final bottomDoubleString = await estimatefee(p: 10);
-      final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
-      final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
-      final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
+      final topDouble = await estimatefee(p: 1);
+      final middleDouble = await estimatefee(p: 5);
+      final bottomDouble = await estimatefee(p: 10);
+      final top = _sanitizeFeeRate(topDouble);
+      final middle = _sanitizeFeeRate(middleDouble);
+      final bottom = _sanitizeFeeRate(bottomDouble);
 
       return [bottom, middle, top];
     } catch (_) {

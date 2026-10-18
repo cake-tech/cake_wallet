@@ -7,6 +7,7 @@ class ZcashNewWalletCredentials extends WalletCredentials {
     required final String? passphrase,
     final String? mnemonic,
     final int? seedPhraseLength,
+    this.network = 0,
   }) : super(
          name: name,
          password: password,
@@ -17,6 +18,7 @@ class ZcashNewWalletCredentials extends WalletCredentials {
   }
 
   String? mnemonic;
+  int network;
 }
 
 class ZcashFromSeedWalletCredentials extends WalletCredentials {
@@ -26,8 +28,10 @@ class ZcashFromSeedWalletCredentials extends WalletCredentials {
     required final String? passphrase,
     required this.seed,
     required super.height,
+    this.network = 0,
   }) : super(name: name, password: password, passphrase: passphrase);
   final String? seed;
+  int network;
 }
 
 class ZcashFromKeysWalletCredentials extends WalletCredentials {
@@ -36,6 +40,8 @@ class ZcashFromKeysWalletCredentials extends WalletCredentials {
     final String? password,
     required final int? height,
     required this.privateKey,
+    this.network = 0,
   }) : super(name: name, password: password, height: height);
   final String? privateKey;
+  int network;
 }
