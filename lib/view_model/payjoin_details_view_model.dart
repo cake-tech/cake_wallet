@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
@@ -11,6 +13,7 @@ import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobx/mobx.dart';
@@ -48,6 +51,12 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
   Timer? timer;
 
+  String get _explorerUrl {
+    final txId = payjoinSession.txId!;
+    return getIt.get<BlockExplorerSettings>().customTxUrl(WalletType.bitcoin, txId) ??
+        'https://mempool.cakewallet.com/tx/$txId';
+  }
+
   @action
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
@@ -78,10 +87,10 @@ abstract class PayjoinDetailsViewModelBase with Store {
         ),
         BlockExplorerListItem(
           title: S.current.view_in_block_explorer,
-          value: '${S.current.view_transaction_on}mempool.space',
+          value: '${S.current.view_transaction_on}${Uri.parse(_explorerUrl).host}',
           onTap: () async {
             try {
-              final uri = Uri.parse('https://mempool.cakewallet.com/tx/${payjoinSession.txId!}');
+              final uri = Uri.parse(_explorerUrl);
               if (await canLaunchUrl(uri))
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
             } catch (e) {}
