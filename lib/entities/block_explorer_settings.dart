@@ -7,15 +7,20 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Which explorer list a wallet uses: one per currency.
+/// Which explorer list a wallet uses: one per currency, or for EVM wallets,
+/// one per network, since those wallets switch between networks.
 class BlockExplorerScope {
-  const BlockExplorerScope(this.walletType);
+  const BlockExplorerScope(this.walletType, {this.chainId});
 
-  factory BlockExplorerScope.forWallet(WalletBase wallet) => BlockExplorerScope(wallet.type);
+  factory BlockExplorerScope.forWallet(WalletBase wallet) => BlockExplorerScope(
+        wallet.type,
+        chainId: isEVMCompatibleChain(wallet.type) ? wallet.chainId : null,
+      );
 
   final WalletType walletType;
+  final int? chainId;
 
-  String get key => walletType.name;
+  String get key => chainId != null ? 'evm_$chainId' : walletType.name;
 
   /// Bitcoin's explorer must be a mempool.space instance, because it also
   /// serves fee estimates and block timestamps.
@@ -50,7 +55,7 @@ class SavedBlockExplorer {
 /// User-added block explorers and the selected one, per [BlockExplorerScope],
 /// stored in SharedPreferences so they are included in app backups. Like
 /// nodes, they are managed from a wallet's settings and shared by all wallets
-/// of that currency. No selection means the built-in default.
+/// of that currency (or EVM network). No selection means the built-in default.
 ///
 /// The selected Bitcoin explorer is mirrored to
 /// [CustomBlockExplorers.mempoolApiPrefsKey], which cw_bitcoin reads for fee
@@ -64,12 +69,9 @@ class BlockExplorerSettings {
 
   static const _unsupportedTypes = {WalletType.none, WalletType.haven};
 
-  /// Whether wallets of [type] can use a custom explorer. EVM wallets are not
-  /// supported: they switch between networks, which each have their own explorer.
+  /// Whether wallets of [type] can use a custom explorer.
   static bool supports(WalletType type) =>
-      availableWalletTypes.contains(type) &&
-      !_unsupportedTypes.contains(type) &&
-      !isEVMCompatibleChain(type);
+      availableWalletTypes.contains(type) && !_unsupportedTypes.contains(type);
 
   /// Whether [wallet] shows the Block explorers setting. Testnet wallets
   /// always use the default explorer, so they don't.
@@ -142,10 +144,10 @@ class BlockExplorerSettings {
   ///
   /// Testnet wallets always use the default, since a custom explorer is
   /// assumed to index mainnet.
-  String? customTxUrl(WalletType type, String txId, {bool isTestnet = false}) {
+  String? customTxUrl(WalletType type, String txId, {int? chainId, bool isTestnet = false}) {
     if (isTestnet) return null;
 
-    final scope = BlockExplorerScope(type);
+    final scope = BlockExplorerScope(type, chainId: isEVMCompatibleChain(type) ? chainId : null);
     final explorer = selected(scope);
     if (explorer == null) return null;
 

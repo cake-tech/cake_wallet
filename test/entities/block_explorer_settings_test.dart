@@ -58,6 +58,19 @@ void main() {
     expect(prefs.getString(BlockExplorerSettings.prefsKey), isNull);
   });
 
+  test("EVM explorers are kept per network", () async {
+    const mainnet = BlockExplorerScope(WalletType.ethereum, chainId: 1);
+    const polygon = BlockExplorerScope(WalletType.ethereum, chainId: 137);
+
+    final explorer = await settings.add(mainnet, name: "", url: "https://eth.example.com");
+    await settings.select(mainnet, explorer.id);
+
+    expect(settings.customTxUrl(WalletType.ethereum, "0xab", chainId: 1),
+        "https://eth.example.com/tx/0xab");
+    expect(settings.customTxUrl(WalletType.ethereum, "0xab", chainId: 137), isNull);
+    expect(settings.explorers(polygon), isEmpty);
+  });
+
   test("validates Bitcoin explorers as mempool addresses", () {
     expect(BlockExplorerSettings.isValidExplorer(bitcoin, "https://mempool.example.com"), isTrue);
     expect(BlockExplorerSettings.isValidExplorer(bitcoin, "https://m.example/tx/{txid}"), isFalse);
@@ -76,6 +89,6 @@ void main() {
     expect(BlockExplorerSettings.isAvailableFor(wallet(WalletType.bitcoin)), isTrue);
     expect(
         BlockExplorerSettings.isAvailableFor(wallet(WalletType.bitcoin, testnet: true)), isFalse);
-    expect(BlockExplorerSettings.isAvailableFor(wallet(WalletType.ethereum)), isFalse);
+    expect(BlockExplorerSettings.isAvailableFor(wallet(WalletType.ethereum)), isTrue);
   });
 }

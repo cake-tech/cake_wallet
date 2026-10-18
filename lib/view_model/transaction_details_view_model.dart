@@ -461,6 +461,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final customUrl = getIt.get<BlockExplorerSettings>().customTxUrl(
           wallet.type,
           wallet.type == WalletType.decred ? txId.split(':')[0] : txId,
+          chainId: wallet.chainId,
           isTestnet: wallet.isTestnet,
         );
 

@@ -11,8 +11,8 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 
-/// Wallet settings page listing the block explorers for one currency, laid
-/// out like the Nodes page: the one in use at the top, the
+/// Wallet settings page listing the block explorers for one currency (or EVM
+/// network), laid out like the Nodes page: the one in use at the top, the
 /// built-in default and the user's own explorers below, and + to add one.
 class BlockExplorersPage extends StatefulWidget {
   const BlockExplorersPage({
@@ -35,7 +35,7 @@ class _BlockExplorersPageState extends State<BlockExplorersPage> {
 
   BlockExplorerScope get _scope => widget.scope;
 
-  String get _defaultHost => defaultExplorerHost(_scope.walletType);
+  String get _defaultHost => defaultExplorerHost(_scope.walletType, chainId: _scope.chainId);
 
   @override
   void initState() {
