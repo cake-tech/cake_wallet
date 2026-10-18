@@ -606,6 +606,8 @@
   "invoice_details": "Fatura detayları",
   "is_currently_being_migrated": "şu anda taşınıyor",
   "is_percentage": "dir",
+  "keychain_not_restored_content": "Bu telefon büyük olasılıkla bir iCloud yedeğinden kuruldu. Güvenliğiniz için iCloud, cüzdanlarınızın kilidini açan şifreleri yeni bir telefona taşımaz; bu yüzden Cake Wallet onları burada açamıyor.\n\nFonlarınız hâlâ blokzincirde. Bu cüzdanları bu telefondan kaldırmak için “Geri yükle”ye dokunun, ardından onları kurtarma ifadeleriyle yeniden ekleyin.\n\nKurtarma ifadeleriniz yok mu? Eski telefonunuza bakın. Cüzdanlarınız orada hâlâ çalışıyor: Cake Wallet'ı açın ve her cüzdan için Ayarlar > Güvenlik > Seed'i/anahtarları göster bölümüne gidin.",
+  "keychain_not_restored_title": "Cüzdanlarınızı geri yükleyin",
   "keys": "Anahtarlar",
   "label": "Etiket",
   "label_address": "Adres etiketi",

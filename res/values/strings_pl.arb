@@ -606,6 +606,8 @@
   "invoice_details": "Szczegóły faktury",
   "is_currently_being_migrated": "jest obecnie w trakcie migracji",
   "is_percentage": "jest",
+  "keychain_not_restored_content": "Ten telefon został prawdopodobnie skonfigurowany z kopii zapasowej iCloud. Ze względów bezpieczeństwa iCloud nie przenosi na nowy telefon haseł, które odblokowują Twoje portfele, dlatego Cake Wallet nie może ich tu otworzyć.\n\nTwoje środki nadal są na blockchainie. Stuknij „Przywróć”, aby usunąć te portfele z tego telefonu, a następnie dodaj je ponownie za pomocą ich fraz odzyskiwania.\n\nNie masz fraz odzyskiwania? Sprawdź swój stary telefon. Tam Twoje portfele nadal działają: otwórz Cake Wallet i dla każdego portfela przejdź do Ustawienia > Bezpieczeństwo > Pokaż seed/klucze.",
+  "keychain_not_restored_title": "Przywróć swoje portfele",
   "keys": "Klucze",
   "label": "Etykieta",
   "label_address": "Etykieta adresu",

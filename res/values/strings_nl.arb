@@ -606,6 +606,8 @@
   "invoice_details": "Factuurdetails",
   "is_currently_being_migrated": "wordt momenteel gemigreerd",
   "is_percentage": "is",
+  "keychain_not_restored_content": "Deze telefoon is waarschijnlijk ingesteld vanuit een iCloud-back-up. Voor je veiligheid zet iCloud de wachtwoorden die je wallets ontgrendelen niet over naar een nieuwe telefoon, dus Cake Wallet kan ze hier niet openen.\n\nJe tegoed staat nog steeds op de blockchain. Tik op “Herstellen” om deze wallets van deze telefoon te verwijderen en voeg ze daarna opnieuw toe met hun herstelzinnen.\n\nHeb je je herstelzinnen niet? Kijk op je oude telefoon. Daar werken je wallets nog: open Cake Wallet en ga voor elke wallet naar Instellingen > Beveiliging > Toon seed/sleutels.",
+  "keychain_not_restored_title": "Herstel je wallets",
   "keys": "Sleutels",
   "label": "Label",
   "label_address": "Adreslabel",

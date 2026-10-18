@@ -606,6 +606,8 @@
   "invoice_details": "Detalhes da fatura",
   "is_currently_being_migrated": "está sendo migrado no momento",
   "is_percentage": "é",
+  "keychain_not_restored_content": "Este telefone provavelmente foi configurado a partir de um backup do iCloud. Para sua segurança, o iCloud não transfere para um telefone novo as senhas que desbloqueiam suas carteiras, por isso o Cake Wallet não consegue abri-las aqui.\n\nSeus fundos continuam na blockchain. Toque em “Restaurar” para remover estas carteiras deste telefone e depois adicione-as novamente com as frases de recuperação delas.\n\nNão tem as frases de recuperação? Confira seu telefone antigo. Lá suas carteiras ainda funcionam: abra o Cake Wallet e vá em Configurações > Segurança > Mostrar seed/chaves em cada carteira.",
+  "keychain_not_restored_title": "Restaure suas carteiras",
   "keys": "Chaves",
   "label": "Etiqueta",
   "label_address": "Rotular endereço",

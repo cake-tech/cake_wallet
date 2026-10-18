@@ -606,6 +606,8 @@
   "invoice_details": "청구서 세부 정보",
   "is_currently_being_migrated": "현재 마이그레이션 중입니다.",
   "is_percentage": "는",
+  "keychain_not_restored_content": "이 휴대폰은 iCloud 백업으로 설정되었을 가능성이 높습니다. 보안을 위해 iCloud는 지갑을 여는 비밀번호를 새 휴대폰으로 옮기지 않으므로, Cake Wallet에서 여기서 지갑을 열 수 없습니다.\n\n자금은 여전히 블록체인에 있습니다. “복원”을 눌러 이 휴대폰에서 이 지갑들을 제거한 다음, 복구 문구로 다시 추가하세요.\n\n복구 문구가 없나요? 이전 휴대폰을 확인하세요. 그곳에서는 지갑이 여전히 작동합니다. Cake Wallet을 열고 지갑마다 설정 > 보안 > 시드/키 보기로 이동하세요.",
+  "keychain_not_restored_title": "지갑을 복원하세요",
   "keys": "키",
   "label": "라벨",
   "label_address": "주소 라벨",

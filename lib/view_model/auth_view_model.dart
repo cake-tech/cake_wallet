@@ -112,6 +112,15 @@ abstract class AuthViewModelBase with Store {
     return Duration(milliseconds: timeout);
   }
 
+  /// See [AuthService.isKeychainNotRestored].
+  Future<bool> isKeychainNotRestored() => _authService.isKeychainNotRestored();
+
+  /// An action so the wipe's store updates run inside a MobX batch.
+  @action
+  Future<void> resetAfterKeychainLoss() async {
+    await _authService.resetAfterKeychainLoss();
+  }
+
   @action
   Future<void> biometricAuth() async {
     try {

@@ -127,6 +127,51 @@ class AuthService with Store {
     return false;
   }
 
+  /// iOS only: true when this device has neither the stored PIN nor any wallet password, e.g. an
+  /// iCloud Backup restored onto a new device brings the app's data but never its Keychain. Then no
+  /// PIN can be checked and no wallet decrypted here. Never throws.
+  Future<bool> isKeychainNotRestored() async {
+    try {
+      return await keychainSecretsMissing(
+        readStatus: keychainReadStatusNative,
+        walletNames: () async {
+          final currentWalletName = sharedPreferences.getString(PreferencesKey.currentWalletName);
+          return {
+            for (final walletInfo in await WalletInfo.getAll()) walletInfo.name,
+            if (currentWalletName != null && currentWalletName.isNotEmpty) currentWalletName,
+          };
+        },
+      );
+    } catch (e) {
+      printV("Keychain restore check failed: $e");
+      return false;
+    }
+  }
+
+  /// Starts over when [isKeychainNotRestored]: removes the wallets this device can't open, with the
+  /// same wipe as the duress PIN, then opens the welcome screen so they can be restored.
+  Future<void> resetAfterKeychainLoss() async {
+    if (!await isKeychainNotRestored()) {
+      return;
+    }
+
+    await _handleDuressLogin(
+      secureStorage,
+      sharedPreferences,
+      authenticationStore,
+      appStore,
+      resetService,
+      walletList,
+    );
+
+    unawaited(
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        Routes.welcome,
+        (route) => false,
+      ),
+    );
+  }
+
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
@@ -297,4 +342,35 @@ class PinCodeUnreadableException implements Exception {
     final status = keychainStatus == null ? "" : " (Keychain OSStatus: $keychainStatus)";
     return "PinCodeUnreadableException: secure storage returned no PIN$status";
   }
+}
+
+/// errSecItemNotFound: the Keychain has no item for the key (not merely locked).
+const _errSecItemNotFound = -25300;
+
+/// True only when [readStatus] reports the stored PIN and the password of every wallet in
+/// [walletNames] as missing (errSecItemNotFound). A null status (no Keychain status on this
+/// platform) never counts as missing, and wallet names are only loaded once the PIN is missing.
+Future<bool> keychainSecretsMissing({
+  required Future<int?> Function(String key) readStatus,
+  required Future<Iterable<String>> Function() walletNames,
+}) async {
+  final pinKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+  if (await readStatus(pinKey) != _errSecItemNotFound) {
+    return false;
+  }
+
+  final names = await walletNames();
+  if (names.isEmpty) {
+    return false;
+  }
+
+  for (final name in names) {
+    final passwordKey =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: name);
+    if (await readStatus(passwordKey) != _errSecItemNotFound) {
+      return false;
+    }
+  }
+
+  return true;
 }

@@ -607,6 +607,8 @@
   "invoice_details": "Chi tiết hóa đơn",
   "is_currently_being_migrated": "hiện đang được di chuyển",
   "is_percentage": "là",
+  "keychain_not_restored_content": "Điện thoại này có thể đã được thiết lập từ bản sao lưu iCloud. Để bảo mật cho bạn, iCloud không chuyển mật khẩu mở khóa ví của bạn sang điện thoại mới, vì vậy Cake Wallet không thể mở chúng tại đây.\n\nTiền của bạn vẫn nằm trên blockchain. Nhấn “Khôi phục” để xóa các ví này khỏi điện thoại này, sau đó thêm lại chúng bằng cụm từ khôi phục của từng ví.\n\nKhông có cụm từ khôi phục? Hãy kiểm tra điện thoại cũ của bạn. Các ví của bạn vẫn hoạt động ở đó: mở Cake Wallet và vào Cài đặt > Bảo mật > Hiển thị cụm từ khôi phục/khóa cho từng ví.",
+  "keychain_not_restored_title": "Khôi phục ví của bạn",
   "keys": "Khóa",
   "label": "Nhãn",
   "label_address": "Gắn nhãn địa chỉ",

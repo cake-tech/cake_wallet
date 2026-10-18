@@ -607,6 +607,8 @@
   "invoice_details": "Factura rehegua marandu",
   "is_currently_being_migrated": "ko’áĝa oñembohasáma hína",
   "is_percentage": "ha'e",
+  "keychain_not_restored_content": "Ko pumbyry oñemboheko ikatu peteĩ iCloud copia de seguridad guive. Nde tekorosã rehehápe, iCloud nomoguahẽi umi contraseña oipe'áva nde billetera kuéra peteĩ pumbyry pyahúpe, upévare Cake Wallet ndaikatúi oipe'a chupekuéra ko'ápe.\n\nNde viru oĩ gueteri blockchain-pe. Ejopy “Embojevy jey” emboguepa hag̃ua ko'ã billetera ko pumbyrýgui, upéi emoĩ jey chupekuéra ifrase de recuperación reheve.\n\nNdereguerekói nde frase de recuperación? Ehecha nde pumbyry tuja. Nde billetera kuéra omba'apo gueteri upépe: eipe'a Cake Wallet ha eho Ñemboheko > Tekorosã > Hechauka seed/keys peteĩteĩ billetera-pe.",
+  "keychain_not_restored_title": "Embojevy jey nde billetera kuéra",
   "keys": "Llave-kuéra",
   "label": "Teramoĩ",
   "label_address": "Emboheramo dirección",

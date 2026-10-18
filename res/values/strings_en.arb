@@ -647,6 +647,8 @@
   "invoice_details": "Invoice details",
   "is_currently_being_migrated": "is currently being migrated",
   "is_percentage": "is",
+  "keychain_not_restored_content": "This phone was likely set up from an iCloud backup. For your security, iCloud doesn't move the passwords that unlock your wallets to a new phone, so Cake Wallet can't open them here.\n\nYour funds are still on the blockchain. Tap “Restore” to remove these wallets from this phone, then add them back with their recovery phrases.\n\nDon't have your recovery phrases? Check your old phone. Your wallets still work there: open Cake Wallet and go to Settings > Security > Show seed/keys for each wallet.",
+  "keychain_not_restored_title": "Restore your wallets",
   "keys": "Keys",
   "label": "Label",
   "label_address": "Label address",

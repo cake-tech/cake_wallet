@@ -1,6 +1,10 @@
+import "dart:async";
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import 'package:cake_wallet/utils/show_bar.dart';
+import "package:cake_wallet/utils/show_pop_up.dart";
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -78,15 +82,39 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
       }
     });
 
-    if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Checked before the PIN pad or biometrics are used: neither can work when this device has
+      // none of the Keychain secrets (e.g. it was set up from an iCloud backup).
+      if (await widget.authViewModel.isKeychainNotRestored()) {
+        if (mounted) {
+          await _showKeychainNotRestoredAlert();
+        }
+        return;
+      }
+
+      if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
         await Future<void>.delayed(Duration(milliseconds: 100));
         await widget.authViewModel.biometricAuth();
-      });
-    }
+      }
+    });
 
     super.initState();
   }
+
+  Future<void> _showKeychainNotRestoredAlert() => showPopUp<void>(
+        context: context,
+        builder: (dialogContext) => AlertWithTwoActions(
+          alertTitle: S.of(dialogContext).keychain_not_restored_title,
+          alertContent: S.of(dialogContext).keychain_not_restored_content,
+          leftButtonText: S.of(dialogContext).cancel,
+          rightButtonText: S.of(dialogContext).restore_recover,
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+          actionRightButton: () {
+            Navigator.of(dialogContext).pop();
+            unawaited(widget.authViewModel.resetAfterKeychainLoss());
+          },
+        ),
+      );
 
   @override
   void dispose() {
