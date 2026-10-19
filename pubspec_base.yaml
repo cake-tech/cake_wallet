@@ -44,11 +44,7 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   flutter_inappwebview: ^6.1.5
   flutter_spinkit: ^5.1.0
-  uni_links:
-    git:
-      url: https://github.com/cake-tech/uni_links
-      ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
-      path: uni_links
+  app_links: 7.0.0
   lottie: ^3.3.1
   animate_do: ^2.1.0
   cupertino_icons: ^1.0.5
