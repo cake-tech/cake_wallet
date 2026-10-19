@@ -1576,6 +1576,7 @@
   "youCanGoBackToYourDapp": "Sada se možete vratiti na svoju dApp",
   "your": "Vaš",
   "yy": "GG",
+  "zano_removal_reason": "Rado smo podržavali Zano, ali ove je godine prošao kroz nekoliko hard forkova, uključujući jedan koji je vratio blockchain 30 dana unatrag kako bi se ispravila kritična pogreška. To je za naš tim značilo vrlo veliko opterećenje održavanja, dok se vrlo malo koristio. Zbog toga će Zano biti uklonjen iz Cake Walleta u jednoj od budućih verzija kako bismo mogli dati prednost drugoj imovini i značajkama s većim ukupnim učinkom.",
   "zcash_card_description": "Ako ne vidite svoj puni saldo, Cake Wallet može pokušati povući sredstva s internih adresa za kusur koje koriste neki novčanici.",
   "zcash_card_dismiss": "Odbaci",
   "zcash_card_enable_later": "Ovu karticu uvijek možete omogućiti kasnije u postavkama",

@@ -1576,6 +1576,7 @@
   "youCanGoBackToYourDapp": "Şimdi dApp'inize geri dönebilirsiniz",
   "your": "Sizin",
   "yy": "YY",
+  "zano_removal_reason": "Zano'yu desteklemekten büyük keyif aldık; ancak Zano bu yıl birden fazla hard fork geçirdi ve bunlardan biri, kritik bir hatayı gidermek için blokzinciri 30 gün geri aldı. Bu durum, kullanımı çok az olmasına rağmen ekibimiz için çok yüksek bir bakım yükü oluşturdu. Bu nedenle, genel olarak daha büyük etkiye sahip diğer varlık ve özelliklere öncelik verebilmemiz için Zano, gelecekteki bir sürümde Cake Wallet'tan kaldırılacak.",
   "zcash_card_description": "Bakiyenizin tamamını görmüyorsanız Cake Wallet, bazı cüzdanların kullandığı dahili değişiklik adreslerindeki fonları süpürmeyi deneyebilir.",
   "zcash_card_dismiss": "Kapat",
   "zcash_card_enable_later": "Bu kartı daha sonra ayarlardan her zaman etkinleştirebilirsiniz",

@@ -1578,6 +1578,7 @@
   "youCanGoBackToYourDapp": "Ya puedes volver a tu dApp",
   "your": "Tu",
   "yy": "YY",
+  "zano_removal_reason": "Nos ha encantado dar soporte a Zano, pero este año ha pasado por varios hard forks, incluido uno que hizo retroceder la blockchain 30 días para corregir un error crítico. Esto ha supuesto una carga de mantenimiento muy alta para nuestro equipo, con un uso muy reducido. Por ello, Zano se eliminará de Cake Wallet en una versión futura para que podamos priorizar otros activos y funciones con un mayor impacto general.",
   "zcash_card_description": "Si no ve su saldo completo, Cake Wallet puede intentar barrer fondos de las direcciones internas de cambio utilizadas por algunas billeteras.",
   "zcash_card_dismiss": "Descartar",
   "zcash_card_enable_later": "Siempre puedes habilitar esta tarjeta más adelante en la configuración",

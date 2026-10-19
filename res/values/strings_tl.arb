@@ -1576,6 +1576,7 @@
   "youCanGoBackToYourDapp": "Maaari ka nang bumalik sa iyong dApp ngayon",
   "your": "Iyong",
   "yy": "YY",
+  "zano_removal_reason": "Natuwa kaming suportahan ang Zano, ngunit ngayong taon ay dumaan ito sa maraming hard fork, kabilang ang isa na nag-rollback sa blockchain nang 30 araw upang ayusin ang isang kritikal na bug. Nagdulot ito ng napakabigat na pasanin sa pagmementena para sa aming team, gayong kakaunti lang ang gumagamit nito. Dahil dito, aalisin ang Zano sa Cake Wallet sa isang bersyon sa hinaharap upang mabigyan namin ng priyoridad ang ibang mga asset at tampok na may mas malaking epekto sa kabuuan.",
   "zcash_card_description": "Kung hindi mo makita ang iyong buong balanse, maaaring subukan ng Cake Wallet na i-sweep ang mga pondo mula sa mga panloob na change address na ginagamit ng ilang wallet.",
   "zcash_card_dismiss": "I-dismiss",
   "zcash_card_enable_later": "Maaari mo itong paganahin anumang oras sa ibang pagkakataon sa mga setting",

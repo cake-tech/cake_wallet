@@ -1576,6 +1576,7 @@
   "youCanGoBackToYourDapp": "이제 dApp으로 돌아가도 됩니다",
   "your": "내",
   "yy": "YY",
+  "zano_removal_reason": "Zano를 지원할 수 있어 기뻤지만, 올해 Zano는 여러 차례 하드포크를 거쳤으며, 그중에는 치명적인 버그를 해결하기 위해 블록체인을 30일 전으로 되돌린 하드포크도 있었습니다. 사용량은 많지 않은 반면 이로 인해 저희 팀의 유지 관리 부담이 매우 커졌습니다. 이에 따라 전반적으로 더 큰 영향을 줄 수 있는 다른 자산과 기능을 우선시할 수 있도록 향후 릴리스에서 Cake Wallet에서 Zano를 제거할 예정입니다.",
   "zcash_card_description": "전체 잔액이 보이지 않으면 Cake Wallet에서 일부 지갑이 사용하는 내부 잔돈(체인지) 주소에 있는 자금을 스윕하려고 시도할 수 있습니다.",
   "zcash_card_dismiss": "닫기",
   "zcash_card_enable_later": "설정에서 언제든지 나중에 이 카드를 활성화할 수 있습니다.",

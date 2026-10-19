@@ -1576,6 +1576,7 @@
   "youCanGoBackToYourDapp": "您现在可以返回您的 dApp",
   "your": "您的",
   "yy": "YY",
+  "zano_removal_reason": "我们很高兴能够支持 Zano，但它今年经历了多次硬分叉，其中一次为修复一个严重缺陷而将区块链回滚了 30 天。这给我们团队带来了非常沉重的维护负担，而其使用量却很少。因此，Zano 将在未来的版本中从 Cake Wallet 移除，以便我们优先考虑其他整体影响更大的资产和功能。",
   "zcash_card_description": "如果您没有看到完整余额，Cake Wallet 可以尝试从某些钱包使用的内部找零地址中扫出资金。",
   "zcash_card_dismiss": "关闭",
   "zcash_card_enable_later": "您随时可以在设置中启用此卡",

@@ -1629,7 +1629,7 @@
   "youCanGoBackToYourDapp": "Sie können jetzt zu Ihrer dApp zurückkehren",
   "your": "Ihr",
   "yy": "YY",
-  "zano_removal_reason": "Bei Zano wurden mehrere Hard Forks durchgeführt, um ein kritisches Netzwerkproblem zu beheben, darunter auch eine Rücksetzung der Blockchain. Aufgrund schwerwiegender Probleme mit den Forks und des damit verbundenen Wartungsaufwands werden wir Zano in einer zukünftigen Version aus Cake Wallet entfernen.",
+  "zano_removal_reason": "Wir haben Zano sehr gerne unterstützt, doch in diesem Jahr gab es mehrere Hard Forks, darunter einen, der die Blockchain um 30 Tage zurückgesetzt hat, um einen kritischen Fehler zu beheben. Das bedeutete für unser Team einen sehr hohen Wartungsaufwand bei nur geringer Nutzung. Daher wird Zano in einer zukünftigen Version aus Cake Wallet entfernt, damit wir andere Assets und Funktionen priorisieren können, die insgesamt eine größere Wirkung haben.",
   "zcash_card_description": "Wenn Sie nicht Ihr vollständiges Guthaben sehen, kann Cake Wallet versuchen, Guthaben von internen Wechselgeldadressen zu übertragen, die von einigen Wallets verwendet werden.",
   "zcash_card_dismiss": "Schließen",
   "zcash_card_enable_later": "Sie können diese Karte jederzeit später in den Einstellungen aktivieren",
