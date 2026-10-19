@@ -8,6 +8,7 @@ import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
@@ -94,13 +95,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
-    final (rate, quote) = await _getQuote(request);
+    final (rate, quotes) = await _getQuotes(request);
 
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(quote.amountFrom ?? rate.amountFrom, request.depositCurrency),
-        Money.safeParse(quote.amountTo ?? rate.amountTo, request.payoutCurrency),
+        Money.safeParse(quotes.first.amountFrom ?? rate.amountFrom, request.depositCurrency),
+        Money.safeParse(quotes.first.amountTo ?? rate.amountTo, request.payoutCurrency),
       ),
       limits: await fetchLimits(
         from: request.depositCurrency,
@@ -112,26 +113,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final (rate, quote) = await _getQuote(request.rateRequest);
+    final (rate, quotes) = await _getQuotes(request.rateRequest);
 
-    final responseData = await _api.send(TrocadorNewTradeRequest(
-      id: rate.tradeId,
-      tickerFrom: _normalizeCurrency(request.depositCurrency),
-      networkFrom: _networkFor(request.depositCurrency),
-      tickerTo: _normalizeCurrency(request.payoutCurrency),
-      networkTo: _networkFor(request.payoutCurrency),
-      address: request.payoutAddress,
-      refundMemo: "0",
-      provider: quote.provider,
-      fixed: request.isFixedRate,
-      payment: request.isFixedRate,
-      minKycrating: .c,
-      markup: markup,
-      amountFrom: request.isFixedRate ? null : request.depositAmount.toString(),
-      amountTo: request.isFixedRate ? request.payoutAmount.toString() : null,
-      addressMemo: request.toAddressExtraId,
-      refund: request.refundAddress,
-    ));
+    final responseData = await _newTrade(request, rate.tradeId, quotes.take(3).toList());
 
     final depositAmount = responseData.amountFrom.isEmpty
         ? request.depositAmount
@@ -166,7 +150,47 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<(TrocadorRate, TrocadorQuote)> _getQuote(RateRequest request) async {
+  Future<TrocadorTrade> _newTrade(
+    TradeRequest request,
+    String rateId,
+    List<TrocadorQuote> quotes,
+  ) async {
+    try {
+      return await _api.send(TrocadorNewTradeRequest(
+        id: rateId,
+        tickerFrom: _normalizeCurrency(request.depositCurrency),
+        networkFrom: _networkFor(request.depositCurrency),
+        tickerTo: _normalizeCurrency(request.payoutCurrency),
+        networkTo: _networkFor(request.payoutCurrency),
+        address: request.payoutAddress,
+        refundMemo: "0",
+        provider: quotes.first.provider,
+        fixed: request.isFixedRate,
+        payment: request.isFixedRate,
+        minKycrating: .c,
+        markup: markup,
+        amountFrom: request.isFixedRate ? null : request.depositAmount.toString(),
+        amountTo: request.isFixedRate ? request.payoutAmount.toString() : null,
+        addressMemo: request.toAddressExtraId,
+        refund: request.refundAddress,
+      ));
+    } on ProviderHttpException catch (e, st) {
+      if (e.statusCode != 400 || quotes.length == 1) {
+        rethrow;
+      }
+
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: "createTrade",
+        error: e,
+        stackTrace: st,
+        requestData: {"rateId": rateId, "subProvider": quotes.first.provider},
+      );
+      return _newTrade(request, rateId, quotes.sublist(1));
+    }
+  }
+
+  Future<(TrocadorRate, List<TrocadorQuote>)> _getQuotes(RateRequest request) async {
     final (amountFrom, amountTo) = switch (request) {
       FloatingRateRequest(:final depositAmount) => (depositAmount.toString(), null),
       FixedRateRequest(:final payoutAmount) => (null, payoutAmount.toString()),
@@ -184,16 +208,16 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       markup: markup,
     ));
 
-    final quote = rate.quotes?.quotes
-        ?.where((quote) => providerStates[quote.provider] != false)
+    final quotes = (rate.quotes?.quotes ?? [])
+        .where((quote) => providerStates[quote.provider] != false)
         .where((quote) => quote.fixed == null || quote.fixed == (request is FixedRateRequest))
-        .firstOrNull;
+        .toList();
 
-    if (quote == null) {
+    if (quotes.isEmpty) {
       throw Exception("No enabled providers found for the selected trade.");
     }
 
-    return (rate, quote);
+    return (rate, quotes);
   }
 
   @override
