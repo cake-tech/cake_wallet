@@ -151,6 +151,9 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
             ModalTopBar(
               title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
               leadingIcon: widget.isClosable ? Icon(Icons.arrow_back_ios_new) : null,
+              // Same-size placeholder keeps the bar's height so the title still shows.
+              leadingWidget:
+                  widget.isClosable ? null : SizedBox.square(dimension: ModalTopBar.buttonSize),
               leadingSemanticLabel: widget.isClosable ? S.current.seed_alert_back : null,
               onLeadingPressed: Navigator.of(context).pop,
             ),
