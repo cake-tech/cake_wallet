@@ -15,7 +15,7 @@ class MorphoVault {
   static const _usdcDecimals = 6;
   // lowercase: Erc20Token equality is case-sensitive
   static const _usdcAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
-  static const _vaultAddress = "0xbeef088055857739C12CD3765F20b7679Def0f51";
+  static const vaultAddress = "0xbeef088055857739C12CD3765F20b7679Def0f51";
   static const _morphoBlueAddress = "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb";
   static const _supportedLiquidityAdapterAddress = "0x2b9681015A1FA2225D1FC8ae40538d3D64C58290";
 
@@ -51,7 +51,7 @@ class MorphoVault {
     ]
   ''');
 
-  static final _vault = _contract(_vaultAddress, "MorphoVaultV2", '''
+  static final _vault = _contract(vaultAddress, "MorphoVaultV2", '''
     [
       {
         "type": "function",
