@@ -12,6 +12,7 @@ import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({
@@ -93,13 +94,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
-    final rate = await _getRate(request);
+    final (rate, quote) = await _getQuote(request);
 
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(rate.amountFrom, request.depositCurrency),
-        Money.safeParse(rate.amountTo, request.payoutCurrency),
+        Money.safeParse(quote.amountFrom ?? rate.amountFrom, request.depositCurrency),
+        Money.safeParse(quote.amountTo ?? rate.amountTo, request.payoutCurrency),
       ),
       limits: await fetchLimits(
         from: request.depositCurrency,
@@ -111,26 +112,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final rate = await _getRate(request.rateRequest);
-
-    final provider = rate.quotes!.quotes!
-        .where((quote) => providerStates[quote.provider] != false)
-        .map((quote) => quote.provider)
-        .firstOrNull;
-
-    if (provider == null) {
-      throw Exception("No enabled providers found for the selected trade.");
-    }
+    final (rate, quote) = await _getQuote(request.rateRequest);
 
     final responseData = await _api.send(TrocadorNewTradeRequest(
-      id: request.isFixedRate ? rate.tradeId : null,
+      id: rate.tradeId,
       tickerFrom: _normalizeCurrency(request.depositCurrency),
       networkFrom: _networkFor(request.depositCurrency),
       tickerTo: _normalizeCurrency(request.payoutCurrency),
       networkTo: _networkFor(request.payoutCurrency),
       address: request.payoutAddress,
       refundMemo: "0",
-      provider: provider,
+      provider: quote.provider,
       fixed: request.isFixedRate,
       payment: request.isFixedRate,
       minKycrating: .c,
@@ -148,9 +140,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         ? request.payoutAmount
         : Money.safeParse(responseData.amountTo, request.payoutCurrency);
 
-    return Trade(
+    final trade = Trade(
       id: responseData.tradeId,
       provider: description,
+      providerName: responseData.provider,
       fundingAddress: responseData.addressProvider,
       refundAddress: responseData.refundAddress ?? request.refundAddress,
       state: responseData.status,
@@ -163,9 +156,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       depositAmount: depositAmount,
       payoutAmount: payoutAmount,
     );
+
+    try {
+      // if trocador decides to update the amounts right after, this'll show the correct amounts
+      return await updateTrade(trade);
+    } catch (e) {
+      printV("failed to refresh trocador trade ${trade.id}: $e");
+      return trade;
+    }
   }
 
-  Future<TrocadorRate> _getRate(RateRequest request) async {
+  Future<(TrocadorRate, TrocadorQuote)> _getQuote(RateRequest request) async {
     final (amountFrom, amountTo) = switch (request) {
       FloatingRateRequest(:final depositAmount) => (depositAmount.toString(), null),
       FixedRateRequest(:final payoutAmount) => (null, payoutAmount.toString()),
@@ -183,13 +184,16 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       markup: markup,
     ));
 
-    if (rate.quotes == null ||
-        rate.quotes!.quotes == null ||
-        rate.quotes!.quotes!.where((quote) => providerStates[quote.provider] != false).isEmpty) {
-      throw Exception("no providers");
+    final quote = rate.quotes?.quotes
+        ?.where((quote) => providerStates[quote.provider] != false)
+        .where((quote) => quote.fixed == null || quote.fixed == (request is FixedRateRequest))
+        .firstOrNull;
+
+    if (quote == null) {
+      throw Exception("No enabled providers found for the selected trade.");
     }
 
-    return rate;
+    return (rate, quote);
   }
 
   @override

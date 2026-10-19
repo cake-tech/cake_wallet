@@ -1,5 +1,5 @@
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";

@@ -243,6 +243,12 @@ List<Fixture> _trocador() => [
           "&amount_from=0.01&payment=False&min_kycrating=C&markup=$_trocadorMarkup",
           headers: _trocadorHeaders(),
         )),
+      Fixture("trocador", "new_rate_payment", (_) => _get(
+          "https://api.trocador.app/new_rate"
+          "?ticker_from=btc&ticker_to=xmr&network_from=Mainnet&network_to=Mainnet"
+          "&amount_to=1&payment=True&min_kycrating=C&markup=$_trocadorMarkup",
+          headers: _trocadorHeaders(),
+        )),
       Fixture("trocador", "exchanges", (_) => _get(
           "https://api.trocador.app/exchanges"
           '?api_key=${_requireKey('trocadorApiKey', secrets.trocadorApiKey)}',

@@ -88,6 +88,45 @@ void main() {
       );
     });
 
+    test("a swap quote carries its own rate type and amount_to", () {
+      final raw = fixtureMap("trocador", "new_rate");
+      final rate = TrocadorRate.fromJson(raw);
+      final rawQuotes = raw["quotes"]["quotes"] as List<dynamic>;
+
+      for (var i = 0; i < rawQuotes.length; i++) {
+        final rawQuote = rawQuotes[i] as Map<String, dynamic>;
+        final quote = rate.quotes!.quotes![i];
+
+        expect(quote.fixed, rawQuote["fixed"] == "True");
+        expect(quote.amountTo, rawQuote["amount_to"]);
+        expect(quote.amountFrom, isNull);
+      }
+    });
+
+    test("a swap mixes both rate types, so a provider can be quoted twice", () {
+      final quotes = TrocadorRate.fromJson(fixtureMap("trocador", "new_rate")).quotes!.quotes!;
+
+      expect(quotes.map((q) => q.fixed).toSet(), {true, false});
+    });
+
+    test("a payment quote carries amount_from instead of amount_to", () {
+      final raw = fixtureMap("trocador", "new_rate_payment");
+      final rate = TrocadorRate.fromJson(raw);
+      final rawQuotes = raw["quotes"]["quotes"] as List<dynamic>;
+
+      expect(rate.payment, isTrue);
+      expect(rate.quotes!.quotes, hasLength(rawQuotes.length));
+
+      for (var i = 0; i < rawQuotes.length; i++) {
+        final rawQuote = rawQuotes[i] as Map<String, dynamic>;
+        final quote = rate.quotes!.quotes![i];
+
+        expect(quote.fixed, isTrue);
+        expect(quote.amountFrom, rawQuote["amount_from"]);
+        expect(quote.amountTo, isNull);
+      }
+    });
+
     test("a nested quote types its amounts as strings, unlike the top level", () {
       final raw = fixtureMap("trocador", "new_rate");
 

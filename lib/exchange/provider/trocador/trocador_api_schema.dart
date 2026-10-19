@@ -163,14 +163,25 @@ class TrocadorNewRateRequest extends ApiRequest<TrocadorRate> {
   TrocadorRate decode(Object json) => TrocadorRate.fromJson(json as Map<String, dynamic>);
 }
 
+// every provider is quoted once per rate type, so the same provider can show up twice.
+// a swap quote carries amount_to, a payment quote carries amount_from instead
 @JsonSerializable(createToJson: false)
+@TrocadorBoolConverter()
 class TrocadorQuote {
-  const TrocadorQuote({required this.provider});
+  const TrocadorQuote({required this.provider, this.fixed, this.amountFrom, this.amountTo});
 
   factory TrocadorQuote.fromJson(Map<String, dynamic> json) => _$TrocadorQuoteFromJson(json);
 
   @JsonKey(name: "provider")
   final String provider;
+  @JsonKey(name: "fixed")
+  final bool? fixed;
+  @JsonKey(name: "amount_from")
+  @TrocadorAmountConverter()
+  final String? amountFrom;
+  @JsonKey(name: "amount_to")
+  @TrocadorAmountConverter()
+  final String? amountTo;
 }
 
 @JsonSerializable(createToJson: false)
