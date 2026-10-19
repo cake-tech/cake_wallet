@@ -1016,15 +1016,20 @@ Future<void> setup({
       ContactViewModel(_contactSource, getIt.get<AppStore>(), getIt.get<AddressResolverService>(),
           contact: contact));
 
-  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
+  getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, bool?>(
+      (CryptoCurrency? cur, bool? includeSilentPayments) => ContactListViewModel(
+            _contactSource,
+            walletList,
+            cur,
+            getIt.get<SettingsStore>(),
+            includeSilentPayments: includeSilentPayments ?? false,
+          ));
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
-      (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
-            getIt.get<ContactListViewModel>(param1: cur),
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, ContactListPageArgs?>(
+      (CryptoCurrency? cur, ContactListPageArgs? args) => ContactListPage(
+            getIt.get<ContactListViewModel>(param1: cur, param2: args?.includeSilentPayments),
             getIt.get<AuthService>(),
-            showAddButton: showAddContact ?? true,
+            showAddButton: args?.showAddButton ?? true,
           ));
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(

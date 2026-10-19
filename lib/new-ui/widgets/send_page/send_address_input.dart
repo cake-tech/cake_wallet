@@ -24,6 +24,7 @@ class NewSendAddressInput extends StatefulWidget {
     this.focusNode,
     this.displayName,
     this.hintText,
+    this.includeSilentPayments = false,
   });
 
   final TextEditingController addressController;
@@ -38,6 +39,10 @@ class NewSendAddressInput extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
   final String? hintText;
+
+  /// Lets the address-book picker offer Silent Payments addresses; only for senders that can pay
+  /// them.
+  final bool includeSilentPayments;
 
   @override
   State<NewSendAddressInput> createState() => _NewSendAddressInputState();
@@ -239,8 +244,10 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
-    final contact = await Navigator.of(context)
-        .pushNamed(Routes.pickerAddressBook, arguments: [widget.selectedCurrency, false]);
+    final contact = await Navigator.of(context).pushNamed(
+      Routes.pickerAddressBook,
+      arguments: [widget.selectedCurrency, false, widget.includeSilentPayments],
+    );
 
     if (contact is ContactBase) {
       widget.addressController.text = contact.address;

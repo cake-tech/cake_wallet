@@ -26,7 +26,8 @@ class ContactListViewModel = ContactListViewModelBase with _$ContactListViewMode
 
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(
-      this.contactSource, List<WalletInfo> wallets, this._currency, this.settingsStore)
+      this.contactSource, List<WalletInfo> wallets, this._currency, this.settingsStore,
+      {this.includeSilentPayments = false})
       : contacts = ObservableList<ContactRecord>(),
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
@@ -107,6 +108,7 @@ abstract class ContactListViewModelBase with Store {
                       : info.network!.toLowerCase().contains("testnet"),
                 ),
                 walletType: info.type,
+                label: label,
               ));
             });
           }
@@ -147,6 +149,10 @@ abstract class ContactListViewModelBase with Store {
   @observable
   List<WalletContact> walletContacts = [];
   final CryptoCurrency? _currency;
+
+  /// Whether a currency-filtered picker may offer Silent Payments addresses; set only for senders
+  /// that can pay them.
+  final bool includeSilentPayments;
   StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
 
@@ -171,9 +177,9 @@ abstract class ContactListViewModelBase with Store {
 
   bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
     if (_currency == null) return true;
-    if (!element.name.contains('Active') &&
-        isWalletContact &&
-        (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
+    if (isWalletContact &&
+        element is WalletContact &&
+        !element.isPickable(includeSilentPayments: includeSilentPayments)) return false;
 
     final currencyMatches = element.type == _currency;
 

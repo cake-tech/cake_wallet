@@ -659,6 +659,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     }
 
+    // On the Silent Payments page `activeAddress` is on-chain so any sender can pay it; also mark
+    // the SP address the receive page shows as active, for senders that can pay it.
+    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
+      addressesMap[address] = "Active - Silent Payments";
+    }
+
     if (lightningAddress != null) {
       if (lightningAddress != activeAddress) {
         addressesMap[lightningAddress!] = 'LN';
