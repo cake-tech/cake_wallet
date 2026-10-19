@@ -951,8 +951,6 @@ class SwapsXyzTxDetails {
     this.srcTx,
     this.dstTx,
     this.usdValue,
-    this.actionRequest,
-    this.actionResponse,
   });
 
   factory SwapsXyzTxDetails.fromJson(Map<String, dynamic> json) =>
@@ -981,8 +979,4 @@ class SwapsXyzTxDetails {
   final SwapsXyzOnchainTx? dstTx;
   @JsonKey(name: "usdValue")
   final double? usdValue;
-  @JsonKey(name: "actionRequest")
-  final SwapsXyzActionRequest? actionRequest;
-  @JsonKey(name: "actionResponse")
-  final SwapsXyzActionResponse? actionResponse;
 }

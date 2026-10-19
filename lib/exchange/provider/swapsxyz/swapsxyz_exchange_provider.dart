@@ -418,44 +418,23 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
   Future<Trade> updateTrade(Trade trade) async {
     final data = await _api.send(SwapsXyzStatusRequest(txId: trade.id));
 
-    final status = data.status.toState;
-    final refundAddress = data.sender.toString();
-
-    final srcTransaction = data.srcTx;
-    final dstTransaction = data.dstTx;
-
-    final inputAddress = srcTransaction?.toAddress;
-
-    final srcPaymentToken = srcTransaction?.paymentToken;
-    final dstPaymentToken = dstTransaction?.paymentToken;
-
-
-
-    final txHash = srcTransaction?.txHash;
-
-    // Minimal-unit amounts like "12000n"
-    final srcAmountRaw = srcPaymentToken?.amount;
-    final dstAmountRaw = dstPaymentToken?.amount;
-
-
-    // Timestamps can be num or "123n"  handle both
-    final srcTs = srcTransaction?.timestamp;
-    final dstTs = dstTransaction?.timestamp;
-    final timestamp = srcTs ?? dstTs;
-
     return trade.copyWith(
       id: data.txId,
       provider: description,
-      fundingAddress: inputAddress ?? "",
-      payoutAddress: dstTransaction?.toAddress ?? "",
-      txId: txHash,
-      state: status,
-      createdAt: timestamp,
-      refundAddress: refundAddress,
-      depositAmount: Money(srcAmountRaw ?? BigInt.zero, trade.depositCurrency),
-      payoutAmount: Money(dstAmountRaw ?? BigInt.zero, trade.payoutCurrency),
+      fundingAddress: data.srcTx?.toAddress,
+      payoutAddress: data.dstTx?.toAddress,
+      txId: data.srcTx?.txHash,
+      state: data.status.toState,
+      createdAt: data.srcTx?.timestamp ?? data.dstTx?.timestamp,
+      refundAddress: data.sender,
+      depositAmount: _moneyOf(data.srcTx?.paymentToken, trade.depositCurrency),
+      payoutAmount: _moneyOf(data.dstTx?.paymentToken, trade.payoutCurrency),
     );
   }
+
+  Money? _moneyOf(SwapsXyzToken? token, CryptoCurrency currency) => token == null
+      ? null
+      : Money(token.amount, currency, token.decimals).copyWith(currency: currency);
 
   // Load & cache supported chains once
   Future<List<SwapsXyzChain>> _getSupportedChains() async {

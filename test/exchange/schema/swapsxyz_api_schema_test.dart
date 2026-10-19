@@ -279,6 +279,44 @@ void main() {
       expect(details.bridgeDetails!.txPath!.first.nextBridge, "layerZero");
     });
 
+    // shaped like a live getStatus body for a finished swap, values made up. the echoed
+    // actionRequest has numbers and a bool where SwapsXyzActionRequest has strings, which used to
+    // throw and leave every swap stuck on the state it was created with
+    test("parses a finished swap that echoes its action back", () {
+      const token = '"tokenAddress":null,"logo":"https://logo","swapsXyzCode":"code","logoURI":null';
+      const body = '{"txId":"0xtxid","status":"success","srcChainId":1,"srcTxHash":"0xsrc",'
+          '"dstChainId":1,"dstTxHash":"0xdst","sender":"0xsender","usdValue":25.0,'
+          '"usdRates":{"srcToken":1.0,"dstToken":4000,"timestamp":1760000000},'
+          '"org":{"appId":"0xapp","appName":"app","affiliateId":"0xaffiliate","appFees":[]},'
+          '"bridgeDetails":{"isBridge":false,"bridgeTime":0,'
+          '"txPath":[{"chainId":1,"txHash":"0xsrc","timestamp":1760000000,"nextBridge":null}]},'
+          '"srcTx":{"paymentToken":{"address":"0xdac17f958d2ee523a2206206994597c13d831ec7",$token,'
+          '"decimals":6,"symbol":"USDT","name":"Tether USD","chainId":1,"isNative":false,'
+          '"amount":"25000000","usdAmount":25.0},"timestamp":1760000000,"value":"0",'
+          '"toAddress":"0xrouter","txHash":"0xsrc","chainId":1,"revertReason":null},'
+          '"dstTx":{"paymentToken":{"address":"0x0000000000000000000000000000000000000000",$token,'
+          '"decimals":18,"symbol":"ETH","name":"Ether","chainId":1,"isNative":true,'
+          '"amount":"6000000000000000","usdAmount":24.9},"timestamp":1760000060,"value":null,'
+          '"toAddress":"0xrecipient","txHash":"0xdst","chainId":1,"revertReason":null},'
+          '"actionRequest":{"actionType":"swap-action","sender":"0xsender","srcChainId":1,'
+          '"srcToken":"0xdac17f958d2ee523a2206206994597c13d831ec7","dstChainId":1,'
+          '"dstToken":"0x0000000000000000000000000000000000000000","slippage":300,'
+          '"bridgeIds":["relay"],"swapDirection":"exact-amount-in","amount":"25000000",'
+          '"recipient":"0xrecipient","gasless":false},'
+          '"actionResponse":{"txId":"0xtxid","tx":{"to":"0xrouter","data":"0x9be111d1",'
+          '"value":"0","chainId":1,"toExtra":null},"exchangeRate":0.00024,"estimatedTxTime":30.5,'
+          '"vmId":"evm","requiresTokenApproval":true,"requiresRegisterTransaction":false,'
+          '"executionsType":"DEFAULT","allRoutes":[]},"estimatedSecondsRemaining":null}';
+      final details = SwapsXyzTxDetails.fromJson(json.decode(body) as Map<String, dynamic>);
+
+      expect(details.status, SwapsXyzTxStatusValue.success);
+      expect(details.txId, "0xtxid");
+      expect(details.srcTx!.txHash, "0xsrc");
+      expect(details.srcTx!.paymentToken!.amount, BigInt.from(25000000));
+      expect(details.dstTx!.toAddress, "0xrecipient");
+      expect(details.dstTx!.paymentToken!.amount, BigInt.parse("6000000000000000"));
+    });
+
     test("a timestamp parses whether it is a number or a string", () {
       const body = '{"status":"pending","sender":"0x","srcChainId":1,"txId":"0x",'
           '"srcTx":{"txHash":"0xa","chainId":1,"timestamp":1640995200},'
