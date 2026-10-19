@@ -129,12 +129,18 @@ class AuthService with Store {
   }
 
   Future<bool> requireAuth() async {
-    final timestamp =
-        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
-    final duration = _durationToRequireAuth(timestamp ?? 0);
-    final requiredPinInterval = settingsStore.pinTimeOutDuration;
+    try {
+      final timestamp =
+          int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
+      final duration = _durationToRequireAuth(timestamp ?? 0);
+      final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
-    return duration >= requiredPinInterval.value;
+      return duration >= requiredPinInterval.value;
+    } catch (e) {
+      // Without the last auth time we can't tell if the timeout passed, so ask for the PIN.
+      printV(e);
+      return true;
+    }
   }
 
   int _durationToRequireAuth(int timestamp) {
