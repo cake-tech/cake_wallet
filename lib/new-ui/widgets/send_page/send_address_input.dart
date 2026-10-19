@@ -39,9 +39,6 @@ class NewSendAddressInput extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
   final String? hintText;
-
-  /// Lets the address-book picker offer Silent Payments addresses; only for senders that can pay
-  /// them.
   final bool includeSilentPayments;
 
   @override

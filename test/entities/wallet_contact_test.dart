@@ -14,7 +14,6 @@ WalletContact _contact(
 void main() {
   group("WalletContact.isPickable", () {
     test("offers the active address when its name is translated", () {
-      // ContactListViewModel shows this wallet as "Savings (Aktiv)" in German.
       final contact = _contact("Active", name: "Savings (Aktiv)");
 
       expect(contact.isPickable(includeSilentPayments: false), isTrue);

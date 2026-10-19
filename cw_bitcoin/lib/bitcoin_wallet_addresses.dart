@@ -152,7 +152,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
               e.type == SegwitAddresType.p2wpkh &&
               !e.isHidden &&
               !e.isUsed &&
-              // Hidden by the user or retired as a swap refund address.
               !hiddenAddresses.contains(e.address))
           .address;
     } catch (_) {

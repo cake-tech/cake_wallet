@@ -19,7 +19,6 @@ String _p2wpkh(Bip32Slip10Secp256k1 hd, int index) =>
 
 final _receive = [for (var i = 0; i < 5; i++) _p2wpkh(_receiveHd, i)];
 
-// BitcoinWalletAddresses only holds on to the manager; nothing tested here uses Payjoin.
 class _NoPayjoin implements PayjoinManager {
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
@@ -61,7 +60,6 @@ class _Addresses extends BitcoinWalletAddresses {
           ],
         );
 
-  // The address book reads back exactly addressesMap; storing it isn't under test.
   @override
   Future<void> saveAddressesInBox() async {}
 }
@@ -80,8 +78,7 @@ Future<_Addresses> _addresses({String? addressPageType}) async {
   )..addressPageType = addressPageType;
 
   final addresses = _Addresses(walletInfo);
-  // The constructor loads the used/hidden/manual sets without awaiting them; a query issued
-  // after those has landed once it returns, so the test can't race them.
+  // Lets the constructor's un-awaited used/hidden/manual loads land before the test edits them.
   await walletInfo.getManualAddresses();
   return addresses;
 }
@@ -101,7 +98,6 @@ void main() {
     final addresses = await _addresses();
     expect(addresses.addressForBuy, _receive[0]);
 
-    // As the exchange flow does with a swap's refund address.
     addresses.hiddenAddresses.add(_receive[0]);
 
     expect(addresses.addressForBuy, _receive[1]);

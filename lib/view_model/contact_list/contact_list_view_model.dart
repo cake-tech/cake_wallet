@@ -149,9 +149,6 @@ abstract class ContactListViewModelBase with Store {
   @observable
   List<WalletContact> walletContacts = [];
   final CryptoCurrency? _currency;
-
-  /// Whether a currency-filtered picker may offer Silent Payments addresses; set only for senders
-  /// that can pay them.
   final bool includeSilentPayments;
   StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
