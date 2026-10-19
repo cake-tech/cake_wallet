@@ -135,10 +135,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     bool requireAuth = await widget.authService.requireAuth();
 
-    if (widget.authenticationStore.state == AuthenticationState.allowedCreate) {
-      requireAuth = false;
-    }
-
     if (!requireAuth &&
         (widget.authenticationStore.state == AuthenticationState.allowed ||
             widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
@@ -170,7 +166,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
+        if (!_isInactive &&
+            (widget.authenticationStore.state == AuthenticationState.allowed ||
+                widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
           setState(() {
             _requestAuth = false;
             _setInactive(true);
