@@ -641,7 +641,7 @@ Future<void> setup({
           ));
 
   getIt.registerFactory<AuthPage>(instanceName: 'login', () {
-    return AuthPage(getIt.get<AuthViewModel>(), closable: false,
+    return AuthPage(getIt.get<AuthViewModel>(), closable: false, checkKeychainRestored: true,
         onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) async {
       if (!isAuthenticated) {
         return;

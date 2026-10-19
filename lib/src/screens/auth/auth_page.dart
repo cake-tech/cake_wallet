@@ -24,11 +24,19 @@ abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
 }
 
 class AuthPage extends StatefulWidget {
-  AuthPage(this.authViewModel, {required this.onAuthenticationFinished, this.closable = true});
+  AuthPage(
+    this.authViewModel, {
+    required this.onAuthenticationFinished,
+    this.closable = true,
+    this.checkKeychainRestored = false,
+  });
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
   final bool closable;
+
+  /// Only the cold-start login page sets this; in-app PIN prompts can't reach that state.
+  final bool checkKeychainRestored;
 
   @override
   AuthPageState createState() => AuthPagePinCodeStateImpl();
@@ -85,7 +93,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Checked before the PIN pad or biometrics are used: neither can work when this device has
       // none of the Keychain secrets (e.g. it was set up from an iCloud backup).
-      if (await widget.authViewModel.isKeychainNotRestored()) {
+      if (widget.checkKeychainRestored && await widget.authViewModel.isKeychainNotRestored()) {
         if (mounted) {
           await _showKeychainNotRestoredAlert();
         }
