@@ -24,8 +24,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.walletInfo, {
     required super.accounts,
     required int currentAccountIndex,
-    required super.legacySideHd,
-    required super.legacyMainHd,
     required super.network,
     required super.isHardwareWallet,
     required this.payjoinManager,
@@ -46,6 +44,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   int get currentAccountIndex => _currentAccountIndex;
 
+  @override
   @action
   void setCurrentAccountIndex(int index) => _currentAccountIndex = index;
 

@@ -507,7 +507,7 @@ abstract class ElectrumWalletBase
     _prepareHdForAccount(accountIndex, currency);
     final account = accounts[accountIndex]!;
 
-    (walletAddresses as BitcoinWalletAddresses).setCurrentAccountIndex(accountIndex);
+    walletAddresses.setCurrentAccountIndex(accountIndex);
 
     final currentPageType = walletAddresses.addressPageType;
     await walletAddresses.setAddressType(currentPageType);

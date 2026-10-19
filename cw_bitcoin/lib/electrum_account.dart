@@ -100,6 +100,9 @@ class AccountHdKeys {
     return isChange ? _change[type] : _receive[type];
   }
 
+  bool isChangeBranch(Bip32Slip10Secp256k1 hd) =>
+      identical(hd, _legacyChange) || _change.values.any((key) => identical(key, hd));
+
   @override
   String toString() => 'AccountHdKeys(receive: ${_receive.keys.map((t) => t.value).join('/')}, '
       'change: ${_change.keys.map((t) => t.value).join('/')}, '
