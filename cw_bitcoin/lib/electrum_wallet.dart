@@ -4,8 +4,6 @@ import 'dart:isolate';
 import 'dart:math' show Random;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import "package:bip39/bip39.dart" as bip39;
-import "package:cw_bitcoin/bitcoin_mnemonic.dart" show mnemonicToSeedBytes;
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -304,16 +302,8 @@ abstract class ElectrumWalletBase
   ObservableMap<int, ElectrumBalance> accountBalances = ObservableMap<int, ElectrumBalance>();
 
   final Bip32Slip10Secp256k1? _masterHD;
-  Bip32Slip10Secp256k1? _altMasterHD;
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
-
-  /// The branch HD of each of [walletAddresses]' recovery addresses, so they sign without a search.
-  final Map<String, Bip32Slip10Secp256k1> _recoveryHdByAddress = {};
-
-  /// [_bruteForcePrivkeyForAddress] results by address, null when nothing matched, so a send
-  /// doesn't repeat the search on every coin-selection pass.
-  final Map<String, ECPrivate?> _bruteForcedKeys = {};
 
   final mainHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
   final sideHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
@@ -739,7 +729,6 @@ abstract class ElectrumWalletBase
     }
 
     await walletAddresses.init(accountIndexes: accountIndexes);
-    await _initAltSeedAddresses();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
     _seedAccountBalancesFromAddressRecords();
@@ -1265,30 +1254,6 @@ abstract class ElectrumWalletBase
       } else if (!isHardwareWallet && keys.privateKey.isNotEmpty) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
-
-        // Verify the derived key actually maps to this UTXO's address.
-        // If the address was originally generated under a different derivation
-        // path (wrong HD wallet or wrong index), search all known paths.
-        // Bitcoin and Litecoin only; MWEB has no BIP32 address to compare, and extra accounts
-        // aren't searched. A failed check keeps the derived key, as before.
-        final record = utx.bitcoinAddressRecord;
-        if ((type == WalletType.bitcoin || type == WalletType.litecoin) &&
-            record.type != SegwitAddresType.mweb &&
-            record.accountIndex == 0) {
-          try {
-            final expectedAddr =
-                walletAddresses.getAddress(index: record.index, hd: hd, addressType: record.type);
-            if (expectedAddr != utx.address) {
-              privkey = _bruteForcedKeys.putIfAbsent(
-                    utx.address,
-                    () => _bruteForcePrivkeyForAddress(utx.address, _getScriptType(address)),
-                  ) ??
-                  privkey;
-            }
-          } catch (e) {
-            printV("Key check for ${utx.address} failed: $e");
-          }
-        }
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -2020,8 +1985,7 @@ abstract class ElectrumWalletBase
         'passphrase': passphrase ?? '',
         'account_index': walletAddresses.currentReceiveAddressIndexByType,
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
-        'addresses':
-            walletAddresses.allAddressesWithoutRecovery.map((addr) => addr.toJSON()).toList(),
+        'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType == null
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
@@ -2983,13 +2947,8 @@ abstract class ElectrumWalletBase
           ),
         );
 
-    // Recovery addresses are never handed out, so they stay out of the saved hidden set.
-    final ownAddresses = walletAddresses.ownAddresses.toSet();
-    walletAddresses.hiddenAddresses.addAll(
-      addressesByType
-          .where((addr) => addr.isHidden && ownAddresses.contains(addr))
-          .map((e) => e.address),
-    );
+    walletAddresses.hiddenAddresses
+        .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
     await Future.wait(addressesByType.map((addressRecord) async {
@@ -3428,9 +3387,7 @@ abstract class ElectrumWalletBase
       BitcoinAddressType type, {
         int? accountIndex,
       }) async {
-    // The wallet's own addresses only: recovery addresses get their own pass below, and they're
-    // never handed out, so they stay out of the saved hidden set.
-    final addressesByType = walletAddresses.ownAddresses
+    final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
         .toList();
@@ -3459,23 +3416,6 @@ abstract class ElectrumWalletBase
           );
         }
       }
-    }
-
-    // Recovery addresses aren't on the wallet's own branches, so they only need their history.
-    final recoveryAddresses = walletAddresses.recoveryAddresses
-        .where((addr) => addr.type == type)
-        .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
-        .toList();
-    if (recoveryAddresses.isNotEmpty) {
-      final tip = await getCurrentChainTip();
-      historiesWithDetails.addAll(
-        await _processChunksToMap<BitcoinAddressRecord, String, ElectrumTransactionInfo>(
-          items: recoveryAddresses,
-          chunkSize: addressHistoryChunkSize,
-          processChunk: (chunk) async =>
-              (await _fetchAddressHistories(chunk, tip, addressHistoryChunkSize)).transactions,
-        ),
-      );
     }
   }
 
@@ -3552,7 +3492,7 @@ abstract class ElectrumWalletBase
     required bool legacy,
     int? accountIndex,
   }) =>
-      walletAddresses.ownAddresses
+      walletAddresses.allAddresses
           .where((addr) =>
       addr.type == type &&
           (accountIndex == null || addr.accountIndex == accountIndex) &&
@@ -4711,206 +4651,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  static const _altSeedTimeSlice = Duration(milliseconds: 16);
-
-  /// Computes addresses from the alternate seed derivation algorithm and adds
-  /// them to [walletAddresses] so they get subscribed to during blockchain
-  /// scanning.  This ensures that wallets originally created with a different
-  /// seed algorithm (Electrum vs BIP39) are still fully recovered when the user
-  /// restores via seed phrase regardless of which type they select in the UI.
-  ///
-  /// Only P2WPKH addresses are generated here (the universal default type).
-  /// The brute-force signing path handles key recovery for all types once a
-  /// UTXO is discovered.
-  ///
-  /// They go to [ElectrumWalletAddressesBase.recoveryAddresses], outside the wallet's own branches,
-  /// and keep their branch HD so they sign without a search. Bitcoin and Litecoin only (Bitcoin
-  /// Cash and Dogecoin have no P2WPKH), first account only.
-  Future<void> _initAltSeedAddresses() async {
-    if (type != WalletType.bitcoin && type != WalletType.litecoin) {
-      return;
-    }
-    if (_mnemonic == null || isHardwareWallet || _masterHD == null) {
-      return;
-    }
-
-    final Uint8List altSeedBytes;
-    try {
-      if (derivationInfo.derivationType == DerivationType.bip39) {
-        // Primary is BIP39 → also derive from Electrum-style seed.
-        altSeedBytes = await mnemonicToSeedBytes(_mnemonic!, passphrase: passphrase ?? "");
-      } else {
-        // Primary is Electrum → also derive from BIP39 seed.
-        altSeedBytes = bip39.mnemonicToSeed(_mnemonic!, passphrase: passphrase ?? "");
-      }
-    } catch (_) {
-      return;
-    }
-
-    _altMasterHD = Bip32Slip10Secp256k1.fromSeed(altSeedBytes);
-
-    try {
-      _recoveryHdByAddress.clear();
-
-      final coinType = _coinTypeFor(currency);
-      final recoveryByAddress = <String, BitcoinAddressRecord>{};
-      final hdByAddress = <String, Bip32Slip10Secp256k1>{};
-      final slice = Stopwatch()..start();
-
-      // A few thousand derivations: yield so they don't block the UI isolate.
-      Future<void> yieldIfSliceElapsed() async {
-        if (slice.elapsed >= _altSeedTimeSlice) {
-          await Future<void>.delayed(Duration.zero);
-          slice.reset();
-        }
-      }
-
-      Future<void> generateFromBranch(Bip32Slip10Secp256k1 hd, {required bool isHidden}) async {
-        for (int i = 0; i < 200; i++) {
-          final addr = generateP2WPKHAddress(hd: hd, index: i, network: network);
-          if (!recoveryByAddress.containsKey(addr)) {
-            recoveryByAddress[addr] = BitcoinAddressRecord(
-              addr,
-              index: i,
-              isHidden: isHidden,
-              isHiddenChecked: true,
-              type: SegwitAddresType.p2wpkh,
-              network: network,
-            );
-            hdByAddress[addr] = hd;
-          }
-          await yieldIfSliceElapsed();
-        }
-      }
-
-      // Generate addresses from every combination of (seed algorithm) × (HD path).
-      // Covers both master HDs (primary and alt) across the Electrum m/0' path and
-      // all BIP purposes (44/49/84/86) × {native coin type, Bitcoin coin type 0},
-      // matching the full search space used by _bruteForcePrivkeyForAddress.
-      for (final masterHD in [_masterHD!, _altMasterHD!]) {
-        Bip32Slip10Secp256k1 d(String p) => masterHD.derivePath(p) as Bip32Slip10Secp256k1;
-
-        // Electrum classic path: m/0'
-        await generateFromBranch(d("m/0'/0"), isHidden: false);
-        await generateFromBranch(d("m/0'/1"), isHidden: true);
-
-        // All BIP purposes × {native coin type, Bitcoin coin type 0}
-        for (final ct in {coinType, 0}) {
-          for (final purpose in [44, 49, 84, 86]) {
-            await generateFromBranch(d("m/$purpose'/$ct'/0'/0"), isHidden: false);
-            await generateFromBranch(d("m/$purpose'/$ct'/0'/1"), isHidden: true);
-          }
-        }
-      }
-
-      // An address the wallet already has stays its own when it sits on one of the wallet's own
-      // P2WPKH branches, standard or legacy, on either chain: older versions flipped the change
-      // label of some legacy records, so the label can't be trusted. It keeps its branch HD to sign
-      // with. Otherwise an earlier build of this recovery saved it as an own address: move it out.
-      String nodeId(Bip32Slip10Secp256k1 hd) => "${hd.publicKey.toHex()}:${hd.chainCode.toHex()}";
-      final ownBranches = {
-        for (final hd in [
-          mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh],
-          sideHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh],
-          walletAddresses.legacyMainHd,
-          walletAddresses.legacySideHd,
-        ])
-          if (hd != null) nodeId(hd),
-      };
-      final misfiled = <BitcoinAddressRecord>[];
-      for (final ownRecord in walletAddresses.ownAddresses.toList()) {
-        final branchHd = hdByAddress[ownRecord.address];
-        if (branchHd == null) {
-          continue;
-        }
-
-        if (ownBranches.contains(nodeId(branchHd))) {
-          recoveryByAddress.remove(ownRecord.address);
-        } else {
-          misfiled.add(ownRecord);
-        }
-      }
-
-      _recoveryHdByAddress.addAll(hdByAddress);
-      walletAddresses.setRecoveryAddresses(recoveryByAddress.values, misfiled: misfiled);
-      if (misfiled.isNotEmpty) {
-        await walletAddresses.updateAddressesInBox();
-      }
-    } catch (e) {
-      printV("_initAltSeedAddresses: $e");
-    }
-  }
-
-  /// Searches every known HD derivation path (all type-specific receive/change
-  /// HDs plus legacy variants) across indices 0..[maxIndex) until it finds one
-  /// whose derived address matches [targetAddress].  Returns the corresponding
-  /// ECPrivate, or null if no match is found within the search space.
-  ///
-  /// The search is expanded beyond the wallet's default HD map to also cover:
-  ///   - All BIP-purpose variants (44/49/84/86) for the wallet's native coin type
-  ///   - The same purposes for Bitcoin's coin type (0), catching addresses that
-  ///     were accidentally generated with the wrong coin type (common for Litecoin)
-  ECPrivate? _bruteForcePrivkeyForAddress(
-    String targetAddress,
-    BitcoinAddressType targetType, {
-    int maxIndex = 1000,
-  }) {
-    final allHds = <Bip32Slip10Secp256k1>{
-      ...?mainHdByTypeAndAccount[0]?.values,
-      ...?sideHdByTypeAndAccount[0]?.values,
-      walletAddresses.legacyMainHd,
-      walletAddresses.legacySideHd,
-    };
-
-    // Expand to cover all purpose/coin-type combinations not already present
-    // in mainHdByTypeAndAccount / sideHdByTypeAndAccount.  We always include coin type 0
-    // (Bitcoin) in addition to the wallet's native coin type so that Litecoin (coin type 2)
-    // wallets can recover keys that were derived using Bitcoin paths, and vice versa.
-    // We also include the Electrum derivation path (m/0') which pre-dates BIP44.
-    if (_masterHD != null) {
-      // Electrum-style path: account = m/0', children are m/0'/0 (receive) and m/0'/1 (change).
-      allHds.add(_masterHD!.derivePath("m/0'/0") as Bip32Slip10Secp256k1);
-      allHds.add(_masterHD!.derivePath("m/0'/1") as Bip32Slip10Secp256k1);
-
-      final nativeCoinType = _coinTypeFor(currency);
-      for (final coinType in {0, nativeCoinType}) {
-        for (final purpose in [44, 49, 84, 86]) {
-          final base = "m/$purpose'/$coinType'/0'";
-          allHds.add(_masterHD!.derivePath("$base/0") as Bip32Slip10Secp256k1);
-          allHds.add(_masterHD!.derivePath("$base/1") as Bip32Slip10Secp256k1);
-        }
-      }
-    }
-
-    // Also search paths derived from the alternate seed algorithm.
-    if (_altMasterHD != null) {
-      allHds.add(_altMasterHD!.derivePath("m/0'/0") as Bip32Slip10Secp256k1);
-      allHds.add(_altMasterHD!.derivePath("m/0'/1") as Bip32Slip10Secp256k1);
-      final nativeCoinType = _coinTypeFor(currency);
-      for (final coinType in {0, nativeCoinType}) {
-        for (final purpose in [44, 49, 84, 86]) {
-          final base = "m/$purpose'/$coinType'/0'";
-          allHds.add(_altMasterHD!.derivePath("$base/0") as Bip32Slip10Secp256k1);
-          allHds.add(_altMasterHD!.derivePath("$base/1") as Bip32Slip10Secp256k1);
-        }
-      }
-    }
-
-    return bruteForcePrivkeyForAddress(
-      targetAddress: targetAddress,
-      targetType: targetType,
-      candidateHDs: allHds,
-      network: network,
-      maxIndex: maxIndex,
-    );
-  }
-
   Bip32Slip10Secp256k1 _hdForAddressRecord({required BaseBitcoinAddressRecord record}) {
-    final recoveryHd = _recoveryHdByAddress[record.address];
-    if (recoveryHd != null) {
-      return recoveryHd;
-    }
-
     final addrType = record.type;
 
     if (record.isLegacyDerivation) {

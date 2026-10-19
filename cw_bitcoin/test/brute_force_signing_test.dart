@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/derivation_recovery/recovery_derivations.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart' as electrum_mnemonic;

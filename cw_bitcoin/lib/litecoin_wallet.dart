@@ -1438,11 +1438,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    // Without the recovery addresses: this signs with mainHd, which can't hold their keys.
     final index = address != null
-        ? walletAddresses.allAddressesWithoutRecovery
-            .firstWhere((element) => element.address == address)
-            .index
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());

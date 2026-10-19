@@ -146,7 +146,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   String get addressForBuy {
     try {
       return super
-          .ownAddresses
+          .allAddresses
           .firstWhere((e) =>
               e.accountIndex == currentAccountIndex &&
               e.type == SegwitAddresType.p2wpkh &&

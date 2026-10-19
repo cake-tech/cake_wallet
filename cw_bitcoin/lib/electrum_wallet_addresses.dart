@@ -188,39 +188,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String? lightningAddress;
 
-  /// Addresses the brute-force recovery derives from other seed/path combinations
-  /// (`ElectrumWalletBase._initAltSeedAddresses`). They're scanned and spendable, so they're part
-  /// of [allAddresses], but they stay out of the wallet's own branches: never handed out, counted
-  /// for new indexes or gap-extended, and never saved. They're re-derived on every open.
-  final ObservableList<BitcoinAddressRecord> recoveryAddresses =
-      ObservableList<BitcoinAddressRecord>();
-
   @computed
-  List<BitcoinAddressRecord> get allAddresses {
-    if (recoveryAddresses.isEmpty) {
-      return _addresses;
-    }
-
-    final ownAddresses = _addresses.map((addr) => addr.address).toSet();
-    return [
-      ..._addresses,
-      ...recoveryAddresses.where((addr) => !ownAddresses.contains(addr.address)),
-    ];
-  }
-
-  /// The wallet's own address records: [allAddresses] without the [recoveryAddresses].
-  List<BitcoinAddressRecord> get ownAddresses => _addresses;
-
-  /// [allAddresses] as subclasses extend it, without the [recoveryAddresses]: what the wallet
-  /// file keeps, and what [allAddresses] returns without the recovery.
-  List<BitcoinAddressRecord> get allAddressesWithoutRecovery {
-    if (recoveryAddresses.isEmpty) {
-      return allAddresses;
-    }
-
-    final recovery = Set<BitcoinAddressRecord>.identity()..addAll(recoveryAddresses);
-    return allAddresses.where((addr) => !recovery.contains(addr)).toList();
-  }
+  List<BitcoinAddressRecord> get allAddresses => _addresses;
 
   @observable
   bool addressRefreshToggle = false;
@@ -1012,27 +981,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
-  }
-
-  /// Replaces the [recoveryAddresses]. [misfiled] are records an earlier build of the recovery
-  /// saved as the wallet's own; they're dropped from the own list so they stop padding its
-  /// branches and aren't saved again.
-  @action
-  void setRecoveryAddresses(
-    Iterable<BitcoinAddressRecord> addresses, {
-    Iterable<BitcoinAddressRecord> misfiled = const [],
-  }) {
-    if (misfiled.isNotEmpty) {
-      final misfiledSet = misfiled.toSet();
-      _addresses.removeWhere(misfiledSet.contains);
-      updateAddressesByMatch();
-      updateReceiveAddresses();
-      updateChangeAddresses();
-    }
-
-    recoveryAddresses
-      ..clear()
-      ..addAll(addresses);
   }
 
   @action
