@@ -1,25 +1,13 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import "package:cake_wallet/core/links/link_service.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/lnurl.dart';
-import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -27,12 +15,10 @@ import '../../../pages/receive_page.dart';
 import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
-  const CoinActionRow(
-      {super.key, this.lightningMode = false, this.showSwap = true, required this.walletType});
+  const CoinActionRow({super.key, this.lightningMode = false, this.showSwap = true});
 
   final bool lightningMode;
   final bool showSwap;
-  final WalletType walletType;
 
   @override
   Widget build(BuildContext context) {
@@ -140,63 +126,10 @@ class CoinActionRow extends StatelessWidget {
   }
 
   Future<void> _onPressedScan(BuildContext context) async {
-    final code = await presentQRScanner(context, showHelp: true);
-
-    if (code == null || code.isEmpty) return;
-
-    PaymentRequest? req;
-    String? rawInput;
-    var unspentCoinType = UnspentCoinType.any;
-    if (SendViewModelBase.isNonZeroAmountLightningInvoice(code)) {
-      unspentCoinType = UnspentCoinType.lightning;
-      final amount = getBolt11Amount(code)?.toString() ?? "0";
-      req = PaymentRequest(code, amount, "", "", "");
-    } else if (SendViewModelBase.isLnurlInvoice(code)) {
-      unspentCoinType = UnspentCoinType.lightning;
-      final amount = (await LNURL.getPayRequestAmount(code))?.toString() ?? "0";
-      req = PaymentRequest(code, amount, "", "", "");
-    } else if (Uri.tryParse(code)?.scheme == "wc") {
-      if (!isWalletConnectCompatibleChain(walletType)) {
-        showPopUp<void>(
-            context: context,
-            builder: (context) => AlertWithOneAction(
-                alertTitle: "WalletConnect",
-                alertContent:
-                    S.of(context).switchToWCCompatibleWallet(walletConnectCompatibleChainsLabel()),
-                buttonText: "OK",
-                buttonAction: Navigator.of(context).pop));
-        return;
+    if (await presentQRScanner(context, showHelp: true) case final String code) {
+      if (Uri.tryParse(code) case final Uri uri) {
+        await getIt.get<LinkService>().handle(uri);
       }
-
-      Navigator.of(context)
-          .pushNamed(Routes.walletConnectConnectionsListing, arguments: Uri.parse(code));
-      return;
-    } else if (!OpenCryptoPayService.isOpenCryptoPayQR(code) &&
-        ["http", "https", "tcp"].contains(Uri.tryParse(code)?.scheme)) {
-      Navigator.of(context).pushNamed(Routes.newNode,
-          arguments: {"editingNode": Node.fromUri(Uri.parse(code), walletType)});
-      return;
-    } else {
-      rawInput = code;
     }
-
-    final sendPage = getIt.get<NewSendPage>(
-      param1: SendPageParams(
-        initialPaymentRequest: req,
-        initialRawInput: rawInput,
-        unspentCoinType: unspentCoinType,
-      ),
-    );
-
-    CupertinoScaffold.showCupertinoModalBottomSheet(
-      context: context,
-      barrierColor: Colors.black.withAlpha(60),
-      builder: (context) => Material(
-        child: ModalNavigator(
-          rootPage: sendPage,
-          parentContext: context,
-        ),
-      ),
-    );
   }
 }

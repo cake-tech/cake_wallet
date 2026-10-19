@@ -7,6 +7,7 @@ import "package:cake_wallet/core/anypay/anypay_parser.dart";
 import "package:cake_wallet/core/anypay/anypay_service.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/links/app_link.dart";
 import "package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart";
 import "package:cake_wallet/entities/contact_record.dart";
 import "package:cake_wallet/entities/priority_for_wallet_type.dart";
@@ -49,7 +50,6 @@ import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
 import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
-import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
@@ -178,7 +178,6 @@ class NewSendPage extends StatefulWidget {
   NewSendPage({
     required this.sendViewModel,
     required this.anyPayService,
-    required this.linkViewModel,
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
@@ -194,7 +193,6 @@ class NewSendPage extends StatefulWidget {
 
   final SendViewModel sendViewModel;
   final AnyPayService anyPayService;
-  final LinkViewModel linkViewModel;
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
@@ -270,7 +268,7 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     if (widget.mode == SendPageModes.normal) {
-      _deepLinkSubscription = widget.linkViewModel.incomingPaymentLinks.listen((link) async {
+      _deepLinkSubscription = PaymentLink.incoming.listen((link) async {
         if (!mounted) {
           return;
         }

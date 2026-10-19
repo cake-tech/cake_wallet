@@ -35,7 +35,7 @@ class PaymentRequest {
 
   factory PaymentRequest.fromBolt11(String invoice) {
     final amount = getBolt11Amount(invoice) ?? Money.zero(CryptoCurrency.btcln);
-    return PaymentRequest(invoice, amount.toString(), "", "lightning", null);
+    return PaymentRequest(stripLightningScheme(invoice), amount.toString(), "", "lightning", null);
   }
 
   factory PaymentRequest.fromUri(Uri? uri) {

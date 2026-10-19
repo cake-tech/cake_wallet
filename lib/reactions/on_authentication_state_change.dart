@@ -15,7 +15,6 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
@@ -150,11 +149,6 @@ void startAuthenticationStateChange(
           navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
         );
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final linkViewModel = getIt.get<LinkViewModel>();
-        linkViewModel.markReadyToOpenPage();
-      });
-
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
         await ExceptionHandler.showError(
             (await authenticatedErrorStreamController.stream.first).toString());

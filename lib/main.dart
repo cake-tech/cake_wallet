@@ -7,6 +7,7 @@ import 'package:cake_wallet/app_scroll_behavior.dart';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
+import "package:cake_wallet/core/links/link_service.dart";
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -39,7 +40,6 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -102,7 +102,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         }
 
         // Convert the shortcut type to a URI and add it to the stream
-        final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
+        final uri = Uri.parse("quickaction://$shortcutType");
         quickActionsStream.sink.add(uri);
       });
 
@@ -353,7 +353,6 @@ Future<void> initialSetup({
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
     payjoinSessionSource: payjoinSessionSource,
-    navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
   final settingsStore = getIt<SettingsStore>();
@@ -384,7 +383,6 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       builder: (BuildContext context) {
         final appStore = getIt.get<AppStore>();
         final authService = getIt.get<AuthService>();
-        final linkViewModel = getIt.get<LinkViewModel>();
         final tradeMonitor = getIt.get<TradeMonitor>();
         final nodeSwitchingService = getIt.get<NodeSwitchingService>();
         final settingsStore = appStore.settingsStore;
@@ -415,7 +413,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
-          linkViewModel: linkViewModel,
+          linkService: getIt.get<LinkService>(),
           tradeMonitor: tradeMonitor,
           nodeSwitchingService: nodeSwitchingService,
           trezorConnect: getIt<TrezorConnect>(),
