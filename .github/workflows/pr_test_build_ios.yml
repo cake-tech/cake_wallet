@@ -308,7 +308,7 @@ jobs:
 
           security import "$RUNNER_TEMP/dist.p12" \
             -P "$DIST_CERT_PASSWORD" \
-            -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+            -x -T /usr/bin/codesign -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
 
           security set-key-partition-list \
             -S apple-tool:,apple:,codesign: \
