@@ -53,7 +53,7 @@ class SetupPinCodeViewModel {
 
         if (pin == realPin) {
           reset();
-          throw Exception('Duress PIN cannot be the same as regular PIN');
+          throw ArgumentError('Duress PIN cannot be the same as regular PIN');
         }
       }
     }

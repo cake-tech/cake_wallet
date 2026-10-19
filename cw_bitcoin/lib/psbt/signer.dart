@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/utils.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
@@ -113,7 +114,7 @@ extension PsbtSigner on PsbtV2 {
 
   Script _findLockingScript(UtxoWithAddress utxo, bool isTaproot) {
     if (utxo.isMultiSig()) {
-      throw Exception("MultiSig is not supported yet");
+      throw UnimplementedError("MultiSig is not supported yet");
     }
 
     final senderPub = utxo.public();
@@ -159,7 +160,7 @@ extension PsbtSigner on PsbtV2 {
         }
         return senderPub.toRedeemScript();
     }
-    throw Exception("invalid bitcoin address type");
+    throw BadAddressTypeException("invalid bitcoin address type", utxo.utxo.scriptType);
   }
 }
 
@@ -189,7 +190,7 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     ECPrivateInfo? key;
 
     if (inputPrivateKeyInfos.isEmpty) {
-      throw Exception("No private keys generated.");
+      throw WalletKeysException("No private keys generated.");
     } else {
       key = inputPrivateKeyInfos.firstWhereOrNull((element) {
         final elemPubkey = element.privkey.getPublic().toHex();
@@ -202,7 +203,7 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     }
 
     if (key == null) {
-      throw Exception("${input.utxo.txHash} No Key found");
+      throw WalletKeysException("${input.utxo.txHash} No Key found");
     }
 
     return UtxoWithPrivateKey(

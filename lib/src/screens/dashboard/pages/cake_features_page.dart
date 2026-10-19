@@ -146,7 +146,7 @@ class CakeFeaturesPage extends StatelessWidget {
 
   void _onCakePayTap(BuildContext context) {
     if (Platform.isMacOS) {
-      _launchUrl("buy.cakepay.com");
+      _launchUrl("cakepay.com");
     } else {
       _navigatorToGiftCardsPage(context);
     }
