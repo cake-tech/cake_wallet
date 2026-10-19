@@ -3,6 +3,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
@@ -125,18 +126,20 @@ class SwapSourceSelector extends StatelessWidget {
   }
 
   void _presentCurrencyPicker(BuildContext context) {
-    if (bloc.state case final SwapStateWithInputs s) {
-      final currencies = bloc.currencyStore.depositCurrencies;
-      final selected = s.depositAmount.currency;
+    if (bloc.state case final SwapStateWithInputs s when bloc.wallet.balance.length > 1) {
       CurrencyPickerSheet.show(
         context: context,
         args: CurrencyPickerArgs(
-          items: currencies,
-          selected: selected,
-          recentsSource: RecentsSource.trades,
-          onSelected: (currency) {
-            bloc.add(DepositCurrencyChanged(currency));
+          items: bloc.wallet.balance.keys.toList(),
+          selected: s.depositAmount.currency,
+          filterByNetwork:
+              cryptoCurrencyOrTokenToWalletType(bloc.wallet.currency) ?? bloc.wallet.type,
+          balanceByAsset: {
+            for (final MapEntry(:key, :value) in bloc.wallet.balance.entries)
+              key: CurrencyPickerBalance(amount: value.available.toStringWithSymbol()),
           },
+          useSingleNetworkLayout: true,
+          onSelected: (currency) => bloc.add(DepositCurrencyChanged(currency)),
           symbolResolver: (curr) => curr.symbol,
         ),
       );

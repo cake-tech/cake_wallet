@@ -168,6 +168,16 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     else
                                     SwapAmountBox(isReceiverCard: false, bloc: widget.bloc),
                                     SwapLimitPopup(bloc: widget.bloc),
+                                    if (widget.fromSend != null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 24),
+                                        child: Icon(
+                                          Icons.arrow_downward,
+                                          size: 24,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      )
+                                    else
                                     Padding(
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       child: Stack(
@@ -191,7 +201,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         ],
                                       ),
                                     ),
-                                    SwapAmountBox(isReceiverCard: true, bloc: widget.bloc),
+                                    SwapAmountBox(
+                                      isReceiverCard: true,
+                                      bloc: widget.bloc,
+                                      network: widget.fromSend?.targetWalletType,
+                                    ),
                                     const SizedBox(height: 24),
                                     SwapMemoInput(bloc: widget.bloc),
                                   ],
@@ -221,6 +235,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               ),
                             if(widget.fromSend != null)
                               AnyPaySwapFooter(bloc: widget.bloc),
+                            if(widget.fromSend == null)
                             SwapProviderPreview(bloc: widget.bloc),
                             BlocBuilder<RateCubit, RateState>(
                               bloc: widget.bloc.rateCubit,

@@ -15,6 +15,7 @@ import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -22,12 +23,13 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:permission_handler/permission_handler.dart";
 
 class SwapAmountBox extends StatefulWidget {
-  SwapAmountBox({required this.isReceiverCard, required this.bloc})
+  SwapAmountBox({required this.isReceiverCard, required this.bloc, this.network})
       : title = isReceiverCard ? S.current.receive : S.current.send;
 
   final String title;
   final bool isReceiverCard;
   final SwapBloc bloc;
+  final WalletType? network;
 
   @override
   State<SwapAmountBox> createState() => SwapAmountBoxState();
@@ -405,9 +407,17 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   void _presentCurrencyPicker() {
     if (widget.bloc.state case final SwapStateWithInputs s) {
-      final currencies = widget.isReceiverCard
-          ? widget.bloc.currencyStore.receiveCurrencies
-          : widget.bloc.currencyStore.depositCurrencies;
+      final currencies =
+          (widget.isReceiverCard
+                  ? widget.bloc.currencyStore.receiveCurrencies
+                  : widget.bloc.currencyStore.depositCurrencies)
+              .where(
+                (c) => widget.network == null || cryptoCurrencyOrTokenToWalletType(c) == widget.network,
+              )
+              .toList();
+      if (currencies.length <= 1) {
+        return;
+      }
       final selected = widget.isReceiverCard ? s.payoutAmount.currency : s.depositAmount.currency;
       CurrencyPickerSheet.show(
         context: context,
