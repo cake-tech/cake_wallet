@@ -101,7 +101,7 @@ class DEuroSavingsPage extends BasePage {
                           InfoChip(
                             label: S.of(context).website,
                             icon: CupertinoIcons.globe,
-                            onPressed: () => launchUrlString("https://deuro.com/"),
+                            onPressed: () => launchUrlString("https://deuro.com/", mode: LaunchMode.externalApplication),
                           )
                         ],
                       ),
@@ -318,7 +318,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
-        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq", mode: LaunchMode.externalApplication),
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
@@ -326,7 +326,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'interest_tooltip',
-        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq", mode: LaunchMode.externalApplication),
       );
 
   void _showTooltip(
@@ -374,7 +374,7 @@ class DEuroSavingsPage extends BasePage {
         onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
         doubleActionLeftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
-        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html"),
+        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html", mode: LaunchMode.externalApplication),
         showDisclaimerText: _dEuroViewModel.isFistTime,
       ),
     );
