@@ -6,9 +6,11 @@ import 'dart:math' show Random;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_account.dart";
+import "package:cw_bitcoin/electrum_account_balance_calculator.dart";
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -82,6 +84,7 @@ abstract class ElectrumWalletBase
     List<BitcoinAddressRecord>? initialAddresses,
     electrum.ElectrumClient? electrumClient,
     ElectrumBalance? initialBalance,
+    Map<int, ElectrumBalance>? initialAccountBalances,
     CryptoCurrency? currency,
     bool? alwaysScan,
     bool useLightning = true,
@@ -89,7 +92,9 @@ abstract class ElectrumWalletBase
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
-        accounts = ElectrumAccounts(primaryTypes: supportedAddressTypes(walletInfo.type)),
+        accounts = ElectrumAccounts(
+            primaryTypes: supportedAddressTypes(walletInfo.type),
+            currency: currency ?? walletTypeToCryptoCurrency(walletInfo.type)),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -106,6 +111,7 @@ abstract class ElectrumWalletBase
         this._mnemonic = mnemonic,
         this.electrumClient = electrumClient ?? electrum.ElectrumClient(),
         _useLightning = useLightning,
+        _initialAccountBalances = initialAccountBalances,
         super(walletInfo, derivationInfo) {
     transactionHistory = ElectrumTransactionHistory(
       walletInfo: walletInfo,
@@ -300,13 +306,12 @@ abstract class ElectrumWalletBase
   @computed
   bool get useLightning => _useLightning && LightningWallet.isAvailable;
 
+  ElectrumAccount? get currentAccount => accounts[currentAccountIndex];
+
   set useLightning(bool val) => _useLightning = val && LightningWallet.isAvailable;
 
   @observable
   bool _useLightning;
-
-  @observable
-  ObservableMap<int, ElectrumBalance> accountBalances = ObservableMap<int, ElectrumBalance>();
 
   final Bip32Slip10Secp256k1? _masterHD;
   final Bip32Slip10Secp256k1 accountHD;
@@ -343,6 +348,7 @@ abstract class ElectrumWalletBase
 
   bool _hasCompleteUnspentSet = false;
   bool _isSyncing = false;
+  Map<int, ElectrumBalance>? _initialAccountBalances;
 
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accountInfos = await walletInfo.getAccounts();
@@ -352,6 +358,33 @@ abstract class ElectrumWalletBase
     );
 
     return current;
+  }
+
+  void _loadInitialAccountBalances() {
+    if (type != WalletType.bitcoin) return;
+
+    final saved = _initialAccountBalances;
+    _initialAccountBalances = null;
+
+    final balances = !hasAccountsSupport
+        ? {0: balance[currency] ?? ElectrumBalance.zero(currency)}
+        : saved ?? _balancesFromAddressRecords();
+
+    _updateAccountBalances(() => accounts.setBalances(balances));
+  }
+
+  Map<int, ElectrumBalance> _balancesFromAddressRecords() {
+    final balances = AccountBalanceCalculator.fromAddressRecords(
+      walletAddresses.allAddresses,
+      currency: currency,
+    );
+
+    final lastSavedBalance = balance[currency];
+    final current = balances[currentAccountIndex] ?? ElectrumBalance.zero(currency);
+    if (lastSavedBalance != null && current.isZero && !lastSavedBalance.isZero) {
+      balances[currentAccountIndex] = lastSavedBalance.copy();
+    }
+    return balances;
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
@@ -385,52 +418,11 @@ abstract class ElectrumWalletBase
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) =>
-      accountBalances[accountIndex] ?? ElectrumBalance.zero(currency);
+      accounts[accountIndex]?.balance ?? ElectrumBalance.zero(currency);
 
   void _updateAccountBalancesFromUnspents() {
     if (!_hasCompleteUnspentSet) return;
-
-    final newBalances = <int, ElectrumBalance>{};
-
-    for (final coin in unspentCoins) {
-      final accountIndex = coin.bitcoinAddressRecord.accountIndex;
-      final current = newBalances[accountIndex] ?? ElectrumBalance.zero(currency);
-      final amount = Money.fromInt(coin.value, currency);
-
-      if (coin.isFrozen) {
-        current.frozen += amount;
-      }
-
-      if (coin.confirmations != null && coin.confirmations! > 0) {
-        current.confirmed += amount;
-      } else {
-        current.unconfirmed += amount;
-      }
-
-      newBalances[accountIndex] = current;
-    }
-
-    for (final accountIndex in accounts.indexes) {
-      newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
-    }
-
-    accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
-    _updateCurrentAccountBalance();
-  }
-
-  void _updateCurrentAccountBalance({int? accountIndex}) {
-    if (type != WalletType.bitcoin) return;
-
-    final targetAccountIndex = accountIndex ?? currentAccountIndex;
-    final newBalance = accountBalances[targetAccountIndex];
-
-    if (newBalance == null) {
-      // If the account balance is not found, set it to zero for the current currency.
-      balance[currency] = ElectrumBalance.zero(currency);
-      return;
-    }
-
-    balance[currency] = newBalance.copy();
+    _updateAccountBalances(() => accounts.setBalancesFromCoins(unspentCoins));
   }
 
   Map<int, Set<String>> get addressesSetByAccount {
@@ -498,9 +490,6 @@ abstract class ElectrumWalletBase
   Future<void> setCurrentAccount(int accountIndex) async {
 
     final isNewAccount = !accounts.contains(accountIndex);
-    if (isNewAccount) {
-      accountBalances[accountIndex] = ElectrumBalance.zero(currency);
-    }
 
     await walletInfo.setSelectedAccount(accountIndex);
 
@@ -524,7 +513,7 @@ abstract class ElectrumWalletBase
     walletAddresses.updateReceiveAddresses();
     walletAddresses.updateChangeAddresses();
 
-    _updateCurrentAccountBalance(accountIndex: accountIndex);
+    _syncCurrentAccountBalance();
 
     unawaited(() async {
       try {
@@ -603,6 +592,17 @@ abstract class ElectrumWalletBase
   Future<bool> checkIfMempoolAPIIsEnabled() async {
     bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
     return isMempoolAPIEnabled;
+  }
+
+  @action
+  void _updateAccountBalances(void Function() update) {
+    update();
+    _syncCurrentAccountBalance();
+  }
+
+  void _syncCurrentAccountBalance() {
+    if (type != WalletType.bitcoin) return;
+    balance[currency] = currentAccount?.balance ?? ElectrumBalance.zero(currency);
   }
 
   @action
@@ -720,7 +720,7 @@ abstract class ElectrumWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
-    _seedAccountBalancesFromAddressRecords();
+    _loadInitialAccountBalances();
     await save();
 
     _autoSaveTimer =
@@ -1980,6 +1980,7 @@ abstract class ElectrumWalletBase
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'lightningBalance': balance[CryptoCurrency.btcln]?.toJSON(),
+        if (type == WalletType.bitcoin) "accountBalances": accounts.balancesToJson(),
         'derivationTypeIndex': derivationInfo.derivationType?.index,
         'derivationPath': derivationInfo.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
@@ -2121,13 +2122,6 @@ abstract class ElectrumWalletBase
         .where((element) => element.type != SegwitAddresType.mweb)
         .toList();
 
-    for (final addr in targetAddresses) {
-      if (addr is! BitcoinSilentPaymentAddressRecord) {
-        addr.balance = 0;
-        _appliedCoinKeysByAddress[addr.address]?.clear();
-      }
-    }
-
     final results = shouldUseBatchFetching
         ? await _fetchUnspentsBatch(targetAddresses)
         : await _fetchUnspentsRegular(targetAddresses);
@@ -2135,6 +2129,7 @@ abstract class ElectrumWalletBase
     final failedCount = results.where((result) => result == null).length;
 
     if (failedCount == 0) {
+      _resetAddressBalances(targetAddresses);
       for (final result in results) {
         updatedUnspentCoins.addAll(result!);
       }
@@ -2154,7 +2149,7 @@ abstract class ElectrumWalletBase
     }
 
     final currentWalletUnspentCoins =
-        unspentCoinsInfo.values.where((element) => element.walletId == id);
+    unspentCoinsInfo.values.where((element) => element.walletId == id);
 
     if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
@@ -2163,6 +2158,14 @@ abstract class ElectrumWalletBase
     await updateCoins(unspentCoins);
     _updateAccountBalancesFromUnspents();
     await _refreshUnspentCoinsInfo();
+  }
+
+  void _resetAddressBalances(Iterable<BitcoinAddressRecord> addresses) {
+    for (final addr in addresses) {
+      if (addr is BitcoinSilentPaymentAddressRecord) continue;
+      addr.balance = 0;
+      _appliedCoinKeysByAddress[addr.address]?.clear();
+    }
   }
 
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
@@ -2401,41 +2404,6 @@ abstract class ElectrumWalletBase
     }
 
     if (duplicateKeys.isNotEmpty) await unspentCoinsInfo.deleteAll(duplicateKeys);
-  }
-
-  void _seedAccountBalancesFromAddressRecords() {
-    if (type != WalletType.bitcoin) return;
-    if (accountBalances.isNotEmpty) return;
-
-    final newBalances = <int, ElectrumBalance>{};
-
-    for (final addr in walletAddresses.allAddresses) {
-      if (addr.type == SegwitAddresType.mweb) continue;
-      final current = newBalances[addr.accountIndex] ?? ElectrumBalance.zero(currency);
-      current.confirmed += Money.fromInt(addr.balance, currency);
-      newBalances[addr.accountIndex] = current;
-    }
-
-    for (final accountIndex in accounts.indexes) {
-      newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
-    }
-
-    // balance[currency] came from the wallet file and is authoritative for the
-    // selected account — prefer it if the address records look stale.
-    final persisted = balance[currency];
-    final seeded = newBalances[currentAccountIndex];
-    if (persisted != null && seeded != null) {
-      final seededIsZero = seeded.confirmed == Money.zero(currency) &&
-          seeded.unconfirmed == Money.zero(currency);
-      final persistedIsNonZero = persisted.confirmed != Money.zero(currency) ||
-          persisted.unconfirmed != Money.zero(currency);
-      if (seededIsZero && persistedIsNonZero) {
-        newBalances[currentAccountIndex] = persisted;
-      }
-    }
-
-    accountBalances = ObservableMap<int, ElectrumBalance>.of(newBalances);
-    _updateCurrentAccountBalance();
   }
 
   int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
@@ -4105,23 +4073,11 @@ abstract class ElectrumWalletBase
     }
 
     if (hasAccountsSupport) {
-      final perAccount = <int, ElectrumBalance>{};
-      final accountIndexes = <int>{
-        ...confirmedByAccount.keys,
-        ...unconfirmedByAccount.keys,
-        ...frozenByAccount.keys,
-        ...accounts.indexes,
-      };
-
-      for (final account in accountIndexes) {
-        perAccount[account] = ElectrumBalance(
-          confirmed: Money.fromInt(confirmedByAccount[account] ?? 0, currency),
-          unconfirmed: Money.fromInt(unconfirmedByAccount[account] ?? 0, currency),
-          frozen: Money.fromInt(frozenByAccount[account] ?? 0, currency),
-        );
-      }
-
-      accountBalances = ObservableMap<int, ElectrumBalance>.of(perAccount);
+      accounts.setBalancesFromTotals(
+        confirmed: confirmedByAccount,
+        unconfirmed: unconfirmedByAccount,
+        frozen: frozenByAccount,
+      );
     }
 
     return ElectrumBalance(
@@ -4172,13 +4128,7 @@ abstract class ElectrumWalletBase
       }
 
       if (type == WalletType.bitcoin && hasAccountsSupport) {
-        // If the wallet has accounts support, we only want to update the balance for the current account.
-        final accountBalance = accountBalances[currentAccountIndex];
-        if (accountBalance != null) {
-          balance[currency] = accountBalance.copy();
-        } else {
-          printV("updateBalance: no balance for account $currentAccountIndex, keeping existing");
-        }
+        _syncCurrentAccountBalance();
       } else {
         balance[currency] = fetchedTotal;
       }

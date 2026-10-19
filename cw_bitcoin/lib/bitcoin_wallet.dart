@@ -71,6 +71,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     ElectrumBalance? initialLightningBalance,
+    Map<int, ElectrumBalance>? initialAccountBalances,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     String? passphrase,
@@ -95,6 +96,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                   : BitcoinNetwork.testnet,
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
+          initialAccountBalances: initialAccountBalances,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
           currency:
@@ -331,6 +333,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: snp?.silentAddresses,
       initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
       initialBalance: snp?.balance,
+      initialAccountBalances: snp?.accountBalances,
       initialLightningBalance: snp?.lightningBalance,
       encryptionFileUtils: encryptionFileUtils,
       seedBytes: seedBytes,
