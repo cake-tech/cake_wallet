@@ -72,6 +72,7 @@ class PreferencesKey {
   static const dogecoinTransactionPriority = 'current_fee_priority_dogecoin';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
+  static const silentPaymentsScanServer = 'silentPaymentsScanServer';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const showZcashMissingFundsCard = 'showZcashMissingFundsCard';
   static const mwebEnabled = 'mwebEnabled';

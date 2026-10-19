@@ -635,6 +635,14 @@ class CWBitcoin extends Bitcoin {
   bool getIsAlwaysScanningSP(Object wallet) => (wallet as ElectrumWallet).alwaysScan ?? false;
 
   @override
+  bool setSilentPaymentsScanServer(String? server) =>
+      SilentPaymentsScanner.setCustomScanServer(server);
+
+  @override
+  bool isValidSilentPaymentsScanServer(String server) =>
+      SilentPaymentsScanner.parseScanServer(server) != null;
+
+  @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isTestnet;

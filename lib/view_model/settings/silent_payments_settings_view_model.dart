@@ -20,6 +20,18 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   @computed
   bool get silentPaymentsAlwaysScan => bitcoin!.getIsAlwaysScanningSP(_wallet);
 
+  @computed
+  String get scanServer => _settingsStore.silentPaymentsScanServer;
+
+  bool isValidScanServer(String value) =>
+      value.trim().isEmpty || bitcoin!.isValidSilentPaymentsScanServer(value);
+
+  // Blank restores Cake's default server. Applies from the next scan round.
+  @action
+  void setScanServer(String value) {
+    _settingsStore.silentPaymentsScanServer = value.trim();
+  }
+
   @action
   void setSilentPaymentsCardDisplay(bool value) {
     _settingsStore.silentPaymentsCardDisplay = value;

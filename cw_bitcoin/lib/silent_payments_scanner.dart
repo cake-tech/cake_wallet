@@ -91,14 +91,73 @@ class SilentPaymentsScanner {
   //
   // NOTE: this host:port is the current dev/test server - replace with the
   // real production v2 tweaks-scanning endpoint before shipping.
-  static const String _defaultScanServerHost = "electrs.rafaelxmr.com";
-  static const int _defaultScanServerPort = 50005;
-  static final ScanNode _defaultScanNode = ScanNode(
-    Uri.parse("tcp://$_defaultScanServerHost:$_defaultScanServerPort"),
-    useSSL: false,
+  static const String defaultScanServerHost = "172.104.252.163";
+  static const int defaultScanServerPort = 50003;
+  static final ScanNode defaultScanNode = ScanNode(
+    Uri.parse("tcp://$defaultScanServerHost:$defaultScanServerPort"),
+    useSSL: true,
   );
+
+  // User-chosen scan server (SP settings), or null to use [defaultScanNode].
+  // Static because the worker isolates are spawned per wallet but the
+  // setting is app-wide; the app layer pushes it in at startup and whenever
+  // the user edits it. Takes effect from the next scan round.
+  static ScanNode? customScanNode;
+
+  static ScanNode get activeScanNode => customScanNode ?? defaultScanNode;
+
+  /// Applies [raw] as the scan server. Blank or unparsable input reverts to
+  /// the default. Returns whether a custom server is now active.
+  static bool setCustomScanServer(String? raw) {
+    customScanNode = parseScanServer(raw);
+
+    return customScanNode != null;
+  }
+
+  /// Parses `host`, `host:port`, `ssl://host[:port]` or `tcp://host[:port]`.
+  /// A bare address means TLS (the safe choice); use `tcp://` for plaintext.
+  /// Missing ports default to 50002 (ssl) / 50001 (tcp). Returns null when
+  /// [raw] is blank or not a usable address.
+  static ScanNode? parseScanServer(String? raw) {
+    var value = raw?.trim() ?? "";
+    if (value.isEmpty) {
+      return null;
+    }
+
+    var useSSL = true;
+    final schemeMatch = RegExp(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://').firstMatch(value);
+
+    if (schemeMatch != null) {
+      final scheme = schemeMatch.group(1)!.toLowerCase();
+
+      if (scheme == "tcp") {
+        useSSL = false;
+      } else if (scheme != "ssl" && scheme != "tls") {
+        return null;
+      }
+
+      value = value.substring(schemeMatch.end);
+    }
+
+    value = value.replaceAll(RegExp(r'/+$'), "");
+
+    final uri = Uri.tryParse("tcp://$value");
+
+    if (uri == null || uri.host.isEmpty || uri.path.isNotEmpty) {
+      return null;
+    }
+
+    final port = uri.hasPort ? uri.port : (useSSL ? 50002 : 50001);
+
+    if (port < 1 || port > 65535) {
+      return null;
+    }
+
+    return ScanNode(Uri.parse("tcp://${uri.host}:$port"), useSSL: useSSL);
+  }
+
   // The dedicated scan server is always this version - no per-node
-  // negotiation needed (see _defaultScanNode's doc comment above).
+  // negotiation needed (see defaultScanNode's doc comment above).
   static const int _defaultScanProtocolVersion = 2;
 
   // Guards against two overlapping `setListeners` calls (it's invoked
@@ -221,8 +280,7 @@ class SilentPaymentsScanner {
   /// any already-in-flight `setListeners` call rather than racing it.
   Future<void> maybeReverify() async {
     final now = DateTime.now();
-    final shouldForceRescan =
-        _lastSilentPaymentsScan == null ||
+    final shouldForceRescan = _lastSilentPaymentsScan == null ||
         now.difference(_lastSilentPaymentsScan!) >= _silentPaymentsScanDelay;
 
     // Timer prevents server failure and this infinite looping and requesting
@@ -419,7 +477,7 @@ class SilentPaymentsScanner {
 
     final appDir = await getAppDir();
     final String debugLogPath = "${appDir.path}/logs/debug.log";
-    // Scanning always targets the dedicated scan server (_defaultScanNode,
+    // Scanning always targets the dedicated scan server (defaultScanNode,
     // below), which is v2-capable by construction - unlike before this
     // connection split, there's no need to probe `node` (the user's
     // regular-ops node) for SP/protocol-version support just to configure
@@ -466,9 +524,8 @@ class SilentPaymentsScanner {
               _wallet.walletInfo.internalId,
               historical: historical,
             );
-      final gapInputRanges = coverage
-          .map((c) => CoverageRange(c.startHeight, c.endHeight))
-          .toList();
+      final gapInputRanges =
+          coverage.map((c) => CoverageRange(c.startHeight, c.endHeight)).toList();
       // The pre-activation span is unconditionally empty (see
       // _silentPaymentsActivationHeight's doc comment) regardless of
       // ignoreExistingCoverage - it's not "already scanned" progress that a
@@ -523,13 +580,13 @@ class SilentPaymentsScanner {
           transactionHistoryIds: _wallet.transactionHistory.transactions.keys.toList(),
           // Deliberately NOT the wallet's configured `node` - every scan
           // worker always connects to the dedicated scan server instead (see
-          // _defaultScanNode's doc comment above), regardless of what the
+          // defaultScanNode's doc comment above), regardless of what the
           // user selected for regular wallet operations. That split is the
           // whole point: this connection only ever carries scan traffic, so
           // it can never compete with (and starve out replies to) something
           // latency-sensitive like a transaction broadcast on `node`'s own
           // connection.
-          node: _defaultScanNode,
+          node: SilentPaymentsScanner.activeScanNode,
           labels: _wallet.walletAddresses.labels,
           labelIndexes: _wallet.walletAddresses.silentAddresses
               .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
@@ -600,14 +657,13 @@ class SilentPaymentsScanner {
 
               final newUnspents = tx.unspents!
                   .where(
-                    (unspent) =>
-                        !(previousUnspents?.any(
-                              (element) =>
-                                  element.hash.contains(unspent.hash) &&
-                                  element.vout == unspent.vout &&
-                                  element.value == unspent.value,
-                            ) ??
-                            false),
+                    (unspent) => !(previousUnspents?.any(
+                          (element) =>
+                              element.hash.contains(unspent.hash) &&
+                              element.vout == unspent.vout &&
+                              element.value == unspent.value,
+                        ) ??
+                        false),
                   )
                   .toList();
 
@@ -961,9 +1017,8 @@ class SilentPaymentsScanner {
       // has actually been verified there yet, so the strict `>` still
       // applies to avoid marking a not-yet-scanned height as covered.
       final workerDone = _doneWorkerIndices.contains(worker.workerIndex);
-      final hasNewCoverage = workerDone
-          ? target >= worker.checkpointBaseline
-          : target > worker.checkpointBaseline;
+      final hasNewCoverage =
+          workerDone ? target >= worker.checkpointBaseline : target > worker.checkpointBaseline;
       if (hasNewCoverage) {
         await WalletInfoScanCoverage.markCovered(
           walletInfoId: _wallet.walletInfo.internalId,

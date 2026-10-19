@@ -9,10 +9,40 @@ import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_mo
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class SilentPaymentsSettingsPage extends StatelessWidget {
+class SilentPaymentsSettingsPage extends StatefulWidget {
   SilentPaymentsSettingsPage(this._silentPaymentsSettingsViewModel);
 
   final SilentPaymentsSettingsViewModel _silentPaymentsSettingsViewModel;
+
+  @override
+  State<SilentPaymentsSettingsPage> createState() => _SilentPaymentsSettingsPageState();
+}
+
+class _SilentPaymentsSettingsPageState extends State<SilentPaymentsSettingsPage> {
+  SilentPaymentsSettingsViewModel get _silentPaymentsSettingsViewModel =>
+      widget._silentPaymentsSettingsViewModel;
+
+  late final TextEditingController _scanServerController;
+  bool _scanServerInvalid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scanServerController =
+        TextEditingController(text: _silentPaymentsSettingsViewModel.scanServer);
+  }
+
+  @override
+  void dispose() {
+    _scanServerController.dispose();
+    super.dispose();
+  }
+
+  void _onScanServerChanged(String value) {
+    final valid = _silentPaymentsSettingsViewModel.isValidScanServer(value);
+    setState(() => _scanServerInvalid = !valid);
+    if (valid) _silentPaymentsSettingsViewModel.setScanServer(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +76,35 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             S.current.silent_payments_always_scan_description,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 8),
+                        child: TextField(
+                          controller: _scanServerController,
+                          onChanged: _onScanServerChanged,
+                          keyboardType: TextInputType.url,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          decoration: InputDecoration(
+                            labelText: S.current.silent_payments_scan_server,
+                            hintText: S.current.silent_payments_scan_server_hint,
+                            errorText: _scanServerInvalid
+                                ? S.current.silent_payments_scan_server_invalid
+                                : null,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            S.current.silent_payments_scan_server_description,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),

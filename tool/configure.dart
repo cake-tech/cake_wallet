@@ -262,6 +262,8 @@ abstract class Bitcoin {
   Future<void> setScanningActive(Object wallet, bool active);
   Future<void> setIsAlwaysScanningSP(Object wallet, bool active);
   bool getIsAlwaysScanningSP(Object wallet);
+  bool setSilentPaymentsScanServer(String? server);
+  bool isValidSilentPaymentsScanServer(String server);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);

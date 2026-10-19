@@ -195,7 +195,11 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
   final shouldUpdateSyncStatus = scanData.rescanHeights == null || scanData.rescanHeights!.isEmpty;
   CakeTor.instance = await CakeTorInstance.getInstance();
 
-  final node = scanData.node?.uri ?? Uri.parse("tcp://electrs.rafaelxmr.com:50005");
+  final scanNode = scanData.node ?? SilentPaymentsScanner.defaultScanNode;
+  final node = scanNode.uri;
+
+  Future<BitcoinBaseElectrumRPCService> dialScanServer() =>
+      scanNode.useSSL == true ? ElectrumSSLService.connect(node) : ElectrumTCPService.connect(node);
 
   void log(String message, LogLevel level) {
     printV(
@@ -270,9 +274,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
     // connection via reconnectClient() and reassigns this, which every
     // closure that captured `client` picks up automatically since Dart
     // closures share the enclosing variable's box rather than a snapshot.
-    var client = await ElectrumProvider.connect(
-      ElectrumTCPService.connect(node),
-    );
+    var client = await ElectrumProvider.connect(dialScanServer());
     scanningClient = client;
     // }
 
@@ -291,7 +293,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       try {
         scanningClient?.rpc.disconnect();
       } catch (_) {}
-      client = await ElectrumProvider.connect(ElectrumTCPService.connect(node));
+      client = await ElectrumProvider.connect(dialScanServer());
       scanningClient = client;
     }
 
