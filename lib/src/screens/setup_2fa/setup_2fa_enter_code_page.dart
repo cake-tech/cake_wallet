@@ -79,7 +79,7 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
-      throw Exception('Key context is null. Should be not happened');
+      throw ArgumentError('Key context is null. Should be not happened');
     }
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
