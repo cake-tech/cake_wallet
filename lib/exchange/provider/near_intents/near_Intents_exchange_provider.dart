@@ -45,6 +45,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     "AVAXC": "0x1111111111111111111111111111111111111111",
     "ARB": "0x1111111111111111111111111111111111111111",
     "BASE": "0x1111111111111111111111111111111111111111",
+    "ROB": "0x1111111111111111111111111111111111111111",
 
     // Others
     "SOL": "11111111111111111111111111111111",
@@ -271,6 +272,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   String _normalizeTagToNearBlockchain(String tag) => switch (tag) {
     "TRX" => "tron",
     "AVAXC" => "avax",
+    "ROB" => "hood",
     "ADA" => "cardano",
     "XLM" => "stellar",
     _ => tag.toLowerCase(),

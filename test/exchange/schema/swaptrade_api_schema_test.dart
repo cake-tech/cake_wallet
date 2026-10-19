@@ -62,14 +62,17 @@ void main() {
       }
     });
 
-    test("a coin on one network parses as an empty network list", () {
+    test("every coin lists the chains it moves on", () {
       final response = SwapTradeCoinsResponse.fromJson(fixtureMap("swaptrade", "get_coins"));
-      final singles = response.data!.where((c) => c.network.isEmpty);
+      final networks = {for (final coin in response.data!) coin.id: coin.network};
 
-      expect(singles, isNotEmpty, reason: "the api sends \"\" for those");
-      for (final coin in singles) {
-        expect(coin.network, isEmpty);
+      for (final entry in networks.entries) {
+        expect(entry.value, isNotEmpty, reason: entry.key);
       }
+      expect(networks["BTC"], contains("BTC"));
+      expect(networks["XMR"], ["XMR"]);
+      expect(networks["ETH"], containsAll(["ETH", "BASE", "ARB", "BSC"]));
+      expect(networks["USDT"], containsAll(["ETH", "TRX", "BSC"]));
     });
   });
 
@@ -118,9 +121,11 @@ void main() {
       expect(order.amountReceive, double.parse(rawOrder["amount_receive"].toString()));
       expect(order.memo, rawOrder["memo"]);
       expect(order.createdAt, DateTime.parse(rawOrder["created_at"] as String));
+      expect(order.refundAddress, rawOrder["refund_address"]);
+      expect(order.outgoingTx, rawOrder["outgoing_tx"]);
       expect(
         order.status,
-        TradeState.deserialize(raw: rawOrder["status"] as String),
+        TradeState.waitingPayment,
         reason: "swaptrade sends the status as a number in a string, \"1\" here",
       );
     });
@@ -219,7 +224,7 @@ void main() {
         coinSend: "ETH",
         coinSendNetwork: "ETH",
         coinReceive: "USDT",
-        coinReceiveNetwork: "USDT_ERC20",
+        coinReceiveNetwork: "ETH",
         amountSend: "0.01",
         recipient: "0xrecipient",
         refundAddress: "0xrefund",
@@ -231,7 +236,7 @@ void main() {
         "coin_send": "ETH",
         "coin_send_network": "ETH",
         "coin_receive": "USDT",
-        "coin_receive_network": "USDT_ERC20",
+        "coin_receive_network": "ETH",
         "amount_send": "0.01",
         "recipient": "0xrecipient",
         "refund_address": "0xrefund",

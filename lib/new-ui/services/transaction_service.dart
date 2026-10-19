@@ -58,6 +58,7 @@ class TransactionService {
           WalletType.solana,
           WalletType.tron,
           WalletType.arbitrum,
+          WalletType.robinhood,
           WalletType.zcash,
         ].contains(_appStore.wallet!.type)) {
       throw Exception("Priority is null for wallet type: ${_appStore.wallet!.type}");
@@ -96,6 +97,7 @@ class TransactionService {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final selectedCryptoCurrency = outputs.first.cryptoAmountMoney.currency as CryptoCurrency;
         return evm!.createEVMTransactionCredentials(
           outputs,

@@ -1,7 +1,6 @@
 // spec reference: https://github.com/Swaptrade/swaptrade.github.io/blob/main/openapi.yaml
 
 import "package:cake_wallet/exchange/trade_state.dart";
-import "package:cake_wallet/exchange/utils/json_converters.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
@@ -28,8 +27,7 @@ class SwapTradeAmountConverter implements JsonConverter<double, Object> {
   Object toJson(double value) => value;
 }
 
-// the networks of a coin arrive as one comma separated string, e.g.
-// "USDT_ERC20,TRX_USDT_S2UZ,USDT_BSC", and as "" for the coins that only have the one
+// the networks of a coin arrive as one comma separated string of chains, e.g. "ETH,TRX,BSC"
 class SwapTradeNetworkListConverter implements JsonConverter<List<String>, String?> {
   const SwapTradeNetworkListConverter();
 
@@ -42,6 +40,28 @@ class SwapTradeNetworkListConverter implements JsonConverter<List<String>, Strin
 
   @override
   String? toJson(List<String> value) => value.isEmpty ? null : value.join(",");
+}
+
+class SwapTradeStatusConverter implements JsonConverter<TradeState, String> {
+  const SwapTradeStatusConverter();
+
+  @override
+  TradeState fromJson(String json) => switch (json) {
+    "1" => TradeState.waitingPayment,
+    "2" => TradeState.confirming,
+    "3" || "13" => TradeState.processing,
+    "4" || "5" => TradeState.exchanging,
+    "6" || "7" => TradeState.sending,
+    "8" => TradeState.completed,
+    "9" => TradeState.expired,
+    "10" => TradeState.underpaid,
+    "11" => TradeState.pending,
+    "12" => TradeState.refunded,
+    _ => TradeState.deserialize(raw: json),
+  };
+
+  @override
+  String toJson(TradeState state) => state.serialize();
 }
 
 @JsonSerializable(createToJson: false)
@@ -361,7 +381,7 @@ class SwapTradeOrderRequest extends ApiRequest<SwapTradeOrderResponse> {
 
 @JsonSerializable(createToJson: false)
 @SwapTradeAmountConverter()
-@TradeStateConverter()
+@SwapTradeStatusConverter()
 class SwapTradeOrder {
   const SwapTradeOrder({
     required this.orderId,
@@ -374,6 +394,8 @@ class SwapTradeOrder {
     this.amountReceive,
     this.memo,
     this.createdAt,
+    this.refundAddress,
+    this.outgoingTx,
   });
 
   factory SwapTradeOrder.fromJson(Map<String, dynamic> json) => _$SwapTradeOrderFromJson(json);
@@ -401,6 +423,11 @@ class SwapTradeOrder {
   final String? memo;
   @JsonKey(name: "created_at")
   final DateTime? createdAt;
+
+  @JsonKey(name: "refund_address")
+  final String? refundAddress;
+  @JsonKey(name: "outgoing_tx")
+  final String? outgoingTx;
 }
 
 @JsonSerializable(createToJson: false)

@@ -210,6 +210,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return "cchain";
       case "ARB":
         return "arbitrum";
+      case "ROB":
+        return "hood";
       default:
         return tag.toLowerCase();
     }

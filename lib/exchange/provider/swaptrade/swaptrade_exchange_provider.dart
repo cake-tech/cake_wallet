@@ -28,7 +28,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     authority: apiAuthority,
     errorMessage: (json) => switch (json["errors"]) {
       [{"msg": final Object msg}, ...] => msg.toString(),
-      _ => json["msg"]?.toString(),
+      _ => (json["msg"] ?? json["message"])?.toString(),
     },
   );
 
@@ -44,22 +44,10 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final responseJSON = await _api.send(const SwapTradeCoinsRequest());
-
-    final coinsInfo = responseJSON.data;
-
-    if (coinsInfo == null) {
-      throw Exception("coin unsupported");
-    }
-
-    final normalized = _normalizeCurrency(from);
-    final coin = coinsInfo.firstWhereOrNull((c) => (c.id.toUpperCase()) == normalized);
-
-    if (coin == null) {
-      throw Exception("${from.title} unsupported");
-    }
-
-    return ExchangeLimits(min: Money.trySafeParse(coin.min, from), max: Money.trySafeParse(coin.max, from));
+    final coins = await _fetchCoins();
+    _networkFor(from, coins);
+    _networkFor(to, coins);
+    return _limitsFor(from, coins);
   }
 
   @override
@@ -72,11 +60,12 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       throw Exception("lightning not supported");
     }
 
+    final coins = await _fetchCoins();
     final responseBody = await _api.send(
       SwapTradeGetPriceRequest(
         coinSend: _normalizeCurrency(request.depositCurrency),
-        coinSendNetwork: _networkFor(request.depositCurrency),
-        coinReceiveNetwork: _networkFor(request.payoutCurrency),
+        coinSendNetwork: _networkFor(request.depositCurrency, coins),
+        coinReceiveNetwork: _networkFor(request.payoutCurrency, coins),
         coinReceive: _normalizeCurrency(request.payoutCurrency),
         amountSend: request.depositAmount.toString(),
         markup: markup,
@@ -100,22 +89,19 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         request.depositAmount,
         Money.parse(payout.toStringAsFixed(request.payoutCurrency.decimals), request.payoutCurrency),
       ),
-      limits: await fetchLimits(
-        from: request.depositCurrency,
-        to: request.payoutCurrency,
-        isFixedRateMode: false,
-      ),
+      limits: _limitsFor(request.depositCurrency, coins),
     );
   }
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
+    final coins = await _fetchCoins();
     final responseBody = await _api.send(
       SwapTradeCreateOrderRequest(
         coinSend: _normalizeCurrency(request.depositCurrency),
-        coinSendNetwork: _networkFor(request.depositCurrency),
+        coinSendNetwork: _networkFor(request.depositCurrency, coins),
         coinReceive: _normalizeCurrency(request.payoutCurrency),
-        coinReceiveNetwork: _networkFor(request.payoutCurrency),
+        coinReceiveNetwork: _networkFor(request.payoutCurrency, coins),
         amountSend: request.depositAmount.toString(),
         recipient: request.payoutAddress,
         markup: markup,
@@ -179,6 +165,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       ),
       fundingAddress: responseData.serverAddress,
       payoutAddress: responseData.recipient,
+      refundAddress: _nonEmpty(responseData.refundAddress),
+      outputTransaction: _nonEmpty(responseData.outgoingTx),
+      isRefund: responseData.status == TradeState.refunded,
     );
   }
 
@@ -189,22 +178,39 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _networkFor(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eth => "ETH",
-      CryptoCurrency.bnb => "BNB_BSC",
-      CryptoCurrency.usdterc20 => "USDT_ERC20",
-      CryptoCurrency.usdttrc20 => "TRX_USDT_S2UZ",
-      CryptoCurrency.usdtbsc => "USDT_BSC",
-      CryptoCurrency.sol => "SOL",
-      CryptoCurrency.btc => "BTC",
-      CryptoCurrency.xmr => "XMR",
-      CryptoCurrency.ltc => "LTC",
-      CryptoCurrency.ada => "ADA",
-      CryptoCurrency.bch => "BCH",
-      CryptoCurrency.zec => "ZEC",
-      _ => currency.title.toUpperCase(),
-    };
+  Future<List<SwapTradeCoin>> _fetchCoins() async {
+    final response = await _api.send(const SwapTradeCoinsRequest());
+
+    if (response.success == false) {
+      throw Exception(response.errors?.firstOrNull?.msg ?? response.msg ?? "coins unavailable");
+    }
+
+    return response.data ?? const [];
+  }
+
+  SwapTradeCoin? _coinFor(CryptoCurrency currency, List<SwapTradeCoin> coins) =>
+      coins.firstWhereOrNull((c) => c.id.toUpperCase() == _normalizeCurrency(currency));
+
+  String _networkFor(CryptoCurrency currency, List<SwapTradeCoin> coins) {
+    final network = currency.network.toUpperCase();
+    final supported = _coinFor(currency, coins)?.network.map((n) => n.toUpperCase()) ?? const [];
+
+    if (!supported.contains(network)) {
+      throw Exception("SwapTrade has no $network network for ${currency.title}");
+    }
+
     return network;
   }
+
+  ExchangeLimits _limitsFor(CryptoCurrency from, List<SwapTradeCoin> coins) {
+    final coin = _coinFor(from, coins);
+
+    if (coin == null) {
+      throw Exception("${from.title} unsupported");
+    }
+
+    return ExchangeLimits(min: Money.trySafeParse(coin.min, from), max: Money.trySafeParse(coin.max, from));
+  }
+
+  String? _nonEmpty(String? value) => (value?.isEmpty ?? true) ? null : value;
 }

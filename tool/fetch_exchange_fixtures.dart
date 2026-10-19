@@ -308,7 +308,7 @@ List<Fixture> _swapTrade() => [
           "coin_send": "ETH",
           "coin_send_network": "ETH",
           "coin_receive": "USDT",
-          "coin_receive_network": "USDT_ERC20",
+          "coin_receive_network": "ETH",
           "amount_send": "100.01",
           "recipient": _ethAddress,
           "refund_address": _ethAddress,
