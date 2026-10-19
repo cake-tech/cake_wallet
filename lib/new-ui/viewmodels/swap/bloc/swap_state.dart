@@ -41,19 +41,7 @@ abstract class SwapStateWithInputs extends SwapState {
       : FloatingRateRequest(depositAmount: depositAmount.cryptoAmount, payoutCurrency: payoutAmount.currency);
 
   @override
-  bool get canInitiateSwap {
-    if (source case final ExternalSwapSource s) {
-      if (s.refundAddress.isEmpty) {
-        return false;
-      }
-    }
-
-    if (payoutAddress == null) {
-      return false;
-    }
-
-    return true;
-  }
+  bool get canInitiateSwap => payoutAddress != null;
 }
 
 final class SwapInputState extends SwapStateWithInputs {

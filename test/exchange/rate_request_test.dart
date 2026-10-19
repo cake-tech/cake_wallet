@@ -88,6 +88,47 @@ void main() {
     });
   });
 
+  group("equality", () {
+    test("the same query for the same amount is equal", () {
+      final request = FloatingRateRequest(depositAmount: twoBtc, payoutCurrency: CryptoCurrency.xmr);
+      final same = FloatingRateRequest(
+        depositAmount: Money.parse("2.0", CryptoCurrency.btc),
+        payoutCurrency: CryptoCurrency.xmr,
+      );
+
+      expect(request, same);
+      expect(request.hashCode, same.hashCode);
+    });
+
+    test("the same query for a different amount is not equal", () {
+      expect(
+        FloatingRateRequest(depositAmount: twoBtc, payoutCurrency: CryptoCurrency.xmr),
+        isNot(
+          FloatingRateRequest(
+            depositAmount: Money.parse("0.5", CryptoCurrency.btc),
+            payoutCurrency: CryptoCurrency.xmr,
+          ),
+        ),
+      );
+      expect(
+        FixedRateRequest(depositCurrency: CryptoCurrency.btc, payoutAmount: fiveHundredXmr),
+        isNot(
+          FixedRateRequest(
+            depositCurrency: CryptoCurrency.btc,
+            payoutAmount: Money.parse("1", CryptoCurrency.xmr),
+          ),
+        ),
+      );
+    });
+
+    test("floating and fixed requests are never equal", () {
+      expect(
+        FloatingRateRequest(depositAmount: twoBtc, payoutCurrency: CryptoCurrency.btc),
+        isNot(FixedRateRequest(depositCurrency: CryptoCurrency.btc, payoutAmount: twoBtc)),
+      );
+    });
+  });
+
   group("toJson", () {
     test("a floating request logs the deposit amount", () {
       expect(

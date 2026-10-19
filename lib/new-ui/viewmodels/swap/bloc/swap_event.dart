@@ -24,9 +24,10 @@ final class InitialValuesApplied extends SwapEvent {
 }
 
 final class SourceChanged extends SwapEvent {
-  const SourceChanged(this.newSource);
+  const SourceChanged(this.newSource, {this.initiateSwap = false});
 
   final SwapSource newSource;
+  final bool initiateSwap;
 }
 
 

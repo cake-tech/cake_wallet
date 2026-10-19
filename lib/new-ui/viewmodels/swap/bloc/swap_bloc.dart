@@ -146,7 +146,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   bool _ratesAreCurrent() {
     if (state case final SwapInputState s) {
-      return rateCubit.state.request?.isSameQuery(s.rateRequest) ?? false;
+      return rateCubit.state.request == s.rateRequest;
     }
     return true;
   }
@@ -206,6 +206,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<void> _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) async {
+    if (state case final SwapInputState s
+        when !_isValidRefundAddress(event.newSource, s.depositAmount.currency)) {
+      emitPresentation(AddressValidationFailed(s.depositAmount.currency));
+      return;
+    }
+
     var isWalletSwitched = false;
     if (event.newSource case final InternalSwapSource source
         when source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
@@ -242,8 +248,17 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(s.copyWith(source: event.newSource, hasSwapAll: _amountFactory.hasSwapAll));
       }
       add(RatesLoadStarted());
+      if (event.initiateSwap) {
+        add(SwapInitiated());
+      }
     }
   }
+
+  bool _isValidRefundAddress(SwapSource source, CryptoCurrency currency) =>
+      switch (source.refundAddress) {
+        null || "" => true,
+        final address => AddressValidator(type: currency).isValid(address),
+      };
 
   Future<void> _onInitialValuesApplied(InitialValuesApplied event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
@@ -309,7 +324,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
     if (newAddress is! InternalWalletSwapAddress &&
         !AddressValidator(type: currency).isValid(newAddress.address)) {
-      emitPresentation(const AddressValidationFailed());
+      emitPresentation(AddressValidationFailed(currency));
       return null;
     }
 
@@ -662,6 +677,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {
     final inputs = state;
     if (inputs is! SwapInputState) {
+      return;
+    }
+
+    if (inputs.source case ExternalSwapSource(refundAddress: "")) {
+      emitPresentation(RefundAddressRequired(inputs.depositAmount.currency));
       return;
     }
 

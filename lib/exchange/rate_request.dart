@@ -15,6 +15,13 @@ sealed class RateRequest {
       depositCurrency == other.depositCurrency &&
       payoutCurrency == other.payoutCurrency;
 
+  @override
+  bool operator ==(Object other) =>
+      other is RateRequest && isSameQuery(other) && amount == other.amount;
+
+  @override
+  int get hashCode => Object.hash(this is FixedRateRequest, depositCurrency, payoutCurrency, amount);
+
   Map<String, dynamic> toJson() => {
     "depositCurrency": depositCurrency.serialized,
     "payoutCurrency": payoutCurrency.serialized,

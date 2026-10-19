@@ -20,6 +20,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
@@ -112,12 +113,13 @@ class _NewSwapPageState extends State<NewSwapPage> {
       child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
         bloc: widget.bloc,
         listener: (context, event) => switch (event) {
-          AddressValidationFailed() => _showAddressValidationFailurePopup(),
+          AddressValidationFailed(:final currency) => _showAddressValidationFailurePopup(currency),
           AliaspayAddressFound(:final address) => _showParsedAddressPopup(address),
           SwapCreationStarted() => _showConfirmSheet(),
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
           LowFeeAlert() => Future.delayed(const Duration(seconds: 1), _showFeeAlert),
           WalletSwitchFailed(:final error) => _showWalletSwitchFailedPopup(error),
+          RefundAddressRequired(:final currency) => _askForRefundAddress(currency),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
           bloc: widget.bloc,
@@ -322,19 +324,29 @@ class _NewSwapPageState extends State<NewSwapPage> {
     );
   }
 
-  Future<void> _showAddressValidationFailurePopup() async {
-    if (widget.bloc.state case final SwapStateWithInputs s) {
-      await showPopUp(
-        context: context,
-        builder: (context) => AlertWithOneAction(
-          alertTitle: S.of(context).invalid_address,
-          alertContent:
-              "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
-          buttonText: S.of(context).ok,
-          buttonAction: Navigator.of(context).pop,
-        ),
-      );
+  Future<void> _askForRefundAddress(CryptoCurrency currency) async {
+    final refundAddress = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => RefundAddressModal(selectedCurrency: currency),
+    );
+    if (refundAddress != null && refundAddress.isNotEmpty) {
+      widget.bloc.add(SourceChanged(ExternalSwapSource(refundAddress), initiateSwap: true));
     }
+  }
+
+  Future<void> _showAddressValidationFailurePopup(CryptoCurrency currency) async {
+    await showPopUp(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).invalid_address,
+        alertContent:
+            "${S.of(context).invalid_address_desc} ${currency.fullName ?? currency.symbol}.",
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
+    );
   }
 
   Future<void> _showWalletSwitchFailedPopup(Object error) async {

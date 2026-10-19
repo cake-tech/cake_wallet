@@ -6,12 +6,15 @@ sealed class SwapSource {
 
   String get displayName;
 
+  String? get refundAddress;
+
   SwapSource withAddress(String refundAddress);
 }
 
 final class ExternalSwapSource extends SwapSource {
   const ExternalSwapSource(this.refundAddress);
 
+  @override
   final String refundAddress;
 
   @override
@@ -25,6 +28,7 @@ final class InternalSwapSource extends SwapSource {
   const InternalSwapSource(this.sourceWallet, {this.refundAddress});
 
   final WalletInfo sourceWallet;
+  @override
   final String? refundAddress;
 
   @override
