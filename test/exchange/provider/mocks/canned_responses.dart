@@ -19,6 +19,7 @@ const refundAddress = "refund-address";
 
 const changeNowTradeId = "cn-trade-1";
 const changeNowPayinAddress = "bc1qchangenowdepositaddress";
+const changeNowCreatedAt = "2026-07-29T14:04:27.001Z";
 const changeNowValidUntil = "2026-07-29T15:04:27.001Z";
 
 const changeNowRange = '{"fromCurrency":"btc","fromNetwork":"btc","toCurrency":"xmr",'
@@ -41,7 +42,7 @@ const changeNowById = '{"id":"$changeNowTradeId","status":"confirming",'
     '"amountTo":500,"payinAddress":"$changeNowPayinAddress",'
     '"payoutAddress":"$payoutAddress","payinExtraId":null,"payoutExtraId":null,'
     '"refundAddress":"$refundAddress","refundExtraId":null,'
-    '"createdAt":"2026-07-29T14:04:27.001Z","updatedAt":"2026-07-29T14:04:27.010Z",'
+    '"createdAt":"$changeNowCreatedAt","updatedAt":"2026-07-29T14:04:27.010Z",'
     '"validUntil":"$changeNowValidUntil","depositReceivedAt":null,'
     '"payinHash":"cn-payin-hash","payoutHash":"cn-payout-hash","fromLegacyTicker":"btc",'
     '"toLegacyTicker":"xmr","refundHash":null,"refundAmount":null,"userId":null}';
@@ -281,7 +282,7 @@ const chainflipStatus = '{"id":61978,"platform":"chainflip","status":{"state":"s
 // Near Intents has no monero asset, so this pair is btc -> zec.
 
 const nearDepositAddress = "near-deposit-address";
-const nearBtcAsset = "nep141:btc.omft.near";
+const nearBtcAsset = "1cs_v1:btc:native:coin";
 const nearZecAsset = "nep141:zec.omft.near";
 
 const nearTokens = "["

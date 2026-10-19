@@ -53,9 +53,11 @@ ProviderScenario letsExchangeScenario() => ProviderScenario(
     fundingAddress: letsExchangeDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
-    createdAt: DateTime.parse(letsExchangeCreatedAt),
-    expiredAt: DateTime.fromMillisecondsSinceEpoch(letsExchangeExpiredAtSeconds * 1000),
+    createdAtIsNow: true,
+    expiredAt: DateTime.fromMillisecondsSinceEpoch(
+      letsExchangeExpiredAtSeconds * 1000,
+      isUtc: true,
+    ),
   ),
   tradeId: letsExchangeTradeId,
   expectedFoundTrade: ExpectedTrade(

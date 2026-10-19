@@ -46,7 +46,6 @@ ProviderScenario xoSwapScenario() => ProviderScenario(
     fundingAddress: xoSwapPayInAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAt: DateTime.parse(xoSwapCreatedAt),
   ),
   tradeId: xoSwapTradeId,

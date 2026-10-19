@@ -57,7 +57,6 @@ ProviderScenario stealthExScenario() => ProviderScenario(
     fundingAddress: stealthExDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAt: DateTime.parse(stealthExCreatedAt).toLocal(),
     // a floating rate has no rate id to expire, so the provider invents a five minute window
     expiredAtIsNowPlus: const Duration(minutes: 5),

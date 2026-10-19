@@ -57,7 +57,6 @@ ProviderScenario trocadorScenario() => ProviderScenario(
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
     extraId: "tr-memo",
-    toAddressExtraId: "",
     password: "tr-password",
     providerId: "tr-provider-id",
     createdAt: DateTime.parse(trocadorDate).toLocal(),

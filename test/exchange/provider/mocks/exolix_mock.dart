@@ -56,7 +56,6 @@ ProviderScenario exolixScenario() => ProviderScenario(
     fundingAddress: exolixDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAtIsNow: true,
   ),
   tradeId: exolixTradeId,

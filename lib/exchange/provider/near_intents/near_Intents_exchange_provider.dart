@@ -21,7 +21,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _baseUrl = "1click.chaindefuser.com";
 
   static const _slippageTolerance = 100; // 1%
-  static final _appFeesNearIntents = secrets.nearIntentsAppFee.toString();
+  static final _appFeesNearIntents = int.tryParse(secrets.nearIntentsAppFee.toString());
   static const _appFeeRecipientNearIntents = secrets.nearIntentsAppFeeRecipient;
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
@@ -238,10 +238,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }) {
     final NearIntentsSwapType swapType = isFixedRateMode ? .exactOutput : .exactInput;
     final appFees = [
-      NearIntentsAppFee(
-        recipient: _appFeeRecipientNearIntents,
-        fee: int.parse(_appFeesNearIntents),
-      ),
+      if (_appFeesNearIntents case final fee?)
+        NearIntentsAppFee(recipient: _appFeeRecipientNearIntents, fee: fee),
     ];
 
     return _api.send(NearIntentsQuoteRequest(
