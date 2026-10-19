@@ -2,6 +2,7 @@ import "dart:convert";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/lightning_invoice_service.dart";
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";

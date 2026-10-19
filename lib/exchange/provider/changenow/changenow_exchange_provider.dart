@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";

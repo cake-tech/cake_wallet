@@ -1,12 +1,12 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_api_schema.dart";
 import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";

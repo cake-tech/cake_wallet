@@ -58,6 +58,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -725,7 +726,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final estimateTxAmount = outputs.fold<BigInt>(
             BigInt.zero, (acc, output) => acc + output.cryptoAmountMoney.amount);
         if (estimateTxAmount <= BigInt.zero) {
-          throw Exception('Amount must be greater than 0');
+          throw TransactionGenerationException('Amount must be greater than 0');
         }
       }
 
@@ -825,7 +826,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
-      throw Exception("Pending transaction doesn't exist. It should not be happened.");
+      throw TransactionGenerationException("Pending transaction doesn't exist. It should not be happened.");
     }
 
     try {
@@ -992,7 +993,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.robinhood,
           WalletType.zcash,
         ].contains(wallet.type)) {
-      throw Exception('Priority is null for wallet type: ${wallet.type}');
+      throw BadWalletTypeException('Priority is null for wallet type: ${wallet.type}', wallet.type);
     }
 
     switch (wallet.type) {
@@ -1057,7 +1058,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type} for send');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }
   }
 

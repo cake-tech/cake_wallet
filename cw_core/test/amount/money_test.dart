@@ -304,7 +304,7 @@ void main() {
         test("throws Exception on division by zero", () {
           expect(
             () => Money(BigInt.from(5), CryptoCurrency.btc) / BigInt.zero,
-            throwsA(isA<Exception>()),
+            throwsA(isA<ArgumentError>()),
           );
         });
 
