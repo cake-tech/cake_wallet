@@ -1,3 +1,5 @@
+import "package:cw_core/exceptions/cake_exception.dart";
+
 enum TransactionDirection { incoming, outgoing }
 
 TransactionDirection parseTransactionDirectionFromInt(int raw) {
@@ -7,8 +9,7 @@ TransactionDirection parseTransactionDirectionFromInt(int raw) {
     case 1:
       return TransactionDirection.outgoing;
     default:
-      throw Exception(
-          'Unexpected token: raw for TransactionDirection parseTransactionDirectionFromInt');
+      throw DeserializeException('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromInt');
   }
 }
 
@@ -19,7 +20,6 @@ TransactionDirection parseTransactionDirectionFromNumber(String raw) {
     case "1":
       return TransactionDirection.outgoing;
     default:
-      throw Exception(
-          'Unexpected token: raw for TransactionDirection parseTransactionDirectionFromNumber');
+      throw DeserializeException('Unexpected token: raw for TransactionDirection parseTransactionDirectionFromNumber');
   }
 }
