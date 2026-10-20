@@ -503,7 +503,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => widget.onPushPasteButton?.call(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).paste,
                           ),
                           ModernButton.svg(
@@ -511,7 +511,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => _presentQRScanner(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).scan,
                           ),
                         ],

@@ -634,7 +634,9 @@ class Libwallet {
       // nothing.
       return null;
     }
-    checkErr(res.err);
+    if(res.err.isNotEmpty) {
+      throw DecredPayloadExecutionException(res.err);
+    }
     return res.payload;
   }
 
