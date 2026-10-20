@@ -170,13 +170,14 @@ void main() {
     expect(addresses.addressesMap.containsKey(_receive[0]), isFalse);
   });
 
-  test("on the MWEB page, the regular Litecoin address is active", () async {
+  test("on the MWEB page, the regular Litecoin address is active and used for buy", () async {
     final addresses = await _litecoin(addressPageType: SegwitAddresType.mweb);
     addresses.hiddenAddresses.add(_ltcReceive[0]);
 
     await addresses.updateAddressesInBox();
 
     expect(addresses.address, _mweb);
+    expect(addresses.addressForBuy, _ltcReceive[1]);
     expect(addresses.addressesMap[_ltcReceive[1]], "Active");
     expect(addresses.addressesMap[_mweb], "MWEB");
     expect(addresses.addressesMap.containsKey(_ltcReceive[0]), isFalse);
@@ -187,6 +188,7 @@ void main() {
 
     await addresses.updateAddressesInBox();
 
+    expect(addresses.addressForBuy, addresses.address);
     expect(addresses.addressesMap[_ltcReceive[0]], "Active");
     expect(addresses.addressesMap[_mweb], "MWEB");
   });
