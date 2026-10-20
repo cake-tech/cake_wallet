@@ -28,6 +28,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -340,7 +341,7 @@ class CakePayBuyCardPage extends BasePage {
                         ),
                       ),
                     ),
-                  if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
+                  if (CakePayApi.useStaging && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
                       child: LoadingPrimaryButton(
@@ -362,6 +363,7 @@ class CakePayBuyCardPage extends BasePage {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
+                  if (!CakePayApi.useStaging)
                   Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
                     child: LoadingPrimaryButton(

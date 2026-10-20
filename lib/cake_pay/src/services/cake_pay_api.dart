@@ -9,14 +9,29 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CakePayApi {
-  static const testBaseUri = FeatureFlag.hasDevOptions;
+  /// Only non-production builds can pick the server; production always uses the prod one.
+  static const canSelectServer = FeatureFlag.hasDevOptions;
+
+  static const useStagingPreferencesKey = 'cake_pay_use_staging_server';
+
+  static bool useStaging = canSelectServer;
+
+  static void loadServerChoice(SharedPreferences preferences) {
+    useStaging = canSelectServer && (preferences.getBool(useStagingPreferencesKey) ?? true);
+  }
+
+  static Future<void> saveServerChoice(SharedPreferences preferences, bool staging) async {
+    useStaging = canSelectServer && staging;
+    await preferences.setBool(useStagingPreferencesKey, useStaging);
+  }
 
   static const baseTestCakePayUri = 'api-stg.cakepay.com';
   static const baseProdCakePayUri = 'api-prod.cakepay.com';
 
-  static const baseCakePayUri = testBaseUri ? baseTestCakePayUri : baseProdCakePayUri;
+  static String get baseCakePayUri => useStaging ? baseTestCakePayUri : baseProdCakePayUri;
 
   static const vendorsPath = '/api/marketplace/vendors';
   static const authPath = '/api/accounts/auth';

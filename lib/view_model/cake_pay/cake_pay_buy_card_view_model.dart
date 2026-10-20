@@ -11,6 +11,7 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -105,7 +106,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
   @computed
   bool get isSimulating =>
       isSimulatingFlow &&
-      FeatureFlag.hasDevOptions &&
+      CakePayApi.useStaging &&
       FeatureFlag.isCakePayPurchaseSimulationEnabled;
 
   @computed
@@ -163,6 +164,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   Future<void> createOrder() async {
+    // Staging orders are never funded on-chain: the staging backend can't redeem real payments.
+    if (CakePayApi.useStaging && !isSimulating) {
+      sendViewModel.state =
+          FailureState('Real purchases are disabled in staging, use the simulate button.');
+      return;
+    }
+
     if (![
       WalletType.bitcoin,
       WalletType.monero,

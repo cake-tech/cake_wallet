@@ -266,6 +266,22 @@ class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
 
   CakePayCardsListViewModel get _viewModel => widget.cardsListViewModel;
 
+  /// Cards currently being redeemed or shown, so a double tap can't open a second modal.
+  final Set<String> _busyCards = {};
+
+  Future<void> _onCardTap(CakePayUserCard card) async {
+    final key = '${card.orderId}:${card.unitIndex}';
+    if (!_busyCards.add(key)) {
+      return;
+    }
+
+    try {
+      await _redeemAndShowCard(context, _viewModel, card);
+    } finally {
+      _busyCards.remove(key);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -357,7 +373,7 @@ class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
                         logoUrl: card.imageUrl,
                         title: card.name,
                         subTitle: card.valueLabel,
-                        onTap: () => _redeemAndShowCard(context, viewModel, card),
+                        onTap: () => _onCardTap(card),
                       );
                     },
                   ),
@@ -422,7 +438,7 @@ Future<void> _showCardInfoBottomSheet(
 ) async {
   await showModalBottomSheet<void>(
     context: context,
-    isDismissible: false,
+    isDismissible: true,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (bottomSheetContext) => CakePayCardInfoBottomSheet(
