@@ -91,12 +91,19 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _key,
-      body: TOTPEnterCode(
-        setup2FAViewModel: widget.setup2FAViewModel,
-        isForSetup: widget.totpArguments.isForSetup ?? false,
-        isClosable: widget.totpArguments.isClosable ?? true,
+    final isClosable = widget.totpArguments.isClosable ?? true;
+
+    // When not closable (wallet access lock), block the system back gesture too,
+    // otherwise popping this route skips the 2FA check.
+    return PopScope(
+      canPop: isClosable,
+      child: Scaffold(
+        key: _key,
+        body: TOTPEnterCode(
+          setup2FAViewModel: widget.setup2FAViewModel,
+          isForSetup: widget.totpArguments.isForSetup ?? false,
+          isClosable: isClosable,
+        ),
       ),
     );
   }
@@ -143,8 +150,11 @@ class _TOTPEnterCodeState extends State<TOTPEnterCode> {
           children: [
             ModalTopBar(
               title: widget.isForSetup ? S.current.setup_2fa : S.current.verify_with_2fa,
-              leadingIcon: Icon(Icons.arrow_back_ios_new),
-              leadingSemanticLabel: S.current.seed_alert_back,
+              leadingIcon: widget.isClosable ? Icon(Icons.arrow_back_ios_new) : null,
+              // Same-size placeholder keeps the bar's height so the title still shows.
+              leadingWidget:
+                  widget.isClosable ? null : SizedBox.square(dimension: ModalTopBar.buttonSize),
+              leadingSemanticLabel: widget.isClosable ? S.current.seed_alert_back : null,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Expanded(
