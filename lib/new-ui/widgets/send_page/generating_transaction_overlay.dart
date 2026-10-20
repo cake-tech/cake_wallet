@@ -17,16 +17,16 @@ class GeneratingTransactionOverlay extends StatelessWidget {
           alignment: Alignment.topCenter,
           children: [
             ExcludeSemantics(
-              excluding: sendViewModel.state is IsExecutingState,
+              excluding: sendViewModel.state.runtimeType == IsExecutingState,
               child: child,
             ),
             Positioned.fill(
               child: IgnorePointer(
-                ignoring: sendViewModel.state is! IsExecutingState,
+                ignoring: sendViewModel.state.runtimeType != IsExecutingState,
                 child: ExcludeSemantics(
-                  excluding: sendViewModel.state is! IsExecutingState,
+                  excluding: sendViewModel.state.runtimeType != IsExecutingState,
                   child: AnimatedOpacity(
-                    opacity: sendViewModel.state is IsExecutingState ? 1 : 0,
+                    opacity: sendViewModel.state.runtimeType == IsExecutingState ? 1 : 0,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOutCubic,
                     child: ColoredBox(
