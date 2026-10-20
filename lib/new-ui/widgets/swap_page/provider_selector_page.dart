@@ -22,6 +22,7 @@ class ProviderSelectorPage extends StatelessWidget {
     return Column(
       children: [
         ModalTopBar(
+          testId: "provider_selector_page_top_bar",
           title: S.of(context).change_provider,
           leadingIcon: Icon(Icons.arrow_back_ios_new),
           leadingSemanticLabel: S.of(context).seed_alert_back,

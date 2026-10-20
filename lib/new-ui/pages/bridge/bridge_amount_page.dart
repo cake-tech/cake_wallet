@@ -114,6 +114,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "bridge_amount_page_top_bar",
               title: S.of(context).enter_amount,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

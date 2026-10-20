@@ -134,6 +134,7 @@ class UnconfirmedBalanceModal extends StatelessWidget {
           spacing: 20,
           children: [
             ModalTopBar(
+                testId: "unconfirmed_balance_widget_top_bar",
                 title: S.of(context).balance_confirmation,
                 leadingIcon: Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,

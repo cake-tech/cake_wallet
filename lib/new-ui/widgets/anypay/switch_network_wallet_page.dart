@@ -45,6 +45,7 @@ class SwitchNetworkWalletPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ModalTopBar(
+              testId: "switch_network_wallet_page_top_bar",
               title: "",
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

@@ -26,6 +26,7 @@ class WalletDeprecationPopup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalTopBar(
+              testId: "wallet_deprecation_popup_top_bar",
               title: "",
               leadingIcon: Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,

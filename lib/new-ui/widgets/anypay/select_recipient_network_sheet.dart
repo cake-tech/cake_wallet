@@ -71,6 +71,7 @@ class SelectRecipientNetworkSheet extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "select_recipient_network_sheet_top_bar",
               title: "",
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: () => Navigator.of(context).maybePop(),

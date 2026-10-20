@@ -76,6 +76,7 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalTopBar(
+              testId: "picker_top_bar",
               title: widget.title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,
@@ -387,6 +388,7 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
           mainAxisSize: MainAxisSize.max,
           children: [
             ModalTopBar(
+              testId: "picker_slider_page_top_bar",
               title: widget.title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

@@ -15,6 +15,7 @@ class WalletInfoBar extends StatelessWidget {
         hardwareWalletType == null ? name : "$name, ${S.of(context).hardware_wallet}";
 
     return Semantics(
+      identifier: "home_page_wallet_name_text_key",
       label: semanticsLabel,
       child: ExcludeSemantics(
         child: Row(

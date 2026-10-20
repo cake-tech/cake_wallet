@@ -28,6 +28,7 @@ import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/utils/debounce.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
@@ -592,6 +593,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "swap_page_top_bar",
               title:
                   fromSend != null ? S.of(context).swap_from_network(fromName) : S.of(context).swap,
               leadingIcon: Icon(fromSend != null ? Icons.arrow_back_ios_new : Icons.close),
@@ -753,6 +755,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             color: colorScheme.surfaceContainerHigh,
                                           ),
                                           ModernButton.svg(
+                                            testId: "swap_page_reverse_button_key",
                                             size: 36,
                                             iconSize: 24,
                                             svgPath: "assets/new-ui/swap_amounts.svg",
@@ -963,7 +966,7 @@ class SwapProviderPreview extends StatelessWidget {
               ? exchangeViewModel.bestRate
               : exchangeViewModel.forcedProviderRate;
 
-          return GestureDetector(
+          return TestId.merge("swap_page_provider_row_key", child: GestureDetector(
             onTap: () {
               if (provider != null) {
                 Navigator.of(context).push(
@@ -1032,7 +1035,7 @@ class SwapProviderPreview extends StatelessWidget {
                 ),
               ),
             ),
-          );
+          ));
         },
       );
 }

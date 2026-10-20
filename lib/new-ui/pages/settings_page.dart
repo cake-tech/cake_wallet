@@ -43,6 +43,7 @@ class SettingsListItem {
     this.condition = _alwaysVisible,
     this.routeArgs,
     this.routeArgsBuilder,
+    this.testId,
   });
 
   static bool _neverUse2fa(DashboardViewModel _) => false;
@@ -56,6 +57,7 @@ class SettingsListItem {
   final bool requireAuth;
   final bool Function(DashboardViewModel) use2fa;
   final bool Function(DashboardViewModel) condition;
+  final String? testId;
 }
 
 class SettingsSectionData {
@@ -91,6 +93,7 @@ class WalletSettingsResolver {
         "assets/new-ui/settings_row_icons/accounts.svg",
         viewModel.wallet.type == WalletType.bitcoin ? S.current.accounts_onchain : S.current.accounts,
         Routes.walletAccountsPage,
+        testId: "settings_page_wallet_accounts_row_key",
         isCore: true,
         condition: _hasAccounts,
         routeArgsBuilder: (vm) => vm,
@@ -99,12 +102,14 @@ class WalletSettingsResolver {
         "assets/new-ui/settings_row_icons/nodes.svg",
         S.current.nodes,
         Routes.manageNodes,
+        testId: "settings_page_manage_nodes_row_key",
         isCore: true,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/coin-control.svg",
         S.current.coin_control_settings,
         Routes.unspentCoinsList,
+        testId: "settings_page_unspent_coins_list_row_key",
         isCore: true,
         condition: _hasCoinControl,
         routeArgs: const CoinControlPageArgs(canEdit: false),
@@ -113,30 +118,35 @@ class WalletSettingsResolver {
         "assets/new-ui/settings_row_icons/lightning_username.svg",
         "Lightning ${S.current.username}",
         Routes.lightningUsernamePage,
+        testId: "settings_page_lightning_username_row_key",
         condition: _hasLightning,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/silent-payments.svg",
         S.current.silent_payments,
         Routes.silentPaymentsSettings,
+        testId: "settings_page_silent_payments_settings_row_key",
         condition: _hasSilentPayments,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/mweb.svg",
         S.current.litecoin_mweb,
         Routes.mwebSettings,
+        testId: "settings_page_mweb_settings_row_key",
         condition: _hasMweb,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/wc.svg",
         S.current.walletConnect,
         Routes.walletConnectConnectionsListing,
+        testId: "settings_page_wallet_connect_connections_listing_row_key",
         condition: _hasWalletConnect,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/sync-balance.svg",
         S.current.resync_device,
         Routes.syncKeyImagesDevices,
+        testId: "settings_page_sync_key_images_devices_row_key",
         routeArgs: const {"export-outputs": "export-outputs"},
         condition: _requiresKeyImageSync,
       ),
@@ -160,16 +170,19 @@ class SettingsPageSectionsResolver {
           'assets/new-ui/settings_row_icons/privacy.svg',
           strings.privacy,
           Routes.privacyPage,
+          testId: "settings_page_privacy_row_key",
         ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/seed.svg',
           strings.recovery_and_keys,
           Routes.showKeysDisclaimer,
+          testId: "settings_page_show_keys_disclaimer_row_key",
         ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/other.svg',
           strings.other,
           Routes.otherSettingsPage,
+          testId: "settings_page_other_settings_row_key",
         ),
       ];
 
@@ -178,21 +191,25 @@ class SettingsPageSectionsResolver {
           "assets/new-ui/settings_row_icons/connections.svg",
           S.current.connections,
           Routes.connectionSync,
+          testId: "settings_page_connection_sync_row_key",
         ),
         SettingsListItem(
           "assets/new-ui/settings_row_icons/display.svg",
           S.current.display,
           Routes.displaySettingsPage,
+          testId: "settings_page_display_settings_row_key",
         ),
         SettingsListItem(
           "assets/new-ui/settings_row_icons/security.svg",
           S.current.security,
           Routes.securityBackupPage,
+          testId: "settings_page_security_backup_row_key",
         ),
         SettingsListItem(
           "assets/new-ui/settings_row_icons/backup.svg",
           S.current.backup,
           Routes.backup,
+          testId: "settings_page_backup_row_key",
           requireAuth: true,
           use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         ),
@@ -203,11 +220,13 @@ class SettingsPageSectionsResolver {
           'assets/new-ui/settings_row_icons/support.svg',
           strings.settings_support,
           Routes.support,
+          testId: "settings_page_support_row_key",
         ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/info.svg',
           strings.about,
           Routes.aboutPage,
+          testId: "settings_page_about_row_key",
         ),
       ];
 }
@@ -253,6 +272,7 @@ class SettingsMainPage extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "settings_page_top_bar",
               title: S.of(context).settings_title,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,
@@ -295,6 +315,7 @@ class SettingsMainPage extends StatelessWidget {
             "wallet_type_settings": [
               ListItemRegularRow(
                 keyValue: "wallet_type_settings",
+                testId: "settings_page_wallet_settings_row_key",
                 label: _walletSettingsResolver.titleFor(
                   dashboardViewModel.wallet.type,
                   S.of(context),
@@ -333,6 +354,7 @@ class SettingsMainPage extends StatelessWidget {
 
   ListItemRegularRow _buildRow(BuildContext context, SettingsListItem item) => ListItemRegularRow(
         keyValue: item.route,
+        testId: item.testId,
         label: item.title,
         iconPath: item.iconPath,
         onTap: () => _openItem(context, item),
@@ -376,6 +398,7 @@ class WalletSettingsPage extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
+            testId: "wallet_settings_page_top_bar",
             title: _resolver.titleFor(dashboardViewModel.wallet.type, strings),
             titleLeadingWidget: CakeImageWidget(
               imageUrl: _resolver.iconPathFor(dashboardViewModel.wallet.type),
@@ -399,6 +422,7 @@ class WalletSettingsPage extends StatelessWidget {
                           .map(
                             (item) => ListItemRegularRow(
                               keyValue: item.route,
+                              testId: item.testId,
                               label: item.title,
                               iconPath: item.iconPath,
                               onTap: () => _openItem(context, item),

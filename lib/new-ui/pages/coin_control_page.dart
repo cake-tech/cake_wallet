@@ -55,6 +55,7 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
           child: Column(
             children: [
               ModalTopBar(
+                testId: "coin_control_page_top_bar",
                 title: "",
                 trailingWidget: GestureDetector(
                   onTap: Navigator.of(context).pop,
