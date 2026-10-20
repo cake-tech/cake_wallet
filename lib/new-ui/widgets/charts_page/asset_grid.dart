@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/model/charts/util/price_change_data.dart";
 import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart";
@@ -10,7 +11,9 @@ import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_footer.dar
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_menu.dart";
 import "package:cake_wallet/new-ui/widgets/long_press_menu/long_press_popup.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -205,7 +208,10 @@ class ChartsAssetCard extends StatelessWidget {
                           spacing: 4,
                           children: [
                             Text(
-                              displayPrice,
+                              double.tryParse(displayPrice) == null
+                                  ? displayPrice
+                                  : displayPrice.withLocalSeperator(
+                                      getIt.get<AppStore>().settingsStore.languageCode),
                               style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                             ),
                             Text(
