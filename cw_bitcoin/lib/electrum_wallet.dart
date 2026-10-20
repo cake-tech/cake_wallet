@@ -670,7 +670,7 @@ abstract class ElectrumWalletBase
     String? publicKey;
 
     // `keys` is wallet-level metadata
-    final hd = accounts[0]?.hd.receive(SegwitAddresType.p2wpkh) ?? mainHd;
+    final hd = mainHd;
 
     try {
       wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
