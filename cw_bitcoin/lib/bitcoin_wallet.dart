@@ -35,6 +35,7 @@ import 'package:cw_bitcoin/lightning/conversion_status.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/node.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -1033,7 +1034,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });

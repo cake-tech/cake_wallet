@@ -53,10 +53,12 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   bool get _accountNameEnabled => !lightningMode &&
       (_wallet.hasNativeAccounts || _wallet.walletInfo.isMultiAccountsEnabled == true);
 
+  CryptoCurrency get _currency => lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
-    if (CardDesign.specialDesignsForCurrencies[_wallet.currency] != null) {
-      list.add(CardDesign.specialDesignsForCurrencies[_wallet.currency]!.gradient);
+    if (CardDesign.specialDesignsForCurrencies[_currency] != null) {
+      list.add(CardDesign.specialDesignsForCurrencies[_currency]!.gradient);
     }
     return list;
   }
@@ -170,9 +172,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   /// Mirrors `DashboardViewModel.lightningStyleIndex`.
   int _accountIndexFor({required bool stableBalanceActive}) => stableBalanceActive ? -3 : -2;
 
-  int _initSelectedColor(CardDesign currentDesign) {
-    final ret = CardDesign.allGradients.indexOf(currentDesign.gradient);
-    return ret == -1 ? CardDesign.allGradients.length : ret;
+  int _initSelectedColor(CardDesign currentDesign, List<Gradient> availableColors) {
+    final ret = availableColors.indexOf(currentDesign.gradient);
+    return ret == -1 ? 0 : ret;
   }
 
   Future<void> _init(_Init event, Emitter<CardCustomizerState> emit) async {
@@ -196,7 +198,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     );
     final availableColors = _updateAvailableColors(currentDesign);
     final selectedDesignIndex = _initSelectedDesign(currentDesign);
-    final selectedColor = _initSelectedColor(currentDesign);
+    final selectedColor = _initSelectedColor(currentDesign, availableColors);
     final availableIconPaths = _iconChoicesForDesignIndex(selectedDesignIndex, curr);
     final defaultIconIndex =
         selectedDesignIndex == 2 &&

@@ -81,7 +81,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                               builder: (_) => Container(
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Padding(
@@ -214,7 +214,7 @@ class _ReceiveAmountModalState extends State<ReceiveAmountModal> {
                                       topRight: Radius.circular(18),
                                       bottomRight: Radius.circular(18),
                                     ),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

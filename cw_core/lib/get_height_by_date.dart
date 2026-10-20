@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:intl/intl.dart';
 import 'package:cw_core/get_height_by_date_xmr.dart';
@@ -95,7 +96,7 @@ Future<int> getHavenCurrentHeight() async {
     final info = jsonDecode(stringResponse);
     return info['data']['height'] as int;
   } else {
-    throw Exception('Failed to load current blockchain height');
+    throw ServerResponseException('Failed to load current blockchain height');
   }
 }
 
