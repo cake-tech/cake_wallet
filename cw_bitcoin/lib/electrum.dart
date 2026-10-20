@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_line_reader.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -181,7 +182,7 @@ class ElectrumClient {
       }
 
       if (throwOnError) {
-        throw Exception('Invalid response format for getBalance');
+        throw ElectrumResponseException('Invalid response format for getBalance');
       }
 
       return <String, dynamic>{};

@@ -66,7 +66,6 @@ class CakeFeaturesPage extends StatelessWidget {
     );
   }
 
-
   Widget _buildNewUi(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,6 +125,14 @@ class CakeFeaturesPage extends StatelessWidget {
           subTitle: S.of(context).nanogpt_subtitle,
           image: 'assets/images/nanogpt.png',
         ),
+        AppsWidget(
+          isWide: true,
+          isLink: true,
+          onTap: () => _launchUrl("btcmap.org/apps"),
+          title: "BTC Map",
+          subTitle: S.of(context).btcmap_subtitle,
+          image: 'assets/images/btcmap.png',
+        ),
         Observer(builder: (_) {
           if (dashboardViewModel.type == WalletType.ethereum) {
             return AppsWidget(
@@ -146,7 +153,7 @@ class CakeFeaturesPage extends StatelessWidget {
 
   void _onCakePayTap(BuildContext context) {
     if (Platform.isMacOS) {
-      _launchUrl("buy.cakepay.com");
+      _launchUrl("cakepay.com");
     } else {
       _navigatorToGiftCardsPage(context);
     }
@@ -154,7 +161,7 @@ class CakeFeaturesPage extends StatelessWidget {
 
   void _launchUrl(String url) {
     try {
-      launchUrl(Uri.https(url), mode: LaunchMode.externalApplication);
+      launchUrl(Uri.parse("https://$url"), mode: LaunchMode.externalApplication);
     } catch (e) {
       printV(e);
     }
