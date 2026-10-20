@@ -330,7 +330,7 @@ class DEuroSavingsPage extends BasePage {
         context,
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
-        key: 'savings_tooltip',
+        key: _DEuroTooltip.savings,
         onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
@@ -338,7 +338,7 @@ class DEuroSavingsPage extends BasePage {
         context,
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
-        key: 'interest_tooltip',
+        key: _DEuroTooltip.interest,
         onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
@@ -346,7 +346,7 @@ class DEuroSavingsPage extends BasePage {
     BuildContext context, {
     required String title,
     required String content,
-    required String key,
+    required _DEuroTooltip key,
     required VoidCallback onLearnMorePressed,
   }) {
     if (!context.mounted) return;
@@ -359,10 +359,10 @@ class DEuroSavingsPage extends BasePage {
         tooltip: content,
         footerType: FooterType.doubleActionButton,
         doubleActionRightButtonText: S.of(context).close,
-        rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_ok_button_key'),
+        rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key.name}_tooltip_ok_button_key'),
         onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
         doubleActionLeftButtonText: S.of(context).learn_more,
-        leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_learn_more_button_key'),
+        leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key.name}_tooltip_learn_more_button_key'),
         onLeftActionButtonPressed: onLearnMorePressed,
       ),
     );
@@ -432,3 +432,5 @@ class DEuroSavingsPage extends BasePage {
     );
   }
 }
+
+enum _DEuroTooltip { savings, interest }

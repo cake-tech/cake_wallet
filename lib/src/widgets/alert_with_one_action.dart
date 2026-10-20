@@ -11,7 +11,7 @@ class AlertWithOneAction extends BaseAlertDialog {
     this.headerTitleText,
     this.headerImageProfileUrl,
     this.buttonKey,
-    Key? key,
+    super.key,
   });
 
   final String alertTitle;

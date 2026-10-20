@@ -194,7 +194,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 shouldShowCurrentWalletPointer: true,
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 title: groupName,
-                                tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
+                                tileKey: ValueKey('wallet_list_group_${index}_key'),
                                 leadingWidget: CakeImageWidget(
                                   imageUrl: "assets/new-ui/navbar/wallets.svg",
                                   width: 28,
@@ -231,7 +231,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                   return item.isCurrent
                                       ? SizedBox.shrink()
                                       : EditWalletButtonWidget(
-                                          key: ValueKey("wallet_list_edit_${item.name}_button_key"),
+                                          key: ValueKey(
+                                              "wallet_list_group_${index}_wallet_${group.wallets.indexWhere((info) => info.name == item.name)}_edit_button_key"),
                                           width: 64,
                                           onTap: () => Navigator.of(context).pushNamed(
                                             Routes.walletEdit,
@@ -277,7 +278,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ? Theme.of(context).colorScheme.primary
                                   : Theme.of(context).colorScheme.surface;
                               return GroupedWalletExpansionTile(
-                                tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
+                                tileKey: ValueKey('wallet_list_single_wallet_${index}_key'),
                                 isCurrentlySelectedWallet: wallet.isCurrent,
                                 leadingWidget: SizedBox(
                                   width: wallet.isCurrent ? 56 : 40,
@@ -315,7 +316,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 trailingWidget: wallet.isCurrent
                                     ? null
                                     : EditWalletButtonWidget(
-                                        key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
+                                        key: ValueKey("wallet_list_single_wallet_${index}_edit_button_key"),
                                         width: 64,
                                         onTap: () {
                                           Navigator.of(context).pushNamed(

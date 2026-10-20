@@ -3,6 +3,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class HeaderRow extends StatelessWidget {
   HeaderRow({required this.dashboardViewModel, this.onExportCsv, super.key});
@@ -33,7 +34,7 @@ class HeaderRow extends StatelessWidget {
               if (onExportCsv != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
+                  child: TestId.merge("transactions_page_header_row_export_csv_button_key", child: GestureDetector(
                     key: ValueKey('transactions_page_header_row_export_csv_button_key'),
                     onTap: onExportCsv,
                     child: Semantics(
@@ -54,10 +55,11 @@ class HeaderRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
+                  )),
                 ),
               Semantics(
                 container: true,
+                identifier: "transactions_page_header_row_transaction_filter_button_key",
                 child: GestureDetector(
                   key: ValueKey('transactions_page_header_row_transaction_filter_button_key'),
                   onTap: () {},

@@ -38,6 +38,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(this.cakePayBuyCardViewModel)
@@ -313,7 +314,7 @@ class CakePayBuyCardPage extends BasePage {
                     Observer(
                       builder: (_) => Padding(
                         padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
-                        child: GestureDetector(
+                        child: TestId.merge("cake_pay_buy_page_unspent_coin_button_key", child: GestureDetector(
                           key: ValueKey('cake_pay_buy_page_unspent_coin_button_key'),
                           onTap: () {
                             bool value = _sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any;
@@ -337,7 +338,7 @@ class CakePayBuyCardPage extends BasePage {
                               ],
                             ),
                           ),
-                        ),
+                        )),
                       ),
                     ),
                   if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)

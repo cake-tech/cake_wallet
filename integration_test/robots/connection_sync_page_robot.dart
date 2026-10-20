@@ -16,9 +16,9 @@ class ConnectionSyncPageRobot extends BaseRobot {
   Future<void> setFiatApiMode(FiatApiMode mode) async {
     await tapByKey("fiat_api");
 
-    final unselected = find.byKey(ValueKey("picker_items_index_${mode.title}_button_key"));
-    final selected =
-        find.byKey(ValueKey("picker_items_index_${mode.title}_selected_item_button_key"));
+    final index = await pickerIndexWhere((item) => item == mode);
+    final unselected = find.byKey(ValueKey("picker_items_index_${index}_button_key"));
+    final selected = find.byKey(ValueKey("picker_items_index_${index}_selected_item_button_key"));
 
     await pumpUntil(() => tester.any(unselected) || tester.any(selected));
 

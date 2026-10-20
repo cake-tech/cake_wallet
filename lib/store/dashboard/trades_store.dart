@@ -29,12 +29,13 @@ abstract class TradesStoreBase with Store {
   Future<void> updateTradeList() async {
     try {
       final allTrades = await Trade.getAll();
+      var index = 0;
       runInAction(() {
         trades = allTrades
             .map((trade) => TradeListItem(
                   trade: trade,
                   appStore: appStore,
-                  key: ValueKey('trade_list_item_${trade.id}_key'),
+                  key: ValueKey('trade_list_item_${index++}_key'),
                 ))
             .toList();
       });

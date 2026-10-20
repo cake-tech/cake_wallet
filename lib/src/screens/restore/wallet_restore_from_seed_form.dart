@@ -15,6 +15,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm({
@@ -156,7 +157,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
                 controller: nameTextEditingController,
                 hintText: S.of(context).wallet_name,
-                suffixIcon: IconButton(
+                suffixIcon: TestId.merge("wallet_restore_from_seed_wallet_name_refresh_button_key", child: IconButton(
                   key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
                   onPressed: () async {
                     final rName = await generateName();
@@ -181,7 +182,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                ),
+                )),
                 validator: WalletNameValidator(),
               )),
           Container(height: 20),
@@ -195,7 +196,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
           if ([WalletType.monero, WalletType.wownero].contains(widget.type))
-            GestureDetector(
+            TestId.merge("wallet_restore_from_seed_seedtype_picker_button_key", child: GestureDetector(
               key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
@@ -232,7 +233,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   ),
                 ),
               ),
-            ),
+            )),
           if (widget.displayWalletPassword) ...[
             BaseTextFormField(
               key: ValueKey('password'),

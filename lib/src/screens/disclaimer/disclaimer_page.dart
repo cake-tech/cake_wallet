@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class DisclaimerPage extends BasePage {
   DisclaimerPage({this.isReadOnly = false});
@@ -145,7 +146,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                       child: Container(
                           padding:
                               EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
-                          child: InkWell(
+                          child: TestId.merge("disclaimer_check_key", child: InkWell(
                             key: ValueKey('disclaimer_check_key'),
                             onTap: () => setState(() => _checked = !_checked),
                             child: Row(
@@ -179,7 +180,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 )
                               ],
                             ),
-                          )),
+                          ))),
                     ),
                   ],
                 ),

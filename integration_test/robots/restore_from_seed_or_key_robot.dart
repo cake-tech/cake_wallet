@@ -47,7 +47,9 @@ class RestoreFromSeedOrKeysPageRobot extends BaseRobot {
   Future<void> chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType selectedType) async {
     await tapByKey("wallet_restore_from_seed_seedtype_picker_button_key");
 
-    await tapByKey("picker_items_index_${selectedType.title}_button_key");
+    final index = await pickerIndexWhere((item) => item == selectedType);
+
+    await tapByKey("picker_items_index_${index}_button_key");
   }
 
   Future<void> expectRestoreRefused({Duration window = const Duration(seconds: 10)}) async {

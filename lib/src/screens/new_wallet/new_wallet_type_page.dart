@@ -14,6 +14,7 @@ import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class NewWalletTypePageHeader extends StatelessWidget {
   const NewWalletTypePageHeader({super.key});
@@ -157,7 +158,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         itemBuilder: (context, index) {
                           final item = filteredTypes[index];
 
-                          return GestureDetector(
+                          return TestId.merge("new_wallet_type_${item.name}_button_key", child: GestureDetector(
                             key: ValueKey('new_wallet_type_${item.name}_button_key'),
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
@@ -200,7 +201,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                 ),
                               ),
                             ),
-                          );
+                          ));
                         },
                         separatorBuilder: (context, index) => Container(
                           height: 1,

@@ -188,7 +188,7 @@ class TxDetailRowDefinition {
       applicable: (vm) => vm.wallet.type == WalletType.monero,
     ),
     TxDetailRowDefinition(
-      keyString: "standard_list_item_lightning_preimage",
+      keyString: "standard_list_item_lightning_preimage_key",
       title: S.current.transaction_preimage,
       valueGetter: (vm) => vm.transactionInfo.additionalInfo["preimage"] as String? ?? "",
       applicable: (vm) =>
@@ -277,7 +277,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
             value: recipientAddressForDisplay,
-            key: ValueKey("standard_list_item_${recipientAddressForDisplay}_key"),
+            key: ValueKey("standard_list_item_transaction_details_recipient_address_key"),
           ),
         );
       }
