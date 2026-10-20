@@ -29,13 +29,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class ContactListPageArgs {
-  ContactListPageArgs({this.showAddButton = true, this.includeSilentPayments = false});
-
-  final bool showAddButton;
-  final bool includeSilentPayments;
-}
-
 class ContactListPage extends BasePage implements PageOpenListener {
   ContactListPage(this.contactListViewModel, this.authService, {this.showAddButton = false});
 

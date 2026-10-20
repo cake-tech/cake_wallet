@@ -623,13 +623,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.pickerAddressBook:
       final args = settings.arguments as List<dynamic>;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(
-                param1: args[0],
-                param2: ContactListPageArgs(
-                  showAddButton: args[1] as bool? ?? true,
-                  includeSilentPayments: args.length > 2 && args[2] == true,
-                ),
-              ));
+          builder: (_) => getIt.get<ContactListPage>(param1: args[0], param2: args[1]));
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<NewAddressesPage>(param1: AddressesPageArgs(showHidden: false, popOnSelection: true)));

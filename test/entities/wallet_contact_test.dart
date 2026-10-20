@@ -16,47 +16,33 @@ void main() {
     test("offers the active address when its name is translated", () {
       final contact = _contact("Active", name: "Savings (Aktiv)");
 
-      expect(contact.isPickable(includeSilentPayments: false), isTrue);
+      expect(contact.isPickable, isTrue);
     });
 
     test("hides a Bitcoin wallet's other address types", () {
-      expect(_contact("P2WPKH").isPickable(includeSilentPayments: true), isFalse);
-      expect(_contact("LN").isPickable(includeSilentPayments: true), isFalse);
+      expect(_contact("P2WPKH").isPickable, isFalse);
+      expect(_contact("LN").isPickable, isFalse);
+      expect(_contact("Silent Payments").isPickable, isFalse);
     });
 
     test("ignores a wallet name that contains Active", () {
       final contact = _contact("P2TR", name: "Active Savings (P2TR)");
 
-      expect(contact.isPickable(includeSilentPayments: false), isFalse);
-    });
-
-    test("offers an active Silent Payments address only to senders that can pay it", () {
-      final contact = _contact("Active - Silent Payments");
-
-      expect(contact.isPickable(includeSilentPayments: true), isTrue);
-      expect(contact.isPickable(includeSilentPayments: false), isFalse);
-    });
-
-    test("never offers an inactive Silent Payments address", () {
-      expect(_contact("Silent Payments").isPickable(includeSilentPayments: true), isFalse);
-      expect(
-        _contact("Silent Payments - Active stash").isPickable(includeSilentPayments: true),
-        isFalse,
-      );
+      expect(contact.isPickable, isFalse);
     });
 
     test("applies the same rule to Litecoin", () {
-      final active = _contact("Active - MWEB", type: CryptoCurrency.ltc);
-      final other = _contact("P2WPKH", type: CryptoCurrency.ltc);
+      final active = _contact("Active - P2WPKH", type: CryptoCurrency.ltc);
+      final other = _contact("MWEB", type: CryptoCurrency.ltc);
 
-      expect(active.isPickable(includeSilentPayments: false), isTrue);
-      expect(other.isPickable(includeSilentPayments: false), isFalse);
+      expect(active.isPickable, isTrue);
+      expect(other.isPickable, isFalse);
     });
 
     test("leaves single-address currencies alone", () {
       final contact = _contact("", type: CryptoCurrency.eth, walletType: WalletType.ethereum);
 
-      expect(contact.isPickable(includeSilentPayments: false), isTrue);
+      expect(contact.isPickable, isTrue);
     });
   });
 }

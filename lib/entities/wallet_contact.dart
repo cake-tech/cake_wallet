@@ -23,12 +23,7 @@ class WalletContact implements ContactBase {
 
   bool get isActive => label.startsWith("Active");
 
-  bool get isSilentPayment => label.contains("Silent Payments");
-
-  bool isPickable({required bool includeSilentPayments}) {
-    if (isSilentPayment && !includeSilentPayments) {
-      return false;
-    }
+  bool get isPickable {
     if (type == CryptoCurrency.btc || type == CryptoCurrency.ltc) {
       return isActive;
     }

@@ -507,8 +507,6 @@ class _NewSendPageState extends State<NewSendPage> {
                                               },
                                               selectedCurrency:
                                                   widget.sendViewModel.selectedCryptoCurrency,
-                                              includeSilentPayments:
-                                                  widget.sendViewModel.canPaySilentPayments,
                                             ),
                                             if (widget.sendViewModel.isEVMWallet &&
                                                 _hasEvmRecipient(output) &&

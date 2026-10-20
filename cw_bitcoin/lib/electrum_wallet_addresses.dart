@@ -659,10 +659,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     }
 
-    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
-      addressesMap[address] = "Active - Silent Payments";
-    }
-
     if (lightningAddress != null) {
       if (lightningAddress != activeAddress) {
         addressesMap[lightningAddress!] = 'LN';
@@ -672,24 +668,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  void addLitecoinAddressTypes() {
+  void addLitecoinAddressTypes(String activeAddress) {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
             _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
         .toList()
         .last;
-    if (lastP2wpkh.address != address) {
+    if (lastP2wpkh.address != activeAddress) {
       addressesMap[lastP2wpkh.address] = 'P2WPKH';
     } else {
-      addressesMap[address] = 'Active - P2WPKH';
+      addressesMap[activeAddress] = 'Active - P2WPKH';
     }
 
     final lastMweb = _addresses.firstWhere(
         (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
-    if (lastMweb.address != address) {
+    if (lastMweb.address != activeAddress) {
       addressesMap[lastMweb.address] = 'MWEB';
     } else {
-      addressesMap[address] = 'Active - MWEB';
+      addressesMap[activeAddress] = 'Active - MWEB';
     }
   }
 
@@ -703,14 +699,30 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
+  // Other wallets' address books offer this address; not every sender can pay Lightning,
+  // Silent Payments or MWEB, so those pages offer a plain SegWit address instead.
+  String get _addressBookActiveAddress {
+    if (addressPageType == LightningAddressType.p2l ||
+        addressPageType == SilentPaymentsAddresType.p2sp) {
+      return addressForBuy;
+    }
+    if (addressPageType == SegwitAddresType.mweb) {
+      final segwit = _addresses.firstWhereOrNull(
+        (addressRecord) =>
+            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh) &&
+            !addressRecord.isLegacyDerivation &&
+            !hiddenAddresses.contains(addressRecord.address),
+      );
+      return segwit?.address ?? address;
+    }
+    return address;
+  }
+
   @override
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      final activeAddress = addressPageType == LightningAddressType.p2l ||
-              addressPageType == SilentPaymentsAddresType.p2sp
-          ? addressForBuy
-          : address;
+      final activeAddress = _addressBookActiveAddress;
       addressesMap[activeAddress] = 'Active';
 
       allAddressesMap.clear();
@@ -723,7 +735,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addBitcoinAddressTypes(activeAddress);
           break;
         case WalletType.litecoin:
-          addLitecoinAddressTypes();
+          addLitecoinAddressTypes(activeAddress);
           break;
         case WalletType.bitcoinCash:
           addP2PKHAddressTypes();

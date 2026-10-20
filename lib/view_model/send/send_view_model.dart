@@ -472,10 +472,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   WalletType get walletType => wallet.type;
 
-  // Like scanning, paying needs the wallet's private keys.
-  bool get canPaySilentPayments =>
-      wallet.hasSilentPaymentsScanning && coinTypeToSpendFrom != UnspentCoinType.lightning;
-
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
   @computed
