@@ -130,7 +130,7 @@ class CakeFeaturesPage extends StatelessWidget {
           isLink: true,
           onTap: () => _launchUrl("btcmap.org/apps"),
           title: "BTC Map",
-          subTitle: "Find places to spend sats wherever you are",
+          subTitle: S.of(context).btcmap_subtitle,
           image: 'assets/images/btcmap.png',
         ),
         Observer(builder: (_) {
