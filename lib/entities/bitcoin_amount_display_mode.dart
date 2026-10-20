@@ -1,4 +1,5 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 
 class BitcoinAmountDisplayMode extends EnumerableItem<int> with Serializable<int> {
   const BitcoinAmountDisplayMode({required String title, required int raw})
@@ -22,7 +23,7 @@ class BitcoinAmountDisplayMode extends EnumerableItem<int> with Serializable<int
       case 2:
         return satoshi;
       default:
-        throw Exception('Unexpected token: $raw for BalanceDisplayMode deserialize');
+        throw DeserializeException('Unexpected token: $raw for BalanceDisplayMode deserialize');
     }
   }
 

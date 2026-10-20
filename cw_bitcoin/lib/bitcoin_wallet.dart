@@ -31,6 +31,7 @@ import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -160,9 +161,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        lightningWallet?.close();
         lightningWallet = null;
       }
     });
@@ -426,7 +429,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
 
   @override
-  bool get hasLightningSupport => lightningWallet?.sdk != null;
+  bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
@@ -663,7 +666,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -727,7 +730,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if (option == BitcoinReceivePageOption.lightning) {
       // Lightning is tied to the primary account only
-      return !isExtraAccount && hasLightningSupport;
+      return !isExtraAccount && hasLightningSupport && isLightningInitialized;
     }
 
     if (option == BitcoinReceivePageOption.silent_payments) {
