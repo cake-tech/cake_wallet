@@ -458,7 +458,12 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       // forever instead of ever discovering the real cap. 2000 blocks is
       // comfortably under the 25000-outpoint cap for typical density, so
       // the common case converges in one request instead of a dozen.
-      const _initialCountGuess = 2000;
+      //
+      // Dense stretches (e.g. around height 933k) reject even 1000 blocks
+      // and answer a cold 500-block request slowly, so start lower; a
+      // rejected request still halves from here (see the null-reply handling
+      // in _processEvent).
+      const _initialCountGuess = 250;
 
       int getCountToScanPerRequest(int syncHeight) {
         if (isSingleScan) {
@@ -708,10 +713,28 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       // generations are involved.
       var _processingChain = Future<void>.value();
 
+      // Requests that have delivered at least one real block. A request that
+      // gets only a null reply and never any data was rejected by the server
+      // (its error reply is swallowed by the RPC service layer, which stores
+      // the error privately and hands us `null` - so the "exceeds the
+      // N-outpoint cap" message never reaches onSubscribeError).
+      final requestsWithData = <ElectrumTweaksSubscribe>{};
+
+      // Requests whose completion has already triggered a resubscribe. The
+      // server ends one request with BOTH a {"message":"done"} push and an
+      // id-matched final result, and each of those used to resubscribe on
+      // its own: every chunk was requested twice (the first copy's reply
+      // discarded when its stream was replaced), doubling server work.
+      final requestsAlreadyResubscribed = <ElectrumTweaksSubscribe>{};
+
       // Shared by both the null-response and explicit-noData paths below:
       // move this worker on to the next unscanned height rather than
       // abandoning the rest of its assigned range.
       void resubscribeToNextHeight(ElectrumTweaksSubscribe req) {
+        if (!requestsAlreadyResubscribed.add(req)) {
+          return;
+        }
+
         if (isSingleScan) {
           log("ending: isSingleScan", LogLevel.info);
           endScanningSuccesfully();
@@ -797,6 +820,22 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
           // same worker had already killed its listen loop). Resubscribing
           // here exactly like the explicit noData branch below fixes that.
           if (_scanningStream != null) {
+            if (!isSingleScan && !requestsWithData.contains(req) && req.count > 1) {
+              // Stale null from a request already superseded by a smaller
+              // one - the cap has been shrunk below this request's count.
+              if (_countCap != null && req.count > _countCap!) {
+                return;
+              }
+
+              // No data and a null reply: treat as a rejection. Resubscribing
+              // at syncHeight + 1 with the same count (what the plain
+              // terminal-ack path does) re-sends the identical request and is
+              // rejected again forever; halve and retry the same height.
+              _countCap = req.count ~/ 2 < 1 ? 1 : req.count ~/ 2;
+              subscribeAndListen(req.height);
+
+              return;
+            }
             resubscribeToNextHeight(req);
           }
           return;
@@ -817,6 +856,8 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
           resubscribeToNextHeight(req);
           return;
         }
+
+        requestsWithData.add(req);
 
         if (response.tweaksV2Bytes != null) {
           final v2Bytes = response.tweaksV2Bytes!;
