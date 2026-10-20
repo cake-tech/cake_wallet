@@ -9,12 +9,17 @@
 src="res/pictures"
 dst="assets/new-ui"
 
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
 while read -r dir; do
     rel="${dir#"$src"}"
     outdir="$dst$rel"
+    indir="$(mktemp -d "$tmp/XXXXXX")"
 
     mkdir -p "$outdir"
-    dart run vector_graphics_compiler --input-dir "$dir" --out-dir "$outdir" >/dev/null &
+    find "$dir" -maxdepth 1 -type f -name '*.svg' -exec cp {} "$indir" ';'
+    dart run vector_graphics_compiler --input-dir "$indir" --out-dir "$outdir" >/dev/null &
 done < <(find "$src" -type d)
 
 wait

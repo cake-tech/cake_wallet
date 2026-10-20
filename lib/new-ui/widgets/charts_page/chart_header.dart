@@ -15,7 +15,7 @@ import "package:intl/intl.dart";
 
 class ChartHeader extends StatefulWidget {
   const ChartHeader({
-    super.key,
+    required this.bloc, super.key,
     required this.currency,
     required this.chartHeight,
     required this.chartPadding,
@@ -28,6 +28,7 @@ class ChartHeader extends StatefulWidget {
   final double chartPadding;
   final bool centered;
   final bool favorite;
+  final ChartsBloc bloc;
 
   @override
   State<ChartHeader> createState() => _ChartHeaderState();
@@ -39,6 +40,7 @@ class _ChartHeaderState extends State<ChartHeader> {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
+        bloc: widget.bloc,
         builder: (context, state) {
           if (state case final ChartsStateWithData s) {
             return Column(
@@ -61,7 +63,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                         ),
                       ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
                       ChartViewPriceHeader(
-                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
+                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
                         ticker: s.fiatTicker,
                         highlight: _viewedPrice != null,
                       ),
@@ -106,8 +108,15 @@ class _ChartHeaderState extends State<ChartHeader> {
                                     return;
                                   }
 
-                                  final newPrice =
-                                      response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
+                                  final spotIndex = response?.lineBarSpots?.firstOrNull?.spotIndex;
+                                  final newPrice = spotIndex == null
+                                      ? null
+                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote
+                                          .toStringWithPrecision(
+                                            fractionalDigits: 2,
+                                            trimZeros: false,
+                                            meaningfulDecimals: 2,
+                                          );
                                   final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
                                       response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,
@@ -149,7 +158,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                     ChartRangeSelector(
                       selectedRange: s.range,
                       onRangeSelected: (range) =>
-                          context.read<ChartsBloc>().add(RangeChanged(newRange: range)),
+                          widget.bloc.add(RangeChanged(newRange: range)),
                     ),
                   ],
                 ),

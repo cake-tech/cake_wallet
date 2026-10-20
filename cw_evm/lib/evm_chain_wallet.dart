@@ -8,6 +8,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -193,7 +194,7 @@ abstract class EVMChainWalletBase
   @action
   Future<void> selectChain(int chainId, {required Node node}) async {
     if (EvmChainRegistry().getChainConfig(chainId) == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
+      throw BadChainIdException('Chain config not found for chainId: $chainId');
     }
 
     if (selectedChainId == chainId) return;
@@ -323,6 +324,10 @@ abstract class EVMChainWalletBase
       isPotentialScam: token.isPotentialScam,
       walletName: walletInfo.name,
       chainId: selectedChainId,
+      groups: EVMChainDefaultTokens.getDefaultGroupsByAddress(
+        selectedChainId,
+        token.contractAddress,
+      ),
     );
   }
 
@@ -339,14 +344,16 @@ abstract class EVMChainWalletBase
     );
   }
 
-  String _getUSDCContractAddress() {
+  String? _getUSDCContractAddress() {
     return switch (selectedChainId) {
       1 => "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       137 => "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
       8453 => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       42161 => "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
       56 => "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
-      _ => throw Exception("Unsupported chain ID: $selectedChainId"),
+      // Robinhood Chain does not have USDC so using USDG in its place
+      4663 => "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
+      _ => null,
     };
   }
 
@@ -355,10 +362,13 @@ abstract class EVMChainWalletBase
     try {
       await _client.getBalance(_evmChainPrivateKey.address);
 
-      final usdcContractAddress = Erc20Token(
-          name: "USDC", symbol: "USDC", contractAddress: _getUSDCContractAddress(), decimal: 6);
+      final usdcAddress = _getUSDCContractAddress();
+      if (usdcAddress != null) {
+        final usdcContractAddress =
+            Erc20Token(name: "USDC", symbol: "USDC", contractAddress: usdcAddress, decimal: 6);
 
-      await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
+        await _client.fetchERC20Balances(_evmChainPrivateKey.address, usdcContractAddress);
+      }
 
       return true;
     } catch (e) {
@@ -544,7 +554,10 @@ abstract class EVMChainWalletBase
       final address = walletAddresses.address;
       if (address.isEmpty) return MoralisDiscoveryResult.empty;
 
-      final chainName = EVMChainUtils.getDefaultTokenSymbol(selectedChainId).toLowerCase();
+      final chainName = EVMChainUtils.getMoralisChainName(selectedChainId);
+      if (chainName == null) {
+        return MoralisDiscoveryResult.empty;
+      }
 
       final walletTokens = await _client.fetchWalletTokensFromMoralis(address, chainName);
       if (walletTokens.isEmpty) return MoralisDiscoveryResult.empty;
@@ -792,7 +805,7 @@ abstract class EVMChainWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
+        throw ConnectionException("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
       _client.setListeners(_evmChainPrivateKey.address, _onNewTransaction);
@@ -851,8 +864,8 @@ abstract class EVMChainWalletBase
             currency.title == _credentials.currency.title &&
             (currency.tag == _credentials.currency.tag ||
                 currency.tag == _credentials.currency.title),
-        orElse: () => throw Exception(
-            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+        orElse: () => throw BadCurrencyException(
+            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.', _credentials.currency));
 
     final currencyBalance = balance[transactionCurrency]!;
     final toAddress = _credentials.outputs.first.isParsedAddress
@@ -988,6 +1001,7 @@ abstract class EVMChainWalletBase
       56 => CryptoCurrency.bnb,
       8453 => CryptoCurrency.baseEth,
       42161 => CryptoCurrency.arbEth,
+      4663 => CryptoCurrency.robEth,
       _ => CryptoCurrency.eth,
     };
 
@@ -1015,7 +1029,7 @@ abstract class EVMChainWalletBase
     }
 
     if (requiredNative > nativeBal) {
-      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+      throw TransactionGenerationException('Not enough ${nativeCurrency.title} to cover value and fees.');
     }
 
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
@@ -1029,14 +1043,14 @@ abstract class EVMChainWalletBase
           .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
 
       if (matchingTokens.isEmpty) {
-        throw Exception('Insufficient token balance (Token not found in wallet).');
+        throw TransactionGenerationException('Insufficient token balance (Token not found in wallet).');
       }
 
       final tokenKey = matchingTokens.first;
       final tokenBalance = balance[tokenKey]?.available ?? Money.zero(tokenKey);
 
       if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
-        throw Exception('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
+        throw TransactionGenerationException('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
       }
     }
 
@@ -1061,7 +1075,7 @@ abstract class EVMChainWalletBase
         useBlinkProtection: useBlinkProtection,
       );
     } catch (_) {
-      throw Exception('Failed to create the transaction.');
+      throw TransactionGenerationException('Failed to create the transaction.');
     }
   }
 
@@ -1403,11 +1417,18 @@ abstract class EVMChainWalletBase
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
-      try {
-        iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-      } catch (_) {}
+      iconPath = EVMChainDefaultTokens.getDefaultIconPathByAddress(
+        selectedChainId,
+        token.contractAddress,
+      );
+
+      if (iconPath == null || iconPath.isEmpty) {
+        try {
+          iconPath = CryptoCurrency.all
+              .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+              .iconPath;
+        } catch (_) {}
+      }
     } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }
@@ -1448,7 +1469,7 @@ abstract class EVMChainWalletBase
     await transactionHistory.save();
   }
 
-  Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
+  Future<Erc20Token?> getErc20Token(String contractAddress, String? chainName) async {
     try {
       return await _client.getErc20Token(contractAddress, chainName);
     } catch (e) {
@@ -1508,7 +1529,7 @@ abstract class EVMChainWalletBase
     // Get chainId from wallet type, use saved chainId if available (for chain switching)
     final defaultChainId = registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
     if (defaultChainId == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
 
     // Use saved chainId if available, otherwise default to wallet type's chainId
@@ -1516,7 +1537,7 @@ abstract class EVMChainWalletBase
 
     final chainConfig = registry.getChainConfig(chainId);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
+      throw BadChainIdException('Chain config not found for chainId: $chainId');
     }
 
     final client = EVMChainClientFactory.createClient(chainId);

@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   compare-overrides:
-    runs-on: ubuntu-24.04
+    runs-on: puzl-ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

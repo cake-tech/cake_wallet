@@ -7,6 +7,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -83,6 +84,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.createEVMNewWalletCredentials(
           name: name,
           password: walletPassword,
@@ -157,7 +159,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             mnemonic: newWalletArguments!.mnemonic);
       case WalletType.none:
       case WalletType.haven:
-        throw Exception('Unexpected type: ${type.toString()}');
+        throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
     }
   }
 

@@ -256,7 +256,10 @@ class CWBitcoin extends Bitcoin {
   List<BitcoinUnspent> getUnspents(Object wallet,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
+
+    final coins = bitcoinWallet.unspentCoinsForCurrentAccount;
+
+    return coins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
@@ -602,7 +605,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && (wallet as BitcoinWallet).isPayjoinAvailable;
+      (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
@@ -894,29 +897,62 @@ class CWBitcoin extends Bitcoin {
   @override
   String? getBreezSdkError(Object exception) {
     if (exception is SdkError_SparkError) {
-      return (exception as SdkError_SparkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidUuid) {
-      return (exception as SdkError_InvalidUuid).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidInput) {
-      return (exception as SdkError_InvalidInput).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_NetworkError) {
-      return (exception as SdkError_NetworkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_StorageError) {
-      return (exception as SdkError_StorageError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_ChainServiceError) {
-      return (exception as SdkError_ChainServiceError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_LnurlError) {
-      return (exception as SdkError_LnurlError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_Generic) {
-      return (exception as SdkError_Generic).field0.toString();
+      return exception.field0.toString();
     }
     return null;
+  }
+
+  @override
+  Money balanceForAccount(Object wallet, int accountIndex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final balance = bitcoinWallet.balanceForAccount(accountIndex);
+    return balance.confirmed + balance.unconfirmed;
+  }
+
+  @override
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
+  }
+
+  @override
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
+      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
+
+  @override
+  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.setCurrentAccount(accountIndex);
+  }
+
+  @override
+  Future<Account> getCurrentAccount(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final acc = await electrumWallet.loadCurrentAccount();
+    return Account(
+        id: acc.accountIndex,
+        label: acc.label,
+        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
   }
 }

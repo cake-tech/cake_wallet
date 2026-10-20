@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -54,7 +55,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
-      throw Exception('Unexpected type ${walletType.toString()}');
+      throw BadWalletTypeException('Unexpected type ${walletType.toString()}', walletType);
     }
 
     return priority;
@@ -104,6 +105,7 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.solana,
         WalletType.tron,
         WalletType.arbitrum,
+        WalletType.robinhood,
       ].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
@@ -160,6 +162,12 @@ abstract class OtherSettingsViewModelBase with Store {
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
+
+  @computed
+  bool get showCiBuildOverlay => _settingsStore.showCiBuildOverlay;
+
+  @action
+  void setShowCiBuildOverlay(bool value) => _settingsStore.showCiBuildOverlay = value;
 
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);

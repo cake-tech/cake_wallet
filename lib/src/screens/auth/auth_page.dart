@@ -1,6 +1,10 @@
+import "dart:async";
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/new-ui/widgets/modern_button.dart';
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import 'package:cake_wallet/utils/show_bar.dart';
+import "package:cake_wallet/utils/show_pop_up.dart";
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,11 +24,19 @@ abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
 }
 
 class AuthPage extends StatefulWidget {
-  AuthPage(this.authViewModel, {required this.onAuthenticationFinished, this.closable = true});
+  AuthPage(
+    this.authViewModel, {
+    required this.onAuthenticationFinished,
+    this.closable = true,
+    this.checkKeychainRestored = false,
+  });
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
   final bool closable;
+
+  /// Only the cold-start login page sets this; in-app PIN prompts can't reach that state.
+  final bool checkKeychainRestored;
 
   @override
   AuthPageState createState() => AuthPagePinCodeStateImpl();
@@ -78,15 +90,39 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
       }
     });
 
-    if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Checked before the PIN pad or biometrics are used: neither can work when this device has
+      // none of the Keychain secrets (e.g. it was set up from an iCloud backup).
+      if (widget.checkKeychainRestored && await widget.authViewModel.isKeychainNotRestored()) {
+        if (mounted) {
+          await _showKeychainNotRestoredAlert();
+        }
+        return;
+      }
+
+      if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
         await Future<void>.delayed(Duration(milliseconds: 100));
         await widget.authViewModel.biometricAuth();
-      });
-    }
+      }
+    });
 
     super.initState();
   }
+
+  Future<void> _showKeychainNotRestoredAlert() => showPopUp<void>(
+        context: context,
+        builder: (dialogContext) => AlertWithTwoActions(
+          alertTitle: S.of(dialogContext).keychain_not_restored_title,
+          alertContent: S.of(dialogContext).keychain_not_restored_content,
+          leftButtonText: S.of(dialogContext).cancel,
+          rightButtonText: S.of(dialogContext).restore_recover,
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+          actionRightButton: () {
+            Navigator.of(dialogContext).pop();
+            unawaited(widget.authViewModel.resetAfterKeychainLoss());
+          },
+        ),
+      );
 
   @override
   void dispose() {
@@ -116,9 +152,9 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
     /// not the best scenario, but WidgetsBinding is not behaving correctly on Android
     await Future<void>.delayed(Duration(milliseconds: 50));
-    await _authBar?.dismiss();
+    await _removeBar(_authBar);
     await Future<void>.delayed(Duration(milliseconds: 50));
-    await _progressBar?.dismiss();
+    await _removeBar(_progressBar);
     await Future<void>.delayed(Duration(milliseconds: 50));
     if (route != null) {
       Navigator.of(_key.currentContext!).pushReplacementNamed(route, arguments: arguments);
@@ -151,6 +187,21 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
                 widget.authViewModel.pinLength, false, _pinCodeKey)),
       ),
     );
+  }
+
+  Future<void> _removeBar(Flushbar<void>? bar) async {
+    final barRoute = bar?.flushbarRoute;
+
+    if (bar == null || barRoute == null || !barRoute.isActive) {
+      return;
+    }
+
+    if (bar.isShowing()) {
+      await bar.dismiss();
+      return;
+    }
+
+    barRoute.navigator?.removeRoute(barRoute);
   }
 
   void dismissFlushBar(Flushbar<dynamic>? bar) {
