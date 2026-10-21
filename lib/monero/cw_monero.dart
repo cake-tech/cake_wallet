@@ -100,22 +100,6 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
             received: sub.balance ?? 'unknown'))
         .toList();
   }
-
-  @override
-  Future<void> addSubaddress(Object wallet,
-      {required int accountIndex, required String label}) async {
-    final moneroWallet = wallet as MoneroWallet;
-    return await moneroWallet.walletAddresses.subaddressList
-        .addSubaddress(accountIndex: accountIndex, label: label);
-  }
-
-  @override
-  Future<void> setLabelSubaddress(Object wallet,
-      {required int accountIndex, required int addressIndex, required String label}) async {
-    final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.subaddressList
-        .setLabelSubaddress(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
-  }
 }
 
 class CWMoneroWalletDetails extends MoneroWalletDetails {

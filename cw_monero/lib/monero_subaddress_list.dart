@@ -2,6 +2,7 @@ import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
+import "package:cw_monero/exceptions/monero_exceptions.dart";
 
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -66,9 +67,22 @@ abstract class MoneroSubaddressListBase with Store {
     }).toList();
   }
 
-  Future<void> addSubaddress({required int accountIndex, required String label}) async {
+  Future<Subaddress> addSubaddress({required int accountIndex, required String label}) async {
     await subaddress_list.addSubaddress(accountIndex: accountIndex, label: label);
     await update(accountIndex: accountIndex);
+
+    final index = subaddress_list.numSubaddresses(accountIndex) - 1;
+    if (index < 1) {
+      throw MoneroWalletException("monero added no subaddress to account $accountIndex");
+    }
+
+    final added = subaddress_list.Subaddress(
+      accountIndex: accountIndex,
+      addressIndex: index,
+      received: 0,
+      txCount: 0,
+    );
+    return Subaddress(id: index, address: added.address, label: added.label);
   }
 
   Future<void> setLabelSubaddress(

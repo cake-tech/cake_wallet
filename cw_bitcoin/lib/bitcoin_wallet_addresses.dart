@@ -5,6 +5,7 @@ import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/utils.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -116,16 +117,40 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
-  PaymentURI getPaymentUri(String amount) {
-    if (addressPageType is LightningAddressType && lightningWallet != null) {
+  ReceivePageOption get defaultAddressType => BitcoinReceivePageOption.p2wpkh;
+
+  @override
+  PaymentURI getPaymentUri(String amount) => _paymentUri(addressPageType, address, amount);
+
+  @override
+  PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) =>
+      _paymentUri(typeFor(type), addressFor(type), amount);
+
+  PaymentURI _paymentUri(BitcoinAddressType type, String address, String amount) {
+    if (type is LightningAddressType && lightningWallet != null) {
       final lnUrl = getLnurlOfLightningAddress(address);
       return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
     }
-    return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? '');
+    return BitcoinURI(address: address, amount: amount, pjUri: payjoinEndpoint ?? "");
   }
 
-  Future<PaymentURI> getPaymentRequestUri(String amount) async {
-    if (addressPageType is LightningAddressType && lightningWallet != null) {
+  Future<PaymentURI> getPaymentRequestUri(String amount) =>
+      _paymentRequestUri(addressPageType, address, amount);
+
+  @override
+  Future<PaymentURI> paymentRequestUriFor(
+    ReceivePageOption type,
+    String amount, {
+    CryptoCurrency? token,
+  }) =>
+      _paymentRequestUri(typeFor(type), addressFor(type), amount);
+
+  Future<PaymentURI> _paymentRequestUri(
+    BitcoinAddressType type,
+    String address,
+    String amount,
+  ) async {
+    if (type is LightningAddressType && lightningWallet != null) {
       final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;
       final lnUrl = getLnurlOfLightningAddress(address);
       if (amountSats == null) {
@@ -135,7 +160,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       return LightningPaymentRequest(
           address: address, lnURL: lnUrl, amount: amount, bolt11Invoice: invoice);
     }
-    return getPaymentUri(amount);
+    return _paymentUri(type, address, amount);
   }
 
   @override

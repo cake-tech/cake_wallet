@@ -312,4 +312,95 @@ void main() {
       });
     });
   });
+
+  group("tryFromDouble", () {
+    test("stores the rate directly when it is above the crossover", () {
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 60000,
+      );
+
+      expect(rate!.base, CryptoCurrency.btc);
+      expect(rate.quote, Money.parse("60000", EUR));
+      expect(rate.convert(Money.parse("1", CryptoCurrency.btc)), Money.parse("60000", EUR));
+    });
+
+    test("stores a small rate flipped to keep its precision", () {
+      // 0.00002 EUR would round to 0.00 in a 2-decimal quote, so the pair is
+      // stored as 50000 per EUR instead.
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 0.00002,
+      );
+
+      expect(rate!.base, EUR);
+      expect(rate.quote, Money.parse("50000", CryptoCurrency.btc));
+      expect(rate.convert(Money.parse("100000", CryptoCurrency.btc)), Money.parse("2", EUR));
+    });
+
+    test("rate exactly at the crossover stores directly", () {
+      // The crossover for an 8-decimal base and a 2-decimal quote is sqrt(10^6).
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 1000,
+      );
+
+      expect(rate!.base, CryptoCurrency.btc);
+    });
+
+    test("rate just below the crossover stores flipped", () {
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 999,
+      );
+
+      expect(rate!.base, EUR);
+    });
+
+    test("same-decimal pair flips below 1", () {
+      final direct = ExchangeRate.tryFromDouble(base: EUR, quoteCurrency: USD, rate: 1.08);
+      final flipped = ExchangeRate.tryFromDouble(base: EUR, quoteCurrency: USD, rate: 0.93);
+
+      expect(direct!.base, EUR);
+      expect(flipped!.base, USD);
+    });
+
+    test("returns null for zero, negative and non-finite rates", () {
+      const base = CryptoCurrency.btc;
+      expect(ExchangeRate.tryFromDouble(base: base, quoteCurrency: EUR, rate: 0.0), isNull);
+      expect(ExchangeRate.tryFromDouble(base: base, quoteCurrency: EUR, rate: -1.5), isNull);
+      expect(ExchangeRate.tryFromDouble(base: base, quoteCurrency: EUR, rate: double.nan), isNull);
+      expect(
+        ExchangeRate.tryFromDouble(base: base, quoteCurrency: EUR, rate: double.infinity),
+        isNull,
+      );
+    });
+
+    test("returns null when the flipped rate overflows to infinity", () {
+      // 1/5e-324 is infinite, so tryToMoney returns null instead of throwing.
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 5e-324,
+      );
+
+      expect(rate, isNull);
+    });
+
+    test("returns null for rates at or above 1e21", () {
+      // toStringAsFixed switches to exponential notation there, which
+      // Money cannot parse, so tryToMoney returns null.
+      final rate = ExchangeRate.tryFromDouble(
+        base: CryptoCurrency.btc,
+        quoteCurrency: EUR,
+        rate: 1e22,
+      );
+
+      expect(rate, isNull);
+    });
+  });
 }

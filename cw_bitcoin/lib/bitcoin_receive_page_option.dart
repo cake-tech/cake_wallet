@@ -20,7 +20,8 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       description: "MWEB",
       iconPath: "assets/new-ui/address-type-picker-icons/mweb.svg",
       isCommon: true,
-      addAddressWord: true);
+      addAddressWord: true,
+      canRotateAddress: false);
 
   static const silent_payments = BitcoinReceivePageOption._('Silent Payments',
       description: "Privacy-preserving static address",
@@ -32,13 +33,19 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       isCommon: true);
 
   const BitcoinReceivePageOption._(this.value,
-      {this.iconPath, this.description, this.isCommon = false, this.addAddressWord = false});
+      {this.iconPath,
+      this.description,
+      this.isCommon = false,
+      this.addAddressWord = false,
+      this.canRotateAddress = true});
 
   final String value;
   final String? iconPath;
   final String? description;
   final bool isCommon;
   final bool addAddressWord;
+  @override
+  final bool canRotateAddress;
 
   String toString() {
     return value;
